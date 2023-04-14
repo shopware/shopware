@@ -16,7 +16,7 @@ class ImportExportExceptionRecordTest extends TestCase
 {
     private ImportExportExceptionImportRecordEvent $exceptionRecord;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $exception = $this->createMock(\Throwable::class);
         $context = Context::createDefaultContext();

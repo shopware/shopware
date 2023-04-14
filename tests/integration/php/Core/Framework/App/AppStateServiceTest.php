@@ -41,7 +41,7 @@ class AppStateServiceTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->appStateService = $this->getContainer()->get(AppStateService::class);

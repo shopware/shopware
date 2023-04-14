@@ -24,7 +24,7 @@ class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest e
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();

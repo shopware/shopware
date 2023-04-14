@@ -48,7 +48,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     private DatabaseConfigurationController $controller;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->twig = $this->createMock(Environment::class);
         $this->translator = $this->createMock(TranslatorInterface::class);

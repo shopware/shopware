@@ -22,7 +22,7 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
 
     private FlysystemLastModifiedVersionStrategy $strategy;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->fs = new Filesystem(new MemoryFilesystemAdapter());
         $this->strategy = new FlysystemLastModifiedVersionStrategy('test', $this->fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));

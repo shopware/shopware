@@ -26,7 +26,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
     private EntityRepository $scheduledTaskRepo;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');

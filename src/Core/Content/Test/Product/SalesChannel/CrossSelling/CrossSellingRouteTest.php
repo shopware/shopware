@@ -45,7 +45,7 @@ class CrossSellingRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelContext = Generator::createSalesChannelContext(
             null,

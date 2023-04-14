@@ -29,7 +29,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Router|MockObject $router */
         $router = $this->createMock(Router::class);

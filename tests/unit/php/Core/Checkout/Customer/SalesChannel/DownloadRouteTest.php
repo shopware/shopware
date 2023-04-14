@@ -34,7 +34,7 @@ class DownloadRouteTest extends TestCase
 
     private DownloadRoute $downloadRoute;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->downloadRepository = $this->createMock(EntityRepository::class);
         $this->downloadResponseGenerator = $this->createMock(DownloadResponseGenerator::class);

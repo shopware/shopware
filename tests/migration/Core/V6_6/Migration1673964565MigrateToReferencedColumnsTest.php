@@ -19,7 +19,7 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
 
     private Migration1673964565MigrateToReferencedColumns $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         Feature::skipTestIfInActive('v6.6.0.0', $this);
 

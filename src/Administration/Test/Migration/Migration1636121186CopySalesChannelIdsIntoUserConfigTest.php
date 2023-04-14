@@ -34,7 +34,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 
     private array $languages;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()
             ->get(Connection::class);

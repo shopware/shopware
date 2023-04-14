@@ -26,7 +26,7 @@ class ModuleLoaderTest extends TestCase
 
     private string $defaultSecret = 's3cr3t';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->moduleLoader = $this->getContainer()->get(ModuleLoader::class);

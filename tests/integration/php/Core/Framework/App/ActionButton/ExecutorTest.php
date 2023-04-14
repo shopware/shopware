@@ -36,7 +36,7 @@ class ExecutorTest extends TestCase
 
     private string $schemaLocation;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->executor = $this->getContainer()->get(Executor::class);
         $this->schemaLocation = $this->getContainer()->getParameter('kernel.project_dir') . self::SCHEMA_LOCATION;

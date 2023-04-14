@@ -73,7 +73,7 @@ class CartRestorerTest extends TestCase
 
     private string $customerId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->cartService = $this->getContainer()->get(CartService::class);

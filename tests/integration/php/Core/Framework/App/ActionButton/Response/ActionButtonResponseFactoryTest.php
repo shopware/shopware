@@ -25,7 +25,7 @@ class ActionButtonResponseFactoryTest extends TestCase
 
     private AppAction $action;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->actionButtonResponseFactory = $this->getContainer()->get(ActionButtonResponseFactory::class);
         $this->action = new AppAction(

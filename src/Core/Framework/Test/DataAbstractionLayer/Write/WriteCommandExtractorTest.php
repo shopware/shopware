@@ -23,7 +23,7 @@ class WriteCommandExtractorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->stopTransactionAfter();
         $connection = $this->getContainer()->get(Connection::class);
@@ -41,7 +41,7 @@ class WriteCommandExtractorTest extends TestCase
         $definitions->register(new DefaultsChildTranslationDefinition());
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->stopTransactionAfter();
         $connection = $this->getContainer()->get(Connection::class);

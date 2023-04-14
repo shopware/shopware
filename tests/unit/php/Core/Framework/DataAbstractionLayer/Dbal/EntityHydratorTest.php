@@ -46,7 +46,7 @@ class EntityHydratorTest extends TestCase
 
     private StaticDefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $container = new ContainerBuilder();
         $this->hydrator = new EntityHydrator($container);

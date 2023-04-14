@@ -27,7 +27,7 @@ class PromotionAdminSearchIndexerTest extends TestCase
 {
     private PromotionAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new PromotionAdminSearchIndexer(
             $this->createMock(Connection::class),

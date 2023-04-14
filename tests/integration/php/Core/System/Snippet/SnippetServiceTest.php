@@ -26,7 +26,7 @@ class SnippetServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         MockSnippetFile::cleanup();
     }

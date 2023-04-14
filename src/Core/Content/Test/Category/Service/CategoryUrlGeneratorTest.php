@@ -24,7 +24,7 @@ class CategoryUrlGeneratorTest extends TestCase
 
     private SalesChannelEntity $salesChannel;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->replacer = $this->getMockBuilder(SeoUrlPlaceholderHandlerInterface::class)->getMock();
         $this->urlGenerator = new CategoryUrlGenerator($this->replacer);

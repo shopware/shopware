@@ -25,7 +25,7 @@ class ChangeCustomerGroupActionTest extends TestCase
 
     private MockObject&StorableFlow $flow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new ChangeCustomerGroupAction($this->repository);

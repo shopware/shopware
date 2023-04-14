@@ -23,7 +23,7 @@ class ProductListingSortingTest extends TestCase
      */
     private $productSortingRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->productSortingRepository = $this->getContainer()->get('product_sorting.repository');

@@ -27,7 +27,7 @@ class CountrySerializerTest extends TestCase
 
     private string $countryId = '67d89afb684e44eeacd71ba1f59a5ae1';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->countryRepository = $this->getContainer()->get('country.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);

@@ -66,7 +66,7 @@ class ThemeCompilerTest extends TestCase
 
     private EventDispatcherInterface $eventDispatcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $themeFileResolver = $this->getContainer()->get(ThemeFileResolver::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');

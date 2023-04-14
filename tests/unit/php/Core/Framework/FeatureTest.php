@@ -28,14 +28,14 @@ class FeatureTest extends TestCase
      */
     private array $featureConfigBackup;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
         $this->featureConfigBackup = Feature::getRegisteredFeatures();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $_SERVER = $this->serverVarsBackup;
         $_ENV = $this->envVarsBackup;

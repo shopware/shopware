@@ -26,7 +26,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     private ShippingMethodDefinition $shippingMethodDefinition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 

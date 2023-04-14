@@ -14,7 +14,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
  */
 class EnvConfigWriterTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unlink(__DIR__ . '/_fixtures/.env');
         unlink(__DIR__ . '/_fixtures/.env.local');

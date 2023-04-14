@@ -24,7 +24,7 @@ class NotificationResponseFactoryTest extends TestCase
 
     private AppAction $action;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(NotificationResponseFactory::class);
         $this->action = new AppAction(

@@ -29,7 +29,7 @@ class AddressValidatorTest extends TestCase
 
     private AddressValidator $validator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->validator = new AddressValidator($this->repository);

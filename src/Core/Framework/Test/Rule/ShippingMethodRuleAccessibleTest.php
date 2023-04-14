@@ -29,7 +29,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
 
     private string $ruleId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
 

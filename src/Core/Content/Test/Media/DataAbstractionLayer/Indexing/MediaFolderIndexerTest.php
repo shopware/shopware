@@ -21,7 +21,7 @@ class MediaFolderIndexerTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
         $this->context = Context::createDefaultContext();

@@ -26,7 +26,7 @@ class AdminSearchControllerTest extends TestCase
 {
     private AdminSearcher $searcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searcher = $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock();
 

@@ -25,7 +25,7 @@ class UserValidationServiceTest extends TestCase
 
     private UserValidationService $userValidationService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->userRepository = $this->getContainer()->get('user.repository');
         $this->localeRepository = $this->getContainer()->get('locale.repository');

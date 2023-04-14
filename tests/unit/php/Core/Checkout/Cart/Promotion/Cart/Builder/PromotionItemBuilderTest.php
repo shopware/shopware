@@ -37,7 +37,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     private SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->promotion = new PromotionEntity();
         $this->promotion->setId('PR-1');

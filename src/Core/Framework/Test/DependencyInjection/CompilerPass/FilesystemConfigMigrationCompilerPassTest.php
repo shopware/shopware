@@ -14,7 +14,7 @@ class FilesystemConfigMigrationCompilerPassTest extends TestCase
 {
     private ContainerBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->builder = new ContainerBuilder();
         $this->builder->addCompilerPass(new FilesystemConfigMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);

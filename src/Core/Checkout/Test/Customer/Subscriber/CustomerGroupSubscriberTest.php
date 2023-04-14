@@ -35,7 +35,7 @@ class CustomerGroupSubscriberTest extends TestCase
      */
     private $seoRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
         $this->seoRepository = $this->getContainer()->get('seo_url.repository');

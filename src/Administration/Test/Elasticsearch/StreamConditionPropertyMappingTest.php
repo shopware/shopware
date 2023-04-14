@@ -22,7 +22,7 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     private ElasticsearchProductDefinition $elasticDefinition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productDefinition = $this->getContainer()->get(SalesChannelProductDefinition::class);
         $this->elasticDefinition = $this->getContainer()->get(ElasticsearchProductDefinition::class);

@@ -22,7 +22,7 @@ class ConfirmUrlStorerTest extends TestCase
 {
     private ConfirmUrlStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storer = new ConfirmUrlStorer();
     }

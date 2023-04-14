@@ -30,7 +30,7 @@ class SitemapGenerateCommandTest extends TestCase
 
     private SitemapGenerateCommand $command;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->exporter = $this->createMock(SitemapExporter::class);
 

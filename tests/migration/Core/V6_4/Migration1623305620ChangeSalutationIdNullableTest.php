@@ -20,7 +20,7 @@ class Migration1623305620ChangeSalutationIdNullableTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setup();
 

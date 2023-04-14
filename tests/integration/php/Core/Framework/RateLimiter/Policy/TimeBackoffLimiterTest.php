@@ -36,7 +36,7 @@ class TimeBackoffLimiterTest extends TestCase
 
     private string $id;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->config = [
             'enabled' => true,

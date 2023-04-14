@@ -44,7 +44,7 @@ class CustomerValueResolverTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->repository = $this->getContainer()->get('currency.repository');

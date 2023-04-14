@@ -61,7 +61,7 @@ EOF;
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_lock`');

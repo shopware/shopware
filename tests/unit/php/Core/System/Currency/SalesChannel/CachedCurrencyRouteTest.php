@@ -50,7 +50,7 @@ class CachedCurrencyRouteTest extends TestCase
 
     private CurrencyRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractCurrencyRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

@@ -26,7 +26,7 @@ class TaskRegistryTest extends TestCase
 
     private TaskRegistry $registry;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
 

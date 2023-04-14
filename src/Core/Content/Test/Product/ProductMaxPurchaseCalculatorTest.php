@@ -15,7 +15,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
 {
     private ProductMaxPurchaseCalculator $service;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

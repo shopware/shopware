@@ -20,16 +20,8 @@ class ClassPackageRector extends AbstractRector
  */
 PHP;
 
-    /**
-     * @readonly
-     *
-     * @var PhpAttributeGroupFactory
-     */
-    private $phpAttributeGroupFactory;
-
-    public function __construct(PhpAttributeGroupFactory $phpAttributeGroupFactory)
+    public function __construct(private readonly PhpAttributeGroupFactory $phpAttributeGroupFactory)
     {
-        $this->phpAttributeGroupFactory = $phpAttributeGroupFactory;
     }
 
     public function getNodeTypes(): array

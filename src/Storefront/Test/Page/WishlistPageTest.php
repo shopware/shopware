@@ -23,7 +23,7 @@ class WishlistPageTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }

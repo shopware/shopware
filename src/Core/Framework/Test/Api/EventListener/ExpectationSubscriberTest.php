@@ -20,7 +20,7 @@ class ExpectationSubscriberTest extends TestCase
 {
     private ExpectationSubscriber $expectationSubscriber;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->expectationSubscriber = new ExpectationSubscriber('6.3.0.0', []);
         InstalledVersions::reload([

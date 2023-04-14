@@ -52,7 +52,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($this->token, TestDefaults::SALES_CHANNEL);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->restorePrices($this->connection);
         $this->deletePromotions();

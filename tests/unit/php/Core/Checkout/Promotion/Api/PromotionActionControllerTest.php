@@ -19,7 +19,7 @@ class PromotionActionControllerTest extends TestCase
 {
     private PromotionActionController $promotionActionController;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $packager = $this->createMock(LineItemGroupCountPackager::class);
         $packager->method('getKey')->willReturn('test-packager');

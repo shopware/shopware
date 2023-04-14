@@ -18,7 +18,7 @@ class Migration1673946817FixMediaFolderAssociationFieldsTest extends TestCase
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
     }

@@ -34,7 +34,7 @@ class GrantDownloadAccessActionTest extends TestCase
      */
     private array $updatePayload = [];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $orderLineItemDownloadRepository = $this->createMock(EntityRepository::class);
         $orderLineItemDownloadRepository->method('update')->willReturnCallback(

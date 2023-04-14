@@ -39,7 +39,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     private string $template2Id;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->templateRepository = $this->getContainer()->get('app_template.repository');
         $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);

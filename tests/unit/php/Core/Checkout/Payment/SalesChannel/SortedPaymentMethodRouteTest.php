@@ -45,7 +45,7 @@ class SortedPaymentMethodRouteTest extends TestCase
 
     private PaymentMethodRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractPaymentMethodRoute::class);
         $this->executor = $this->createMock(ScriptExecutor::class);

@@ -20,7 +20,7 @@ class Migration1625465756DefaultSalutationTest extends TestCase
 
     private const DEFAULT_SALUTATION_ID = 'ed643807c9f84cc8b50132ea3ccb1c3b';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

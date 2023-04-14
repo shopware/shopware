@@ -43,7 +43,7 @@ class FileFetcherTest extends TestCase
         \copy(self::TEST_IMAGE, $projectDir . '/public/media/shopware-logo.png');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $projectDir = (new TestBootstrapper())->getProjectDir();
         \unlink($projectDir . '/public/media/shopware-logo.png');

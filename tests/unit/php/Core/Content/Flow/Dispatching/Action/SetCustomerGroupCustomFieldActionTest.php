@@ -32,7 +32,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
     private MockObject&StorableFlow $flow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->repository = $this->createMock(EntityRepository::class);

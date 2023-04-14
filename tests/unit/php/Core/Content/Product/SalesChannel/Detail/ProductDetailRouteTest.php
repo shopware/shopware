@@ -57,7 +57,7 @@ class ProductDetailRouteTest extends TestCase
 
     private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->context = $this->createMock(SalesChannelContext::class);

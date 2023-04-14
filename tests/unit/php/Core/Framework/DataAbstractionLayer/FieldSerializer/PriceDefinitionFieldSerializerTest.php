@@ -32,7 +32,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
     private PriceDefinitionFieldSerializer $fieldSerializer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $this->ruleConditionRegistry = $this->createMock(RuleConditionRegistry::class);

@@ -29,7 +29,7 @@ class PaymentMethodRepositoryTest extends TestCase
 
     private string $paymentMethodId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->paymentRepository = $this->getContainer()->get('payment_method.repository');
         $this->paymentMethodId = Uuid::randomHex();

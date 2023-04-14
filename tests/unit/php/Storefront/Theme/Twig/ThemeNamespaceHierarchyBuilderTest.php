@@ -24,7 +24,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 {
     private ThemeNamespaceHierarchyBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $themeLoader = $this->createMock(SalesChannelThemeLoader::class);
         $this->builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $themeLoader);

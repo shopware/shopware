@@ -27,7 +27,7 @@ class MailErrorEventTest extends TestCase
 
         $stored = $storer->store($event, []);
 
-        $flow = new StorableFlow('foo', \Shopware\Core\Framework\Context::createDefaultContext(), $stored);
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), $stored);
 
         $storer->restore($flow);
 

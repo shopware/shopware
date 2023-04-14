@@ -25,7 +25,7 @@ class OpenApi3GeneratorTest extends TestCase
 
     private StaticDefinitionInstanceRegistry $definitionRegistry;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->generator = new OpenApi3Generator(
             new OpenApiSchemaBuilder('0.1.0'),

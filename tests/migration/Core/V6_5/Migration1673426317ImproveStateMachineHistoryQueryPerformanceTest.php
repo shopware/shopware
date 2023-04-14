@@ -23,7 +23,7 @@ class Migration1673426317ImproveStateMachineHistoryQueryPerformanceTest extends 
 
     private IdsCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->migration = new Migration1673426317ImproveStateMachineHistoryQueryPerformance();
         $this->connection = KernelLifecycleManager::getConnection();

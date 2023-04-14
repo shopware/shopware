@@ -22,7 +22,7 @@ class Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest extends 
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();

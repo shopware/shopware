@@ -41,7 +41,7 @@ class WishlistControllerTest extends TestCase
 
     private string $customerId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->customerId = Uuid::randomHex();

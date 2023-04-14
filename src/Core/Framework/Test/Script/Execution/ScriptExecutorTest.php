@@ -26,7 +26,7 @@ class ScriptExecutorTest extends TestCase
 
     private ScriptExecutor $executor;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->executor = $this->getContainer()->get(ScriptExecutor::class);
     }

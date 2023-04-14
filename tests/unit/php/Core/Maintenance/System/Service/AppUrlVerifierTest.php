@@ -24,7 +24,7 @@ class AppUrlVerifierTest extends TestCase
 
     private Connection&MockObject $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->guzzleMock = $this->createMock(Client::class);
         $this->connection = $this->createMock(Connection::class);

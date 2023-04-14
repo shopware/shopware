@@ -24,7 +24,7 @@ class InstallAppCommandTest extends TestCase
 
     private EntityRepository $appRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
     }

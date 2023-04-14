@@ -39,7 +39,7 @@ class CountryStateControllerTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
 

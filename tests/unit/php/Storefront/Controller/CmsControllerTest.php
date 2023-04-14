@@ -45,7 +45,7 @@ class CmsControllerTest extends TestCase
 
     private CmsControllerTestClass $controller;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $this->cmsRouteMock = $this->createMock(CmsRoute::class);

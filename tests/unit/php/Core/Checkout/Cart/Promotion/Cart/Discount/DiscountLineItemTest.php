@@ -16,7 +16,7 @@ class DiscountLineItemTest extends TestCase
 {
     private DiscountLineItem $discount;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->discount = new DiscountLineItem(
             'Black Friday',

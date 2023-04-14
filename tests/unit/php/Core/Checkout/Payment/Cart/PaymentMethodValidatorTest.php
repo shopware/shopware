@@ -28,7 +28,7 @@ class PaymentMethodValidatorTest extends TestCase
 
     private Cart $cart;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->validator = new PaymentMethodValidator();
         $this->cart = new Cart('cart-token');

@@ -16,7 +16,7 @@ class Migration1673263104RemoveCartNameColumnTest extends TestCase
 {
     private Connection $connection;
 
-    private static string $isCartNameNullable = <<<SQL
+    private static string $isCartNameNullable = <<<'SQL'
         SELECT is_nullable
         FROM information_schema.columns
         WHERE table_schema = ?
@@ -24,7 +24,7 @@ class Migration1673263104RemoveCartNameColumnTest extends TestCase
         AND column_name = 'name';
     SQL;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
         if ($this->connection->fetchOne('SHOW COLUMNS FROM `cart` LIKE \'name\'') !== 'name') {

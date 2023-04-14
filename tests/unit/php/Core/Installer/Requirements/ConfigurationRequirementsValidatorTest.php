@@ -21,7 +21,7 @@ class ConfigurationRequirementsValidatorTest extends TestCase
 
     private ConfigurationRequirementsValidator $validator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configReader = $this->createMock(IniConfigReader::class);
         $this->validator = new ConfigurationRequirementsValidator($this->configReader);

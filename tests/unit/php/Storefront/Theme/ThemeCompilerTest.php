@@ -53,7 +53,7 @@ class ThemeCompilerTest extends TestCase
 
     private string $mockSalesChannelId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $mockThemeFileResolver = $this->createMock(ThemeFileResolver::class);
         $eventDispatcher = $this->createMock(EventDispatcher::class);

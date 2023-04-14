@@ -27,7 +27,7 @@ class OrderStatusRuleTest extends TestCase
 {
     private OrderStatusRule $rule;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->rule = new OrderStatusRule();
     }

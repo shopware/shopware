@@ -23,7 +23,7 @@ class AbstractStrategyTest extends TestCase
 
     private Resolver $appUrlChangedResolverStrategy;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->firstStrategy = $this->createMock(AbstractAppUrlChangeStrategy::class);
         $this->firstStrategy->method('getName')

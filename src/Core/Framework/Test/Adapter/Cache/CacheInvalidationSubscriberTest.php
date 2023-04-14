@@ -26,7 +26,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     private CacheInvalidationSubscriber $cacheInvalidationSubscriber;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new IdsCollection();
 

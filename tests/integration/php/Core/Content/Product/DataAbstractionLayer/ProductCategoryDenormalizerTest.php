@@ -29,7 +29,7 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     private EntityRepository $productRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();

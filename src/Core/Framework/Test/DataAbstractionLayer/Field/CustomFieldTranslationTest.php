@@ -40,7 +40,7 @@ class CustomFieldTranslationTest extends TestCase
      */
     private $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -70,7 +70,7 @@ class CustomFieldTranslationTest extends TestCase
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `attribute_test_translation`');

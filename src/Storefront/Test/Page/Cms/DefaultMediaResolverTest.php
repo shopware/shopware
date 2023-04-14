@@ -25,7 +25,7 @@ class DefaultMediaResolverTest extends TestCase
 
     private MockObject&AbstractDefaultMediaResolver $decorated;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $packages = $this->getContainer()->get('assets.packages');
 

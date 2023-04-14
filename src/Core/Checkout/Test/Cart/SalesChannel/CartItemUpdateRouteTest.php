@@ -37,7 +37,7 @@ class CartItemUpdateRouteTest extends TestCase
 
     private EntityRepository $productRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
 

@@ -27,7 +27,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
 {
     private ManufacturerAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new ManufacturerAdminSearchIndexer(
             $this->createMock(Connection::class),

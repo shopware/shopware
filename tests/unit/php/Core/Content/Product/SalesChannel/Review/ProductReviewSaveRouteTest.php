@@ -37,7 +37,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     private ProductReviewSaveRoute $route;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->validator = $this->createMock(DataValidator::class);

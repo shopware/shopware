@@ -22,7 +22,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
 
     private StaticDefinitionInstanceRegistry $definitionRegistry;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->schemaBuilder = new OpenApiDefinitionSchemaBuilder();
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(

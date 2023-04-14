@@ -27,7 +27,7 @@ class DatabaseMigratorTest extends TestCase
 
     private DatabaseMigrator $databaseMigrator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->setupAdapter = $this->createMock(SetupDatabaseAdapter::class);
 

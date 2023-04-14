@@ -23,7 +23,7 @@ class NumberRangeSalesChannelDefinitionTest extends TestCase
 
     private EntityRepository $salesChannelRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->numberRangeRepository = $this->getContainer()->get('number_range.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

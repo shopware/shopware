@@ -22,7 +22,7 @@ class HookableValidatorTest extends TestCase
 
     private string $roleId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->hookableValidator = $this->getContainer()->get(HookableValidator::class);
         $this->roleId = Uuid::randomHex();

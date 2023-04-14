@@ -10,7 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * @phpstan-import-type VersionFixedVulnerabilities from \Shopware\Core\Framework\Update\Struct\Version
+ * @phpstan-import-type VersionFixedVulnerabilities from Version
+ */
+/**
+ * @phpstan-import-type VersionFixedVulnerabilities from Version
  */
 #[Package('system-settings')]
 class ApiClient

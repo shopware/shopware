@@ -19,7 +19,7 @@ class StorableFlowTest extends TestCase
 {
     private StorableFlow $storableFlow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storableFlow = new StorableFlow('checkout.order.place', Context::createDefaultContext(), [], []);
         $this->storableFlow->setConfig(['config' => 'value']);

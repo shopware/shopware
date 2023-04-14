@@ -15,7 +15,7 @@ class BasicCaptchaGeneratorTest extends TestCase
 
     private BasicCaptchaGenerator $captcha;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(BasicCaptchaGenerator::class);
     }

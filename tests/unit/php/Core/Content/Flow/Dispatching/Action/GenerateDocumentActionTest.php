@@ -29,7 +29,7 @@ class GenerateDocumentActionTest extends TestCase
 
     private GenerateDocumentAction $action;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->documentGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
 

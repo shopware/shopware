@@ -44,7 +44,7 @@ class AdditionalPermissionValidationTest extends TestCase
      */
     private array $rootDirs;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->rootDirs = array_filter(array_map(static function (string $class): ?string {
             if (!\class_exists($class)) {

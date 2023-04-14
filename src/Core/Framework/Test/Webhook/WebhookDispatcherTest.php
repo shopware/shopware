@@ -60,7 +60,7 @@ class WebhookDispatcherTest extends TestCase
 
     private GuzzleHistoryCollector $guzzleHistory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_SERVER['APP_URL'];

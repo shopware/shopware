@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -25,7 +26,7 @@ class NoFlowStoreFunctionRule implements Rule
 
     public function getNodeType(): string
     {
-        return Node\Expr\MethodCall::class;
+        return MethodCall::class;
     }
 
     public function processNode(Node $node, Scope $scope): array
@@ -38,7 +39,7 @@ class NoFlowStoreFunctionRule implements Rule
             return [];
         }
 
-        if (!$node->name instanceof Node\Identifier) {
+        if (!$node->name instanceof Identifier) {
             return [];
         }
 

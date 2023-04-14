@@ -51,7 +51,7 @@ class ShopConfigurationControllerTest extends TestCase
      */
     private TranslatorInterface $translator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->twig = $this->createMock(Environment::class);
         $this->router = $this->createMock(RouterInterface::class);

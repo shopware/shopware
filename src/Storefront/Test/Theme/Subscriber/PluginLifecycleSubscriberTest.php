@@ -31,7 +31,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
     use PluginTestsHelper;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->addTestPluginToKernel(

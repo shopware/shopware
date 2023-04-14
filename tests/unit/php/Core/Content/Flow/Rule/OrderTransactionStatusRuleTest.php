@@ -31,7 +31,7 @@ class OrderTransactionStatusRuleTest extends TestCase
 {
     private OrderTransactionStatusRule $rule;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->rule = new OrderTransactionStatusRule();
     }

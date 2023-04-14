@@ -32,7 +32,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);

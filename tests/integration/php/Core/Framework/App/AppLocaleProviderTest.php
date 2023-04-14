@@ -23,7 +23,7 @@ class AppLocaleProviderTest extends TestCase
 
     private EntityRepository $userRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->localeProvider = $this->getContainer()->get(AppLocaleProvider::class);
         $this->userRepository = $this->getContainer()->get('user.repository');

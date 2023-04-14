@@ -13,7 +13,7 @@ class DeprecationTagTesterTest extends TestCase
 {
     private DeprecationTagTester $deprecationTagTester;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->deprecationTagTester = new DeprecationTagTester('6.4.0.0', '1.0');
     }

@@ -25,7 +25,7 @@ class ScriptStoreApiRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->browser = $this->getSalesChannelBrowser();
     }

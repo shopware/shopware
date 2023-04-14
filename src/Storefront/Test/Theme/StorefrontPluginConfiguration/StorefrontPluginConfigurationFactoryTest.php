@@ -18,7 +18,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     private StorefrontPluginConfigurationFactory $configFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }

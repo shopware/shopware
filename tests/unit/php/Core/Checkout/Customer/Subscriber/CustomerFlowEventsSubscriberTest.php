@@ -40,7 +40,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     private CustomerFlowEventsSubscriber $customerFlowEventsSubscriber;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);

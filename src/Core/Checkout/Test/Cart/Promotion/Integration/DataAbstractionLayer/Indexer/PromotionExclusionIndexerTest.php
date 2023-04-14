@@ -37,7 +37,7 @@ class PromotionExclusionIndexerTest extends TestCase
      */
     private $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->context = Context::createDefaultContext();

@@ -37,7 +37,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
 
     private SalutationDefinition $salutationDefinition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

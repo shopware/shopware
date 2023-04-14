@@ -43,7 +43,7 @@ class StorefrontRoutingTest extends TestCase
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
@@ -61,7 +61,7 @@ class StorefrontRoutingTest extends TestCase
         $this->oldContext = $this->router->getContext();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         while ($this->requestStack->pop()) {
         }

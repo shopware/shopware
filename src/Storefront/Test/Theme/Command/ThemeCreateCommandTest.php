@@ -20,12 +20,12 @@ class ThemeCreateCommandTest extends TestCase
 
     private string $projectDir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->projectDir = $this->getContainer()->getParameter('kernel.project_dir');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeTheme(self::ThemeName);
     }

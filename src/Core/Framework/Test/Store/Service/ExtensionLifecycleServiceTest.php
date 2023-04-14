@@ -43,7 +43,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->lifecycleService = $this->getContainer()->get(ExtensionLifecycleService::class);
 
@@ -54,7 +54,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeApp(__DIR__ . '/../_fixtures/TestApp');
         $this->removeApp(__DIR__ . '/../_fixtures/TestAppTheme');

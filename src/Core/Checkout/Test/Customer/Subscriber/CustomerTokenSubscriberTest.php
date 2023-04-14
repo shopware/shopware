@@ -37,7 +37,7 @@ class CustomerTokenSubscriberTest extends TestCase
 
     private EntityRepository $customerRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->connection = $this->getContainer()->get(Connection::class);

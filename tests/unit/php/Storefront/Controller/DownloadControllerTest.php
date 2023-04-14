@@ -25,7 +25,7 @@ class DownloadControllerTest extends TestCase
 
     private DownloadController $controller;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->downloadRouteMock = $this->createMock(DownloadRoute::class);
 

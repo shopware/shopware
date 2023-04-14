@@ -33,7 +33,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
 
     private EntityRepository $flowRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
 

@@ -20,7 +20,7 @@ class CartFacadeHelperTest extends TestCase
 
     private CartFacadeHelper $cartFacadeHelper;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cartFacadeHelper = $this->getContainer()->get(CartFacadeHelper::class);
     }

@@ -32,7 +32,7 @@ class SetOrderCustomFieldActionTest extends TestCase
 
     private SetOrderCustomFieldAction $action;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->repository = $this->createMock(EntityRepository::class);

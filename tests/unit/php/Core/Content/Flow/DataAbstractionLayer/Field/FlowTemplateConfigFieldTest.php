@@ -19,7 +19,7 @@ class FlowTemplateConfigFieldTest extends TestCase
 {
     private FlowTemplateConfigField $field;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->field = new FlowTemplateConfigField('config', 'config');
     }

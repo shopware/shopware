@@ -36,7 +36,7 @@ class FileSaverTest extends TestCase
 
     private FileSaver $fileSaver;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
         $filesystemPublic = $this->createMock(FilesystemOperator::class);

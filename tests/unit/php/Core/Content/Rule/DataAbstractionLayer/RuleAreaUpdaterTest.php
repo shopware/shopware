@@ -54,7 +54,7 @@ class RuleAreaUpdaterTest extends TestCase
 
     private RuleAreaUpdater $areaUpdater;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);

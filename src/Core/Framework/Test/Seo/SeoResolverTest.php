@@ -26,7 +26,7 @@ class SeoResolverTest extends TestCase
 
     private string $deLanguageId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->seoResolver = $this->getContainer()->get(SeoResolver::class);

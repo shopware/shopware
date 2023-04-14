@@ -35,7 +35,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
 
     private EntityRepository $cmsPageRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
     }

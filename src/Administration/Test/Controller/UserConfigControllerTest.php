@@ -26,7 +26,7 @@ class UserConfigControllerTest extends TestCase
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->resetBrowser();
     }

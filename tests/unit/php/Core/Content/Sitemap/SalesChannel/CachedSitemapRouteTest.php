@@ -50,7 +50,7 @@ class CachedSitemapRouteTest extends TestCase
 
     private SitemapRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractSitemapRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

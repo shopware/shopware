@@ -25,7 +25,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     private RouteCollection $routes;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $router = $this->getContainer()->get(RouterInterface::class);
         $this->routes = $router->getRouteCollection();

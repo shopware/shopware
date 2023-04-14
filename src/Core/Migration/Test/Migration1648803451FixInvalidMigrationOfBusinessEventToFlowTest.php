@@ -28,7 +28,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     private EntityRepository $eventActionRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
 

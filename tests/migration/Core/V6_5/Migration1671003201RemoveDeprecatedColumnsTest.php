@@ -16,7 +16,7 @@ class Migration1671003201RemoveDeprecatedColumnsTest extends TestCase
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 

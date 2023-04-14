@@ -28,7 +28,7 @@ class IncrementRedisStorageTest extends TestCase
 
     private IncrementRedisStorage $storage;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->numberRangeRepository = $this->getContainer()->get('number_range.repository');
         $this->lockFactoryMock = $this->createMock(LockFactory::class);

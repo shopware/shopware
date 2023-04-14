@@ -19,7 +19,7 @@ class Migration1671723392AddWebhookLifetimeConfigTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->delete('system_config', ['configuration_key' => 'core.webhook.entryLifetimeSeconds']);

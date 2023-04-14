@@ -28,7 +28,7 @@ class ShippingMethodRepositoryTest extends TestCase
 
     private string $ruleId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->shippingRepository = $this->getContainer()->get('shipping_method.repository');
         $this->shippingMethodId = Uuid::randomHex();

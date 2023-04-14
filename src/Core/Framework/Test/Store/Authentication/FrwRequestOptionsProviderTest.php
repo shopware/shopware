@@ -26,7 +26,7 @@ class FrwRequestOptionsProviderTest extends TestCase
 
     private EntityRepository $userConfigRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = $this->createAdminStoreContext();
         $this->optionsProvider = $this->getContainer()->get(FrwRequestOptionsProvider::class);

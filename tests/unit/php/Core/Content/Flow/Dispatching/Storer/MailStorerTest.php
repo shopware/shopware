@@ -25,7 +25,7 @@ class MailStorerTest extends TestCase
 {
     private MailStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storer = new MailStorer();
     }

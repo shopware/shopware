@@ -23,7 +23,7 @@ class ShopIdProviderTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);

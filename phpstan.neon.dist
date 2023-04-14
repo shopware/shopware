@@ -172,17 +172,6 @@ parameters:
         - '#deprecated.*class Shopware\\#'
         - '#deprecated.*interface Shopware\\#'
 
-        - # we override setUp visibility a lot
-            message: '#Change "setUp\(\)" method visibility to "protected" to respect parent method visibility\.#'
-            paths:
-                - src/**/*Test.php
-                - tests/**/*Test.php
-        - # we override tearDown visibility a lot
-            message: '#Change "tearDown\(\)" method visibility to "protected" to respect parent method visibility\.#'
-            paths:
-                - src/**/*Test.php
-                - tests/**/*Test.php
-
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'
             paths:

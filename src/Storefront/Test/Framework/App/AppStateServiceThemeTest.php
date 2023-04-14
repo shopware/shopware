@@ -41,7 +41,7 @@ class AppStateServiceThemeTest extends TestCase
 
     private EntityRepository $templateRepo;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->themeService = $this->getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->appRepo = $this->getContainer()->get('app.repository');

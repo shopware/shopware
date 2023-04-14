@@ -31,7 +31,7 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();

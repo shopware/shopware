@@ -23,7 +23,7 @@ class BasicCaptchaTest extends TestCase
 
     private BasicCaptcha $captcha;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(BasicCaptcha::class);
         $request = new Request();

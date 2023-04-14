@@ -44,7 +44,7 @@ class HttpCacheIntegrationTest extends TestCase
         $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
     }
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         KernelLifecycleManager::bootKernel();
 
@@ -53,7 +53,7 @@ class HttpCacheIntegrationTest extends TestCase
             ->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 

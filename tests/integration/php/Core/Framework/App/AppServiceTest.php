@@ -33,7 +33,7 @@ class AppServiceTest extends TestCase
 
     private EntityRepository $actionButtonRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');

@@ -27,7 +27,7 @@ class CriteriaFieldsResolverTest extends TestCase
 {
     private StaticDefinitionInstanceRegistry $registry;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->registry = new StaticDefinitionInstanceRegistry(
             [

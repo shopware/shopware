@@ -42,7 +42,7 @@ class SeoUrlIndexerTest extends TestCase
 
     private EntityRepository $productRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

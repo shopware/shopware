@@ -29,7 +29,7 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
     private Migration1604502151AddThemePreviewMediaConstraint $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

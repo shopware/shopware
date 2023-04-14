@@ -36,7 +36,7 @@ class ProductStreamUpdaterTest extends TestCase
 
     private ProductStreamUpdater $productStreamUpdater;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');

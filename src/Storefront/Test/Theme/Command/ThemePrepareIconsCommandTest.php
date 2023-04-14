@@ -17,7 +17,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 
     public string $testDir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->testDir = $this->getContainer()->getParameter('storefrontRoot')
             . '/Test/Theme/fixtures/ThemePrepareIconsCommandIconsPath/';
@@ -28,7 +28,7 @@ class ThemePrepareIconsCommandTest extends TestCase
         @rmdir($this->testDir . 'processed');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         static::assertDirectoryExists($this->testDir, 'Testdir: ' . $this->testDir . ' not found!');
         $testFiles = glob($this->testDir . 'processed/*');

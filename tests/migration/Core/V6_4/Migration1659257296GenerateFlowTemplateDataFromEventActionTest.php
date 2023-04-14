@@ -19,7 +19,7 @@ class Migration1659257296GenerateFlowTemplateDataFromEventActionTest extends Tes
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
     }

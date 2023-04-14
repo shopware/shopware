@@ -19,7 +19,7 @@ class PermittedIndividualCodePromotionsTest extends TestCase
 {
     private SalesChannelEntity $salesChannel;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannel = new SalesChannelEntity();
         $this->salesChannel->setId('DE');

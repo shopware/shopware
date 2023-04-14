@@ -38,7 +38,7 @@ class DownloadResponseGeneratorTest extends TestCase
 
     private MockObject&SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->mediaService = $this->createMock(MediaService::class);
         $this->privateFilesystem = $this->createMock(Filesystem::class);

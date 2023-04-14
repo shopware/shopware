@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class EnvironmentHelperTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         // to prevent side effects delete test env var after each testcase
         unset($_SERVER['foo'], $_ENV['foo']);

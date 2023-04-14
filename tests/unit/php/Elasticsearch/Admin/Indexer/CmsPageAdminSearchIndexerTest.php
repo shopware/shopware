@@ -27,7 +27,7 @@ class CmsPageAdminSearchIndexerTest extends TestCase
 {
     private CmsPageAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new CmsPageAdminSearchIndexer(
             $this->createMock(Connection::class),

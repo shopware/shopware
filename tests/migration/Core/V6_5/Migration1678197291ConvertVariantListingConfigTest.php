@@ -29,7 +29,7 @@ class Migration1678197291ConvertVariantListingConfigTest extends TestCase
 
     private Migration1678197291ConvertVariantListingConfig $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->migration = new Migration1678197291ConvertVariantListingConfig();
@@ -37,7 +37,7 @@ class Migration1678197291ConvertVariantListingConfigTest extends TestCase
         $this->rollbackMigration();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->executeStatement('DELETE FROM `product`');
     }

@@ -23,7 +23,7 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
 
     private CleanupUnusedDownloadMediaTaskHandler $handler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->deleteMediaService = $this->createMock(DeleteNotUsedMediaService::class);
 

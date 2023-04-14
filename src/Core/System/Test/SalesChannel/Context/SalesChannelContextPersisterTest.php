@@ -35,7 +35,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
     private SalesChannelContextPersister $contextPersister;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();

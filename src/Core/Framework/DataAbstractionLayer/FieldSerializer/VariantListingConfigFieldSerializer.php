@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -77,14 +78,14 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
                 'allowMissingFields' => true,
                 'fields' => [
                     'displayParent' => [new Type('boolean')],
-                    'mainVariantId' => [new \Shopware\Core\Framework\Validation\Constraint\Uuid()],
+                    'mainVariantId' => [new Uuid()],
                     'configuratorGroupConfig' => [
                         new Optional(
                             new Collection([
                                 'allowExtraFields' => true,
                                 'allowMissingFields' => true,
                                 'fields' => [
-                                    'id' => [new NotBlank(), new \Shopware\Core\Framework\Validation\Constraint\Uuid()],
+                                    'id' => [new NotBlank(), new Uuid()],
                                     'representation' => [new NotBlank(), new Type('string')],
                                     'expressionForListings' => [new NotBlank(), new Type('boolean')],
                                 ],

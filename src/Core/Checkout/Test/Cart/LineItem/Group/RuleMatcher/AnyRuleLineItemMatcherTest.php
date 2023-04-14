@@ -29,7 +29,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
 
     private SalesChannelContext $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->matcher = new AnyRuleLineItemMatcher();
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create('test', TestDefaults::SALES_CHANNEL);

@@ -30,7 +30,7 @@ class SearchKeywordUpdaterTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->searchKeywordRepository = $this->getContainer()->get('product_search_keyword.repository');

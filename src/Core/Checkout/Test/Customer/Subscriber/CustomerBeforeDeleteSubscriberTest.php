@@ -22,7 +22,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
     private EntityRepository $customerRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }

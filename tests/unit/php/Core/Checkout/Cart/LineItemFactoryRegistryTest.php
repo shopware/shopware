@@ -32,7 +32,7 @@ class LineItemFactoryRegistryTest extends TestCase
 
     private LineItemFactoryInterface&MockObject $factory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->service = new LineItemFactoryRegistry(
             [$this->factory = $this->createMock(LineItemFactoryInterface::class)],

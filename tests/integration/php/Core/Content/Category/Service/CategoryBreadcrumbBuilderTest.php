@@ -52,7 +52,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     private AbstractSalesChannelContextFactory $contextFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->deLanguageId = $this->getDeDeLanguageId();

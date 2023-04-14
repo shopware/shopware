@@ -224,6 +224,9 @@ class RecalculationServiceTest extends TestCase
             }
         }
 
+        $this->resetPayloadProtection($cart);
+        $this->resetPayloadProtection($convertedCart);
+
         static::assertEquals($cart, $convertedCart);
     }
 
@@ -994,6 +997,25 @@ class RecalculationServiceTest extends TestCase
         );
 
         return $countryId;
+    }
+
+    private function resetPayloadProtection(Cart $cart): void
+    {
+        // remove delivery information from line items
+        $payloadProtection = ReflectionHelper::getProperty(LineItem::class, 'payloadProtection');
+
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            $payloadProtection->setValue($lineItem, []);
+        }
+
+        foreach ($cart->getDeliveries() as $delivery) {
+            foreach ($delivery->getPositions() as $position) {
+                $payloadProtection->setValue($position->getLineItem(), []);
+                foreach ($position->getLineItem()->getChildren() as $lineItem) {
+                    $payloadProtection->setValue($lineItem, []);
+                }
+            }
+        }
     }
 
     private function resetDataTimestamps(LineItemCollection $items): void

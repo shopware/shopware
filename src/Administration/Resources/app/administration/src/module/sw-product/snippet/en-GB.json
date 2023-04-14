@@ -534,6 +534,14 @@
         "label": "Tags",
         "placeholder": "Select tags..."
       },
+      "productStatesFilter": {
+        "label": "Product states",
+        "placeholder": "Select product state...",
+        "options": {
+          "physical": "Physical",
+          "digital": "Digital"
+        }
+      },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to see results."
     },

@@ -52,6 +52,7 @@ export default {
                 'categories-filter',
                 'sales-filter',
                 'tags-filter',
+                'product-states-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
@@ -182,6 +183,22 @@ export default {
                     property: 'tags',
                     label: this.$tc('sw-product.filters.tagsFilter.label'),
                     placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder'),
+                },
+                'product-states-filter': {
+                    property: 'states',
+                    label: this.$tc('sw-product.filters.productStatesFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.productStatesFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: [
+                        {
+                            label: this.$tc('sw-product.filters.productStatesFilter.options.physical'),
+                            value: 'is-physical',
+                        },
+                        {
+                            label: this.$tc('sw-product.filters.productStatesFilter.options.digital'),
+                            value: 'is-download',
+                        },
+                    ],
                 },
                 'release-date-filter': {
                     property: 'releaseDate',

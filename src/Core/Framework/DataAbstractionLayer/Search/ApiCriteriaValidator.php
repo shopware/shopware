@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\Log\Package;
 
@@ -34,6 +35,10 @@ class ApiCriteriaValidator
 
             foreach ($fields as $field) {
                 if (!$field instanceof Field) {
+                    continue;
+                }
+
+                if ($field->getFlag(ApiCriteriaAware::class)) {
                     continue;
                 }
 

@@ -339,7 +339,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $criteria = [
             'aggregations' => [
-                ['name' => 'sum', 'type' => 'sum', 'field' => 'price.gross'],
+                ['name' => 'sum', 'type' => 'sum', 'field' => 'autoIncrement'],
             ],
         ];
 

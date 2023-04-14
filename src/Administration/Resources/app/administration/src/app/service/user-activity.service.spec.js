@@ -1,7 +1,7 @@
 import UserActivityService from './user-activity.service';
 
 describe('src/app/service/user-activity.service.ts', () => {
-    let service: UserActivityService | undefined;
+    let service;
 
     const cookieStorageMock = {};
     beforeEach(() => {
@@ -9,7 +9,7 @@ describe('src/app/service/user-activity.service.ts', () => {
             return {
                 getStorage: () => {
                     return {
-                        setItem(key: string, value: unknown) {
+                        setItem(key, value) {
                             cookieStorageMock[key] = value;
                         }
                     };

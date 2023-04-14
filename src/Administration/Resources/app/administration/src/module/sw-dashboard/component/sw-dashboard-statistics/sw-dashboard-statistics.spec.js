@@ -156,7 +156,7 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     it('should allow the possibility to extend the date ranges', async () => {
         Shopware.Component.override('sw-dashboard-statistics', {
             computed: {
-                rangesValueMap(): Array<HistoryDateRange> {
+                rangesValueMap() {
                     return [
                         ...this.$super('rangesValueMap'),
                         {

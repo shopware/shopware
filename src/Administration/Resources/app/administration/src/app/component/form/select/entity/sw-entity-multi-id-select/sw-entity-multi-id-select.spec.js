@@ -6,8 +6,6 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import utils from 'src/core/service/util.service';
-import type { Wrapper } from '@vue/test-utils';
-import type Vue from 'vue';
 import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -38,7 +36,7 @@ function getCollection() {
         null
     );
 }
-async function createWrapper(): Promise<Wrapper<Vue>> {
+async function createWrapper() {
     const localVue = createLocalVue();
     return shallowMount(await Component.build('sw-entity-multi-id-select'), {
         localVue,

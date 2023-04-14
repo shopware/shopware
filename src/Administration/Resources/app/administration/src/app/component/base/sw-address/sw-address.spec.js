@@ -5,12 +5,7 @@
 import 'src/app/component/base/sw-address';
 import { shallowMount } from '@vue/test-utils';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type Vue from 'vue';
-
-async function createWrapper(): Promise<Wrapper<Vue>> {
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-address'), {
         propsData: {
             address: {
@@ -43,7 +38,7 @@ async function createWrapper(): Promise<Wrapper<Vue>> {
 }
 
 describe('src/app/component/base/sw-address/index.ts', () => {
-    let wrapper: Wrapper<Vue>;
+    let wrapper;
 
     beforeEach(async () => {
         wrapper = await createWrapper();

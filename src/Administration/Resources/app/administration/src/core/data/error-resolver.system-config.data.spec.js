@@ -39,7 +39,7 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
 
         errorResolverSystemConfig.cleanWriteErrors();
 
-        const result: ShopwareError[] = Shopware.State.getters['error/getAllApiErrors']();
+        const result = Shopware.State.getters['error/getAllApiErrors']();
 
         expect(result).toEqual([]);
     });

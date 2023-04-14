@@ -8,12 +8,12 @@ import baseline from './baseline';
 import packageJson from '../../package.json';
 
 
-const getAllFiles = (dirPath: string, arrayOfFiles: Array<string> = null): Array<string> => {
+const getAllFiles = (dirPath, arrayOfFiles = null) => {
     const files = fs.readdirSync(dirPath);
 
     arrayOfFiles = arrayOfFiles || [];
 
-    files.forEach((file): void => {
+    files.forEach((file) => {
         if (fs.statSync(`${dirPath}/${file}`).isDirectory()) {
             arrayOfFiles = getAllFiles(`${dirPath}/${file}`, arrayOfFiles);
         } else {

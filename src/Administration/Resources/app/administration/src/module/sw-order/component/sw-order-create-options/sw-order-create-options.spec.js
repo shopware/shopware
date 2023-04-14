@@ -1,17 +1,10 @@
 import Vuex from 'vuex';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-
 import EntityCollection from 'src/core/data/entity-collection.data';
 import orderStore from 'src/module/sw-order/state/order.store';
 import swOrderCreateOptions from 'src/module/sw-order/component/sw-order-create-options';
 import swOrderCustomerAddressSelect from 'src/module/sw-order/component/sw-order-customer-address-select';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -114,7 +107,7 @@ const contextResponse = {
 Shopware.Component.register('sw-order-create-options', swOrderCreateOptions);
 Shopware.Component.register('sw-order-customer-address-select', swOrderCustomerAddressSelect);
 
-async function createWrapper(): Promise<Wrapper<Vue>> {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 

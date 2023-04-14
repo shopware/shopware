@@ -1,15 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import swOrderStateSelectV2 from 'src/module/sw-order/component/sw-order-state-select-v2';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-
 Shopware.Component.register('sw-order-state-select-v2', swOrderStateSelectV2);
 
 describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
-    async function createWrapper(): Promise<Wrapper<Vue>> {
+    async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-order-state-select-v2'), {
             stubs: {
                 'sw-single-select': {

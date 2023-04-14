@@ -1,12 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
-import type Shopware from 'src/core/shopware';
 import 'src/app/component/base/sw-button';
 import SwExtensionMyAppsErrorPage from 'src/module/sw-extension/component/sw-extension-app-module-error-page';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type Vue from 'vue';
 
 Shopware.Component.register('sw-extension-app-module-error-page', SwExtensionMyAppsErrorPage);
 const routerMock = {
@@ -26,7 +20,7 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-extension/component/sw-extension-app-module-error-page', () => {
-    let wrapper: Wrapper<Vue>;
+    let wrapper;
 
     beforeEach(async () => {
         wrapper = await createWrapper();

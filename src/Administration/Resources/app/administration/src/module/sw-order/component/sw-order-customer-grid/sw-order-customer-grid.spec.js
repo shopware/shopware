@@ -6,11 +6,6 @@ import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
 import orderState from 'src/module/sw-order/state/order.store';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-
 Shopware.Component.register('sw-order-customer-grid', swOrderCustomerGrid);
 
 let customerData = [];
@@ -48,7 +43,7 @@ function generateCustomers() {
     return items;
 }
 
-async function createWrapper(): Promise<Wrapper<Vue>> {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.filter('currency', v => v);

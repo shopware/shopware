@@ -32,13 +32,7 @@ const testAction = (action, payload, state, expectedMutations, done) => {
 };
 
 describe('Test actions at file src/app/state/error.store.js', () => {
-    let actions: {
-        addApiError?: Function;
-        resetApiErrors?: Function;
-        removeApiError?: Function;
-        removeSystemError?: Function;
-        addSystemError?: Function;
-    } = {};
+    let actions = {};
 
     beforeAll(() => {
         actions = instance.actions;
@@ -107,13 +101,7 @@ describe('Test actions at file src/app/state/error.store.js', () => {
 });
 
 describe('Test mutations at file src/app/state/error.store.js', () => {
-    let mutations: {
-        removeApiError?: Function;
-        addApiError?: Function;
-        resetApiErrors?: Function;
-        addSystemError?: Function;
-        removeSystemError?: Function;
-    } = {};
+    let mutations = {};
 
     let state = {
         api: {},
@@ -163,16 +151,7 @@ describe('Test mutations at file src/app/state/error.store.js', () => {
 });
 
 describe('Test getters at file src/app/state/error.store.js', () => {
-    let getters: {
-        getErrorsForEntity?: Function;
-        getApiErrorFromPath?: Function;
-        getApiError?: Function;
-        getSystemConfigApiError?: Function;
-        getAllApiErrors?: Function;
-        getSystemError?: Function;
-        existsErrorInProperty?: Function;
-        countSystemError?: Function;
-    } = {};
+    let getters = {};
 
     let state = {};
 

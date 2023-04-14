@@ -5,14 +5,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-navigation';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Route } from 'vue-router';
 
-async function createWrapper(customRoute: Route, fromLink: Route|null = null) {
+async function createWrapper(customRoute, fromLink = null) {
     return shallowMount(await Shopware.Component.build('sw-meteor-navigation'), {
         propsData: { fromLink },
         stubs: {
@@ -29,9 +23,9 @@ async function createWrapper(customRoute: Route, fromLink: Route|null = null) {
 }
 
 describe('src/app/component/meteor/sw-meteor-navigation', () => {
-    let wrapper: Wrapper<Vue>;
+    let wrapper;
 
-    const testRoute: Route = {
+    const testRoute = {
         name: 'some.test.route',
         path: '/path/to/test/route',
         params: {},

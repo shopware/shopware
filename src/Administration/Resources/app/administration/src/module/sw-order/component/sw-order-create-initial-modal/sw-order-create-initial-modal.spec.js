@@ -5,11 +5,6 @@ import swOrderCreateInitialModal from 'src/module/sw-order/component/sw-order-cr
 import 'src/app/component/base/sw-button';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-
 const lineItem = {
     label: 'Product',
     productId: 'product1'
@@ -27,7 +22,7 @@ const cartToken = 'is-exactly-32-chars-as-required-';
 
 Shopware.Component.register('sw-order-create-initial-modal', swOrderCreateInitialModal);
 
-async function createWrapper(): Promise<Wrapper<Vue>> {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 

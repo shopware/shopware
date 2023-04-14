@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import type Shopware from 'src/core/shopware';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import swFirstRunWizardWelcome from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome';
 import swPluginCard from 'src/module/sw-first-run-wizard/component/sw-plugin-card';
@@ -149,7 +148,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                     validate: () => true,
                 },
                 repositoryFactory: {
-                    create: (entity: String) => {
+                    create: (entity) => {
                         switch (entity) {
                             case 'language':
                                 return {

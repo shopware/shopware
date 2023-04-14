@@ -2165,7 +2165,7 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
-        $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = $content['errors'][0];
 
         static::assertSame(sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);

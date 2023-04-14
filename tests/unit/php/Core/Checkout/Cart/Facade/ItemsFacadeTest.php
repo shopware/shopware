@@ -93,6 +93,7 @@ class ItemsFacadeTest extends TestCase
         );
 
         $asserted = 0;
+        /** @var ContainerFacade|ItemFacade $item */
         foreach ($facade as $item) {
             ++$asserted;
 

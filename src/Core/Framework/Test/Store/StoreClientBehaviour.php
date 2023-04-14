@@ -16,7 +16,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
-use function PHPUnit\Framework\assertIsString;
 
 /**
  * @internal

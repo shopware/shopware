@@ -67,7 +67,7 @@ class ProductProxy implements \ArrayAccess
             'calculatedCheapestPrice' => $this->calculatedCheapestPrice(),
             'calculatedPrice' => $this->calculatedPrice(),
             'calculatedPrices' => $this->calculatedPrices(),
-            default => $this->product->$property,
+            default => $this->product->$property, /* @phpstan-ignore-line */
         };
     }
 

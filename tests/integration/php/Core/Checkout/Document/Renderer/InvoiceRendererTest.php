@@ -18,6 +18,8 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -117,9 +119,9 @@ class InvoiceRendererTest extends TestCase
 
             $rendered = $processedTemplate->getSuccess()[$orderId];
 
-            static::assertNotNull($lineItems = $order->getLineItems());
-            static::assertNotNull($firstLineItem = $lineItems->first());
-            static::assertNotNull($lastLineItem = $lineItems->last());
+            static::assertInstanceOf(OrderLineItemCollection::class, $lineItems = $order->getLineItems());
+            static::assertInstanceOf(OrderLineItemEntity::class, $firstLineItem = $lineItems->first());
+            static::assertInstanceOf(OrderLineItemEntity::class, $lastLineItem = $lineItems->last());
             static::assertStringContainsString('<html>', $rendered->getHtml());
             static::assertStringContainsString('</html>', $rendered->getHtml());
             static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());

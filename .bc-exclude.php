@@ -13,6 +13,12 @@ return [
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/DevOps/System/Command/SyncComposerVersionCommand.php', // symfony configure
+
+        // Symfony validators, should be removed with NEXT-26264
+        '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php',
+        '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityExists.php',
+        '**/src/Core/Checkout/Customer/Validation/Constraint/CustomerVatIdentification.php',
+        '**/src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php',
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

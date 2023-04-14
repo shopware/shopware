@@ -24,8 +24,8 @@ class HtmlSanitizer
     /**
      * @internal
      *
-     * @param array<string, array<string, array<string|bool|array<string, array<string>>>>> $sets
-     * @param array<string, array<string, array<string>>> $fieldSets
+     * @param array<string, array{name?: string, tags?: list<string>, attributes?: list<string>, options?: array<string, mixed>, custom_attributes?: array<string, array<string, list<string>>>}> $sets
+     * @param array<string, array{sets?: list<string>|null}> $fieldSets
      */
     public function __construct(
         ?string $cacheDir = null,
@@ -43,7 +43,7 @@ class HtmlSanitizer
     {
         $options ??= [];
 
-        $hash = md5(sprintf('%s%s', (string) json_encode($options, \JSON_THROW_ON_ERROR), (string) $field));
+        $hash = md5(sprintf('%s%s', json_encode($options, \JSON_THROW_ON_ERROR), $field));
 
         if ($override) {
             $hash .= '-override';
@@ -90,6 +90,7 @@ class HtmlSanitizer
 
         $allowedElements = [];
         $allowedAttributes = [];
+        $customAttributes = [];
 
         foreach ($options as $element => $attributes) {
             if ($element !== '*') {
@@ -111,6 +112,13 @@ class HtmlSanitizer
                 if (isset($this->sets[$set]['attributes'])) {
                     $allowedAttributes = array_merge($allowedAttributes, $this->sets[$set]['attributes']);
                 }
+                if (isset($this->sets[$set]['custom_attributes'])) {
+                    foreach ($this->sets[$set]['custom_attributes'] as $customAttribute) {
+                        foreach ($customAttribute['tags'] as $tag) {
+                            $customAttributes[$tag] = array_merge($customAttribute['attributes'], $customAttributes[$tag] ?? []);
+                        }
+                    }
+                }
                 if (isset($this->sets[$set]['options'])) {
                     foreach ($this->sets[$set]['options'] as $key => $value) {
                         if (\is_array($value) && \array_key_exists('values', $value)) {
@@ -125,6 +133,18 @@ class HtmlSanitizer
 
         $config->set('HTML.AllowedElements', $allowedElements);
         $config->set('HTML.AllowedAttributes', $allowedAttributes);
+
+        $definition = $config->getHTMLDefinition(true);
+
+        if ($definition === null) {
+            return $config;
+        }
+
+        foreach ($customAttributes as $tag => $attributes) {
+            foreach ($attributes as $attribute) {
+                $definition->addAttribute($tag, $attribute, 'Text');
+            }
+        }
 
         return $config;
     }

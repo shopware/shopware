@@ -31,20 +31,21 @@ class SeoResolver extends AbstractSeoResolver
      */
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        $seoPathInfo = ltrim($pathInfo, '/');
+        $seoPathInfo = trim($pathInfo, '/');
 
         $query = (new QueryBuilder($this->connection))
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical')
             ->from('seo_url')
             ->where('language_id = :language_id')
             ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
-            ->andWhere('seo_path_info = :seoPath')
+            ->andWhere('(seo_path_info = :seoPath OR seo_path_info = :seoPathWithSlash)')
             ->orderBy('seo_path_info')
             ->addOrderBy('sales_channel_id IS NULL') // sales_channel_specific comes first
             ->setMaxResults(1)
             ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
             ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
-            ->setParameter('seoPath', $seoPathInfo);
+            ->setParameter('seoPath', $seoPathInfo)
+            ->setParameter('seoPathWithSlash', $seoPathInfo . '/');
 
         $query->setTitle('seo-url::resolve');
 

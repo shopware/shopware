@@ -12,7 +12,7 @@ import 'src/app/component/form/field-base/sw-field-error';
 import { BroadcastChannel } from 'worker_threads';
 import { shallowMount } from '@vue/test-utils';
 
-async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()): Promise<Wrapper<Vue>> {
+async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()) {
     return shallowMount(await Shopware.Component.build('sw-inactivity-login'), {
         stubs: {
             'sw-modal': await Shopware.Component.build('sw-modal'),
@@ -85,7 +85,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         const container = wrapper.find('.sw-inactivity-login');
         expect(container.exists()).toBe(true);
-        expect((container.element as HTMLElement).style.backgroundImage).toBe('url(data:urlFoOBaR)');
+        expect((container.element).style.backgroundImage).toBe('url(data:urlFoOBaR)');
     });
 
     it('should push to login without last known user', async () => {
@@ -133,7 +133,6 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(loginByUserName).toBeCalledTimes(1);
         expect(loginByUserName).toBeCalledWith('max', '');
 
-        // @ts-expect-error
         expect(wrapper.vm.passwordError !== null).toBe(true);
         const passwordError = wrapper.find('.sw-field__error');
         expect(passwordError.exists()).toBe(true);
@@ -157,7 +156,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     it('should redirect on valid channel message', async () => {
         const push = jest.fn();
         sessionStorage.setItem('lastKnownUser', 'max');
-        const wrapper = await createWrapper(push);
+        await createWrapper(push);
         await flushPromises();
 
         const channel = new BroadcastChannel('session_channel');
@@ -175,7 +174,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     it('should not redirect on invalid channel message', async () => {
         const push = jest.fn();
         sessionStorage.setItem('lastKnownUser', 'max');
-        const wrapper = await createWrapper(push);
+        await createWrapper(push);
         await flushPromises();
 
         const channel = new BroadcastChannel('session_channel');

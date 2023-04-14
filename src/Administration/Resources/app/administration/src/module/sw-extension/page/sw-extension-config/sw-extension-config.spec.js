@@ -4,11 +4,6 @@ import 'src/app/component/meteor/sw-meteor-page';
 import swExtensionConfigPage from 'src/module/sw-extension/page/sw-extension-config';
 import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-
 Shopware.Component.register('sw-extension-config', swExtensionConfigPage);
 Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
@@ -16,7 +11,7 @@ Shopware.Component.register('sw-extension-icon', swExtensionIcon);
  * @package merchant-services
  */
 describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
-    let wrapper: Wrapper<Vue>;
+    let wrapper;
     let SwExtensionConfig;
     let SwMeteorPage;
 

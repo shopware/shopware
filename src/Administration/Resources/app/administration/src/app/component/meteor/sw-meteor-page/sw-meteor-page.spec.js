@@ -7,11 +7,6 @@ import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-
 async function createWrapper(slotsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-meteor-page'), {
         stubs: {
@@ -59,7 +54,7 @@ async function createWrapper(slotsData = {}) {
 }
 
 describe('src/app/component/meteor/sw-meteor-page', () => {
-    let wrapper: Wrapper<Vue>;
+    let wrapper;
 
     beforeEach(async () => {
         wrapper = await createWrapper();

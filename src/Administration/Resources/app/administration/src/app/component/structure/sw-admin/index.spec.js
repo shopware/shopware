@@ -8,11 +8,9 @@ import 'src/app/component/structure/sw-modals-renderer';
 import 'src/app/component/app/sw-app-wrong-app-url-modal';
 import { shallowMount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
-import type { Wrapper } from '@vue/test-utils';
-import type Vue from 'vue';
 
 Shopware.Component.register('sw-settings-cache-modal', swSettingsCacheModal);
-async function createWrapper(isLoggedIn: boolean, forwardLogout: () => void = () => {}, route: string = 'sw.wofoo.index'): Promise<Wrapper<Vue>> {
+async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
     return shallowMount(await Shopware.Component.build('sw-admin'), {
         stubs: {
             'sw-notifications': await Shopware.Component.build('sw-notifications'),
@@ -50,7 +48,7 @@ async function createWrapper(isLoggedIn: boolean, forwardLogout: () => void = ()
 }
 
 describe('src/app/component/structure/sw-admin/index.ts', () => {
-    let wrapper: Wrapper<Vue>;
+    let wrapper;
 
     beforeEach(() => {
         global.BroadcastChannel = BroadcastChannel;

@@ -3,11 +3,6 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swOrderDetailGeneral from 'src/module/sw-order/view/sw-order-detail-general';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type Vue from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-
 const orderMock = {
     orderCustomer: {
         email: 'test@example.com'
@@ -75,7 +70,7 @@ const orderMock = {
 
 Shopware.Component.register('sw-order-detail-general', swOrderDetailGeneral);
 
-async function createWrapper(privileges = []): Promise<Wrapper<Vue>> {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.directive('tooltip', {

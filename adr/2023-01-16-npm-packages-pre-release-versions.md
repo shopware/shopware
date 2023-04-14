@@ -1,6 +1,6 @@
 ---
 title: Npm packages pre-release versions
-date: 2023-16-01
+date: 2023-01-16
 area: administration
 tags: [npm, package, pre-release]
 --- 

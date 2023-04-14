@@ -5,11 +5,6 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/grid/sw-pagination';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Wrapper } from '@vue/test-utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue from 'vue';
-
 /**
  * @package customer-order
  */
@@ -119,7 +114,7 @@ Shopware.Component.register('sw-order-state-history-modal', swOrderStateHistoryM
 describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     let SwOrderStateHistoryModal;
 
-    async function createWrapper(options: any = {}): Promise<Wrapper<Vue>> {
+    async function createWrapper(options = {}) {
         return shallowMount(SwOrderStateHistoryModal, {
             stubs: {
                 'sw-modal': {

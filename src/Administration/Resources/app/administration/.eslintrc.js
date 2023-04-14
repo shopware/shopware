@@ -28,6 +28,7 @@ const baseRules = {
     }],
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
+    'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],
 };
 
 module.exports = {
@@ -58,6 +59,7 @@ module.exports = {
         'sw-core-rules',
         'sw-deprecation-rules',
         'sw-test-rules',
+        'filename-rules',
     ],
 
     settings: {
@@ -179,7 +181,7 @@ module.exports = {
                 'vue/no-lone-template': 'error',
             },
         }, {
-            files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+            files: ['**/*.spec.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
                 'no-console': 0,
@@ -189,20 +191,12 @@ module.exports = {
                 'sw-deprecation-rules/private-feature-declarations': 0,
             },
         }, {
-            files: ['**/*.spec.ts'],
-            rules: {
-                // Disable the base rule as it can report incorrect errors
-                'no-unused-vars': 'off',
-                '@typescript-eslint/no-unused-vars': 'off',
-            },
-        }, {
             files: ['**/snippet/*.json'],
             rules: {
                 'inclusive-language/use-inclusive-words': 'error',
             },
         }, {
             files: ['**/*.ts', '**/*.tsx'],
-            excludedFiles: '*.spec.ts',
             extends: [
                 '@shopware-ag/eslint-config-base',
                 'plugin:@typescript-eslint/eslint-recommended',

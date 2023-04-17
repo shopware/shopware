@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\ServiceStubs;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -38,7 +39,8 @@ class ScriptExecutor
         private readonly LoggerInterface $logger,
         private readonly ScriptTraces $traces,
         private readonly ContainerInterface $container,
-        private readonly TranslationExtension $translationExtension
+        private readonly TranslationExtension $translationExtension,
+        private readonly string $shopwareVersion,
     ) {
     }
 
@@ -155,6 +157,10 @@ class ScriptExecutor
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());
         }
+
+        $twig->addGlobal('shopware', new ArrayStruct([
+            'version' => $this->shopwareVersion,
+        ]));
 
         return $twig;
     }

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -201,6 +202,10 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
+        ];
+        yield 'Test get shopware version' => [
+            ['shopware-version-case'],
+            ['version' => Kernel::SHOPWARE_FALLBACK_VERSION],
         ];
     }
 }

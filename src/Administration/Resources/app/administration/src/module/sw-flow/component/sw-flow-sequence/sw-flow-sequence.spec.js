@@ -73,23 +73,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         expect(condition.exists()).toBeFalsy();
     });
 
-    it('should show sequence action type correctly', async () => {
-        const wrapper = await createWrapper({
-            sequence: {
-                ...sequenceFixture,
-                actionName: 'sendEmail'
-            }
-        });
-
-        const selector = wrapper.find('sw-flow-sequence-selector-stub');
-        const action = wrapper.find('sw-flow-sequence-action-stub');
-        const condition = wrapper.find('sw-flow-sequence-condition-stub');
-
-        expect(selector.exists()).toBeFalsy();
-        expect(action.exists()).toBeTruthy();
-        expect(condition.exists()).toBeFalsy();
-    });
-
     it('should show block children correctly', async () => {
         const wrapper = await createWrapper({
             sequence: {

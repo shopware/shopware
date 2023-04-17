@@ -219,19 +219,23 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                         if (isCurrentDiscounted !== !isComparatorDiscounted) {
                             // discounted index is always smaller than undiscounted
                             if (isCurrentDiscounted && !isComparatorDiscounted) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeLessThan(comparatorIndex);
                             }
 
                             if (!isCurrentDiscounted && isComparatorDiscounted) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeGreaterThan(comparatorIndex);
                             }
                         } else {
                             // variants are ordered by recommendation
                             if (currentRecommendation < comparatorRecommendation) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeLessThan(comparatorIndex);
                             }
 
                             if (currentIndex > comparatorRecommendation) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeGreaterThan(comparatorIndex);
                             }
                         }

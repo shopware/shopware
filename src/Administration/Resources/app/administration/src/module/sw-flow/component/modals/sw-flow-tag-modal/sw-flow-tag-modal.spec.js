@@ -159,7 +159,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         });
     });
 
-    it('should remove error if these fields are valid ', async () => {
+    it('should remove error if these fields are valid', async () => {
         const wrapper = await createWrapper();
 
         const removeEntity = wrapper.find('.sw-select__select-indicator-clear');

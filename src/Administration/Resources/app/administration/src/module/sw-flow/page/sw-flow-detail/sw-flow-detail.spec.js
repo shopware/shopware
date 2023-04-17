@@ -205,7 +205,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to save a flow ', async () => {
+    it('should be able to save a flow', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
         ], {}, {}, ID_FLOW);
@@ -276,7 +276,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         await saveButton.trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toBeCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
 
     it('should able to validate sequences before saving', async () => {

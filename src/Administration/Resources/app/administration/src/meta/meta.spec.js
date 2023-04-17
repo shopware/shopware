@@ -41,11 +41,8 @@ describe('Administration meta tests', () => {
         const regex = /^.*\/(.*)\/((.*)\.(js|ts))$/;
 
         const [whole, lastFolder, fileName, fileNameWithoutExtension, extension] = file.match(regex);
-        if (baseline.includes(fileName) || baseline.includes(`${lastFolder}/${fileName}`)) {
-            expect(true).toBe(true);
 
-            return;
-        }
+        const isInBaseLine = baseline.includes(fileName) || baseline.includes(`${lastFolder}/${fileName}`);
 
         const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.${extension}`);
         const specFileExists = fs.existsSync(specFile);
@@ -65,7 +62,7 @@ describe('Administration meta tests', () => {
         const specFileAlternativeExtensionExists = fs.existsSync(specFileAlternativeExtension);
         const specFileWithFolderNameAlternativeExtensionExists = fs.existsSync(specFileWithFolderNameAlternativeExtension);
 
-        const fileIsTested = specFileExists || specFileWithFolderNameExists || specFileAlternativeExtensionExists || specFileWithFolderNameAlternativeExtensionExists;
+        const fileIsTested = isInBaseLine || specFileExists || specFileWithFolderNameExists || specFileAlternativeExtensionExists || specFileWithFolderNameAlternativeExtensionExists;
 
         expect(fileIsTested).toBeTruthy();
     });

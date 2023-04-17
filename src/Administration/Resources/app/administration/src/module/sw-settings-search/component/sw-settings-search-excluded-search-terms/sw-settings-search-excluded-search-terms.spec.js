@@ -91,7 +91,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be show element no excluded search ', async () => {
+    it('should be show element no excluded search', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
@@ -115,7 +115,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
         const pagination = wrapper.find('.sw-data-grid__pagination');
         const pages = wrapper.findAll('.sw-pagination__list-item');
-        expect(pagination.exists());
+        expect(pagination.exists()).toBe(true);
         expect(pages.wrappers.length).toEqual(2);
     });
 

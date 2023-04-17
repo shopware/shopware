@@ -105,20 +105,22 @@ describe('core/helper/sanitizer.helper.js', () => {
     });
 
     it('should register a middleware with a valid name only', async () => {
+        console.warn = jest.fn();
         expect(Sanitizer.addMiddleware('foo', () => {})).toBe(false);
         expect(Sanitizer.addMiddleware('afterSanitizeElements', () => {})).toBe(true);
 
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
+        expect(console.warn).toHaveBeenCalledTimes(1);
     });
 
-    it.only('should remove a middleware with a valid name only', async () => {
+    it('should remove a middleware with a valid name only', async () => {
         const warnSpy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
 
         expect(Sanitizer.removeMiddleware('foo')).toBe(false);
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
 
-        expect(warnSpy).toBeCalledWith(
+        expect(warnSpy).toHaveBeenCalledWith(
             '[Sanitizer]',
             expect.stringContaining('No middleware found for name')
         );

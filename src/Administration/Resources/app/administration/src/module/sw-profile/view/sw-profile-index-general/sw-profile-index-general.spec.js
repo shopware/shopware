@@ -80,7 +80,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
             computedNewPassword: 'Shopware'
         });
 
-        expect(spyNewPasswordChangeEmit).toBeCalledWith('new-password-change', 'Shopware');
+        expect(spyNewPasswordChangeEmit).toHaveBeenCalledWith('new-password-change', 'Shopware');
     });
 
     it('should be able to change new password confirm', async () => {
@@ -90,7 +90,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
             computedNewPasswordConfirm: 'Shopware'
         });
 
-        expect(spyNewPasswordConfirmChangeEmit).toBeCalledWith('new-password-confirm-change', 'Shopware');
+        expect(spyNewPasswordConfirmChangeEmit).toHaveBeenCalledWith('new-password-confirm-change', 'Shopware');
     });
 
     it('should be able to upload media', async () => {
@@ -98,7 +98,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
 
         wrapper.vm.onUploadMedia({ targetId: 'targetId' });
 
-        expect(spyMediaUploadEmit).toBeCalledWith('media-upload', { targetId: 'targetId' });
+        expect(spyMediaUploadEmit).toHaveBeenCalledWith('media-upload', { targetId: 'targetId' });
     });
 
     it('should be able to drop media', async () => {
@@ -106,7 +106,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
 
         wrapper.vm.onDropMedia({ id: 'targetId' });
 
-        expect(spyMediaUploadEmit).toBeCalledWith('media-upload', { targetId: 'targetId' });
+        expect(spyMediaUploadEmit).toHaveBeenCalledWith('media-upload', { targetId: 'targetId' });
     });
 
     it('should be able to remove media', async () => {
@@ -114,7 +114,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
 
         wrapper.vm.onRemoveMedia();
 
-        expect(spyMediaRemoveEmit).toBeCalledWith('media-remove');
+        expect(spyMediaRemoveEmit).toHaveBeenCalledWith('media-remove');
     });
 
     it('should be able to open media', async () => {
@@ -122,7 +122,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
 
         wrapper.vm.onOpenMedia();
 
-        expect(spyMediaOpenEmit).toBeCalledWith('media-open');
+        expect(spyMediaOpenEmit).toHaveBeenCalledWith('media-open');
     });
 
     it('should be able to select timezone', async () => {

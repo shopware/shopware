@@ -590,6 +590,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-credit-item');
         await buttonAddCreditItem.trigger('click');
+        expect(Shopware.State.get('swOrder').cart.lineItems).toHaveLength(1);
+
 
         const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
         await selectAllCheckBox.setChecked(true);
@@ -597,7 +599,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
         await deleteAllButton.trigger('click');
 
-        // Add expect
+        await wrapper.vm.$nextTick();
+
+        expect(Shopware.State.get('swOrder').cart.lineItems).toHaveLength(0);
     });
 
     it('should change credit value to negative', async () => {

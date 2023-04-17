@@ -32,7 +32,7 @@ function getCollection(repository) {
     );
 }
 
-async function createWrapper(privileges = [], isNewRule = false, computed = {}, provide = {}) {
+async function createWrapper(isNewRule = false, computed = {}, provide = {}) {
     return shallowMount(await Shopware.Component.build('sw-settings-rule-detail'), {
         stubs: {
             'sw-page': {
@@ -90,13 +90,6 @@ async function createWrapper(privileges = [], isNewRule = false, computed = {}, 
                     };
                 }
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
             feature: {
                 isActive: () => true
             },
@@ -116,48 +109,44 @@ async function createWrapper(privileges = [], isNewRule = false, computed = {}, 
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have disabled fields', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await flushPromises();
 
-        const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
+        const buttonSave = wrapper.get('.sw-settings-rule-detail__save-action');
 
         expect(buttonSave.attributes().disabled).toBe('disabled');
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ]);
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper();
 
         await flushPromises();
 
-        const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
+        const buttonSave = wrapper.get('.sw-settings-rule-detail__save-action');
 
         expect(buttonSave.attributes().disabled).toBeUndefined();
     });
 
     it('should render tabs in existing rule', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ]);
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper();
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeTruthy();
+        expect(wrapper.get('.sw-settings-rule-detail__tabs').exists()).toBeTruthy();
     });
 
     it('should not render tabs in new rule', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ], true);
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper(true);
 
         await flushPromises();
 
@@ -165,9 +154,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should set user changes when condition tree changed', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ], false);
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper(false);
 
         await flushPromises();
 
@@ -179,9 +168,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should open changes modal when leaving the route', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ], false);
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper(false);
 
         await flushPromises();
 
@@ -197,9 +186,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should reset condition tree state when navigating back to the base tab', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ], false);
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper(false);
 
         await flushPromises();
 
@@ -216,9 +205,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should not open changes modal when there are no changes', async () => {
-        const wrapper = await createWrapper([
-            'rule.editor'
-        ], false);
+        global.activeAclRoles = ['rule.editor'
+        ];
+
+        const wrapper = await createWrapper(false);
 
         await flushPromises();
 
@@ -234,6 +224,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should return tab has no error for assignment tab', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await flushPromises();
@@ -246,8 +238,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should return tab has error for assignment tab', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper(
-            [],
             false,
             {
                 ruleNameError() {
@@ -268,10 +261,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should prevent the user from saving the rule when rule awareness is violated', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
         const wrapper = await createWrapper(
-            [
-                'rule.editor'
-            ],
             false,
             {},
             {
@@ -287,6 +279,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             }
         );
 
+        wrapper.vm.ruleRepository.save = jest.fn(() => Promise.resolve());
+
         await wrapper.setData({
             conditionTree: [{
                 id: 'some-condition',
@@ -301,15 +295,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         await flushPromises();
 
-        const saveButton = wrapper.find('.sw-settings-rule-detail__save-action');
+        const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
         await saveButton.trigger('click');
+
+        expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(0);
     });
 
     it('should save without any awareness config', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
         const wrapper = await createWrapper(
-            [
-                'rule.editor'
-            ],
             false,
             {},
             {
@@ -320,6 +315,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 },
             }
         );
+        wrapper.vm.ruleRepository.save = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({
             conditionTree: [{
@@ -335,7 +331,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         await flushPromises();
 
-        const saveButton = wrapper.find('.sw-settings-rule-detail__save-action');
+        const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
         await saveButton.trigger('click');
+
+        expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(1);
     });
 });

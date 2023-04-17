@@ -65,7 +65,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             }
         },
         {
-            description: 'Shouldn´t return an changeset when origin and draft are identical',
+            description: 'should not return an changeset when origin and draft are identical',
             entityName: 'cms_page',
             originChanges: {
                 config: {
@@ -92,7 +92,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             expected: null
         },
         {
-            description: 'Shouldn´t return an changeset when origin and draft are identical except the key order in objects',
+            description: 'should not return an changeset when origin and draft are identical except the key order in objects',
             entityName: 'cms_page',
             originChanges: {
                 config: {
@@ -138,8 +138,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             }
         },
         {
-            // eslint-disable-next-line max-len
-            description: 'Should create a changeset when the order in arrays are chaning. In combination with object key order changes.',
+            description: 'Should create a changeset when the order in arrays are changing. In combination with object key order changes.',
             entityName: 'cms_page',
             originChanges: {
                 config: {
@@ -325,7 +324,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             expected: null
         }
     ].forEach(({ description, entityChanges, originChanges, expected, entityName }) => {
-        it(description || 'should create the correct changeset', async () => {
+        it(`${description}`, async () => {
             const testEntity = entityFactory.create(entityName);
 
             Object.entries(originChanges).forEach(([key, value]) => {

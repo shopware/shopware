@@ -198,7 +198,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(contextButton.exists()).toBe(true);
     });
 
-    it('should show item tabs ', async () => {
+    it('should show item tabs', async () => {
         const tabItemClassName = [
             '.sw-product-detail__tab-advanced-prices',
             '.sw-product-detail__tab-variants',

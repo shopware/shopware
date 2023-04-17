@@ -179,7 +179,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationSuccess).toBeCalled();
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalled();
         wrapper.vm.createNotificationSuccess.mockRestore();
 
         expect(routerPush).toHaveBeenLastCalledWith({

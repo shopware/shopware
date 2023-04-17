@@ -535,8 +535,10 @@ describe('components/data-grid/sw-data-grid', () => {
             const result = grid.renderColumn(entity, column);
 
             if (typeof testCase.errorMsg === 'string') {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).toHaveBeenCalledWith(testCase.errorMsg);
             } else {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).not.toHaveBeenCalled();
             }
             expect(result).toBe(testCase.expected);
@@ -579,8 +581,10 @@ describe('components/data-grid/sw-data-grid', () => {
             expect(result).toBe(testCase.expected);
 
             if (typeof testCase.errorMsg === 'string') {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).toHaveBeenCalledWith(testCase.errorMsg);
             } else {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).not.toHaveBeenCalled();
             }
         });

@@ -135,7 +135,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         wrapper.vm.openStore();
 
-        expect(wrapper.vm.$router.push).toBeCalled();
+        expect(wrapper.vm.$router.push).toHaveBeenCalled();
     });
 
     it('openThemesStore should call router', async () => {
@@ -145,13 +145,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         wrapper.vm.openThemesStore();
 
-        expect(wrapper.vm.$router.push).toBeCalled();
+        expect(wrapper.vm.$router.push).toHaveBeenCalled();
     });
 
     it('updateList should call update extensions', async () => {
         wrapper.vm.updateList();
 
-        expect(shopwareService.updateExtensionData).toBeCalled();
+        expect(shopwareService.updateExtensionData).toHaveBeenCalled();
     });
 
     it('extensionList default has a app', async () => {
@@ -354,7 +354,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         });
     });
 
-    it('should sort the extensions by their name in an ascending order', async () => {
+    it('should sort the extensions by their name in an decending order', async () => {
         const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
         const extensions = extensionNames.map((name, i) => {
             return { name, label: name, installedAt: `foo-${i}`, active: true, updatedAt: null };

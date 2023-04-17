@@ -153,7 +153,7 @@ describe('sw-app-actions', () => {
         expect(wrapper.vm.$children.length).toBe(0);
     });
 
-    it('it throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
+    it('throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
         const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
@@ -163,8 +163,8 @@ describe('sw-app-actions', () => {
 
         const notificationMock = wrapper.vm.createNotificationError;
 
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(notificationMock).toBeCalledWith({
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-app.component.sw-app-actions.messageErrorFetchButtons'
         });
         expect(wrapper.vm.$children.length).toBe(0);
@@ -180,11 +180,11 @@ describe('sw-app-actions', () => {
 
         const notificationMock = wrapper.vm.createNotificationError;
 
-        expect(notificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.$children.length).toBe(0);
     });
 
-    it('it calls appActionButtonService.runAction if triggered by context menu button', async () => {
+    it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
         const router = createRouter();
         wrapper = await createWrapper(router);
 
@@ -221,7 +221,7 @@ describe('sw-app-actions', () => {
         ]);
     });
 
-    it('it calls appActionButtonService.runAction with correct response', async () => {
+    it('calls appActionButtonService.runAction with correct response', async () => {
         const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
@@ -240,14 +240,14 @@ describe('sw-app-actions', () => {
 
         const notificationMock = wrapper.vm.createNotification;
 
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(notificationMock).toBeCalledWith({
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
             variant: actionResultData.data.status,
             message: actionResultData.data.message
         });
     });
 
-    it('it calls appActionButtonService.runAction with open modal response', async () => {
+    it('calls appActionButtonService.runAction with open modal response', async () => {
         const router = createRouter();
         const openModalResponseData = {
             data: {

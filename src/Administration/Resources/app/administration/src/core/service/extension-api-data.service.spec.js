@@ -322,7 +322,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             scope: wrapper.vm,
         });
 
-        expect(console.error).toBeCalledTimes(0);
+        expect(console.error).toHaveBeenCalledTimes(0);
 
         wrapper.destroy();
     });
@@ -362,7 +362,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             scope: wrapper2.vm,
         });
 
-        expect(console.error).toBeCalledTimes(1);
+        expect(console.error).toHaveBeenCalledTimes(1);
 
         wrapper1.destroy();
     });

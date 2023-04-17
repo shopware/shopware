@@ -93,8 +93,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         await createWrapper(push);
         await flushPromises();
 
-        expect(push).toBeCalledTimes(1);
-        expect(push).toBeCalledWith({
+        expect(push).toHaveBeenCalledTimes(1);
+        expect(push).toHaveBeenCalledWith({
             name: 'sw.login.index'
         });
     });
@@ -112,10 +112,10 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const loginButton = wrapper.find('.sw-button');
         await loginButton.trigger('click');
 
-        expect(loginByUserName).toBeCalledTimes(1);
-        expect(loginByUserName).toBeCalledWith('max', '');
-        expect(push).toBeCalledTimes(1);
-        expect(push).toBeCalledWith('sw.example.route.index');
+        expect(loginByUserName).toHaveBeenCalledTimes(1);
+        expect(loginByUserName).toHaveBeenCalledWith('max', '');
+        expect(push).toHaveBeenCalledTimes(1);
+        expect(push).toHaveBeenCalledWith('sw.example.route.index');
     });
 
     it('should show password error on failed login attempt', async () => {
@@ -130,8 +130,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         await loginButton.trigger('click');
         await flushPromises();
 
-        expect(loginByUserName).toBeCalledTimes(1);
-        expect(loginByUserName).toBeCalledWith('max', '');
+        expect(loginByUserName).toHaveBeenCalledTimes(1);
+        expect(loginByUserName).toHaveBeenCalledWith('max', '');
 
         expect(wrapper.vm.passwordError !== null).toBe(true);
         const passwordError = wrapper.find('.sw-field__error');
@@ -147,8 +147,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const backLink = wrapper.find('a');
         await backLink.trigger('click');
 
-        expect(push).toBeCalledTimes(1);
-        expect(push).toBeCalledWith({
+        expect(push).toHaveBeenCalledTimes(1);
+        expect(push).toHaveBeenCalledWith({
             name: 'sw.login.index',
         });
     });
@@ -166,7 +166,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         await flushPromises();
 
-        expect(push).toBeCalledTimes(1);
+        expect(push).toHaveBeenCalledTimes(1);
 
         channel.close();
     });
@@ -186,7 +186,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         await flushPromises();
 
-        expect(push).toBeCalledTimes(0);
+        expect(push).toHaveBeenCalledTimes(0);
 
         channel.close();
     });

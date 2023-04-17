@@ -306,7 +306,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
             const notificationMock = wrapper.vm.createNotificationError;
 
-            expect(notificationMock).toBeCalledTimes(1);
+            expect(notificationMock).toHaveBeenCalledTimes(1);
             expect(notificationMock).toHaveBeenCalledWith({
                 message: 'sw-category.general.errorNavigationEntryPoint'
             });
@@ -335,7 +335,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         const notificationMock = wrapper.vm.createNotificationError;
 
-        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-category.general.errorNavigationEntryPoint'
         });

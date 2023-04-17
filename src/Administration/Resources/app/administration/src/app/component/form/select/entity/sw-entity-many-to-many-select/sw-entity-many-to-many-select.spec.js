@@ -94,7 +94,7 @@ describe('components/sw-entity-many-to-many-select', () => {
 
         swEntityManyToManySelect.vm.sendSearchRequest();
 
-        expect(swEntityManyToManySelect.vm.searchRepository.search).toBeCalledWith(criteria, Shopware.Context.api);
+        expect(swEntityManyToManySelect.vm.searchRepository.search).toHaveBeenCalledWith(criteria, Shopware.Context.api);
     });
 
     it('should use advanced selection submit', async () => {

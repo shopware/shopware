@@ -51,16 +51,19 @@ describe('tagApiService', () => {
                 expect(tag.id).toEqual('t4');
 
                 if (bulkMergeProgress.currentAssignment === null) {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(tag.name).toEqual('foo');
                     return;
                 }
 
                 if (bulkMergeProgress.currentAssignment === 'products' && bulkMergeProgress.progress === 0) {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(tag.products).toEqual(firstProductIdsBatch.map((id) => { return { id }; }));
                     return;
                 }
 
                 if (bulkMergeProgress.currentAssignment === 'products') {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(tag.products).toEqual([200, 201, 202].map((id) => { return { id }; }));
                     return;
                 }
@@ -84,8 +87,11 @@ describe('tagApiService', () => {
                 }
 
                 if (bulkMergeProgress.currentAssignment === 'products') {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(criteria.page).toEqual(2);
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(bulkMergeProgress.progress).toEqual(200);
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(bulkMergeProgress.total).toEqual(203);
 
                     return { data: [200, 201, 202], total: 203 };

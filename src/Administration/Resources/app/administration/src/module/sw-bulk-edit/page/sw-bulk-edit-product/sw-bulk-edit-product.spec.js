@@ -473,6 +473,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     // TODO: @inventory - Fix this test
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('should open fail modal', async () => {
         bulkEditResponse = {
             data: null
@@ -824,7 +825,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         wrapper.vm.setRouteMetaModule = jest.fn();
 
         wrapper.vm.createdComponent();
-        expect(wrapper.vm.setRouteMetaModule).toBeCalled();
+        expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
         expect(wrapper.vm.$route.meta.$module.color).toBe('#57D9A3');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-products');
 
@@ -874,12 +875,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     // TODO: @inventory - Fix this test
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('should get parent product when component created', async () => {
         wrapper = await createWrapper();
         wrapper.vm.getParentProduct = jest.fn();
 
         wrapper.vm.createdComponent();
-        expect(wrapper.vm.getParentProduct).toBeCalled();
+        expect(wrapper.vm.getParentProduct).toHaveBeenCalled();
 
         wrapper.vm.getParentProduct.mockRestore();
     });

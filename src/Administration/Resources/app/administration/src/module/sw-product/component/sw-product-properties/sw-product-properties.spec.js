@@ -277,9 +277,17 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         });
 
         await State.commit('swProductDetail/setProduct', productMock);
-        wrapper.vm.getProperties().catch((error) => {
-            expect(error.message).toBe('Whoops!');
-        });
+
+        const getError = async () => {
+            try {
+                await wrapper.vm.getProperties();
+
+                throw new Error('Method should have thrown an error');
+            } catch (error) {
+                return error;
+            }
+        };
+        expect((await getError()).message).toBe('Whoops!');
 
         expect(wrapper.vm.properties).toEqual(
             expect.arrayContaining([])

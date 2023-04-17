@@ -184,12 +184,14 @@ module.exports = {
             files: ['**/*.spec.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
-                'no-console': 0,
                 'comma-dangle': 0,
                 'max-len': 0,
                 'inclusive-language/use-inclusive-words': 0,
                 'sw-deprecation-rules/private-feature-declarations': 0,
+                'jest/no-duplicate-hooks': 'error',
+                'jest/no-test-return-statement': 'error',
             },
+            extends: ['plugin:jest/recommended'],
         }, {
             files: ['**/snippet/*.json'],
             rules: {

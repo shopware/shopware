@@ -58,16 +58,23 @@ describe('core/factory/http.factory.js', () => {
             }]
         });
 
-        try {
-            await httpClient.get('/store-route-requiring-auth');
-        } catch (e) {
-            expect(e.response.status).toBe(403);
-            expect(e.response.data).toEqual({
-                errors: [{
-                    code: errorCode,
-                }]
-            });
-        }
+        const getError = async () => {
+            try {
+                await httpClient.get('/store-route-requiring-auth');
+
+                throw new Error('Expected error to be thrown');
+            } catch (error) {
+                return error;
+            }
+        };
+
+        const error = await getError();
+        expect(error.response.status).toBe(403);
+        expect(error.response.data).toEqual({
+            errors: [{
+                code: errorCode,
+            }]
+        });
 
         expect(mock.history.get.length).toBe(2);
     });
@@ -82,19 +89,27 @@ describe('core/factory/http.factory.js', () => {
             }]
         });
 
-        try {
-            await Promise.all([
-                httpClient.get('/store-route-requiring-auth'),
-                httpClient.get('/store-route-requiring-auth')
-            ]);
-        } catch (e) {
-            expect(e.response.status).toBe(403);
-            expect(e.response.data).toEqual({
-                errors: [{
-                    code: errorCode,
-                }]
-            });
-        }
+        const getError = async () => {
+            try {
+                await Promise.all([
+                    httpClient.get('/store-route-requiring-auth'),
+                    httpClient.get('/store-route-requiring-auth')
+                ]);
+
+                throw new Error('Expected error to be thrown');
+            } catch (error) {
+                return error;
+            }
+        };
+
+        const error = await getError();
+        expect(error.response.status).toBe(403);
+        expect(error.response.data).toEqual({
+            errors: [{
+                code: errorCode,
+            }]
+        });
+
 
         expect(mock.history.get.length).toBe(4);
     });

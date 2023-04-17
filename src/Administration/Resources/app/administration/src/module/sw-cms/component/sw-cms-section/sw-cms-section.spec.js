@@ -89,7 +89,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('the disable all sub components', async () => {
+    it('should not disable all sub components', async () => {
         const wrapper = await createWrapper();
 
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
@@ -106,7 +106,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         });
     });
 
-    it('the disable all sub components', async () => {
+    it('should disable all sub components', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true

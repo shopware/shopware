@@ -143,14 +143,6 @@ describe('src/app/component/form/sw-file-input', () => {
         expect(fileName.exists()).toBeFalsy();
     });
 
-    it('should not show header and remove icon', async () => {
-        const fileName = wrapper.find('.sw-file-input__file-headline');
-        const removeIcon = wrapper.find('.sw-file-input__remove-icon');
-
-        expect(removeIcon.exists()).toBeFalsy();
-        expect(fileName.exists()).toBeFalsy();
-    });
-
     it('should show header and remove icon', async () => {
         await wrapper.setData({
             selectedFile: {

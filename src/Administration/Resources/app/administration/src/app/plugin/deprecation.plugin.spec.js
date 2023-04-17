@@ -47,7 +47,7 @@ describe('app/plugins/deprecated.plugin', () => {
     it('should not throw an error if the example component gets created', async () => {
         createComponent();
 
-        expect(global.console.warn).not.toBeCalled();
+        expect(global.console.warn).not.toHaveBeenCalled();
     });
 
     it('[prop] should not throw an error if the deprecated prop is not used', async () => {
@@ -64,7 +64,7 @@ describe('app/plugins/deprecated.plugin', () => {
             }
         });
 
-        expect(global.console.warn).not.toBeCalled();
+        expect(global.console.warn).not.toHaveBeenCalled();
     });
 
     it('[prop] should throw an error if the deprecated (string) prop is used', async () => {
@@ -87,7 +87,7 @@ describe('app/plugins/deprecated.plugin', () => {
             }
         });
 
-        expect(global.console.warn).toBeCalled();
+        expect(global.console.warn).toHaveBeenCalled();
     });
 
     it('[prop] should throw an error if the deprecated (object) prop is used', async () => {
@@ -112,7 +112,7 @@ describe('app/plugins/deprecated.plugin', () => {
             }
         });
 
-        expect(global.console.warn).toBeCalled();
+        expect(global.console.warn).toHaveBeenCalled();
     });
 
     it('[prop] should show the relevant deprecation (string) information in the warning', async () => {
@@ -291,7 +291,7 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(secondCall[1]).toEqual(expect.stringContaining('--> base-component'));
     });
 
-    it('[component] should throw an trace after the warning', async () => {
+    it('[component] should throw an trace after the warning in nested components', async () => {
         createComponent({
             customComponent: {
                 template: `

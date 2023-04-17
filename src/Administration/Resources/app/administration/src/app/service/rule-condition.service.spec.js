@@ -22,17 +22,15 @@ describe('src/app/service/rule-condition.service.js', () => {
             notEquals: ['cartCartAmount']
         });
 
-        return ruleConditionService.getRestrictedRules('personaPromotions').then(result => {
-            expect(result).toEqual(['restricted-rule-id']);
-        });
+        const result = await ruleConditionService.getRestrictedRules('personaPromotions');
+        expect(result).toEqual(['restricted-rule-id']);
     });
 
     it('should return empty array when the specified relation does not exist', async () => {
         const ruleConditionService = createConditionService();
 
-        return ruleConditionService.getRestrictedRules('personaPromotions').then(result => {
-            expect(result).toEqual([]);
-        });
+        const result = await ruleConditionService.getRestrictedRules('personaPromotions');
+        expect(result).toEqual([]);
     });
 
     it('should return restricted conditions', async () => {

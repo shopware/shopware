@@ -59,7 +59,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('Should be show example modal when the link was clicked ', async () => {
+    it('Should be show example modal when the link was clicked', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);

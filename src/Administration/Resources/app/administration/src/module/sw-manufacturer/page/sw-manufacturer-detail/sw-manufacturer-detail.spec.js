@@ -191,7 +191,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(wrapper.vm.isLoading).toBe(false);
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.notification.notificationLoadingDataErrorMessage'
         });
 
@@ -209,7 +209,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(wrapper.vm.isLoading).toBe(false);
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.notification.notificationLoadingDataErrorMessage'
         });
     });
@@ -225,7 +225,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(wrapper.vm.isLoading).toBe(false);
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.notification.notificationLoadingDataErrorMessage'
         });
 

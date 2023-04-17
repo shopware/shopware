@@ -86,7 +86,7 @@ describe('src/app/service/app-cms.service', () => {
             }
         });
 
-        expect(global.console.warn).toBeCalledWith(
+        expect(global.console.warn).toHaveBeenCalledWith(
             '[AppCmsService]',
             'The locale "pt-PT" is not registered in Shopware.Locale.'
         );
@@ -100,7 +100,7 @@ describe('src/app/service/app-cms.service', () => {
             }
         });
 
-        expect(global.console.warn).toBeCalledWith(
+        expect(global.console.warn).toHaveBeenCalledWith(
             '[AppCmsService]',
             'The category "foobar" is not a valid category.'
         );

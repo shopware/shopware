@@ -181,6 +181,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const [,, deleteButton] = contextMenuItems;
 
         if (!state) {
+            // eslint-disable-next-line jest/no-conditional-expect
             expect(deleteButton.classes()).not.toContain('is--disabled');
 
             return;
@@ -212,6 +213,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const [, duplicateButton] = contextMenuItems;
 
         if (!state) {
+            // eslint-disable-next-line jest/no-conditional-expect
             expect(duplicateButton.classes()).not.toContain('is--disabled');
 
             return;

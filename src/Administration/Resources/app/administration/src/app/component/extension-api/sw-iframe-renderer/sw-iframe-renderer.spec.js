@@ -99,7 +99,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         expect(testComponent.exists()).toBe(false);
     });
 
-    it('should render iFrame', async () => {
+    it('should render iFrame with replacement component', async () => {
         Shopware.State.commit('extensions/addExtension', {
             name: 'foo',
             baseUrl: 'https://example.com',

@@ -97,8 +97,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(notificationMock).toBeCalledTimes(0);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
     it('should not show modal if APP_URL is reachable', async () => {
@@ -110,8 +110,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toBeCalledTimes(0);
-        expect(deleteNotificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(1);
     });
 
     it('should not show modal if no apps are require app url, but it should show notification', async () => {
@@ -123,8 +123,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
     it('should not show modal if it was shown, but it should show notification', async () => {
@@ -136,8 +136,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
     it('should create notification and set localstorage on close', async () => {
@@ -149,12 +149,12 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(notificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
 
         modal.vm.$emit('modal-close');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 });

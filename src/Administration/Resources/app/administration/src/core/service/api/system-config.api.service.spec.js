@@ -94,21 +94,6 @@ describe('Test function batchSave at file src/core/service/api/system-config.api
         const res = await systemConfigService.batchSave([]);
         expect(res).toEqual({});
     });
-
-    it('should throw exception', async () => {
-        axiosMock.onPost('_action/system-config/batch')
-            .reply(400, {
-                data: {
-                    errors: [],
-                },
-            });
-
-        try {
-            await systemConfigService.batchSave([]);
-        } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-        }
-    });
 });
 
 describe('Test getConfig at file src/core/service/api/system-config.api.service.js', () => {

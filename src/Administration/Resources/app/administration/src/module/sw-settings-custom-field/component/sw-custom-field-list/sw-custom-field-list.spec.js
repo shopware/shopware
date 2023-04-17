@@ -200,7 +200,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(expectedRow.find('.sw-grid-column[data-index="label"]').text()).toBe('Special field 1');
     });
 
-    it('should sort custom fields by position ', async () => {
+    it('should sort custom fields by position', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

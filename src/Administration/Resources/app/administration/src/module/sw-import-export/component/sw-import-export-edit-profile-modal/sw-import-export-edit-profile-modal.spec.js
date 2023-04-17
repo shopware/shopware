@@ -122,9 +122,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const mockParentProfiles = getMockParentProfiles();
 
-        wrapper.vm.getParentProfileSelected().then((result) => {
-            expect(result).toEqual(mockParentProfiles[0]);
-        });
+        expect((await wrapper.vm.getParentProfileSelected())).toEqual(mockParentProfiles[0]);
     });
 
     it('should be null of parentProfile', async () => {
@@ -132,9 +130,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         await wrapper.setProps({ profile: mockProfile });
 
-        wrapper.vm.getParentProfileSelected().then((result) => {
-            expect(result).toBeNull();
-        });
+        expect((await wrapper.vm.getParentProfileSelected())).toBeNull();
     });
 
     it('should be null of parentProfile when search was error', async () => {

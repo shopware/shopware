@@ -81,7 +81,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     it('should create a product sorting entity', async () => {
         const productSortingEntity = wrapper.vm.productSortingEntity;
 
-        expect(productSortingEntity).resolves.toEqual({
+        await expect(productSortingEntity).resolves.toEqual({
             active: true,
             apiAlias: null,
             createdAt: '2020-08-06T13:06:03.799+00:00',

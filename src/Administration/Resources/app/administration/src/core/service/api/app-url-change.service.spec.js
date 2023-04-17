@@ -46,7 +46,7 @@ describe('appUrlChangeService', () => {
         }]);
     });
 
-    it('it sends name of selected strategy', async () => {
+    it('sends name of selected strategy', async () => {
         // Shopware.Service('appUrlChangeService')
         const { appUrlChangeService, clientMock } = createAppUrlChangeService();
 
@@ -58,8 +58,11 @@ describe('appUrlChangeService', () => {
         ).reply(204);
 
         await appUrlChangeService.resolveUrlChange({
-            name: 'selectedStrategy',
-            description: 'some strategy'
+            name: 'selectedStrategy'
+        });
+
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
+            strategy: 'selectedStrategy'
         });
     });
 

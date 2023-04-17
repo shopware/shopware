@@ -335,11 +335,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex;
         const imageWrappers = wrapper.findAll('.sw-image-slider__element-wrapper');
         imageWrappers.wrappers.forEach((item, index) => {
-            if (index === 0 || index === 1) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes()['aria-hidden']).toBe((index === 0 || index === 1) ? undefined : 'true');
         });
 
         // Move to last page, mark 4th and 5th images not hidden
@@ -347,11 +343,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         await buttons.at(expectedIndex).trigger('click');
 
         imageWrappers.wrappers.forEach((item, index) => {
-            if (index === 3 || index === 4) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes()['aria-hidden']).toBe((index === 3 || index === 4) ? undefined : 'true');
         });
 
         // Move to 2nd page, mark 3rd and 4th images not hidden
@@ -359,11 +351,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         await buttons.at(expectedIndex).trigger('click');
 
         imageWrappers.wrappers.forEach((item, index) => {
-            if (index === 2 || index === 3) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes()['aria-hidden']).toBe((index === 2 || index === 3) ? undefined : 'true');
         });
     });
 
@@ -376,33 +364,21 @@ describe('src/app/component/media/sw-image-slider', () => {
         const imageContainers = wrapper.findAll('.sw-image-slider__element-container');
 
         imageContainers.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         expectedIndex = 1;
         await imageContainers.at(expectedIndex).trigger('click');
 
         imageContainers.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         expectedIndex = 3;
         await imageContainers.at(expectedIndex).trigger('click');
 
         imageContainers.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
 

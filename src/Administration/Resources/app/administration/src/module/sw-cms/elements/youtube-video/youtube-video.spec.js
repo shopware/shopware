@@ -37,14 +37,6 @@ describe('modules/sw-cms/elements/youtube-video', () => {
         expect(convertedTime.string).toBe(1233);
     });
 
-    it('should set a fallback value if user types no valid time', async () => {
-        const userInput = swCmsElConfigYoutubeVideo.methods.convertTimeToUrlFormat('help');
-
-        expect(userInput.seconds).toBe(0);
-        expect(userInput.minutes).toBe(0);
-        expect(userInput.string).toBe(0);
-    });
-
     it('should convert time to input format', async () => {
         const convertedTime = swCmsElConfigYoutubeVideo.methods.convertTimeToInputFormat(2077);
 

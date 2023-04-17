@@ -349,10 +349,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.$router.push({ path: 'confirm' });
     });
 
-    beforeAll(() => {
-        jest.spyOn(global.console, 'error').mockImplementation(() => {});
-    });
-
     it('should show all form fields', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -660,7 +656,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.setRouteMetaModule = jest.fn();
 
         wrapper.vm.createdComponent();
-        expect(wrapper.vm.setRouteMetaModule).toBeCalled();
+        expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
         expect(wrapper.vm.$route.meta.$module.color).toBe('#A092F0');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 

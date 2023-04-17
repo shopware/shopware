@@ -48,9 +48,8 @@ describe('app/service/media-default-folder.service.js', () => {
 
         const mediaDefaultFolderService = MediaDefaultFolderService();
 
-        mediaDefaultFolderService.getDefaultFolderId('product').then((id) => {
-            expect(id).toEqual('defaultFolderId');
-        });
+        const id = await mediaDefaultFolderService.getDefaultFolderId('product');
+        expect(id).toEqual('defaultFolderId');
     });
 
     it('getDefaultFolderId function should return a response faster when called with the same argument', async () => {

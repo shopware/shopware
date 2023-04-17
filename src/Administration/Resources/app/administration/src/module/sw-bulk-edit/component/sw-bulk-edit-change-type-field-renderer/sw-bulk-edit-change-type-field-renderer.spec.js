@@ -136,11 +136,11 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
         wrapper.vm.$emit = jest.fn();
 
         wrapper.vm.onInheritanceRestore(item);
-        expect(wrapper.vm.$emit).toBeCalledWith('inheritance-restore', item);
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith('inheritance-restore', item);
         wrapper.vm.$emit.mockRestore();
 
         wrapper.vm.onInheritanceRemove(item);
-        expect(wrapper.vm.$emit).toBeCalledWith('inheritance-remove', item);
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith('inheritance-remove', item);
         wrapper.vm.$emit.mockRestore();
     });
 });

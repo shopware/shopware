@@ -357,45 +357,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
 
         const deleteRule = wrapper.findAll('.sw-flow-sequence-condition__delete-condition');
         await deleteRule.trigger('click');
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(0);
-    });
-
-    it('should able to remove a condition and its children', async () => {
-        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
-
-        const wrapper = await createWrapper({
-            sequence: {
-                ...sequenceFixture,
-                ruleId: '1111',
-                rule: {
-                    name: 'Rule name',
-                    id: '1111'
-                },
-                trueBlock: {
-                    2: {
-                        ...sequencesFixture[1],
-                        _isNew: true
-                    }
-                },
-                falseBlock: {
-                    3: {
-                        ...sequencesFixture[2],
-                        _isNew: true
-                    }
-                }
-            }
-        });
-
-        let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(3);
-
-
-        const deleteRule = wrapper.findAll('.sw-flow-sequence-condition__delete-condition');
-        await deleteRule.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(0);

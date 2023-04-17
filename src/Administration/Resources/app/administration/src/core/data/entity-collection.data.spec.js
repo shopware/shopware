@@ -243,7 +243,7 @@ describe('entity-collection.data.ts', () => {
         expect(collection.last()).toStrictEqual(fixture[1]);
     });
 
-    it('does not duplicate collection if new index is undefined', async () => {
+    it('does not duplicate collection if new index is null', async () => {
         const collection = getCollection();
 
         collection.moveItem(null);
@@ -259,7 +259,7 @@ describe('entity-collection.data.ts', () => {
         expect(filtered.entity).toBe(collection.entity);
         expect(filtered.source).toBe(collection.source);
         expect(filtered.context).toBe(collection.context);
-        expect(collectionPrototype.isPrototypeOf(filtered));
+        expect(Object.getPrototypeOf(filtered)).toBe(collectionPrototype);
     });
 
     it('uses a filter callback', async () => {

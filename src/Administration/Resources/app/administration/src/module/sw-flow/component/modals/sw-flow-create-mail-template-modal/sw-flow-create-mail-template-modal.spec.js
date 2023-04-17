@@ -208,7 +208,7 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
         await wrapper.find(buttonSaveClass).trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.createNotificationError).toBeCalledTimes(0);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(0);
     });
 
     it('should show error validation message', async () => {
@@ -224,6 +224,6 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
         await wrapper.find(buttonSaveClass).trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.createNotificationError).toBeCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
 });

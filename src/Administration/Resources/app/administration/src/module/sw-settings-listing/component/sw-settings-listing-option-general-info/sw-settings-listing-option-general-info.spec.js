@@ -51,7 +51,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         wrapper = await createWrapper();
     });
 
-    it('is a Vue.js component ', async () => {
+    it('is a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

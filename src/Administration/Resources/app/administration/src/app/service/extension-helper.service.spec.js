@@ -10,10 +10,6 @@ describe('src/app/service/extension-helper.service.js', () => {
     let extensionHelperService;
     let extensionMock;
 
-    beforeAll(() => {
-
-    });
-
     beforeEach(async () => {
         extensionHelperService = new ExtensionHelperService({
             extensionStoreActionService: {
@@ -29,54 +25,62 @@ describe('src/app/service/extension-helper.service.js', () => {
         });
     });
 
-    [
-        null,
-        {
+    it('check installation with downloaded: false, installedAt: false, active: false', async () => {
+        extensionMock = null;
+
+        await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
+
+        expect(extensionHelperService.extensionStoreActionService.downloadExtension).toHaveBeenCalledTimes(1);
+        expect(extensionHelperService.extensionStoreActionService.installExtension).toHaveBeenCalledTimes(1);
+        expect(extensionHelperService.extensionStoreActionService.activateExtension).toHaveBeenCalledTimes(1);
+    });
+
+    it('check installation with downloaded: true, installedAt: false, active: false', async () => {
+        extensionMock = {
             name: 'SwagDummyExtension',
             installedAt: null,
             active: null,
             source: 'local'
-        },
-        {
+        };
+
+        await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
+
+        expect(extensionHelperService.extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
+        expect(extensionHelperService.extensionStoreActionService.installExtension).toHaveBeenCalledTimes(1);
+        expect(extensionHelperService.extensionStoreActionService.activateExtension).toHaveBeenCalledTimes(1);
+    });
+
+    it('check installation with downloaded: true, installedAt: true, active: false', async () => {
+        extensionMock = {
             name: 'SwagDummyExtension',
             installedAt: {
                 date: '2021-01-02 09:59:46.324000'
             },
             active: null,
             source: 'local'
-        },
-        {
+        };
+
+        await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
+
+        expect(extensionHelperService.extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
+        expect(extensionHelperService.extensionStoreActionService.installExtension).not.toHaveBeenCalled();
+        expect(extensionHelperService.extensionStoreActionService.activateExtension).toHaveBeenCalledTimes(1);
+    });
+
+    it('check installation with downloaded: true, installedAt: true, active: true', async () => {
+        extensionMock = {
             name: 'SwagDummyExtension',
             installedAt: {
                 date: '2021-01-02 09:59:46.324000'
             },
             active: true,
             source: 'local'
-        }
-    ].forEach((mock) => {
-        // eslint-disable-next-line max-len
-        it(`check installation with downloaded: ${!!mock}, installedAt: ${!!mock && !!mock.installedAt}, active: ${!!mock && !!mock.active}`, async () => {
-            extensionMock = mock;
+        };
 
-            await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
+        await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
 
-            if (!mock) {
-                expect(extensionHelperService.extensionStoreActionService.downloadExtension).toHaveBeenCalled();
-            } else {
-                expect(extensionHelperService.extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
-            }
-
-            if (!mock || !mock.installedAt) {
-                expect(extensionHelperService.extensionStoreActionService.installExtension).toHaveBeenCalled();
-            } else {
-                expect(extensionHelperService.extensionStoreActionService.installExtension).not.toHaveBeenCalled();
-            }
-
-            if (!mock || !mock.active) {
-                expect(extensionHelperService.extensionStoreActionService.activateExtension).toHaveBeenCalled();
-            } else {
-                expect(extensionHelperService.extensionStoreActionService.activateExtension).not.toHaveBeenCalled();
-            }
-        });
+        expect(extensionHelperService.extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
+        expect(extensionHelperService.extensionStoreActionService.installExtension).not.toHaveBeenCalled();
+        expect(extensionHelperService.extensionStoreActionService.activateExtension).not.toHaveBeenCalled();
     });
 });

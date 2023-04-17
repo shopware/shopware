@@ -78,5 +78,7 @@ describe('appActionButtonService', () => {
         );
 
         await appActionButtonService.runAction(actionButtonId);
+
+        expect(clientMock.history.post[0].url).toBe(`app-system/action-button/run/${actionButtonId}`);
     });
 });

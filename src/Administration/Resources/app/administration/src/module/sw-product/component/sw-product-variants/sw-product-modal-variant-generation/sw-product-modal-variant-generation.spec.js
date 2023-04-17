@@ -169,7 +169,10 @@ async function createWrapper() {
         stubs: {
             'sw-tabs': true,
             'sw-tabs-item': true,
-            'sw-button': true,
+            'sw-button': {
+                template: '<button><slot></slot></button>',
+                props: ['disabled'],
+            },
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-product-variants-configurator-selection': true,
             'sw-icon': true,
@@ -527,8 +530,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         }]
                     }
                 ]
-            }
+            },
+            isLoading: false,
+            showUploadModal: true
         });
+
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').props('disabled')).toBe(false);
     });
 
     it('generate button should be disabled when not every variant has downloadable files', async () => {
@@ -542,10 +549,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         downloads: []
                     }
                 ]
-            }
+            },
+            isLoading: false,
+            showUploadModal: true
         });
 
-        expect(wrapper.vm.isGenerateButtonDisabled).toBe(true);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').props('disabled')).toBe(true);
     });
 
     it('should generate digital variants', async () => {

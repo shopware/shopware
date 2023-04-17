@@ -385,7 +385,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('#6dd59f');
     });
 
-    it('colorValue should be a hex value if colorOutput is `auto` ', async () => {
+    it('colorValue should be a hex value if colorOutput is `auto`', async () => {
         await wrapper.setProps({
             colorOutput: 'auto'
         });
@@ -399,7 +399,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('#6dd59f');
     });
 
-    it('colorValue should be a rgba value if colorOutput is `auto` ', async () => {
+    it('colorValue should be a rgba value if colorOutput is `auto`', async () => {
         await wrapper.setProps({
             colorOutput: 'auto'
         });

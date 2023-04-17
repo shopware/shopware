@@ -6,6 +6,8 @@ import EntityCollection from 'src/core/data/entity-collection.data';
  * @package customer-order
  */
 
+jest.useFakeTimers().setSystemTime(new Date(0));
+
 Shopware.Component.register('sw-order-details-state-card', swOrderDetailsStateCard);
 
 const orderMock = {
@@ -80,9 +82,6 @@ async function createWrapper() {
             stateMachineService: {
                 getState: () => { return { data: { transitions: [] } }; }
             },
-            acl: {
-                can: () => true
-            },
             repositoryFactory: {
                 create: (entity) => {
                     return {
@@ -120,16 +119,21 @@ async function createWrapper() {
             'sw-order-state-change-modal': true,
             'sw-container': true,
             'sw-card': true,
-            'sw-time-ago': true,
+            'sw-time-ago': {
+                template: '<div class="sw-time-ago"></div>',
+                props: ['date']
+            },
             i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' }
         }
     });
 }
 
 describe('src/module/sw-order/component/sw-order-details-state-card', () => {
-    let wrapper;
+    beforeEach(async () => {
+        if (Shopware.State.get('swOrderDetail')) {
+            Shopware.State.unregisterModule('swOrderDetail');
+        }
 
-    beforeAll(() => {
         Shopware.State.registerModule('swOrderDetail', {
             namespaced: true,
             state: {
@@ -140,24 +144,15 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
         });
     });
 
-    beforeEach(async () => {
-        global.repositoryFactoryMock.showError = false;
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show history text', async () => {
-        const summary = wrapper.find('.sw-order-detail-state-card__state-history-text');
+        global.repositoryFactoryMock.showError = false;
 
-        expect(summary.exists()).toBeTruthy();
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const summary = wrapper.get('.sw-order-detail-state-card__state-history-text');
+
         expect(summary.text()).toEqual('John Doe');
-        expect(summary.find('sw-time-ago').exists());
+        expect(summary.get('.sw-time-ago').props('date')).toEqual(new Date(0));
     });
 });

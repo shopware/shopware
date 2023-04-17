@@ -207,6 +207,8 @@ describe('src/component/grid/sw-pagination', () => {
         const startingPoint = wrapper.vm.currentPage;
 
         await checkNextPage(startingPoint, 'right');
+
+        expect(wrapper.vm.currentPage).toBe(11);
     });
 
     it('should navigate through complete pagination only with arrows', async () => {
@@ -214,7 +216,12 @@ describe('src/component/grid/sw-pagination', () => {
         const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
 
         await checkNextPage(startingPoint, 'right', rightArrow);
+
+        expect(wrapper.vm.currentPage).toBe(11);
         await checkNextPage(11, 'left', leftArrow);
+
+        await flushPromises();
+        expect(wrapper.vm.currentPage).toBe(11);
     });
 
     it('should jump to first page', async () => {

@@ -274,46 +274,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(openLayoutAssignmentModalSpy).toHaveBeenCalledTimes(0);
         expect(SaveSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
-        expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeFalsy();
-    });
-
-    it('should not show layout assignment when saving', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
-
-        wrapper = await createWrapper();
-        await flushPromises();
-        const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
-
-        await wrapper.vm.$nextTick();
-
-        await wrapper.setData({
-            isLoading: false,
-            page: {
-                name: 'My custom layout',
-                type: 'product_list',
-                categories: new EntityCollection(null, null, null, new Criteria(1, 25)),
-                sections: [
-                    {
-                        name: 'Section 1',
-                        blocks: [
-                            {
-                                name: 'Test block',
-                                type: 'product-listing',
-                                slots: []
-                            }
-                        ]
-                    }
-                ]
-            }
-        });
-
-        wrapper.vm.closeLayoutAssignmentModal(true);
-
-        await wrapper.vm.$nextTick();
-
-        expect(SaveSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBe(false);
     });
 
     it('should get preview entity for categories', async () => {
@@ -422,11 +383,14 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(saveSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should allow setting the default layout', async () => {
+    it('should not set the default layout when canceling and closing', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.createNotificationError = () => {};
+
+        const saveSpy = jest.fn();
+        wrapper.vm.systemConfigApiService.saveValues = saveSpy;
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
         wrapper.find('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
@@ -452,6 +416,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+        expect(saveSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should limit association loading in the loadPageCriteria', async () => {

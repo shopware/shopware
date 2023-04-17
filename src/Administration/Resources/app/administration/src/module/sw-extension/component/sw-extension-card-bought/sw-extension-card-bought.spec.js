@@ -109,9 +109,6 @@ async function createWrapper(extension) {
  * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     beforeAll(() => {
         Shopware.Context.api.assetsPath = '';
     });
@@ -124,7 +121,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -162,7 +159,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should display the extension information', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -202,7 +199,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should display a placeholder icon and the rent price', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -240,7 +237,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should link to the detail page', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -266,7 +263,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should link to the detail page with a store extension', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -297,7 +294,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     it('should open the rating modal', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -335,32 +332,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.vm.showRatingModal).toEqual(true);
     });
 
-    it('should not display the update to button, if there is not a newer version', async () => {
-        wrapper = await createWrapper({
-            id: 1,
-            name: 'Sample Extension',
-            label: 'Sample Extension Label',
-            languages: [],
-            rating: 3,
-            numberOfRatings: 10,
-            installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
-            },
-            storeLicense: {
-                variants: [{}]
-            },
-            storeExtension: {
-                id: 5
-            },
-            permissions: {},
-            images: [],
-            icon: null,
-            iconRaw: null,
-            active: false,
-            type: 'plugin'
-        });
-    });
-
     it('should not try to cancel the extension subscription on remove attempt when it already has an expiry date', async () => {
         httpClient.delete.mockImplementation(() => {
             return Promise.resolve();
@@ -369,7 +340,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         const cancelLicenceSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense');
         const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
 
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -429,7 +400,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         const cancelLicenceSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense');
         const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
 
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -504,7 +475,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             });
         });
 
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             id: 1,
             name: 'Expired extension',
             label: 'Expired extension Label',
@@ -554,46 +525,45 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     describe('test display of rent and trail phase information', () => {
-        const testCases = {
-            'should display when a rent will expire': {
-                storeLicense: {
-                    variant: 'rent',
-                    expirationDate: '2021-06-08T00:00:00+02:00',
-                    expired: false
-                },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt'
+        const testCases = [{
+            testCaseName: 'should display when a rent will expire',
+            storeLicense: {
+                variant: 'rent',
+                expirationDate: '2021-06-08T00:00:00+02:00',
+                expired: false
             },
-            'should display when a rent is already expired': {
-                storeLicense: {
-                    variant: 'rent',
-                    expirationDate: '2021-06-08T00:00:00+02:00',
-                    expired: true
-                },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
-                expectedIcon: 'solid-exclamation-circle'
+            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt'
+        }, {
+            testCaseName: 'should display when a rent is already expired',
+            storeLicense: {
+                variant: 'rent',
+                expirationDate: '2021-06-08T00:00:00+02:00',
+                expired: true
             },
-            'should display when a test phase will expire': {
-                storeLicense: {
-                    variant: 'test',
-                    expirationDate: '2021-06-08T00:00:00+02:00',
-                    expired: false
-                },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt'
+            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
+            expectedIcon: 'solid-exclamation-circle'
+        }, {
+            testCaseName: 'should display when a test phase will expire',
+            storeLicense: {
+                variant: 'test',
+                expirationDate: '2021-06-08T00:00:00+02:00',
+                expired: false
             },
-            'should display when a test phase is already expired': {
-                storeLicense: {
-                    variant: 'test',
-                    expirationDate: '2021-06-08T00:00:00+02:00',
-                    expired: true
-                },
-                expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-                expectedIcon: 'solid-exclamation-circle'
-            }
-        };
+            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt'
+        }, {
+            testCaseName: 'should display when a test phase is already expired',
+            storeLicense: {
+                variant: 'test',
+                expirationDate: '2021-06-08T00:00:00+02:00',
+                expired: true
+            },
+            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
+            expectedIcon: 'solid-exclamation-circle'
+        }];
 
-        Object.entries(testCases).forEach(([testCaseName, testData]) => {
-            it(testCaseName, async () => {
-                wrapper = await createWrapper({
+        testCases.forEach(({ testCaseName, storeLicense, expectedTextSnippet, expectedIcon }) => {
+            it(`${testCaseName}`, async () => {
+                const wrapper = await createWrapper({
                     id: 555,
                     name: 'Test extension',
                     label: 'Test extension label',
@@ -601,7 +571,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     rating: null,
                     numberOfRatings: 0,
                     installedAt: null,
-                    storeLicense: testData.storeLicense,
+                    storeLicense: storeLicense,
                     storeExtension: null,
                     permissions: {},
                     images: [],
@@ -613,12 +583,14 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 });
 
                 // Ensure the correct message is rendered
-                expect(wrapper.get('.sw-extension-card-bought__info-subscription-expiry').text()).toBe(testData.expectedTextSnippet);
+                expect(wrapper.get('.sw-extension-card-bought__info-subscription-expiry').text()).toBe(expectedTextSnippet);
 
                 // Ensure the correct icon is rendered
-                if (testData.expectedIcon) {
-                    expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').attributes().name).toBe(testData.expectedIcon);
+                if (expectedIcon) {
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').attributes().name).toBe(expectedIcon);
                 } else {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').exists()).toBe(false);
                 }
             });

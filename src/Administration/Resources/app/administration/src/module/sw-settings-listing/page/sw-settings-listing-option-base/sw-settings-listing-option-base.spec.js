@@ -208,10 +208,9 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
         wrapper.vm.productSortingEntity.fail = true;
 
-        wrapper.vm.onSave().catch(() => {
-            expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        await wrapper.vm.onSave().catch(() => {});
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
 
-            wrapper.vm.createNotificationError.mockRestore();
-        });
+        wrapper.vm.createNotificationError.mockRestore();
     });
 });

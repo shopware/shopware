@@ -239,24 +239,6 @@ describe('core/service/login.service.js', () => {
         expect(loginService.getBearerAuthentication()).toBeFalsy();
     });
 
-    it('should set the bearer auth also in non document environments', async () => {
-        const { loginService, clientMock } = loginServiceFactory();
-
-        const documentClone = global.document;
-
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
-            });
-
-        await loginService.loginByUsername('admin', 'shopware');
-
-        global.document = documentClone;
-    });
-
     it('should call the listener', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 
@@ -313,7 +295,7 @@ describe('core/service/login.service.js', () => {
     it('should reject when no refresh token was found', async () => {
         const { loginService } = loginServiceFactory();
 
-        await expect(loginService.refreshToken()).rejects.toThrowError();
+        await expect(loginService.refreshToken()).rejects.toThrow();
     });
 
     it('should be logged in when token exists', async () => {

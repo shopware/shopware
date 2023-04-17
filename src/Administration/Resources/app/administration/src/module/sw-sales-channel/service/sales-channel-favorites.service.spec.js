@@ -63,7 +63,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         service.update(true, newItem);
 
         expect(service.isFavorite(newItem)).toBeTruthy();
-        expect(service.saveUserConfig).toBeCalled();
+        expect(service.saveUserConfig).toHaveBeenCalled();
     });
 
     it('update > removes existing item from favorites and calls "saveUserConfig"', async () => {
@@ -75,7 +75,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         service.update(false, removedItem);
 
         expect(service.isFavorite(removedItem)).toBeFalsy();
-        expect(service.saveUserConfig).toBeCalled();
+        expect(service.saveUserConfig).toHaveBeenCalled();
     });
 
     it('update > does not add or remove items with a wrong state', async () => {

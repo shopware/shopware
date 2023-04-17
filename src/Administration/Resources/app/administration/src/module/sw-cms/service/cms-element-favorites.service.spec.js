@@ -63,7 +63,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         service.update(true, newItem);
 
         expect(service.isFavorite(newItem)).toBeTruthy();
-        expect(service.saveUserConfig).toBeCalled();
+        expect(service.saveUserConfig).toHaveBeenCalled();
     });
 
     it('update > removes existing item from favorites and calls "saveUserConfig"', () => {
@@ -75,7 +75,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         service.update(false, removedItem);
 
         expect(service.isFavorite(removedItem)).toBeFalsy();
-        expect(service.saveUserConfig).toBeCalled();
+        expect(service.saveUserConfig).toHaveBeenCalled();
     });
 
     it('update > does not add or remove items with a wrong state', () => {

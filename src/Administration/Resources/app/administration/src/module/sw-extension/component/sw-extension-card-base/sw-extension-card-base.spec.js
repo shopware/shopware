@@ -34,34 +34,12 @@ async function createWrapper(propsData = {}, provide = {}) {
  * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     beforeAll(() => {
         Shopware.Context.api.assetsPath = '';
-        Shopware.Utils.debug.warn = () => {};
-    });
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should contain the correct computed values', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: null,
-                permissions: []
-            }
-        });
     });
 
     it('should show the correct image (icon)', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
                 icon: 'my-icon',
@@ -75,7 +53,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     it('should show the correct image (iconRaw)', async () => {
         const base64Example = 'z87hufieajh38haefwa9hefjio';
 
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
                 iconRaw: base64Example,
@@ -87,7 +65,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should show the correct image (default theme asset)', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
                 permissions: []
@@ -98,7 +76,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should be installed', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
                 permissions: []
@@ -109,7 +87,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not be installed', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             extension: {
                 installedAt: null
             }
@@ -119,20 +97,18 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not show config menu item: not active and not activated once', async () => {
-        wrapper = await createWrapper(
-            {
-                extension: {
-                    installedAt: null,
-                    active: false
-                }
-            },
-            {
-                shopwareExtensionService: {
-                    canBeOpened: () => false,
-                    getOpenLink: () => null
-                }
+        const wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                active: false
             }
-        );
+        }, {
+            shopwareExtensionService: {
+                canBeOpened: () => false,
+                getOpenLink: () => null
+            }
+        });
+
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
@@ -140,26 +116,23 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should show config menu item: active and activated once', async () => {
-        wrapper = await createWrapper(
-            {
-                extension: {
-                    installedAt: null,
-                    active: true
-                }
-            },
-            {
-                shopwareExtensionService: {
-                    getOpenLink: () => {
-                        return Promise.resolve({
-                            name: 'jest',
-                            params: {
-                                appName: 'JestApp',
-                            },
-                        });
-                    }
+        const wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                active: true
+            }
+        }, {
+            shopwareExtensionService: {
+                getOpenLink: () => {
+                    return Promise.resolve({
+                        name: 'jest',
+                        params: {
+                            appName: 'JestApp',
+                        },
+                    });
                 }
             }
-        );
+        });
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
@@ -167,20 +140,17 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not show config menu item: not active and activated once', async () => {
-        wrapper = await createWrapper(
-            {
-                extension: {
-                    installedAt: null,
-                    active: false
-                }
-            },
-            {
-                shopwareExtensionService: {
-                    canBeOpened: () => true,
-                    getOpenLink: () => null
-                }
+        const wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                active: false
             }
-        );
+        }, {
+            shopwareExtensionService: {
+                canBeOpened: () => true,
+                getOpenLink: () => null
+            }
+        });
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
@@ -188,43 +158,35 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should show a consent affirmation modal if an app requires new permissions on update', async () => {
-        wrapper = await createWrapper(
-            {
-                extension: {
-                    installedAt: '845618651',
-                    permissions: []
-                }
-            },
-            {
-                shopwareExtensionService: {
-                    getOpenLink: () => null,
-                    updateExtension: async () => {
-                        const error = new Error();
-                        error.response = {
-                            data: {
-                                errors: [{
-                                    code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
-                                    meta: {
-                                        parameters: {
-                                            deltas: ['permissions']
-                                        }
+        const wrapper = await createWrapper({
+            extension: {
+                installedAt: '845618651',
+                permissions: []
+            }
+        }, {
+            shopwareExtensionService: {
+                getOpenLink: () => null,
+                updateExtension: async () => {
+                    const error = new Error();
+                    error.response = {
+                        data: {
+                            errors: [{
+                                code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
+                                meta: {
+                                    parameters: {
+                                        deltas: ['permissions']
                                     }
-                                }]
-                            }
-                        };
+                                }
+                            }]
+                        }
+                    };
 
-                        throw error;
-                    }
+                    throw error;
                 }
             }
-        );
-
-        await wrapper.vm.$nextTick();
+        });
 
         await wrapper.vm.updateExtension(false);
-
-        await new Promise(process.nextTick);
-
-        wrapper.get('sw-extension-permissions-modal-stub');
+        expect(wrapper.get('sw-extension-permissions-modal-stub').exists()).toBe(true);
     });
 });

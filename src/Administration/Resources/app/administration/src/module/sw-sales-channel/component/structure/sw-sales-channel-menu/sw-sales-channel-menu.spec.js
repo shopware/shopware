@@ -255,7 +255,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(salesChannelItems).toHaveLength(testSalesChannels.length);
     });
 
-    it('It does not add a link to sales channel for non storefront sales channel', async () => {
+    it('does not add a link to sales channel for non storefront sales channel', async () => {
         const wrapper = await createWrapper([headlessSalesChannel]);
 
         await flushPromises();
@@ -278,7 +278,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         await domainLinkButton.trigger('click');
 
-        expect(window.open).toBeCalledWith('http://shop/default-language', '_blank');
+        expect(window.open).toHaveBeenCalledWith('http://shop/default-language', '_blank');
 
         wrapper.destroy();
     });
@@ -295,7 +295,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         await domainLinkButton.trigger('click');
 
-        expect(window.open).toBeCalledWith('http://shop/admin-language', '_blank');
+        expect(window.open).toHaveBeenCalledWith('http://shop/admin-language', '_blank');
 
         wrapper.destroy();
     });
@@ -313,7 +313,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         await domainLinkButton.trigger('click');
 
-        expect(window.open).toBeCalledWith('http://shop/custom-language', '_blank');
+        expect(window.open).toHaveBeenCalledWith('http://shop/custom-language', '_blank');
 
         wrapper.destroy();
     });

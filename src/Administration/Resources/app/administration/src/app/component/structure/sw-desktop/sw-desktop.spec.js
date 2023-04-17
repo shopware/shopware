@@ -128,8 +128,8 @@ describe('src/app/component/structure/sw-desktop', () => {
         await wrapper.vm.$router.push({ name: 'sw.product.index' });
         await flushPromises();
 
-        expect(onUpdateSearchFrequently).toBeCalledTimes(1);
-        expect(getModuleMetadata).toBeCalledTimes(1);
+        expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);
+        expect(getModuleMetadata).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata.mock.results[0].value).toEqual({
             color: '#57D9A3',
             entity: 'product',
@@ -149,8 +149,8 @@ describe('src/app/component/structure/sw-desktop', () => {
         await wrapper.vm.$router.push({ name: 'sw.product.create.base' });
         await flushPromises();
 
-        expect(onUpdateSearchFrequently).toBeCalledTimes(1);
-        expect(getModuleMetadata).toBeCalledTimes(1);
+        expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);
+        expect(getModuleMetadata).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata.mock.results[0].value).toEqual({
             name: 'product',
             icon: 'default-symbol-products',
@@ -172,8 +172,8 @@ describe('src/app/component/structure/sw-desktop', () => {
             params: { id: 'a34943fe8fe040cd9ce25742a7cf77b2' }
         });
 
-        expect(onUpdateSearchFrequently).toBeCalledTimes(1);
-        expect(getModuleMetadata).toBeCalledTimes(1);
+        expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);
+        expect(getModuleMetadata).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata.mock.results[0].value).toBe(false);
     });
 });

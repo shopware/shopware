@@ -412,7 +412,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await expect(wrapper.vm.onAddProducts([])).rejects.toEqual();
 
         expect(wrapper.vm.showProductsModal).toBe(false);
-        expect(wrapper.vm.saveProductVisibilities).not.toBeCalled();
+        expect(wrapper.vm.saveProductVisibilities).not.toHaveBeenCalled();
 
         wrapper.vm.saveProductVisibilities.mockRestore();
     });
@@ -424,7 +424,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
         await wrapper.vm.saveProductVisibilities([]);
 
-        expect(wrapper.vm.productVisibilityRepository.saveAll).not.toBeCalled();
+        expect(wrapper.vm.productVisibilityRepository.saveAll).not.toHaveBeenCalled();
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
     });
@@ -436,17 +436,25 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
             return Promise.reject(new Error('Whoops!'));
         });
 
-        await wrapper.vm.saveProductVisibilities([
-            {
-                visibility: 30,
-                productId: 'productId',
-                salesChannelId: 'salesChannelId',
-                salesChannel: {},
-                _isNew: true
+        const getError = async () => {
+            try {
+                await wrapper.vm.saveProductVisibilities([
+                    {
+                        visibility: 30,
+                        productId: 'productId',
+                        salesChannelId: 'salesChannelId',
+                        salesChannel: {},
+                        _isNew: true
+                    }
+                ]);
+
+                throw new Error('Method should have thrown an error');
+            } catch (error) {
+                return error;
             }
-        ]).catch((error) => {
-            expect(error.message).toBe('Whoops!');
-        });
+        };
+
+        expect((await getError()).message).toBe('Whoops!');
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
     });

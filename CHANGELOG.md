@@ -6,6 +6,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25367 - Remove admin user activity debounce](/changelog/release-6-4-20-1/2023-03-06-remove-admin-user-activity-debounce.md)
 *  [NEXT-25484 - Fix auto logout multiple tabs behaviour](/changelog/release-6-4-20-1/2023-03-09-fix-auto-logout-multiple-tabs-behaviour.md)
 *  [NEXT-25820 - Update icon kit](/changelog/release-6-4-20-1/2023-03-21-update-icon-kit.md)
+*  [NEXT-26140 - Improve twig security extension](/changelog/release-6-4-20-1/2023-04-11-improve-twig-security-extension.md)
 
 ## 6.4.20.0
 *  [NEXT-24382 - Fix adding new customer functionality](/changelog/release-6-4-20-0/2022-12-20-fix-adding-new-customer-functionality.md)

@@ -20,9 +20,38 @@ class SecurityExtensionTest extends TestCase
         $this->runTwig('{{ ["a", "b", "c"]|map("str_rot13")|join }}');
     }
 
+    public function testMapNotAllowedCallbackFunctionString(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|map("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}');
+    }
+
+    public function testMapNotAllowedCallbackFunctionArray(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|map([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
+    }
+
+    public function testMapOnArrayThrowsTypeError(): void
+    {
+        $this->expectException(\TypeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|map([\'SecurityExtensionGadget\', \'do\'])|join }}');
+    }
+
     public function testMapWithAllowedFunction(): void
     {
         static::assertSame('nop', $this->runTwig('{{ ["a", "b", "c"]|map("str_rot13")|join }}', ['str_rot13']));
+    }
+
+    public function testMapWithAllowedClosure(): void
+    {
+        static::assertSame(
+            'TEST',
+            $this->runTwig(
+                '{{ ["test"]|map(\'Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGoodClass::upper\')|join }}',
+                ['Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\Twig\\SecurityExtensionGoodClass::upper'],
+            )
+        );
     }
 
     public function testMapWithClosure(): void
@@ -34,6 +63,24 @@ class SecurityExtensionTest extends TestCase
     {
         $this->expectException(RuntimeError::class);
         $this->runTwig('{{ ["a", "b", "c"]|reduce("empty")|join }}');
+    }
+
+    public function testReduceNotAllowedFunctionClosureString(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|reduce(\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do\')|join }}');
+    }
+
+    public function testReduceNotAllowedFunctionClosureArray(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|reduce([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
+    }
+
+    public function testReduceOnArrayThrowsError(): void
+    {
+        $this->expectException(\TypeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|reduce([\'Fooo\', \'do\'])|join }}');
     }
 
     public function testReduceAllowedFunction(): void
@@ -50,6 +97,24 @@ class SecurityExtensionTest extends TestCase
     {
         $this->expectException(RuntimeError::class);
         $this->runTwig('{{ ["a", "b", "c"]|filter("str_rot13")|join }}');
+    }
+
+    public function testFilterNotAllowedFunctionString(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|filter(\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do\')|join }}');
+    }
+
+    public function testFilterNotAllowedFunctionArray(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|filter([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
+    }
+
+    public function testFilterOnArray(): void
+    {
+        $this->expectException(\TypeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|filter([\'SecurityExtensionGadget\', \'do\'])|join }}');
     }
 
     public function testFilterClosure(): void
@@ -69,6 +134,24 @@ class SecurityExtensionTest extends TestCase
     {
         $this->expectException(RuntimeError::class);
         $this->runTwig('{{ ["a", "b", "c"]|sort("str_rot13")|join }}');
+    }
+
+    public function testSortNotAllowedFunctionClosureString(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|sort(\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do\')|join }}');
+    }
+
+    public function testSortNotAllowedFunctionClosureArray(): void
+    {
+        $this->expectException(RuntimeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
+    }
+
+    public function testSortOnArray(): void
+    {
+        $this->expectException(\TypeError::class);
+        $this->runTwig('{{ ["a", "b", "c"]|sort([\'\\\\SecurityExtensionGadget\', \'do\'])|join }}');
     }
 
     public function testSortAllowedFunction(): void
@@ -116,5 +199,31 @@ class SecurityExtensionTest extends TestCase
         $twig->addExtension(new SecurityExtension($allowedFunctions));
 
         return $twig->render('test', $variables);
+    }
+}
+
+/**
+ * @internal
+ *
+ * Demonstrates that this static method cannot be called from Twig by closure
+ */
+class SecurityExtensionGadget
+{
+    public static function do(): void
+    {
+        throw new \Error('This should not be called');
+    }
+}
+
+/**
+ * @internal
+ *
+ * Demonstrates that closure can call this static method from Twig when allowed
+ */
+class SecurityExtensionGoodClass
+{
+    public static function upper(string $text): string
+    {
+        return strtoupper($text);
     }
 }

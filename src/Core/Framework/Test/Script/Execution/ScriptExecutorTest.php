@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,7 @@ class ScriptExecutorTest extends TestCase
 
     /**
      * @param array<string> $hooks
-     * @param array<string, string> $expected
+     * @param array<string, mixed> $expected
      *
      * @dataProvider executeProvider
      */
@@ -186,7 +187,7 @@ class ScriptExecutorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: array<string>, 1: array<string, string|int>}>
+     * @return array<string, array{0: array<string>, 1: array<string, mixed>}>
      */
     public static function executeProvider(): iterable
     {
@@ -201,6 +202,13 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
+        ];
+        yield 'Test get shopware version' => [
+            ['shopware-version-case'],
+            [
+                'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+                'version_compare' => true,
+            ],
         ];
     }
 }

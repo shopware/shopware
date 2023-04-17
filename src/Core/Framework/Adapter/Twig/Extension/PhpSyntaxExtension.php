@@ -122,9 +122,13 @@ class PhpSyntaxExtension extends AbstractExtension
     {
         return [
             new TwigFunction('array', $this->createArray(...)),
+            new TwigFunction('version_compare', version_compare(...)),
         ];
     }
 
+    /**
+     * @param array<array-key, mixed> $array
+     */
     public function createArray(array $array): ArrayFacade
     {
         return new ArrayFacade($array);
@@ -158,6 +162,9 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @return list<array<string, array<string, string|int>>>
+     */
     public function getOperators(): array
     {
         return [

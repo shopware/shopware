@@ -6287,16 +6287,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/Extension/MediaExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\PhpSyntaxExtension\\:\\:createArray\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/PhpSyntaxExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\PhpSyntaxExtension\\:\\:getOperators\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/PhpSyntaxExtension.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\RawUrlFunctionExtension\\:\\:rawUrl\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/Extension/RawUrlFunctionExtension.php

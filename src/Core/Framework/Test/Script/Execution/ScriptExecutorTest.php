@@ -34,7 +34,7 @@ class ScriptExecutorTest extends TestCase
 
     /**
      * @param array<string> $hooks
-     * @param array<string, string> $expected
+     * @param array<string, mixed> $expected
      *
      * @dataProvider executeProvider
      */
@@ -187,7 +187,7 @@ class ScriptExecutorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: array<string>, 1: array<string, string|int>}>
+     * @return array<string, array{0: array<string>, 1: array<string, mixed>}>
      */
     public static function executeProvider(): iterable
     {
@@ -205,7 +205,10 @@ class ScriptExecutorTest extends TestCase
         ];
         yield 'Test get shopware version' => [
             ['shopware-version-case'],
-            ['version' => Kernel::SHOPWARE_FALLBACK_VERSION],
+            [
+                'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+                'version_compare' => true,
+            ],
         ];
     }
 }

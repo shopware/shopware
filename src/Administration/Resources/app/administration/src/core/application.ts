@@ -1,7 +1,7 @@
 import type Bottle from 'bottlejs';
 import Vue from 'vue';
-import type ViewAdapter from './adapter/view.adapter';
 import type { ContextState } from '../app/state/context.store';
+import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
  * @package admin
  *
@@ -37,7 +37,7 @@ interface bundlesPluginResponse {
 class ApplicationBootstrapper {
     public $container: Bottle;
 
-    public view: null | ViewAdapter;
+    public view: null | VueAdapter;
 
     /**
      * Provides the necessary class properties for the class to work probably
@@ -331,7 +331,7 @@ class ApplicationBootstrapper {
         return this.view.root;
     }
 
-    setViewAdapter(viewAdapterInstance: ViewAdapter): void {
+    setViewAdapter(viewAdapterInstance: VueAdapter): void {
         this.view = viewAdapterInstance;
     }
 

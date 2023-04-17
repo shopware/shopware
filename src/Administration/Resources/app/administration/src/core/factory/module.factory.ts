@@ -17,6 +17,7 @@ import type {
     RoutePropsFunction,
 } from 'vue-router/types/router';
 import type { ComponentConfig } from './async-component.factory';
+import type { Snippets } from './locale.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -477,8 +478,8 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 /**
  * Returns a list of all module specific snippets
  */
-function getModuleSnippets(): { [lang:string]: unknown } {
-    return Array.from(modules.values()).reduce<{ [lang:string] : unknown }>((accumulator, module) => {
+function getModuleSnippets(): { [lang:string]: Snippets | undefined } {
+    return Array.from(modules.values()).reduce<{ [lang:string] : Snippets | undefined }>((accumulator, module) => {
         const manifest = module.manifest;
 
         if (!hasOwnProperty(manifest, 'snippets')) {

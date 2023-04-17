@@ -1,16 +1,19 @@
 /**
  * @package admin
- *
- * @module app/adapter/view/vue
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
 
 import Vue from 'vue';
+import type { AsyncComponent, Component as VueComponent, PluginObject } from 'vue';
 import VueRouter from 'vue-router';
+import type { FallbackLocale } from 'vue-i18n';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
+import type ApplicationBootstrapper from 'src/core/application';
+import type { ComponentConfig } from 'src/core/factory/async-component.factory';
+import type { Store } from 'vuex';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -18,35 +21,29 @@ const { Component, State, Mixin } = Shopware;
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default class VueAdapter extends ViewAdapter {
-    /**
-     * @constructor
-     */
-    constructor(Application) {
+    private resolvedComponentConfigs: Map<string, ComponentConfig>;
+
+    private vueComponents: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [componentName: string]: VueComponent<any, any, any, any> | AsyncComponent<any, any, any, any>
+    };
+
+    private i18n?: VueI18n;
+
+    constructor(Application: ApplicationBootstrapper) {
         super(Application);
 
-        this.Application = Application;
-        this.applicationFactory = Application.getContainer('factory');
-
-        this.componentFactory = this.applicationFactory.component;
-        this.stateFactory = this.applicationFactory.state;
-        this.localeFactory = this.applicationFactory.locale;
-        this.root = null;
+        this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
 
         this.vueComponents = {};
     }
 
     /**
-     * Creates the main instance dfsffor the view layer.
+     * Creates the main instance for the view layer.
      * Is used on startup process of the main application.
-     *
-     * @param renderElement
-     * @param router
-     * @param providers
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Vue}
      */
-    init(renderElement, router, providers) {
+    init(renderElement: string, router: VueRouter, providers: { [key: string]: unknown }): Vue {
         this.initPlugins();
         this.initDirectives();
         this.initFilters();
@@ -90,7 +87,6 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Initialize of all dependencies.
-     *
      */
     async initDependencies() {
         const initContainer = this.Application.getContainer('init');
@@ -157,18 +153,17 @@ export default class VueAdapter extends ViewAdapter {
 
         // initialize all module routes
         const allRoutes = this.applicationFactory.module.getModuleRoutes();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         initContainer.router.addModuleRoutes(allRoutes);
 
         // create routes for core and plugins
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         initContainer.router.createRouterInstance();
     }
 
 
     /**
      * Initializes all core components as Vue components.
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Object}
      */
     async initComponents() {
         const componentRegistry = this.componentFactory.getComponentRegistry();
@@ -185,16 +180,13 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Initializes all core components as Vue components.
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Object}
      */
     initModuleLocales() {
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 
-        Object.keys(moduleSnippets).forEach((key) => {
-            this.applicationFactory.locale.extend(key, moduleSnippets[key]);
+        Object.entries(moduleSnippets).forEach(([key, moduleSnippet]) => {
+            this.applicationFactory.locale.extend(key, moduleSnippet);
         });
 
         return this.applicationFactory.locale;
@@ -203,21 +195,23 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Returns the component as a Vue component.
      * Includes the full rendered template with all overrides.
-     *
-     * @param componentName
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Vue}
      */
-    createComponent(componentName) {
+    createComponent(componentName: string): Promise<Vue> {
         return new Promise((resolve) => {
             // load sync components directly
             if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
-                this.componentResolver(componentName).component.then((component) => {
-                    const resolvedComponent = component;
-                    const vueComponent = Vue.component(componentName, resolvedComponent);
+                const resolvedComponent = this.componentResolver(componentName);
+
+                if (resolvedComponent === undefined || resolvedComponent.component === undefined) {
+                    return;
+                }
+
+                void resolvedComponent.component.then((component) => {
+                    // @ts-expect-error - resolved config does not match completely a standard vue component
+                    const vueComponent = Vue.component(componentName, component);
 
                     this.vueComponents[componentName] = vueComponent;
-                    resolve(vueComponent);
+                    resolve(vueComponent as unknown as Vue);
                 });
 
                 return;
@@ -227,15 +221,16 @@ export default class VueAdapter extends ViewAdapter {
             const vueComponent = Vue.component(componentName, () => this.componentResolver(componentName));
             this.vueComponents[componentName] = vueComponent;
 
-            resolve(vueComponent);
+            resolve(vueComponent as unknown as Vue);
         });
     }
 
-    componentResolver(componentName) {
+    componentResolver(componentName: string) {
         if (!this.resolvedComponentConfigs.has(componentName)) {
             this.resolvedComponentConfigs.set(componentName, {
                 component: new Promise((resolve) => {
-                    Component.build(componentName).then((componentConfig) => {
+                    void Component.build(componentName).then((componentConfig) => {
+                        // @ts-expect-error - component config is not fully compatible with vue component
                         this.resolveMixins(componentConfig);
 
                         resolve(componentConfig);
@@ -258,15 +253,16 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Builds and creates a Vue component using the provided component configuration.
-     *
-     * @param {Object }componentConfig
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Function}
      */
-    buildAndCreateComponent(componentConfig) {
+    buildAndCreateComponent(componentConfig: ComponentConfig) {
+        if (!componentConfig.name) {
+            throw new Error('Component name is missing');
+        }
+
         const componentName = componentConfig.name;
         this.resolveMixins(componentConfig);
 
+        // @ts-expect-error - resolved config does not match completely a standard vue component
         const vueComponent = Vue.component(componentConfig.name, componentConfig);
         this.vueComponents[componentName] = vueComponent;
 
@@ -275,33 +271,25 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Returns a final Vue component by its name.
-     *
-     * @param componentName
-     * @memberOf module:app/adapter/view/vue
-     * @returns {null|Vue}
      */
-    getComponent(componentName) {
+    getComponent(componentName: string) {
         if (!this.vueComponents[componentName]) {
             return null;
         }
 
-        return this.vueComponents[componentName];
+        return this.vueComponents[componentName] as Vue;
     }
 
     /**
      * Returns the complete set of available Vue components.
-     *
-     * @memberOf module:app/adapter/view/vue
      */
+    // @ts-expect-error - resolved config for each component does not match completely a standard vue component
     getComponents() {
         return this.vueComponents;
     }
 
     /**
      * Returns the adapter wrapper
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Vue}
      */
     getWrapper() {
         return Vue;
@@ -309,30 +297,22 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Returns the name of the adapter
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {string}
      */
-    getName() {
+    getName(): string {
         return 'Vue.js';
     }
 
     /**
      * Returns the Vue.set function
-     *
-     * @memberOf module:app/adapter/view/vue
      */
-    setReactive(target, propertyName, value) {
+    setReactive(target: Vue, propertyName: string, value: unknown) {
         return Vue.set(target, propertyName, value);
     }
 
     /**
      * Returns the Vue.delete function
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {() => void}
      */
-    deleteReactive(target, propertyName) {
+    deleteReactive(target: Vue, propertyName: string) {
         return Vue.delete(target, propertyName);
     }
 
@@ -344,13 +324,18 @@ export default class VueAdapter extends ViewAdapter {
      * Initialises all plugins for VueJS
      *
      * @private
-     * @memberOf module:app/adapter/view/vue
      */
     initPlugins() {
         // Add the community plugins to the plugin list
         VuePlugins.push(VueRouter, VueI18n, VueMeta);
         VuePlugins.forEach((plugin) => {
-            Vue.use(plugin);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (plugin?.install?.installed) {
+                return;
+            }
+
+            // VueI18n.install.installed
+            Vue.use(plugin as PluginObject<unknown>);
         });
 
         return true;
@@ -360,8 +345,6 @@ export default class VueAdapter extends ViewAdapter {
      * Initializes all custom directives.
      *
      * @private
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Boolean}
      */
     initDirectives() {
         const registry = this.Application.getContainer('factory').directive.getDirectiveRegistry();
@@ -377,8 +360,6 @@ export default class VueAdapter extends ViewAdapter {
      * Initialises helpful filters for global use
      *
      * @private
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Boolean}
      */
     initFilters() {
         const registry = this.Application.getContainer('factory').filter.getRegistry();
@@ -392,23 +373,20 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Initialises the standard locales.
-     *
-     * @private
-     * @memberOf module:app/adapter/view/vue
-     * @return {VueI18n}
      */
-    initLocales(store) {
+    initLocales(store: Store<VuexRootState>) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
-        const fallbackLocale = Shopware.Context.app.fallbackLocale;
+        const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
 
         registry.forEach((localeMessages, key) => {
             store.commit('registerAdminLocale', key);
+            // @ts-expect-error - key is safe because we iterate through the registry
             messages[key] = localeMessages;
         });
 
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
-        store.dispatch('setAdminLocale', lastKnownLocale);
+        void store.dispatch('setAdminLocale', lastKnownLocale);
 
         const i18n = new VueI18n({
             locale: lastKnownLocale,
@@ -420,7 +398,8 @@ export default class VueAdapter extends ViewAdapter {
 
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
-                i18n.locale = state.session.currentLocale;
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                i18n.locale = state.session.currentLocale!;
             }
         });
 
@@ -429,11 +408,12 @@ export default class VueAdapter extends ViewAdapter {
         return i18n;
     }
 
-    setLocaleFromUser(store) {
+    setLocaleFromUser(store: Store<VuexRootState>) {
         const currentUser = store.state.session.currentUser;
 
         if (currentUser) {
             const userLocaleId = currentUser.localeId;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             Shopware.Service('localeHelper').setLocaleWithId(userLocaleId);
         }
     }
@@ -442,30 +422,35 @@ export default class VueAdapter extends ViewAdapter {
      * Extends Vue prototype to access $createTitle function
      *
      * @private
-     * @memberOf module:app/adapter/view/vue
      */
     initTitle() {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         if (Vue.prototype.hasOwnProperty('$createTitle')) {
             return;
         }
 
         /**
          * Generates the document title out of the given VueComponent and parameters
-         *
-         * @param {String} [identifier = null]
-         * @param {...String} additionalParams
-         * @returns {string}
          */
-        Vue.prototype.$createTitle = function createTitle(identifier = null, ...additionalParams) {
+        // @ts-expect-error - additionalParams is not typed
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,max-len
+        Vue.prototype.$createTitle = function createTitle(this: Vue, identifier: string|null = null, ...additionalParams): string {
+            if (!this.$root) {
+                return '';
+            }
+
             const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
 
             if (!this.$route.meta || !this.$route.meta.$module) {
                 return '';
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
             const pageTitle = this.$root.$tc(this.$route.meta.$module.title);
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 return item !== null && item.trim() !== '';
             });
 
@@ -477,9 +462,8 @@ export default class VueAdapter extends ViewAdapter {
      * Recursively resolves mixins referenced by name
      *
      * @private
-     * @memberOf module:app/adapter/view/vue
      */
-    resolveMixins(componentConfig) {
+    resolveMixins(componentConfig: ComponentConfig) {
         // If the mixin is a string, use our mixin registry
         if (componentConfig.mixins?.length) {
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {
@@ -492,6 +476,7 @@ export default class VueAdapter extends ViewAdapter {
         }
 
         if (componentConfig.extends) {
+            // @ts-expect-error - extends can be a string or a component config
             this.resolveMixins(componentConfig.extends);
         }
     }

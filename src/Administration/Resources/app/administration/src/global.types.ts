@@ -21,6 +21,9 @@ import type CartStoreService from 'src/core/service/api/cart-store-api.api.servi
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
+import type { FullState } from 'src/core/factory/state.factory';
+import type ModuleFactory from 'src/core/factory/module.factory';
+import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -47,6 +50,8 @@ import type cmsElementFavoritesService from './module/sw-cms/service/cms-element
 import type cmsBlockFavoritesService from './module/sw-cms/service/cms-block-favorites.service';
 import type CheckoutStoreService from './core/service/api/checkout-store.api.service';
 import type ExtensionHelperService from './app/service/extension-helper.service';
+import type AsyncComponentFactory from './core/factory/async-component.factory';
+import type FilterFactory from './core/factory/filter.factory';
 
 // trick to make it an "external module" to support global type extension
 
@@ -166,16 +171,16 @@ declare global {
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'>{
-        component: $TSFixMe,
+        component: typeof AsyncComponentFactory,
         template: $TSFixMe,
-        module: $TSFixMe,
+        module: typeof ModuleFactory,
         entity: $TSFixMe,
-        state: $TSFixMe,
+        state: () => FullState,
         serviceFactory: $TSFixMe,
         classesFactory: $TSFixMe,
         mixin: $TSFixMe,
-        filter: $TSFixMe,
-        directive: $TSFixMe,
+        filter: typeof FilterFactory,
+        directive: typeof DirectiveFactory,
         locale: typeof LocaleFactory,
         shortcut: $TSFixMe,
         plugin: $TSFixMe,

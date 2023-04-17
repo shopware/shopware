@@ -24,6 +24,8 @@ class CustomFieldsSerializer extends FieldSerializer
 
     /**
      * @param mixed|null $value
+     *
+     * @return iterable<string, mixed>
      */
     public function serialize(Config $config, Field $field, $value): iterable
     {
@@ -93,6 +95,11 @@ class CustomFieldsSerializer extends FieldSerializer
         return $field instanceof CustomFields;
     }
 
+    /**
+     * @param array<string, mixed> $customFields
+     *
+     * @return array<string, mixed>|null
+     */
     private function decodeCustomFields(array $customFields, Field $field): ?array
     {
         $customFields = json_encode(array_filter($customFields, fn ($value) => $value !== ''), \JSON_THROW_ON_ERROR);

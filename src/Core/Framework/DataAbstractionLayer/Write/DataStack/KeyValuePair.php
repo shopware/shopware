@@ -13,7 +13,8 @@ class KeyValuePair
     public function __construct(
         private readonly string $key,
         private mixed $value,
-        private bool $isRaw
+        private bool $isRaw,
+        private readonly bool $isDefault = false
     ) {
     }
 
@@ -36,5 +37,10 @@ class KeyValuePair
     {
         $this->isRaw = false;
         $this->value = $value;
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->isDefault;
     }
 }

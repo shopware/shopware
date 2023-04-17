@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFact
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
@@ -30,6 +31,10 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
 
     final public const FUNCTION_NAME = 'response';
 
+    /**
+     * @param array<mixed> $request
+     * @param array<mixed> $query
+     */
     public function __construct(
         private readonly string $name,
         private readonly array $request,
@@ -39,11 +44,17 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
         parent::__construct($salesChannelContext->getContext());
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getRequest(): array
     {
         return $this->request;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getQuery(): array
     {
         return $this->query;
@@ -72,6 +83,7 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
             SalesChannelRepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
             ScriptResponseFactoryFacadeHookFactory::class,
+            RequestFacadeFactory::class,
         ];
     }
 }

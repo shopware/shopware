@@ -15,9 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- */
-/**
  * The ContainerFacade allows you to wrap multiple line-items inside a container line-item.
  *
  * @script-service cart_manipulation
@@ -35,20 +32,24 @@ class ContainerFacade extends ItemFacade
     use ItemsCountTrait;
     use ItemsIteratorTrait;
 
-    private readonly LineItem $item;
+    private LineItem $item;
+
+    private ScriptPriceStubs $priceStubs;
 
     /**
      * @internal
      */
     public function __construct(
         LineItem $item,
+        ScriptPriceStubs $priceStubs,
         CartFacadeHelper $helper,
         SalesChannelContext $context
     ) {
-        parent::__construct($item, $helper, $context);
+        parent::__construct($item, $priceStubs, $helper, $context);
 
         $this->item = $item;
         $this->helper = $helper;
+        $this->priceStubs = $priceStubs;
         $this->context = $context;
     }
 
@@ -60,7 +61,7 @@ class ContainerFacade extends ItemFacade
      */
     public function products(): ProductsFacade
     {
-        return new ProductsFacade($this->item->getChildren(), $this->helper, $this->context);
+        return new ProductsFacade($this->item->getChildren(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**

@@ -27,7 +27,7 @@ Examples:
     
 * **Arguments:**
     * *`string|int`* **key**: The array key.
-    * *`string|int|float|array|object|bool|null`* **value**: The value that should be added.
+    * *`mixed`* **value**: The value that should be added.
 * **Examples:**
     * Add a new element with key `test` and value 1.
 
@@ -44,7 +44,7 @@ Examples:
 
     
 * **Arguments:**
-    * *`string|int|float|array|object|bool|null`* **value**: The value that should be added.
+    * *`mixed`* **value**: The value that should be added.
 ### removeBy()
 
 * `removeBy()` removes the value at the given index from the array.
@@ -58,7 +58,7 @@ Examples:
 
     
 * **Arguments:**
-    * *`string|int|float|array|object|bool|null`* **value**: The value that should be removed.
+    * *`mixed`* **value**: The value that should be removed.
 ### reset()
 
 * `reset()` removes all entries from the array.
@@ -70,7 +70,7 @@ Examples:
 
     
 * **Arguments:**
-    * *`array|\ArrayFacade`* **array**: The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
+    * *`array&lt;string|int,mixed&gt;|\ArrayFacade`* **array**: The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
 * **Examples:**
     * Merge two arrays.
 
@@ -87,7 +87,7 @@ Examples:
 
     
 * **Arguments:**
-    * *`array|\ArrayFacade`* **array**: The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
+    * *`array&lt;string|int,mixed&gt;|\ArrayFacade`* **array**: The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
 * **Examples:**
     * Replace elements in the product payload array.
 

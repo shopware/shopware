@@ -486,7 +486,7 @@ All available Hooks that can be used to manipulate the cart.
 | **Class**              | `Shopware\Core\Checkout\Cart\Hook\CartHook`                      |
 | **Description**        | Triggered during the cart calculation process.<br>                  |
 | **Available Data**     | salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>cart: [`Shopware\Core\Checkout\Cart\Cart`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Cart.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
-| **Available Services** | [cart](./cart-manipulation-script-services-reference.md#CartFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br> |
+| **Available Services** | [cart](./cart-manipulation-script-services-reference.md#CartFacade)<br>[price](./cart-manipulation-script-services-reference.md#PriceFactory)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br> |
 | **Stoppable**          | `false`                  |
 
 ## Custom API endpoint
@@ -623,5 +623,21 @@ All available hooks that can be used to execute scripts during your app's lifecy
 | **Description**        | Triggered when your app is updated.<br>                  |
 | **Available Data**     | event: [`Shopware\Core\Framework\App\Event\AppUpdatedEvent`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/App/Event/AppUpdatedEvent.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br> |
+| **Stoppable**          | `false`                  |
+
+## 
+
+
+
+#### product-pricing
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | product-pricing                         |
+| **Since**              | 6.5.1.0                        |
+| **Class**              | `Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook`                      |
+| **Description**        | Triggered when product prices are calculated for the store<br>                  |
+| **Available Data**     | products: `array`<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[price](./cart-manipulation-script-services-reference.md#PriceFactory)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
 | **Stoppable**          | `false`                  |
 

@@ -78,6 +78,8 @@ class LineItem extends Struct
      */
     protected array $states = [];
 
+    protected bool $modifiedByApp = false;
+
     /**
      * @throws CartException
      */
@@ -500,6 +502,21 @@ class LineItem extends Struct
     public function hasState(string $state): bool
     {
         return \in_array($state, $this->states, true);
+    }
+
+    public function markUnModifiedByApp(): void
+    {
+        $this->modifiedByApp = false;
+    }
+
+    public function markModifiedByApp(): void
+    {
+        $this->modifiedByApp = true;
+    }
+
+    public function isModifiedByApp(): bool
+    {
+        return $this->modifiedByApp;
     }
 
     /**

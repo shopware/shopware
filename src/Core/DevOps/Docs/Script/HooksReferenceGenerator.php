@@ -30,12 +30,14 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     final public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
     final public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
     final public const USE_CASE_APP_LIFECYCLE = 'app_lifecycle';
+    final public const USE_CASE_PRODUCT = 'product';
 
     final public const ALLOWED_USE_CASES = [
         self::USE_CASE_CART_MANIPULATION,
         self::USE_CASE_DATA_LOADING,
         self::USE_CASE_CUSTOM_ENDPOINT,
         self::USE_CASE_APP_LIFECYCLE,
+        self::USE_CASE_PRODUCT,
     ];
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/hook-reference.md.twig';

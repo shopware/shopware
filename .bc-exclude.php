@@ -39,6 +39,11 @@ return [
         // Fixes to comply with parent method signature to fix LSP -> should be removed with 6.5.1.0 release
         'The parameter .* of .*(ReverseProxyCache|StructDecoder|InvalidLimitQueryException|InvalidPageQueryException|QueryLimitExceededException|CustomFields|NestedEventDispatcher|LanguageNotFoundException|WebhookDispatcher|HappyPathValidator|JsonApiDecoder|EntityPipe|Kernel|CountSort).*\(\) changed from',
         'Method .*\(\) of class .*(ThemeCompileCommand|ThemeSalesChannelCollection|CachedCountryRoute|CachedCountryStateRoute|SalesChannelAnalyticsDefinition|PluginRecommendationCollection|PluginCategoryCollection|LicenseDomainCollection|PluginRegionCollection|StateMachineStateField|AssetInstallCommand|JsonApiResponse|SystemDumpDatabaseCommand|SystemRestoreDatabaseCommand|DocsAppEventCommand|ImportExportProfileTranslationDefinition|UpdateByCollection|MappingCollection|ProductCrossSellingAssignedProductsCollection|ProductCrossSellingAssignedProductsDefinition|ProductCrossSellingCollection|ProductCrossSellingDefinition|ProductFeatureSetTranslationDefinition|CrossSellingElementCollection|SalesChannelProductCollection|PromotionTranslationDefinition|PromotionDiscountPriceCollection) visibility reduced from',
-        'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem' // not used and deprecated bundle class
+        'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem', // not used and deprecated bundle class
+
+        // base hook class was marked as internal -> now as final
+        'Hook::getDeprecatedServices\\(\\)',
+        'Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook#__construct\\(\\) (was removed|was marked "@internal")',
+        'Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook#getName\\(\\) (was removed|was marked "@internal")',
     ],
 ];

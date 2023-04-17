@@ -27,6 +27,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
     final public const GROUP_DATA_LOADING = 'data_loading';
     final public const GROUP_CART_MANIPULATION = 'cart_manipulation';
+    final public const GROUP_PRODUCT = 'product';
     final public const GROUP_CUSTOM_ENDPOINT = 'custom_endpoint';
     final public const GROUP_MISCELLANEOUS = 'miscellaneous';
 
@@ -34,6 +35,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         self::GROUP_DATA_LOADING => 'data-loading-script-services-reference.md',
         self::GROUP_CART_MANIPULATION => 'cart-manipulation-script-services-reference.md',
         self::GROUP_CUSTOM_ENDPOINT => 'custom-endpoint-script-services-reference.md',
+        self::GROUP_PRODUCT => 'product-script-services-reference.md',
         self::GROUP_MISCELLANEOUS => 'miscellaneous-script-services-reference.md',
     ];
 
@@ -212,6 +214,12 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'description' => 'Here you find a complete reference of all general script services that can be used in any script.',
                 'services' => [],
             ],
+            self::GROUP_PRODUCT => [
+                'title' => 'Product',
+                'fileName' => self::GROUPS[self::GROUP_PRODUCT],
+                'description' => 'Here you find a complete reference of all script services that can be used to manipulate products.',
+                'services' => [],
+            ],
         ];
 
         foreach ($scriptServices as $service) {
@@ -264,8 +272,8 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $methods = [];
 
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            if (str_starts_with($method->getName(), '__')) {
-                // skip `__construct()` and other magic methods
+            if ($method->getName() === '__construct') {
+                // skip `__construct()`
                 continue;
             }
 
@@ -312,17 +320,35 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $paramDocs = $docBlock->getTagsWithTypeByName('param');
 
         foreach ($method->getParameters() as $parameter) {
-            $paramDoc = $this->findDocForParam($paramDocs, $parameter->getName(), $method);
+            try {
+                $paramDoc = $this->findDocForParam($paramDocs, $parameter->getName(), $method, $docBlock);
 
-            $typeInformation = $this->getTypeInformation($parameter->getType(), $paramDoc, $scriptServices);
+                $typeInformation = $this->getTypeInformation($parameter->getType(), $paramDoc, $scriptServices);
 
-            $arguments[] = array_merge(
-                [
-                    'name' => $parameter->getName(),
-                    'default' => $parameter->isDefaultValueAvailable() ? mb_strtolower(var_export($parameter->getDefaultValue(), true)) : null,
-                ],
-                $typeInformation
-            );
+                $default = $parameter->isDefaultValueAvailable() ? mb_strtolower(var_export($parameter->getDefaultValue(), true)) : null;
+
+                $arguments[] = array_merge(
+                    ['name' => $parameter->getName(), 'default' => $default],
+                    $typeInformation
+                );
+            } catch (\Exception $e) {
+                $typeInformation = $this->tryParseInvalidParam($docBlock, $parameter->getName());
+
+                if ($typeInformation === null) {
+                    throw $e;
+                }
+
+                $default = null;
+                // @phpstan-ignore-next-line
+                if ($parameter->isDefaultValueAvailable()) {
+                    $default = mb_strtolower(var_export($parameter->getDefaultValue(), true));
+                }
+
+                $arguments[] = array_merge(
+                    ['name' => $parameter->getName(), 'default' => $default],
+                    $typeInformation
+                );
+            }
         }
 
         return $arguments;
@@ -331,7 +357,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param Param[] $paramDocs
      */
-    private function findDocForParam(array $paramDocs, string $name, \ReflectionMethod $method): Param
+    private function findDocForParam(array $paramDocs, string $name, \ReflectionMethod $method, DocBlock $docBlock): Param
     {
         foreach ($paramDocs as $param) {
             if ($param->getVariableName() === $name) {
@@ -345,6 +371,25 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $method->getName(),
             $method->getDeclaringClass()->getName()
         ));
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    private function tryParseInvalidParam(DocBlock $docBlock, string $name): ?array
+    {
+        $tag = $docBlock->getTagsByName('param')[0] ?? null;
+
+        if (!$tag instanceof DocBlock\Tags\InvalidTag) {
+            return null;
+        }
+
+        $body = (string) $tag;
+
+        return [
+            'type' => \substr($body, 0, (int) \strpos($body, '$' . $name)),
+            'description' => \substr($body, (int) \strpos($body, '$' . $name) + \strlen($name) + 1),
+        ];
     }
 
     /**
@@ -417,7 +462,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         foreach ($docBlock->getTagsByName('example') as $example) {
             $finder = new Finder();
             $finder->files()
-                ->in(__DIR__ . '/../../../../')
+                ->in([__DIR__ . '/../../../../', __DIR__ . '/../../../../../tests'])
                 // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
                 // note that excluded paths need to be relative to platform/src and that no wildcards are supported
                 ->exclude([

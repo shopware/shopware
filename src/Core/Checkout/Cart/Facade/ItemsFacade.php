@@ -14,9 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- */
-/**
  * The ItemsFacade is a wrapper around a collection of line-items.
  *
  * @script-service cart_manipulation
@@ -37,13 +34,11 @@ class ItemsFacade implements \IteratorAggregate
      * @internal
      */
     public function __construct(
-        LineItemCollection $items,
-        CartFacadeHelper $helper,
-        SalesChannelContext $context
+        private LineItemCollection $items,
+        private ScriptPriceStubs $priceStubs,
+        private CartFacadeHelper $helper,
+        private SalesChannelContext $context
     ) {
-        $this->items = $items;
-        $this->helper = $helper;
-        $this->context = $context;
     }
 
     private function getItems(): LineItemCollection

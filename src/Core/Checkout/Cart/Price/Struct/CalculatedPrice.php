@@ -120,4 +120,15 @@ class CalculatedPrice extends Struct
     {
         return 'calculated_price';
     }
+
+    /**
+     * Changing a price should always be a full change, otherwise you have
+     * mismatching information regarding the unit, total and tax values.
+     */
+    public function overwrite(float $unitPrice, float $totalPrice, CalculatedTaxCollection $taxes): void
+    {
+        $this->unitPrice = $unitPrice;
+        $this->totalPrice = $totalPrice;
+        $this->calculatedTaxes = $taxes;
+    }
 }

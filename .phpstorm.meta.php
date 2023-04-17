@@ -15,4 +15,5 @@ namespace PHPSTORM_META {
         \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting::ASCENDING,
         \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting::DESCENDING
     );
+
 }

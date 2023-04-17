@@ -48,8 +48,7 @@ class ProductPriceCalculatorTest extends TestCase
         $this->calculator = new ProductPriceCalculator(
             new StaticEntityRepository([
                 new UnitCollection([(
-                    new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']]),
-                ]),
+                new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),
             ]),
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
@@ -382,6 +381,7 @@ class ProductPriceCalculatorTest extends TestCase
                     'price' => new PriceCollection([
                         new Price(Defaults::CURRENCY, 20, 20, false, new Price(Defaults::CURRENCY, 30, 30, false), null, new Price(Defaults::CURRENCY, 40, 40, false)),
                     ]),
+                    'variantId' => Uuid::randomHex(),
                     'hasRange' => true,
                 ]),
             ]),

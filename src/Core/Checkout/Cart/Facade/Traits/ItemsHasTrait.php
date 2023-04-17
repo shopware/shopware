@@ -35,9 +35,6 @@ trait ItemsHasTrait
             if ($item->getType() !== $id->getType()) {
                 continue;
             }
-            if ($item->getId() === $id->getId()) {
-                return true;
-            }
 
             // same type and same reference id
             if ($item->getReferencedId() === $id->getReferencedId()) {

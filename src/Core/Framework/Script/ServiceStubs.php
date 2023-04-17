@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @example: {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
  *
  * @method \Shopware\Core\Checkout\Cart\Facade\CartFacade cart()
+ * @method \Shopware\Core\Checkout\Cart\Facade\PriceFactory price()
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade repository()
  * @method \Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade config()
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade store()
@@ -24,6 +25,9 @@ final class ServiceStubs
 {
     private string $hook;
 
+    /**
+     * @var array<string, array{service: object, deprecation?: string}>
+     */
     private array $services = [];
 
     /**
@@ -35,6 +39,8 @@ final class ServiceStubs
     }
 
     /**
+     * @param array<mixed> $arguments
+     *
      * @internal
      */
     public function __call(string $name, array $arguments): object

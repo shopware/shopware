@@ -155,6 +155,16 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         return $this->traces;
     }
 
+    /**
+     * @internal
+     *
+     * @return array<string, mixed>
+     */
+    public function getOutput(string $name, int $index): array
+    {
+        return $this->traces[$name][$index]['output'];
+    }
+
     public function reset(): void
     {
         parent::reset();

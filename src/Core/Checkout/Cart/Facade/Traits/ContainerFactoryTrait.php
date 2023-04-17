@@ -37,7 +37,7 @@ trait ContainerFactoryTrait
         $item->setRemovable(true);
         $item->setStackable(false);
 
-        return new ContainerFacade($item, $this->helper, $this->context);
+        return new ContainerFacade($item, $this->priceStubs, $this->helper, $this->context);
     }
 
     private function getItems(): LineItemCollection

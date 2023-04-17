@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
+use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -28,7 +29,10 @@ trait ItemsIteratorTrait
     {
         $items = [];
         foreach ($this->getItems() as $key => $item) {
-            $items[$key] = new ItemFacade($item, $this->helper, $this->context);
+            $items[$key] = match ($item->getType()) {
+                LineItem::CONTAINER_LINE_ITEM => new ContainerFacade($item, $this->priceStubs, $this->helper, $this->context),
+                default => new ItemFacade($item, $this->priceStubs, $this->helper, $this->context),
+            };
         }
 
         return new \ArrayIterator($items);

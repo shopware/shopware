@@ -404,14 +404,24 @@
 
         <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Facade\PriceFactoryFactory" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.reset" method="reset"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Processor\ContainerCartProcessor">

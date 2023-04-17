@@ -870,6 +870,7 @@ class OrderConverterTest extends TestCase
                     'dataContextHash' => null,
                     'extensions' => [],
                     'states' => [],
+                    'modifiedByApp' => false,
                 ],
             ],
             'errors' => [],
@@ -905,6 +906,7 @@ class OrderConverterTest extends TestCase
                                     ],
                                 ],
                                 'states' => [],
+                                'modifiedByApp' => false,
                             ],
                             'quantity' => 1,
                             'price' => [

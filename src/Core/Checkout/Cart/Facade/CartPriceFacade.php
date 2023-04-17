@@ -7,9 +7,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- */
-/**
  * The CartPriceFacade is a wrapper around the calculated price of a cart.
  *
  * @script-service cart_manipulation
@@ -23,10 +20,9 @@ class CartPriceFacade
      * @internal
      */
     public function __construct(
-        private readonly CartPrice $price,
-        CartFacadeHelper $helper
+        private CartPrice $price,
+        protected ScriptPriceStubs $priceStubs
     ) {
-        $this->helper = $helper;
     }
 
     /**

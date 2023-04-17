@@ -889,6 +889,112 @@ The PriceFacade is a wrapper around a price.
 * **Returns** `int`
 
     Returns the quantity.
+### getTaxes()
+
+* `getTaxes()` returns the calculated taxes of the price.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/CalculatedTaxCollection.php)
+
+    Returns the calculated taxes.
+### getRules()
+
+* `getRules()` returns the tax rules that were used to calculate the price.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/TaxRuleCollection.php)
+
+    Returns the tax rules.
+### change()
+
+* `change()` allows a price overwrite of the current price scope. The provided price will be recalculated
+over the quantity price calculator to consider quantity, tax rule and cash rounding configurations.
+
+    
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Overwrite prices with a static defined collection
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrices.change([
+		    { to: 20, price: services.price.create({ 'default': { 'gross': 15, 'net': 15} }) },
+		    { to: 30, price: services.price.create({ 'default': { 'gross': 10, 'net': 10} }) },
+		    { to: null, price: services.price.create({ 'default': { 'gross': 5, 'net': 5} }) },
+		]) %}
+        ```
+        {% endraw %}
+### plus()
+
+* `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
+
+    The provided price is interpreted as a unit price and will be added to the current unit price. The total price
+	is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Plus a static defined price to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.plus(price) %}
+        ```
+        {% endraw %}
+### minus()
+
+* `minus()` allows a price subtraction of the current price scope. The provided price will be recalculated via the quantity price calculator.
+
+    The provided price is interpreted as a unit price and will reduce to the current unit price. The total price
+	is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Minus a static defined price to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.minus(price) %}
+        ```
+        {% endraw %}
+### discount()
+
+* `discount()` allows a percentage discount calculation of the current price scope. The provided value will be ensured to be negative via `abs(value) * -1`.
+
+    The provided discount is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+* **Arguments:**
+    * *`float`* **value**: The percentage value of the discount. The value will be ensured to be negative via `abs(value) * -1`.
+* **Examples:**
+    * Adds a 10% discount to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrice.discount(10) %}
+        ```
+        {% endraw %}
+### surcharge()
+
+* `surcharge()` allows a percentage surcharge calculation of the current price scope. The provided value will be ensured to be negative via `abs(value)`.
+
+    The provided surcharge is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+* **Arguments:**
+    * *`float`* **value**: The percentage value of the surcharge. The value will be ensured to be negative via `abs(value)`.
+* **Examples:**
+    * Adds a 10% surcharge to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrice.surcharge(10) %}
+        ```
+        {% endraw %}
 ### create()
 
 * `create()` creates a new `PriceCollection` based on an array of prices.
@@ -899,6 +1005,32 @@ The PriceFacade is a wrapper around a price.
     Returns the newly created `PriceCollection`.
 * **Arguments:**
     * *`array`* **price**: The prices for the new collection, indexed by the currency-id or iso-code of the currency.
+* **Examples:**
+    * Create a new Price in the default currency.
+
+        {% raw %}
+        ```twig
+        {% set price = services.cart.price.create({
+		    'default': { 'gross': 19.99, 'net': 19.99}
+		}) %}
+        ```
+        {% endraw %}
+_________
+## [services.price (`Shopware\Core\Checkout\Cart\Facade\PriceFactory`)](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/PriceFactory.php) {#pricefactory}
+
+The PriceFacade is a wrapper around a price.
+
+
+### create()
+
+* `create()` creates a new `PriceCollection` based on an array of prices.
+
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)
+
+    Returns the newly created `PriceCollection`.
+* **Arguments:**
+    * *`array`* **prices**: The prices for the new collection, indexed by the currency-id or iso-code of the currency.
 * **Examples:**
     * Create a new Price in the default currency.
 

@@ -29,6 +29,15 @@ class CartException extends HttpException
     public const CART_INVALID_PRICE_DEFINITION_CODE = 'CHECKOUT__CART_MISSING_PRICE_DEFINITION';
     public const CART_MIXED_LINE_ITEM_TYPE_CODE = 'CHECKOUT__CART_MIXED_LINE_ITEM_TYPE';
     public const CART_PAYLOAD_KEY_NOT_FOUND_CODE = 'CHECKOUT__CART_PAYLOAD_KEY_NOT_FOUND';
+    public const CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT_CODE = 'CHECKOUT__CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT';
+    public const CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION';
+    public const CART_DISCOUNT_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_DISCOUNT_TYPE_NOT_SUPPORTED';
+    public const CART_INVALID_PERCENTAGE_DISCOUNT_CODE = 'CHECKOUT__CART_INVALID_PERCENTAGE_DISCOUNT';
+    public const CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE_CODE = 'CHECKOUT__CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE';
+    public const CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION';
+    public const CART_SURCHARGE_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_SURCHARGE_TYPE_NOT_SUPPORTED';
+    public const CART_INVALID_PERCENTAGE_SURCHARGE_CODE = 'CHECKOUT__CART_INVALID_PERCENTAGE_SURCHARGE';
+    public const CART_MISSING_BEHAVIOR_CODE = 'CHECKOUT__CART_MISSING_BEHAVIOR';
 
     public static function deserializeFailed(): self
     {
@@ -196,6 +205,95 @@ class CartException extends HttpException
             self::CART_PAYLOAD_KEY_NOT_FOUND_CODE,
             'Payload key "{{ key }}" in line item "{{ id }}" not found.',
             ['key' => $key, 'id' => $lineItemId]
+        );
+    }
+
+    public static function invalidPercentageDiscount(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_INVALID_PERCENTAGE_DISCOUNT_CODE,
+            'Percentage discount {{ key }} requires a provided float value',
+            ['key' => $key]
+        );
+    }
+
+    public static function discountTypeNotSupported(string $key, string $type): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_DISCOUNT_TYPE_NOT_SUPPORTED_CODE,
+            'Discount type "{{ type }}" is not supported for discount {{ key }}',
+            ['key' => $key, 'type' => $type]
+        );
+    }
+
+    public static function absoluteDiscountMissingPriceCollection(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION_CODE,
+            'Absolute discount {{ key }} requires a provided price collection. Use services.price(...) to create a price',
+            ['key' => $key]
+        );
+    }
+
+    public static function missingDefaultPriceCollectionForDiscount(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT_CODE,
+            'Absolute discount {{ key }} requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object',
+            ['key' => $key]
+        );
+    }
+
+    public static function invalidPercentageSurcharge(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_INVALID_PERCENTAGE_SURCHARGE_CODE,
+            'Percentage surcharge {{ key }} requires a provided float value',
+            ['key' => $key]
+        );
+    }
+
+    public static function surchargeTypeNotSupported(string $key, string $type): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_SURCHARGE_TYPE_NOT_SUPPORTED_CODE,
+            'Surcharge type "{{ type }}" is not supported for surcharge {{ key }}',
+            ['key' => $key, 'type' => $type]
+        );
+    }
+
+    public static function absoluteSurchargeMissingPriceCollection(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION_CODE,
+            'Absolute surcharge {{ key }} requires a provided price collection. Use services.price(...) to create a price',
+            ['key' => $key]
+        );
+    }
+
+    public static function missingDefaultPriceCollectionForSurcharge(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE_CODE,
+            'Absolute surcharge {{ key }} requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object',
+            ['key' => $key]
+        );
+    }
+
+    public static function missingCartBehavior(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_MISSING_BEHAVIOR_CODE,
+            'Cart instance of the cart facade were never calculated. Please call calculate() before using the cart facade.'
         );
     }
 }

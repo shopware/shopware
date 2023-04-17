@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ContainerFactoryTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
@@ -35,12 +36,11 @@ class CartFacade
      * @internal
      */
     public function __construct(
-        CartFacadeHelper $helper,
+        private CartFacadeHelper $helper,
+        private ScriptPriceStubs $priceStubs,
         private Cart $cart,
-        SalesChannelContext $context
+        private SalesChannelContext $context
     ) {
-        $this->helper = $helper;
-        $this->context = $context;
     }
 
     /**
@@ -50,7 +50,7 @@ class CartFacade
      */
     public function items(): ItemsFacade
     {
-        return new ItemsFacade($this->cart->getLineItems(), $this->helper, $this->context);
+        return new ItemsFacade($this->cart->getLineItems(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**
@@ -61,7 +61,7 @@ class CartFacade
      */
     public function products(): ProductsFacade
     {
-        return new ProductsFacade($this->cart->getLineItems(), $this->helper, $this->context);
+        return new ProductsFacade($this->cart->getLineItems(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**
@@ -76,7 +76,7 @@ class CartFacade
     {
         $behavior = $this->cart->getBehavior();
         if (!$behavior) {
-            throw new \LogicException('Cart behavior missing. The instanced cart was never calculated');
+            throw CartException::missingCartBehavior();
         }
 
         $this->cart = $behavior->disableHooks(fn () => $this->helper->calculate($this->cart, $behavior, $this->context));
@@ -91,7 +91,7 @@ class CartFacade
      */
     public function price(): CartPriceFacade
     {
-        return new CartPriceFacade($this->cart->getPrice(), $this->helper);
+        return new CartPriceFacade($this->cart->getPrice(), $this->priceStubs);
     }
 
     /**

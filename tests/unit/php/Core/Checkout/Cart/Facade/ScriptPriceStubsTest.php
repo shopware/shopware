@@ -1,51 +1,44 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Facade;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
+use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs
  */
-#[Package('checkout')]
-class CartFacadeHelperTest extends TestCase
+class ScriptPriceStubsTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
-    private CartFacadeHelper $cartFacadeHelper;
-
-    protected function setUp(): void
-    {
-        $this->cartFacadeHelper = $this->getContainer()->get(CartFacadeHelper::class);
-    }
+    // fake some static id for the iso
+    private const USD_ID = Defaults::LANGUAGE_SYSTEM;
 
     /**
+     * @param array<string, array{gross:float, net:float}> $prices
+     *
      * @dataProvider priceCases
      */
     public function testPriceFactory(array $prices, PriceCollection $expected): void
     {
-        foreach ($prices as &$price) {
-            if (isset($price['currencyId']) && $price['currencyId'] === 'USD') {
-                $price['currencyId'] = $this->getCurrencyIdByIso('USD');
-            }
-        }
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn([
+            'USD' => self::USD_ID,
+        ]);
 
-        $actual = $this->cartFacadeHelper->price($prices);
+        $stubs = new ScriptPriceStubs($connection, $this->createMock(QuantityPriceCalculator::class), $this->createMock(PercentagePriceCalculator::class));
+
+        $actual = $stubs->build($prices);
 
         foreach ($expected as $expectedPrice) {
-            $currencyId = $expectedPrice->getCurrencyId();
-
-            if ($currencyId === 'USD') {
-                $currencyId = $this->getCurrencyIdByIso('USD');
-            }
-
-            $actualPrice = $actual->getCurrencyPrice($currencyId);
+            $actualPrice = $actual->getCurrencyPrice($expectedPrice->getCurrencyId());
 
             static::assertInstanceOf(Price::class, $actualPrice);
             static::assertEquals($expectedPrice->getNet(), $actualPrice->getNet());
@@ -63,18 +56,18 @@ class CartFacadeHelperTest extends TestCase
             ],
             new PriceCollection([
                 new Price(Defaults::CURRENCY, 90, 100, false),
-                new Price('USD', 80, 90, false),
+                new Price(self::USD_ID, 80, 90, false),
             ]),
         ];
 
         yield 'storage price definition' => [
             [
                 ['gross' => 100, 'net' => 90, 'linked' => true, 'currencyId' => Defaults::CURRENCY],
-                ['gross' => 90, 'net' => 80, 'linked' => false, 'currencyId' => 'USD'],
+                ['gross' => 90, 'net' => 80, 'linked' => false, 'currencyId' => self::USD_ID],
             ],
             new PriceCollection([
                 new Price(Defaults::CURRENCY, 90, 100, true),
-                new Price('USD', 80, 90, false),
+                new Price(self::USD_ID, 80, 90, false),
             ]),
         ];
     }

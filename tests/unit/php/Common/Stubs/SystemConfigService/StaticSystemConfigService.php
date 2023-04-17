@@ -36,6 +36,13 @@ class StaticSystemConfigService extends SystemConfigService
         $this->config[$key] = $value;
     }
 
+    public function setMultiple(array $values, ?string $salesChannelId = null): void
+    {
+        foreach ($values as $k => $v) {
+            $this->set($k, $v, $salesChannelId);
+        }
+    }
+
     /**
      * @param array<string, mixed> $param
      */

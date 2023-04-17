@@ -185,10 +185,6 @@ class SystemConfigFacadeTest extends TestCase
         $extension = $page->getExtension('systemConfigExtension');
         static::assertInstanceOf(ArrayStruct::class, $extension);
 
-        if ($extension->get('systemConfig') === 24) {
-            dd($extension);
-        }
-
         static::assertEquals('system_config', $extension->get('systemConfig'));
         static::assertEquals('app_config', $extension->get('appConfig'));
     }

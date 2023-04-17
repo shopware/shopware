@@ -88,6 +88,7 @@ class WriteResultMerger
 
     /**
      * @param EntityWriteResult[] $writeResults
+     * @param string|array<string, string> $entityKey
      *
      * @return EntityWriteResult[]
      */
@@ -108,6 +109,9 @@ class WriteResultMerger
         });
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getMergeableTranslationPayload(EntityWriteResult $translationResult): array
     {
         // use PKs from definition because versionIds are removed from the writeResult

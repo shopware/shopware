@@ -16,7 +16,7 @@ class SystemConfigChangedHookTest extends TestCase
 {
     public function testName(): void
     {
-        static::assertSame('system_config.changed', (new SystemConfigChangedHook([], []))->getName());
+        static::assertSame('app.config.changed', (new SystemConfigChangedHook([], []))->getName());
     }
 
     /**

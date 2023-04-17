@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
@@ -368,5 +369,24 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->expectException(InvalidUuidException::class);
         $this->systemConfigService->set('foo.bar', 'test', 'invalid uuid');
+    }
+
+    public function testWebhookEventsFired(): void
+    {
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $called = false;
+
+        $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, function (SystemConfigChangedHook $event) use (&$called): void {
+            static::assertEquals([
+                'changes' => ['foo.bar'],
+            ], $event->getWebhookPayload());
+
+            $called = true;
+        });
+
+        $this->systemConfigService->set('foo.bar', 'test', TestDefaults::SALES_CHANNEL);
+
+        static::assertTrue($called);
     }
 }

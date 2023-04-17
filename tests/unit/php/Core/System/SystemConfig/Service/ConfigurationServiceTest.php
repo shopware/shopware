@@ -39,7 +39,7 @@ class ConfigurationServiceTest extends TestCase
      */
     private array $featureConfigBackup;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
@@ -49,7 +49,7 @@ class ConfigurationServiceTest extends TestCase
         Feature::registerFeature('FEATURE_NEXT_102');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $_SERVER = $this->serverVarsBackup;
         $_ENV = $this->envVarsBackup;
@@ -259,6 +259,7 @@ class ConfigurationServiceTest extends TestCase
 
     /**
      * @param array<mixed> $config
+     *
      * @return array<mixed>
      */
     public function getConfiguration(array $config): array

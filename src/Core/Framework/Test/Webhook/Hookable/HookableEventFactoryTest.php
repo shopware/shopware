@@ -74,6 +74,7 @@ class HookableEventFactoryTest extends TestCase
         static::assertEquals('product.written', $event->getName());
 
         $payload = $event->getWebhookPayload();
+        static::assertCount(1, $payload);
         $actualUpdatedFields = $payload[0]['updatedFields'];
         unset($payload[0]['updatedFields']);
 

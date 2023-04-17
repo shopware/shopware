@@ -352,7 +352,7 @@ class SystemConfigService implements ResetInterface
                 }
 
                 $value = XmlReader::phpize($element['defaultValue']);
-                if ($override || !isset($relevantSettings[$key]) || $relevantSettings[$key] === null) {
+                if ($override || !isset($relevantSettings[$key])) {
                     $this->set($key, $value);
                 }
             }
@@ -448,6 +448,7 @@ class SystemConfigService implements ResetInterface
 
         /** @var array<string, string> $allKeyValue */
         $allKeyValue = $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), name FROM app');
+
         return $this->appMapping = $allKeyValue;
     }
 }

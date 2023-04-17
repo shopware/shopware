@@ -30,6 +30,9 @@ class HookableEntityWrittenEvent implements Hookable
         return $this->event->getName();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getWebhookPayload(): array
     {
         return $this->getPayloadFromEvent($this->event);
@@ -40,6 +43,9 @@ class HookableEntityWrittenEvent implements Hookable
         return $permissions->isAllowed($this->event->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
     }
 
+    /**
+     * @return array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: array<string>}[]
+     */
     public function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
         $payload = [];

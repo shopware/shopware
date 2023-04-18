@@ -124,6 +124,10 @@ Component.register('sw-meteor-single-select', {
 
             return this.getKey(this.singleSelection, this.labelProperty);
         },
+
+        searchable() {
+            return this.options.length >= 7;
+        },
     },
 
     methods: {
@@ -142,15 +146,7 @@ Component.register('sw-meteor-single-select', {
         openResultList() {
             // Always start with a fresh list when opening the result list
             this.results = this.options;
-
             this.isExpanded = true;
-            this.$nextTick(() => {
-                const input = this.$refs.searchField.$el.querySelector('input');
-
-                if (input) {
-                    input.focus();
-                }
-            });
         },
 
         closeResultList() {

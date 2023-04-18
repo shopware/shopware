@@ -1,4 +1,4 @@
-import createConditionService from 'src/app/service/rule-condition.service';
+import RuleConditionService from 'src/app/service/rule-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -13,11 +13,11 @@ responses.addResponse({
 
 describe('src/app/service/rule-condition.service.js', () => {
     it('should be a function', async () => {
-        expect(typeof createConditionService).toBe('function');
+        expect(typeof RuleConditionService).toBe('function');
     });
 
     it('should return restricted rules', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount'],
         });
@@ -27,14 +27,14 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return empty array when the specified relation does not exist', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         const result = await ruleConditionService.getRestrictedRules('personaPromotions');
         expect(result).toEqual([]);
     });
 
     it('should return restricted conditions', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount'],
             snippet: 'random-snippet',
@@ -54,7 +54,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should add config item', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         const configItemBefore = ruleConditionService.getAwarenessConfigurationByAssignmentName('personaPromotions');
 
@@ -72,7 +72,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should get config item', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount'],
         });
@@ -85,14 +85,14 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return empty object when the rule is undefined', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
         const restricted = ruleConditionService.getRestrictedConditions();
 
         expect(restricted).toEqual({});
     });
 
     it('should return empty config when assignmentName is not in the config', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
         const restricted = ruleConditionService.getRestrictionsByAssociation([], 'assignmentName');
 
         expect(restricted).toEqual({
@@ -105,7 +105,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return restriction config with restricted true by not equals restriction', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
         ruleConditionService.addCondition('conditionType2', {});
@@ -134,7 +134,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return restriction config with restricted true by equals any restriction', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
         ruleConditionService.addCondition('conditionType2', {});
@@ -163,7 +163,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return restriction config with restricted false', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
         ruleConditionService.addCondition('conditionType2', {});
@@ -191,7 +191,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return restricted associations', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
         ruleConditionService.addCondition('conditionType2', {});
@@ -222,7 +222,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return a translated list of violations', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         let translatedViolations = ruleConditionService.getTranslatedConditionViolationList([
             { label: 'violation1' },
@@ -238,7 +238,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return a disabled restriction tooltip because of no violations', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
@@ -258,7 +258,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return a disabled restriction tooltip because empty ruleAwareGroupKey', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig([], undefined);
         expect(tooltipConfig.disabled).toBeTruthy();
@@ -266,7 +266,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return an enabled restriction tooltip by not equals violation', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
@@ -290,7 +290,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should return an enabled restriction tooltip by equals any violation', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
@@ -313,7 +313,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should be restricted', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
@@ -335,7 +335,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should not be restricted', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
@@ -357,14 +357,14 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should not be restricted if group parameter is not set', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         const result = ruleConditionService.isRuleRestricted([], undefined);
         expect(result).toBeFalsy();
     });
 
     it('should have the correct operators for date', async () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         const expected = [
             {
@@ -399,7 +399,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should get the restrictedConditions', () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('flowTrigger.someFlow', {
             notEquals: ['cartCartAmount'],
@@ -430,7 +430,7 @@ describe('src/app/service/rule-condition.service.js', () => {
     });
 
     it('should get the keys of awareness configurations that have an equalsAny config', () => {
-        const ruleConditionService = createConditionService();
+        const ruleConditionService = new RuleConditionService();
 
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             equalsAny: ['cartCartAmount', 'cartLineItemsCount'],

@@ -1,6 +1,8 @@
+import type { stateStyleService } from '../service/state-style.service';
+
 const { Application } = Shopware;
 
-Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateStyleService) => {
+Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateStyleService: stateStyleService) => {
     // Order State Styles
     stateStyleService.addStyle('order.state', 'open', {
         icon: 'neutral',

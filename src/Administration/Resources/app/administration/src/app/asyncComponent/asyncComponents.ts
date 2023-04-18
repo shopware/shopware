@@ -33,5 +33,6 @@ export default () => {
     Shopware.Component.register('sw-media-url-form', () => import('src/app/asyncComponent/media/sw-media-url-form'));
     Shopware.Component.register('sw-sidebar-media-item', () => import('src/app/asyncComponent/media/sw-sidebar-media-item'));
     Shopware.Component.register('sw-extension-icon', () => import('src/app/asyncComponent/extension/sw-extension-icon'));
+    Shopware.Component.register('sw-ai-copilot-badge', () => import('src/app/asyncComponent/feedback/sw-ai-copilot-badge'));
     /* eslint-enable sw-deprecation-rules/private-feature-declarations, max-len */
 };

@@ -67,7 +67,10 @@ github sync:
     - job: 'split repository'
     - job: 'tag split repositories'
       optional: true
-  rules:
+    - job: 'branch split repositories'
+      optional: true
+  rules: &rules-push-split-repositories
+    - !reference [ .rules, skip-in-merge-train ]
     - !reference [ .rules, skip ]
     - if: '$CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG != null)'
   variables:
@@ -75,16 +78,20 @@ github sync:
   script:
     - >
       for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}"
+        .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_TAG:-tmp-${CI_COMMIT_SHORT_SHA}}"
       done
 
 push split repositories (gitlab):
   extends: '.push split repositories'
+  rules:
+    - *rules-push-split-repositories
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/'
+      when: manual # Allow pushing test-tags & -branches to internal repositories
   environment:
     name: 'Gitlab - Manyrepos'
     url: 'https://gitlab.shopware.com/shopware/6/product/many-repositories'
   variables:
-    REMOTE_BASE_URL: "https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories"
+    REMOTE_BASE_URL: "https://bot:${GITLAB_MANYREPO_SYNC_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories"
 
 push split repositories (github):
   extends: '.push split repositories'
@@ -96,6 +103,8 @@ push split repositories (github):
 
 deploy to cloud staging:
     stage: deploy
+    rules:
+      - !reference [ .rules, skip ]
     when: manual
     inherit:
         variables: false

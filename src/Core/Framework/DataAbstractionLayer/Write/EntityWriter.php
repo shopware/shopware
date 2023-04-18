@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
@@ -432,16 +433,33 @@ class EntityWriter implements EntityWriterInterface
 
         $skipped = [];
         foreach ($resolved as $primaryKey) {
+            /** @var array<string, string> $mappedBytes */
             $mappedBytes = [];
             /**
              * @var string $key
              * @var string $value
              */
             foreach ($primaryKey as $key => $value) {
-                /** @var StorageAware $field */
+                /**
+                 * Primary key fields are always storage aware.
+                 *
+                 * @var Field&StorageAware $field
+                 */
                 $field = $definition->getFields()->get($key);
 
-                $mappedBytes[$field->getStorageName()] = Uuid::fromHexToBytes($value);
+                $mappedBytes[$field->getStorageName()] = $field->getSerializer()->encode(
+                    $field,
+                    new EntityExistence(
+                        $definition->getEntityName(),
+                        [$key => $value],
+                        false,
+                        false,
+                        false,
+                        [],
+                    ),
+                    new KeyValuePair($key, $value, true),
+                    $parameters,
+                )->current();
             }
 
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);

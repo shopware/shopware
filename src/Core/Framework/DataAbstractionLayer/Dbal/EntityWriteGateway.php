@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\PrimaryKeyBag;
@@ -90,7 +91,13 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $wasChild = $this->wasChild($definition, $state);
 
-        return new EntityExistence($definition->getEntityName(), Uuid::fromBytesToHexList($primaryKey), $exists, $isChild, $wasChild, $state);
+        $decodedPrimaryKey = [];
+        foreach ($primaryKey as $fieldStorageName => $fieldValue) {
+            $field = $definition->getFields()->getByStorageName($fieldStorageName);
+            $decodedPrimaryKey[$fieldStorageName] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
+        }
+
+        return new EntityExistence($definition->getEntityName(), $decodedPrimaryKey, $exists, $isChild, $wasChild, $state);
     }
 
     /**
@@ -296,7 +303,19 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if ($id === null) {
                         continue 2;
                     }
-                    $newIds[] = Uuid::fromHexToBytes($id);
+                    $newIds[] = $field->getSerializer()->encode(
+                        $field,
+                        new EntityExistence(
+                            $definition->getEntityName(),
+                            [$field->getPropertyName() => $id],
+                            false,
+                            false,
+                            false,
+                            [],
+                        ),
+                        new KeyValuePair($field->getPropertyName(), $id, true),
+                        $parameters,
+                    )->current();
                 }
 
                 foreach ($newIds as $newId) {
@@ -331,7 +350,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             foreach ($result as $state) {
                 $values = [];
                 foreach ($pkFields as $storageKey => $field) {
-                    $values[$field->getPropertyName()] = Uuid::fromBytesToHex($state[$storageKey]);
+                    $values[$field->getPropertyName()] = $field->getSerializer()->decode($field, $state[$storageKey]);
                 }
                 if ($versionField) {
                     $values[$versionField->getPropertyName()] = $parameters->getContext()->getContext()->getVersionId();
@@ -640,9 +659,13 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             return $state;
         }
 
-        $hexPrimaryKey = Uuid::fromBytesToHexList($primaryKey);
+        $decodedPrimaryKey = [];
+        foreach ($primaryKey as $fieldName => $fieldValue) {
+            $field = $definition->getField($fieldName);
+            $decodedPrimaryKey[$fieldName] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
+        }
 
-        $currentState = $this->primaryKeyBag === null ? null : $this->primaryKeyBag->getExistenceState($definition, $hexPrimaryKey);
+        $currentState = $this->primaryKeyBag === null ? null : $this->primaryKeyBag->getExistenceState($definition, $decodedPrimaryKey);
         if ($currentState === null) {
             $currentState = $this->fetchFromDatabase($definition, $primaryKey);
         }

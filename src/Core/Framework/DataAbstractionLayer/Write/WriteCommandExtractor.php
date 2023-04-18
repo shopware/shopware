@@ -32,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -194,7 +193,11 @@ class WriteCommandExtractor
 
         /** @var Field&StorageAware $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
-            $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
+            $parameters->getContext()->set(
+                $parameters->getDefinition()->getEntityName(),
+                $pkField->getPropertyName(),
+                $pkField->getSerializer()->decode($pkField, $pkData[$pkField->getStorageName()]),
+            );
         }
 
         if ($definition instanceof MappingEntityDefinition) {

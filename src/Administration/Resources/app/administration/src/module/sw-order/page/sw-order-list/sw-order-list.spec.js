@@ -347,4 +347,131 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
+
+    it('should contain a computed property, called: listFilterOptions', () => {
+        expect(wrapper.vm.listFilterOptions).toEqual(expect.objectContaining({
+            'affiliate-code-filter': expect.objectContaining({
+                property: 'affiliateCode',
+                type: 'multi-select-filter',
+                label: 'sw-order.filters.affiliateCodeFilter.label',
+                placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
+                valueProperty: 'key',
+                labelProperty: 'key',
+                options: expect.any(Array),
+            }),
+            'campaign-code-filter': expect.objectContaining({
+                property: 'campaignCode',
+                type: 'multi-select-filter',
+                label: 'sw-order.filters.campaignCodeFilter.label',
+                placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
+                valueProperty: 'key',
+                labelProperty: 'key',
+                options: expect.any(Array),
+            }),
+            'promotion-code-filter': expect.objectContaining({
+                property: 'lineItems.payload.code',
+                type: 'multi-select-filter',
+                label: 'sw-order.filters.promotionCodeFilter.label',
+                placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
+                valueProperty: 'key',
+                labelProperty: 'key',
+                options: expect.any(Array),
+            }),
+        }));
+    });
+
+    it('should contain a computed property, called: filterSelectCriteria', () => {
+        expect(wrapper.vm.filterSelectCriteria).toEqual(expect.objectContaining({
+            aggregations: expect.arrayContaining([
+                expect.objectContaining({
+                    type: 'terms',
+                    name: 'affiliateCodes',
+                    field: 'affiliateCode',
+                    aggregation: null,
+                    limit: null,
+                    sort: null,
+                }),
+                expect.objectContaining({
+                    type: 'terms',
+                    name: 'campaignCodes',
+                    field: 'campaignCode',
+                    aggregation: null,
+                    limit: null,
+                    sort: null,
+                }),
+                expect.objectContaining({
+                    type: 'terms',
+                    name: 'promotionCodes',
+                    field: 'lineItems.payload.code',
+                    aggregation: null,
+                    limit: null,
+                    sort: null,
+                }),
+            ]),
+            page: 1,
+            limit: 1,
+        }));
+    });
+
+    describe('loadFilterValues', () => {
+        it('should be successful', async () => {
+            const loadFilterValuesSpy = jest.spyOn(wrapper.vm, 'loadFilterValues');
+            wrapper.vm.orderRepository.search = jest.fn(() => {
+                return Promise.resolve({
+                    aggregations: {
+                        affiliateCodes: {
+                            buckets: [
+                                {
+                                    count: 1,
+                                    key: 'affiliateCode',
+                                },
+                            ],
+                        },
+                        campaignCodes: {
+                            buckets: [
+                                {
+                                    count: 1,
+                                    key: 'campaignCode',
+                                },
+                            ],
+                        },
+                        promotionCodes: {
+                            buckets: [
+                                {
+                                    count: 1,
+                                    key: 'promotionCode',
+                                },
+                            ],
+                        },
+                    },
+                });
+            });
+
+            await wrapper.vm.createdComponent();
+
+            expect(loadFilterValuesSpy).toHaveBeenCalledTimes(1);
+
+            expect(wrapper.vm.availableAffiliateCodes).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    count: 1,
+                    key: 'affiliateCode',
+                }),
+            ]));
+            expect(wrapper.vm.availableCampaignCodes).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    count: 1,
+                    key: 'campaignCode',
+                }),
+            ]));
+            expect(wrapper.vm.availablePromotionCodes).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    count: 1,
+                    key: 'promotionCode',
+                }),
+            ]));
+
+            wrapper.vm.orderRepository.search.mockRestore();
+            loadFilterValuesSpy.mockClear();
+        });
+    });
 });

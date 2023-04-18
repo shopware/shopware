@@ -29,7 +29,7 @@ class SystemConfigController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', methods: ['GET'], defaults: ['_acl' => ['system_config:read']])]
+    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -53,7 +53,7 @@ class SystemConfigController extends AbstractController
         return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', methods: ['GET'], defaults: ['_acl' => ['system_config:read']])]
+    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
     public function getConfigurationValues(Request $request): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -78,7 +78,7 @@ class SystemConfigController extends AbstractController
         return new JsonResponse($json, 200, [], true);
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', methods: ['POST'], defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']])]
+    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
     public function saveConfiguration(Request $request): JsonResponse
     {
         $salesChannelId = $request->query->get('salesChannelId');
@@ -87,7 +87,7 @@ class SystemConfigController extends AbstractController
         }
 
         $kvs = $request->request->all();
-        $this->saveKeyValues($salesChannelId, $kvs);
+        $this->systemConfig->setMultiple($kvs, $salesChannelId);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -95,7 +95,7 @@ class SystemConfigController extends AbstractController
     /**
      * @deprecated tag:v6.6.0 $context param will be required
      */
-    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', methods: ['POST'], defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']])]
+    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
     public function batchSaveConfiguration(Request $request, ?Context $context = null): JsonResponse
     {
         if (!$context) {
@@ -117,19 +117,10 @@ class SystemConfigController extends AbstractController
             if ($salesChannelId === 'null') {
                 $salesChannelId = null;
             }
-            $this->saveKeyValues($salesChannelId, $kvs);
+
+            $this->systemConfig->setMultiple($kvs, $salesChannelId);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @param array<string, mixed> $kvs
-     */
-    private function saveKeyValues(?string $salesChannelId, array $kvs): void
-    {
-        foreach ($kvs as $key => $value) {
-            $this->systemConfig->set($key, $value, $salesChannelId);
-        }
     }
 }

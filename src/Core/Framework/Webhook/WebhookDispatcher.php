@@ -33,6 +33,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ */
 #[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface
 {
@@ -326,7 +329,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         $data = [
-            'payload' => $event->getWebhookPayload(),
+            'payload' => $event->getWebhookPayload($webhook->getApp()),
             'event' => $event->getName(),
         ];
 
@@ -356,11 +359,11 @@ class WebhookDispatcher implements EventDispatcherInterface
         $webhookEventLogRepository->create([
             [
                 'id' => $webhookEventMessage->getWebhookEventId(),
-                'appName' => $webhook->getApp() !== null ? $webhook->getApp()->getName() : null,
+                'appName' => $webhook->getApp()?->getName(),
                 'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
                 'webhookName' => $webhook->getName(),
                 'eventName' => $webhook->getEventName(),
-                'appVersion' => $webhook->getApp() !== null ? $webhook->getApp()->getVersion() : null,
+                'appVersion' => $webhook->getApp()?->getVersion(),
                 'url' => $webhook->getUrl(),
                 'serializedWebhookMessage' => serialize($webhookEventMessage),
             ],

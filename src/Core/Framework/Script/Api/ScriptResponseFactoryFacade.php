@@ -31,14 +31,14 @@ class ScriptResponseFactoryFacade
     /**
      * The `json()` method allows you to create a JSON-Response.
      *
-     * @param array $data The data that should be sent in the response as array.
+     * @param array<mixed> $data The data that should be sent in the response as array.
      * @param int $code The HTTP-Status-Code of the response, defaults to 200.
      *
      * @return ScriptResponse The created response object, remember to assign it to the hook with `hook.setResponse()`.
      *
      * @example /api-simple-script/simple-script.twig 3 Return hard coded values as JsonResponse.
      * @example /api-repository-test/api-repository-test.twig Search for products and return them in a JsonResponse.
-     * @example /api-action-button/action-button-script.twig Provide a response to a ActionButtons request from the administration.
+     * @example /api-action-button/action-button-script-integration.twig Provide a response to a ActionButtons request from the administration.
      */
     public function json(array $data, int $code = Response::HTTP_OK): ScriptResponse
     {
@@ -52,7 +52,7 @@ class ScriptResponseFactoryFacade
      * The `redirect()` method allows you to create a RedirectResponse.
      *
      * @param string $route The name of the route that should be redirected to.
-     * @param array $parameters The parameters needing to generate the URL of the route as an associative array.
+     * @param array<mixed> $parameters The parameters needing to generate the URL of the route as an associative array.
      * @param int $code he HTTP-Status-Code of the response, defaults to 302.
      *
      * @return ScriptResponse The created response object, remember to assign it to the hook with `hook.setResponse()`.
@@ -77,7 +77,7 @@ class ScriptResponseFactoryFacade
      * or if the Storefront-bundle is not installed.
      *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
-     * @param array $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
+     * @param array<mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
      *
      * @return ScriptResponse The created response object with the rendered template as content, remember to assign it to the hook with `hook.setResponse()`.
      *

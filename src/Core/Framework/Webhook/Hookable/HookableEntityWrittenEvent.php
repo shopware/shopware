@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ */
 #[Package('core')]
 class HookableEntityWrittenEvent implements Hookable
 {
@@ -27,6 +30,9 @@ class HookableEntityWrittenEvent implements Hookable
         return $this->event->getName();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getWebhookPayload(): array
     {
         return $this->getPayloadFromEvent($this->event);
@@ -37,6 +43,9 @@ class HookableEntityWrittenEvent implements Hookable
         return $permissions->isAllowed($this->event->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
     }
 
+    /**
+     * @return array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: array<string>}[]
+     */
     public function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
         $payload = [];

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
 #[Package('core')]
 class AclPrivilegeCollection
 {

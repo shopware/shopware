@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ */
 #[Package('core')]
 class HookableBusinessEvent implements Hookable
 {
@@ -51,6 +54,9 @@ class HookableBusinessEvent implements Hookable
         return true;
     }
 
+    /**
+     * @param array<mixed> $dataType
+     */
     private function checkPermissionsForDataType(array $dataType, AclPrivilegeCollection $permissions): bool
     {
         if ($dataType['type'] === ObjectType::TYPE && \is_array($dataType['data']) && !empty($dataType['data'])) {

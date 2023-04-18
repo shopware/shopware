@@ -38,6 +38,8 @@ class ConfigurationService
      * @throws ConfigurationNotFoundException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
+     *
+     * @return array<mixed>
      */
     public function getConfiguration(string $domain, Context $context): array
     {
@@ -64,7 +66,7 @@ class ConfigurationService
                 continue;
             }
 
-            foreach ($card['elements'] as $j => $field) {
+            foreach ($card['elements'] ?? [] as $j => $field) {
                 $newField = ['name' => $domain . $field['name']];
 
                 if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
@@ -87,6 +89,9 @@ class ConfigurationService
         return $config;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
     {
         $config = [];
@@ -95,7 +100,6 @@ class ConfigurationService
                 $config,
                 $this->enrichValues(
                     $this->getConfiguration($domain, $context),
-                    $domain,
                     $salesChannelId
                 )
             );
@@ -115,6 +119,9 @@ class ConfigurationService
         }
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
         $technicalName = \array_slice(explode('\\', $scope), -1)[0];
@@ -144,7 +151,12 @@ class ConfigurationService
         return $result;
     }
 
-    private function enrichValues(array $config, string $domain, ?string $salesChannelId): array
+    /**
+     * @param array<mixed> $config
+     *
+     * @return array<mixed>
+     */
+    private function enrichValues(array $config, ?string $salesChannelId): array
     {
         foreach ($config as &$card) {
             if (!\is_array($card['elements'] ?? false)) {

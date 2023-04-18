@@ -52,6 +52,16 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                         name: 'rating',
                         value: '1',
                         label: 'Min 1 star'
+                    },
+                    {
+                        name: 'placeholder',
+                        value: 'placeholder1',
+                        label: 'Placeholder 1'
+                    },
+                    {
+                        name: 'placeholder',
+                        value: 'placeholder2',
+                        label: 'Placeholder 2'
                     }],
                 label: 'Rating'
             },
@@ -126,6 +136,28 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
 
         searchField = wrapper.find('.sw-simple-search-field');
         expect(searchField.exists()).toBe(true);
+    });
+
+    it('should hide search field if less than 7 options are present', async () => {
+        const options = [
+            { value: '1', label: 'Option 1' },
+            { value: '2', label: 'Option 2' },
+            { value: '3', label: 'Option 3' },
+            { value: '4', label: 'Option 4' },
+            { value: '5', label: 'Option 5' },
+            { value: '6', label: 'Option 6' },
+        ];
+        wrapper = await createWrapper({ propsData: {
+            value: null,
+            options,
+            label: 'Rating'
+        }, });
+
+        const preview = wrapper.find('.sw-meteor-single-select__preview');
+        await preview.trigger('click');
+
+        const searchField = wrapper.find('.sw-simple-search-field');
+        expect(searchField.exists()).toBe(false);
     });
 
     it('should show all options in list', async () => {

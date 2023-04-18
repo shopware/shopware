@@ -28,7 +28,10 @@
             @outside-click="closeResultList"
         >
 
-            <template #before-item-list>
+            <template
+                v-if="searchable"
+                #before-item-list
+            >
                 <slot name="before-item-list">
                     <sw-simple-search-field
                         ref="searchField"

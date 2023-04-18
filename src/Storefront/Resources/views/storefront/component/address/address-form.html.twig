@@ -209,6 +209,7 @@
                     {% endblock %}
                 {% endset %}
 
+                {# @deprecated tag:v6.6.0 - Will remove the if statement #}
                 {% if config('core.address.showZipcodeInFrontOfCity') %}
                     <div class="form-group col-md-2 col-4">
                         {{ zipcodeField }}

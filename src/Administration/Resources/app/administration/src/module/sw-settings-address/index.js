@@ -1,3 +1,5 @@
+// @deprecated tag:v6.6.0 - Whole module will be removed as no longer necessary since the introduction of address formatting
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

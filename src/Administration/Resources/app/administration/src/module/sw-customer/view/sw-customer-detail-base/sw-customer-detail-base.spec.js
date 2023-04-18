@@ -17,42 +17,42 @@ const customFields = [
         customFields: [
             {
                 config: {
-                    customFieldPosition: 1
+                    customFieldPosition: 1,
                 },
-                id: '5af5c4492a204b17a7e800d94425fe0c'
+                id: '5af5c4492a204b17a7e800d94425fe0c',
             },
             {
                 config: {
-                    customFieldPosition: 4
+                    customFieldPosition: 4,
                 },
-                id: 'de8de156da134dabac24257f81ff282f'
+                id: 'de8de156da134dabac24257f81ff282f',
             },
             {
                 config: {
-                    customFieldPosition: 6
+                    customFieldPosition: 6,
                 },
-                id: 'e33027523c86413c8018f75de49be56f'
+                id: 'e33027523c86413c8018f75de49be56f',
             },
             {
                 config: {
-                    customFieldPosition: 9
+                    customFieldPosition: 9,
                 },
-                id: 'f95226379abf48ceb3129de7f266d293'
+                id: 'f95226379abf48ceb3129de7f266d293',
             },
             {
                 config: {
-                    customFieldPosition: 22
+                    customFieldPosition: 22,
                 },
-                id: '8bc279512c6e4f40afe410264b266c12'
+                id: '8bc279512c6e4f40afe410264b266c12',
             },
             {
                 config: {
-                    customFieldPosition: 45
+                    customFieldPosition: 45,
                 },
-                id: '3497634a5336477597586e9618c0ca4f'
-            }
-        ]
-    }
+                id: '3497634a5336477597586e9618c0ca4f',
+            },
+        ],
+    },
 ];
 
 
@@ -63,34 +63,34 @@ async function createWrapper() {
                 create: () => {
                     return {
                         search: () => Promise.resolve(customFields),
-                        get: () => Promise.resolve({ id: '' })
+                        get: () => Promise.resolve({ id: '' }),
                     };
                 },
-            }
+            },
 
         },
 
         propsData: {
             customerEditMode: false,
-            customer: {}
+            customer: {},
         },
 
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-customer-card': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-custom-field-set-renderer': await Shopware.Component.build('sw-custom-field-set-renderer'),
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
             'sw-field': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-        }
+        },
     });
 }
 
@@ -112,7 +112,7 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
     it('should sort custom fields by their position', async () => {
         const formFields = wrapper.findAll('.sw-form-field-renderer');
 
-        expect(formFields.length).toBe(6);
+        expect(formFields).toHaveLength(6);
 
         const [first, second, third, fourth, fifth, sixth] = formFields.wrappers;
 

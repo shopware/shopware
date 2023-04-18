@@ -19,12 +19,12 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
             {
                 metaTitle: 'Product1',
                 id: 'productId1',
-                ...productEntityOverride
+                ...productEntityOverride,
             };
 
         const parentProduct = {
             id: 'productId',
-            ...parentProductOverride
+            ...parentProductOverride,
         };
 
         return shallowMount(await Shopware.Component.build('sw-product-deliverability-form'), {
@@ -32,8 +32,8 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
-                        id: 1
-                    }
+                        id: 1,
+                    },
                 },
                 $store: new Vuex.Store({
                     modules: {
@@ -45,7 +45,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                                 parentProduct,
                                 loading: {
                                     product: false,
-                                    media: false
+                                    media: false,
                                 },
                                 advancedModeSetting: {
                                     value: {
@@ -54,36 +54,36 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                                                 key: 'deliverability',
                                                 label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                                                 enabled: true,
-                                                name: 'general'
-                                            }
+                                                name: 'general',
+                                            },
                                         ],
                                         advancedMode: {
                                             enabled: true,
-                                            label: 'sw-product.general.textAdvancedMode'
-                                        }
-                                    }
+                                            label: 'sw-product.general.textAdvancedMode',
+                                        },
+                                    },
                                 },
-                                creationStates: 'is-physical'
+                                creationStates: 'is-physical',
                             },
                             getters: {
                                 ...productStore.getters,
-                                isLoading: () => false
-                            }
-                        }
-                    }
-                })
+                                isLoading: () => false,
+                            },
+                        },
+                    },
+                }),
             },
             stubs: {
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-field': {
                     template: '<input class="sw-field">',
                 },
                 'sw-entity-single-select': true,
-                'sw-inheritance-switch': true
-            }
+                'sw-inheritance-switch': true,
+            },
         });
     }
 
@@ -98,7 +98,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
             '.sw-product-deliverability__shipping-free',
             '.sw-product-deliverability__min-purchase',
             '.sw-product-deliverability__purchase-step',
-            '.sw-product-deliverability__max-purchase'
+            '.sw-product-deliverability__max-purchase',
         ];
 
         deliveryFieldsClassName.forEach(item => {
@@ -115,9 +115,9 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         const deliveryFieldsClassName = [
@@ -126,7 +126,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
             '.sw-product-deliverability__shipping-free',
             '.sw-product-deliverability__min-purchase',
             '.sw-product-deliverability__purchase-step',
-            '.sw-product-deliverability__max-purchase'
+            '.sw-product-deliverability__max-purchase',
         ];
 
         deliveryFieldsClassName.forEach(item => {

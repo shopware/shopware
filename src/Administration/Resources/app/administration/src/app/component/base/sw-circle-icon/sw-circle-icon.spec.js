@@ -13,7 +13,7 @@ describe('components/base/sw-circle-icon', () => {
     beforeAll(async () => {
         stubs = {
             'sw-label': await Shopware.Component.build('sw-label'),
-            'sw-icon': true
+            'sw-icon': true,
         };
     });
 
@@ -26,13 +26,13 @@ describe('components/base/sw-circle-icon', () => {
     async function createWrapper(propsData) {
         return mount(await Shopware.Component.build('sw-circle-icon'), {
             propsData,
-            stubs
+            stubs,
         });
     }
 
     it('passes default values', async () => {
         wrapper = await createWrapper({
-            iconName: 'default-basic-checkmark-line'
+            iconName: 'default-basic-checkmark-line',
         });
 
         const swLabel = wrapper.findComponent(stubs['sw-label']);
@@ -53,7 +53,7 @@ describe('components/base/sw-circle-icon', () => {
     it('passes variant correctly', async () => {
         wrapper = await createWrapper({
             iconName: 'default-basic-checkmark-line',
-            variant: 'danger'
+            variant: 'danger',
         });
 
         const swLabel = wrapper.findComponent(stubs['sw-label']);
@@ -66,7 +66,7 @@ describe('components/base/sw-circle-icon', () => {
 
         wrapper = await createWrapper({
             iconName: 'default-basic-checkmark-line',
-            size
+            size,
         });
 
         const { width, height } = wrapper.element.style;

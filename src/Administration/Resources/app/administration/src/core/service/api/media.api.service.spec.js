@@ -12,7 +12,7 @@ const uploadTaskMock = {
     error: null,
     successAmount: 0,
     failureAmount: 1,
-    totalAmount: 1
+    totalAmount: 1,
 };
 
 function getMediaApiService(client = null, loginService = null) {

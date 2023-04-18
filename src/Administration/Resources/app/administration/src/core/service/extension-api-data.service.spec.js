@@ -24,7 +24,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             'jest',
             {
                 name: 'jest',
-            }
+            },
         );
 
         const wrapper = mount({
@@ -59,7 +59,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             'jestupdate',
             {
                 name: 'beforeupdate',
-            }
+            },
         );
 
         const wrapper = mount({
@@ -79,7 +79,7 @@ describe('core/service/extension-api-data.service.ts', () => {
                 'jestupdate',
                 {
                     name: 'beforeupdate',
-                }
+                },
             );
 
             e.name = 'updated';
@@ -114,7 +114,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         const collection = new EntityCollection(
             'jest',
             'jest',
-            {}
+            {},
         );
 
         const wrapper = mount({
@@ -147,7 +147,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         const collection = new EntityCollection(
             'jest',
             'jest',
-            {}
+            {},
         );
 
         collection.add(new Entity(
@@ -156,7 +156,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             {
                 id: 1,
                 name: 'jest1',
-            }
+            },
         ));
 
         collection.add(new Entity(
@@ -165,7 +165,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             {
                 id: 2,
                 name: 'jest2',
-            }
+            },
         ));
 
         const wrapper = mount({
@@ -190,7 +190,7 @@ describe('core/service/extension-api-data.service.ts', () => {
                         {
                             name: 'jest1updated',
                         },
-                        null
+                        null,
                     ],
                 },
                 _callbackId: Shopware.Utils.createId(),
@@ -232,7 +232,7 @@ describe('core/service/extension-api-data.service.ts', () => {
                 _type: 'datasetUpdate',
                 _data: {
                     id: 'jest',
-                    data: 1337
+                    data: 1337,
                 },
                 _callbackId: Shopware.Utils.createId(),
             };
@@ -262,8 +262,8 @@ describe('core/service/extension-api-data.service.ts', () => {
                     jest: {
                         nest: {
                             count: 42,
-                        }
-                    }
+                        },
+                    },
                 };
             },
         });
@@ -276,7 +276,7 @@ describe('core/service/extension-api-data.service.ts', () => {
                 _type: 'datasetUpdate',
                 _data: {
                     id: 'jest',
-                    data: 1337
+                    data: 1337,
                 },
                 _callbackId: Shopware.Utils.createId(),
             };
@@ -384,7 +384,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         });
 
         const publishedDataSets = getPublishedDataSets();
-        expect(publishedDataSets.length).toBe(1);
+        expect(publishedDataSets).toHaveLength(1);
         expect(publishedDataSets[0].id).toBe('jest');
         expect(publishedDataSets[0].data).toBe(42);
 
@@ -438,7 +438,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             {
                 id: 1,
                 name: 'jest1',
-            }
+            },
         ));
 
         collection.add(new Entity(
@@ -447,7 +447,7 @@ describe('core/service/extension-api-data.service.ts', () => {
             {
                 id: 2,
                 name: 'jest2',
-            }
+            },
         ));
 
         const wrapper = mount({
@@ -460,7 +460,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         });
 
         // Assert before publish
-        expect(collection.length).toBe(2);
+        expect(collection).toHaveLength(2);
         expect(collection[0].name).toBe('jest1');
         expect(collection[1].name).toBe('jest2');
 
@@ -475,7 +475,7 @@ describe('core/service/extension-api-data.service.ts', () => {
                         {
                             id: 3,
                             name: 'jest3',
-                        }
+                        },
                     ],
                 },
                 _callbackId: Shopware.Utils.createId(),
@@ -493,7 +493,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         await flushPromises();
 
         // Assert after publish
-        expect(collection.length).toBe(3);
+        expect(collection).toHaveLength(3);
         expect(collection[0].name).toBe('jest1');
         expect(typeof collection[0].getDraft).toBe('function');
         expect(collection[1].name).toBe('jest2');

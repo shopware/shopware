@@ -17,7 +17,7 @@ async function createWrapper() {
             'sw-icon': true,
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-external-link': true,
-        }
+        },
     });
 }
 
@@ -38,6 +38,6 @@ describe('components/utils/sw-help-center', () => {
 
         const contextMenu = wrapper.get('.sw-context-menu');
 
-        expect(contextMenu.get('h3').text()).toEqual('global.sw-help-center.title');
+        expect(contextMenu.get('h3').text()).toBe('global.sw-help-center.title');
     });
 });

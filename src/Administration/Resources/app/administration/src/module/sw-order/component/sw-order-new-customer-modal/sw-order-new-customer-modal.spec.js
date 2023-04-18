@@ -21,7 +21,7 @@ async function createWrapper() {
         localVue,
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
@@ -41,7 +41,7 @@ async function createWrapper() {
                                     id: '1',
                                     addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
                                 };
-                            }
+                            },
                         };
                     }
 
@@ -50,12 +50,12 @@ async function createWrapper() {
                             searchIds: () => Promise.resolve({
                                 total: 1,
                                 data: ['1'],
-                            })
+                            }),
                         };
                     }
 
                     return {
-                        create: () => Promise.resolve()
+                        create: () => Promise.resolve(),
                     };
                 },
             },
@@ -67,7 +67,7 @@ async function createWrapper() {
                     return Promise.resolve({
                         'core.loginRegistration.passwordMinLength': 8,
                     });
-                }
+                },
             },
             customerValidationService: {
                 checkCustomerEmail: () => Promise.resolve(),
@@ -125,11 +125,11 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
             },
         });
 
-        expect(await wrapper.vm.languageId).toEqual('1');
+        expect(await wrapper.vm.languageId).toBe('1');
 
         const context = await wrapper.vm.onSave();
 
-        expect(context.languageId).toEqual('1');
+        expect(context.languageId).toBe('1');
     });
 
     it('should keep context when sales channel exists language compared to API language', async () => {

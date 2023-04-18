@@ -5,28 +5,28 @@ async function createWrapper(customProps = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-and-container'), {
         stubs: {
             'sw-button': true,
-            'sw-condition-tree-node': true
+            'sw-condition-tree-node': true,
         },
         provide: {
             conditionDataProviderService: {
-                getPlaceholderData: () => {}
+                getPlaceholderData: () => {},
             },
             createCondition: () => {},
             insertNodeTree: {},
             insertNodeIntoTree: () => {},
             removeNodeFromTree: {},
-            childAssociationField: 'test'
+            childAssociationField: 'test',
         },
         propsData: {
             condition: {
                 foo: {},
                 test: {
-                    foo: 'bar'
-                }
+                    foo: 'bar',
+                },
             },
             level: 0,
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -46,7 +46,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
 
     it('should have disabled condition tree', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
@@ -66,7 +66,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
 
     it('should have disabled buttons', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const buttons = wrapper.findAll('sw-button-stub');

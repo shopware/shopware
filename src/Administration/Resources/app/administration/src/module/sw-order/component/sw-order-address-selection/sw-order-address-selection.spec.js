@@ -45,7 +45,7 @@ async function createWrapper(propsData) {
             'sw-container': true,
             'sw-text-field': true,
             'sw-entity-single-select': true,
-            'sw-customer-address-form-options': true
+            'sw-customer-address-form-options': true,
         },
         provide: {
             repositoryFactory: {
@@ -63,31 +63,31 @@ async function createWrapper(propsData) {
                                 street: 'Stehr Divide',
                                 zipcode: '64885-2245',
                                 city: 'Faheyshire',
-                                id: '652e9e571cc94bd898077f256dcf629f'
-                            }
+                                id: '652e9e571cc94bd898077f256dcf629f',
+                            },
                         ]),
                     }),
                     create: () => ({
                         _isNew: true,
                     }),
-                })
+                }),
             },
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
-            }
+                startEventListener: () => {},
+            },
         },
         propsData: {
             address: {
                 street: 'Denesik Bridge',
                 zipcode: '05132',
                 city: 'Bernierstad',
-                id: '38e8895864a649a1b2ec806dad02ab87'
+                id: '38e8895864a649a1b2ec806dad02ab87',
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
             type: 'billing',
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -106,14 +106,14 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                         street: 'Denesik Bridge',
                         zipcode: '05132',
                         city: 'Bernierstad',
-                        id: '38e8895864a649a1b2ec806dad02ab87'
+                        id: '38e8895864a649a1b2ec806dad02ab87',
                     }],
                     billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
                     orderCustomer: {
-                        customerId: '63e27affb5804538b5b06cb4e344b130'
-                    }
-                }
-            }
+                        customerId: '63e27affb5804538b5b06cb4e344b130',
+                    },
+                },
+            },
         });
     });
 
@@ -130,7 +130,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     });
 
     it('should be able to edit address', async () => {
-        expect(wrapper.vm.currentAddress).toBe(null);
+        expect(wrapper.vm.currentAddress).toBeNull();
 
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
@@ -146,7 +146,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             street: 'Denesik Bridge',
             zipcode: '05132',
             city: 'Bernierstad',
-            id: '38e8895864a649a1b2ec806dad02ab87'
+            id: '38e8895864a649a1b2ec806dad02ab87',
         });
     });
 
@@ -166,12 +166,12 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.emitted('change-address')[0]).toEqual([{
             orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
             customerAddressId: '652e9e571cc94bd898077f256dcf629f',
-            type: 'billing'
+            type: 'billing',
         }]);
     });
 
     it('should be able to create new address', async () => {
-        expect(wrapper.vm.currentAddress).toBe(null);
+        expect(wrapper.vm.currentAddress).toBeNull();
 
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
@@ -193,21 +193,21 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         const list = wrapper.find('.sw-select-result-list__item-list');
 
-        expect(list.findAll('.sw-select-result').length).toBe(2);
+        expect(list.findAll('.sw-select-result')).toHaveLength(2);
 
         const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
-        expect(firstSelection.findAll('p').at(1).text()).toEqual('Denesik Bridge');
-        expect(firstSelection.findAll('p').at(2).text()).toEqual('05132 Bernierstad');
+        expect(firstSelection.findAll('p').at(1).text()).toBe('Denesik Bridge');
+        expect(firstSelection.findAll('p').at(2).text()).toBe('05132 Bernierstad');
 
         const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
-        expect(secondSelection.findAll('p').at(1).text()).toEqual('Stehr Divide');
-        expect(secondSelection.findAll('p').at(2).text()).toEqual('64885-2245 Faheyshire');
+        expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
+        expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
     });
 
     it('should be able to get the options with not props', async () => {
         wrapper = await createWrapper({
             address: null,
-            addressId: null
+            addressId: null,
         });
 
         await wrapper.vm.$nextTick();
@@ -220,8 +220,8 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         const information = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
 
-        expect(list.findAll('.sw-select-result').length).toBe(1);
-        expect(information.findAll('p').at(1).text()).toEqual('Stehr Divide');
-        expect(information.findAll('p').at(2).text()).toEqual('64885-2245 Faheyshire');
+        expect(list.findAll('.sw-select-result')).toHaveLength(1);
+        expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
+        expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
     });
 });

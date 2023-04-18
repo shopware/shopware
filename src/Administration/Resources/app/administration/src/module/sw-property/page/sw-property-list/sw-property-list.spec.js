@@ -15,9 +15,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -27,29 +27,29 @@ async function createWrapper(privileges = []) {
                             {
                                 id: '1a2b3c4e',
                                 name: 'Test property',
-                                sourceEntitiy: 'property'
-                            }
+                                sourceEntitiy: 'property',
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -58,7 +58,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-icon': true,
@@ -70,12 +70,12 @@ async function createWrapper(privileges = []) {
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-language-switch': true,
             'sw-empty-state': true,
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 }
 
@@ -98,7 +98,7 @@ describe('module/sw-property/page/sw-property-list', () => {
 
     it('should be able to create a new property', async () => {
         const wrapper = await createWrapper([
-            'property.creator'
+            'property.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -119,7 +119,7 @@ describe('module/sw-property/page/sw-property-list', () => {
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper([
-            'property.editor'
+            'property.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -138,7 +138,7 @@ describe('module/sw-property/page/sw-property-list', () => {
 
     it('should be able to delete', async () => {
         const wrapper = await createWrapper([
-            'property.deleter'
+            'property.deleter',
         ]);
         await flushPromises();
 
@@ -156,7 +156,7 @@ describe('module/sw-property/page/sw-property-list', () => {
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper([
-            'property.editor'
+            'property.editor',
         ]);
         await flushPromises();
 
@@ -167,7 +167,7 @@ describe('module/sw-property/page/sw-property-list', () => {
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -210,7 +210,7 @@ describe('module/sw-property/page/sw-property-list', () => {
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -234,7 +234,7 @@ describe('module/sw-property/page/sw-property-list', () => {
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -248,7 +248,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

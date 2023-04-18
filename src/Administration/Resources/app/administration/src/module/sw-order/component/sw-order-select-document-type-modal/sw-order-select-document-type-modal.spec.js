@@ -18,7 +18,7 @@ const orderFixture = {
     orderNumber: '10000',
     amountNet: 80,
     amountGross: 100,
-    lineItems: []
+    lineItems: [],
 };
 
 const documentFixture = {
@@ -31,8 +31,8 @@ const documentFixture = {
         technicalName: 'invoice',
     },
     config: {
-        documentNumber: '1000'
-    }
+        documentNumber: '1000',
+    },
 };
 
 function getCollection(entity, collection) {
@@ -43,7 +43,7 @@ function getCollection(entity, collection) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -54,7 +54,7 @@ const documentTypeFixture = [
         technicalName: 'delivery_note',
         translated: {
             name: 'Delivery note',
-        }
+        },
     },
     {
         id: '1',
@@ -62,7 +62,7 @@ const documentTypeFixture = [
         technicalName: 'invoice',
         translated: {
             name: 'Invoice',
-        }
+        },
     },
     {
         id: '2',
@@ -70,7 +70,7 @@ const documentTypeFixture = [
         technicalName: 'storno',
         translated: {
             name: 'Cancellation invoice',
-        }
+        },
     },
     {
         id: '3',
@@ -78,7 +78,7 @@ const documentTypeFixture = [
         technicalName: 'credit_note',
         translated: {
             name: 'Credit note',
-        }
+        },
     },
 ];
 
@@ -86,7 +86,7 @@ async function createWrapper(customData = {}) {
     return shallowMount(await Shopware.Component.build('sw-order-select-document-type-modal'), {
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
@@ -112,7 +112,7 @@ async function createWrapper(customData = {}) {
         propsData: {
             order: { ...orderFixture, ...customData.order },
             value: {},
-        }
+        },
     });
 }
 
@@ -127,7 +127,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         await flushPromises();
 
         const documentTypeRadioOptions = wrapper.findAll('.sw-field__radio-option');
-        expect(documentTypeRadioOptions.wrappers.length).toEqual(4);
+        expect(documentTypeRadioOptions.wrappers).toHaveLength(4);
 
         // Delivery note
         expect(documentTypeRadioOptions.at(0).find('input')
@@ -147,11 +147,11 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
 
         const helpTextStorno = documentTypeRadioOptions.at(2).find('sw-help-text-stub');
         expect(helpTextStorno.attributes().text)
-            .toEqual('sw-order.components.selectDocumentTypeModal.helpText.storno');
+            .toBe('sw-order.components.selectDocumentTypeModal.helpText.storno');
 
         const helpTextCredit = documentTypeRadioOptions.at(3).find('sw-help-text-stub');
         expect(helpTextCredit.attributes().text)
-            .toEqual('sw-order.components.selectDocumentTypeModal.helpText.credit_note');
+            .toBe('sw-order.components.selectDocumentTypeModal.helpText.credit_note');
     });
 
     it('should enable cancellation invoice if there is at least one invoice exists', async () => {
@@ -159,7 +159,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         await flushPromises();
 
         const documentTypeRadioOptions = wrapper.findAll('.sw-field__radio-option');
-        expect(documentTypeRadioOptions.wrappers.length).toEqual(4);
+        expect(documentTypeRadioOptions.wrappers).toHaveLength(4);
 
         // Delivery note
         expect(documentTypeRadioOptions.at(0).find('input')
@@ -197,24 +197,24 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
                                 {
                                     price: -100,
                                     tax: -10,
-                                    taxRate: 10
-                                }
+                                    taxRate: 10,
+                                },
                             ],
                             taxRules: [
                                 {
                                     taxRate: 10,
-                                    percentage: 100
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+                                    percentage: 100,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
         });
         await flushPromises();
 
         const documentTypeRadioOptions = wrapper.findAll('.sw-field__radio-option');
-        expect(documentTypeRadioOptions.wrappers.length).toEqual(4);
+        expect(documentTypeRadioOptions.wrappers).toHaveLength(4);
 
         documentTypeRadioOptions.wrappers.forEach(option => {
             expect(option.find('input')

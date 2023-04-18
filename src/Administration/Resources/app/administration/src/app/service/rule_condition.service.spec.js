@@ -8,28 +8,28 @@ describe('app/service/rule-condition.service.js', () => {
         const expected = [
             {
                 identifier: '=',
-                label: 'global.sw-condition.operator.equals'
+                label: 'global.sw-condition.operator.equals',
             },
             {
                 identifier: '>',
-                label: 'global.sw-condition.operator.greaterThan'
+                label: 'global.sw-condition.operator.greaterThan',
             },
             {
                 identifier: '>=',
-                label: 'global.sw-condition.operator.greaterThanEquals'
+                label: 'global.sw-condition.operator.greaterThanEquals',
             },
             {
                 identifier: '<',
-                label: 'global.sw-condition.operator.lowerThan'
+                label: 'global.sw-condition.operator.lowerThan',
             },
             {
                 identifier: '<=',
-                label: 'global.sw-condition.operator.lowerThanEquals'
+                label: 'global.sw-condition.operator.lowerThanEquals',
             },
             {
                 identifier: '!=',
-                label: 'global.sw-condition.operator.notEquals'
-            }
+                label: 'global.sw-condition.operator.notEquals',
+            },
         ];
 
         const operators = service.getOperatorSet('date');

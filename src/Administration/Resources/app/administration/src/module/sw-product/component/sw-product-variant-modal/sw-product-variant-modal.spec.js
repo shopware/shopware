@@ -12,42 +12,42 @@ function getOptions() {
         {
             name: 'b',
             translated: {
-                name: 'b'
+                name: 'b',
             },
             group: {
                 translated: {
-                    name: 'color'
-                }
+                    name: 'color',
+                },
             },
             position: 1,
-            id: 'option_b'
+            id: 'option_b',
         },
         {
             name: 'c',
             translated: {
-                name: 'c'
+                name: 'c',
             },
             group: {
                 translated: {
-                    name: 'size'
-                }
+                    name: 'size',
+                },
             },
             position: 5,
-            id: 'option_c'
+            id: 'option_c',
         },
         {
             name: 'a',
             translated: {
-                name: 'a'
+                name: 'a',
             },
             group: {
                 translated: {
-                    name: 'material'
-                }
+                    name: 'material',
+                },
             },
             position: 1,
-            id: 'option_a'
-        }
+            id: 'option_a',
+        },
     ];
 }
 
@@ -61,18 +61,18 @@ function getGroups() {
             options: [{
                 name: 'b',
                 translated: {
-                    name: 'b'
+                    name: 'b',
                 },
                 position: 1,
-                id: 'option_b'
+                id: 'option_b',
             },
             {
                 name: 'b1',
                 translated: {
-                    name: 'b1'
+                    name: 'b1',
                 },
                 position: 2,
-                id: 'option_b1'
+                id: 'option_b1',
             }],
         },
         {
@@ -83,18 +83,18 @@ function getGroups() {
             options: [{
                 name: 'c',
                 translated: {
-                    name: 'c'
+                    name: 'c',
                 },
                 position: 5,
-                id: 'option_c'
+                id: 'option_c',
             },
             {
                 name: 'c1',
                 translated: {
-                    name: 'c1'
+                    name: 'c1',
                 },
                 position: 1,
-                id: 'option_c1'
+                id: 'option_c1',
             }],
         },
         {
@@ -105,12 +105,12 @@ function getGroups() {
             options: [{
                 name: 'a',
                 translated: {
-                    name: 'a'
+                    name: 'a',
                 },
                 position: 1,
-                id: 'option_a'
+                id: 'option_a',
             }],
-        }
+        },
     ];
 }
 
@@ -123,16 +123,16 @@ function getVariants(returnCurrency = true) {
                 gross: 24,
                 linked: true,
                 listPrice: null,
-                extensions: []
-            }
+                extensions: [],
+            },
         ],
         childCount: 2,
         name: 'random product',
         translated: {
-            name: 'random product'
+            name: 'random product',
         },
         id: '72bfaf5d90214ce592715a9649d8760a',
-        options: getOptions()
+        options: getOptions(),
     };
 }
 
@@ -147,14 +147,14 @@ async function createWrapper() {
                         gross: 12,
                         linked: true,
                         listPrice: null,
-                        extensions: []
-                    }
+                        extensions: [],
+                    },
                 ],
                 productNumber: 'SW10000',
                 childCount: 2,
                 name: 'random product',
                 translated: {
-                    name: 'name'
+                    name: 'name',
                 },
                 id: '72bfaf5d90214ce592715a9649d8760a',
                 configuratorSettings: [
@@ -164,7 +164,7 @@ async function createWrapper() {
                         option: {
                             groupId: 'group1',
                             name: 'b',
-                            id: 'option_b'
+                            id: 'option_b',
                         },
                     },
                     {
@@ -173,7 +173,7 @@ async function createWrapper() {
                         option: {
                             groupId: 'group2',
                             name: 'a',
-                            id: 'option_a'
+                            id: 'option_a',
                         },
                     },
                     {
@@ -182,10 +182,10 @@ async function createWrapper() {
                         option: {
                             groupId: 'group3',
                             name: 'c',
-                            id: 'option_c'
+                            id: 'option_c',
                         },
-                    }
-                ]
+                    },
+                ],
             },
         },
         provide: {
@@ -203,16 +203,16 @@ async function createWrapper() {
                             }
 
                             return Promise.resolve([]);
-                        }
+                        },
                     };
-                }
+                },
             },
             acl: {
-                can: () => true
+                can: () => true,
             },
             feature: {
-                isActive: () => true
-            }
+                isActive: () => true,
+            },
         },
         stubs: {
             'sw-modal': {
@@ -222,19 +222,19 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-label': true,
             'sw-simple-search-field': true,
             'sw-empty-state': true,
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-container': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-context-menu': {
-                template: '<div class="sw-context-menu"><slot></slot></div>'
+                template: '<div class="sw-context-menu"><slot></slot></div>',
             },
             'sw-tree': {
                 props: ['items'],
@@ -242,13 +242,13 @@ async function createWrapper() {
                     <div class="sw-tree">
                       <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
                     </div>
-                `
+                `,
             },
             'sw-tree-item': {
                 props: ['item', 'activeItemIds', 'activeParentIds'],
                 data() {
                     return {
-                        checked: false
+                        checked: false,
                     };
                 },
                 template: `
@@ -270,8 +270,8 @@ async function createWrapper() {
                         this.item.checked = event;
 
                         this.$emit('check-item', item);
-                    }
-                }
+                    },
+                },
             },
             'sw-icon': true,
             'sw-data-grid': {
@@ -280,10 +280,10 @@ async function createWrapper() {
                         <slot name="bulk"></slot>
                         <slot name="bulk-modals"></slot>
                     </div>
-                `
+                `,
             },
             'sw-bulk-edit-modal': true,
-        }
+        },
     });
 }
 
@@ -305,7 +305,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         expect(sortedOptions).toEqual([
             { name: 'a', translated: { name: 'a' }, group: { translated: { name: 'material' } }, id: 'option_a', position: 1 },
             { name: 'b', translated: { name: 'b' }, group: { translated: { name: 'color' } }, id: 'option_b', position: 1 },
-            { name: 'c', translated: { name: 'c' }, group: { translated: { name: 'size' } }, id: 'option_c', position: 5 }
+            { name: 'c', translated: { name: 'c' }, group: { translated: { name: 'size' } }, id: 'option_c', position: 5 },
         ]);
     });
 
@@ -365,7 +365,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
             message: 'sw-privileges.tooltip.warning',
             appearance: 'dark',
             showOnDisabledElements: true,
-            disabled: true
+            disabled: true,
         });
     });
 
@@ -374,12 +374,12 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
 
         const filterContextMenu = wrapper.find('.sw-product-variant-modal__filter-context-menu');
 
-        expect(filterContextMenu.attributes().style).toEqual('display: none;');
+        expect(filterContextMenu.attributes().style).toBe('display: none;');
 
         await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
 
         expect(filterContextMenu.attributes().style).toBeFalsy();
-        expect(wrapper.findAll('.sw-tree-item').length).toEqual(6);
+        expect(wrapper.findAll('.sw-tree-item')).toHaveLength(6);
     });
 
     it('should able to select filter option', async () => {
@@ -392,7 +392,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
 
         expect(wrapper.vm.includeOptions).toEqual([{
             id: 'option_b',
-            groupId: 'group1'
+            groupId: 'group1',
         }]);
     });
 
@@ -406,7 +406,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
 
         expect(wrapper.vm.includeOptions).toEqual([{
             id: 'option_a',
-            groupId: 'group2'
+            groupId: 'group2',
         }]);
 
         await wrapper.find('.sw-product-variant-modal__reset-filter').trigger('click');

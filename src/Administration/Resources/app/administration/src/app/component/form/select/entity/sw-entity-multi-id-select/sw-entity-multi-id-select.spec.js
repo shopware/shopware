@@ -33,7 +33,7 @@ function getCollection() {
         new Criteria(1, 25),
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 async function createWrapper() {
@@ -45,7 +45,7 @@ async function createWrapper() {
             repository: {
                 search: () => {
                     return Promise.resolve(getCollection());
-                }
+                },
             },
         },
         provide: {
@@ -55,17 +55,17 @@ async function createWrapper() {
                         get: (value) => Promise.resolve({ id: value, name: value }),
                         search: () => {
                             return Promise.resolve();
-                        }
+                        },
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-block-field': true,
             'sw-select-selection-list': true,
             'sw-icon': true,
             'sw-select-base': await Component.build('sw-select-base'),
-            'sw-entity-multi-select': await Component.build('sw-entity-multi-select')
+            'sw-entity-multi-select': await Component.build('sw-entity-multi-select'),
         },
     });
 }
@@ -81,12 +81,12 @@ describe('components/sw-entity-multi-id-select', () => {
         wrapper.vm.updateIds(getCollection());
         await flushPromises();
 
-        expect(wrapper.vm.ids.length).toBe(fixture.length);
-        expect(wrapper.vm.collection.length).toBe(fixture.length);
+        expect(wrapper.vm.ids).toHaveLength(fixture.length);
+        expect(wrapper.vm.collection).toHaveLength(fixture.length);
 
         await wrapper.setProps({ ids: [] });
-        expect(wrapper.vm.ids.length).toBe(0);
-        expect(wrapper.vm.collection.length).toBe(0);
+        expect(wrapper.vm.ids).toHaveLength(0);
+        expect(wrapper.vm.collection).toHaveLength(0);
     });
 
     it('should reset selected ids if it is invalid value', async () => {
@@ -98,9 +98,9 @@ describe('components/sw-entity-multi-id-select', () => {
                 repository: {
                     search: () => {
                         return Promise.resolve([]);
-                    }
-                }
-            }
+                    },
+                },
+            },
         );
 
         expect(wrapper.vm.updateIds).toHaveBeenCalled();

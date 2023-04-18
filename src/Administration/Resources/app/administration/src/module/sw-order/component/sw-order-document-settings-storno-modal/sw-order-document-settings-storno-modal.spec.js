@@ -30,8 +30,8 @@ const orderFixture = {
                 documentNumber: 1000,
                 custom: {
                     invoiceNumber: 1000,
-                }
-            }
+                },
+            },
         },
         {
             orderId: 'order1',
@@ -46,8 +46,8 @@ const orderFixture = {
                 documentNumber: 1001,
                 custom: {
                     invoiceNumber: 1001,
-                }
-            }
+                },
+            },
         },
         {
             orderId: 'order1',
@@ -62,9 +62,9 @@ const orderFixture = {
                 documentNumber: 1001,
                 custom: {
                     deliveryNoteNumber: 1001,
-                }
-            }
-        }
+                },
+            },
+        },
     ],
     currency: {
         shortName: 'EUR',
@@ -73,7 +73,7 @@ const orderFixture = {
     orderNumber: '10000',
     amountNet: 80,
     amountGross: 100,
-    lineItems: []
+    lineItems: [],
 };
 
 async function createWrapper() {
@@ -81,17 +81,17 @@ async function createWrapper() {
         stubs: {
             'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-text-field': true,
             'sw-datepicker': true,
             'sw-checkbox-field': true,
             'sw-switch-field': true,
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-group': await Shopware.Component.build('sw-button-group'),
@@ -107,7 +107,7 @@ async function createWrapper() {
         },
         provide: {
             numberRangeService: {
-                reserve: () => Promise.resolve({})
+                reserve: () => Promise.resolve({}),
             },
             mediaService: {},
         },
@@ -117,7 +117,7 @@ async function createWrapper() {
             currentDocumentType: {},
             isLoadingDocument: false,
             isLoadingPreview: false,
-        }
+        },
     });
 }
 
@@ -136,8 +136,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
             .findAll('option');
 
-        expect(invoiceOptions.at(1).text()).toEqual('1000');
-        expect(invoiceOptions.at(2).text()).toEqual('1001');
+        expect(invoiceOptions.at(1).text()).toBe('1000');
+        expect(invoiceOptions.at(2).text()).toBe('1001');
     });
 
     it('should disable create button if there is no selected invoice', async () => {

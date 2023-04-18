@@ -19,8 +19,8 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-property-search'), {
         propsData: {
             options: [
-                {}
-            ]
+                {},
+            ],
         },
         stubs: {
             'sw-field': await Shopware.Component.build('sw-field'),
@@ -29,10 +29,10 @@ async function createWrapper() {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-container': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-grid': await Shopware.Component.build('sw-grid'),
             'sw-pagination': await Shopware.Component.build('sw-pagination'),
@@ -40,11 +40,11 @@ async function createWrapper() {
             'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-checkbox-field': {
-                template: '<div class="checkbox"></div>'
-            }
+                template: '<div class="checkbox"></div>',
+            },
         },
         provide: {
             validationService: {},
@@ -75,14 +75,14 @@ async function createWrapper() {
                                         name: 'Länge',
                                         description: null,
                                         position: 1,
-                                        customFields: []
+                                        customFields: [],
                                     },
                                     relationships: null,
                                     options: [],
                                     type: 'property_group',
                                     meta: {},
                                     translations: [],
-                                    optionCount: 3
+                                    optionCount: 3,
                                 };
 
                                 group.options.entity = 'property_group_option';
@@ -118,11 +118,11 @@ async function createWrapper() {
                                         name: 'length',
                                         description: null,
                                         displayType: 'text',
-                                        sortingType: 'alphanumeric'
+                                        sortingType: 'alphanumeric',
                                     },
                                     productConfiguratorSettings: [],
                                     productProperties: [],
-                                    productOptions: []
+                                    productOptions: [],
                                 });
                             }
 
@@ -133,10 +133,10 @@ async function createWrapper() {
                         const response = [];
                         response.total = 0;
                         return Promise.resolve(response);
-                    }
-                })
-            }
-        }
+                    },
+                }),
+            },
+        },
     });
 }
 
@@ -227,7 +227,7 @@ describe('components/base/sw-property-search', () => {
         await wrapper.vm.$nextTick();
 
         const amountOfOptionPages = wrapper.findAll(
-            '.sw-property-search__tree-selection__option_grid .sw-pagination .sw-pagination__list-button'
+            '.sw-property-search__tree-selection__option_grid .sw-pagination .sw-pagination__list-button',
         ).length;
 
         expect(amountOfOptionPages).toBe(2);

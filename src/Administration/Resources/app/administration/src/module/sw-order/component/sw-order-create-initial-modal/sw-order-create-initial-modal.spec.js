@@ -7,7 +7,7 @@ import orderStore from 'src/module/sw-order/state/order.store';
 
 const lineItem = {
     label: 'Product',
-    productId: 'product1'
+    productId: 'product1',
 };
 
 const cartResponse = {
@@ -34,16 +34,16 @@ async function createWrapper() {
                     <div class="sw-modal">
                         <slot name="default"></slot>
                         <slot name="modal-footer"></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-tabs': {
                 data() {
                     return { active: 'customer' };
                 },
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
+                template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-order-customer-grid': true,
@@ -69,7 +69,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
                 saveLineItem: () => Promise.resolve({
                     data: {
                         ...cartResponse.data,
-                        lineItems: [{ ...lineItem }]
+                        lineItems: [{ ...lineItem }],
                     },
                 }),
                 removeLineItems: () => Promise.resolve(cartResponse),
@@ -106,7 +106,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
 
     it('should enable other tabs if customer is selected', async () => {
         Shopware.State.commit('swOrder/setCustomer', {
-            id: '1234'
+            id: '1234',
         });
 
         const wrapper = await createWrapper();
@@ -118,7 +118,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
 
     it('should show tab content correctly', async () => {
         Shopware.State.commit('swOrder/setCustomer', {
-            id: '1234'
+            id: '1234',
         });
         const wrapper = await createWrapper();
 
@@ -126,17 +126,17 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             .attributes('style')).toBeUndefined();
 
         expect(wrapper.find('sw-order-line-items-grid-sales-channel-stub')
-            .attributes('style')).toEqual('display: none;');
+            .attributes('style')).toBe('display: none;');
 
         expect(wrapper.find('sw-order-create-options-stub')
             .exists()).toBeFalsy();
 
         await wrapper.find('.sw-tabs').setData({
-            active: 'products'
+            active: 'products',
         });
 
         expect(wrapper.find('sw-order-customer-grid-stub')
-            .attributes('style')).toEqual('display: none;');
+            .attributes('style')).toBe('display: none;');
 
         expect(wrapper.find('sw-order-line-items-grid-sales-channel-stub')
             .attributes('style')).toBeFalsy();
@@ -145,14 +145,14 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             .exists()).toBeFalsy();
 
         await wrapper.find('.sw-tabs').setData({
-            active: 'options'
+            active: 'options',
         });
 
         expect(wrapper.find('sw-order-customer-grid-stub')
-            .attributes('style')).toEqual('display: none;');
+            .attributes('style')).toBe('display: none;');
 
         expect(wrapper.find('sw-order-line-items-grid-sales-channel-stub')
-            .attributes('style')).toEqual('display: none;');
+            .attributes('style')).toBe('display: none;');
 
         expect(wrapper.find('sw-order-create-options-stub')
             .exists()).toBeTruthy();
@@ -204,7 +204,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.find('.sw-tabs').setData({
-            active: 'options'
+            active: 'options',
         });
 
         expect(wrapper.vm.disabledAutoPromotion).toBeFalsy();
@@ -219,7 +219,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.find('.sw-tabs').setData({
-            active: 'options'
+            active: 'options',
         });
 
         expect(wrapper.vm.promotionCodes).toEqual([]);
@@ -234,7 +234,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.find('.sw-tabs').setData({
-            active: 'options'
+            active: 'options',
         });
 
         expect(wrapper.vm.shippingCosts).toBeNull();
@@ -242,7 +242,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         const optionsView = wrapper.find('sw-order-create-options-stub');
         optionsView.vm.$emit('shipping-cost-change', 100);
 
-        expect(wrapper.vm.shippingCosts).toEqual(100);
+        expect(wrapper.vm.shippingCosts).toBe(100);
     });
 
     it('should able to preview order', async () => {
@@ -251,15 +251,15 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             lineItems: [],
             deliveries: [{
                 shippingCosts: {
-                    totalPrice: 50
-                }
+                    totalPrice: 50,
+                },
             }],
         });
 
         const wrapper = await createWrapper();
 
         await wrapper.find('.sw-tabs').setData({
-            active: 'options'
+            active: 'options',
         });
 
         const optionsView = wrapper.find('sw-order-create-options-stub');
@@ -291,22 +291,22 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             context: {
                 currencyId: 'euro',
                 languageIdChain: [
-                    'english'
+                    'english',
                 ],
             },
             shippingMethod: {
-                id: 'standard'
+                id: 'standard',
             },
             paymentMethod: {
-                id: 'cash'
+                id: 'cash',
             },
             customer: {
                 activeBillingAddress: {
-                    id: '1234'
+                    id: '1234',
                 },
                 activeShippingAddress: {
-                    id: '5678'
-                }
+                    id: '5678',
+                },
             },
         });
 

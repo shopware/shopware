@@ -47,7 +47,7 @@ describe('sw-settings-snippet-sidebar', () => {
         await wrapper.setProps({
             filterSettings: null,
         });
-        expect(wrapper.vm.activeFilterNumber).toEqual(0);
+        expect(wrapper.vm.activeFilterNumber).toBe(0);
 
         await wrapper.setProps({
             filterSettings: {
@@ -55,17 +55,17 @@ describe('sw-settings-snippet-sidebar', () => {
                 System: true,
             },
         });
-        expect(wrapper.vm.activeFilterNumber).toEqual(2);
+        expect(wrapper.vm.activeFilterNumber).toBe(2);
 
         const sidebarItem = wrapper.find('.sw-snippet-settings__sidebar > div[icon="regular-filter"]');
-        expect(sidebarItem.attributes().badge).toEqual('2');
+        expect(sidebarItem.attributes().badge).toBe('2');
     });
 
     it('should contain a computed property, called: isExpandedAuthorFilters', async () => {
         await wrapper.setProps({
             filterSettings: null,
         });
-        expect(wrapper.vm.isExpandedAuthorFilters).toEqual(false);
+        expect(wrapper.vm.isExpandedAuthorFilters).toBe(false);
 
         await wrapper.setProps({
             filterSettings: {
@@ -77,14 +77,14 @@ describe('sw-settings-snippet-sidebar', () => {
                 'System',
             ],
         });
-        expect(wrapper.vm.isExpandedAuthorFilters).toEqual(true);
+        expect(wrapper.vm.isExpandedAuthorFilters).toBe(true);
     });
 
     it('should contain a computed property, called: isExpandedMoreFilters', async () => {
         await wrapper.setProps({
             filterSettings: null,
         });
-        expect(wrapper.vm.isExpandedMoreFilters).toEqual(false);
+        expect(wrapper.vm.isExpandedMoreFilters).toBe(false);
 
         await wrapper.setProps({
             filterSettings: {
@@ -98,7 +98,7 @@ describe('sw-settings-snippet-sidebar', () => {
                 'customer',
             ],
         });
-        expect(wrapper.vm.isExpandedMoreFilters).toEqual(true);
+        expect(wrapper.vm.isExpandedMoreFilters).toBe(true);
     });
 
     it('should be able to reset all filters', async () => {

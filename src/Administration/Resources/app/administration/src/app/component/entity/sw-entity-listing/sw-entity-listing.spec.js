@@ -15,12 +15,12 @@ async function createWrapper(propsData = {}) {
         { name: 'Apple' },
         { name: 'Shopware' },
         { name: 'Google' },
-        { name: 'Microsoft' }
+        { name: 'Microsoft' },
     ];
     items.total = 4;
     items.criteria = {
         page: null,
-        limit: null
+        limit: null,
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-listing'), {
@@ -34,23 +34,23 @@ async function createWrapper(propsData = {}) {
             'sw-context-menu-divider': true,
             'sw-pagination': true,
             'sw-checkbox-field': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
         },
         provide: {},
         propsData: {
             columns: [
-                { property: 'name', label: 'Name' }
+                { property: 'name', label: 'Name' },
             ],
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
-                { id: 'id2', name: 'item2' }
+                { id: 'id2', name: 'item2' },
             ]),
             repository: {
-                search: () => {}
+                search: () => {},
             },
             detailRoute: 'sw.manufacturer.detail',
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -75,7 +75,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -101,7 +101,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -118,15 +118,15 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-                { id: 'id3', name: 'item3' }
-            ])
+                { id: 'id3', name: 'item3' },
+            ]),
         });
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements.exists()).toBeTruthy();
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
-        expect(elements.wrappers.length).toBe(3);
+        expect(elements.wrappers).toHaveLength(3);
     });
 
     it('should have context menu with view entry', async () => {
@@ -136,15 +136,15 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-                { id: 'id3', name: 'item3' }
-            ])
+                { id: 'id3', name: 'item3' },
+            ]),
         });
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements.exists()).toBeTruthy();
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.view'));
-        expect(elements.wrappers.length).toBe(3);
+        expect(elements.wrappers).toHaveLength(3);
     });
 
     it('should have context menu with disabled edit entry', async () => {
@@ -154,14 +154,14 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-                { id: 'id3', name: 'item3' }
-            ])
+                { id: 'id3', name: 'item3' },
+            ]),
         });
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements.exists()).toBeTruthy();
-        expect(elements.wrappers.length).toBe(3);
+        expect(elements.wrappers).toHaveLength(3);
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
     });

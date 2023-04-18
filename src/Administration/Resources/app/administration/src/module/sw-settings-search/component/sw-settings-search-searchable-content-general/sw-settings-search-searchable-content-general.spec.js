@@ -25,9 +25,9 @@ async function createWrapper() {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: {
@@ -35,10 +35,10 @@ async function createWrapper() {
                 create: () => ({
                     save: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
-            searchRankingService: {}
+            searchRankingService: {},
 
         },
 
@@ -49,15 +49,15 @@ async function createWrapper() {
             'sw-pagination': true,
             'sw-data-grid-skeleton': await Shopware.Component.build('sw-data-grid-skeleton'),
             'sw-context-button': true,
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item')
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
         },
 
         propsData: {
             isEmpty: false,
             columns: [],
             repository: {},
-            fieldConfigs: []
-        }
+            fieldConfigs: [],
+        },
     });
 }
 
@@ -70,7 +70,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
             {
                 method: 'warn',
                 msg: '[Listing Mixin]',
-            }
+            },
         ];
     });
 
@@ -87,7 +87,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            isEmpty: true
+            isEmpty: true,
         });
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
@@ -110,21 +110,21 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
                 ranking: 0,
                 searchConfigId: '61168b0c1f97454cbee670b12d045d32',
                 searchable: false,
-                tokenize: false
-            }
+                tokenize: false,
+            },
         ];
         searchConfigs.criteria = { page: 1, limit: 25 };
 
         await wrapper.setProps({
             searchConfigs,
-            isLoading: false
+            isLoading: false,
         });
         const firstRow = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--0'
+            '.sw-data-grid__row.sw-data-grid__row--0',
         );
 
         await firstRow.find(
-            '.sw-settings-search__searchable-content-list-reset'
+            '.sw-settings-search__searchable-content-list-reset',
         ).trigger('click');
 
         expect(wrapper.vm.onResetRanking).toHaveBeenCalled();
@@ -145,19 +145,19 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
                 ranking: 0,
                 searchConfigId: '61168b0c1f97454cbee670b12d045d32',
                 searchable: false,
-                tokenize: false
-            }
+                tokenize: false,
+            },
         ];
         searchConfigs.criteria = { page: 1, limit: 25 };
 
         await wrapper.setProps({
             searchConfigs,
-            isLoading: false
+            isLoading: false,
         });
 
         await wrapper.vm.onResetRanking({
             field: 'categories.customFields',
-            id: '8bafeb17b2494781ac44dce2d3ecfae5'
+            id: '8bafeb17b2494781ac44dce2d3ecfae5',
         });
 
         expect(wrapper.emitted('config-save')).toBeTruthy();
@@ -185,24 +185,24 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
                 ranking: 0,
                 searchConfigId: '61168b0c1f97454cbee670b12d045d32',
                 searchable: false,
-                tokenize: false
-            }
+                tokenize: false,
+            },
         ];
         searchConfigs.criteria = { page: 1, limit: 25 };
 
         await wrapper.setProps({
             searchConfigs,
-            isLoading: false
+            isLoading: false,
         });
 
         await wrapper.vm.onInlineEditItem({
             field: 'categories.customFields',
-            id: '8bafeb17b2494781ac44dce2d3ecfae5'
+            id: '8bafeb17b2494781ac44dce2d3ecfae5',
         });
 
         expect(wrapper.vm.$refs.swSettingsSearchableContentGrid.onDbClickCell({
             field: 'categories.customFields',
-            id: '8bafeb17b2494781ac44dce2d3ecfae5'
+            id: '8bafeb17b2494781ac44dce2d3ecfae5',
         })).toBeTruthy();
     });
 });

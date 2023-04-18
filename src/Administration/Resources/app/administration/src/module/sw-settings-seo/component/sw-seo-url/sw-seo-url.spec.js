@@ -20,9 +20,9 @@ async function createWrapper() {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div><slot name="toolbar"></slot></div>'
+                template: '<div><slot name="toolbar"></slot></div>',
             },
-            'sw-sales-channel-switch': true
+            'sw-sales-channel-switch': true,
         },
         provide: {
             repositoryFactory: {
@@ -33,13 +33,13 @@ async function createWrapper() {
                                 {
                                     name: 'Storefront',
                                     translated: { name: 'Storefront' },
-                                    id: '863137935ecf48999d69096de547b090'
+                                    id: '863137935ecf48999d69096de547b090',
                                 },
                                 {
                                     name: 'Headless',
                                     translated: { name: 'Headless' },
-                                    id: '123456789'
-                                }
+                                    id: '123456789',
+                                },
                             ]));
                         }
 
@@ -47,11 +47,11 @@ async function createWrapper() {
                     },
                     create: () => ({}),
                     schema: {
-                        entity: {}
-                    }
-                })
-            }
-        }
+                        entity: {},
+                    },
+                }),
+            },
+        },
     });
 }
 
@@ -73,7 +73,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
 
     it('sales channel switch should not be disabled', async () => {
         await wrapper.setData({
-            showEmptySeoUrlError: false
+            showEmptySeoUrlError: false,
         });
 
         const salesChannelSwitch = wrapper.find('sw-sales-channel-switch-stub');
@@ -83,7 +83,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     it('sales channel switch should be disabled', async () => {
         wrapper.vm.showEmptySeoUrlError = false;
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const salesChannelSwitch = wrapper.find('sw-sales-channel-switch-stub');
@@ -99,14 +99,14 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
                 pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
                 routeName: 'frontend.navigation.page',
                 salesChannelId: '863137935ecf48999d69096de547b090',
-                seoPathInfo: 'Computers/'
+                seoPathInfo: 'Computers/',
             }],
-            salesChannelId: '863137935ecf48999d69096de547b090'
+            salesChannelId: '863137935ecf48999d69096de547b090',
         });
 
         await wrapper.setData({
             showEmptySeoUrlError: false,
-            currentSalesChannelId: '863137935ecf48999d69096de547b090'
+            currentSalesChannelId: '863137935ecf48999d69096de547b090',
         });
 
         await wrapper.vm.$nextTick();
@@ -121,7 +121,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
             routeName: 'frontend.navigation.page',
             salesChannelId: '863137935ecf48999d69096de547b090',
-            isModified: true
+            isModified: true,
         });
     });
 
@@ -134,14 +134,14 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
                 pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
                 routeName: 'frontend.navigation.page',
                 salesChannelId: '4066b6039fcf41f089bdf859cc6ce662',
-                seoPathInfo: 'Computers/'
+                seoPathInfo: 'Computers/',
             }],
-            salesChannelId: '4066b6039fcf41f08rbdf859cc6ce662'
+            salesChannelId: '4066b6039fcf41f08rbdf859cc6ce662',
         });
 
         await wrapper.setData({
             showEmptySeoUrlError: false,
-            currentSalesChannelId: '863137935ecf48999d69096de547b090'
+            currentSalesChannelId: '863137935ecf48999d69096de547b090',
         });
 
         await wrapper.vm.$nextTick();
@@ -156,7 +156,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
             routeName: 'frontend.navigation.page',
             salesChannelId: '863137935ecf48999d69096de547b090',
-            isModified: true
+            isModified: true,
         });
     });
 
@@ -169,7 +169,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
                 pathInfo: '/navigation/4066b6039fcf41f089bdf859cc6ce662',
                 routeName: 'frontend.navigation.page',
                 salesChannelId: '863137935ecf48999d69096de547b090',
-                seoPathInfo: 'Computers/'
+                seoPathInfo: 'Computers/',
             }, {
                 id: '123456789',
                 foreignKey: '12345678910111213',
@@ -177,14 +177,14 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
                 pathInfo: '/navigation/123456789',
                 routeName: 'frontend.product-detail.page',
                 salesChannelId: null,
-                seoPathInfo: 'Product-detail/'
+                seoPathInfo: 'Product-detail/',
             }],
-            salesChannelId: '863137935ecf48999d69096de547b090'
+            salesChannelId: '863137935ecf48999d69096de547b090',
         });
 
         await wrapper.setData({
             showEmptySeoUrlError: false,
-            currentSalesChannelId: '863137935ecf48999d69096de547b090'
+            currentSalesChannelId: '863137935ecf48999d69096de547b090',
         });
 
         await wrapper.vm.$nextTick();
@@ -198,7 +198,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             pathInfo: '/navigation/123456789',
             routeName: 'frontend.product-detail.page',
             salesChannelId: null,
-            seoPathInfo: 'Product-detail/'
+            seoPathInfo: 'Product-detail/',
         });
         expect(wrapper.vm.currentSeoUrl).toEqual({
             foreignKey: '12345678910111213',
@@ -207,7 +207,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             pathInfo: '/navigation/123456789',
             routeName: 'frontend.product-detail.page',
             salesChannelId: '863137935ecf48999d69096de547b090',
-            isModified: true
+            isModified: true,
         });
     });
 });

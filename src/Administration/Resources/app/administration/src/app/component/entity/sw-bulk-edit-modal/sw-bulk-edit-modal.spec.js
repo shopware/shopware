@@ -11,7 +11,7 @@ responses.addResponse({
     method: 'Post',
     url: '/search/user-config',
     status: 200,
-    response: { data: [] }
+    response: { data: [] },
 });
 
 describe('src/app/component/entity/sw-bulk-edit-modal', () => {
@@ -22,7 +22,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
         componentRoot: 'sw-bulk-edit-modal',
         bulkEditListHeader: 'sw-data-grid__header',
         bulkEditList: 'sw-data-grid',
-        bulkEditListCellContent: 'sw-data-grid__cell-content'
+        bulkEditListCellContent: 'sw-data-grid__cell-content',
     };
 
     const modal = async () => {
@@ -35,19 +35,19 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
                 selection: {
                     uuid1: { id: 'uuid1', manufacturer: 'Wordify', name: 'Portia Jobson' },
                     uuid2: { id: 'uuid2', manufacturer: 'Twitternation', name: 'Baxy Eardley' },
-                    uuid3: { id: 'uuid3', manufacturer: 'Skidoo', name: 'Arturo Staker' }
+                    uuid3: { id: 'uuid3', manufacturer: 'Skidoo', name: 'Arturo Staker' },
                 },
                 bulkGridEditColumns: [],
-                currencies: []
+                currencies: [],
             },
             provide: {
                 shortcutService: {
                     startEventListener: () => {
                     },
                     stopEventListener: () => {
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     };
 
@@ -57,11 +57,11 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-pagination': await Shopware.Component.build('sw-pagination'),
             'sw-checkbox-field': {
-                template: '<div class="sw-checkbox-field"></div>'
+                template: '<div class="sw-checkbox-field"></div>',
             },
             'sw-icon': true,
             'sw-button': true,
-            'sw-field': true
+            'sw-field': true,
         };
     });
 
@@ -95,6 +95,6 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
 
         const paginationButtons = wrapper.findAll('.sw-pagination__list-button');
 
-        expect(paginationButtons.length).toBe(1);
+        expect(paginationButtons).toHaveLength(1);
     });
 });

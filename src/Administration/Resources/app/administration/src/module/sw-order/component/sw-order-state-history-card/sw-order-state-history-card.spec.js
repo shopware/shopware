@@ -13,8 +13,8 @@ async function createWrapper(privileges = []) {
     const orderProp = {
         transactions: [],
         deliveries: [
-            {}
-        ]
+            {},
+        ],
     };
 
     orderProp.transactions.last = () => ({});
@@ -24,13 +24,13 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-order-state-history-card'), {
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-container': true,
             'sw-order-state-history-card-entry': true,
             'sw-order-state-change-modal': await Shopware.Component.build('sw-order-state-change-modal'),
             'sw-modal': true,
-            'sw-order-state-change-modal-attach-documents': true
+            'sw-order-state-change-modal-attach-documents': true,
         },
         provide: {
             acl: {
@@ -38,23 +38,23 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             orderService: {},
             stateMachineService: {
-                getState: () => { return { data: { transactions: [] } }; }
+                getState: () => { return { data: { transactions: [] } }; },
             },
             orderStateMachineService: {},
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([])
-                })
-            }
+                    search: () => Promise.resolve([]),
+                }),
+            },
         },
         propsData: {
             title: '',
-            order: orderProp
-        }
+            order: orderProp,
+        },
     });
 }
 

@@ -9,22 +9,22 @@ const fixture = [
     {
         id: utils.createId(),
         name: 'entity one',
-        filtered: true
+        filtered: true,
     }, {
         id: utils.createId(),
-        name: 'entity two'
+        name: 'entity two',
     }, {
         id: utils.createId(),
         name: 'entity three',
-        filtered: true
+        filtered: true,
     }, {
         id: utils.createId(),
-        name: 'entity four'
+        name: 'entity four',
     }, {
         id: utils.createId(),
         name: 'entity five',
-        filtered: true
-    }
+        filtered: true,
+    },
 ];
 
 function getCollection() {
@@ -35,7 +35,7 @@ function getCollection() {
         { isShopwareContext: true },
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 
@@ -85,7 +85,7 @@ describe('entity-collection.data.ts', () => {
         const collection = getCollection();
 
         expect(collection.remove(utils.createId())).toBe(false);
-        expect(collection.length).toBe(fixture.length);
+        expect(collection).toHaveLength(fixture.length);
     });
 
     it('returns true if the collection contains an entity with requested id', async () => {
@@ -137,11 +137,11 @@ describe('entity-collection.data.ts', () => {
 
         const newItem = {
             id: utils.createId(),
-            name: 'new item'
+            name: 'new item',
         };
 
         collection.add(newItem);
-        expect(collection.length).toBe(initialLength + 1);
+        expect(collection).toHaveLength(initialLength + 1);
         expect(collection.last()).toStrictEqual(newItem);
     });
 
@@ -150,7 +150,7 @@ describe('entity-collection.data.ts', () => {
 
         const newItem = {
             id: utils.createId(),
-            name: 'new item'
+            name: 'new item',
         };
 
         collection.addAt(newItem, 2);
@@ -163,7 +163,7 @@ describe('entity-collection.data.ts', () => {
 
         const newItem = {
             id: utils.createId(),
-            name: 'new item'
+            name: 'new item',
         };
 
         collection.addAt(newItem, -12);
@@ -175,7 +175,7 @@ describe('entity-collection.data.ts', () => {
 
         const newItem = {
             id: utils.createId(),
-            name: 'new item'
+            name: 'new item',
         };
 
         collection.addAt(newItem, 12);
@@ -188,7 +188,7 @@ describe('entity-collection.data.ts', () => {
 
         const newItem = {
             id: utils.createId(),
-            name: 'new item'
+            name: 'new item',
         };
         collection.addAt(newItem);
         expect(collection.last()).toStrictEqual(newItem);
@@ -203,8 +203,8 @@ describe('entity-collection.data.ts', () => {
     it('returns null if oldIndex is not valid', async () => {
         const collection = getCollection();
 
-        expect(collection.moveItem(-12, 3)).toBe(null);
-        expect(collection.moveItem(9000, 3)).toBe(null);
+        expect(collection.moveItem(-12, 3)).toBeNull();
+        expect(collection.moveItem(9000, 3)).toBeNull();
     });
 
     it('moves an item to the correct position', async () => {
@@ -239,7 +239,7 @@ describe('entity-collection.data.ts', () => {
         const collection = getCollection();
 
         collection.moveItem(1);
-        expect(collection.length).toBe(5);
+        expect(collection).toHaveLength(5);
         expect(collection.last()).toStrictEqual(fixture[1]);
     });
 
@@ -247,7 +247,7 @@ describe('entity-collection.data.ts', () => {
         const collection = getCollection();
 
         collection.moveItem(null);
-        expect(collection.length).toBe(5);
+        expect(collection).toHaveLength(5);
         expect(collection.last()).toStrictEqual(fixture[4]);
     });
 
@@ -279,7 +279,7 @@ describe('entity-collection.data.ts', () => {
         const filtered = collection.filter(scopedFilter, fixture[0]);
 
 
-        expect(filtered.length).toBe(1);
+        expect(filtered).toHaveLength(1);
         expect(filtered.first()).toStrictEqual(fixture[0]);
     });
 
@@ -287,6 +287,6 @@ describe('entity-collection.data.ts', () => {
         const collection = getCollection();
 
         const filtered = collection.filter(() => false);
-        expect(filtered.length).toBe(0);
+        expect(filtered).toHaveLength(0);
     });
 });

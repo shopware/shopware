@@ -15,26 +15,26 @@ const createWrapper = async () => {
                 priceDefinition: {
                     isCalculated: false,
                     taxRules: [{ taxRate: 0, percentage: 100 }],
-                    price: 0
+                    price: 0,
                 },
                 price: {
                     taxRules: [{ taxRate: 0 }],
                     unitPrice: '...',
                     quantity: 1,
-                    totalPrice: '...'
+                    totalPrice: '...',
                 },
                 quantity: 1,
                 unitPrice: 0,
                 totalPrice: 0,
                 precision: 2,
-                label: ''
+                label: '',
             },
-            salesChannelId: '1'
+            salesChannelId: '1',
         },
         stubs: {
             'sw-text-field': true,
-            'sw-entity-single-select': true
-        }
+            'sw-entity-single-select': true,
+        },
     });
 };
 
@@ -47,16 +47,16 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
                         PRODUCT: 'product',
                         CREDIT: 'credit',
                         CUSTOM: 'custom',
-                        PROMOTION: 'promotion'
+                        PROMOTION: 'promotion',
                     });
                 },
 
                 getLineItemPriceTypes: () => {
                     return Object.freeze({
                         ABSOLUTE: 'absolute',
-                        QUANTITY: 'quantity'
+                        QUANTITY: 'quantity',
                     });
-                }
+                },
             };
         });
 
@@ -75,21 +75,21 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
                             price: [
                                 {
                                     gross: 110,
-                                    net: 100
-                                }
+                                    net: 100,
+                                },
                             ],
                             tax: {
-                                taxRate: 7
-                            }
+                                taxRate: 7,
+                            },
                         },
                         id: '1',
-                        relationships: []
-                    }
+                        relationships: [],
+                    },
                 ],
                 meta: {
-                    total: 1
-                }
-            }
+                    total: 1,
+                },
+            },
         });
     });
 
@@ -100,8 +100,8 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             item: {
                 ...wrapper.props().item,
                 _isNew: true,
-                type: 'product'
-            }
+                type: 'product',
+            },
         });
 
         const productSelect = wrapper.find('sw-entity-single-select-stub');
@@ -115,8 +115,8 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         await wrapper.setProps({
             item: {
                 ...wrapper.props().item,
-                type: 'custom'
-            }
+                type: 'custom',
+            },
         });
 
         const textField = wrapper.find('sw-text-field-stub');
@@ -130,8 +130,8 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         await wrapper.setProps({
             item: {
                 ...wrapper.props().item,
-                type: 'credit'
-            }
+                type: 'credit',
+            },
         });
 
         const textField = wrapper.find('sw-text-field-stub');
@@ -146,8 +146,8 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             item: {
                 ...wrapper.props().item,
                 label: 'Existing product',
-                type: 'product'
-            }
+                type: 'product',
+            },
         });
 
         const productSelect = wrapper.find('sw-entity-single-select-stub');
@@ -155,7 +155,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
 
         expect(productSelect.exists()).toBeFalsy();
         expect(textField.exists()).toBeFalsy();
-        expect(wrapper.text()).toEqual('Existing product');
+        expect(wrapper.text()).toBe('Existing product');
     });
 
     it('product item should have net price if tax status is not gross', async () => {
@@ -165,15 +165,15 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             taxStatus: 'net',
             item: {
                 ...wrapper.props().item,
-                type: 'product'
-            }
+                type: 'product',
+            },
         });
 
         await wrapper.vm.onItemChanged('1');
 
         await flushPromises();
 
-        expect(wrapper.vm.item.priceDefinition.price).toEqual(100);
+        expect(wrapper.vm.item.priceDefinition.price).toBe(100);
     });
 
     it('product item should have gross price if tax status is gross', async () => {
@@ -183,14 +183,14 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             taxStatus: 'gross',
             item: {
                 ...wrapper.props().item,
-                type: 'product'
-            }
+                type: 'product',
+            },
         });
 
         await wrapper.vm.onItemChanged('1');
 
         await flushPromises();
 
-        expect(wrapper.vm.item.priceDefinition.price).toEqual(110);
+        expect(wrapper.vm.item.priceDefinition.price).toBe(110);
     });
 });

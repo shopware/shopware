@@ -10,7 +10,7 @@ async function createWrapper(privileges = []) {
         localVue,
         provide: {
             repositoryFactory: {
-                create: () => Promise.resolve()
+                create: () => Promise.resolve(),
             },
             acl: {
                 can: (identifier) => {
@@ -19,14 +19,14 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-modal': true,
             'sw-button': true,
             'sw-button-process': true,
-            'sw-sortable-list': true
+            'sw-sortable-list': true,
         },
         propsData: {
             taxProviders: [],

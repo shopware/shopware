@@ -9,12 +9,12 @@ describe('src/module/sw-settings-basic-information/service/captcha.service.js', 
     beforeEach(async () => {
         const httpClient = {
             get: jest.fn(() => Promise.resolve({
-                data: response
-            }))
+                data: response,
+            })),
         };
 
         const loginService = {
-            getToken: jest.fn(() => token)
+            getToken: jest.fn(() => token),
         };
 
         captchaService = new CaptchaService(httpClient, loginService);
@@ -29,7 +29,7 @@ describe('src/module/sw-settings-basic-information/service/captcha.service.js', 
         expect(captchaService.getAuthHeaders()).toMatchObject({
             Accept: 'application/json',
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         });
         expect(captchaService.loginService.getToken).toHaveBeenCalledTimes(1);
     });

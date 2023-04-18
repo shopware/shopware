@@ -22,20 +22,20 @@ async function createWrapper() {
             'sw-property-search': true,
             'sw-pagination': true,
             'sw-loader': true,
-            'sw-button': true
+            'sw-button': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
                         return Promise.resolve();
-                    }
-                })
-            }
+                    },
+                }),
+            },
         },
         propsData: {
-            newProperties: []
-        }
+            newProperties: [],
+        },
     });
 }
 

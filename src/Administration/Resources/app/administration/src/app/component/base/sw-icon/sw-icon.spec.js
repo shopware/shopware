@@ -5,7 +5,7 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-icon'), {
         propsData: {
             name: 'regular-circle-download',
-        }
+        },
     });
 }
 
@@ -80,7 +80,7 @@ describe('src/app/component/base/sw-icon/index.js', () => {
     });
 
     it('should render the icon in the correct size', async () => {
-        expect(wrapper.find('.sw-icon').attributes('style')).toBe(undefined);
+        expect(wrapper.find('.sw-icon').attributes('style')).toBeUndefined();
 
         await wrapper.setProps({
             size: '36px',
@@ -90,7 +90,7 @@ describe('src/app/component/base/sw-icon/index.js', () => {
     });
 
     it('should have aria hidden attribute when prop is set to decorative', async () => {
-        expect(wrapper.find('.sw-icon').attributes('aria-hidden')).toBe(undefined);
+        expect(wrapper.find('.sw-icon').attributes('aria-hidden')).toBeUndefined();
 
         await wrapper.setProps({
             decorative: true,

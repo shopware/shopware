@@ -12,25 +12,25 @@ async function createWrapper(privileges = []) {
         stubs: {
             'sw-card': true,
             'sw-field': true,
-            'sw-container': true
+            'sw-container': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    create: () => ({})
-                })
+                    create: () => ({}),
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         propsData: {
-            salesChannel: {}
-        }
+            salesChannel: {},
+        },
     });
 }
 
@@ -56,7 +56,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', (
 
     it('should have fields enabled when the user has privileges', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.editor'
+            'sales_channel.editor',
         ]);
 
         const fields = wrapper.findAll('sw-field-stub');

@@ -14,8 +14,8 @@ responses.addResponse({
     url: '/search-ids/sales-channel',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 async function createWrapper() {
@@ -29,7 +29,7 @@ async function createWrapper() {
             'sw-empty-state': true,
         },
         provide: {
-            productStreamPreviewService: {}
+            productStreamPreviewService: {},
         },
         propsData: {
             filters: [
@@ -77,7 +77,7 @@ async function createWrapper() {
                                     updatedAt: '2021-11-23T11:31:16.984+00:00',
                                     apiAlias: null,
                                     id: 'f301f6a0755f47bda70e77b58848e135',
-                                    queries: []
+                                    queries: [],
                                 },
                                 {
                                     productStreamId: '7a1abc58b4a641a1a0f723962b302a91',
@@ -93,14 +93,14 @@ async function createWrapper() {
                                     updatedAt: '2021-11-23T11:31:16.984+00:00',
                                     apiAlias: null,
                                     id: '8615ea9f816648a6bc766e790823d8cc',
-                                    queries: []
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
+                                    queries: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
     });
 }
 
@@ -135,7 +135,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
                                 operator: null,
                                 value: 'cb0a326d9e8b44cea2e385945fbb50c6',
                                 parameters: null,
-                                queries: []
+                                queries: [],
                             },
                             {
                                 type: 'multi',
@@ -150,7 +150,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
                                         operator: null,
                                         value: 'afb5473d92334cf0b9826d544837fc3d',
                                         parameters: null,
-                                        queries: []
+                                        queries: [],
                                     },
                                     {
                                         type: 'equalsAny',
@@ -158,14 +158,14 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
                                         operator: null,
                                         value: 'afb5473d92334cf0b9826d544837fc3d',
                                         parameters: null,
-                                        queries: []
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
+                                        queries: [],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
         ];
 
         const mappedFilters = wrapper.vm.mapFiltersForSearch(wrapper.vm.filters);

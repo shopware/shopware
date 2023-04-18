@@ -12,7 +12,7 @@ describe('components/base/sw-alert', () => {
 
     it('should be a Vue.js component', async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
-            stubs: ['sw-icon']
+            stubs: ['sw-icon'],
         });
         expect(wrapper.vm).toBeTruthy();
     });
@@ -24,11 +24,11 @@ describe('components/base/sw-alert', () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
             propsData: {
-                title
+                title,
             },
             slots: {
-                default: message
-            }
+                default: message,
+            },
         });
 
         expect(wrapper.element).toMatchSnapshot();
@@ -38,7 +38,7 @@ describe('components/base/sw-alert', () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
             propsData: {
-                icon: 'your-icon-here'
+                icon: 'your-icon-here',
             },
         });
 

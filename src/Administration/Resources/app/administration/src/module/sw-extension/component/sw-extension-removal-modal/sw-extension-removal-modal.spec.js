@@ -9,18 +9,18 @@ async function createWrapper(propsData = {}) {
             extensionName: 'Awesome extension',
             isLicensed: true,
             isLoading: false,
-            ...propsData
+            ...propsData,
         },
         mocks: {
             $t: (key, values) => {
                 return key + JSON.stringify(Object.values(values));
-            }
+            },
         },
         stubs: {
             'sw-modal': true,
-            'sw-button': true
+            'sw-button': true,
         },
-        provide: {}
+        provide: {},
     });
 }
 
@@ -49,45 +49,45 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         let title = wrapper.vm.title;
 
         // eslint-disable-next-line max-len
-        expect(title).toEqual('sw-extension-store.component.sw-extension-removal-modal.titleCancel[\"Awesome extension\"]');
+        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel[\"Awesome extension\"]');
 
         await wrapper.setProps({
-            isLicensed: false
+            isLicensed: false,
         });
 
         title = wrapper.vm.title;
         // eslint-disable-next-line max-len
-        expect(title).toEqual('sw-extension-store.component.sw-extension-removal-modal.titleRemove[\"Awesome extension\"]');
+        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove[\"Awesome extension\"]');
     });
 
     it('should show the correct alert text', async () => {
         let alert = wrapper.vm.alert;
 
         // eslint-disable-next-line max-len
-        expect(alert).toEqual('sw-extension-store.component.sw-extension-removal-modal.alertCancel');
+        expect(alert).toBe('sw-extension-store.component.sw-extension-removal-modal.alertCancel');
 
         await wrapper.setProps({
-            isLicensed: false
+            isLicensed: false,
         });
 
         alert = wrapper.vm.alert;
         // eslint-disable-next-line max-len
-        expect(alert).toEqual('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
+        expect(alert).toBe('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
     });
 
     it('should show the correct button label', async () => {
         let btnLabel = wrapper.vm.btnLabel;
 
         // eslint-disable-next-line max-len
-        expect(btnLabel).toEqual('sw-extension-store.component.sw-extension-removal-modal.labelCancel');
+        expect(btnLabel).toBe('sw-extension-store.component.sw-extension-removal-modal.labelCancel');
 
         await wrapper.setProps({
-            isLicensed: false
+            isLicensed: false,
         });
 
         btnLabel = wrapper.vm.alert;
         // eslint-disable-next-line max-len
-        expect(btnLabel).toEqual('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
+        expect(btnLabel).toBe('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
     });
 
     it('should emit the close event', async () => {
@@ -96,13 +96,13 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         await wrapper.vm.emitClose();
 
         expect(wrapper.emitted()).toEqual({
-            'modal-close': [[]]
+            'modal-close': [[]],
         });
     });
 
     it('should not emit the close event when is loading', async () => {
         await wrapper.setProps({
-            isLoading: true
+            isLoading: true,
         });
 
         expect(wrapper.emitted()).toEqual({});
@@ -118,7 +118,7 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         await wrapper.vm.emitRemoval();
 
         expect(wrapper.emitted()).toEqual({
-            'remove-extension': [[]]
+            'remove-extension': [[]],
         });
     });
 });

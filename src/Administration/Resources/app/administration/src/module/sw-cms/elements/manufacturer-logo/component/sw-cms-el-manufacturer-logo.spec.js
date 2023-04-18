@@ -17,34 +17,34 @@ const defaultProps = {
                 value: null,
                 required: true,
                 entity: {
-                    name: 'media'
-                }
+                    name: 'media',
+                },
             },
             displayMode: {
                 source: 'static',
-                value: 'cover'
+                value: 'cover',
             },
             url: {
                 source: 'static',
-                value: null
+                value: null,
             },
             newTab: {
                 source: 'static',
-                value: true
+                value: true,
             },
             minHeight: {
                 source: 'static',
-                value: null
+                value: null,
             },
             verticalAlign: {
                 source: 'static',
-                value: null
-            }
+                value: null,
+            },
         },
         data: {
-            media: ''
-        }
-    }
+            media: '',
+        },
+    },
 };
 
 async function createWrapper() {
@@ -57,9 +57,9 @@ async function createWrapper() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'product_detail'
-                    }
-                }
+                        type: 'product_detail',
+                    },
+                },
             };
         },
         provide: {
@@ -69,9 +69,9 @@ async function createWrapper() {
                 },
                 getPropertyByMappingPath: () => {
                     return {};
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -95,25 +95,25 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
                         value: '1',
                         required: true,
                         entity: {
-                            name: 'media'
-                        }
-                    }
+                            name: 'media',
+                        },
+                    },
                 },
                 data: {
                     media: {
                         url: 'http://shopware.com/image.jpg',
-                        id: '1'
-                    }
+                        id: '1',
+                    },
                 },
                 translated: {
                     config: {
                         media: {
                             source: 'static',
-                            value: '1'
-                        }
-                    }
-                }
-            }
+                            value: '1',
+                        },
+                    },
+                },
+            },
         });
 
         expect(wrapper.vm.element.config.media.source).toBe('static');
@@ -126,7 +126,7 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
         expect(wrapper.vm.styles).toEqual({
             'max-width': '180px',
             'min-height': '40px',
-            'align-self': null
+            'align-self': null,
         });
 
         await wrapper.setProps({
@@ -135,21 +135,21 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
                     ...defaultProps.element.config,
                     displayMode: {
                         source: 'statics',
-                        value: 'cover'
+                        value: 'cover',
                     },
                     minHeight: {
                         source: 'static',
-                        value: '50px'
-                    }
+                        value: '50px',
+                    },
                 },
-                data: {}
-            }
+                data: {},
+            },
         });
 
         expect(wrapper.vm.styles).toEqual({
             'max-width': '180px',
             'min-height': '50px',
-            'align-self': null
+            'align-self': null,
         });
 
         await wrapper.setProps({
@@ -158,21 +158,21 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
                     ...defaultProps.element.config,
                     displayMode: {
                         source: 'statics',
-                        value: 'standard'
+                        value: 'standard',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: 'center'
-                    }
+                        value: 'center',
+                    },
                 },
-                data: {}
-            }
+                data: {},
+            },
         });
 
         expect(wrapper.vm.styles).toEqual({
             'max-width': '180px',
             'min-height': '40px',
-            'align-self': 'center'
+            'align-self': 'center',
         });
     });
 });

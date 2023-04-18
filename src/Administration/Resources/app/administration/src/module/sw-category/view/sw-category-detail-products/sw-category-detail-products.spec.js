@@ -16,13 +16,13 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         navigationSalesChannels: [],
         serviceSalesChannels: [],
         productAssignmentType: 'product',
-        isNew: () => false
+        isNew: () => false,
     };
 
     const productStreamMock = {
         name: 'Very cheap pc parts',
         apiFilter: ['foo', 'bar'],
-        invalid: false
+        invalid: false,
     };
 
     beforeEach(async () => {
@@ -33,8 +33,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         Shopware.State.registerModule('swCategoryDetail', {
             namespaced: true,
             state: {
-                category: categoryMock
-            }
+                category: categoryMock,
+            },
         });
 
         wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-products'), {
@@ -51,33 +51,33 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                                    <slot name="prepend-select"></slot>
                                    <slot name="select"><div class="sw-entity-many-to-many-select"></div></slot>
                                    <slot name="data-grid"><div class="sw-many-to-many-assignment-card__grid"></div></slot>
-                               </div>`
+                               </div>`,
                 },
                 'sw-product-stream-grid-preview': {
-                    template: '<div class="sw-product-stream-grid-preview"></div>'
+                    template: '<div class="sw-product-stream-grid-preview"></div>',
                 },
                 'sw-entity-single-select': true,
                 'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>'
-                }
+                    template: '<div class="sw-alert"><slot></slot></div>',
+                },
             },
             mocks: {
                 placeholder: () => {
-                }
+                },
             },
             propsData: {
                 isLoading: false,
-                manualAssignedProductsCount: 0
+                manualAssignedProductsCount: 0,
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            get: () => Promise.resolve(productStreamMock)
+                            get: () => Promise.resolve(productStreamMock),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     });
 
@@ -88,8 +88,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     it('should render stream select when changing the assignment type to stream', async () => {
         await wrapper.setData({
             category: {
-                productAssignmentType: 'product_stream'
-            }
+                productAssignmentType: 'product_stream',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -102,8 +102,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     it('should render stream preview when changing the assignment type to product stream', async () => {
         await wrapper.setData({
             category: {
-                productAssignmentType: 'product_stream'
-            }
+                productAssignmentType: 'product_stream',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -117,8 +117,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         await wrapper.setData({
             manualAssignedProductsCount: 5,
             category: {
-                productAssignmentType: 'product_stream'
-            }
+                productAssignmentType: 'product_stream',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -138,8 +138,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         await wrapper.setData({
             manualAssignedProductsCount: 5,
             category: {
-                productStreamId: '12345'
-            }
+                productStreamId: '12345',
+            },
         });
 
         await wrapper.vm.$nextTick();

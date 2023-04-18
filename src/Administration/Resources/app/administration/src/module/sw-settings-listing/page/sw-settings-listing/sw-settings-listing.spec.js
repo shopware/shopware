@@ -22,63 +22,63 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.clearanceSale',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     { field: 'product.name', order: 'asc', position: 1, naturalSorting: 0 },
                     {
                         field: 'product.ratingAverage',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'product.number',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'product.releaseDate',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'product.stock',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'product.unitsSold',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'customFields.custom_health_hic_ut_aspernatur',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'customFields.custom_movies_qui_aperiam_unde',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'customFields.custom_tools_consequatur_omnis_officiis',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
+                        naturalSorting: 0,
                     },
                     {
                         field: 'customFields.custom_tools_et_vel_nemo',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Name',
                 createdAt: '2020-08-07T13:38:24.098+00:00',
@@ -86,7 +86,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Name' },
                 apiAlias: null,
                 id: '4f85a63f8ddd4845a67fd65adba419a2',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -98,8 +98,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.ratingAverage',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Rating',
                 createdAt: '2020-08-07T13:38:42.798+00:00',
@@ -107,7 +107,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Rating' },
                 apiAlias: null,
                 id: '5c34858ddac24af389f9315fc37709a3',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -119,8 +119,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.stock',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Stock',
                 createdAt: '2020-08-07T13:39:38.853+00:00',
@@ -128,7 +128,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Stock' },
                 apiAlias: null,
                 id: '6a2386b5bc394f25ac864a4bd4659a79',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -140,8 +140,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.productNumber',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Product number',
                 createdAt: '2020-08-07T13:38:58.730+00:00',
@@ -149,7 +149,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Product number' },
                 apiAlias: null,
                 id: '6e1e3a71f6c443efb77ca68870759d72',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -161,8 +161,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.unitsSold',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Units sold',
                 createdAt: '2020-08-07T13:40:21.490+00:00',
@@ -170,7 +170,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Units sold' },
                 apiAlias: null,
                 id: '9385f6cab4f04d5fba70046e13c6ad45',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -182,8 +182,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.cheapestPrice',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Listing Price',
                 createdAt: '2020-08-07T13:40:02.768+00:00',
@@ -191,7 +191,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Listing Price' },
                 apiAlias: null,
                 id: 'c8c4ee0f193a431abe18d027ec3c95b2',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -203,8 +203,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.releaseDate',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: testedSortingKey,
                 createdAt: '2020-08-10T06:19:44.820+00:00',
@@ -212,7 +212,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: testedSortingKey },
                 apiAlias: null,
                 id: 'cfa9d75ca8124da3ad83fc7a180fcc98',
-                translations: []
+                translations: [],
             },
             {
                 locked: true,
@@ -224,8 +224,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.releaseDate',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'Release Date',
                 createdAt: '2020-08-07T13:39:18.605+00:00',
@@ -233,7 +233,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'Release Date' },
                 apiAlias: null,
                 id: 'd9df5fa7b8a7416a807b4d4c5cf13a69',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -245,8 +245,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.stock',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'random-key',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
@@ -254,7 +254,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'random-key' },
                 apiAlias: null,
                 id: 'e311624e917d4ed0b898231cb3a83bdf',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -266,8 +266,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.stock',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'dont-care-key',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
@@ -275,7 +275,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'dont-care-key' },
                 apiAlias: null,
                 id: '23456787654321234567876588',
-                translations: []
+                translations: [],
             },
             {
                 locked: false,
@@ -287,8 +287,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         field: 'product.stock',
                         order: 'asc',
                         position: 1,
-                        naturalSorting: 0
-                    }
+                        naturalSorting: 0,
+                    },
                 ],
                 label: 'irrelevant-key',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
@@ -296,8 +296,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 translated: { label: 'irrelevant-key' },
                 apiAlias: null,
                 id: '23456787654321234567876577',
-                translations: []
-            }
+                translations: [],
+            },
         ];
 
         entities.total = entities.length;
@@ -310,18 +310,18 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve(getProductSortingEntities())
-                    })
-                }
+                        search: () => Promise.resolve(getProductSortingEntities()),
+                    }),
+                },
             },
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"></slot></div>'
+                    template: '<div><slot name="content"></slot></div>',
                 },
                 'sw-system-config': {
                     data() {
                         return {
-                            singleConfig: [true, true]
+                            singleConfig: [true, true],
                         };
                     },
                     template: `
@@ -330,13 +330,13 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                                 <slot name="afterElements" v-bind="{ config, index }"></slot>
                             </div>
                         </div>
-                    `
+                    `,
                 },
                 'sw-card-view': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-card': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
@@ -346,8 +346,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 'sw-pagination': await Shopware.Component.build('sw-pagination'),
                 'sw-single-select': true,
                 'sw-settings-listing-default-sales-channel': true,
-                'router-link': true
-            }
+                'router-link': true,
+            },
         });
     }
 
@@ -386,7 +386,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
         const deleteButtonOfSecondRecord = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__actions-menu :first-child');
 
-        expect(deleteButtonOfSecondRecord.attributes('disabled')).toBe(undefined);
+        expect(deleteButtonOfSecondRecord.attributes('disabled')).toBeUndefined();
     });
 
     it('should check if product sorting is the default product sorting', async () => {
@@ -426,6 +426,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     it('should render the default sorting selectbox only on first card', async () => {
         const defaultSortingSelects = wrapper.findAll('.sw-settings-listing-index__default-sorting-select');
 
-        expect(defaultSortingSelects.length).toBe(1);
+        expect(defaultSortingSelects).toHaveLength(1);
     });
 });

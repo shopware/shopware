@@ -17,11 +17,11 @@ function getDocumentApiService() {
 }
 
 function expectCreateDocumentFinished({ action }) {
-    expect(action).toEqual('create-document-finished');
+    expect(action).toBe('create-document-finished');
 }
 
 function expectCreateDocumentFailed({ action }) {
-    expect(action).toEqual('create-document-fail');
+    expect(action).toBe('create-document-fail');
 }
 
 describe('documentService', () => {
@@ -45,10 +45,10 @@ describe('documentService', () => {
                     custom: { invoiceNumber: '1000' },
                     documentNumber: '1000',
                     documentComment: '',
-                    documentDate: '2021-02-22T04:34:56.441Z'
+                    documentDate: '2021-02-22T04:34:56.441Z',
                 },
                 referencedDocumentId: null,
-            }
+            },
         ]).reply(() => {
             createRequestSent = true;
             return [
@@ -56,19 +56,19 @@ describe('documentService', () => {
                 {
                     data: [{
                         documentId: '4d03324edcd0490b9180df8161c9167f',
-                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN'
-                    }]
-                }
+                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+                    }],
+                },
             ];
         });
 
         const params = {
             custom: {
-                invoiceNumber: '1000'
+                invoiceNumber: '1000',
             },
             documentNumber: '1000',
             documentComment: '',
-            documentDate: '2021-02-22T04:34:56.441Z'
+            documentDate: '2021-02-22T04:34:56.441Z',
         };
 
         await documentApiService.createDocument(
@@ -93,11 +93,11 @@ describe('documentService', () => {
 
         const config = {
             custom: {
-                invoiceNumber: '1000'
+                invoiceNumber: '1000',
             },
             documentNumber: '1000',
             documentComment: '',
-            documentDate: '2021-02-22T04:34:56.441Z'
+            documentDate: '2021-02-22T04:34:56.441Z',
         };
 
         const documentId = '4d03324edcd0490b9180df8161c9167f';
@@ -111,11 +111,11 @@ describe('documentService', () => {
                     custom: { invoiceNumber: '1000' },
                     documentNumber: '1000',
                     documentComment: '',
-                    documentDate: '2021-02-22T04:34:56.441Z'
+                    documentDate: '2021-02-22T04:34:56.441Z',
                 },
                 referencedDocumentId: null,
                 static: true,
-            }
+            },
         ]).reply(() => {
             createRequestSent = true;
             return [
@@ -123,9 +123,9 @@ describe('documentService', () => {
                 {
                     data: [{
                         documentId,
-                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN'
-                    }]
-                }
+                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+                    }],
+                },
             ];
         });
 
@@ -138,8 +138,8 @@ describe('documentService', () => {
                 200,
                 {
                     documentId: '4d03324edcd0490b9180df8161c9167f',
-                    documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN'
-                }
+                    documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+                },
             ];
         });
 
@@ -150,7 +150,7 @@ describe('documentService', () => {
             null,
             null,
             {},
-            file
+            file,
         );
 
         await flushPromises();
@@ -166,7 +166,7 @@ describe('documentService', () => {
 
         const dispatchSpy = jest.fn();
         Object.defineProperty(Shopware.State, 'dispatch', {
-            value: dispatchSpy
+            value: dispatchSpy,
         });
 
         const mockCreateDocumentEvent = jest.fn();
@@ -189,21 +189,21 @@ describe('documentService', () => {
                             detail: 'Document number 1000 has already been allocated.',
                             meta: {
                                 parameters: {
-                                    number: '1000'
-                                }
-                            }
-                        }]
-                    }
+                                    number: '1000',
+                                },
+                            },
+                        }],
+                    },
                 ];
             });
 
         const config = {
             custom: {
-                invoiceNumber: '1000'
+                invoiceNumber: '1000',
             },
             documentNumber: '1000',
             documentComment: '',
-            documentDate: '2021-02-22T04:34:56.441Z'
+            documentDate: '2021-02-22T04:34:56.441Z',
         };
 
         await documentApiService.createDocument(
@@ -227,12 +227,12 @@ describe('documentService', () => {
                                 detail: 'Document number 1000 has already been allocated.',
                                 meta: {
                                     parameters: {
-                                        number: '1000'
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                        number: '1000',
+                                    },
+                                },
+                            },
+                        },
+                    },
                 ];
             });
 
@@ -244,7 +244,7 @@ describe('documentService', () => {
 
         await flushPromises();
 
-        expect(requestSentCount).toEqual(2);
+        expect(requestSentCount).toBe(2);
     });
 
     it('calls getDocumentPreview with correct endpoint', async () => {
@@ -263,7 +263,7 @@ describe('documentService', () => {
                     200,
                     {
                         documentId: '4d03324edcd0490b9180df8161c9167f',
-                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN'
+                        documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
                     },
                 ];
             });

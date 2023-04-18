@@ -18,14 +18,14 @@ async function createWrapper(config = null) {
 
         propsData: {
             sequence: config ? {
-                config
-            } : {}
+                config,
+            } : {},
         },
 
         stubs: {
             'sw-modal': true,
-            'sw-single-select': true
-        }
+            'sw-single-select': true,
+        },
     });
 }
 
@@ -37,8 +37,8 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
             triggerEvent: {
                 data: {
                     order: {
-                        type: 'entity'
-                    }
+                        type: 'entity',
+                    },
                 },
                 customerAware: false,
                 extensions: [],
@@ -48,9 +48,9 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
                 orderAware: true,
                 salesChannelAware: false,
                 userAware: false,
-                webhookAware: false
-            }
-        }
+                webhookAware: false,
+            },
+        },
     });
 
     it('should be a Vue.JS component', async () => {
@@ -96,7 +96,7 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
 
     it('should emit on save', async () => {
         const wrapper = await createWrapper({
-            value: true
+            value: true,
         });
         await wrapper.vm.$nextTick();
 
@@ -105,8 +105,8 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
         expect(wrapper.emitted('process-finish')).toBeTruthy();
         expect(wrapper.emitted('process-finish')[0][0]).toEqual({
             config: {
-                value: true
-            }
+                value: true,
+            },
         });
     });
 });

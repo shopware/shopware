@@ -20,15 +20,15 @@ function getSnippetSets() {
             iso: 'en-GB',
             path: 'development/platform/src/Core/Framework/Resources/snippet/en_GB/messages.en-GB.base.json',
             author: 'Shopware',
-            isBase: true
+            isBase: true,
         },
         {
             name: 'messages.de-DE',
             iso: 'de-DE',
             path: 'development/platform/src/Core/Framework/Resources/snippet/de_DE/messages.de-DE.base.json',
             author: 'Shopware',
-            isBase: true
-        }
+            isBase: true,
+        },
     ];
 }
 
@@ -44,8 +44,8 @@ function getSnippetSetData() {
             name: 'BASE de-DE',
             salesChannelDomains: [],
             snippets: [],
-            updatedAt: null
-        }
+            updatedAt: null,
+        },
     ];
 
     data.total = data.length;
@@ -64,8 +64,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
             localVue,
             mocks: {
                 $route: {
-                    query: 'test'
-                }
+                    query: 'test',
+                },
             },
             provide: {
                 acl: {
@@ -73,35 +73,35 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         if (!identifier) { return true; }
 
                         return privileges.includes(identifier);
-                    }
+                    },
                 },
                 snippetSetService: {
                     getBaseFiles: () => {
                         return Promise.resolve({ items: getSnippetSets() });
-                    }
+                    },
                 },
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve(getSnippetSetData())
-                    })
+                        search: () => Promise.resolve(getSnippetSetData()),
+                    }),
                 },
-                searchRankingService: {}
+                searchRankingService: {},
             },
             stubs: {
                 'sw-page': {
-                    template: '<div class="sw-page"><slot name="content"></slot></div>'
+                    template: '<div class="sw-page"><slot name="content"></slot></div>',
                 },
                 'sw-icon': true,
                 'sw-button': true,
                 'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>'
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-card-view': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-button-group': true,
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
                 'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
@@ -114,8 +114,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                 'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
                 'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
                 'router-link': true,
-                'sw-popover': true
-            }
+                'sw-popover': true,
+            },
         });
     }
 
@@ -129,7 +129,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         ['snippet.viewer', false],
         ['snippet.viewer, snippet.editor', true],
         ['snippet.viewer, snippet.editor, snippet.editor', true],
-        ['snippet.viewer, snippet.editor, snippet.deleter', true]
+        ['snippet.viewer, snippet.editor, snippet.deleter', true],
     ])('should display checkboxes depending on role: %s', async (role, displayCheckboxes) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
@@ -146,7 +146,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         ['true', 'snippet.viewer'],
         ['true', 'snippet.viewer, snippet.editor'],
         [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
-        ['true', 'snippet.viewer, snippet.editor, snippet.deleter']
+        ['true', 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a create snippet set button with a disabled state of %p when having role: %s', async (state, role) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
@@ -163,7 +163,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         [true, 'snippet.viewer'],
         [true, 'snippet.viewer, snippet.editor'],
         [true, 'snippet.viewer, snippet.editor, snippet.creator'],
-        [false, 'snippet.viewer, snippet.editor, snippet.deleter']
+        [false, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a delete button with a disabled state of %p when having role: %s', async (state, role) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
@@ -194,7 +194,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         [true, 'snippet.viewer'],
         [true, 'snippet.viewer, snippet.editor'],
         [false, 'snippet.viewer, snippet.editor, snippet.creator'],
-        [true, 'snippet.viewer, snippet.editor, snippet.deleter']
+        [true, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a duplicate button with the disabled state of %p when having role: %s', async (state, role) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);

@@ -9,21 +9,21 @@ Shopware.Component.register('sw-cms-el-config-product-description-reviews', swCm
 
 const productMock = {
     name: 'Awesome Product',
-    description: 'This product is awesome'
+    description: 'This product is awesome',
 };
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
         stubs: {
             'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
+                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-entity-single-select': true,
-            'sw-alert': true
+            'sw-alert': true,
         },
         provide: {
             cmsService: {
@@ -32,40 +32,40 @@ async function createWrapper() {
                 },
                 getCmsElementRegistry: () => {
                     return { 'product-description-reviews': {} };
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
                         get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock)
+                        search: () => Promise.resolve(productMock),
                     };
-                }
-            }
+                },
+            },
         },
         propsData: {
             element: {
                 config: {},
-                data: {}
+                data: {},
             },
             defaultConfig: {
                 product: {
-                    value: null
+                    value: null,
                 },
                 alignment: {
-                    value: null
-                }
-            }
+                    value: null,
+                },
+            },
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'landingpage'
-                    }
-                }
+                        type: 'landingpage',
+                    },
+                },
             };
-        }
+        },
     });
 }
 
@@ -86,9 +86,9 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {
-                    type: 'product_detail'
-                }
-            }
+                    type: 'product_detail',
+                },
+            },
         });
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');

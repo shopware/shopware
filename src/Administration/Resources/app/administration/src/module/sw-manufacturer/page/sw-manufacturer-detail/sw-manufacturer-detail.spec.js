@@ -15,7 +15,7 @@ const productManufacturerRepositoryMock = {
             return Promise.reject();
         }
         return Promise.resolve({
-            id: mockProductId
+            id: mockProductId,
         });
     },
 };
@@ -51,29 +51,29 @@ async function createWrapper(privileges = []) {
                     description: null,
                     customFields: null,
                     apiAlias: null,
-                    id: 'id'
-                }
+                    id: 'id',
+                },
             };
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
             },
             'sw-media-upload-v2': {
                 props: ['disabled'],
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-text-editor': {
-                template: '<div class="sw-text-editor"/>'
+                template: '<div class="sw-text-editor"/>',
             },
             'sw-card': {
-                template: '<div class="sw-card"><slot /></div>'
+                template: '<div class="sw-card"><slot /></div>',
             },
             'sw-field': {
-                template: '<div class="sw-field"/>'
+                template: '<div class="sw-field"/>',
             },
             'sw-card-view': {
-                template: '<div><slot /></div>'
+                template: '<div><slot /></div>',
             },
             'sw-custom-field-set-renderer': true,
             'sw-upload-listener': true,
@@ -82,11 +82,11 @@ async function createWrapper(privileges = []) {
             'sw-empty-state': true,
             'sw-container': true,
             'sw-button': true,
-            'sw-skeleton': true
+            'sw-skeleton': true,
         },
         provide: {
             acl: {
-                can: key => (key ? privileges.includes(key) : true)
+                can: key => (key ? privileges.includes(key) : true),
             },
             stateStyleDataProviderService: {},
             repositoryFactory: {
@@ -101,15 +101,15 @@ async function createWrapper(privileges = []) {
                         default:
                             throw new Error(`${repositoryName} Repository not found`);
                     }
-                }
-            }
+                },
+            },
         },
         mocks: {
-            $route: {}
+            $route: {},
         },
         propsData: {
-            manufacturerId: 'id'
-        }
+            manufacturerId: 'id',
+        },
     });
 }
 
@@ -126,7 +126,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
     it('should be able to save edit', async () => {
         const wrapper = await createWrapper([
-            'product_manufacturer.editor'
+            'product_manufacturer.editor',
         ]);
         await flushPromises();
 
@@ -145,7 +145,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
     it('should be able to edit the manufacturer', async () => {
         const wrapper = await createWrapper([
-            'product_manufacturer.editor'
+            'product_manufacturer.editor',
         ]);
         await flushPromises();
 
@@ -154,7 +154,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(logoUpload.props().disabled).toBeFalsy();
 
         const elements = wrapper.findAll('.sw-field');
-        expect(elements.wrappers.length).toEqual(2);
+        expect(elements.wrappers).toHaveLength(2);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
 
 
@@ -172,7 +172,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(logoUpload.props().disabled).toBeTruthy();
 
         const elements = wrapper.findAll('.sw-field');
-        expect(elements.wrappers.length).toEqual(2);
+        expect(elements.wrappers).toHaveLength(2);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
 
         const textEditor = wrapper.find('.sw-text-editor');
@@ -192,7 +192,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'global.notification.notificationLoadingDataErrorMessage'
+            message: 'global.notification.notificationLoadingDataErrorMessage',
         });
 
         expect(wrapper.vm.customFieldSets).toEqual([{ id: 'MOCK_CUSTOM_FIELD_SET_ID' }]);
@@ -210,7 +210,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'global.notification.notificationLoadingDataErrorMessage'
+            message: 'global.notification.notificationLoadingDataErrorMessage',
         });
     });
 
@@ -226,7 +226,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'global.notification.notificationLoadingDataErrorMessage'
+            message: 'global.notification.notificationLoadingDataErrorMessage',
         });
 
         expect(wrapper.vm.customFieldSets).toEqual([]);

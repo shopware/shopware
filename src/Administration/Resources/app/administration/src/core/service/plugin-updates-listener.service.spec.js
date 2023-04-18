@@ -13,15 +13,15 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
             storeService: {
                 getUpdateList: () => {
                     return Promise.resolve({
-                        total: 10
+                        total: 10,
                     });
-                }
+                },
             },
             acl: {
                 can: (privilegeKey) => {
                     return privileges.includes(privilegeKey);
-                }
-            }
+                },
+            },
         };
     }
 
@@ -31,8 +31,8 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
                 return snippet;
             },
             $store: {
-                dispatch: dispatchFunction
-            }
+                dispatch: dispatchFunction,
+            },
         };
     }
 
@@ -45,7 +45,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
 
         addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
         Shopware.State.commit('setCurrentUser', {
-            firstName: 'userFirstName'
+            firstName: 'userFirstName',
         });
 
         await flushPromises();
@@ -64,7 +64,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
 
         Shopware.State.commit('setCurrentUser', {
-            firstName: 'userFirstName'
+            firstName: 'userFirstName',
         });
 
         await flushPromises();
@@ -83,7 +83,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
 
         addPluginUpdatesListener(null, null);
         Shopware.State.commit('setCurrentUser', {
-            firstName: 'userFirstName'
+            firstName: 'userFirstName',
         });
 
         await flushPromises();

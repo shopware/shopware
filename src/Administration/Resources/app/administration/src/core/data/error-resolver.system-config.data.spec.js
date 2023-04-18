@@ -15,7 +15,7 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
 
         const countSystemError = Shopware.State.getters['error/countSystemError']();
 
-        expect(countSystemError).toEqual(1);
+        expect(countSystemError).toBe(1);
     });
 
     it('should handleWriteErrors has api error', () => {

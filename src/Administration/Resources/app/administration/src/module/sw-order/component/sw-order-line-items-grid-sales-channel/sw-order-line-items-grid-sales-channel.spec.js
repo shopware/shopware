@@ -17,7 +17,7 @@ const mockItems = [
         label: 'Product item',
         quantity: 1,
         payload: {
-            options: []
+            options: [],
         },
         price: {
             quantity: 1,
@@ -27,16 +27,16 @@ const mockItems = [
                 {
                     price: 200,
                     tax: 40,
-                    taxRate: 20
-                }
+                    taxRate: 20,
+                },
             ],
             taxRules: [
                 {
                     taxRate: 20,
-                    percentage: 100
-                }
-            ]
-        }
+                    percentage: 100,
+                },
+            ],
+        },
     },
     {
         id: '2',
@@ -52,16 +52,16 @@ const mockItems = [
                 {
                     price: 100,
                     tax: 10,
-                    taxRate: 10
-                }
+                    taxRate: 10,
+                },
             ],
             taxRules: [
                 {
                     taxRate: 10,
-                    percentage: 100
-                }
-            ]
-        }
+                    percentage: 100,
+                },
+            ],
+        },
     },
     {
         id: '3',
@@ -77,17 +77,17 @@ const mockItems = [
                 {
                     price: -100,
                     tax: -10,
-                    taxRate: 10
-                }
+                    taxRate: 10,
+                },
             ],
             taxRules: [
                 {
                     taxRate: 10,
-                    percentage: 100
-                }
-            ]
-        }
-    }
+                    percentage: 100,
+                },
+            ],
+        },
+    },
 ];
 
 const responses = global.repositoryFactoryMock.responses;
@@ -97,8 +97,8 @@ responses.addResponse({
     url: '/search/user-config',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 const mockMultipleTaxesItem = {
@@ -109,25 +109,25 @@ const mockMultipleTaxesItem = {
             {
                 price: -66.66,
                 tax: -13.33,
-                taxRate: 20
+                taxRate: 20,
             },
             {
                 price: -33.33,
                 tax: -3.33,
-                taxRate: 10
-            }
+                taxRate: 10,
+            },
         ],
         taxRules: [
             {
                 taxRate: 20,
-                percentage: 66.66
+                percentage: 66.66,
             },
             {
                 taxRate: 10,
-                percentage: 33.33
-            }
-        ]
-    }
+                percentage: 33.33,
+            },
+        ],
+    },
 };
 
 async function createWrapper() {
@@ -142,7 +142,7 @@ async function createWrapper() {
         },
         update(el, binding) {
             el.setAttribute('tooltip-message', binding.value.message);
-        }
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-order-line-items-grid-sales-channel'), {
@@ -152,36 +152,36 @@ async function createWrapper() {
                 token: '6d3960ff30c9413f8dde62ccda81eefd',
                 lineItems: [],
                 price: {
-                    taxStatus: 'net'
-                }
+                    taxStatus: 'net',
+                },
             },
             currency: {
                 shortName: 'EUR',
-                symbol: '€'
+                symbol: '€',
             },
-            salesChannelId: ''
+            salesChannelId: '',
         },
         stubs: {
             'sw-container': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-group': {
-                template: '<div class="sw-button-group"><slot></slot></div>'
+                template: '<div class="sw-button-group"><slot></slot></div>',
             },
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>'
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
             },
             'sw-checkbox-field': {
                 template: '<input class="sw-checkbox-field" type="checkbox" :checked="value" @change="$emit(\'change\', $event.target.value)" />',
-                props: ['value']
+                props: ['value'],
             },
             'sw-number-field': {
                 template: '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                 props: {
-                    value: 0
-                }
+                    value: 0,
+                },
             },
             'sw-card-filter': true,
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
@@ -189,13 +189,13 @@ async function createWrapper() {
             'sw-order-product-select': {
                 template: '<input class="sw-order-product-select" :value="item.label" @input="updateLabel" />',
                 props: {
-                    item: {}
+                    item: {},
                 },
                 methods: {
                     updateLabel(event) {
                         this.item.label = event.target.value;
-                    }
-                }
+                    },
+                },
             },
             'router-link': true,
             'sw-empty-state': true,
@@ -208,8 +208,8 @@ async function createWrapper() {
                 }
 
                 return t;
-            }
-        }
+            },
+        },
     });
 }
 
@@ -223,7 +223,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
                         PRODUCT: 'product',
                         CREDIT: 'credit',
                         CUSTOM: 'custom',
-                        PROMOTION: 'promotion'
+                        PROMOTION: 'promotion',
                     });
                 },
                 getCart: () => {
@@ -252,8 +252,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         await wrapper.setProps({
             cart: {
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         const productItem = wrapper.find('.sw-data-grid__row--0');
@@ -284,8 +284,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         await wrapper.setProps({
             cart: {
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         const creditTax = wrapper.find('.sw-data-grid__row--2').find('.sw-data-grid__cell--tax');
@@ -299,8 +299,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         await wrapper.setProps({
             cart: {
-                lineItems: [{ ...mockMultipleTaxesItem }]
-            }
+                lineItems: [{ ...mockMultipleTaxesItem }],
+            },
         });
 
         const creditTax = wrapper.find('.sw-data-grid__row--0').find('.sw-data-grid__cell--tax');
@@ -314,8 +314,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         await wrapper.setProps({
             cart: {
-                lineItems: [{ ...mockMultipleTaxesItem }]
-            }
+                lineItems: [{ ...mockMultipleTaxesItem }],
+            },
         });
 
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid-sales-channel__item-tax-tooltip');
@@ -329,34 +329,34 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         await wrapper.setProps({
             cart: {
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         await wrapper.setData({
-            searchTerm: 'item product'
+            searchTerm: 'item product',
         });
 
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');
 
-        expect(productLabel.text()).toEqual('Product item');
+        expect(productLabel.text()).toBe('Product item');
     });
 
     it('should have vat column and price label is not tax free when tax status is tax free', async () => {
         const wrapper = await createWrapper({});
         await wrapper.setProps({
             cart: {
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnVat = header.find('.sw-data-grid__cell--3');
         const columnPrice = header.find('.sw-data-grid__cell--2');
 
-        expect(columnVat.text()).toEqual('sw-order.createBase.columnTax');
-        expect(columnPrice.text()).toEqual('sw-order.createBase.columnPriceGross');
+        expect(columnVat.text()).toBe('sw-order.createBase.columnTax');
+        expect(columnPrice.text()).toBe('sw-order.createBase.columnPriceGross');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -365,17 +365,17 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
             cart: {
                 lineItems: [...mockItems],
                 price: {
-                    taxStatus: 'tax-free'
-                }
-            }
+                    taxStatus: 'tax-free',
+                },
+            },
         });
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnTotal = header.find('.sw-data-grid__cell--3');
         const columnPrice = header.find('.sw-data-grid__cell--2');
 
-        expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
-        expect(columnPrice.text()).toEqual('sw-order.createBase.columnPriceTaxFree');
+        expect(columnTotal.text()).toBe('sw-order.createBase.columnTotalPriceNet');
+        expect(columnPrice.text()).toBe('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should show total price title based on tax status correctly', async () => {
@@ -388,42 +388,42 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
             cart: {
                 lineItems: [...mockItems],
                 price: {
-                    taxStatus: 'tax-free'
-                }
-            }
+                    taxStatus: 'tax-free',
+                },
+            },
         });
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--3');
 
-        expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
+        expect(columnTotal.text()).toBe('sw-order.createBase.columnTotalPriceNet');
 
         await wrapper.setProps({
             cart: {
                 lineItems: [...mockItems],
                 price: {
-                    taxStatus: 'gross'
-                }
-            }
+                    taxStatus: 'gross',
+                },
+            },
         });
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--4');
 
-        expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceGross');
+        expect(columnTotal.text()).toBe('sw-order.createBase.columnTotalPriceGross');
 
         await wrapper.setProps({
             cart: {
                 lineItems: [...mockItems],
                 price: {
-                    taxStatus: 'net'
-                }
-            }
+                    taxStatus: 'net',
+                },
+            },
         });
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--4');
-        expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
+        expect(columnTotal.text()).toBe('sw-order.createBase.columnTotalPriceNet');
     });
 
     it('should able to create new empty line item', async () => {
@@ -432,25 +432,25 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: []
+                lineItems: [],
             },
             isCustomerActive: true,
         });
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(0);
+        expect(itemRows).toHaveLength(0);
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
         await buttonAddItem.trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('1');
-        expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toEqual('...');
-        expect(firstRow.find('.sw-data-grid__cell--tax').text()).toEqual('0 %');
-        expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toEqual('...');
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1');
+        expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
+        expect(firstRow.find('.sw-data-grid__cell--tax').text()).toBe('0 %');
+        expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
     });
 
     it('should able to create new product line item', async () => {
@@ -459,7 +459,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: []
+                lineItems: [],
             },
             isCustomerActive: true,
         });
@@ -483,11 +483,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await buttonInlineSave.trigger('click');
 
         expect(firstRow.find('.sw-data-grid__cell--label').exists()).toBeTruthy();
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('3');
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('3');
         expect(wrapper.emitted('on-save-item')).toBeTruthy();
-        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Product 1');
-        expect(wrapper.emitted('on-save-item')[0][0].quantity).toEqual(3);
-        expect(wrapper.emitted('on-save-item')[0][0].type).toEqual('product');
+        expect(wrapper.emitted('on-save-item')[0][0].label).toBe('Product 1');
+        expect(wrapper.emitted('on-save-item')[0][0].quantity).toBe(3);
+        expect(wrapper.emitted('on-save-item')[0][0].type).toBe('product');
     });
 
     it('should able to create new custom line item', async () => {
@@ -496,7 +496,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: []
+                lineItems: [],
             },
             isCustomerActive: true,
         });
@@ -516,8 +516,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await buttonInlineSave.trigger('click');
 
         expect(wrapper.emitted('on-save-item')).toBeTruthy();
-        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Custom item');
-        expect(wrapper.emitted('on-save-item')[0][0].type).toEqual('custom');
+        expect(wrapper.emitted('on-save-item')[0][0].label).toBe('Custom item');
+        expect(wrapper.emitted('on-save-item')[0][0].type).toBe('custom');
     });
 
     it('should able to create new credit line item', async () => {
@@ -526,7 +526,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: []
+                lineItems: [],
             },
             isCustomerActive: true,
         });
@@ -546,8 +546,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await buttonInlineSave.trigger('click');
 
         expect(wrapper.emitted('on-save-item')).toBeTruthy();
-        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Credit item');
-        expect(wrapper.emitted('on-save-item')[0][0].type).toEqual('credit');
+        expect(wrapper.emitted('on-save-item')[0][0].label).toBe('Credit item');
+        expect(wrapper.emitted('on-save-item')[0][0].type).toBe('credit');
     });
 
     it('should able to cancel inline editing item', async () => {
@@ -556,7 +556,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: [...mockItems]
+                lineItems: [...mockItems],
             },
             isCustomerActive: true,
         });
@@ -575,7 +575,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const buttonInlineCancel = wrapper.find('.sw-data-grid__inline-edit-cancel');
         await buttonInlineCancel.trigger('click');
 
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('1');
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1');
     });
 
     it('should able to delete items', async () => {
@@ -584,7 +584,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: []
+                lineItems: [],
             },
             isCustomerActive: true,
         });
@@ -610,7 +610,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: []
+                lineItems: [],
             },
             isCustomerActive: true,
         });
@@ -633,7 +633,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
         await buttonInlineSave.trigger('click');
 
-        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Credit item');
-        expect(wrapper.emitted('on-save-item')[0][0].priceDefinition.price).toEqual(-100);
+        expect(wrapper.emitted('on-save-item')[0][0].label).toBe('Credit item');
+        expect(wrapper.emitted('on-save-item')[0][0].priceDefinition.price).toBe(-100);
     });
 });

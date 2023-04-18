@@ -9,7 +9,7 @@ async function createWrapper(propsData = {}) {
             extensionName: 'Sample extension',
             isLicensed: true,
             isLoading: false,
-            ...propsData
+            ...propsData,
         },
         mocks: {
             $tc: (path, choice, values) => {
@@ -18,13 +18,13 @@ async function createWrapper(propsData = {}) {
                 }
 
                 return path;
-            }
+            },
         },
         stubs: {
             'sw-modal': true,
-            'sw-button': true
+            'sw-button': true,
         },
-        provide: {}
+        provide: {},
     });
 }
 
@@ -51,15 +51,15 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
 
     it('should show the correct remove hint (is licensed)', async () => {
         // eslint-disable-next-line max-len
-        expect(wrapper.vm.removeHint).toEqual('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel');
+        expect(wrapper.vm.removeHint).toBe('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel');
     });
 
     it('should show the correct remove hint (is not licensed)', async () => {
         await wrapper.setProps({
-            isLicensed: false
+            isLicensed: false,
         });
         // eslint-disable-next-line max-len
-        expect(wrapper.vm.removeHint).toEqual('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel');
+        expect(wrapper.vm.removeHint).toBe('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel');
     });
 
     it('should emit the close event', async () => {
@@ -68,13 +68,13 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
         await wrapper.vm.emitClose();
 
         expect(wrapper.emitted()).toEqual({
-            'modal-close': [[]]
+            'modal-close': [[]],
         });
     });
 
     it('should not emit the close event when is loading', async () => {
         await wrapper.setProps({
-            isLoading: true
+            isLoading: true,
         });
 
         expect(wrapper.emitted()).toEqual({});
@@ -90,7 +90,7 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
         await wrapper.vm.emitDeactivate();
 
         expect(wrapper.emitted()).toEqual({
-            'extension-deactivate': [[]]
+            'extension-deactivate': [[]],
         });
     });
 });

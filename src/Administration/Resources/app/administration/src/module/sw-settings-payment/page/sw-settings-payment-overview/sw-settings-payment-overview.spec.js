@@ -27,8 +27,8 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                 create: () => ({
                     search: () => {
                         return Promise.resolve(methods);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -37,8 +37,8 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -47,7 +47,7 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-button-process': true,
@@ -59,7 +59,7 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
             'sw-payment-card': true,
             'sw-empty-state': true,
             'sw-extension-component-section': true,
-        }
+        },
     });
 }
 
@@ -82,7 +82,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
 
     it('should be able to create a new payment method', async () => {
         const wrapper = await createWrapper([], [], [
-            'payment.creator'
+            'payment.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -96,7 +96,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
             {
                 id: '1a2b3c4e',
                 name: 'Test settings-payment',
-            }
+            },
         ]);
         await flushPromises();
 
@@ -115,15 +115,15 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
                 id: '5e6f7g8h',
                 name: 'Test settings-payment 2',
                 formattedHandlerIdentifier: 'handler2',
-            }
+            },
         ], [
             {
                 positionId: 'positionId',
                 paymentMethodHandlers: [
                     'handler',
                     'handler2',
-                ]
-            }
+                ],
+            },
         ]);
         await flushPromises();
 
@@ -146,7 +146,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
                 id: '5e6f7g8h',
                 name: 'Test settings-payment 2',
                 formattedHandlerIdentifier: 'handler2',
-            }
+            },
         ], [
             {
                 positionId: 'positionId',
@@ -154,8 +154,8 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
                 paymentMethodHandlers: [
                     'handler',
                     'handler2',
-                ]
-            }
+                ],
+            },
         ]);
         await flushPromises();
 

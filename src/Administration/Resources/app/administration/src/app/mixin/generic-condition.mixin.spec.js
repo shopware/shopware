@@ -18,20 +18,20 @@ const config = {
                 '<',
                 '<=',
                 '!=',
-                'empty'
+                'empty',
             ],
-            isMatchAny: false
+            isMatchAny: false,
         },
         fields: [
             {
                 name: 'amount',
                 type: 'float',
                 config: {
-                    unit: 'weight'
-                }
-            }
-        ]
-    }
+                    unit: 'weight',
+                },
+            },
+        ],
+    },
 };
 
 describe('app/mixin/generic-condition', () => {
@@ -40,7 +40,7 @@ describe('app/mixin/generic-condition', () => {
     beforeEach(async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-mock'), {
             mixins: [
-                Shopware.Mixin.getByName('generic-condition')
+                Shopware.Mixin.getByName('generic-condition'),
             ],
             mocks: {
                 condition: {
@@ -48,7 +48,7 @@ describe('app/mixin/generic-condition', () => {
                     value: null,
                 },
                 ensureValueExist: () => {},
-            }
+            },
         });
 
         Shopware.State.commit('ruleConditionsConfig/setConfig', config);
@@ -97,7 +97,7 @@ describe('app/mixin/generic-condition', () => {
         // change unit
         wrapper.vm.handleUnitChange({
             unit: 'g',
-            value: 100000
+            value: 100000,
         });
 
         expect(wrapper.vm.selectedUnit).toBe('g');

@@ -30,8 +30,8 @@ const orderFixture = {
                 documentNumber: 1000,
                 custom: {
                     invoiceNumber: 1000,
-                }
-            }
+                },
+            },
         },
         {
             orderId: 'order1',
@@ -46,8 +46,8 @@ const orderFixture = {
                 documentNumber: 1001,
                 custom: {
                     invoiceNumber: 1001,
-                }
-            }
+                },
+            },
         },
         {
             orderId: 'order1',
@@ -62,9 +62,9 @@ const orderFixture = {
                 documentNumber: 1001,
                 custom: {
                     deliveryNoteNumber: 1001,
-                }
-            }
-        }
+                },
+            },
+        },
     ],
     currency: {
         shortName: 'EUR',
@@ -87,16 +87,16 @@ const orderFixture = {
                     {
                         price: -100,
                         tax: -10,
-                        taxRate: 10
-                    }
+                        taxRate: 10,
+                    },
                 ],
                 taxRules: [
                     {
                         taxRate: 10,
-                        percentage: 100
-                    }
-                ] }
-        }]
+                        percentage: 100,
+                    },
+                ] },
+        }],
 };
 
 async function createWrapper() {
@@ -104,17 +104,17 @@ async function createWrapper() {
         stubs: {
             'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-text-field': true,
             'sw-datepicker': true,
             'sw-checkbox-field': true,
             'sw-switch-field': true,
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-group': await Shopware.Component.build('sw-button-group'),
@@ -128,7 +128,7 @@ async function createWrapper() {
             'sw-field-error': true,
             'sw-loader': true,
             'sw-description-list': {
-                template: '<div class="sw-description-list"><slot></slot></div>'
+                template: '<div class="sw-description-list"><slot></slot></div>',
             },
         },
         provide: {
@@ -165,128 +165,128 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'EUR'
+                    shortName: 'EUR',
                 },
                 lineItems: [
                     {
                         type: 'product',
-                        id: 'INVOICE_ITEM'
+                        id: 'INVOICE_ITEM',
                     },
                     {
                         type: 'custom',
-                        id: 'CUSTOM_ITEM'
+                        id: 'CUSTOM_ITEM',
                     },
                     {
                         type: 'credit',
-                        id: 'CREDIT_1'
+                        id: 'CREDIT_1',
                     },
                     {
                         type: 'credit',
-                        id: 'CREDIT_2'
-                    }
-                ]
-            }
+                        id: 'CREDIT_2',
+                    },
+                ],
+            },
         });
 
         expect(wrapper.vm.highlightedItems).toStrictEqual([{
             type: 'credit',
-            id: 'CREDIT_1'
+            id: 'CREDIT_1',
         }, {
             type: 'credit',
-            id: 'CREDIT_2'
+            id: 'CREDIT_2',
         }]);
     });
 
     it('should compute documentPreconditionsFulfilled correctly', async () => {
-        expect(wrapper.vm.documentPreconditionsFulfilled).toEqual('');
+        expect(wrapper.vm.documentPreconditionsFulfilled).toBe('');
 
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'EUR'
+                    shortName: 'EUR',
                 },
                 lineItems: [
                     {
                         type: 'credit',
-                        id: 'CREDIT_1'
+                        id: 'CREDIT_1',
                     },
                     {
                         type: 'credit',
-                        id: 'CREDIT_2'
+                        id: 'CREDIT_2',
                     },
                 ],
-            }
+            },
         });
 
         await wrapper.setData({
             documentConfig: {
                 custom: {
-                    invoiceNumber: 'INVOICE_NUM'
-                }
-            }
+                    invoiceNumber: 'INVOICE_NUM',
+                },
+            },
         });
 
-        expect(wrapper.vm.documentPreconditionsFulfilled).toEqual('INVOICE_NUM');
+        expect(wrapper.vm.documentPreconditionsFulfilled).toBe('INVOICE_NUM');
     });
 
     it('should render invoiceNumbers correctly', async () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'USD'
+                    shortName: 'USD',
                 },
                 lineItems: [],
                 documents: [
                     {
                         config: {
                             custom: {
-                                invoiceNumber: 'INVOICE_003'
-                            }
+                                invoiceNumber: 'INVOICE_003',
+                            },
                         },
                         documentType: {
-                            technicalName: 'invoice'
+                            technicalName: 'invoice',
                         },
-                        id: 'DOCUMENT_1'
+                        id: 'DOCUMENT_1',
                     },
                     {
                         config: {
                             custom: {
-                                invoiceNumber: null
-                            }
+                                invoiceNumber: null,
+                            },
                         },
                         documentType: {
-                            technicalName: 'credit'
+                            technicalName: 'credit',
                         },
-                        id: 'DOCUMENT_2'
+                        id: 'DOCUMENT_2',
                     },
                     {
                         config: {
                             custom: {
-                                invoiceNumber: 'INVOICE_001'
-                            }
+                                invoiceNumber: 'INVOICE_001',
+                            },
                         },
                         documentType: {
-                            technicalName: 'invoice'
+                            technicalName: 'invoice',
                         },
-                        id: 'DOCUMENT_3'
+                        id: 'DOCUMENT_3',
                     },
                     {
                         config: {
                             custom: {
-                                invoiceNumber: 'INVOICE_002'
-                            }
+                                invoiceNumber: 'INVOICE_002',
+                            },
                         },
                         documentType: {
-                            technicalName: 'invoice'
+                            technicalName: 'invoice',
                         },
-                        id: 'DOCUMENT_4'
+                        id: 'DOCUMENT_4',
                     },
                     {
                         config: {},
                         documentType: {
-                            technicalName: 'storno'
+                            technicalName: 'storno',
                         },
-                        id: 'DOCUMENT_5'
+                        id: 'DOCUMENT_5',
                     },
                 ],
             },
@@ -302,10 +302,10 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'USD'
+                    shortName: 'USD',
                 },
                 lineItems: [],
-                documents: []
+                documents: [],
             },
         });
 
@@ -318,17 +318,17 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     it('should call numberRangeService.reserve if documentNumberPreview equal documentConfig.documentNumber', async () => {
         const number = 'RESERVE_NUMBER';
         const spyReserve = jest.spyOn(wrapper.vm.numberRangeService, 'reserve').mockImplementation(() => Promise.resolve({
-            number
+            number,
         }));
 
         await wrapper.setProps({
             order: {
                 salesChannelId: 'Headless',
                 currency: {
-                    shortName: 'USD'
+                    shortName: 'USD',
                 },
                 lineItems: [],
-                documents: []
+                documents: [],
             },
         });
 
@@ -347,7 +347,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.vm.onCreateDocument();
 
         expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'
+            message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED',
         });
         expect(spyReserve).toHaveBeenCalledTimes(1);
         expect(spyReserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
@@ -366,7 +366,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
 
         await wrapper.vm.onCreateDocument();
 
-        expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toEqual('PREVIEW_NUM_002');
+        expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toBe('PREVIEW_NUM_002');
         expect(wrapper.emitted()['document-create']).toBeTruthy();
     });
 
@@ -377,8 +377,8 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         const invoiceOptions = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select')
             .findAll('option');
 
-        expect(invoiceOptions.at(1).text()).toEqual('1000');
-        expect(invoiceOptions.at(2).text()).toEqual('1001');
+        expect(invoiceOptions.at(1).text()).toBe('1000');
+        expect(invoiceOptions.at(2).text()).toBe('1001');
     });
 
     it('should disable create button if there is no selected invoice', async () => {

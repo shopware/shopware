@@ -8,12 +8,12 @@ import { shallowMount } from '@vue/test-utils';
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-modal'), {
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             shortcutService: {
                 startEventListener: () => {},
-                stopEventListener: () => {}
+                stopEventListener: () => {},
             },
         },
         attachTo: document.body,
@@ -23,8 +23,8 @@ async function createWrapper() {
                     Some content inside modal body
                     <input name="test" class="test-input">
                 </div>
-            `
-        }
+            `,
+        },
     });
 }
 
@@ -51,7 +51,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     it('should render modal with body', async () => {
         await wrapper.setProps({
-            title: 'Cool modal'
+            title: 'Cool modal',
         });
 
         expect(wrapper.get('.sw-modal__body').text()).toBe('Some content inside modal body');
@@ -62,7 +62,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
         await wrapper.setProps({
-            variant: 'not-existing' // Make some trouble
+            variant: 'not-existing', // Make some trouble
         });
 
         expect(consoleSpy).toHaveBeenCalledTimes(1);
@@ -72,10 +72,10 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         'default',
         'small',
         'large',
-        'full'
+        'full',
     ])('should set correct variant class for %s', async (variant) => {
         await wrapper.setProps({
-            variant: variant
+            variant: variant,
         });
 
         expect(wrapper.get('.sw-modal').classes(`sw-modal--${variant}`)).toBe(true);
@@ -83,7 +83,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     it('should have has--header class if showHeader option is true', async () => {
         await wrapper.setProps({
-            showHeader: true
+            showHeader: true,
         });
 
         expect(wrapper.get('.sw-modal__dialog').classes('has--header')).toBe(true);
@@ -91,7 +91,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     it('should not have has--header class if showHeader option is false', async () => {
         await wrapper.setProps({
-            showHeader: false
+            showHeader: false,
         });
 
         expect(wrapper.get('.sw-modal__dialog').classes('has--header')).toBe(false);
@@ -100,18 +100,18 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     it('should fire the close event when clicking the close button', async () => {
         await wrapper.get('.sw-modal__close').trigger('click');
 
-        expect(wrapper.emitted('modal-close').length).toBe(1);
+        expect(wrapper.emitted('modal-close')).toHaveLength(1);
     });
 
     it('should close the modal when clicking outside modal', async () => {
         await wrapper.get('.sw-modal').trigger('mousedown');
 
-        expect(wrapper.emitted('modal-close').length).toBe(1);
+        expect(wrapper.emitted('modal-close')).toHaveLength(1);
     });
 
     it('should not close the modal when clicking outside modal and closeable option is false', async () => {
         await wrapper.setProps({
-            closable: false
+            closable: false,
         });
 
         await wrapper.get('.sw-modal').trigger('mousedown');
@@ -122,7 +122,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     it('should close the modal when using ESC key', async () => {
         await wrapper.get('.sw-modal__dialog').trigger('keyup.esc');
 
-        expect(wrapper.emitted('modal-close').length).toBe(1);
+        expect(wrapper.emitted('modal-close')).toHaveLength(1);
     });
 
     it('should not close the modal when using ESC key when the event does not come from the modal dialog', async () => {

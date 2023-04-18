@@ -36,20 +36,20 @@ async function createWrapper() {
             'sw-context-button': true,
             'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-icon': true,
-            'sw-tree-item': await Shopware.Component.build('sw-tree-item')
+            'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
         },
         mocks: {
             $route: {
                 params: [
-                    { id: null }
-                ]
-            }
+                    { id: null },
+                ],
+            },
         },
         provide: {
-            validationService: {}
+            validationService: {},
         },
         propsData: {
-            items: getTreeItems()
+            items: getTreeItems(),
         },
         attachTo: document.body,
     });
@@ -73,7 +73,7 @@ describe('src/app/component/tree/sw-tree', () => {
 
     it('should render tree correctly with only the main item', async () => {
         const treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toBe(1);
+        expect(treeItems).toHaveLength(1);
 
         // parent should be closed
         expect(treeItems.at(0).classes()).not.toContain('is--opened');
@@ -94,7 +94,7 @@ describe('src/app/component/tree/sw-tree', () => {
 
         // two children should be visible
         const childrenItems = openedParent.find('.sw-tree-item__children').findAll('.sw-tree-item');
-        expect(childrenItems.length).toBe(2);
+        expect(childrenItems).toHaveLength(2);
 
         // first child should contain correct names
         expect(childrenItems.at(0).text()).toContain('Health & Games');
@@ -123,7 +123,7 @@ describe('src/app/component/tree/sw-tree', () => {
             'Clothing & Grocery',
             'Baby, Health & Garden',
             'Automotive',
-            'Toys, Health & Music'
+            'Toys, Health & Music',
         ];
 
         childrenOfHealthGames.wrappers.forEach((item, index) => {
@@ -168,7 +168,7 @@ describe('src/app/component/tree/sw-tree', () => {
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
         await wrapper.setData({
-            checkedElementsCount: 2
+            checkedElementsCount: 2,
         });
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeTruthy();
@@ -178,21 +178,21 @@ describe('src/app/component/tree/sw-tree', () => {
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
         await wrapper.setData({
-            checkedElementsCount: 2
+            checkedElementsCount: 2,
         });
 
-        expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).not.toBeDefined();
+        expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).toBeUndefined();
     });
 
     it('should not allow to delete the items', async () => {
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
         await wrapper.setProps({
-            allowDeleteCategories: false
+            allowDeleteCategories: false,
         });
 
         await wrapper.setData({
-            checkedElementsCount: 2
+            checkedElementsCount: 2,
         });
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).toBeDefined();

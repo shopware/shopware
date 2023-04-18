@@ -27,38 +27,38 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
-    </div>`
+    </div>`,
             },
             'sw-card-view': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-tabs': {
-                template: '<div><slot name="content"></slot></div>'
+                template: '<div><slot name="content"></slot></div>',
             },
             'sw-select-field': true,
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-pagination': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-cms-list-item': await Shopware.Component.build('sw-cms-list-item'),
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-popover': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-context-menu': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-media-modal-v2': {
-                template: '<div class="sw-media-modal-v2-mock"></div>'
+                template: '<div class="sw-media-modal-v2-mock"></div>',
             },
             'sw-button': true,
             'sw-card': {
-                template: '<div><slot name="grid"></slot></div>'
+                template: '<div><slot name="grid"></slot></div>',
             },
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-settings': true,
@@ -78,15 +78,15 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                             <slot name="modal-footer"></slot>
                         </div>
                     </div>
-                `
+                `,
             },
             'sw-confirm-modal': {
                 template: '<div></div>',
-                props: ['text']
+                props: ['text'],
             },
             'sw-text-field': {
                 props: ['value', 'label', 'placeholder'],
-                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />'
+                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
             },
         },
         mocks: {
@@ -103,7 +103,7 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                                 Shopware.Context.api,
                                 null,
                                 [{}],
-                                1
+                                1,
                             )),
                             save: () => Promise.resolve(),
                         };
@@ -111,19 +111,19 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
 
                     return {
                         search: () => Promise.resolve(),
-                        clone: jest.fn(() => Promise.resolve())
+                        clone: jest.fn(() => Promise.resolve()),
                     };
-                }
+                },
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
+                },
             },
             systemConfigApiService: {
                 getValues: (query) => {
@@ -133,10 +133,10 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
 
                     return {
                         'core.cms.default_category_cms_page': defaultCategoryId,
-                        'core.cms.default_product_cms_page': defaultProductId
+                        'core.cms.default_product_cms_page': defaultProductId,
                     };
                 },
-                saveValues: () => null
+                saveValues: () => null,
             },
             acl: {
                 can: (identifier) => {
@@ -145,7 +145,7 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             cmsPageTypeService: {
                 getTypes: () => [{
@@ -160,7 +160,7 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                         name: type,
                         title: type,
                     };
-                }
+                },
             },
         },
         data: () => {
@@ -170,7 +170,7 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                 },
             };
         },
-        attachTo: document.body
+        attachTo: document.body,
     });
 }
 
@@ -190,7 +190,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             {
                 value: '',
                 name: 'sw-cms.sorting.labelSortByAllPages',
-                active: true
+                active: true,
             }, {
                 name: 'page',
                 value: 'page',
@@ -212,10 +212,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.vm.$nextTick();
@@ -242,10 +242,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const createButton = wrapper.find('sw-button-stub');
@@ -263,10 +263,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const createButton = wrapper.find('sw-button-stub');
@@ -291,10 +291,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.find('.sw-data-grid__actions-menu')
@@ -327,10 +327,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.find('.sw-data-grid__actions-menu')
@@ -363,10 +363,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.find('.sw-data-grid__actions-menu')
@@ -399,10 +399,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.find('.sw-data-grid__actions-menu')
@@ -432,10 +432,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -460,10 +460,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -488,10 +488,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -516,10 +516,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -540,7 +540,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             categories: [],
             products: [{ id: 'abc' }],
             translated: {
-                name: 'CMS Page 1'
+                name: 'CMS Page 1',
             },
         }];
 
@@ -549,15 +549,15 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 buckets: [{
                     key: '1a',
                     productCount: {
-                        count: 1
-                    }
-                }]
-            }
+                        count: 1,
+                    },
+                }],
+            },
         };
 
         await wrapper.setData({
             isLoading: false,
-            pages
+            pages,
         });
 
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-delete');
@@ -578,10 +578,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-delete');
@@ -602,8 +602,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const multiFilter = criteria.pop();
 
-        expect(multiFilter.type).toEqual('multi');
-        expect(multiFilter.operator).toEqual('OR');
+        expect(multiFilter.type).toBe('multi');
+        expect(multiFilter.operator).toBe('OR');
         expect(multiFilter.queries).toHaveLength(wrapper.vm.assignablePageTypes.length);
     });
 
@@ -619,8 +619,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
+                        name: 'CMS Page 1',
+                    },
                 },
                 {
                     id: '2a',
@@ -628,15 +628,15 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 2'
-                    }
-                }
+                        name: 'CMS Page 2',
+                    },
+                },
             ],
             linkedLayouts: [
                 {
-                    id: '2a'
-                }
-            ]
+                    id: '2a',
+                },
+            ],
         };
 
         await wrapper.setData(testData);
@@ -664,7 +664,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await flushPromises();
 
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -712,7 +712,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await flushPromises();
 
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -738,7 +738,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await flushPromises();
 
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
 
@@ -752,7 +752,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
@@ -776,10 +776,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     products: [],
                     name: 'CMS Page 1',
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.find('.sw-data-grid__actions-menu')
@@ -795,8 +795,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(cloneMock[1]).toStrictEqual(Shopware.Context.api);
         expect(cloneMock[2]).toStrictEqual({
             overwrites: {
-                name: 'CMS Page 1 - global.default.copy'
-            }
+                name: 'CMS Page 1 - global.default.copy',
+            },
         });
     });
 
@@ -813,8 +813,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
+                        name: 'CMS Page 1',
+                    },
                 },
                 {
                     id: defaultProductId,
@@ -822,8 +822,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 2'
-                    }
+                        name: 'CMS Page 2',
+                    },
                 },
                 {
                     id: defaultCategoryId,
@@ -831,9 +831,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 3'
-                    }
-                }
+                        name: 'CMS Page 3',
+                    },
+                },
             ],
         };
 
@@ -845,7 +845,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const listItems = wrapper.findAll('.sw-cms-list-item');
 
-        expect(listItems.length).toBe(3);
+        expect(listItems).toHaveLength(3);
 
         expect(listItems.at(0).props('isDefault')).toBe(false);
         expect(listItems.at(1).props('isDefault')).toBe(true);
@@ -872,8 +872,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     products: [],
                     type: 'product_detail',
                     translated: {
-                        name: 'CMS Page 1'
-                    }
+                        name: 'CMS Page 1',
+                    },
                 },
                 {
                     id: someCategoryID,
@@ -881,8 +881,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
+                        name: 'CMS Page 1',
+                    },
                 },
                 {
                     id: defaultProductId,
@@ -890,8 +890,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 2'
-                    }
+                        name: 'CMS Page 2',
+                    },
                 },
                 {
                     id: defaultCategoryId,
@@ -899,9 +899,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 3'
-                    }
-                }
+                        name: 'CMS Page 3',
+                    },
+                },
             ],
         };
 
@@ -913,7 +913,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const listItems = wrapper.findAll('.sw-cms-list-item');
 
-        expect(listItems.length).toBe(4);
+        expect(listItems).toHaveLength(4);
 
         expect(listItems.at(0).props('isDefault')).toBe(false);
         expect(listItems.at(1).props('isDefault')).toBe(false);
@@ -939,7 +939,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(saveSpy).toHaveBeenCalledTimes(1);
         expect(saveSpy).toHaveBeenCalledWith({ 'core.cms.default_category_cms_page': someProductID });
 
-        expect(listItems.length).toBe(4);
+        expect(listItems).toHaveLength(4);
 
         expect(listItems.at(0).props('isDefault')).toBe(true);
         expect(listItems.at(1).props('isDefault')).toBe(false);
@@ -962,7 +962,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(saveSpy).toHaveBeenCalledTimes(2);
         expect(saveSpy).toHaveBeenLastCalledWith({ 'core.cms.default_product_cms_page': someCategoryID });
 
-        expect(listItems.length).toBe(4);
+        expect(listItems).toHaveLength(4);
 
         expect(listItems.at(0).props('isDefault')).toBe(true);
         expect(listItems.at(1).props('isDefault')).toBe(true);
@@ -990,8 +990,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 1'
-                    }
+                        name: 'CMS Page 1',
+                    },
                 },
                 {
                     id: defaultProductId,
@@ -999,9 +999,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     categories: [],
                     products: [],
                     translated: {
-                        name: 'CMS Page 2'
-                    }
-                }
+                        name: 'CMS Page 2',
+                    },
+                },
             ],
         };
 
@@ -1012,7 +1012,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const listItems = wrapper.findAll('.sw-cms-list-item');
 
-        expect(listItems.length).toBe(2);
+        expect(listItems).toHaveLength(2);
 
         expect(listItems.at(0).props('isDefault')).toBe(false);
         expect(listItems.at(1).props('isDefault')).toBe(true);
@@ -1036,7 +1036,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
-        expect(wrapper.vm.newDefaultLayout).toBe(undefined);
+        expect(wrapper.vm.newDefaultLayout).toBeUndefined();
 
         // test resetting with cancel
         wrapper.vm.onOpenLayoutSetAsDefault(layoutSetAsDefaultConfig);
@@ -1049,7 +1049,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
-        expect(wrapper.vm.nextDefaultProductListLayoutId).toBe(undefined);
+        expect(wrapper.vm.nextDefaultProductListLayoutId).toBeUndefined();
 
         expect(saveSpy).toHaveBeenCalledTimes(0);
         expect(listItems.at(0).props('isDefault')).toBe(false);
@@ -1074,10 +1074,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     products: [],
                     name: 'CMS Page 1',
                     translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+                        name: 'CMS Page 1',
+                    },
+                },
+            ],
         });
 
         await wrapper.find('.sw-data-grid__actions-menu')

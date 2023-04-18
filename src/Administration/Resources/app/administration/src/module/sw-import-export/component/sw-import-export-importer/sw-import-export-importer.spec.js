@@ -21,23 +21,23 @@ const repositoryMockFactory = () => {
                 {
                     label: 'Default product',
                     sourceEntity: 'product',
-                    config: []
+                    config: [],
                 },
                 {
                     label: 'Default configurator settings',
                     sourceEntity: 'product_configurator_setting',
-                    config: []
+                    config: [],
                 },
                 {
                     label: 'Default category',
                     sourceEntity: 'category',
-                    config: []
+                    config: [],
                 },
                 {
                     label: 'Default media',
                     sourceEntity: 'media',
-                    config: []
-                }
+                    config: [],
+                },
             ];
 
             return Promise.resolve(profiles.filter((profile) => {
@@ -51,7 +51,7 @@ const repositoryMockFactory = () => {
 
                 return isAllowed;
             }));
-        }
+        },
     };
 };
 
@@ -81,7 +81,7 @@ describe('components/sw-import-export-importer', () => {
                 'sw-alert': true,
                 'sw-modal': true,
                 'sw-button': true,
-                'sw-file-input': true
+                'sw-file-input': true,
             },
             provide: {
                 importExport: {
@@ -97,18 +97,18 @@ describe('components/sw-import-export-importer', () => {
                                     errors: [
                                         {
                                             code: 'This is an error code',
-                                            detail: 'This is an detailed error message'
-                                        }
-                                    ]
-                                }
-                            }
+                                            detail: 'This is an detailed error message',
+                                        },
+                                    ],
+                                },
+                            },
                         });
-                    }
+                    },
                 },
                 repositoryFactory: {
-                    create: () => repositoryMockFactory()
-                }
-            }
+                    create: () => repositoryMockFactory(),
+                },
+            },
         });
     });
 
@@ -167,8 +167,8 @@ describe('components/sw-import-export-importer', () => {
 
         await wrapper.setData({
             config: {
-                includeVariants: true
-            }
+                includeVariants: true,
+            },
         });
 
         const variantsWarning = wrapper.find('.sw-import-export-importer__variants-warning');
@@ -185,21 +185,21 @@ describe('components/sw-import-export-importer', () => {
 
         await wrapper.setData({
             config: {
-                includeVariants: true
-            }
+                includeVariants: true,
+            },
         });
 
         const variantsWarningLinks = wrapper.findAll(
-            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
+            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link',
         );
         expect(variantsWarningLinks.at(0).exists()).toBeTruthy();
         expect(variantsWarningLinks.at(0).text()).toContain(
-            'sw-import-export.importer.directImportVariantsLabel'
+            'sw-import-export.importer.directImportVariantsLabel',
         );
 
         expect(variantsWarningLinks.at(1).exists()).toBeTruthy();
         expect(variantsWarningLinks.at(1).text()).toContain(
-            'sw-import-export.importer.directImportPropertiesLabel'
+            'sw-import-export.importer.directImportPropertiesLabel',
         );
     });
 
@@ -211,12 +211,12 @@ describe('components/sw-import-export-importer', () => {
 
         await wrapper.setData({
             config: {
-                includeVariants: true
-            }
+                includeVariants: true,
+            },
         });
 
         const variantsWarningLink = wrapper.find(
-            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
+            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link',
         );
         await variantsWarningLink.trigger('click');
 
@@ -233,12 +233,12 @@ describe('components/sw-import-export-importer', () => {
 
         await wrapper.setData({
             config: {
-                includeVariants: true
-            }
+                includeVariants: true,
+            },
         });
 
         const variantsWarningLink = wrapper.find(
-            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
+            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link',
         );
         await variantsWarningLink.trigger('click');
 
@@ -281,8 +281,8 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.setData({
             selectedProfileId: 'a1b2c3d4e5',
             config: {
-                error: true
-            }
+                error: true,
+            },
         });
 
         wrapper.vm.createNotificationError = jest.fn();
@@ -292,7 +292,7 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'This is an error code: This is an detailed error message'
+            message: 'This is an error code: This is an detailed error message',
         });
 
         wrapper.vm.createNotificationError.mockRestore();

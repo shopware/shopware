@@ -17,8 +17,8 @@ async function createWrapper() {
                 type: 'app',
                 icon: null,
                 installedAt: null,
-                permissions: []
-            }
+                permissions: [],
+            },
         },
         stubs: {
             'sw-context-button': true,
@@ -33,18 +33,18 @@ async function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {};
-                }
+                },
             },
             shopwareExtensionService: new ShopwareService({}, {}, {}, {}),
             cacheApiService: {
                 clear() {
                     return Promise.resolve();
-                }
+                },
             },
             extensionStoreActionService: {
-                downloadExtension: jest.fn()
-            }
-        }
+                downloadExtension: jest.fn(),
+            },
+        },
     });
 }
 
@@ -78,8 +78,8 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
             extension: {
                 icon: null,
                 installedAt: 'a',
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         expect(wrapper.vm.isInstalled).toBe(true);
@@ -92,8 +92,8 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 icon: null,
                 installedAt: 'a',
                 active: false,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         wrapper.vm.shopwareExtensionService.activateExtension = jest.fn(() => Promise.resolve());
@@ -126,8 +126,8 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 icon: null,
                 installedAt: 'a',
                 active: true,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         wrapper.vm.activateExtension = jest.fn(() => Promise.resolve());
@@ -143,8 +143,8 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
                 icon: null,
                 installedAt: 'a',
                 active: false,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         wrapper.vm.deactivateExtension = jest.fn(() => Promise.resolve());

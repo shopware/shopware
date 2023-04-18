@@ -13,8 +13,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-extension-rating-stars'), {
             stubs: {
-                'sw-icon': true
-            }
+                'sw-icon': true,
+            },
         });
     }
 

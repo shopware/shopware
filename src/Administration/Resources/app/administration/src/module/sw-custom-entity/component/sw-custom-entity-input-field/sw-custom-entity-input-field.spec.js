@@ -23,8 +23,8 @@ async function createWrapper(propsData = { type: 'string' }) {
             },
             'sw-datepicker': {
                 template: '<input/>',
-            }
-        }
+            },
+        },
     });
 }
 

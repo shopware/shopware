@@ -15,21 +15,21 @@ async function createWrapper(privileges = []) {
                             shortName: '',
                             symbol: '',
                             factor: 1,
-                            decimalPrecision: 1
+                            decimalPrecision: 1,
                         };
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': true,
@@ -45,7 +45,7 @@ async function createWrapper(privileges = []) {
             'sw-settings-price-rounding': true,
             'sw-empty-state': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -66,7 +66,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
 
     it('should be able to save the currency', async () => {
         const wrapper = await createWrapper([
-            'currencies.editor'
+            'currencies.editor',
         ]);
 
         const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');

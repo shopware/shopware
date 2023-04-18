@@ -18,14 +18,14 @@ async function createWrapper() {
             'sw-circle-icon': await Shopware.Component.build('sw-circle-icon'),
             'sw-label': await Shopware.Component.build('sw-label'),
             'sw-icon': true,
-            i18n: true
+            i18n: true,
         },
         propsData: {
-            extensionName: 'test-app'
+            extensionName: 'test-app',
         },
         provide: {
-            shopwareExtensionService
-        }
+            shopwareExtensionService,
+        },
     });
 }
 
@@ -66,8 +66,8 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', [{
             name: 'test-app',
             storeLicense: {
-                variant: 'rent'
-            }
+                variant: 'rent',
+            },
         }]);
 
         const wrapper = await createWrapper(true);
@@ -79,8 +79,8 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', [{
             name: 'test-app',
             storeLicense: {
-                variant: 'buy'
-            }
+                variant: 'buy',
+            },
         }]);
 
         const wrapper = await createWrapper();
@@ -89,12 +89,12 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
             .exists())
             .toBe(false);
         expect(wrapper.find('h3').text())
-            .toEqual(
-                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure'
+            .toBe(
+                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.titleFailure',
             );
         expect(wrapper.find('p').text())
-            .toEqual(
-                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem'
+            .toBe(
+                'sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem',
             );
     });
 
@@ -107,8 +107,8 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
             .exists()).toBe(false);
         expect(wrapper.find('h3')
-            .text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
+            .text()).toBe('sw-extension-store.component.sw-extension-adding-failed.titleFailure');
         expect(wrapper.find('p')
-            .text()).toEqual('sw-extension-store.component.sw-extension-adding-failed.textProblem');
+            .text()).toBe('sw-extension-store.component.sw-extension-adding-failed.textProblem');
     });
 });

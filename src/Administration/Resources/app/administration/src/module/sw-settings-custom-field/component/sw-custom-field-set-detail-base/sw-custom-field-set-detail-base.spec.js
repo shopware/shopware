@@ -11,10 +11,10 @@ function getFieldTypes() {
         checkbox: {
             config: {
                 componentName: 'sw-field',
-                type: 'checkbox'
+                type: 'checkbox',
             },
-            configRenderComponent: 'sw-custom-field-type-checkbox'
-        }
+            configRenderComponent: 'sw-custom-field-type-checkbox',
+        },
     };
 }
 
@@ -26,8 +26,8 @@ async function createWrapper(privileges = []) {
         localVue,
         mocks: {
             $i18n: {
-                fallbackLocale: 'en-GB'
-            }
+                fallbackLocale: 'en-GB',
+            },
         },
         provide: {
             acl: {
@@ -37,16 +37,16 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getTypes: () => getFieldTypes()
-            }
+                getTypes: () => getFieldTypes(),
+            },
         },
         propsData: {
             set: {
-                _isNew: true
-            }
+                _isNew: true,
+            },
         },
         stubs: {
             'sw-card': true,
@@ -55,8 +55,8 @@ async function createWrapper(privileges = []) {
             'sw-field': true,
             'sw-button': true,
             'sw-multi-select': true,
-            'sw-loader': true
-        }
+            'sw-loader': true,
+        },
     });
 }
 
@@ -68,7 +68,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
 
     it('can edit fields', async () => {
         const wrapper = await createWrapper([
-            'custom_field.editor'
+            'custom_field.editor',
         ]);
 
         const technicalNameField = wrapper.find('.sw-settings-custom-field-set-detail-base__technical-name');

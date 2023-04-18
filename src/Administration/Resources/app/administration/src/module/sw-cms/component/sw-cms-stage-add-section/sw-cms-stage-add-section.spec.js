@@ -11,11 +11,11 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-stage-add-section'), {
         propsData: {},
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
-            cmsService: {}
-        }
+            cmsService: {},
+        },
     });
 }
 
@@ -29,7 +29,7 @@ describe('module/sw-cms/component/sw-cms-stage-add-section', () => {
     it('set a is--disabled class to wrapper', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.classes()).toContain('is--disabled');

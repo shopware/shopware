@@ -20,7 +20,7 @@ const swProfileStateMock = {
     state() {
         return {
             searchPreferences: [],
-            userSearchPreferences: null
+            userSearchPreferences: null,
         };
     },
     mutations: {
@@ -29,8 +29,8 @@ const swProfileStateMock = {
         },
         setUserSearchPreferences(state, userSearchPreferences) {
             state.userSearchPreferences = userSearchPreferences;
-        }
-    }
+        },
+    },
 };
 
 async function createWrapper() {
@@ -57,8 +57,8 @@ async function createWrapper() {
                     },
                     search: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             userConfigService: {
                 upsert: () => {
@@ -66,7 +66,7 @@ async function createWrapper() {
                 },
                 search: () => {
                     return Promise.resolve();
-                }
+                },
             },
             searchPreferencesService: {
                 getDefaultSearchPreferences: () => {},
@@ -75,10 +75,10 @@ async function createWrapper() {
                 createUserSearchPreferences: () => {
                     return {
                         key: 'search.preferences',
-                        userId: 'userId'
+                        userId: 'userId',
                     };
-                }
-            }
+                },
+            },
         },
         attachTo: document.body,
     });
@@ -161,13 +161,13 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     fieldName: 'name',
                     _searchable: false,
                     _score: 250,
-                    group: []
-                }
-            ]
+                    group: [],
+                },
+            ],
         }]);
 
         await wrapper.find(
-            '.sw-profile-index-search-preferences-searchable-elements__button-select-all'
+            '.sw-profile-index-search-preferences-searchable-elements__button-select-all',
         ).trigger('click');
 
         expect(wrapper.vm.searchPreferences).toEqual(
@@ -178,11 +178,11 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     fields: expect.arrayContaining([
                         expect.objectContaining({
                             fieldName: 'name',
-                            _searchable: true
-                        })
-                    ])
-                })
-            ])
+                            _searchable: true,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 
@@ -198,13 +198,13 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     fieldName: 'name',
                     _searchable: true,
                     _score: 250,
-                    group: []
-                }
-            ]
+                    group: [],
+                },
+            ],
         }]);
 
         await wrapper.find(
-            '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all'
+            '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all',
         ).trigger('click');
 
         expect(wrapper.vm.searchPreferences).toEqual(
@@ -215,11 +215,11 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     fields: expect.arrayContaining([
                         expect.objectContaining({
                             fieldName: 'name',
-                            _searchable: false
-                        })
-                    ])
-                })
-            ])
+                            _searchable: false,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 
@@ -233,13 +233,13 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             fields: [
                 {
                     fieldName: 'name',
-                    _searchable: false
+                    _searchable: false,
                 },
                 {
                     fieldName: 'productNumber',
-                    _searchable: false
-                }
-            ]
+                    _searchable: false,
+                },
+            ],
         }]);
 
         wrapper.vm.searchPreferences[0]._searchable = true;
@@ -252,14 +252,14 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 fields: expect.arrayContaining([
                     expect.objectContaining({
                         fieldName: 'name',
-                        _searchable: true
+                        _searchable: true,
                     }),
                     expect.objectContaining({
                         fieldName: 'productNumber',
-                        _searchable: true
+                        _searchable: true,
                     }),
-                ])
-            })])
+                ]),
+            })]),
         );
     });
 
@@ -273,13 +273,13 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             fields: [
                 {
                     fieldName: 'name',
-                    _searchable: true
+                    _searchable: true,
                 },
                 {
                     fieldName: 'productNumber',
-                    _searchable: false
-                }
-            ]
+                    _searchable: false,
+                },
+            ],
         }]);
 
         wrapper.vm.searchPreferences[0]._searchable = true;
@@ -292,14 +292,14 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 fields: expect.arrayContaining([
                     expect.objectContaining({
                         fieldName: 'name',
-                        _searchable: true
+                        _searchable: true,
                     }),
                     expect.objectContaining({
                         fieldName: 'productNumber',
-                        _searchable: false
+                        _searchable: false,
                     }),
-                ])
-            })])
+                ]),
+            })]),
         );
     });
 
@@ -312,9 +312,9 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     documents: {
                         documentNumber: { _score: 80, _searchable: false },
                         documentInvoice: { _score: 80, _searchable: false },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ]);
 
         await flushPromises();
@@ -342,9 +342,9 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     documents: {
                         documentNumber: { _score: 80, _searchable: true },
                         documentInvoice: { _score: 80, _searchable: true },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ]);
 
         expect(wrapper.vm.defaultSearchPreferences).toEqual(expect.arrayContaining([

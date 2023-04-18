@@ -35,8 +35,8 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
-            }
+                },
+            },
         },
         propsData: {
             user: {},
@@ -54,7 +54,7 @@ async function createWrapper(privileges = []) {
                     value: 'UTC',
                 },
             ],
-        }
+        },
     });
 }
 
@@ -77,7 +77,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const spyNewPasswordChangeEmit = jest.spyOn(wrapper.vm, '$emit');
 
         await wrapper.setData({
-            computedNewPassword: 'Shopware'
+            computedNewPassword: 'Shopware',
         });
 
         expect(spyNewPasswordChangeEmit).toHaveBeenCalledWith('new-password-change', 'Shopware');
@@ -87,7 +87,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const spyNewPasswordConfirmChangeEmit = jest.spyOn(wrapper.vm, '$emit');
 
         await wrapper.setData({
-            computedNewPasswordConfirm: 'Shopware'
+            computedNewPasswordConfirm: 'Shopware',
         });
 
         expect(spyNewPasswordConfirmChangeEmit).toHaveBeenCalledWith('new-password-confirm-change', 'Shopware');

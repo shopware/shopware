@@ -9,9 +9,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -25,20 +25,20 @@ async function createWrapper(privileges = []) {
                                 shortName: 'test',
                                 symbol: 'TES',
                                 factor: 1,
-                                decimalPrecision: 1
-                            }
+                                decimalPrecision: 1,
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -47,7 +47,7 @@ async function createWrapper(privileges = []) {
         <slot name="smart-bar-actions"></slot>
         <slot name="content">CONTENT</slot>
         <slot></slot>
-    </div>`
+    </div>`,
             },
             'sw-button': true,
             'sw-icon': true,
@@ -60,16 +60,16 @@ async function createWrapper(privileges = []) {
         <slot name="actions" v-bind="{ item }"></slot>
     </template>
 </div>
-                `
+                `,
             },
             'sw-language-switch': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
             // 'sw-card': true,
             // 'sw-container': true,
             // 'sw-field': true,
             // 'sw-number-field': true,
             // 'sw-language-info': true
-        }
+        },
     });
 }
 
@@ -92,7 +92,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should be able to create a new currency', async () => {
         const wrapper = await createWrapper([
-            'currencies.creator'
+            'currencies.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -112,7 +112,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper([
-            'currencies.editor'
+            'currencies.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -131,7 +131,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should be able to delete', async () => {
         const wrapper = await createWrapper([
-            'currencies.deleter'
+            'currencies.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -149,7 +149,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper([
-            'currencies.editor'
+            'currencies.editor',
         ]);
         await wrapper.vm.$nextTick();
 

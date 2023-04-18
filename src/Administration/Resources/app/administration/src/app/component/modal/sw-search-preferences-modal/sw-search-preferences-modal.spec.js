@@ -17,7 +17,7 @@ async function createWrapper() {
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-loader': true,
             'sw-data-grid': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             searchPreferencesService: {
@@ -26,12 +26,12 @@ async function createWrapper() {
                 createUserSearchPreferences: () => {
                     return {
                         key: 'search.preferences',
-                        userId: 'userId'
+                        userId: 'userId',
                     };
-                }
+                },
             },
             searchRankingService: {
-                clearCacheUserSearchConfiguration: () => {}
+                clearCacheUserSearchConfiguration: () => {},
             },
             userConfigService: {
                 upsert: () => {
@@ -39,13 +39,13 @@ async function createWrapper() {
                 },
                 search: () => {
                     return Promise.resolve();
-                }
+                },
             },
             shortcutService: {
                 startEventListener: () => {},
-                stopEventListener: () => {}
-            }
-        }
+                stopEventListener: () => {},
+            },
+        },
     });
 }
 
@@ -99,14 +99,14 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
                 fields: [
                     {
                         fieldName: 'name',
-                        _searchable: false
+                        _searchable: false,
                     },
                     {
                         fieldName: 'productNumber',
-                        _searchable: false
-                    }
-                ]
-            }]
+                        _searchable: false,
+                    },
+                ],
+            }],
         });
 
         wrapper.vm.searchPreferences[0]._searchable = true;
@@ -119,14 +119,14 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
                 fields: expect.arrayContaining([
                     expect.objectContaining({
                         fieldName: 'name',
-                        _searchable: true
+                        _searchable: true,
                     }),
                     expect.objectContaining({
                         fieldName: 'productNumber',
-                        _searchable: true
+                        _searchable: true,
                     }),
-                ])
-            })])
+                ]),
+            })]),
         );
     });
 
@@ -138,14 +138,14 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
                 fields: [
                     {
                         fieldName: 'name',
-                        _searchable: true
+                        _searchable: true,
                     },
                     {
                         fieldName: 'productNumber',
-                        _searchable: false
-                    }
-                ]
-            }]
+                        _searchable: false,
+                    },
+                ],
+            }],
         });
 
         wrapper.vm.searchPreferences[0]._searchable = true;
@@ -158,14 +158,14 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
                 fields: expect.arrayContaining([
                     expect.objectContaining({
                         fieldName: 'name',
-                        _searchable: true
+                        _searchable: true,
                     }),
                     expect.objectContaining({
                         fieldName: 'productNumber',
-                        _searchable: false
+                        _searchable: false,
                     }),
-                ])
-            })])
+                ]),
+            })]),
         );
     });
 });

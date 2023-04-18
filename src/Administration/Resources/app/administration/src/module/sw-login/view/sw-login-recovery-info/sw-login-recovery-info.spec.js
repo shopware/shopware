@@ -10,7 +10,7 @@ import 'src/app/component/base/sw-alert';
 function hasNormalWarningAlert(wrapper) {
     const alerts = wrapper.findAll('.sw-alert');
 
-    expect(alerts.length).toBe(2);
+    expect(alerts).toHaveLength(2);
     expect(alerts.at(0).text()).toBe('["sw-login.recovery.info.info"]');
     expect(alerts.at(1).text()).toBe('["sw-login.recovery.info.warning"]');
 }
@@ -23,14 +23,14 @@ async function createWrapper(routeParams) {
     return shallowMount(await Shopware.Component.build('sw-login-recovery-info'), {
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),
-            $route: { params: routeParams }
+            $route: { params: routeParams },
         },
         stubs: {
             'router-view': true,
             'router-link': true,
             'sw-alert': await Shopware.Component.build('sw-alert'),
-            'sw-icon': true
-        }
+            'sw-icon': true,
+        },
     });
 }
 
@@ -57,14 +57,14 @@ describe('module/sw-login/recovery-info.spec.js', () => {
 
     it('should display the rate limit info', async () => {
         const wrapper = await createWrapper({
-            waitTime: 1
+            waitTime: 1,
         });
 
         expect(wrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
 
         const alerts = wrapper.findAll('.sw-alert');
 
-        expect(alerts.length).toBe(1);
+        expect(alerts).toHaveLength(1);
         expect(alerts.at(0).text()).toBe('["global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED",0,{"seconds":1}]');
     });
 });

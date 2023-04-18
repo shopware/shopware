@@ -24,15 +24,15 @@ async function createWrapper() {
                     <div class="sw-card__content">
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
         },
         provide: {
             cartStoreService: {},
             repositoryFactory: {
                 create: () => ({
-                    get: () => Promise.resolve()
-                })
+                    get: () => Promise.resolve(),
+                }),
             },
         },
     });
@@ -44,7 +44,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
         Shopware.State.registerModule('swOrder', orderStore);
         Shopware.State.commit('swOrder/setCart', {
             token: null,
-            lineItems: []
+            lineItems: [],
         });
     });
 
@@ -62,9 +62,9 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
                     key: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339',
                     level: 0,
                     message: 'Discount discount has been added',
-                    messageKey: 'promotion-discount-added'
-                }
-            }
+                    messageKey: 'promotion-discount-added',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -88,9 +88,9 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
                     key: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339',
                     level: 20,
                     message: 'Promotion with code promotion-code not found!',
-                    messageKey: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339'
-                }
-            }
+                    messageKey: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -114,9 +114,9 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
                     key: 'promotion-warning',
                     level: 10,
                     message: 'Promotion with code promotion-code warning!',
-                    messageKey: 'promotion-warning'
-                }
-            }
+                    messageKey: 'promotion-warning',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();

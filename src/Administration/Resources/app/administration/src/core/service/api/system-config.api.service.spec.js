@@ -17,7 +17,7 @@ function getApiServiceAndMockAdapter() {
 
     return {
         apiService,
-        mockAdapter
+        mockAdapter,
     };
 }
 
@@ -38,20 +38,20 @@ describe('system-config.api.service', () => {
             {
                 params: {
                     salesChannelId: null,
-                    domain: 'system-config.domain'
-                }
-            }
+                    domain: 'system-config.domain',
+                },
+            },
         )
             .reply(200, {
                 'system-config.value.text': 'some-text-value',
-                'system-config.value.bool': true
+                'system-config.value.bool': true,
             });
 
         const values = await systemConfigService.getValues('system-config.domain', null);
 
         expect(values).toEqual({
             'system-config.value.text': 'some-text-value',
-            'system-config.value.bool': true
+            'system-config.value.bool': true,
         });
     });
 
@@ -61,9 +61,9 @@ describe('system-config.api.service', () => {
             {
                 params: {
                     salesChannelId: null,
-                    domain: 'system-config.domain'
-                }
-            }
+                    domain: 'system-config.domain',
+                },
+            },
         )
             .reply(200, []);
 
@@ -87,7 +87,7 @@ describe('Test function batchSave at file src/core/service/api/system-config.api
 
     it('should successfully', async () => {
         axiosMock.onPost(
-            '_action/system-config/batch'
+            '_action/system-config/batch',
         )
             .reply(200, {});
 

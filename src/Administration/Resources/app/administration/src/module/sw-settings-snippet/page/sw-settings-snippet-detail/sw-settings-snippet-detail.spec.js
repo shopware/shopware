@@ -25,7 +25,7 @@ function getSnippetSets() {
             apiAlias: null,
             id: 'a2f95068665e4498ae98a2318a7963df',
             snippets: [],
-            salesChannelDomains: []
+            salesChannelDomains: [],
         },
         {
             name: 'BASE en-GB',
@@ -37,8 +37,8 @@ function getSnippetSets() {
             apiAlias: null,
             id: 'e54dba2ba96741868e6b6642504c6932',
             snippets: [],
-            salesChannelDomains: []
-        }
+            salesChannelDomains: [],
+        },
     ];
 
     data.total = data.length;
@@ -61,7 +61,7 @@ function getSnippets() {
                     resetTo: 'Neue Adresse hinzufügen',
                     setId: 'a2f95068665e4498ae98a2318a7963df',
                     translationKey: 'account.addressCreateBtn',
-                    value: 'Neue Adresse hinzufügen'
+                    value: 'Neue Adresse hinzufügen',
                 },
                 {
                     author: 'Shopware',
@@ -70,10 +70,10 @@ function getSnippets() {
                     resetTo: 'Add address',
                     setId: 'e54dba2ba96741868e6b6642504c6932',
                     translationKey: 'account.addressCreateBtn',
-                    value: 'Add address'
-                }
-            ]
-        }
+                    value: 'Add address',
+                },
+            ],
+        },
     };
 
     const totalAmountOfSnippets = Object.keys(data.data).length;
@@ -94,25 +94,25 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     meta: {
                         $module: {
                             color: 'blue',
-                            icon: 'icon'
-                        }
+                            icon: 'icon',
+                        },
                     },
                     query: {
                         page: 1,
                         limit: 25,
-                        ids: []
+                        ids: [],
                     },
                     params: {
-                        key: 'account.addressCreateBtn'
-                    }
-                }
+                        key: 'account.addressCreateBtn',
+                    },
+                },
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve(getSnippetSets()),
-                        create: () => Promise.resolve()
-                    })
+                        create: () => Promise.resolve(),
+                    }),
                 },
                 acl: {
                     can: (identifier) => {
@@ -121,7 +121,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         }
 
                         return privileges.includes(identifier);
-                    }
+                    },
                 },
                 userService: {},
                 snippetSetService: {
@@ -130,24 +130,24 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     },
                     getCustomList: () => {
                         return Promise.resolve(getSnippets());
-                    }
+                    },
                 },
                 snippetService: {
                     save: () => Promise.resolve(),
                     delete: () => Promise.resolve(),
-                    getFilter: () => Promise.resolve()
+                    getFilter: () => Promise.resolve(),
                 },
-                validationService: {}
+                validationService: {},
             },
             stubs: {
                 'sw-page': {
-                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>'
+                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                 },
                 'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>'
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-card-view': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-field': await Shopware.Component.build('sw-field'),
                 'sw-text-field': await Shopware.Component.build('sw-text-field'),
@@ -158,7 +158,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                 'sw-button-process': true,
                 'sw-button': true,
                 'sw-skeleton': true,
-            }
+            },
         });
     }
 
@@ -176,10 +176,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         ['disabled', 'snippet.viewer'],
         [undefined, 'snippet.viewer, snippet.editor'],
         [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
-        [undefined, 'snippet.viewer, snippet.editor, snippet.deleter']
+        [undefined, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should only have disabled inputs', async (state, role) => {
         Shopware.State.get('session').currentUser = {
-            username: 'testUser'
+            username: 'testUser',
         };
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);

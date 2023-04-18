@@ -17,7 +17,7 @@ async function createWrapper(customProps = {}, domains = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-domains'), {
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>'
+                template: '<div><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-button': true,
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
@@ -31,7 +31,7 @@ async function createWrapper(customProps = {}, domains = []) {
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
             'sw-url-field': true,
             'sw-select-base': true,
-            'sw-select-result-list': true
+            'sw-select-result-list': true,
 
         },
         provide: {
@@ -40,23 +40,23 @@ async function createWrapper(customProps = {}, domains = []) {
                     create: () => {
                         return {
                             id: '44de136acf314e7184401d36406c1e90',
-                            isNew: () => true
+                            isNew: () => true,
                         };
-                    }
-                })
+                    },
+                }),
             },
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
-            }
+                startEventListener: () => {},
+            },
 
         },
         propsData: {
             salesChannel: {
-                domains: domains
+                domains: domains,
             },
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -66,36 +66,36 @@ function getExampleDomains() {
             id: '98432def39fc4624b33213a56b8c944f',
             url: 'http://secondExample.com',
             language: {
-                name: 'Deutsch'
+                name: 'Deutsch',
             },
             currency: {
                 name: 'Danish krone',
                 translated: {
-                    name: 'Danish krone'
-                }
+                    name: 'Danish krone',
+                },
             },
             snippetSet: {
-                name: 'BASE de-DE'
+                name: 'BASE de-DE',
             },
-            isNew: () => false
+            isNew: () => false,
         },
         {
             id: '66804d24057f4d4fb683a7db3d3b3b15',
             url: 'http://firstExample.com',
             language: {
-                name: 'Deutsch'
+                name: 'Deutsch',
             },
             currency: {
                 name: 'Euro',
                 translated: {
-                    name: 'Euro'
-                }
+                    name: 'Euro',
+                },
             },
             snippetSet: {
-                name: 'BASE de-DE'
+                name: 'BASE de-DE',
             },
-            isNew: () => false
-        }
+            isNew: () => false,
+        },
     ];
 }
 
@@ -116,7 +116,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
     it('should have button disabled', async () => {
         const wrapper = await createWrapper({
-            disableEdit: true
+            disableEdit: true,
         });
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
@@ -136,7 +136,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
     it('should have context menu item disabled', async () => {
         const wrapper = await createWrapper({
-            disableEdit: true
+            disableEdit: true,
         });
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
@@ -150,7 +150,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const wrapper = await createWrapper({}, getExampleDomains());
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(rows.length).toBe(2);
+        expect(rows).toHaveLength(2);
     });
 
     it('should sort all domains', async () => {
@@ -165,7 +165,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const wrapper = await createWrapper({}, getExampleDomains());
 
         await wrapper.setData({
-            sortDirection: 'DESC'
+            sortDirection: 'DESC',
         });
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -189,7 +189,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const wrapper = await createWrapper({}, getExampleDomains());
 
         await wrapper.setData({
-            sortBy: 'currencyId'
+            sortBy: 'currencyId',
         });
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -205,16 +205,16 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             null,
             [{
                 id: 'test1',
-                name: 'language1'
-            }]
+                name: 'language1',
+            }],
         );
 
         const wrapper = await createWrapper({
             salesChannel: {
                 languages,
                 currencies: [],
-                domains: getExampleDomains()
-            }
+                domains: getExampleDomains(),
+            },
         }, getExampleDomains());
 
         wrapper.vm.onClickOpenCreateDomainModal();
@@ -232,16 +232,16 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
             null,
             [{
                 id: 'test1',
-                name: 'currency1'
-            }]
+                name: 'currency1',
+            }],
         );
 
         const wrapper = await createWrapper({
             salesChannel: {
                 languages: [],
                 currencies,
-                domains: getExampleDomains()
-            }
+                domains: getExampleDomains(),
+            },
         }, getExampleDomains());
 
         wrapper.vm.onClickOpenCreateDomainModal();
@@ -304,7 +304,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                 languages: [],
                 domains: [],
                 currencies: [],
-            }
+            },
         }, exampleDomains);
 
         wrapper.vm.isOriginalUrl = jest.fn(() => true);

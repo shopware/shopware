@@ -24,8 +24,8 @@ responses.addResponse({
     url: '/search/currency',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 responses.addResponse({
@@ -37,24 +37,24 @@ responses.addResponse({
             {
                 attributes: {
                     id: 'p.a',
-                    name: 'Product A'
+                    name: 'Product A',
                 },
                 id: 'p.a',
-                relationships: []
+                relationships: [],
             },
             {
                 attributes: {
                     id: 'p.b',
-                    name: 'Product B'
+                    name: 'Product B',
                 },
                 id: 'p.b',
-                relationships: []
-            }
+                relationships: [],
+            },
         ],
         meta: {
-            total: 2
-        }
-    }
+            total: 2,
+        },
+    },
 });
 
 async function createWrapper(condition = {}) {
@@ -86,13 +86,13 @@ async function createWrapper(condition = {}) {
             'sw-label': true,
             'sw-highlight-text': {
                 props: ['text'],
-                template: '<div class="sw-highlight-text">{{ this.text }}</div>'
+                template: '<div class="sw-highlight-text">{{ this.text }}</div>',
             },
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-product-variant-info': {
-                template: '<div class="sw-product-variant-info"><slot></slot></div>'
+                template: '<div class="sw-product-variant-info"><slot></slot></div>',
             },
         },
         provide: {
@@ -105,11 +105,11 @@ async function createWrapper(condition = {}) {
             removeNodeFromTree: () => ({}),
             createCondition: () => ({}),
             conditionScopes: [],
-            unwrapAllLineItemsCondition: () => ({})
+            unwrapAllLineItemsCondition: () => ({}),
         },
         propsData: {
-            condition
-        }
+            condition,
+        },
     });
 }
 
@@ -132,18 +132,18 @@ describe('components/rule/condition-type/sw-condition-script', () => {
                         options: [
                             {
                                 label: { 'en-GB': 'Is equal to' },
-                                value: '='
+                                value: '=',
                             },
                             {
                                 label: { 'en-GB': 'Is not equal to' },
-                                value: '!='
-                            }
+                                value: '!=',
+                            },
                         ],
                         validation: 'required',
                         componentName: 'sw-single-select',
                         customFieldType: 'select',
-                        customFieldPosition: 1
-                    }
+                        customFieldPosition: 1,
+                    },
                 }, {
                     name: 'firstName',
                     type: 'text',
@@ -152,8 +152,8 @@ describe('components/rule/condition-type/sw-condition-script', () => {
                         validation: 'required',
                         componentName: 'sw-field',
                         customFieldType: 'text',
-                        customFieldPosition: 1
-                    }
+                        customFieldPosition: 1,
+                    },
                 }, {
                     name: 'productIds',
                     type: 'entity',
@@ -162,10 +162,10 @@ describe('components/rule/condition-type/sw-condition-script', () => {
                         componentName: 'sw-entity-multi-id-select',
                         customFieldType: 'select',
                         customFieldPosition: 1,
-                        entity: 'product'
-                    }
-                }]
-            }
+                        entity: 'product',
+                    },
+                }],
+            },
         });
         await flushPromises();
 
@@ -186,14 +186,14 @@ describe('components/rule/condition-type/sw-condition-script', () => {
 
         await entryTwo.trigger('click');
 
-        expect(wrapper.vm.condition.value.operator).toEqual('!=');
-        expect(wrapper.vm.values.operator).toEqual('!=');
+        expect(wrapper.vm.condition.value.operator).toBe('!=');
+        expect(wrapper.vm.values.operator).toBe('!=');
 
         const input = wrapper.find('input[name=firstName]');
         await input.setValue('foobar');
 
-        expect(wrapper.vm.condition.value.firstName).toEqual('foobar');
-        expect(wrapper.vm.values.firstName).toEqual('foobar');
+        expect(wrapper.vm.condition.value.firstName).toBe('foobar');
+        expect(wrapper.vm.values.firstName).toBe('foobar');
 
         await wrapper.find('.sw-entity-multi-select .sw-select__selection').trigger('click');
         await flushPromises();

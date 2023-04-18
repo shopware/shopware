@@ -24,10 +24,10 @@ describe('src/core/service/api/extension-sdk.service', () => {
                 appName: 'TestApp',
                 uri: 'http://localhost:7100/app-base/index.html?location-id=sw-main-hidden&privileges=%5B%5D',
             },
-            expect.any(Object)
+            expect.any(Object),
         );
 
-        expect(result).toEqual('signed-url');
+        expect(result).toBe('signed-url');
     });
 
     it('should call the sign-uri route only once when it was already called', async () => {
@@ -44,11 +44,11 @@ describe('src/core/service/api/extension-sdk.service', () => {
         const firstResult = await extensionSdkService.signIframeSrc('TestApp', 'http://localhost:7100/app-base/index.html?location-id=sw-main-hidden&privileges=%5B%5D');
 
         expect(httpClientMock.post).toHaveBeenCalledTimes(1);
-        expect(firstResult).toEqual('signed-url');
+        expect(firstResult).toBe('signed-url');
 
         const secondResult = await extensionSdkService.signIframeSrc('TestApp', 'http://localhost:7100/app-base/index.html?location-id=sw-main-hidden&privileges=%5B%5D');
 
         expect(httpClientMock.post).toHaveBeenCalledTimes(1);
-        expect(secondResult).toEqual('signed-url');
+        expect(secondResult).toBe('signed-url');
     });
 });

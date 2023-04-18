@@ -21,19 +21,19 @@ async function createWrapper(userConfig = {}) {
             'sw-modal': {
                 props: ['title'],
                 // eslint-disable-next-line max-len
-                template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>'
+                template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
             },
             'sw-loader': true,
         },
         provide: {
             extensionStoreActionService: {
-                upload: uploadSpy
+                upload: uploadSpy,
             },
             repositoryFactory: {
                 create: () => {
                     return {};
-                }
-            }
+                },
+            },
         },
         computed: {
             userConfigRepository: () => ({
@@ -43,9 +43,9 @@ async function createWrapper(userConfig = {}) {
                 create() {
                     return Promise.resolve({});
                 },
-                save: userConfigSaveSpy
-            })
-        }
+                save: userConfigSaveSpy,
+            }),
+        },
     });
 }
 
@@ -59,7 +59,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     beforeAll(() => {
         Shopware.Service().register('shopwareExtensionService', () => {
             return {
-                updateExtensionData: updateExtensionDataSpy
+                updateExtensionData: updateExtensionDataSpy,
             };
         });
     });
@@ -114,8 +114,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
             key: 'extension.plugin_upload',
             userId: 'abc',
             value: {
-                hide_upload_warning: true
-            }
+                hide_upload_warning: true,
+            },
         };
 
         // fileInput has not been clicked before
@@ -141,8 +141,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
             key: 'extension.plugin_upload',
             userId: 'abc',
             value: {
-                hide_upload_warning: false
-            }
+                hide_upload_warning: false,
+            },
         };
 
         // click on upload
@@ -162,8 +162,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
             key: 'extension.plugin_upload',
             userId: 'abc',
             value: {
-                hide_upload_warning: true
-            }
+                hide_upload_warning: true,
+            },
         });
     });
 
@@ -173,7 +173,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const mockFile = createFile();
 
         Object.defineProperty(fileInput.element, 'files', {
-            value: [mockFile]
+            value: [mockFile],
         });
 
         // trigger file change
@@ -191,7 +191,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
     it('should throw an error if the upload goes wrong', async () => {
         // no growl message was thrown
-        expect(Object.keys(Shopware.State.get('notification').growlNotifications).length).toBe(0);
+        expect(Object.keys(Shopware.State.get('notification').growlNotifications)).toHaveLength(0);
 
         // return an error from the upload
         // eslint-disable-next-line prefer-promise-reject-errors
@@ -199,16 +199,16 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
             response: {
                 data: {
                     errors: [
-                        'Wrong file format'
-                    ]
-                }
-            }
+                        'Wrong file format',
+                    ],
+                },
+            },
         }));
 
         // upload a wrong file
         const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
         Object.defineProperty(fileInput.element, 'files', {
-            value: ['wrongFile']
+            value: ['wrongFile'],
         });
 
         // trigger file change
@@ -218,20 +218,20 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         await wrapper.vm.$nextTick();
         const growlNotifications = Shopware.State.get('notification').growlNotifications;
 
-        expect(Object.keys(growlNotifications).length).toBe(1);
+        expect(Object.keys(growlNotifications)).toHaveLength(1);
         Object.keys(growlNotifications).forEach(key => {
             expect(growlNotifications[key]).toHaveProperty('message');
-            expect(growlNotifications[key].message).toEqual('sw-extension.errors.messageGenericFailure');
+            expect(growlNotifications[key].message).toBe('sw-extension.errors.messageGenericFailure');
             expect(growlNotifications[key]).toHaveProperty('title');
-            expect(growlNotifications[key].title).toEqual('global.default.error');
+            expect(growlNotifications[key].title).toBe('global.default.error');
             expect(growlNotifications[key]).toHaveProperty('variant');
-            expect(growlNotifications[key].variant).toEqual('error');
+            expect(growlNotifications[key].variant).toBe('error');
         });
     });
 });
 
 function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/zip') {
     return new File([new ArrayBuffer(size)], name, {
-        type: type
+        type: type,
     });
 }

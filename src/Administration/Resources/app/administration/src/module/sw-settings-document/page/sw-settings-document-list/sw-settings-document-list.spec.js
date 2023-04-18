@@ -26,24 +26,24 @@ async function createWrapper(privileges = []) {
                         documentType: {
                             name: 'Cancellation invoice',
                             technicalName: 'storno',
-                            translated: { name: 'Cancellation invoice', customFields: [] }
+                            translated: { name: 'Cancellation invoice', customFields: [] },
                         },
                         salesChannels: [{
                             documentBaseConfigId: 'e15ed1f5155945e1ace36d8837e2b36f',
-                            documentTypeId: '9bdea3067c7044a4a3011f8424e65dc5'
-                        }]
-                    }]
+                            documentTypeId: '9bdea3067c7044a4a3011f8424e65dc5',
+                        }],
+                    }],
             };
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
             },
             'sw-card-view': {
-                template: '<div><slot/></div> '
+                template: '<div><slot/></div> ',
             },
             'sw-card': {
-                template: '<div><slot/><slot name="grid"/></div>'
+                template: '<div><slot/><slot name="grid"/></div>',
             },
             'sw-grid': await Shopware.Component.build('sw-grid'),
             'sw-grid-row': true,
@@ -58,21 +58,21 @@ async function createWrapper(privileges = []) {
             'sw-pagination': true,
             'sw-icon ': true,
             'sw-search-bar': true,
-            'router-link': true
+            'router-link': true,
         },
         provide: {
             stateStyleDataProviderService: {},
             acl: {
-                can: key => (key ? privileges.includes(key) : true)
+                can: key => (key ? privileges.includes(key) : true),
             },
             repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve([]) })
+                create: () => ({ search: () => Promise.resolve([]) }),
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
-            $route: { query: '' }
-        }
+            $route: { query: '' },
+        },
     });
 }
 
@@ -96,13 +96,13 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper([
-            'document.editor'
+            'document.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const editButton = wrapper.find('.sw-document-list__edit-action');
         expect(editButton.exists()).toBeTruthy();
-        expect(editButton.props().disabled).toEqual(false);
+        expect(editButton.props().disabled).toBe(false);
     });
 
     it('should not be able to edit', async () => {
@@ -111,19 +111,19 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
 
         const editButton = wrapper.find('.sw-document-list__edit-action');
         expect(editButton.exists()).toBeTruthy();
-        expect(editButton.props().disabled).toEqual(true);
+        expect(editButton.props().disabled).toBe(true);
     });
 
 
     it('should be able to delete', async () => {
         const wrapper = await createWrapper([
-            'document.deleter'
+            'document.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
         const deleteButton = wrapper.find('.sw-document-list__delete-action');
         expect(deleteButton.exists()).toBeTruthy();
-        expect(deleteButton.props().disabled).toEqual(false);
+        expect(deleteButton.props().disabled).toBe(false);
     });
 
     it('should not be able to delete', async () => {
@@ -132,6 +132,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
 
         const deleteButton = wrapper.find('.sw-document-list__delete-action');
         expect(deleteButton.exists()).toBeTruthy();
-        expect(deleteButton.props().disabled).toEqual(true);
+        expect(deleteButton.props().disabled).toBe(true);
     });
 });

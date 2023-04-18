@@ -22,7 +22,7 @@ const itemMock = (options = {}) => {
         documentBaseConfigs: [],
         paymentMethods: [],
         shippingMethods: [],
-        ...options
+        ...options,
     };
 };
 
@@ -32,25 +32,25 @@ async function createWrapper(mediaServiceFunctions = {}) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             mediaService: {
                 renameMedia: () => Promise.resolve(),
                 ...mediaServiceFunctions,
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': {
@@ -59,7 +59,7 @@ async function createWrapper(mediaServiceFunctions = {}) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-alert': true,
             'sw-icon': true,
@@ -67,17 +67,17 @@ async function createWrapper(mediaServiceFunctions = {}) {
                 template: `
                     <div class="sw-media-quickinfo">
                         <slot name="content"></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-media-quickinfo-metadata-item': true,
             'sw-media-preview-v2': true,
             'sw-media-tag': true,
-            'sw-custom-field-set-renderer': true
+            'sw-custom-field-set-renderer': true,
         },
         propsData: {
             item: itemMock(),
-            editable: true
-        }
+            editable: true,
+        },
     });
 }
 
@@ -150,12 +150,12 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                             data: {
                                 errors: [
                                     error,
-                                ]
-                            }
-                        }
-                    }
+                                ],
+                            },
+                        },
+                    },
                 ),
-            }
+            },
         );
         await wrapper.vm.$nextTick();
 

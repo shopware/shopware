@@ -11,9 +11,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -24,7 +24,7 @@ async function createWrapper(privileges = []) {
                             entity: 'customer',
                             customerId: 'd4c3b2a1',
                             productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1'
+                            salesChannelId: 'd4c3b2a1',
                         }] : []);
                     },
                     search: () => {
@@ -37,8 +37,8 @@ async function createWrapper(privileges = []) {
                             sourceEntitiy: 'customer',
                             createdById: '123213132',
                         }] : []);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -47,19 +47,19 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             filterFactory: {},
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -68,7 +68,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-icon': true,
@@ -80,18 +80,18 @@ async function createWrapper(privileges = []) {
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-language-switch': true,
             'sw-empty-state': true,
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 }
 
 Shopware.Service().register('filterService', () => {
     return {
-        mergeWithStoredFilters: (storeKey, criteria) => criteria
+        mergeWithStoredFilters: (storeKey, criteria) => criteria,
     };
 });
 
@@ -114,7 +114,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should be able to create a new customer', async () => {
         const wrapper = await createWrapper([
-            'customer.creator'
+            'customer.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -136,7 +136,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper([
-            'customer.editor'
+            'customer.editor',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -157,7 +157,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should be able to delete', async () => {
         const wrapper = await createWrapper([
-            'customer.deleter'
+            'customer.deleter',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -177,7 +177,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper([
-            'customer.editor'
+            'customer.editor',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -189,7 +189,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -232,7 +232,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -256,7 +256,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -270,7 +270,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

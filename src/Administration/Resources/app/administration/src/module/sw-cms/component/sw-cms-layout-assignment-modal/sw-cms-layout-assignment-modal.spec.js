@@ -15,36 +15,36 @@ const mockCategories = [
     {
         name: 'Computers',
         id: 'uuid1',
-        cmsPageId: null
+        cmsPageId: null,
     },
     {
         name: 'Home',
         id: 'uuid2',
-        cmsPageId: null
+        cmsPageId: null,
     },
     {
         name: 'Garden',
         id: 'uuid3',
-        cmsPageId: null
-    }
+        cmsPageId: null,
+    },
 ];
 
 const mockProducts = [
     {
         name: 'Product 1',
         id: 'uuid1',
-        cmsPageId: null
+        cmsPageId: null,
     },
     {
         name: 'Product 2',
         id: 'uuid2',
-        cmsPageId: null
+        cmsPageId: null,
     },
     {
         name: 'Product 3',
         id: 'uuid3',
-        cmsPageId: null
-    }
+        cmsPageId: null,
+    },
 ];
 
 const mockLandingPages = [
@@ -52,20 +52,20 @@ const mockLandingPages = [
         name: 'Landing Page 1',
         url: 'landingpage1',
         id: 'uuidLand1',
-        cmsPageId: null
+        cmsPageId: null,
     },
     {
         name: 'Landing Page 2',
         url: 'landingpage2',
         id: 'uuidLand2',
-        cmsPageId: null
+        cmsPageId: null,
     },
     {
         name: 'Landing Page 3',
         url: 'landingpage3',
         id: 'uuidLand3',
-        cmsPageId: null
-    }
+        cmsPageId: null,
+    },
 ];
 
 async function createWrapper(layoutType = 'product_list') {
@@ -76,14 +76,14 @@ async function createWrapper(layoutType = 'product_list') {
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), mockProducts),
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), mockLandingPages),
                 type: layoutType,
-                id: 'uuid007'
-            }
+                id: 'uuid007',
+            },
         },
         stubs: {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
             'sw-button': {
-                template: '<div class="sw-button" @click="$emit(\'click\')"></div>'
+                template: '<div class="sw-button" @click="$emit(\'click\')"></div>',
             },
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-category-tree-field': true,
@@ -95,7 +95,7 @@ async function createWrapper(layoutType = 'product_list') {
                            value="value"
                            @change="$emit(\'change\', $event.target.value)"
                            class="sw-entity-single-select" />
-                      `
+                      `,
             },
             'sw-multi-select': true,
             'sw-entity-multi-select': true,
@@ -112,7 +112,7 @@ async function createWrapper(layoutType = 'product_list') {
                             'core.basicInformation.contactPage': 'uuid007',
                             'core.basicInformation.imprintPage': 'uuid2',
                             'core.basicInformation.revocationPage': 'uuid3',
-                            'core.basicInformation.newsletterPage': 'uuid007'
+                            'core.basicInformation.newsletterPage': 'uuid007',
                         });
                     }
 
@@ -120,7 +120,7 @@ async function createWrapper(layoutType = 'product_list') {
                         return Promise.resolve({
                             'core.basicInformation.contactPage': 'uuid007',
                             'core.basicInformation.imprintPage': 'uuid2',
-                            'core.basicInformation.revocationPage': 'uuid3'
+                            'core.basicInformation.revocationPage': 'uuid3',
                         });
                     }
 
@@ -128,20 +128,20 @@ async function createWrapper(layoutType = 'product_list') {
                         return Promise.resolve({
                             'core.basicInformation.contactPage': 'uuid1',
                             'core.basicInformation.imprintPage': 'uuid2',
-                            'core.basicInformation.revocationPage': 'uuid3'
+                            'core.basicInformation.revocationPage': 'uuid3',
                         });
                     }
 
                     return Promise.resolve({});
                 }),
                 saveValues: jest.fn(() => Promise.resolve()),
-                batchSave: jest.fn(() => Promise.resolve())
+                batchSave: jest.fn(() => Promise.resolve()),
             },
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
+                startEventListener: () => {},
             },
-        }
+        },
     });
 }
 
@@ -203,10 +203,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                     ...mockCategories,
                     {
                         name: 'New category',
-                        id: 'uuid4'
-                    }
-                ])
-            }
+                        id: 'uuid4',
+                    },
+                ]),
+            },
         });
 
         // Confirm changes
@@ -218,8 +218,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.page.categories).toEqual(expect.arrayContaining([
             {
                 name: 'New category',
-                id: 'uuid4'
-            }
+                id: 'uuid4',
+            },
         ]));
         expect(wrapper.emitted('modal-close')).toEqual([[true]]);
     });
@@ -234,15 +234,15 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                     {
                         name: 'New category',
                         id: 'uuid4',
-                        cmsPageId: 'totallyDifferentId'
+                        cmsPageId: 'totallyDifferentId',
                     },
                     {
                         name: 'Also very new category',
                         id: 'uuid4',
-                        cmsPageId: null
-                    }
-                ])
-            }
+                        cmsPageId: null,
+                    },
+                ]),
+            },
         });
 
         // Confirm changes
@@ -267,13 +267,13 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             {
                 name: 'New category',
                 id: 'uuid4',
-                cmsPageId: 'totallyDifferentId'
+                cmsPageId: 'totallyDifferentId',
             },
             {
                 name: 'Also very new category',
                 id: 'uuid4',
-                cmsPageId: null
-            }
+                cmsPageId: null,
+            },
         ]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
@@ -286,14 +286,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Home',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -323,14 +323,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Home',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -361,14 +361,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Home',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         // Confirm
@@ -388,14 +388,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.page.categories).toEqual(expect.arrayContaining([
             {
                 name: 'Computers',
-                id: 'uuid1'
+                id: 'uuid1',
             },
             {
                 name: 'Home',
-                id: 'uuid2'
-            }
+                id: 'uuid2',
+            },
         ]));
-        expect(wrapper.emitted('modal-close')).toBe(undefined);
+        expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 
     it('should add shop pages', async () => {
@@ -411,9 +411,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 null: [
                     'core.basicInformation.contactPage',
                     'core.basicInformation.newsletterPage',
-                    'core.basicInformation.imprintPage' // New shop page
-                ]
-            }
+                    'core.basicInformation.imprintPage', // New shop page
+                ],
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -430,9 +430,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 null: {
                     'core.basicInformation.contactPage': 'uuid007',
                     'core.basicInformation.newsletterPage': 'uuid007',
-                    'core.basicInformation.imprintPage': 'uuid007' // New shop page should be in api request
-                }
-            }
+                    'core.basicInformation.imprintPage': 'uuid007', // New shop page should be in api request
+                },
+            },
         );
 
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
@@ -449,9 +449,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.setData({
             selectedShopPages: {
                 null: [
-                    'core.basicInformation.contactPage'
-                ]
-            }
+                    'core.basicInformation.contactPage',
+                ],
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -477,9 +477,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             {
                 null: {
                     'core.basicInformation.contactPage': 'uuid007',
-                    'core.basicInformation.newsletterPage': null // Set removed item to null
-                }
-            }
+                    'core.basicInformation.newsletterPage': null, // Set removed item to null
+                },
+            },
         );
 
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
@@ -496,9 +496,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.setData({
             selectedShopPages: {
                 null: [
-                    'core.basicInformation.contactPage'
-                ]
-            }
+                    'core.basicInformation.contactPage',
+                ],
+            },
         });
 
         // Confirm changes
@@ -524,8 +524,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.selectedShopPages).toEqual({
             null: [
                 'core.basicInformation.contactPage',
-                'core.basicInformation.newsletterPage'
-            ]
+                'core.basicInformation.newsletterPage',
+            ],
         });
 
         expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledTimes(0);
@@ -544,7 +544,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         expect(wrapper.vm.selectedShopPages.null).toEqual([
             'core.basicInformation.contactPage',
-            'core.basicInformation.newsletterPage'
+            'core.basicInformation.newsletterPage',
         ]);
     });
 
@@ -561,7 +561,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Set new sales channel id
         await wrapper.setData({
-            shopPageSalesChannelId: 'storefront_id'
+            shopPageSalesChannelId: 'storefront_id',
         });
 
         // Trigger sales channel select change
@@ -571,7 +571,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.selectedShopPages.storefront_id).toEqual([
-            'core.basicInformation.contactPage'
+            'core.basicInformation.contactPage',
         ]);
     });
 
@@ -588,7 +588,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Set new sales channel id
         await wrapper.setData({
-            shopPageSalesChannelId: 'headless_id'
+            shopPageSalesChannelId: 'headless_id',
         });
 
         // Trigger sales channel select change
@@ -598,7 +598,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.vm.$nextTick();
 
         // Value should be null for inheritance switch
-        expect(wrapper.vm.selectedShopPages.headless_id).toEqual(null);
+        expect(wrapper.vm.selectedShopPages.headless_id).toBeNull();
     });
 
     it('should load system config when changing sales channel', async () => {
@@ -622,47 +622,47 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should contain all available shop pages', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.shopPages.length).toBe(9);
+        expect(wrapper.vm.shopPages).toHaveLength(9);
 
         expect(wrapper.vm.shopPages).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
                     value: 'core.basicInformation.privacyPage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.maintenancePage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.shippingPaymentInfoPage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.imprintPage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.tosPage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.404Page',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.newsletterPage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.revocationPage',
-                    label: expect.any(String)
+                    label: expect.any(String),
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.contactPage',
-                    label: expect.any(String)
-                })
-            ])
+                    label: expect.any(String),
+                }),
+            ]),
         );
     });
 
@@ -704,10 +704,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                     ...mockProducts,
                     {
                         name: 'New product',
-                        id: 'uuid4'
-                    }
-                ])
-            }
+                        id: 'uuid4',
+                    },
+                ]),
+            },
         });
 
         // Confirm changes
@@ -719,8 +719,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.page.products).toEqual(expect.arrayContaining([
             {
                 name: 'New product',
-                id: 'uuid4'
-            }
+                id: 'uuid4',
+            },
         ]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
@@ -735,15 +735,15 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                     {
                         name: 'New product',
                         id: 'uuid4',
-                        cmsPageId: 'differentId'
+                        cmsPageId: 'differentId',
                     },
                     {
                         name: 'Also new product',
                         id: 'uuid5',
-                        cmsPageId: null
-                    }
-                ])
-            }
+                        cmsPageId: null,
+                    },
+                ]),
+            },
         });
 
         // Confirm changes
@@ -768,13 +768,13 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             {
                 name: 'New product',
                 id: 'uuid4',
-                cmsPageId: 'differentId'
+                cmsPageId: 'differentId',
             },
             {
                 name: 'Also new product',
                 id: 'uuid5',
-                cmsPageId: null
-            }
+                cmsPageId: null,
+            },
         ]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
@@ -787,14 +787,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Product 1',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -824,14 +824,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Product 1',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -859,14 +859,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Product 1',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         // Confirm
@@ -886,14 +886,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.page.products).toEqual(expect.arrayContaining([
             {
                 name: 'Product 1',
-                id: 'uuid1'
+                id: 'uuid1',
             },
             {
                 name: 'Product 1',
-                id: 'uuid2'
-            }
+                id: 'uuid2',
+            },
         ]));
-        expect(wrapper.emitted('modal-close')).toEqual(undefined);
+        expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 
     it('should render tabs when type is landing pages', async () => {
@@ -916,16 +916,16 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper();
         const newPage = {
             name: 'New Landing Page',
-            id: 'uuidLand4'
+            id: 'uuidLand4',
         };
 
         await wrapper.setData({
             page: {
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockLandingPages,
-                    newPage
-                ])
-            }
+                    newPage,
+                ]),
+            },
         });
 
         // Confirm changes
@@ -935,7 +935,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.vm.$nextTick(); // Wait for main modal
 
         expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
-            newPage
+            newPage,
         ]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
@@ -946,13 +946,13 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const newPage1 = {
             name: 'New Landing Page',
             id: 'uuidLand4',
-            cmsPageId: 'totallyDifferentId'
+            cmsPageId: 'totallyDifferentId',
         };
 
         const newPage2 = {
             name: 'New Landing Page',
             id: 'uuidLand4',
-            cmsPageId: 'totallyDifferentId'
+            cmsPageId: 'totallyDifferentId',
         };
 
         await wrapper.setData({
@@ -960,9 +960,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockLandingPages,
                     newPage1,
-                    newPage2
-                ])
-            }
+                    newPage2,
+                ]),
+            },
         });
 
         // Confirm changes
@@ -984,7 +984,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
             newPage1,
-            newPage2
+            newPage2,
         ]));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
@@ -997,14 +997,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Home',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -1034,14 +1034,14 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
-                        id: 'uuid1'
+                        id: 'uuid1',
                     },
                     {
                         name: 'Home',
-                        id: 'uuid2'
-                    }
-                ])
-            }
+                        id: 'uuid2',
+                    },
+                ]),
+            },
         });
 
         await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
@@ -1068,20 +1068,20 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper();
         const page1 = {
             name: 'Computers',
-            id: 'uuid1'
+            id: 'uuid1',
         };
         const page2 = {
             name: 'Home',
-            id: 'uuid2'
+            id: 'uuid2',
         };
 
         await wrapper.setData({
             page: {
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     page1,
-                    page2
-                ])
-            }
+                    page2,
+                ]),
+            },
         });
 
         // Confirm
@@ -1101,8 +1101,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         // Verify landing pages are still the same modified landing pages
         expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
             page1,
-            page2
+            page2,
         ]));
-        expect(wrapper.emitted('modal-close')).toEqual(undefined);
+        expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 });

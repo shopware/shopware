@@ -5,58 +5,58 @@ import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 const orderMock = {
     orderCustomer: {
-        email: 'test@example.com'
+        email: 'test@example.com',
     },
     shippingCosts: {
         calculatedTaxes: [],
-        totalPrice: 0
+        totalPrice: 0,
     },
     currency: {
         translated: {
-            shortName: 'EUR'
-        }
+            shortName: 'EUR',
+        },
     },
     transactions: [
         {
             stateMachineState: {
                 translated: {
-                    name: ''
-                }
-            }
-        }
+                    name: '',
+                },
+            },
+        },
     ],
     deliveries: [
         {
             stateMachineState: {
                 translated: {
-                    name: 'Open'
-                }
+                    name: 'Open',
+                },
             },
             shippingCosts: {
                 calculatedTaxes: [],
-                totalPrice: 0
+                totalPrice: 0,
             },
             shippingOrderAddress: {
-                id: 'address1'
+                id: 'address1',
             },
-        }
+        },
     ],
     stateMachineState: {
         translated: {
-            name: 'Open'
-        }
+            name: 'Open',
+        },
     },
     price: {
         calculatedTaxes: [],
-        taxStatus: 'gross'
+        taxStatus: 'gross',
     },
     totalRounding: {
         interval: 0.01,
-        decimals: 2
+        decimals: 2,
     },
     itemRounding: {
         interval: 0.01,
-        decimals: 2
+        decimals: 2,
     },
     lineItems: [],
     billingAddressId: 'address1',
@@ -79,9 +79,9 @@ async function createWrapper(privileges = []) {
     orderMock.transactions.last = () => ({
         stateMachineState: {
             translated: {
-                name: ''
-            }
-        }
+                name: '',
+            },
+        },
     });
 
     orderMock.addresses.get = () => ({});
@@ -105,20 +105,20 @@ async function createWrapper(privileges = []) {
             'sw-order-details-state-card': {
                 template: `
                     <div class="sw-order-details-state-card"><slot></slot></div>
-                `
+                `,
             },
             'sw-order-address-selection': true,
             'sw-entity-single-select': true,
             'sw-number-field': {
                 template: '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
                 props: {
-                    value: 0
-                }
+                    value: 0,
+                },
             },
             'sw-datepicker': true,
             'sw-multi-tag-select': true,
             'sw-textarea-field': true,
-            'sw-order-promotion-field': true
+            'sw-order-promotion-field': true,
         },
         provide: {
             acl: {
@@ -126,19 +126,19 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([]),
-                })
-            }
+                }),
+            },
 
         },
         propsData: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false
-        }
+            isSaveSuccessful: false,
+        },
     });
 }
 
@@ -243,8 +243,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         await shippingCostField.setValue(20);
         await shippingCostField.trigger('input');
 
-        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toEqual(20);
-        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toEqual(20);
+        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
+        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 });

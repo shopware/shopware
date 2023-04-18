@@ -19,8 +19,8 @@ async function createWrapper(
         'snippet.viewer',
         'store.viewer',
         'listing.viewer',
-        'shipping.viewer'
-    ]
+        'shipping.viewer',
+    ],
 ) {
     const settingsItemsMock = [
         {
@@ -30,7 +30,7 @@ async function createWrapper(
             id: 'sw-settings-store',
             name: 'settings-store',
             label: 'c',
-            privilege: 'store.viewer'
+            privilege: 'store.viewer',
         },
         {
             group: 'system',
@@ -39,7 +39,7 @@ async function createWrapper(
             id: 'sw-settings-user',
             name: 'settings-user',
             label: 'a',
-            privilege: 'user.viewer'
+            privilege: 'user.viewer',
         },
         {
             group: 'system',
@@ -48,7 +48,7 @@ async function createWrapper(
             id: 'sw-settings-foo',
             name: 'settings-foo',
             label: 'b',
-            privilege: 'foo.viewer'
+            privilege: 'foo.viewer',
         },
         {
             group: 'shop',
@@ -57,7 +57,7 @@ async function createWrapper(
             id: 'sw-settings-snippet',
             name: 'settings-snippet',
             label: 'h',
-            privilege: 'snippet.viewer'
+            privilege: 'snippet.viewer',
         },
         {
             group: 'shop',
@@ -66,7 +66,7 @@ async function createWrapper(
             id: 'sw-settings-listing',
             name: 'settings-listing',
             label: 's',
-            privilege: 'listing.viewer'
+            privilege: 'listing.viewer',
         },
         {
             group: 'shop',
@@ -75,7 +75,7 @@ async function createWrapper(
             id: 'sw-settings-shipping',
             name: 'settings-shipping',
             label: 'a',
-            privilege: 'shipping.viewer'
+            privilege: 'shipping.viewer',
         },
         {
             group: 'plugins',
@@ -83,7 +83,7 @@ async function createWrapper(
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: Shopware.Utils.createId(),
-                }
+                },
             },
             icon: 'default-object-books',
             id: 'sw-extension-books',
@@ -99,7 +99,7 @@ async function createWrapper(
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: Shopware.Utils.createId(),
-                }
+                },
             },
             icon: 'default-object-books',
             id: 'sw-extension-briefcase',
@@ -122,26 +122,26 @@ async function createWrapper(
                     return `${path}`;
                 }
                 return path;
-            }
+            },
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot></div>'
+                template: '<div><slot name="content"></slot></div>',
             },
             'sw-card-view': {
-                template: '<div class="sw-card-view"><slot></slot></div>'
+                template: '<div class="sw-card-view"><slot></slot></div>',
             },
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-settings-item': await Shopware.Component.build('sw-settings-item'),
             'router-link': {
-                template: '<a><slot></slot></a>'
+                template: '<a><slot></slot></a>',
             },
             'sw-icon': {
-                template: '<span></span>'
+                template: '<span></span>',
             },
             'sw-extension-component-section': true,
         },
@@ -151,8 +151,8 @@ async function createWrapper(
                     if (!key) return true;
 
                     return privileges.includes(key);
-                }
-            }
+                },
+            },
         },
     });
 }
@@ -186,7 +186,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                     );
                 }
 
-                expect(elementsSorted).toEqual(true);
+                expect(elementsSorted).toBe(true);
             });
         });
     });
@@ -205,7 +205,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
             // check, that all settings items were rendered
-            expect(settingsItemsWrappers.length).toEqual(settingsItems.length);
+            expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
 
             // check, that settings items were rendered in alphabetical order
             settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
@@ -221,7 +221,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             icon: 'bar',
             id: 'sw-settings-bar',
             name: 'settings-bar',
-            label: 'b'
+            label: 'b',
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
@@ -233,7 +233,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
             const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
-            expect(settingsItemsWrappers.length).toEqual(settingsItems.length);
+            expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
 
             settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
                 expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
@@ -248,7 +248,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             icon: 'bar',
             id: 'sw-settings-bar',
             name: 'settings-bar',
-            label: 'b'
+            label: 'b',
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
@@ -269,7 +269,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             icon: 'bar',
             id: 'sw-settings-bar',
             name: 'settings-bar',
-            label: 'b'
+            label: 'b',
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
@@ -290,7 +290,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             icon: 'bar',
             id: 'sw-settings-bar',
             name: 'settings-bar',
-            label: 'b'
+            label: 'b',
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
@@ -311,7 +311,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             id: 'settings-background-disabled',
             name: 'settings-background-disabled',
             label: 'b',
-            backgroundEnabled: false
+            backgroundEnabled: false,
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
@@ -346,7 +346,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             icon: 'bar',
             id: 'sw-settings-bar',
             name: 'settings-bar',
-            label: 'b'
+            label: 'b',
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
@@ -368,7 +368,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             icon: 'bar',
             id: 'sw-settings-bar',
             name: 'settings-bar',
-            label: 'b'
+            label: 'b',
         };
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);

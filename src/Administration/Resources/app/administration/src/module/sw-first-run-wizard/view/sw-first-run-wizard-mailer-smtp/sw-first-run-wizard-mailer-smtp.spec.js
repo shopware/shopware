@@ -14,11 +14,11 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
         return shallowMount(await Shopware.Component.build('sw-first-run-wizard-mailer-smtp'), {
             stubs: {
                 'sw-settings-mailer-smtp': {
-                    template: '<div />'
+                    template: '<div />',
                 },
                 'sw-loader': {
-                    template: '<div />'
-                }
+                    template: '<div />',
+                },
             },
             provide: {
                 systemConfigApiService: {
@@ -32,11 +32,11 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
                         'core.mailerSettings.authenticationMethod': 'null',
                         'core.mailerSettings.senderAddress': null,
                         'core.mailerSettings.deliveryAddress': null,
-                        'core.mailerSettings.disableDelivery': false
+                        'core.mailerSettings.disableDelivery': false,
                     }),
-                    saveValues: () => Promise.resolve()
-                }
-            }
+                    saveValues: () => Promise.resolve(),
+                },
+            },
         });
     };
 
@@ -84,7 +84,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
             'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true
+            'core.mailerSettings.disableDelivery': true,
         };
 
         frwMailerSmtp.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
@@ -107,7 +107,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
             'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true
+            'core.mailerSettings.disableDelivery': true,
         };
 
         frwMailerSmtp.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);

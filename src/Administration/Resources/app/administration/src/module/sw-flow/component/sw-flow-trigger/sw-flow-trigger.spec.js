@@ -22,7 +22,7 @@ function getSequencesCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -36,33 +36,33 @@ const sequenceFixture = {
     trueCase: false,
     config: {
         entity: 'Customer',
-        tagIds: ['123']
-    }
+        tagIds: ['123'],
+    },
 };
 
 const sequencesFixture = [
     {
         ...sequenceFixture,
-        actionName: ACTION.ADD_TAG
-    }
+        actionName: ACTION.ADD_TAG,
+    },
 ];
 
 const mockBusinessEvents = [
     {
         name: 'checkout.customer.before.login',
         mailAware: true,
-        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware']
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
     },
     {
         name: 'checkout.customer.changed-payment-method',
         mailAware: false,
-        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware']
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
     },
     {
         name: 'checkout.customer.deleted',
         mailAware: true,
-        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware']
-    }
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
 ];
 
 const mockTranslations = {
@@ -73,7 +73,7 @@ const mockTranslations = {
     'sw-flow.triggers.customer': 'Customer',
     'sw-flow.triggers.login': 'Login',
     'sw-flow.triggers.changedPaymentMethod': 'Changed payment method',
-    'sw-flow.triggers.deleted': 'Deleted'
+    'sw-flow.triggers.deleted': 'Deleted',
 };
 
 const div = document.createElement('div');
@@ -101,33 +101,33 @@ async function createWrapper(propsData) {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-container': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-tree': await Shopware.Component.build('sw-tree'),
             'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
             'sw-loader': true,
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-highlight-text': true,
             'sw-flow-event-change-confirm-modal': {
-                template: '<div class="sw-flow-event-change-confirm-modal"></div>'
-            }
+                template: '<div class="sw-flow-event-change-confirm-modal"></div>',
+            },
         },
         provide: {
             businessEventService: {
                 getBusinessEvents: jest.fn(() => {
                     return Promise.resolve(mockBusinessEvents);
-                })
+                }),
             },
             repositoryFactory: {},
         },
         propsData: {
             eventName: '',
-            ...propsData
+            ...propsData,
         },
-        attachTo: document.body
+        attachTo: document.body,
     });
 }
 
@@ -135,7 +135,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     beforeAll(() => {
         Shopware.Service().register('ruleConditionDataProviderService', () => {
             return {
-                getRestrictedRules: () => Promise.resolve([])
+                getRestrictedRules: () => Promise.resolve([]),
             };
         });
 
@@ -157,11 +157,11 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
     it('should show event name with correct format', async () => {
         const wrapper = await createWrapper({
-            eventName: 'mail.before.send'
+            eventName: 'mail.before.send',
         });
 
         const searchField = wrapper.find('.sw-flow-trigger__input-field');
-        expect(searchField.element.value).toEqual('Mail / Before / Send');
+        expect(searchField.element.value).toBe('Mail / Before / Send');
     });
 
     it('should get event tree data correctly', async () => {
@@ -215,7 +215,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
-            }
+            },
         ]);
     });
 
@@ -269,19 +269,19 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await searchField.trigger('input');
 
         let searchResults = wrapper.findAll('.sw-flow-trigger__search-result');
-        expect(searchResults.length).toEqual(1);
+        expect(searchResults).toHaveLength(1);
 
         let result = wrapper.find('sw-highlight-text-stub');
-        expect(result.attributes().text).toEqual('Checkout / Customer / Changed payment method');
+        expect(result.attributes().text).toBe('Checkout / Customer / Changed payment method');
 
         await searchField.setValue('deleted');
         await searchField.trigger('input');
 
         searchResults = wrapper.findAll('.sw-flow-trigger__search-result');
-        expect(searchResults.length).toEqual(1);
+        expect(searchResults).toHaveLength(1);
 
         result = wrapper.find('sw-highlight-text-stub');
-        expect(result.attributes().text).toEqual('Checkout / Customer / Deleted');
+        expect(result.attributes().text).toBe('Checkout / Customer / Deleted');
     });
 
     it('should emit an event when clicking on search item', async () => {
@@ -316,7 +316,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // Press tab button to close the tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Tab'
+            key: 'Tab',
         }));
 
         await wrapper.vm.$nextTick();
@@ -337,7 +337,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // Press escape button to close the tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Escape'
+            key: 'Escape',
         }));
 
         await wrapper.vm.$nextTick();
@@ -357,23 +357,23 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // Selection is expanded
         let treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toEqual(1);
+        expect(treeItems).toHaveLength(1);
         expect(treeItems.at(0).classes()).toContain('is--focus');
-        expect(treeItems.at(0).text()).toEqual('Checkout');
+        expect(treeItems.at(0).text()).toBe('Checkout');
 
         // Press arrow right to open checkout tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowright'
+            key: 'Arrowright',
         }));
 
         await wrapper.vm.$nextTick();
         treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toEqual(2);
-        expect(treeItems.at(1).text()).toEqual('Customer');
+        expect(treeItems).toHaveLength(2);
+        expect(treeItems.at(1).text()).toBe('Customer');
 
         // Move down to customer item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowdown'
+            key: 'Arrowdown',
         }));
 
         await wrapper.vm.$nextTick();
@@ -383,30 +383,30 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // open customer tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowright'
+            key: 'Arrowright',
         }));
 
         await wrapper.vm.$nextTick();
 
         treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toEqual(5);
-        expect(treeItems.at(2).text()).toEqual('Before');
-        expect(treeItems.at(3).text()).toEqual('Changed payment method');
-        expect(treeItems.at(4).text()).toEqual('Deleted');
+        expect(treeItems).toHaveLength(5);
+        expect(treeItems.at(2).text()).toBe('Before');
+        expect(treeItems.at(3).text()).toBe('Changed payment method');
+        expect(treeItems.at(4).text()).toBe('Deleted');
 
         // close customer tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowleft'
+            key: 'Arrowleft',
         }));
 
         await wrapper.vm.$nextTick();
 
         treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toEqual(2);
+        expect(treeItems).toHaveLength(2);
 
         // Move up to checkout item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowup'
+            key: 'Arrowup',
         }));
 
         await wrapper.vm.$nextTick();
@@ -416,13 +416,13 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // close checkout tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowleft'
+            key: 'Arrowleft',
         }));
 
         await wrapper.vm.$nextTick();
 
         treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toEqual(1);
+        expect(treeItems).toHaveLength(1);
     });
 
     it('should able to emit an event when pressing Enter on the item which has no children', async () => {
@@ -437,17 +437,17 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // Press arrow right to open checkout tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowright'
+            key: 'Arrowright',
         }));
 
         // Move down to customer item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowdown'
+            key: 'Arrowdown',
         }));
 
         // Press enter to select customer item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Enter'
+            key: 'Enter',
         }));
 
         await wrapper.vm.$nextTick();
@@ -462,24 +462,24 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         // open customer tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowright'
+            key: 'Arrowright',
         }));
 
         await wrapper.vm.$nextTick();
 
         treeItems = wrapper.findAll('.sw-tree-item');
-        expect(treeItems.length).toEqual(5);
-        expect(treeItems.at(2).text()).toEqual('Before');
-        expect(treeItems.at(3).text()).toEqual('Changed payment method');
-        expect(treeItems.at(4).text()).toEqual('Deleted');
+        expect(treeItems).toHaveLength(5);
+        expect(treeItems.at(2).text()).toBe('Before');
+        expect(treeItems.at(3).text()).toBe('Changed payment method');
+        expect(treeItems.at(4).text()).toBe('Deleted');
 
         // move down to changed payment method item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowdown'
+            key: 'Arrowdown',
         }));
 
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Arrowdown'
+            key: 'Arrowdown',
         }));
 
         await wrapper.vm.$nextTick();
@@ -489,7 +489,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         expect(treeItems.at(3).classes()).toContain('is--focus');
 
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Enter'
+            key: 'Enter',
         }));
 
         await wrapper.vm.$nextTick();
@@ -514,7 +514,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await searchField.trigger('input');
 
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Enter'
+            key: 'Enter',
         }));
 
         await wrapper.vm.$nextTick();
@@ -527,7 +527,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     it('should show confirmation modal when clicking tree item', async () => {
         Shopware.State.commit(
             'swFlowState/setSequences',
-            getSequencesCollection(sequencesFixture)
+            getSequencesCollection(sequencesFixture),
         );
         const wrapper = await createWrapper();
 
@@ -547,14 +547,14 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         const isSequenceEmpty = Shopware.State.getters['swFlowState/isSequenceEmpty'];
 
-        expect(isSequenceEmpty).toEqual(false);
+        expect(isSequenceEmpty).toBe(false);
         expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();
     });
 
     it('should show confirmation modal when pressing Enter on search item', async () => {
         Shopware.State.commit(
             'swFlowState/setSequences',
-            getSequencesCollection(sequencesFixture)
+            getSequencesCollection(sequencesFixture),
         );
 
         const wrapper = await createWrapper();
@@ -568,14 +568,14 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await searchField.trigger('input');
 
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Enter'
+            key: 'Enter',
         }));
 
         await wrapper.vm.$nextTick();
 
         const isSequenceEmpty = Shopware.State.getters['swFlowState/isSequenceEmpty'];
 
-        expect(isSequenceEmpty).toEqual(false);
+        expect(isSequenceEmpty).toBe(false);
         expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();
     });
 
@@ -587,10 +587,10 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
                 {
                     name: 'mail.sent',
                     mailAware: true,
-                    aware: []
+                    aware: [],
                 },
                 ...wrapper.vm._data.events,
-            ]
+            ],
         });
 
         const searchField = wrapper.find('.sw-flow-trigger__input-field');
@@ -612,7 +612,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     it('should not translate if the snippet is not exists', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.getEventNameTranslated('send')).toEqual('Send');
-        expect(wrapper.vm.getEventNameTranslated('test_event_name')).toEqual('test event name');
+        expect(wrapper.vm.getEventNameTranslated('send')).toBe('Send');
+        expect(wrapper.vm.getEventNameTranslated('test_event_name')).toBe('test event name');
     });
 });

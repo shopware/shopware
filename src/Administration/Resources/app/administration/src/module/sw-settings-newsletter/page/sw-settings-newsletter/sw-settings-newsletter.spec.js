@@ -25,7 +25,7 @@ const classes = {
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
     settingsCard: 'sw-card',
-    newsletterSubscribeUrl: 'core.newsletter.subscribeUrl'
+    newsletterSubscribeUrl: 'core.newsletter.subscribeUrl',
 };
 
 async function createWrapper() {
@@ -35,23 +35,23 @@ async function createWrapper() {
         localVue,
         mocks: {
             $route: {
-                meta: {}
-            }
+                meta: {},
+            },
         },
         provide: {
             systemConfigApiService: {
                 getConfig: () => Promise.resolve(createConfig()),
-                getValues: () => Promise.resolve(getValues())
+                getValues: () => Promise.resolve(getValues()),
             },
             validationService: {},
             currentValue: 'test',
             repositoryFactory: {
                 create: () => {
                     return {
-                        get: () => Promise.resolve({})
+                        get: () => Promise.resolve({}),
                     };
                 },
-            }
+            },
         },
         stubs: {
             'sw-page': {
@@ -62,14 +62,14 @@ async function createWrapper() {
                             <slot name="content"></slot>
                           </div>
                           <slot></slot>settingsCard
-                     </div>`
+                     </div>`,
             },
             'sw-icon': true,
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-card-view': {
-                template: '<div class="sw-card-view"><slot></slot></div>'
+                template: '<div class="sw-card-view"><slot></slot></div>',
             },
             'sw-button-process': true,
             'sw-system-config': await Shopware.Component.build('sw-system-config'),
@@ -88,14 +88,14 @@ async function createWrapper() {
             'sw-notification-center': true,
             'sw-loader': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
 function getValues() {
     return {
         'core.newsletter.doubleOptIn': true,
-        'core.newsletter.subscribeUrl': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
+        'core.newsletter.subscribeUrl': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
     };
 }
 
@@ -112,9 +112,9 @@ function createConfig() {
                 placeholder: { 'en-GB': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%' },
                 helpText: {
                     'en-GB': 'Url to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
-                    'de-DE': 'Url um die Newsletteranmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%'
-                }
-            }
+                    'de-DE': 'Url um die Newsletteranmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                },
+            },
         },
         {
             name: 'core.newsletter.doubleOptIn',
@@ -123,10 +123,10 @@ function createConfig() {
                 label: { 'en-GB': 'Double Opt-in' },
                 helpText: {
                     'en-GB': 'Use Double Opt-in for newsletter subscriptions',
-                    'de-DE': 'Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.'
-                }
-            }
-        }]
+                    'de-DE': 'Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.',
+                },
+            },
+        }],
     }];
 }
 
@@ -153,7 +153,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
                 .find(`.${classes.cardView}`)
                 .find(`.${classes.systemConfig}`)
                 .find(`.${classes.settingsCard}`)
-                .exists()
+                .exists(),
         ).toBeTruthy();
     });
 
@@ -163,13 +163,13 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
             wrapper.find(`.${classes.root}`)
                 .find('.sw-system-config--field-core-newsletter-subscribe-url')
                 .find('input')
-                .exists()
+                .exists(),
         ).toBeTruthy();
         expect(
             wrapper.find(`.${classes.root}`)
                 .find('.sw-system-config--field-core-newsletter-subscribe-url')
                 .find('input[id=\'core.newsletter.subscribeUrl\']')
-                .attributes('placeholder')
+                .attributes('placeholder'),
         ).toBe('/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%');
     });
 });

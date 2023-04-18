@@ -12,12 +12,12 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
 
     it('registers image-slider cms element', async () => {
         const elementConfig = cmsService.getCmsElementConfigByName('image-slider');
-        expect(elementConfig.name).toEqual('image-slider');
+        expect(elementConfig.name).toBe('image-slider');
     });
 
     it('returns empty object because config values are set to null', async () => {
         const result = element.enrich(element, {});
-        expect(result).toEqual(undefined);
+        expect(result).toBeUndefined();
     });
 
     it('adds multiple entity data when cms element defaultConfig properties have the same entity', async () => {
@@ -74,7 +74,7 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
                     mediaEntities2,
                     mediaEntities2.length,
                     null,
-                )
+                ),
         };
         element.enrich(element, enrichConfig);
 
@@ -101,7 +101,7 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
         cmsService.registerCmsElement(element);
 
         element.enrich(element, {
-            'entity-media-xyz': null
+            'entity-media-xyz': null,
         });
 
         expect(element.data).toEqual({});

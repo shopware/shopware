@@ -22,12 +22,12 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
                 'sw-modal': swModal,
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-loader': true,
-                'sw-icon': true
+                'sw-icon': true,
             },
             provide: {
                 shortcutService: {
                     startEventListener: () => {},
-                    stopEventListener: () => {}
+                    stopEventListener: () => {},
                 },
             },
             propsData,

@@ -45,11 +45,11 @@ describe('sw-settings-snippet-filter-switch', () => {
     });
 
     it('should contain a prop property, called: value', async () => {
-        expect(wrapper.vm.value).toEqual(false);
+        expect(wrapper.vm.value).toBe(false);
         await wrapper.setProps({
             value: true,
         });
-        expect(wrapper.vm.value).toEqual(true);
+        expect(wrapper.vm.value).toBe(true);
 
         const fieldSwitchInput = wrapper.find('.sw-field--switch__input input');
         expect(fieldSwitchInput.attributes('name')).toBe('Shopware');

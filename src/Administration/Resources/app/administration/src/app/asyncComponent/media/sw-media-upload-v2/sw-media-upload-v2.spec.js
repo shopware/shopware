@@ -46,8 +46,8 @@ async function createWrapper(customOptions = {}) {
                 create: () => ({
                     create: () => ({}),
                     save: () => Promise.resolve({}),
-                    saveAll: () => Promise.resolve({})
-                })
+                    saveAll: () => Promise.resolve({}),
+                }),
             },
             mediaService: {
                 addListener: () => {},
@@ -60,15 +60,15 @@ async function createWrapper(customOptions = {}) {
                 getConfig: () => Promise.resolve({
                     settings: {
                         enableUrlFeature: true,
-                    }
-                })
+                    },
+                }),
             },
         },
         propsData: {
             uploadTag: 'my-upload',
             addFilesOnMultiselect: true,
         },
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -93,7 +93,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
 
         Object.defineProperty(fileInput.element, 'files', {
-            get: fileInputFilesGet
+            get: fileInputFilesGet,
         });
 
         Object.defineProperty(fileInput.element, 'value', {
@@ -112,7 +112,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('should contain "application/pdf" value', async () => {
         await wrapper.setProps({
-            fileAccept: 'application/pdf'
+            fileAccept: 'application/pdf',
         });
 
         expect(fileInput.attributes().accept).toBe('application/pdf');
@@ -120,7 +120,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('should contain "image/jpeg","image/gif","image/png" values', async () => {
         await wrapper.setProps({
-            fileAccept: 'image/jpeg,image/gif,image/png'
+            fileAccept: 'image/jpeg,image/gif,image/png',
         });
 
         expect(fileInput.attributes().accept).toBe('image/jpeg,image/gif,image/png');
@@ -128,7 +128,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('should contain mixed content-types value', async () => {
         await wrapper.setProps({
-            fileAccept: 'image/jpeg,image/gif,image/png,application/pdf,image/x-eps'
+            fileAccept: 'image/jpeg,image/gif,image/png,application/pdf,image/x-eps',
         });
 
         expect(fileInput.attributes().accept).toBe('image/jpeg,image/gif,image/png,application/pdf,image/x-eps');
@@ -136,7 +136,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('should contain all content-types value', async () => {
         await wrapper.setProps({
-            fileAccept: '*/*'
+            fileAccept: '*/*',
         });
 
         expect(fileInput.attributes().accept).toBe('*/*');
@@ -144,10 +144,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('context button should be enabled', async () => {
         await wrapper.setProps({
-            variant: 'compact'
+            variant: 'compact',
         });
         await wrapper.setData({
-            isUploadUrlFeatureEnabled: true
+            isUploadUrlFeatureEnabled: true,
         });
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
@@ -157,10 +157,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('context button should be disabled', async () => {
         await wrapper.setProps({
             variant: 'compact',
-            disabled: true
+            disabled: true,
         });
         await wrapper.setData({
-            isUploadUrlFeatureEnabled: true
+            isUploadUrlFeatureEnabled: true,
         });
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
@@ -169,7 +169,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('context button switch mode should be enabled', async () => {
         await wrapper.setData({
-            isUploadUrlFeatureEnabled: true
+            isUploadUrlFeatureEnabled: true,
         });
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
@@ -178,10 +178,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('context button switch mode should be disabled', async () => {
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
         await wrapper.setData({
-            isUploadUrlFeatureEnabled: true
+            isUploadUrlFeatureEnabled: true,
         });
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
@@ -190,7 +190,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('remove icon should be enabled', async () => {
         await wrapper.setProps({
-            source: '1a2b3c'
+            source: '1a2b3c',
         });
 
         const removeIcon = wrapper.find('.sw-media-upload-v2__remove-icon');
@@ -200,7 +200,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('remove icon should be disabled', async () => {
         await wrapper.setProps({
             source: '1a2b3c',
-            disabled: true
+            disabled: true,
         });
 
         const removeIcon = wrapper.find('.sw-media-upload-v2__remove-icon');
@@ -209,12 +209,12 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('upload button should be enabled', async () => {
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.upload');
-        expect(uploadButton.attributes().disabled).not.toBeDefined();
+        expect(uploadButton.attributes().disabled).toBeUndefined();
     });
 
     it('upload button should be disabled', async () => {
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.upload');
@@ -224,23 +224,23 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('open media sidebar button should be enabled', async () => {
         wrapper = await createWrapper({
             listeners: {
-                'media-upload-sidebar-open': jest.fn()
-            }
+                'media-upload-sidebar-open': jest.fn(),
+            },
         });
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.open-media-sidebar');
-        expect(uploadButton.attributes().disabled).not.toBeDefined();
+        expect(uploadButton.attributes().disabled).toBeUndefined();
     });
 
     it('open media sidebar button should be disabled', async () => {
         wrapper = await createWrapper({
             listeners: {
-                'media-upload-sidebar-open': jest.fn()
-            }
+                'media-upload-sidebar-open': jest.fn(),
+            },
         });
 
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.open-media-sidebar');
@@ -297,31 +297,31 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await contextButton.trigger('click');
 
         const uploadOption = wrapper.find('.sw-context-menu-item');
-        expect(uploadOption.text()).toEqual('global.sw-media-upload-v2.buttonUrlUpload');
+        expect(uploadOption.text()).toBe('global.sw-media-upload-v2.buttonUrlUpload');
     });
 
     it('open media button should have normal style shade when variant is regular', async () => {
         wrapper = await createWrapper({
             listeners: {
-                'media-upload-sidebar-open': jest.fn()
-            }
+                'media-upload-sidebar-open': jest.fn(),
+            },
         });
 
         const openMediaButton = wrapper.find('.open-media-sidebar');
 
         expect(openMediaButton.find('.sw-icon').exists()).toBeFalsy();
-        expect(openMediaButton.text()).toEqual('global.sw-media-upload-v2.buttonOpenMedia');
+        expect(openMediaButton.text()).toBe('global.sw-media-upload-v2.buttonOpenMedia');
     });
 
     it('open media button should have square shade when variant is compact', async () => {
         wrapper = await createWrapper({
             listeners: {
-                'media-upload-sidebar-open': jest.fn()
-            }
+                'media-upload-sidebar-open': jest.fn(),
+            },
         });
 
         await wrapper.setProps({
-            variant: 'small'
+            variant: 'small',
         });
 
         const openMediaButton = wrapper.find('.open-media-sidebar');
@@ -341,7 +341,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         fileInputFilesGet.mockReturnValue([{
             size: 12345,
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         }]);
 
         await fileInput.trigger('change');
@@ -364,7 +364,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         fileInputFilesGet.mockReturnValue([{
             size: 12345,
             name: 'dummy.jpg',
-            type: 'image/jpg'
+            type: 'image/jpg',
         }]);
 
         await fileInput.trigger('change');
@@ -386,14 +386,14 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         fileInputFilesGet.mockReturnValue([{
             size: 1234,
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         }]);
 
         await fileInput.trigger('change');
         expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([{
             size: 1234,
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         }]);
     });
 
@@ -401,11 +401,11 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             source: {
                 fileName: 'test',
-                fileExtension: 'jpg'
+                fileExtension: 'jpg',
             },
         });
 
-        expect(wrapper.find('.sw-media-upload-v2__file-headline').text()).toEqual('test.jpg');
+        expect(wrapper.find('.sw-media-upload-v2__file-headline').text()).toBe('test.jpg');
 
         const removeFileButton = wrapper.find('.sw-media-upload-v2__remove-icon');
         await removeFileButton.trigger('click');
@@ -416,7 +416,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('should show an indicator when the component requires files', async () => {
         await wrapper.setProps({
             label: 'some label',
-            required: true
+            required: true,
         });
 
         expect(wrapper.find('.sw-media-upload-v2__label').classes()).toContain('is--required');
@@ -427,8 +427,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             propsData: {
                 allowMultiSelect: false,
                 addFilesOnMultiselect: false,
-                uploadTag: 'my-upload'
-            }
+                uploadTag: 'my-upload',
+            },
         });
         wrapper.vm.mediaRepository.saveAll = jest.fn();
 
@@ -443,7 +443,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                 uploadTag: 'my-upload',
                 allowMultiSelect: false,
                 addFilesOnMultiselect: false,
-            }
+            },
         });
 
         await wrapper.vm.handleUpload([new File([''], 'foo.jpg')]);
@@ -462,18 +462,18 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     it('should check file type correct no matter in which sequence the accept types were set', async () => {
         const file = {
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         };
 
         await wrapper.setProps({
-            fileAccept: 'application/pdf, image/*'
+            fileAccept: 'application/pdf, image/*',
         });
 
         let isTypeAccepted = wrapper.vm.checkFileType(file);
         expect(isTypeAccepted).toBeTruthy();
 
         await wrapper.setProps({
-            fileAccept: 'image/*, application/pdf'
+            fileAccept: 'image/*, application/pdf',
         });
 
         isTypeAccepted = wrapper.vm.checkFileType(file);
@@ -482,18 +482,18 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('should allow wildcard in the chunck of the file type', async () => {
         await wrapper.setProps({
-            fileAccept: '*/svg'
+            fileAccept: '*/svg',
         });
 
         let isTypeAccepted = wrapper.vm.checkFileType({
             name: 'dummy.png',
-            type: 'image/png'
+            type: 'image/png',
         });
         expect(isTypeAccepted).toBeFalsy();
 
         isTypeAccepted = wrapper.vm.checkFileType({
             name: 'dummy.svg',
-            type: 'image/svg'
+            type: 'image/svg',
         });
         expect(isTypeAccepted).toBeTruthy();
     });
@@ -503,7 +503,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         wrapper.vm.mediaService.addUpload = jest.fn();
 
         await wrapper.setData({
-            isUploadUrlFeatureEnabled: true
+            isUploadUrlFeatureEnabled: true,
         });
 
         const contextButton = await wrapper.find('.sw-media-upload-v2__switch-mode');

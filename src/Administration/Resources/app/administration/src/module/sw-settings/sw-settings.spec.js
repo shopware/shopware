@@ -6,29 +6,29 @@ const ModuleFactory = Module;
 const register = ModuleFactory.register;
 const { hasOwnProperty } = Shopware.Utils.object;
 
-let settingsIndex;
-
-beforeEach(async () => {
-    const modules = ModuleFactory.getModuleRegistry();
-    modules.clear();
-
-    Shopware.State.get('settingsItems').settingsGroups = {};
-
-    settingsIndex = {
-        type: 'core',
-        name: 'settings',
-
-        routes: {
-            index: {
-                component: 'sw-settings-index',
-                path: 'index',
-                icon: 'default-action-settings'
-            }
-        }
-    };
-});
-
 describe('src/module/sw-settings', () => {
+    let settingsIndex;
+
+    beforeEach(async () => {
+        const modules = ModuleFactory.getModuleRegistry();
+        modules.clear();
+
+        Shopware.State.get('settingsItems').settingsGroups = {};
+
+        settingsIndex = {
+            type: 'core',
+            name: 'settings',
+
+            routes: {
+                index: {
+                    component: 'sw-settings-index',
+                    path: 'index',
+                    icon: 'default-action-settings',
+                },
+            },
+        };
+    });
+
     it('should not contain any registered settings items', async () => {
         register('sw-settings-foo', settingsIndex);
 
@@ -42,8 +42,8 @@ describe('src/module/sw-settings', () => {
             {
                 group: 'shop',
                 to: 'sw.settings.address.index',
-                icon: 'default-object-address'
-            }
+                icon: 'default-object-address',
+            },
         ];
         register('sw-settings-foo', settingsIndex);
 
@@ -58,34 +58,34 @@ describe('src/module/sw-settings', () => {
                 group: 'shop',
                 to: 'sw.settings.address.index',
                 icon: 'default-object-address',
-                name: 'sw-settings-address-foo'
+                name: 'sw-settings-address-foo',
             },
             {
                 group: 'shop',
                 to: 'sw.settings.tax.index',
                 icon: 'default-chart-pie',
-                name: 'sw-settings-tax-foo'
+                name: 'sw-settings-tax-foo',
             },
             {
                 group: 'system',
                 to: 'sw.settings.store.index',
                 icon: 'default-device-laptop',
-                name: 'sw-settings-store-foo'
+                name: 'sw-settings-store-foo',
             },
             {
                 group: 'plugins',
                 to: 'swag.paypal.index',
                 icon: 'paypal-default',
-                name: 'SwagPayPal'
-            }
+                name: 'SwagPayPal',
+            },
         ];
         register('sw-settings-foo', settingsIndex);
 
         const settingsGroups = Shopware.State.get('settingsItems').settingsGroups;
 
-        expect(settingsGroups.shop.length).toEqual(2);
-        expect(settingsGroups.system.length).toEqual(1);
-        expect(settingsGroups.plugins.length).toEqual(1);
+        expect(settingsGroups.shop).toHaveLength(2);
+        expect(settingsGroups.system).toHaveLength(1);
+        expect(settingsGroups.plugins).toHaveLength(1);
     });
 
     it('should only allow unique settings items name per group', async () => {
@@ -94,20 +94,20 @@ describe('src/module/sw-settings', () => {
                 group: 'shop',
                 to: 'sw.settings.address.index',
                 icon: 'default-object-address',
-                name: 'foo'
+                name: 'foo',
             },
             {
                 group: 'shop',
                 to: 'sw.settings.address.index',
                 icon: 'default-object-address',
-                name: 'foo'
-            }
+                name: 'foo',
+            },
         ];
         register('sw-settings-foo', settingsIndex);
 
         const settingsGroups = Shopware.State.get('settingsItems').settingsGroups;
 
-        expect(settingsGroups.shop.length).toEqual(1);
+        expect(settingsGroups.shop).toHaveLength(1);
     });
 
     it('should allow to add settings items with duplicate name in different groups', async () => {
@@ -116,22 +116,22 @@ describe('src/module/sw-settings', () => {
                 group: 'shop',
                 to: 'sw.settings.address.index',
                 icon: 'default-object-address',
-                name: 'foo'
+                name: 'foo',
             },
             {
                 group: 'system',
                 to: 'sw.settings.address.index',
                 icon: 'default-object-address',
-                name: 'foo'
-            }
+                name: 'foo',
+            },
         ];
         register('sw-settings-foo', settingsIndex);
 
         const settingsGroups = Shopware.State.get('settingsItems').settingsGroups;
 
-        expect(settingsGroups.shop.length).toEqual(1);
-        expect(settingsGroups.shop[0].name).toEqual('foo');
-        expect(settingsGroups.system.length).toEqual(1);
-        expect(settingsGroups.system[0].name).toEqual('foo');
+        expect(settingsGroups.shop).toHaveLength(1);
+        expect(settingsGroups.shop[0].name).toBe('foo');
+        expect(settingsGroups.system).toHaveLength(1);
+        expect(settingsGroups.system[0].name).toBe('foo');
     });
 });

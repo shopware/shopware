@@ -9,7 +9,7 @@ async function createWrapper(propsData = {}) {
             extensionName: 'Sample extension',
             isLicensed: true,
             isLoading: false,
-            ...propsData
+            ...propsData,
         },
         mocks: {
             $t: (path, values) => {
@@ -18,14 +18,14 @@ async function createWrapper(propsData = {}) {
                 }
 
                 return path;
-            }
+            },
         },
         stubs: {
             'sw-modal': true,
             'sw-button': true,
-            'sw-switch-field': true
+            'sw-switch-field': true,
         },
-        provide: {}
+        provide: {},
     });
 }
 
@@ -52,12 +52,12 @@ describe('src/module/sw-extension/component/sw-extension-uninstall-modal', () =>
 
     it('should show the correct title', async () => {
         // eslint-disable-next-line max-len
-        expect(wrapper.vm.title).toEqual('sw-extension-store.component.sw-extension-uninstall-modal.titleSample extension');
+        expect(wrapper.vm.title).toBe('sw-extension-store.component.sw-extension-uninstall-modal.titleSample extension');
     });
 
     it('should not emit the close event when is loading', async () => {
         await wrapper.setProps({
-            isLoading: true
+            isLoading: true,
         });
 
         expect(wrapper.emitted()).toEqual({});
@@ -73,7 +73,7 @@ describe('src/module/sw-extension/component/sw-extension-uninstall-modal', () =>
         await wrapper.vm.emitUninstall();
 
         expect(wrapper.emitted()).toEqual({
-            'uninstall-extension': [[false]]
+            'uninstall-extension': [[false]],
         });
     });
 });

@@ -27,7 +27,7 @@ class MockRepositoryFactory {
             updatedAt: '2020-09-23T13:27:01.436+00:00',
             apiAlias: null,
             id: '92618290af63445b973cc1021d60e3f5',
-            salesChannel: {}
+            salesChannel: {},
         }];
     }
 
@@ -50,12 +50,12 @@ async function createWrapper(privileges = []) {
                 salutations: [],
                 languages: [],
                 salesChannels: [],
-                isLoading: false
+                isLoading: false,
             };
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
             },
             'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
@@ -63,42 +63,42 @@ async function createWrapper(privileges = []) {
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
             'sw-entity-single-select': {
                 template: '<div class="sw-field"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-field': {
                 template: '<div class="sw-field"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-entity-tag-select': {
                 template: '<div class="sw-field"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-button': {
                 template: '<div id="save-btn"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-loader': true,
             'sw-card': {
-                template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>'
+                template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>',
             },
             'sw-skeleton': true,
             'sw-error-summary': true,
         },
         provide: {
             acl: {
-                can: key => (key ? privileges.includes(key) : true)
+                can: key => (key ? privileges.includes(key) : true),
             },
             stateStyleDataProviderService: {},
             repositoryFactory: {
-                create: (type) => new MockRepositoryFactory(type)
-            }
+                create: (type) => new MockRepositoryFactory(type),
+            },
         },
         mocks: {
-            $route: { params: { id: '92618290af63445b973cc1021d60e3f5' } }
+            $route: { params: { id: '92618290af63445b973cc1021d60e3f5' } },
         },
         propsData: {
-            manufacturerId: 'id'
-        }
+            manufacturerId: 'id',
+        },
     });
 }
 
@@ -118,10 +118,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(wrapper.get('#save-btn').props().disabled).toBe(true);
 
         const fields = wrapper.findAll('.sw-field');
-        expect(fields.length).toEqual(11);
+        expect(fields).toHaveLength(11);
 
         // check that they are all disabled
-        expect(fields.wrappers.every(field => field.props().disabled)).toEqual(true);
+        expect(fields.wrappers.every(field => field.props().disabled)).toBe(true);
         wrapper.destroy();
     });
 
@@ -134,10 +134,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         expect(wrapper.get('#save-btn').props().disabled).toBeFalsy();
 
         const fields = wrapper.findAll('.sw-field');
-        expect(fields.length).toEqual(11);
+        expect(fields).toHaveLength(11);
 
         // check that they are all enabled minus the saleschannel select which is always disabled
-        expect(fields.wrappers.filter(field => !field.props().disabled).length).toEqual(10);
+        expect(fields.wrappers.filter(field => !field.props().disabled)).toHaveLength(10);
 
         // now check that the salechannel is disabled
         expect(wrapper.get('[label="sw-newsletter-recipient.general.salesChannel"]').props().disabled).toBe(true);

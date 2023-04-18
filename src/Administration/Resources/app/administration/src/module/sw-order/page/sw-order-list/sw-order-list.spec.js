@@ -14,44 +14,44 @@ Shopware.Component.register('sw-order-list', swOrderList);
 const mockItem = {
     orderNumber: '1',
     orderCustomer: {
-        customerId: '2'
+        customerId: '2',
     },
     addresses: [
         {
-            street: '123 Random street'
-        }
+            street: '123 Random street',
+        },
     ],
     currency: {
-        translated: { shortName: 'EUR' }
+        translated: { shortName: 'EUR' },
     },
     stateMachineState: {
         translated: { name: 'Open' },
-        name: 'Open'
+        name: 'Open',
     },
     salesChannel: {
-        name: 'Test'
+        name: 'Test',
     },
     transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
         {
             stateMachineState: {
                 technicalName: 'open',
                 name: 'Open',
-                translated: { name: 'Open' }
+                translated: { name: 'Open' },
             },
-        }
+        },
     ]),
     deliveries: [
         {
             stateMachineState: {
                 technicalName: 'open',
                 name: 'Open',
-                translated: { name: 'Open' }
-            }
-        }
+                translated: { name: 'Open' },
+            },
+        },
     ],
     billingAddress: {
-        street: '123 Random street'
-    }
+        street: '123 Random street',
+    },
 };
 
 async function createWrapper(privileges = []) {
@@ -69,7 +69,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': true,
             'sw-label': true,
@@ -84,7 +84,7 @@ async function createWrapper(privileges = []) {
             'sw-checkbox-field': true,
             'sw-data-grid-skeleton': true,
             'sw-time-ago': true,
-            'sw-color-badge': true
+            'sw-color-badge': true,
         },
         provide: {
             acl: {
@@ -92,39 +92,39 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             stateStyleDataProviderService: {
                 getStyle: () => {
                     return {
-                        variant: 'success'
+                        variant: 'success',
                     };
-                }
+                },
             },
             repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve([]) })
+                create: () => ({ search: () => Promise.resolve([]) }),
             },
             filterFactory: {},
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
+                },
             },
         },
         mocks: {
-            $route: { query: '' }
-        }
+            $route: { query: '' },
+        },
     });
 }
 
 Shopware.Service().register('filterService', () => {
     return {
-        mergeWithStoredFilters: (storeKey, criteria) => criteria
+        mergeWithStoredFilters: (storeKey, criteria) => criteria,
     };
 });
 
@@ -160,12 +160,12 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             orders: [
                 {
                     ...mockItem,
-                    createdById: '1'
+                    createdById: '1',
                 },
                 {
-                    ...mockItem
-                }
-            ]
+                    ...mockItem,
+                },
+            ],
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
@@ -177,7 +177,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
     it('should add query score to the criteria', async () => {
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -218,7 +218,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
     it('should not build query score when search ranking field is null', async () => {
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -241,7 +241,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
     it('should show empty state when there is not item after filling search term', async () => {
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -255,7 +255,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
@@ -266,39 +266,39 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                 stateMachineState: {
                     technicalName: 'cancelled',
                     name: 'Cancelled',
-                    translated: { name: 'Cancelled' }
+                    translated: { name: 'Cancelled' },
                 },
             },
             {
                 stateMachineState: {
                     technicalName: 'paid',
                     name: 'Paid',
-                    translated: { name: 'Paid' }
+                    translated: { name: 'Paid' },
                 },
             },
             {
                 stateMachineState: {
                     technicalName: 'open',
                     name: 'Open',
-                    translated: { name: 'Open' }
+                    translated: { name: 'Open' },
                 },
-            }
+            },
         ]);
 
         await wrapper.setData({
             orders: [
                 {
                     ...mockItem,
-                    createdById: '1'
+                    createdById: '1',
                 },
                 {
-                    ...mockItem
-                }
-            ]
+                    ...mockItem,
+                },
+            ],
         });
 
         const firstRow = wrapper.findAll('.sw-data-grid__cell .sw-data-grid__cell-content');
-        expect(firstRow.at(21).text()).toEqual('Paid');
+        expect(firstRow.at(21).text()).toBe('Paid');
     });
 
     it('should push to a new route when editing items', async () => {
@@ -327,7 +327,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     it('should get list with orderCriteria', () => {
         const criteria = wrapper.vm.orderCriteria;
 
-        expect(criteria.getLimit()).toEqual(25);
+        expect(criteria.getLimit()).toBe(25);
         [
             'addresses',
             'billingAddress',

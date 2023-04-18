@@ -14,7 +14,7 @@ const sequences = [
         ruleId: '1111',
         parentId: null,
         position: 1,
-        displayGroup: 1
+        displayGroup: 1,
     },
     {
         id: '2',
@@ -23,7 +23,7 @@ const sequences = [
         parentId: '1',
         position: 1,
         displayGroup: 1,
-        trueCase: true
+        trueCase: true,
     },
     {
         id: '3',
@@ -32,8 +32,8 @@ const sequences = [
         parentId: '1',
         position: 1,
         displayGroup: 1,
-        trueCase: false
-    }
+        trueCase: false,
+    },
 ];
 
 async function createWrapper() {
@@ -44,11 +44,11 @@ async function createWrapper() {
         localVue,
         stubs: {
             'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-icon': true
+            'sw-icon': true,
         },
         propsData: {
-            sequence: sequences[0]
-        }
+            sequence: sequences[0],
+        },
     });
 }
 
@@ -61,9 +61,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             state: {
                 flow: {
                     eventName: '',
-                    sequences
-                }
-            }
+                    sequences,
+                },
+            },
         });
     });
 
@@ -73,7 +73,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
 
     it('should update data correctly when adding a condition', async () => {
         await wrapper.setProps({
-            sequence: sequences[1]
+            sequence: sequences[1],
         });
 
         const button = wrapper.find('.sw-flow-sequence-selector__add-condition');
@@ -82,7 +82,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         const sequence = {
             ...wrapper.props().sequence,
-            ruleId: ''
+            ruleId: '',
         };
 
         expect(sequencesState[1]).toEqual(sequence);
@@ -90,7 +90,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
 
     it('should update data correctly when adding an action', async () => {
         await wrapper.setProps({
-            sequence: sequences[2]
+            sequence: sequences[2],
         });
 
         const button = wrapper.find('.sw-flow-sequence-selector__add-action');
@@ -99,7 +99,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         const sequence = {
             ...wrapper.props().sequence,
-            actionName: ''
+            actionName: '',
         };
 
         expect(sequencesState[2]).toEqual(sequence);
@@ -114,8 +114,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             sequence: {
                 ...sequences[0],
                 position: 2,
-                displayGroup: 2
-            }
+                displayGroup: 2,
+            },
         });
 
         expect(title.text()).toBe('sw-flow.detail.sequence.selectorTitleAddSequence');
@@ -129,20 +129,20 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             sequence: {
                 ...sequences[0],
                 position: 2,
-                displayGroup: 2
-            }
+                displayGroup: 2,
+            },
         });
 
         expect(helpText.text()).toBe('sw-flow.detail.sequence.selectorHelpTextAddSequence');
 
         await wrapper.setProps({
-            sequence: sequences[1]
+            sequence: sequences[1],
         });
 
         expect(helpText.text()).toBe('sw-flow.detail.sequence.selectorHelpTextTrueCondition');
 
         await wrapper.setProps({
-            sequence: sequences[2]
+            sequence: sequences[2],
         });
 
 
@@ -157,7 +157,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         expect(addAction.attributes().disabled).toBeFalsy();
 
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(addCondition.attributes().disabled).toBeTruthy();

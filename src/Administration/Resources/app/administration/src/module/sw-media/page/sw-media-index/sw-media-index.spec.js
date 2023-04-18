@@ -14,19 +14,19 @@ async function createWrapper() {
             'sw-icon': true,
             'sw-button': true,
             'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot></div>'
+                template: '<div><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-search-bar': true,
             'sw-media-sidebar': true,
             'sw-upload-listener': true,
             'sw-language-switch': true,
             'router-link': true,
-            'sw-media-upload-v2': true
+            'sw-media-upload-v2': true,
         },
         mocks: {
             $route: {
-                query: ''
-            }
+                query: '',
+            },
         },
         provide: {
             repositoryFactory: {
@@ -39,11 +39,11 @@ async function createWrapper() {
                     },
                     search: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             mediaService: {},
-        }
+        },
     });
 }
 describe('src/module/sw-media/page/sw-media-index', () => {
@@ -65,7 +65,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     it('should contain "application/pdf" value', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            fileAccept: 'application/pdf'
+            fileAccept: 'application/pdf',
         });
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
         expect(fileInput.attributes()['file-accept']).toBe('application/pdf');

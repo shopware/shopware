@@ -19,23 +19,23 @@ const documentTypeMock = [
     {
         technicalName: 'invoice',
         translated: { name: 'Invoice' },
-        id: '1'
+        id: '1',
     },
     {
         technicalName: 'credit_note',
         translated: { name: 'Credit note' },
-        id: '2'
+        id: '2',
     },
     {
         technicalName: 'storno',
         translated: { name: 'Cancellation invoice' },
-        id: '3'
+        id: '3',
     },
     {
         technicalName: 'delivery_note',
         translated: { name: 'Delivery note' },
-        id: '4'
-    }
+        id: '4',
+    },
 ];
 
 async function createWrapper() {
@@ -48,20 +48,20 @@ async function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(documentTypeMock)
+                        search: () => Promise.resolve(documentTypeMock),
                     };
-                }
-            }
+                },
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         data() {
             return {
                 documentTypesSelected: [],
-                fieldError: null
+                fieldError: null,
             };
         },
 
@@ -73,10 +73,10 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
@@ -90,7 +90,7 @@ async function createWrapper() {
             'sw-label': true,
             'sw-icon': true,
             'sw-field-error': true,
-        }
+        },
     });
 }
 
@@ -100,8 +100,8 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             ...flowState,
             state: {
                 invalidSequences: [],
-                documentTypes: []
-            }
+                documentTypes: [],
+            },
         });
     });
 
@@ -113,7 +113,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
         expect(documentTypeSelect.classes()).toContain('has--error');
         await wrapper.setData({
-            documentTypesSelected: ['invoice']
+            documentTypesSelected: ['invoice'],
         });
 
         await saveButton.trigger('click');
@@ -123,7 +123,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     it('should emit process-finish when document multiple type is selected', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            documentTypesSelected: ['invoice', 'delivery_note']
+            documentTypesSelected: ['invoice', 'delivery_note'],
         });
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
@@ -132,14 +132,14 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 documentTypes: [
                     {
                         documentType: 'invoice',
-                        documentRangerType: 'document_invoice'
+                        documentRangerType: 'document_invoice',
                     },
                     {
                         documentType: 'delivery_note',
-                        documentRangerType: 'document_delivery_note'
-                    }
-                ]
-            }
+                        documentRangerType: 'document_delivery_note',
+                    },
+                ],
+            },
         }]);
     });
 });

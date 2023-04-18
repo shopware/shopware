@@ -13,7 +13,7 @@ async function createWrapper() {
             'sw-button': await Shopware.Component.build('sw-button'),
         },
         mocks: {
-            $router: routerMock
+            $router: routerMock,
         },
         attachTo: document.body,
     });

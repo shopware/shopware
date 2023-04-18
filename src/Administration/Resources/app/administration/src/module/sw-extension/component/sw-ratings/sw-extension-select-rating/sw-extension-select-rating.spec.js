@@ -19,14 +19,14 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-ratin
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-extension-select-rating'), {
             provide: {
-                validationService: {}
+                validationService: {},
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': await Shopware.Component.build('sw-field-error'),
                 'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
-                'sw-icon': true
-            }
+                'sw-icon': true,
+            },
         });
     }
 
@@ -44,7 +44,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-ratin
         [1, 4],
         [2, 3],
         [3, 2],
-        [4, 1]
+        [4, 1],
     ])('should have %d yellow star(s)', async (starPosition, expectedValue) => {
         wrapper = await createWrapper();
 

@@ -16,7 +16,7 @@ const packagingItemClassName = [
     '.sw-select-product__select_unit',
     '.sw-product-packaging-form__pack-unit-field',
     '.sw-product-packaging-form__pack-unit-plural-field',
-    '.sw-product-packaging-form__reference-unit-field'
+    '.sw-product-packaging-form__reference-unit-field',
 ];
 
 Shopware.Component.register('sw-product-detail-specifications', swProductDetailSpecifications);
@@ -36,8 +36,8 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-card': true,
@@ -52,14 +52,14 @@ async function createWrapper(privileges = []) {
                         <slot name="content" v-bind="{ updateCurrentValue }"></slot>
                     </div>`,
                 methods: {
-                    updateCurrentValue: () => {}
-                }
+                    updateCurrentValue: () => {},
+                },
             },
             'sw-field': true,
             'sw-text-editor': true,
             'sw-entity-single-select': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -78,7 +78,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                     'measures_packaging',
                     'properties',
                     'essential_characteristics',
-                    'custom_fields'
+                    'custom_fields',
                 ],
                 advancedModeSetting: {
                     value: {
@@ -87,39 +87,39 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                                 key: 'measures_packaging',
                                 label: 'sw-product.specifications.cardTitleMeasuresPackaging',
                                 enabled: true,
-                                name: 'specifications'
+                                name: 'specifications',
                             },
                             {
                                 key: 'properties',
                                 label: 'sw-product.specifications.cardTitleProperties',
                                 enabled: true,
-                                name: 'specifications'
+                                name: 'specifications',
                             },
                             {
                                 key: 'essential_characteristics',
                                 label: 'sw-product.specifications.cardTitleEssentialCharacteristics',
                                 enabled: true,
-                                name: 'specifications'
+                                name: 'specifications',
                             },
                             {
                                 key: 'custom_fields',
                                 label: 'sw-product.specifications.cardTitleCustomFields',
                                 enabled: true,
-                                name: 'specifications'
-                            }
+                                name: 'specifications',
+                            },
                         ],
                         advancedMode: {
                             enabled: true,
-                            label: 'sw-product.general.textAdvancedMode'
-                        }
-                    }
+                            label: 'sw-product.general.textAdvancedMode',
+                        },
+                    },
                 },
-                creationStates: 'is-physical'
+                creationStates: 'is-physical',
             },
             getters: {
                 ...productStore.getters,
-                isLoading: () => false
-            }
+                isLoading: () => false,
+            },
         });
     });
 
@@ -156,9 +156,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         // expect the some item fields in Packaging hidden by css display none
@@ -178,7 +178,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'measures_packaging')
+            ...modeSettings.filter(item => item !== 'measures_packaging'),
         ]);
 
         expect(wrapper.find('.sw-product-detail-specification__measures-packaging')
@@ -194,9 +194,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         expect(wrapper.find('sw-product-properties-stub').attributes().style).toBeFalsy();
@@ -207,7 +207,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'properties')
+            ...modeSettings.filter(item => item !== 'properties'),
         ]);
 
         expect(wrapper.find('sw-product-properties-stub')
@@ -223,9 +223,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: true,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         expect(wrapper.find('.sw-product-detail-specification__essential-characteristics')
@@ -241,9 +241,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         expect(wrapper.find('.sw-product-detail-specification__essential-characteristics')
@@ -260,13 +260,13 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: true,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'essential_characteristics')
+            ...modeSettings.filter(item => item !== 'essential_characteristics'),
         ]);
 
         expect(wrapper.find('sw-product-properties-stub')
@@ -277,7 +277,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const wrapper = await createWrapper();
 
         await Shopware.State.commit('swProductDetail/setAttributeSet', [{
-            customFields: [1, 2]
+            customFields: [1, 2],
         }]);
 
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
@@ -286,9 +286,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: true,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBeFalsy();
@@ -303,9 +303,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         expect(wrapper.find('.sw-product-detail-specification__custom-fields')
@@ -322,13 +322,13 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: true,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'custom_fields')
+            ...modeSettings.filter(item => item !== 'custom_fields'),
         ]);
 
         expect(wrapper.find('.sw-product-detail-specification__custom-fields')
@@ -355,7 +355,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             isNew: () => false,
             states: [
-                'is-physical'
+                'is-physical',
             ],
         });
 
@@ -373,7 +373,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             isNew: () => false,
             states: [
-                'is-download'
+                'is-download',
             ],
         });
 

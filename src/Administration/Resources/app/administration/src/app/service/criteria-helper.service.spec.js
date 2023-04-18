@@ -20,7 +20,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
         });
 
         expect(
-            new Criteria().addAssociation('test1').addAssociation('test2')
+            new Criteria().addAssociation('test1').addAssociation('test2'),
         ).toEqual(result);
     });
 
@@ -77,7 +77,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
                 parameters: {
                     lte: 'test7',
                     lt: 'test7',
-                }
+                },
             },
             {
                 type: 'multi',
@@ -91,14 +91,14 @@ describe('src/app/service/criteria-helper.service.ts', () => {
                                 type: 'equals',
                                 field: 'test8',
                                 value: 'test8',
-                            }
+                            },
                         ],
                     },
                     {
                         type: 'equals',
                         field: 'test9',
                         value: 'test9',
-                    }
+                    },
                 ],
             },
             {
@@ -109,9 +109,9 @@ describe('src/app/service/criteria-helper.service.ts', () => {
                         type: 'equals',
                         field: 'test10',
                         value: 'test10',
-                    }
+                    },
                 ],
-            }
+            },
         ];
 
         const result = createCriteriaFromArray({
@@ -130,9 +130,9 @@ describe('src/app/service/criteria-helper.service.ts', () => {
             .addFilter(Criteria.range('test7', { lte: 'test7', lt: 'test7' }))
             .addFilter(Criteria.multi('and', [
                 Criteria.not('or', [
-                    Criteria.equals('test8', 'test8')
+                    Criteria.equals('test8', 'test8'),
                 ]),
-                Criteria.equals('test9', 'test9')
+                Criteria.equals('test9', 'test9'),
             ]))
             .addFilter(Criteria.not('and', [
                 Criteria.equals('test10', 'test10'),
@@ -166,7 +166,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
             {
                 type: 'range',
                 field: null,
-                parameters: null
+                parameters: null,
             },
             {
                 type: 'equalsAny',
@@ -182,7 +182,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
                 type: 'multi',
                 operator: null,
                 queries: null,
-            }
+            },
         ];
 
         const result = createCriteriaFromArray({
@@ -209,7 +209,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
                     order: 'DESC',
                 },
                 {
-                    field: 'test3'
+                    field: 'test3',
                 },
             ],
         });
@@ -218,7 +218,7 @@ describe('src/app/service/criteria-helper.service.ts', () => {
             new Criteria()
                 .addSorting(Criteria.sort('test', 'ASC', true))
                 .addSorting(Criteria.sort('test2', 'DESC'))
-                .addSorting(Criteria.sort('test3'))
+                .addSorting(Criteria.sort('test3')),
         ).toEqual(result);
     });
 

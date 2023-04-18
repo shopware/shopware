@@ -15,7 +15,7 @@ function setCustomerData(customers) {
     customerData.total = customers.length;
     customerData.criteria = {
         page: 1,
-        limit: 5
+        limit: 5,
     };
 }
 
@@ -34,9 +34,9 @@ function generateCustomers() {
             customerNumber: i,
             salesChannel: {
                 translated: {
-                    name: 'Storefront'
-                }
-            }
+                    name: 'Storefront',
+                },
+            },
         });
     }
 
@@ -57,19 +57,19 @@ async function createWrapper() {
                          <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-number-field': {
                 template: '<input class="sw-number-field" type="number" v-model="value" />',
                 props: {
-                    value: 0
-                }
+                    value: 0,
+                },
             },
             'sw-checkbox-field': {
                 template: '<input class="sw-checkbox-field" type="checkbox" v-model="value" />',
                 props: {
-                    value: false
-                }
+                    value: false,
+                },
             },
             'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
@@ -78,19 +78,19 @@ async function createWrapper() {
             'sw-data-grid-settings': true,
             'sw-data-grid-skeleton': true,
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-card-filter': {
                 props: ['value'],
-                template: '<input class="sw-card-filter" :value="value" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">'
+                template: '<input class="sw-card-filter" :value="value" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
             },
             'sw-icon': true,
             'sw-field': true,
             'router-link': true,
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-order-new-customer-modal': true,
         },
@@ -102,8 +102,8 @@ async function createWrapper() {
                         search: () => Promise.resolve(customerData),
                         get: () => Promise.resolve({ ...customers[0] }),
                     };
-                }
-            }
+                },
+            },
         },
         mocks: {
             $tc: (key, number, value) => {
@@ -111,7 +111,7 @@ async function createWrapper() {
                     return key;
                 }
                 return key + JSON.stringify(value);
-            }
+            },
         },
     });
 }
@@ -122,7 +122,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         Shopware.Service().register('contextStoreService', () => {
             return {
                 updateCustomerContext: () => Promise.resolve({
-                    status: 200
+                    status: 200,
                 }),
             };
         });
@@ -132,13 +132,13 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
                 getCart: () => Promise.resolve({
                     data: {
                         token: 'token',
-                        lineItems: []
-                    }
+                        lineItems: [],
+                    },
                 }),
                 createCart: () => Promise.resolve({
                     data: {
                         token: 'token',
-                    }
+                    },
                 }),
             };
         });
@@ -153,7 +153,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
                 context: {
                     customer: {},
                 },
-            }
+            },
         });
     });
 
@@ -174,7 +174,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await flushPromises();
 
         let emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title')).toEqual('sw-customer.list.messageEmpty');
+        expect(emptyState.attributes('title')).toBe('sw-customer.list.messageEmpty');
 
         const searchField = wrapper.find('.sw-card-filter');
 
@@ -183,7 +183,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         emptyState = wrapper.find('sw-empty-state-stub');
         expect(emptyState.attributes('title'))
-            .toEqual('sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}');
+            .toBe('sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}');
     });
 
     it('should show customer grid', async () => {
@@ -196,7 +196,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         expect(emptyState.exists()).toBeFalsy();
 
         const gridBody = wrapper.find('.sw-data-grid__body');
-        expect(gridBody.findAll('.sw-data-grid__row').length).toEqual(customers.length);
+        expect(gridBody.findAll('.sw-data-grid__row')).toHaveLength(customers.length);
     });
 
     it('should able to search customer', async () => {
@@ -206,7 +206,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await flushPromises();
 
         let gridBody = wrapper.find('.sw-data-grid__body');
-        expect(gridBody.findAll('.sw-data-grid__row').length).toEqual(customers.length);
+        expect(gridBody.findAll('.sw-data-grid__row')).toHaveLength(customers.length);
 
         setCustomerData([{ ...customers[1] }]);
         const searchField = wrapper.find('.sw-card-filter');
@@ -215,7 +215,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await searchField.trigger('input');
 
         gridBody = wrapper.find('.sw-data-grid__body');
-        expect(gridBody.findAll('.sw-data-grid__row').length).toEqual(1);
+        expect(gridBody.findAll('.sw-data-grid__row')).toHaveLength(1);
     });
 
     it('should open add new customer modal', async () => {

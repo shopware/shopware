@@ -14,7 +14,7 @@ const classes = {
     cardView: 'sw-card-view',
     templateCard: 'sw-seo-url-template-card',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card'
+    settingsCard: 'sw-card',
 };
 
 Shopware.Component.register('sw-settings-seo', swSettingsSeo);
@@ -45,18 +45,18 @@ async function createWrapper() {
                 meta: {
                 },
                 params: {
-                    id: ''
-                }
-            }
+                    id: '',
+                },
+            },
         },
         provide: {
             systemConfigApiService: {
                 getConfig: () => Promise.resolve({
-                    'core.seo.redirectToCanonicalUrl': true
-                })
-            }
+                    'core.seo.redirectToCanonicalUrl': true,
+                }),
+            },
 
-        }
+        },
     });
 }
 
@@ -82,7 +82,7 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
                 .find(`.${classes.cardView}`)
                 .find(`.${classes.systemConfig}`)
                 .find(`.${classes.settingsCard}`)
-                .exists()
+                .exists(),
         ).toBeTruthy();
     });
 });

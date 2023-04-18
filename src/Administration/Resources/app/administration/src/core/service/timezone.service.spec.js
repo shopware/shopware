@@ -46,9 +46,9 @@ describe('src/core/service/timezone.service.ts', () => {
         it('returns data correctly', () => {
             const timezoneService = new TimezoneService();
 
-            expect(timezoneService.toUTCTime(0)).toEqual('(UTC)');
-            expect(timezoneService.toUTCTime(120)).toEqual('(UTC +02:00)');
-            expect(timezoneService.toUTCTime(-120)).toEqual('(UTC -02:00)');
+            expect(timezoneService.toUTCTime(0)).toBe('(UTC)');
+            expect(timezoneService.toUTCTime(120)).toBe('(UTC +02:00)');
+            expect(timezoneService.toUTCTime(-120)).toBe('(UTC -02:00)');
         });
     });
 });

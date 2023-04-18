@@ -15,8 +15,8 @@ describe('components/base/sw-button', () => {
         const label = 'Button text';
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             slots: {
-                default: label
-            }
+                default: label,
+            },
         });
         const slot = wrapper.find('.sw-button__content');
         expect(slot).toBeTruthy();
@@ -26,7 +26,7 @@ describe('components/base/sw-button', () => {
     it('should render a plain button visible to screen readers', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             slots: { default: 'Screen reader button text' },
-            propsData: { role: 'button' }
+            propsData: { role: 'button' },
         });
         const slot = wrapper.find('.sw-button__content');
         expect(slot).toBeTruthy();
@@ -40,8 +40,8 @@ describe('components/base/sw-button', () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
                 download: 'My filename.txt',
-                link: 'http://my.download.link'
-            }
+                link: 'http://my.download.link',
+            },
         });
         const anchor = wrapper.find('a');
         expect(anchor).toBeTruthy();
@@ -53,10 +53,10 @@ describe('components/base/sw-button', () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
                 routerLink: { path: 'some/relative/link' },
-                append: true
+                append: true,
             },
             slots: { default: 'Router-link text' },
-            stubs: ['router-link']
+            stubs: ['router-link'],
         });
         const routerLink = wrapper.find('router-link-stub');
         expect(routerLink).toBeTruthy();
@@ -72,8 +72,8 @@ describe('components/base/sw-button', () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             slots: { default: 'I am clickable' },
             listeners: {
-                click
-            }
+                click,
+            },
         });
 
         await wrapper.trigger('click');
@@ -85,12 +85,12 @@ describe('components/base/sw-button', () => {
 
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
-                disabled: true
+                disabled: true,
             },
             slots: { default: 'I am clickable' },
             listeners: {
-                click
-            }
+                click,
+            },
         });
 
         await wrapper.trigger('click');
@@ -102,12 +102,12 @@ describe('components/base/sw-button', () => {
 
         const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
-                disabled: true
+                disabled: true,
             },
             slots: { default: 'I am clickable' },
             listeners: {
-                click
-            }
+                click,
+            },
         });
 
         const button = wrapper.find('button');

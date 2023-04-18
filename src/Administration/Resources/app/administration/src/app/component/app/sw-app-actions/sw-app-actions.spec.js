@@ -61,7 +61,7 @@ describe('sw-app-actions', () => {
                         }
 
                         return Promise.reject(new Error('error occured'));
-                    }
+                    },
                 },
 
                 extensionSdkService: {},
@@ -71,10 +71,10 @@ describe('sw-app-actions', () => {
                         search: jest.fn(() => {
                             return Promise.resolve([]);
                         }),
-                        create: () => ({})
-                    })
-                }
-            }
+                        create: () => ({}),
+                    }),
+                },
+            },
         });
     }
 
@@ -87,12 +87,12 @@ describe('sw-app-actions', () => {
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'icons-solid-ellipsis-h-s': {
-                template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>'
+                template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>',
             },
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-modal': true,
             'icons-regular-times-s': {
-                template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
+                template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
             },
             'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
         };
@@ -121,7 +121,7 @@ describe('sw-app-actions', () => {
         expect(wrapper.vm).toBeTruthy();
 
         expect(wrapper.classes()).toEqual(expect.arrayContaining([
-            'sw-app-actions'
+            'sw-app-actions',
         ]));
     });
 
@@ -138,7 +138,7 @@ describe('sw-app-actions', () => {
 
         const actionButtons = wrapper.findAllComponents(stubs['sw-app-action-button']);
 
-        expect(actionButtons.length).toBe(2);
+        expect(actionButtons).toHaveLength(2);
         expect(actionButtons.at(0).props('action')).toEqual(actionButtonData[0]);
         expect(actionButtons.at(1).props('action')).toEqual(actionButtonData[1]);
     });
@@ -150,7 +150,7 @@ describe('sw-app-actions', () => {
         router.push({ name: 'sw.product.list' });
         await flushPromises();
 
-        expect(wrapper.vm.$children.length).toBe(0);
+        expect(wrapper.vm.$children).toHaveLength(0);
     });
 
     it('throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
@@ -165,9 +165,9 @@ describe('sw-app-actions', () => {
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-app.component.sw-app-actions.messageErrorFetchButtons'
+            message: 'sw-app.component.sw-app-actions.messageErrorFetchButtons',
         });
-        expect(wrapper.vm.$children.length).toBe(0);
+        expect(wrapper.vm.$children).toHaveLength(0);
     });
 
     it('ignores pages where entity and view are not set', async () => {
@@ -181,7 +181,7 @@ describe('sw-app-actions', () => {
         const notificationMock = wrapper.vm.createNotificationError;
 
         expect(notificationMock).toHaveBeenCalledTimes(0);
-        expect(wrapper.vm.$children.length).toBe(0);
+        expect(wrapper.vm.$children).toHaveLength(0);
     });
 
     it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
@@ -209,15 +209,15 @@ describe('sw-app-actions', () => {
 
         const runActionsMock = wrapper.vm.appActionButtonService.runAction;
 
-        expect(runActionsMock.mock.calls.length).toBe(2);
+        expect(runActionsMock.mock.calls).toHaveLength(2);
         expect(runActionsMock.mock.calls[0]).toEqual([
             actionButtonData[0].id,
-            { ids: Shopware.State.get('shopwareApps').selectedIds }
+            { ids: Shopware.State.get('shopwareApps').selectedIds },
         ]);
 
         expect(runActionsMock.mock.calls[1]).toEqual([
             actionButtonData[1].id,
-            { ids: Shopware.State.get('shopwareApps').selectedIds }
+            { ids: Shopware.State.get('shopwareApps').selectedIds },
         ]);
     });
 
@@ -243,7 +243,7 @@ describe('sw-app-actions', () => {
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             variant: actionResultData.data.status,
-            message: actionResultData.data.message
+            message: actionResultData.data.message,
         });
     });
 
@@ -253,8 +253,8 @@ describe('sw-app-actions', () => {
             data: {
                 actionType: 'openModal',
                 iframeUrl: 'http://test/com',
-                size: 'medium'
-            }
+                size: 'medium',
+            },
         };
         wrapper = await createWrapper(router, openModalResponseData);
 

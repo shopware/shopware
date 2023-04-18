@@ -40,7 +40,7 @@ const expectedVisiblePageTypes = {
         title: 'sw-cms.detail.label.pageType.customEntityDetail',
         class: ['sw-cms-create-wizard__page-type-custom-entity-detail'],
         hideInList: false,
-    }
+    },
 };
 
 Shopware.Component.register('sw-cms-create-wizard', swCmsCreateWizard);
@@ -69,7 +69,7 @@ async function createWrapper() {
                 },
             },
             customEntityDefinitionService: {
-                getCmsAwareDefinitions: () => ['some-content-to-result-in-true']
+                getCmsAwareDefinitions: () => ['some-content-to-result-in-true'],
             },
         },
     });
@@ -89,7 +89,7 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
             namespaced: true,
             mutations: {
                 setCurrentPageType: () => {},
-            }
+            },
         });
     });
 
@@ -100,7 +100,7 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     it('should display the correct page types in selection step', async () => {
         const typeSelection = wrapper.findAll('.sw-cms-create-wizard__page-type');
 
-        expect(typeSelection.length).toBe(5);
+        expect(typeSelection).toHaveLength(5);
     });
 
     it('should show the correct pageType selection for type "page"', async () => {

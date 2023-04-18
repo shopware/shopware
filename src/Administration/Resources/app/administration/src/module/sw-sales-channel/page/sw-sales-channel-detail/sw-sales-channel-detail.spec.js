@@ -19,7 +19,7 @@ async function createWrapper(privileges = []) {
 <div class="sw-page">
     <slot name="smart-bar-actions"></slot>
 </div>
-                `
+                `,
             },
             'sw-button-process': true,
             'sw-language-switch': true,
@@ -36,7 +36,7 @@ async function createWrapper(privileges = []) {
                     if (!privilegeKey) { return true; }
 
                     return privileges.includes(privilegeKey);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
@@ -46,29 +46,29 @@ async function createWrapper(privileges = []) {
                         analyticsId: '1a2b3c',
                         analytics: {
                             id: '1a2b3c',
-                            trackingId: 'tracking-id'
+                            trackingId: 'tracking-id',
                         },
                         productExports: {
-                            first: () => ({})
-                        }
+                            first: () => ({}),
+                        },
                     }),
                     search: () => Promise.resolve([]),
                     delete: () => Promise.resolve(),
-                    save: () => Promise.resolve()
-                })
+                    save: () => Promise.resolve(),
+                }),
             },
             exportTemplateService: {
-                getProductExportTemplateRegistry: () => ({})
-            }
+                getProductExportTemplateRegistry: () => ({}),
+            },
         },
         mocks: {
             $route: {
                 params: {
-                    id: '1a2b3c4d'
+                    id: '1a2b3c4d',
                 },
-                name: ''
-            }
-        }
+                name: '',
+            },
+        },
     });
 }
 
@@ -84,7 +84,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         expect(saveButton.attributes().disabled).toBeTruthy();
@@ -93,11 +93,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
     it('should enable the save button when privilege does exists', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.editor'
+            'sales_channel.editor',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
@@ -108,11 +108,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
     it('should remove analytics association on save when analyticsId is empty', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.editor'
+            'sales_channel.editor',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         wrapper.vm.salesChannel.analytics.trackingId = null;
@@ -128,17 +128,17 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
     it('should not remove analytics association on save when analyticsId is not empty', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.editor'
+            'sales_channel.editor',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const analyticsId = wrapper.vm.updateAnalytics();
 
         expect(typeof analyticsId).toBe('string');
-        expect(wrapper.vm.salesChannel.analyticsId).toEqual('1a2b3c');
+        expect(wrapper.vm.salesChannel.analyticsId).toBe('1a2b3c');
         expect(wrapper.vm.salesChannel.analytics.id).toEqual(wrapper.vm.salesChannel.analyticsId);
 
         wrapper.destroy();
@@ -153,10 +153,10 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             associations: expect.objectContaining({
                 currencies: expect.objectContaining({
                     sort: expect.arrayContaining([
-                        { field: 'name', order: 'ASC', naturalSorting: false }
-                    ])
+                        { field: 'name', order: 'ASC', naturalSorting: false },
+                    ]),
                 }),
-            })
+            }),
         }));
     });
 });

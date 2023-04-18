@@ -13,32 +13,32 @@ const searchTypeServiceTypes = {
         entityName: 'product',
         entityService: 'productService',
         placeholderSnippet: 'sw-product.general.placeholderSearchBar',
-        listingRoute: 'sw.product.index'
+        listingRoute: 'sw.product.index',
     },
     category: {
         entityName: 'category',
         entityService: 'categoryService',
         placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-        listingRoute: 'sw.category.index'
+        listingRoute: 'sw.category.index',
     },
     customer: {
         entityName: 'customer',
         entityService: 'customerService',
         placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
-        listingRoute: 'sw.customer.index'
+        listingRoute: 'sw.customer.index',
     },
     order: {
         entityName: 'order',
         entityService: 'orderService',
         placeholderSnippet: 'sw-order.general.placeholderSearchBar',
-        listingRoute: 'sw.order.index'
+        listingRoute: 'sw.order.index',
     },
     media: {
         entityName: 'media',
         entityService: 'mediaService',
         placeholderSnippet: 'sw-media.general.placeholderSearchBar',
-        listingRoute: 'sw.media.index'
-    }
+        listingRoute: 'sw.media.index',
+    },
 };
 
 describe('src/app/component/structure/sw-search-bar-item', () => {
@@ -64,23 +64,23 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
                 'sw-shortcut-overview-item': true,
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',
-                    props: ['to']
-                }
+                    props: ['to'],
+                },
             },
             propsData: props,
             provide: {
                 recentlySearchService,
                 searchTypeService: {
-                    getTypes: () => searchTypeServiceTypes
-                }
+                    getTypes: () => searchTypeServiceTypes,
+                },
             },
             computed: {
                 currentUser() {
                     return {
-                        id: 'userId'
+                        id: 'userId',
                     };
-                }
-            }
+                },
+            },
         });
     }
 
@@ -100,8 +100,8 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             type: 'product',
             item: {
                 id: 'productId',
-                name: 'Awesome Product'
-            }
+                name: 'Awesome Product',
+            },
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -116,8 +116,8 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             type: 'product',
             item: {
                 id: 'productId',
-                name: 'Awesome Product'
-            }
+                name: 'Awesome Product',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -141,20 +141,20 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
                 parentId: '1000',
                 variation: [
                     { group: 'color', option: 'red' },
-                    { group: 'size', option: '39' }
+                    { group: 'size', option: '39' },
                 ],
-                translated: { name: 'Product test' }
+                translated: { name: 'Product test' },
             },
             index: 1,
             type: '',
             column: 1,
             searchTerm: null,
             entityIconColor: '',
-            entityIconName: ''
+            entityIconName: '',
         });
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.productDisplayName).toEqual('Product test (color: red | size: 39)');
+        expect(wrapper.vm.productDisplayName).toBe('Product test (color: red | size: 39)');
     });
 });

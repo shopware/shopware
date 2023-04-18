@@ -26,8 +26,8 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
             $router: {
                 currentRoute: {
                     name: route,
-                }
-            }
+                },
+            },
         },
         provide: {
             cacheApiService: {},
@@ -36,12 +36,12 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
             userActivityService: {
                 updateLastUserActivity: () => {
                     localStorage.setItem('lastActivity', 'foo');
-                }
+                },
             },
             loginService: {
                 isLoggedIn: () => isLoggedIn,
-                forwardLogout
-            }
+                forwardLogout,
+            },
         },
         attachTo: document.body,
     });
@@ -81,7 +81,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         const newLastActivity = localStorage.getItem('lastActivity');
 
         expect(lastActivity).not.toBe(newLastActivity);
-        expect(newLastActivity).toEqual('foo');
+        expect(newLastActivity).toBe('foo');
     });
 
     it('should handle session_channel message', async () => {
@@ -120,7 +120,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         const channel = new BroadcastChannel('session_channel');
         channel.postMessage({
-            inactive: true
+            inactive: true,
         });
 
         await flushPromises();
@@ -135,7 +135,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         const channel = new BroadcastChannel('session_channel');
         channel.postMessage({
-            inactive: false
+            inactive: false,
         });
 
         await flushPromises();

@@ -16,7 +16,7 @@ let productPropertiesMock = [
     { id: '01', groupId: 'sizeId', name: '30' },
     { id: '02', groupId: 'sizeId', name: '32' },
     { id: '03', groupId: 'colorId', name: 'white' },
-    { id: '04', groupId: 'colorId', name: 'black' }
+    { id: '04', groupId: 'colorId', name: 'black' },
 ];
 
 productPropertiesMock.getIds = () => {
@@ -44,34 +44,34 @@ const propertiesMock = [
         id: 'sizeId',
         name: 'size',
         translated: {
-            name: 'size'
+            name: 'size',
         },
         options: productPropertiesMock.filter((item) => {
             return item.groupId === 'sizeId';
-        })
+        }),
     },
     {
         id: 'colorId',
         name: 'color',
         translated: {
-            name: 'color'
+            name: 'color',
         },
         options: productPropertiesMock.filter((item) => {
             return item.groupId === 'colorId';
-        })
-    }
+        }),
+    },
 ];
 
 const productMock = {
     id: 'productId',
     parentId: 'parentProductId',
-    properties: []
+    properties: [],
 };
 
 const parentProductMock = {
     id: 'parentProductId',
     parentId: null,
-    properties: productPropertiesMock
+    properties: productPropertiesMock,
 };
 
 const $refsMock = {
@@ -79,9 +79,9 @@ const $refsMock = {
         deleteId: null,
         showBulkDeleteModal: false,
         selection: {
-            1: propertiesMock[1]
-        }
-    }
+            1: propertiesMock[1],
+        },
+    },
 };
 
 async function createWrapper(privileges = []) {
@@ -110,8 +110,8 @@ async function createWrapper(privileges = []) {
                     },
                     onClickRemoveInheritance() {
                         this.$emit('inheritance-remove');
-                    }
-                }
+                    },
+                },
             },
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-card': {
@@ -121,26 +121,26 @@ async function createWrapper(privileges = []) {
                         <slot name="title"></slot>
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-container': {
                 template: `
                     <div class="sw-container">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-section': {
                 template: `
                     <div class="sw-card-section">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-entity-listing': {
                 props: ['items'],
                 methods: {
-                    resetSelection: () => {}
+                    resetSelection: () => {},
                 },
                 template: `
                     <div class="sw-entity-listing" ref="entityListing">
@@ -148,7 +148,7 @@ async function createWrapper(privileges = []) {
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
-                `
+                `,
             },
             'sw-empty-state': {
                 template: `
@@ -156,21 +156,21 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                         <slot name="actions"></slot>
                     </div>
-                `
+                `,
             },
             'sw-product-add-properties-modal': true,
             'sw-loader': true,
             'sw-simple-search-field': true,
             'sw-button': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
                         return Promise.resolve({ total: 0 });
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -179,9 +179,9 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -191,17 +191,17 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             namespaced: true,
             state: {
                 product: productMock,
-                parentProduct: parentProductMock
+                parentProduct: parentProductMock,
             },
             mutations: {
                 setProduct(state, newProduct) {
                     state.product = newProduct;
-                }
+                },
             },
             getters: {
                 isLoading: () => false,
-                isChild: () => true
-            }
+                isChild: () => true,
+            },
         });
     });
 
@@ -219,7 +219,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
 
         expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining(['sizeId', 'colorId'])
+            expect.arrayContaining(['sizeId', 'colorId']),
         );
     });
 
@@ -231,7 +231,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
 
         expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining([])
+            expect.arrayContaining([]),
         );
     });
 
@@ -247,7 +247,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.getProperties();
 
         expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining(propertiesMock)
+            expect.arrayContaining(propertiesMock),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -264,7 +264,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.getProperties();
 
         expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining([])
+            expect.arrayContaining([]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -290,7 +290,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect((await getError()).message).toBe('Whoops!');
 
         expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining([])
+            expect.arrayContaining([]),
         );
         wrapper.vm.getProperties.mockRestore();
     });
@@ -312,8 +312,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             expect.arrayContaining([
                 expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
                 expect.objectContaining({ id: '03', groupId: 'colorId', name: 'white' }),
-                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' })
-            ])
+                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
+            ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -335,8 +335,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ id: '03', groupId: 'colorId', name: 'white' }),
-                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' })
-            ])
+                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
+            ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -358,8 +358,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ id: '01', groupId: 'sizeId', name: '30' }),
-                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' })
-            ])
+                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
+            ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -422,24 +422,24 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 expect.objectContaining({
                     id: '01',
                     groupId: 'sizeId',
-                    name: '30'
+                    name: '30',
                 }),
                 expect.objectContaining({
                     id: '02',
                     groupId: 'sizeId',
-                    name: '32'
+                    name: '32',
                 }),
                 expect.objectContaining({
                     id: '03',
                     groupId: 'colorId',
-                    name: 'white'
+                    name: 'white',
                 }),
                 expect.objectContaining({
                     id: '04',
                     groupId: 'colorId',
-                    name: 'black'
-                })
-            ])
+                    name: 'black',
+                }),
+            ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -464,14 +464,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.newProperties).toEqual(
-            expect.arrayContaining([])
+            expect.arrayContaining([]),
         );
         wrapper.vm.turnOffAddPropertiesModal.mockRestore();
     });
 
     it('should be able to add properties in empty state', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -479,7 +479,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         const createButton = wrapper.find('sw-button-stub');
 
-        expect(createButton.attributes().disabled).toBe(undefined);
+        expect(createButton.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to add properties in empty state', async () => {
@@ -494,7 +494,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should be able to add properties in filled state', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         await wrapper.vm.$nextTick();
@@ -503,7 +503,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         const createButton = wrapper.find('sw-button-stub');
 
-        expect(createButton.attributes().disabled).toBe(undefined);
+        expect(createButton.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to add properties in filled state', async () => {
@@ -518,7 +518,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should be able to edit property', async () => {
         const wrapper = await createWrapper([
-            'property.editor'
+            'property.editor',
         ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
@@ -547,14 +547,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getProperties();
 
         const entityListing = wrapper.find('.sw-product-properties__list');
-        expect(entityListing.attributes()['allow-edit']).toBe(undefined);
+        expect(entityListing.attributes()['allow-edit']).toBeUndefined();
 
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
     it('should be able to delete property', async () => {
         const wrapper = await createWrapper([
-            'product.deleter'
+            'product.deleter',
         ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
@@ -583,7 +583,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getProperties();
 
         const entityListing = wrapper.find('.sw-product-properties__list');
-        expect(entityListing.attributes()['allow-delete']).toBe(undefined);
+        expect(entityListing.attributes()['allow-delete']).toBeUndefined();
 
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
@@ -595,7 +595,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();
 
         await wrapper.setProps({
-            showInheritanceSwitcher: false
+            showInheritanceSwitcher: false,
         });
         expect(wrapper.vm.showInheritanceSwitcher).toBe(false);
 

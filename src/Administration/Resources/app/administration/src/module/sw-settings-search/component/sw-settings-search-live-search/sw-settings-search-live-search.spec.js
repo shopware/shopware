@@ -25,21 +25,21 @@ Shopware.Component.register('sw-settings-search-live-search-keyword', swSettings
 const salesChannels = [
     {
         name: 'Storefront',
-        id: '7e0e4a256138402c82a20fcbb4fbb858'
+        id: '7e0e4a256138402c82a20fcbb4fbb858',
     },
     {
 
         name: 'Headless',
-        id: '98432def39fc4624b33213a56b8c944d'
-    }
+        id: '98432def39fc4624b33213a56b8c944d',
+    },
 ];
 
 const mockResults = {
     nothing: {
         terms: 'nothing',
         result: {
-            elements: []
-        }
+            elements: [],
+        },
     },
     oneResult: {
         terms: 'iron',
@@ -49,12 +49,12 @@ const mockResults = {
                     name: 'Durable Iron OpenDoor',
                     extensions: {
                         search: {
-                            _score: 28799.999999
-                        }
-                    }
-                }
-            ]
-        }
+                            _score: 28799.999999,
+                        },
+                    },
+                },
+            ],
+        },
     },
     multipleResults: {
         terms: 'awesome',
@@ -64,29 +64,29 @@ const mockResults = {
                     name: 'Awesome Copper Belly-flop Buffet',
                     extensions: {
                         search: {
-                            _score: 40320
-                        }
-                    }
+                            _score: 40320,
+                        },
+                    },
                 },
                 {
                     name: 'Awesome Wooden Crystal Qlear',
                     extensions: {
                         search: {
-                            _score: 34560
-                        }
-                    }
+                            _score: 34560,
+                        },
+                    },
                 },
                 {
                     name: 'Awesome Silk Ghost Voices',
                     extensions: {
                         search: {
-                            _score: 34559.9999
-                        }
-                    }
-                }
-            ]
-        }
-    }
+                            _score: 34559.9999,
+                        },
+                    },
+                },
+            ],
+        },
+    },
 };
 
 async function createWrapper() {
@@ -117,13 +117,13 @@ async function createWrapper() {
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
-            'sw-settings-search-live-search-keyword': await Shopware.Component.build('sw-settings-search-live-search-keyword')
+            'sw-settings-search-live-search-keyword': await Shopware.Component.build('sw-settings-search-live-search-keyword'),
         },
 
         propsData: {
             currentSalesChannelId: null,
             searchTerms: '',
-            searchResults: {}
+            searchResults: {},
         },
 
         provide: {
@@ -131,8 +131,8 @@ async function createWrapper() {
                 create: () => ({
                     search: () => {
                         return Promise.resolve(salesChannels);
-                    }
-                })
+                    },
+                }),
             },
             validationService: {},
             liveSearchService: {
@@ -150,9 +150,9 @@ async function createWrapper() {
                     }
 
                     return Promise.resolve({});
-                })
-            }
-        }
+                }),
+            },
+        },
     });
 }
 
@@ -203,10 +203,10 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await flushPromises();
 
         await wrapper.setData({
-            liveSearchResults: mockResults.nothing.result
+            liveSearchResults: mockResults.nothing.result,
         });
         const resultText = wrapper.find('.sw-settings-search-live-search__no-result');
-        expect(resultText.text()).toEqual('sw-settings-search.liveSearchTab.textNoResult');
+        expect(resultText.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
         wrapper.vm.liveSearchService.search.mockReset();
     });
 
@@ -222,7 +222,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await flushPromises();
 
         await wrapper.setData({
-            liveSearchResults: mockResults.oneResult.result
+            liveSearchResults: mockResults.oneResult.result,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
@@ -249,7 +249,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await flushPromises();
 
         await wrapper.setData({
-            liveSearchResults: mockResults.oneResult.result
+            liveSearchResults: mockResults.oneResult.result,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
@@ -269,7 +269,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await flushPromises();
 
         await wrapper.setData({
-            liveSearchResults: mockResults.multipleResults.result
+            liveSearchResults: mockResults.multipleResults.result,
         });
 
         const tableBody = wrapper.find('.sw-data-grid__body');
@@ -277,8 +277,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const secondRow = wrapper.find('.sw-data-grid__row--1');
         const thirdRow = wrapper.find('.sw-data-grid__row--2');
 
-        expect((tableBody.findAll('.sw-product-variant-info').length)).toBe(
-            mockResults.multipleResults.result.elements.length
+        expect((tableBody.findAll('.sw-product-variant-info'))).toHaveLength(
+            mockResults.multipleResults.result.elements.length,
         );
         expect(firstRow.find('.sw-product-variant-info').exists()).toBeTruthy();
         expect(secondRow.find('.sw-product-variant-info').exists()).toBeTruthy();

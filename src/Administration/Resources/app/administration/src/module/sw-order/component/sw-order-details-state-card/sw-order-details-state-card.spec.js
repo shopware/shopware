@@ -16,44 +16,44 @@ const orderMock = {
         {
             stateMachineState: {
                 translated: {
-                    name: 'Transaction state'
-                }
-            }
-        }
+                    name: 'Transaction state',
+                },
+            },
+        },
     ],
     deliveries: [
         {
             stateMachineState: {
                 translated: {
-                    name: 'Delivery state'
-                }
-            }
-        }
+                    name: 'Delivery state',
+                },
+            },
+        },
     ],
     stateMachineState: {
         translated: {
-            name: 'Order state'
-        }
-    }
+            name: 'Order state',
+        },
+    },
 };
 
 orderMock.transactions.last = () => ({
     stateMachineState: {
         translated: {
-            name: 'Transaction state'
-        }
+            name: 'Transaction state',
+        },
     },
     getEntityName: () => {
         return 'order_transaction';
-    }
+    },
 });
 
 orderMock.deliveries.first = () => ({
     stateMachineState: {
         translated: {
-            name: 'Delivery state'
-        }
-    }
+            name: 'Delivery state',
+        },
+    },
 });
 
 async function createWrapper() {
@@ -61,7 +61,7 @@ async function createWrapper() {
         propsData: {
             order: orderMock,
             isLoading: false,
-            entity: orderMock.transactions.last()
+            entity: orderMock.transactions.last(),
         },
         provide: {
             orderStateMachineService: {},
@@ -74,13 +74,13 @@ async function createWrapper() {
                             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
                             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
                             variant: 'neutral',
-                            colorCode: '#94a6b8'
-                        }
+                            colorCode: '#94a6b8',
+                        },
                     };
-                }
+                },
             },
             stateMachineService: {
-                getState: () => { return { data: { transitions: [] } }; }
+                getState: () => { return { data: { transitions: [] } }; },
             },
             repositoryFactory: {
                 create: (entity) => {
@@ -92,11 +92,11 @@ async function createWrapper() {
                                         return {
                                             user: {
                                                 firstName: 'John',
-                                                lastName: 'Doe'
+                                                lastName: 'Doe',
                                             },
-                                            createdAt: new Date()
+                                            createdAt: new Date(),
                                         };
-                                    }
+                                    },
                                 });
                             }
 
@@ -106,12 +106,12 @@ async function createWrapper() {
                                 Shopware.Context.api,
                                 null,
                                 [],
-                                0
+                                0,
                             ));
-                        }
+                        },
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-order-state-select-v2': true,
@@ -121,10 +121,10 @@ async function createWrapper() {
             'sw-card': true,
             'sw-time-ago': {
                 template: '<div class="sw-time-ago"></div>',
-                props: ['date']
+                props: ['date'],
             },
-            i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' }
-        }
+            i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' },
+        },
     });
 }
 
@@ -139,8 +139,8 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
             state: {
                 isLoading: false,
                 isSavedSuccessful: false,
-                versionContext: {}
-            }
+                versionContext: {},
+            },
         });
     });
 
@@ -152,7 +152,7 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
 
         const summary = wrapper.get('.sw-order-detail-state-card__state-history-text');
 
-        expect(summary.text()).toEqual('John Doe');
+        expect(summary.text()).toBe('John Doe');
         expect(summary.get('.sw-time-ago').props('date')).toEqual(new Date(0));
     });
 });

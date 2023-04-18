@@ -19,11 +19,11 @@ async function createWrapper() {
             'sw-card': true,
             'sw-text-field': {
                 template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength']
+                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
             },
             'sw-textarea-field': {
                 template: '<textarea class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength']
+                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
             },
             'sw-media-upload-v2': {
                 template: '<div class="sw-media-upload-v2"></div>',
@@ -79,7 +79,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
             label: 'sw-landing-page.base.seo.labelSocialMediaTitle',
             maxlength: '255',
             placeholder: 'sw-landing-page.base.seo.placeholderSocialMediaTitle',
-            value: ''
+            value: '',
         });
 
         expect(ogTitleInput.props('value')).toBe('');
@@ -105,9 +105,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
             label: 'sw-landing-page.base.seo.labelSocialMediaDescription',
             maxlength: '255',
             placeholder: 'sw-landing-page.base.seo.placeholderSocialMediaDescription',
-            value: ''
+            value: '',
         });
-        expect(ogDescriptionDisplay.text()).toEqual('');
+        expect(ogDescriptionDisplay.text()).toBe('');
 
         await ogDescriptionInput.setValue(TEST_OG_DESCRIPTION);
         expect(wrapper.emitted()).toEqual({ 'update:og-description': [[TEST_OG_DESCRIPTION]] });
@@ -125,7 +125,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
         let imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image').wrappers;
         expect(imageElements.map(element => element.attributes())).toEqual([
             expect.not.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
-            expect.not.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt })
+            expect.not.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
         ]);
 
         // read the uploadTag
@@ -134,7 +134,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
         const uploadListener = wrapper.get('.sw-generic-social-media-card__og-image-upload-listener');
         expect(uploadListener.props()).toEqual({
             autoUpload: '',
-            uploadTag
+            uploadTag,
         });
 
         // emit the upload event
@@ -149,7 +149,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
         imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image').wrappers;
         expect(imageElements.map(element => element.attributes())).toEqual([
             expect.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
-            expect.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt })
+            expect.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
         ]);
     });
 
@@ -160,7 +160,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
         let imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image').wrappers;
         expect(imageElements.map(element => element.attributes())).toEqual([
             expect.not.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
-            expect.not.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt })
+            expect.not.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
         ]);
         expect(wrapper.find('sw-generic-social-media-card__media-modal').exists()).toBe(false);
 
@@ -173,7 +173,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
             caption: 'sw-cms.elements.general.config.caption.mediaUpload',
             source: null,
             uploadTag: uploadTag,
-            variant: 'regular'
+            variant: 'regular',
         });
 
         // open the media modal
@@ -184,7 +184,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
         expect(mediaModal.props()).toEqual({
             allowMultiSelect: false,
             caption: 'sw-cms.elements.general.config.caption.mediaUpload',
-            variant: 'regular'
+            variant: 'regular',
         });
 
         // select an image
@@ -199,7 +199,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-car', ()
         imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image').wrappers;
         expect(imageElements.map(element => element.attributes())).toEqual([
             expect.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
-            expect.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt })
+            expect.objectContaining({ src: TEST_OG_IMAGE.url, alt: TEST_OG_IMAGE.alt }),
         ]);
         expect(wrapper.emitted()).toEqual({ 'update:og-image-id': [[TEST_OG_IMAGE.id]] });
 

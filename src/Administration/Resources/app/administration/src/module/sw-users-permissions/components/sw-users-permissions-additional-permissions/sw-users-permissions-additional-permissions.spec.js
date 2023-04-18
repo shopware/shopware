@@ -22,13 +22,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                                type="checkbox"
                                class="sw-field-stub">
                         </input>
-                    `
-                }
+                    `,
+                },
             },
             propsData: {
                 role: {
-                    privileges: []
-                }
+                    privileges: [],
+                },
             },
             provide: {
                 privileges: {
@@ -40,17 +40,17 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                             roles: {
                                 clear_cache: {
                                     dependencies: [],
-                                    privileges: ['system:clear:cache']
+                                    privileges: ['system:clear:cache'],
                                 },
                                 core_update: {
                                     dependencies: [],
-                                    privileges: ['system:core:update']
+                                    privileges: ['system:core:update'],
                                 },
                                 plugin_maintain: {
                                     dependencies: [],
-                                    privileges: ['system:plugin:maintain']
-                                }
-                            }
+                                    privileges: ['system:plugin:maintain'],
+                                },
+                            },
                         },
                         {
                             category: 'additional_permissions',
@@ -59,9 +59,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                             roles: {
                                 create_discounts: {
                                     dependencies: [],
-                                    privileges: ['order:create:discount']
-                                }
-                            }
+                                    privileges: ['order:create:discount'],
+                                },
+                            },
                         },
                         {
                             category: 'permissions',
@@ -70,21 +70,21 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                             roles: {
                                 viewer: {
                                     dependencies: [],
-                                    privileges: []
+                                    privileges: [],
                                 },
                                 editor: {
                                     dependencies: [],
-                                    privileges: []
+                                    privileges: [],
                                 },
                                 creator: {
                                     dependencies: [],
-                                    privileges: []
+                                    privileges: [],
                                 },
                                 deleter: {
                                     dependencies: [],
-                                    privileges: []
-                                }
-                            }
+                                    privileges: [],
+                                },
+                            },
                         },
                         {
                             category: 'additional_permissions',
@@ -93,20 +93,20 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                             roles: {
                                 all: {
                                     dependencies: ['app.appExample'],
-                                    privileges: []
+                                    privileges: [],
                                 },
                                 appExample: {
                                     dependencies: [],
-                                    privileges: []
-                                }
-                            }
-                        }
-                    ]
+                                    privileges: [],
+                                },
+                            },
+                        },
+                    ],
                 },
                 appAclService: {
-                    addAppPermissions: () => {}
-                }
-            }
+                    addAppPermissions: () => {},
+                },
+            },
         });
     });
 
@@ -136,33 +136,33 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
     it('should show all roles after the key', async () => {
         const systemRoles = wrapper.find(
-            '.sw-users-permissions-additional-permissions_system + .sw-users-permissions-additional-permissions__switches'
+            '.sw-users-permissions-additional-permissions_system + .sw-users-permissions-additional-permissions__switches',
         );
         const systemFields = systemRoles.findAll('.sw-field-stub');
 
-        expect(systemFields.length).toBe(3);
+        expect(systemFields).toHaveLength(3);
         expect(systemFields.at(0).attributes().label).toBe('sw-privileges.additional_permissions.system.clear_cache');
         expect(systemFields.at(1).attributes().label).toBe('sw-privileges.additional_permissions.system.core_update');
         expect(systemFields.at(2).attributes().label).toBe('sw-privileges.additional_permissions.system.plugin_maintain');
 
         const ordersRoles = wrapper.find(
-            '.sw-users-permissions-additional-permissions_orders + .sw-users-permissions-additional-permissions__switches'
+            '.sw-users-permissions-additional-permissions_orders + .sw-users-permissions-additional-permissions__switches',
         );
         const ordersFields = ordersRoles.findAll('.sw-field-stub');
 
-        expect(ordersFields.length).toBe(1);
+        expect(ordersFields).toHaveLength(1);
         expect(ordersFields.at(0).attributes().label).toBe('sw-privileges.additional_permissions.orders.create_discounts');
     });
 
     it('should contain the a true value in a field when the privilege is in roles', async () => {
         await wrapper.setProps({
             role: {
-                privileges: ['system.clear_cache']
-            }
+                privileges: ['system.clear_cache'],
+            },
         });
 
         const clearCacheField = wrapper.find(
-            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
+            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]',
         );
 
         expect(clearCacheField.props().value).toBeTruthy();
@@ -170,7 +170,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
     it('should contain the a false value in a field when the privilege is not in roles', async () => {
         const clearCacheField = wrapper.find(
-            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
+            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]',
         );
 
         expect(clearCacheField.props().value).toBeFalsy();
@@ -178,7 +178,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
     it('should add the checked value to the role privileges', async () => {
         const clearCacheField = wrapper.find(
-            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
+            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]',
         );
 
         expect(clearCacheField.props().value).toBeFalsy();
@@ -193,12 +193,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     it('should remove the value when it get unchecked', async () => {
         await wrapper.setProps({
             role: {
-                privileges: ['system.clear_cache']
-            }
+                privileges: ['system.clear_cache'],
+            },
         });
 
         const clearCacheField = wrapper.find(
-            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
+            '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]',
         );
 
         expect(clearCacheField.props().value).toBeTruthy();
@@ -213,9 +213,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     it('should disable all checkboxes', async () => {
         await wrapper.setProps({
             role: {
-                privileges: ['system.clear_cache']
+                privileges: ['system.clear_cache'],
             },
-            disabled: true
+            disabled: true,
         });
 
         wrapper.findAll('.sw-field-stub').wrappers.forEach(field => {

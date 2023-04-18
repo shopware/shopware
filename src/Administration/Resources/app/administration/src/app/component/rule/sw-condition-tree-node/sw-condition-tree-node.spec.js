@@ -4,7 +4,7 @@ import 'src/app/component/rule/sw-condition-tree-node';
 async function createWrapper(customProps = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-tree-node'), {
         stubs: {
-            'sw-demo': true
+            'sw-demo': true,
         },
         provide: {
             createCondition: () => {},
@@ -13,14 +13,14 @@ async function createWrapper(customProps = {}) {
             conditionDataProviderService: {
                 getComponentByCondition: () => {
                     return 'sw-demo';
-                }
-            }
+                },
+            },
         },
         propsData: {
             level: 0,
             condition: {},
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -42,7 +42,7 @@ describe('src/app/component/rule/sw-condition-tree-node', () => {
     it('should have disabled component node', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const demoComponent = wrapper.find('sw-demo-stub');

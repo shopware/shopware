@@ -37,7 +37,7 @@ class Repository {
         for (let i = 0; i < desiredAmount; i += 1) {
             data.push({
                 id: `${this.#entityName}-${this.invocation}-${i}`,
-                getEntityName: () => this.#entityName
+                getEntityName: () => this.#entityName,
             });
         }
 
@@ -50,7 +50,7 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
     return shallowMount(await Shopware.Component.build('sw-media-library'), {
         propsData: {
             selection: [],
-            limit: 5
+            limit: 5,
         },
 
         stubs: {
@@ -59,7 +59,7 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
             'sw-media-grid': true,
             'sw-empty-state': true,
             'sw-skeleton': true,
-            'sw-button': true
+            'sw-button': true,
         },
 
         provide: {
@@ -75,11 +75,11 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                         default:
                             throw new Error(`No Repository found for ${repositoryName}`);
                     }
-                }
+                },
             },
             mediaService: {},
-            searchRankingService: {}
-        }
+            searchRankingService: {},
+        },
     });
 }
 
@@ -98,9 +98,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that it starts with the correct amounts
-        expect(wrapper.vm.subFolders.length).toBe(5);
-        expect(wrapper.vm.items.length).toBe(5);
-        expect(wrapper.vm.selectableItems.length).toBe(10);
+        expect(wrapper.vm.subFolders).toHaveLength(5);
+        expect(wrapper.vm.items).toHaveLength(5);
+        expect(wrapper.vm.selectableItems).toHaveLength(10);
 
         // Check that additional media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(false);
@@ -116,9 +116,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders.length).toBe(10);
-        expect(wrapper.vm.items.length).toBe(8);
-        expect(wrapper.vm.selectableItems.length).toBe(18);
+        expect(wrapper.vm.subFolders).toHaveLength(10);
+        expect(wrapper.vm.items).toHaveLength(8);
+        expect(wrapper.vm.selectableItems).toHaveLength(18);
 
         // Check that additional folders can be loaded, but not media
         expect(wrapper.vm.itemLoaderDone).toBe(true);
@@ -134,9 +134,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders.length).toBe(13);
-        expect(wrapper.vm.items.length).toBe(8);
-        expect(wrapper.vm.selectableItems.length).toBe(21);
+        expect(wrapper.vm.subFolders).toHaveLength(13);
+        expect(wrapper.vm.items).toHaveLength(8);
+        expect(wrapper.vm.selectableItems).toHaveLength(21);
 
         // Check that no further media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(true);
@@ -155,9 +155,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that it starts with the correct amounts
-        expect(wrapper.vm.subFolders.length).toBe(5);
-        expect(wrapper.vm.items.length).toBe(5);
-        expect(wrapper.vm.selectableItems.length).toBe(10);
+        expect(wrapper.vm.subFolders).toHaveLength(5);
+        expect(wrapper.vm.items).toHaveLength(5);
+        expect(wrapper.vm.selectableItems).toHaveLength(10);
 
         // Check that more media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(false);
@@ -173,9 +173,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders.length).toBe(8);
-        expect(wrapper.vm.items.length).toBe(10);
-        expect(wrapper.vm.selectableItems.length).toBe(18);
+        expect(wrapper.vm.subFolders).toHaveLength(8);
+        expect(wrapper.vm.items).toHaveLength(10);
+        expect(wrapper.vm.selectableItems).toHaveLength(18);
 
         // Check that more media can be loaded, but not folders
         expect(wrapper.vm.itemLoaderDone).toBe(false);
@@ -191,9 +191,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders.length).toBe(8);
-        expect(wrapper.vm.items.length).toBe(13);
-        expect(wrapper.vm.selectableItems.length).toBe(21);
+        expect(wrapper.vm.subFolders).toHaveLength(8);
+        expect(wrapper.vm.items).toHaveLength(13);
+        expect(wrapper.vm.selectableItems).toHaveLength(21);
 
         // Check that no further media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(true);
@@ -224,7 +224,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             'shippingMethods',
             'cmsBlocks.section.page',
             'cmsSections.page',
-            'cmsPages'
+            'cmsPages',
         ].forEach(association => {
             const associationParts = association.split('.');
 
@@ -245,9 +245,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that it starts with the correct amounts
-        expect(wrapper.vm.subFolders.length).toBe(0);
-        expect(wrapper.vm.items.length).toBe(3);
-        expect(wrapper.vm.selectableItems.length).toBe(3);
+        expect(wrapper.vm.subFolders).toHaveLength(0);
+        expect(wrapper.vm.items).toHaveLength(3);
+        expect(wrapper.vm.selectableItems).toHaveLength(3);
 
         // Check that additional media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(true);
@@ -263,9 +263,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders.length).toBe(3);
-        expect(wrapper.vm.items.length).toBe(3);
-        expect(wrapper.vm.selectableItems.length).toBe(6);
+        expect(wrapper.vm.subFolders).toHaveLength(3);
+        expect(wrapper.vm.items).toHaveLength(3);
+        expect(wrapper.vm.selectableItems).toHaveLength(6);
 
         // Check that additional folders can be loaded, but not media
         expect(wrapper.vm.itemLoaderDone).toBe(true);
@@ -283,9 +283,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that it starts with the correct amounts
-        expect(wrapper.vm.subFolders.length).toBe(3);
-        expect(wrapper.vm.items.length).toBe(0);
-        expect(wrapper.vm.selectableItems.length).toBe(3);
+        expect(wrapper.vm.subFolders).toHaveLength(3);
+        expect(wrapper.vm.items).toHaveLength(0);
+        expect(wrapper.vm.selectableItems).toHaveLength(3);
 
         // Check that additional media and folders can be loaded
         expect(wrapper.vm.itemLoaderDone).toBe(false);
@@ -301,9 +301,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         await wrapper.vm.$nextTick();
 
         // Check that appropriate amounts were loaded
-        expect(wrapper.vm.subFolders.length).toBe(3);
-        expect(wrapper.vm.items.length).toBe(3);
-        expect(wrapper.vm.selectableItems.length).toBe(6);
+        expect(wrapper.vm.subFolders).toHaveLength(3);
+        expect(wrapper.vm.items).toHaveLength(3);
+        expect(wrapper.vm.selectableItems).toHaveLength(6);
 
         // Check that additional folders can be loaded, but not media
         expect(wrapper.vm.itemLoaderDone).toBe(true);
@@ -334,9 +334,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
                 shippingMethods: { limit: 25, 'total-count-mode': 1 },
                 cmsBlocks: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
                 cmsSections: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
-                cmsPages: { limit: 25, 'total-count-mode': 1 }
+                cmsPages: { limit: 25, 'total-count-mode': 1 },
             },
-            'total-count-mode': 1
+            'total-count-mode': 1,
         });
     });
 
@@ -349,7 +349,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             term: '',
             filter: [{ type: 'equals', field: 'parentId', value: null }],
             sort: [{ field: 'name', order: 'asc', naturalSorting: false }],
-            'total-count-mode': 1
+            'total-count-mode': 1,
         });
     });
 });

@@ -15,12 +15,12 @@ async function createWrapper() {
         localVue,
         stubs: {
             'sw-meteor-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
+                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-loader': await Shopware.Component.build('sw-loader'),
             'sw-icon': true,
-            'sw-label': true
+            'sw-label': true,
         },
         provide: {
             extensionHelperService: {
@@ -30,9 +30,9 @@ async function createWrapper() {
                     }
 
                     return Promise.reject();
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 

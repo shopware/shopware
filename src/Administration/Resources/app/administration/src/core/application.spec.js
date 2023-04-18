@@ -3,7 +3,7 @@
  */
 
 const {
-    Application
+    Application,
 } = Shopware;
 
 describe('core/application.js', () => {
@@ -15,7 +15,7 @@ describe('core/application.js', () => {
         };
 
         const result = await Application.injectPlugin({
-            js: ['some.js']
+            js: ['some.js'],
         });
 
         expect(warningSpy).toHaveBeenCalledWith('Error while loading plugin', { js: ['some.js'] });

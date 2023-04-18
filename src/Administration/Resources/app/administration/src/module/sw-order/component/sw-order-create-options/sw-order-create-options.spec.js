@@ -21,14 +21,14 @@ const addresses = [
         street: 'Summerfield 27',
         country: {
             translated: {
-                name: 'USA'
-            }
+                name: 'USA',
+            },
         },
         countryState: {
             translated: {
-                name: 'California'
-            }
-        }
+                name: 'California',
+            },
+        },
     },
     {
         id: '2',
@@ -37,21 +37,21 @@ const addresses = [
         street: 'Ebbinghoff 10',
         country: {
             translated: {
-                name: 'United Kingdom'
-            }
+                name: 'United Kingdom',
+            },
         },
         countryState: {
             translated: {
-                name: 'Nottingham'
-            }
-        }
+                name: 'Nottingham',
+            },
+        },
     },
 ];
 
 const customerData = {
     id: '123',
     salesChannel: {
-        languageId: 'english'
+        languageId: 'english',
     },
     billingAddressId: '1',
     shippingAddressId: '2',
@@ -69,7 +69,7 @@ const context = {
         id: '1',
     },
     customer: {
-        ...customerData
+        ...customerData,
     },
     currency: {
         shortName: 'EUR',
@@ -128,15 +128,15 @@ async function createWrapper() {
                     return {
                         search: () => Promise.resolve(addresses),
                     };
-                }
+                },
             },
         },
         stubs: {
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
@@ -148,7 +148,7 @@ async function createWrapper() {
             'sw-text-field': true,
             'sw-entity-single-select': {
                 props: ['value'],
-                template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">'
+                template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
             },
             'sw-multi-tag-select': {
                 props: ['value', 'validate'],
@@ -182,8 +182,8 @@ async function createWrapper() {
                     </div>
                 `,
                 props: {
-                    value: 0
-                }
+                    value: 0,
+                },
             },
             'sw-select-result': {
                 props: ['item', 'index'],
@@ -193,8 +193,8 @@ async function createWrapper() {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
         },
     });
@@ -211,7 +211,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         Shopware.Service().register('cartStoreService', () => {
             return {
-                getCart: () => Promise.resolve(cartResponse)
+                getCart: () => Promise.resolve(cartResponse),
             };
         });
 
@@ -220,7 +220,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             state: {
                 ...orderStore.state,
                 customer: {
-                    ...customerData
+                    ...customerData,
                 },
                 cart,
                 context,
@@ -236,8 +236,8 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
-        expect(wrapper.find('li[selected="selected"]').text()).toEqual('Summerfield 27, 10332, San Francisco, California, USA');
-        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toEqual('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(wrapper.find('li[selected="selected"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
+        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
     });
 
 
@@ -246,7 +246,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await flushPromises();
 
         let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
-        expect(shippingSelectionText.text()).toEqual('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
 
         const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
@@ -255,7 +255,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
         expect(shippingSelectionText.text())
-            .toEqual('sw-order.initialModal.options.textSameAsBillingAddress');
+            .toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
         expect(wrapper.find('.sw-order-create-options__shipping-address')
             .attributes('disabled')).toBeTruthy();
@@ -301,7 +301,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await flushPromises();
 
         let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
-        expect(shippingSelectionText.text()).toEqual('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
 
         const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
         // Click to open result list
@@ -311,7 +311,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await addressOptions.at(1).trigger('click');
 
         shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
-        expect(shippingSelectionText.text()).toEqual('sw-order.initialModal.options.textSameAsBillingAddress');
+        expect(shippingSelectionText.text()).toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
         expect(wrapper.vm.context.billingAddressId).toBe('2');
     });
@@ -330,14 +330,14 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
 
         let shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
-        expect(shippingCostField.text()).toEqual('€');
+        expect(shippingCostField.text()).toBe('€');
 
         const currencyInput = wrapper.find('.sw-order-create-options__currency-select');
         await currencyInput.trigger('input');
         await flushPromises();
 
         shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
-        expect(shippingCostField.text()).toEqual('$');
+        expect(shippingCostField.text()).toBe('$');
     });
 
     it('should emit shipping-cost-change event when edit shipping cost field', async () => {
@@ -348,7 +348,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await shippingCostField.trigger('input');
 
         expect(wrapper.emitted('shipping-cost-change')).toBeTruthy();
-        expect(wrapper.emitted('shipping-cost-change')[0][0]).toEqual(100);
+        expect(wrapper.emitted('shipping-cost-change')[0][0]).toBe(100);
     });
 
     it('should emit promotions-change event when adding a promotion code', async () => {
@@ -366,7 +366,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            promotionCodes: ['DISCOUNT']
+            promotionCodes: ['DISCOUNT'],
         });
 
         const promotionField = wrapper.find('.sw-order-create-options__promotion-code input');
@@ -390,7 +390,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
 
         const shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost input');
-        expect(shippingCostField.element.value).toEqual('0');
+        expect(shippingCostField.element.value).toBe('0');
 
         Shopware.Service('cartStoreService').getCart = jest.fn(() => Promise.resolve({
             data: {
@@ -407,6 +407,6 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await shippingMethodSelect.trigger('input');
         await flushPromises();
 
-        expect(shippingCostField.element.value).toEqual('100');
+        expect(shippingCostField.element.value).toBe('100');
     });
 });

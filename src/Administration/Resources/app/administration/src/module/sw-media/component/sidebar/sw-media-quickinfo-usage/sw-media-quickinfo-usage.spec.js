@@ -27,7 +27,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             cmsBlocks: [],
             cmsSections: [],
             cmsPages: [],
-            ...options
+            ...options,
         };
     };
 
@@ -38,9 +38,9 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             stubs: {
                 'router-link': true,
                 'sw-icon': true,
-                'sw-alert': true
+                'sw-alert': true,
             },
-            propsData: { item: itemDeleteMock() }
+            propsData: { item: itemDeleteMock() },
         });
 
         const modules = ModuleFactory.getModuleRegistry();
@@ -53,13 +53,13 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 index: {
                     component: 'sw-settings-index',
                     path: 'index',
-                    icon: 'default-action-settings'
-                }
+                    icon: 'default-action-settings',
+                },
             },
             manifest: {
                 color: '#9AA8B5',
-                icon: 'default-action-settings'
-            }
+                icon: 'default-action-settings',
+            },
         };
     });
 
@@ -72,8 +72,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         const productMediaMock = {
             id: '98hhh7gh31d2d23dj292hjd7b',
             product: {
-                translated: { name: 'name test' }
-            }
+                translated: { name: 'name test' },
+            },
         };
 
         await wrapper.setProps({ item: itemDeleteMock({ productMedia: [productMediaMock] }) });
@@ -86,7 +86,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
 
         register('sw-product', moduleMock);
         const productMediaMock = {
-            product: { translated: { name: 'product test' } }
+            product: { translated: { name: 'product test' } },
         };
 
         register('sw-category', moduleMock);
@@ -100,8 +100,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             id: '8u7bb3kn5hx82jd01jk1sdc',
             mailTemplate: {
                 id: 'k8j7hh6gc5v66fr3rdd222da',
-                translated: { description: 'mail test' }
-            }
+                translated: { description: 'mail test' },
+            },
         };
 
         register('sw-settings-document', moduleMock);
@@ -130,8 +130,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 shippingMethods: [shippingMock],
                 cmsBlocks: [cmsBlockMock],
                 cmsSections: [cmsSectionMock],
-                cmsPages: [cmsPageMock]
-            })
+                cmsPages: [cmsPageMock],
+            }),
         });
 
         const usages = wrapper.vm.getUsages;
@@ -140,7 +140,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         expect(usages.some((usage) => usage.name === categoryMock.translated.name)).toBeTruthy();
         expect(usages.some((usage) => usage.name === manufacturerMock.translated.name)).toBeTruthy();
         expect(
-            usages.some((usage) => usage.name === mailTemplateMediaMock.mailTemplate.translated.description)
+            usages.some((usage) => usage.name === mailTemplateMediaMock.mailTemplate.translated.description),
         ).toBeTruthy();
         expect(usages.some((usage) => usage.name === paymentMock.translated.distinguishableName)).toBeTruthy();
         expect(usages.some((usage) => usage.name === shippingMock.translated.name)).toBeTruthy();

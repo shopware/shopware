@@ -16,7 +16,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
         navigationSalesChannels: [],
         serviceSalesChannels: [],
         productAssignmentType: 'product',
-        isNew: () => false
+        isNew: () => false,
     };
 
     beforeEach(async () => {
@@ -27,8 +27,8 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
         Shopware.State.registerModule('swCategoryDetail', {
             namespaced: true,
             state: {
-                category: categoryMock
-            }
+                category: categoryMock,
+            },
         });
 
         wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-base'), {
@@ -44,25 +44,25 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 'sw-entity-single-select': true,
                 'sw-category-seo-form': true,
                 'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>'
-                }
+                    template: '<div class="sw-alert"><slot></slot></div>',
+                },
             },
             mocks: {
-                placeholder: () => {}
+                placeholder: () => {},
             },
             propsData: {
                 isLoading: false,
-                manualAssignedProductsCount: 0
+                manualAssignedProductsCount: 0,
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            get: () => Promise.resolve(null)
+                            get: () => Promise.resolve(null),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     });
 

@@ -8,7 +8,7 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-promotion-detail-discounts'), {
         stubs: {
             'sw-card': true,
-            'sw-button': true
+            'sw-button': true,
         },
         provide: {
             acl: {
@@ -16,21 +16,21 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([]),
                     get: () => Promise.resolve([]),
-                    create: () => {}
-                })
-            }
+                    create: () => {},
+                }),
+            },
         },
         mocks: {
             $route: {
-                query: ''
-            }
-        }
+                query: '',
+            },
+        },
     });
 }
 
@@ -56,7 +56,7 @@ describe('src/module/sw-promotion-v2/view/sw-promotion-detail-discounts', () => 
 
     it('should enable adding discounts when privilege is set', async () => {
         const wrapper = await createWrapper([
-            'promotion.editor'
+            'promotion.editor',
         ]);
 
         const element = wrapper.find('sw-button-stub');

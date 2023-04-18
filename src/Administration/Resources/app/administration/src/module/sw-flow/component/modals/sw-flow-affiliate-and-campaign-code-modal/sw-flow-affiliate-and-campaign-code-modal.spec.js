@@ -36,14 +36,14 @@ async function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve()
+                        search: () => Promise.resolve(),
                     };
-                }
-            }
+                },
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -60,13 +60,13 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-select-result': {
                 props: ['item', 'index'],
@@ -76,8 +76,8 @@ async function createWrapper() {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-loader': true,
             'sw-label': true,
@@ -88,8 +88,8 @@ async function createWrapper() {
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
             'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-container': await Shopware.Component.build('sw-container')
-        }
+            'sw-container': await Shopware.Component.build('sw-container'),
+        },
     });
 }
 
@@ -102,14 +102,14 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
                 return [
                     {
                         label: 'Order',
-                        value: 'order'
+                        value: 'order',
                     },
                     {
                         label: 'Customer',
-                        value: 'customer'
-                    }
+                        value: 'customer',
+                    },
                 ];
-            }
+            },
         };
     });
 
@@ -120,11 +120,11 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
             triggerEvent: {
                 data: {
                     customer: {
-                        type: 'entity'
+                        type: 'entity',
                     },
                     order: {
-                        type: 'entity'
-                    }
+                        type: 'entity',
+                    },
                 },
                 customerAware: true,
                 extensions: [],
@@ -134,9 +134,9 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
                 orderAware: false,
                 salesChannelAware: true,
                 userAware: false,
-                webhookAware: true
-            }
-        }
+                webhookAware: true,
+            },
+        },
     });
 
     it('should show these fields on modal', async () => {
@@ -186,13 +186,13 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
                 entity: 'order',
                 affiliateCode: {
                     value: 'abc',
-                    upsert: true
+                    upsert: true,
                 },
                 campaignCode: {
                     value: 'xyz',
-                    upsert: false
+                    upsert: false,
                 },
-            }
+            },
         }]);
     });
 

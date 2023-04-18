@@ -18,21 +18,21 @@ async function createWrapper() {
                 },
                 getCmsElementRegistry: () => {
                     return { image: {} };
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve()
+                        search: () => Promise.resolve(),
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-field': true,
             'sw-select-field': {
                 template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options']
+                props: ['value', 'options'],
             },
             'sw-text-field': true,
             'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
@@ -48,43 +48,43 @@ async function createWrapper() {
                         value: null,
                         required: true,
                         entity: {
-                            name: 'media'
-                        }
+                            name: 'media',
+                        },
                     },
                     displayMode: {
                         source: 'static',
-                        value: 'standard'
+                        value: 'standard',
                     },
                     url: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     newTab: {
                         source: 'static',
-                        value: false
+                        value: false,
                     },
                     minHeight: {
                         source: 'static',
-                        value: '340px'
+                        value: '340px',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
+                        value: null,
+                    },
                 },
-                data: {}
+                data: {},
             },
-            defaultConfig: {}
+            defaultConfig: {},
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
-                }
+                        type: 'ladingpage',
+                    },
+                },
             };
-        }
+        },
     });
 }
 
@@ -94,13 +94,13 @@ describe('src/module/sw-cms/elements/image/config', () => {
             namespaced: true,
             state: {
                 currentMappingTypes: {},
-                currentDemoEntity: null
+                currentDemoEntity: null,
             },
             mutations: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
-                }
-            }
+                },
+            },
         });
     });
 

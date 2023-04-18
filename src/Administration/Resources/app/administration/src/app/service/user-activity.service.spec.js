@@ -11,9 +11,9 @@ describe('src/app/service/user-activity.service.ts', () => {
                     return {
                         setItem(key, value) {
                             cookieStorageMock[key] = value;
-                        }
+                        },
                     };
-                }
+                },
             };
         };
         service = new UserActivityService();

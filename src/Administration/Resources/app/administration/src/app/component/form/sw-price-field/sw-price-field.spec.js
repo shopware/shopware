@@ -10,20 +10,20 @@ const dollarPrice = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 250,
     gross: 123,
-    linked: false
+    linked: false,
 };
 
 const euroPrice = {
     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     net: 152.33644859813083,
     gross: 163,
-    linked: true
+    linked: true,
 };
 
 const taxRate = {
     name: '7%',
     taxRate: 7,
-    id: 'd9eac12a83984df59a618a5be1342009'
+    id: 'd9eac12a83984df59a618a5be1342009',
 };
 
 const currency = {
@@ -33,14 +33,14 @@ const currency = {
     decimalPrecision: 2,
     factor: 1.17085,
     shortName: 'USD',
-    symbol: '$'
+    symbol: '$',
 };
 
 const defaultPrice = {
     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     gross: 163,
     net: 152.33644859813083,
-    linked: true
+    linked: true,
 };
 
 // initial component setup
@@ -51,12 +51,12 @@ const setup = async (propOverride) => {
         currency,
         defaultPrice,
         enableInheritance: false,
-        ...propOverride
+        ...propOverride,
     };
 
     return shallowMount(await Shopware.Component.build('sw-price-field'), {
         stubs: ['sw-field', 'sw-icon'],
-        propsData
+        propsData,
     });
 };
 
@@ -71,12 +71,12 @@ describe('components/form/sw-price-field', () => {
                                 return Promise.resolve({
                                     data: {
                                         calculatedTaxes: [],
-                                    }
+                                    },
                                 });
-                            }
+                            },
                         };
-                    }
-                }
+                    },
+                },
             };
         };
     });
@@ -111,7 +111,7 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup({ price: [euroPrice] });
         const dollarPriceConverted = {
             gross: euroPrice.gross * currency.factor,
-            net: euroPrice.net * currency.factor
+            net: euroPrice.net * currency.factor,
         };
 
         expect(wrapper.vm.priceForCurrency.gross).toEqual(dollarPriceConverted.gross);
@@ -128,7 +128,7 @@ describe('components/form/sw-price-field', () => {
     it('should set gross value null when the net value is not a number and allow empty is true', async () => {
         const wrapper = await setup({ allowEmpty: true });
         wrapper.vm.convertNetToGross(parseFloat(''));
-        expect(wrapper.vm.priceForCurrency.gross).toBe(null);
+        expect(wrapper.vm.priceForCurrency.gross).toBeNull();
     });
 
     it('should set gross value 0 when the net value is not a number and allow empty is false', async () => {
@@ -140,7 +140,7 @@ describe('components/form/sw-price-field', () => {
     it('should set net value null when the gross value is not a number and allow empty is true', async () => {
         const wrapper = await setup({ allowEmpty: true });
         wrapper.vm.convertGrossToNet(parseFloat(''));
-        expect(wrapper.vm.priceForCurrency.net).toBe(null);
+        expect(wrapper.vm.priceForCurrency.net).toBeNull();
     });
 
     it('should set net value 0 when the gross value is not a number and allow empty is false', async () => {
@@ -152,7 +152,7 @@ describe('components/form/sw-price-field', () => {
     it('should calculate values if inherited and price is not set', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
-            price: [euroPrice]
+            price: [euroPrice],
         });
 
         const expectedNetPrice = (euroPrice.net * currency.factor);
@@ -164,7 +164,7 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
             price: [euroPrice],
-            inherited: false
+            inherited: false,
         });
 
         expect(wrapper.vm.priceForCurrency.net).toBeNull();
@@ -173,7 +173,7 @@ describe('components/form/sw-price-field', () => {
     it('should pass down gross and net helptext', async () => {
         const wrapper = await setup({
             grossHelpText: 'help for gross price',
-            netHelpText: 'help for net price'
+            netHelpText: 'help for net price',
         });
 
         expect(wrapper.find('.sw-price-field__gross').attributes()['help-text']).toBe('help for gross price');

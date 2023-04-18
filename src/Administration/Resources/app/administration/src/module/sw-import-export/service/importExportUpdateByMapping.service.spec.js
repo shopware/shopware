@@ -19,20 +19,20 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it('should return entity, path, relation by source entity and path', async () => {
         const { entity, path, relation, name } = importExportUpdateByMappingService.getEntity('product', 'manufacturer.translations.name');
 
-        expect(entity).toEqual('product_manufacturer');
-        expect(path).toEqual('manufacturer');
-        expect(relation).toEqual('many_to_one');
-        expect(name).toEqual('manufacturer');
+        expect(entity).toBe('product_manufacturer');
+        expect(path).toBe('manufacturer');
+        expect(relation).toBe('many_to_one');
+        expect(name).toBe('manufacturer');
     });
 
     it('should return selected mapped key by entity from update by mapping', async () => {
         const updateByMapping = [{
             entityName: 'product_manufacturer',
-            mappedKey: 'translations.name'
+            mappedKey: 'translations.name',
         }];
 
-        expect(importExportUpdateByMappingService.getSelected('product_manufacturer', updateByMapping)).toEqual('translations.name');
-        expect(importExportUpdateByMappingService.getSelected('property_group_option', updateByMapping)).toEqual('id');
+        expect(importExportUpdateByMappingService.getSelected('product_manufacturer', updateByMapping)).toBe('translations.name');
+        expect(importExportUpdateByMappingService.getSelected('property_group_option', updateByMapping)).toBe('id');
     });
 
     it('should remove unused entity from update by mapping', async () => {
@@ -42,18 +42,18 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
                 {
                     mappedKey: 'manufacturer_name',
                     key: 'manufacturer.translations.name',
-                }
+                },
             ],
             updateBy: [
                 {
                     entityName: 'product_manufacturer',
-                    mappedKey: 'translations.name'
+                    mappedKey: 'translations.name',
                 },
                 {
                     entityName: 'property_group_option',
-                    mappedKey: 'id'
-                }
-            ]
+                    mappedKey: 'id',
+                },
+            ],
         };
 
         importExportUpdateByMappingService.removeUnusedMappings(profile);
@@ -61,8 +61,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(profile.updateBy).toEqual([
             {
                 entityName: 'product_manufacturer',
-                mappedKey: 'translations.name'
-            }
+                mappedKey: 'translations.name',
+            },
         ]);
     });
 
@@ -72,9 +72,9 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             updateBy: [
                 {
                     entityName: 'product_manufacturer',
-                    mappedKey: 'translations.name'
-                }
-            ]
+                    mappedKey: 'translations.name',
+                },
+            ],
         };
 
         importExportUpdateByMappingService.updateMapping(profile, 'id', 'product_manufacturer');
@@ -82,8 +82,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(profile.updateBy).toEqual([
             {
                 entityName: 'product_manufacturer',
-                mappedKey: 'id'
-            }
+                mappedKey: 'id',
+            },
         ]);
     });
 });

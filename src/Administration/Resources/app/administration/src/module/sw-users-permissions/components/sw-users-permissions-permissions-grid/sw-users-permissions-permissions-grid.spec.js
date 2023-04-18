@@ -25,14 +25,14 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = 
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-icon': true,
             'sw-field-error': true,
-            'sw-base-field': true
+            'sw-base-field': true,
         },
         provide: {
-            privileges: privilegesService
+            privileges: privilegesService,
         },
         propsData: Vue.observable({
-            role: { privileges: rolePrivileges }
-        })
+            role: { privileges: rolePrivileges },
+        }),
     });
 }
 
@@ -84,23 +84,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const entry = wrapper.find('[class*=sw-users-permissions-permissions-grid__entry_');
@@ -132,15 +132,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -169,11 +169,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -191,19 +191,19 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         clear_cache: {
                             dependencies: [],
-                            privileges: ['system:clear:cache']
+                            privileges: ['system:clear:cache'],
                         },
                         core_update: {
                             dependencies: [],
-                            privileges: ['system:core:update']
+                            privileges: ['system:core:update'],
                         },
                         plugin_maintain: {
                             dependencies: [],
-                            privileges: ['system:plugin:maintain']
-                        }
-                    }
-                }
-            ]
+                            privileges: ['system:plugin:maintain'],
+                        },
+                    },
+                },
+            ],
         });
 
         const entry = wrapper.find('[class*=sw-users-permissions-permissions-grid__entry_');
@@ -220,33 +220,33 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer');
 
-        expect(wrapper.vm.role.privileges.length).toBe(0);
+        expect(wrapper.vm.role.privileges).toHaveLength(0);
 
         await productViewer.find('.sw-field--checkbox input').setChecked();
 
-        expect(wrapper.vm.role.privileges.length).toBe(1);
+        expect(wrapper.vm.role.privileges).toHaveLength(1);
         expect(wrapper.vm.role.privileges[0]).toBe('product.viewer');
         expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
     });
@@ -262,23 +262,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -299,29 +299,29 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        expect(wrapper.vm.role.privileges.length).toBe(0);
+        expect(wrapper.vm.role.privileges).toHaveLength(0);
 
         await productCreator.find('.sw-field--checkbox input').setChecked();
 
@@ -340,26 +340,26 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -367,11 +367,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
         const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer');
 
-        expect(wrapper.vm.role.privileges.length).toBe(0);
+        expect(wrapper.vm.role.privileges).toHaveLength(0);
 
         await productCreator.find('.sw-field--checkbox input').setChecked();
 
-        expect(wrapper.vm.role.privileges.length).toBe(3);
+        expect(wrapper.vm.role.privileges).toHaveLength(3);
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -392,26 +392,26 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -442,21 +442,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -465,26 +465,26 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_category');
@@ -493,11 +493,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
         const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        expect(wrapper.vm.role.privileges.length).toBe(0);
+        expect(wrapper.vm.role.privileges).toHaveLength(0);
 
         await categoryCreator.find('.sw-field--checkbox input').setChecked();
 
-        expect(wrapper.vm.role.privileges.length).toBe(3);
+        expect(wrapper.vm.role.privileges).toHaveLength(3);
 
         expect(wrapper.vm.role.privileges).toContain('category.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -518,23 +518,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -555,26 +555,26 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -597,23 +597,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         expect(wrapper.vm.role.privileges).not.toContain('product.viewer');
@@ -642,23 +642,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -691,21 +691,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -714,23 +714,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -781,23 +781,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -835,23 +835,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -883,15 +883,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -930,23 +930,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -988,30 +988,30 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -1045,30 +1045,30 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -1102,30 +1102,30 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -1159,30 +1159,30 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
@@ -1216,21 +1216,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['product.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['product.viewer', 'product.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['product.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1239,21 +1239,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1262,21 +1262,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1285,27 +1285,27 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const parentGrids = wrapper.findAll('.sw-users-permissions-permissions-grid__parent');
-        expect(parentGrids.length).toBe(3);
+        expect(parentGrids).toHaveLength(3);
 
         const parentCatalogues = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const parentNull = wrapper.find('.sw-users-permissions-permissions-grid__parent_null');
@@ -1326,21 +1326,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['product.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['product.viewer', 'product.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['product.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1349,21 +1349,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1372,21 +1372,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1395,27 +1395,27 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const gridEntries = wrapper.findAll('.sw-users-permissions-permissions-grid__entry');
-        expect(gridEntries.length).toBe(8);
+        expect(gridEntries).toHaveLength(8);
 
         // header in beginning
         expect(gridEntries.at(0).classes()).toContain('sw-users-permissions-permissions-grid__entry-header');
@@ -1441,31 +1441,31 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     category: 'permissions',
                     key: 'categories',
                     parent: 'orders',
-                    roles: {}
+                    roles: {},
                 },
                 {
                     category: 'permissions',
                     key: 'currencies',
                     parent: 'settings',
-                    roles: {}
+                    roles: {},
                 },
                 {
                     category: 'permissions',
                     key: 'sales_channel',
                     parent: 'content',
-                    roles: {}
+                    roles: {},
                 },
                 {
                     category: 'permissions',
                     key: 'product',
                     parent: 'catalogues',
-                    roles: {}
-                }
-            ]
+                    roles: {},
+                },
+            ],
         });
 
         const gridEntries = wrapper.findAll('.sw-users-permissions-permissions-grid__entry');
-        expect(gridEntries.length).toBe(9);
+        expect(gridEntries).toHaveLength(9);
 
         // check if order is sorted alphabetically
         expect(gridEntries.at(1).classes()).toContain('sw-users-permissions-permissions-grid__parent_catalogues');
@@ -1481,31 +1481,31 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     category: 'permissions',
                     key: 'rule_builder',
                     parent: 'settings',
-                    roles: {}
+                    roles: {},
                 },
                 {
                     category: 'permissions',
                     key: 'currencies',
                     parent: 'settings',
-                    roles: {}
+                    roles: {},
                 },
                 {
                     category: 'permissions',
                     key: 'basic_information',
                     parent: 'settings',
-                    roles: {}
+                    roles: {},
                 },
                 {
                     category: 'permissions',
                     key: 'documents',
                     parent: 'settings',
-                    roles: {}
-                }
-            ]
+                    roles: {},
+                },
+            ],
         });
 
         const gridEntries = wrapper.findAll('.sw-users-permissions-permissions-grid__entry');
-        expect(gridEntries.length).toBe(6);
+        expect(gridEntries).toHaveLength(6);
 
         // check if order is sorted alphabetically
         expect(gridEntries.at(2).classes()).toContain('sw-users-permissions-permissions-grid__entry_basic_information');
@@ -1524,28 +1524,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1554,21 +1554,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1577,21 +1577,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1600,23 +1600,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -1648,28 +1648,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1678,21 +1678,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1701,21 +1701,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1724,23 +1724,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -1768,28 +1768,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1798,21 +1798,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1821,21 +1821,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1844,23 +1844,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -1899,28 +1899,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1929,21 +1929,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1952,21 +1952,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -1975,23 +1975,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -2027,28 +2027,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2057,21 +2057,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2080,21 +2080,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2103,23 +2103,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -2154,28 +2154,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2184,18 +2184,18 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         // Missing editor role for categories
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2204,21 +2204,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2227,23 +2227,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -2281,28 +2281,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2311,21 +2311,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2334,21 +2334,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2357,23 +2357,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -2410,28 +2410,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2440,21 +2440,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2463,21 +2463,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2486,23 +2486,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -2540,28 +2540,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2570,21 +2570,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2593,21 +2593,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2616,23 +2616,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
@@ -2683,28 +2683,28 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [
                                 'product.viewer',
-                                'product.editor'
+                                'product.editor',
                             ],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [
-                                'product.viewer'
+                                'product.viewer',
                             ],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2713,21 +2713,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['categories.viewer', 'categories.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['categories.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2736,21 +2736,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['currencies.viewer', 'currencies.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['currencies.viewer'],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2759,23 +2759,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: ['sales_channel.viewer'],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const checkboxes = wrapper.findAll('.sw-field--checkbox');
@@ -2801,19 +2801,19 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         // get product viewer checkbox
@@ -2841,17 +2841,17 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2860,23 +2860,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         // get product viewer checkbox
@@ -2918,17 +2918,17 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
+                            privileges: [],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -2937,23 +2937,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
                     roles: {
                         viewer: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         editor: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         creator: {
                             dependencies: [],
-                            privileges: []
+                            privileges: [],
                         },
                         deleter: {
                             dependencies: [],
-                            privileges: []
-                        }
-                    }
-                }
-            ]
+                            privileges: [],
+                        },
+                    },
+                },
+            ],
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');

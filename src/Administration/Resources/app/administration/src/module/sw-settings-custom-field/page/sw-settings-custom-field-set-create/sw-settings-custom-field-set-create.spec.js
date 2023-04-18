@@ -34,9 +34,9 @@ async function createWrapper() {
                             return Promise.resolve({
                                 length: 0,
                             });
-                        }
+                        },
                     };
-                }
+                },
             },
         },
         stubs: {
@@ -48,7 +48,7 @@ async function createWrapper() {
             'sw-card': true,
             'sw-card-view': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -88,7 +88,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
             name: 'sw.settings.custom.field.detail',
             params: {
                 id: wrapper.vm.setId,
-            }
+            },
         });
     });
 

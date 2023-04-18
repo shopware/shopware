@@ -18,17 +18,17 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-extension-rating-modal'), {
             propsData: {
-                extension: {}
+                extension: {},
             },
             provide: {
-                extensionStoreActionService: {}
+                extensionStoreActionService: {},
             },
             stubs: {
                 'sw-modal': {
                     template: `<div class="sw-modal">
     <slot name="default"></slot>
     <slot name="footer"></slot>
-</div>`
+</div>`,
                 },
                 'sw-extension-review-creation': await Shopware.Component.build('sw-extension-review-creation'),
                 'sw-extension-review-creation-inputs': await Shopware.Component.build('sw-extension-review-creation-inputs'),
@@ -39,8 +39,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal
                 'sw-extension-select-rating': true,
                 'sw-text-field': true,
                 'sw-checkbox-field': true,
-                'sw-button-process': true
-            }
+                'sw-button-process': true,
+            },
         });
     }
 

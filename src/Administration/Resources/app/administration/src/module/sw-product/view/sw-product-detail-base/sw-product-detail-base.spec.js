@@ -25,7 +25,7 @@ async function createWrapper() {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-product-detail-base__review-card': true,
             'sw-data-grid': {
@@ -35,7 +35,7 @@ async function createWrapper() {
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-product-category-form': true,
             'sw-product-deliverability-form': true,
@@ -48,7 +48,7 @@ async function createWrapper() {
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-empty-state': true,
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>'
+                template: '<div><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-context-menu-item': true,
             'sw-media-modal-v2': true,
@@ -69,9 +69,9 @@ async function createWrapper() {
             $route: {
                 name: 'sw.product.detail.base',
                 params: {
-                    id: '1234'
-                }
-            }
+                    id: '1234',
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -79,17 +79,17 @@ async function createWrapper() {
                     search: () => Promise.resolve({
                         first: () => {
                             return {
-                                folder: {}
+                                folder: {},
                             };
-                        }
+                        },
                     }),
                     get: () => Promise.resolve({}),
                     searchIds: () => Promise.resolve({
-                        data: []
-                    })
-                })
+                        data: [],
+                    }),
+                }),
             },
-        }
+        },
     });
 }
 
@@ -110,8 +110,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                         entity: 'review',
                         customerId: 'd4c3b2a1',
                         productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1'
-                    }]
+                        salesChannelId: 'd4c3b2a1',
+                    }],
                 },
                 product: {
                     getEntityName: () => 'product',
@@ -122,24 +122,24 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                         entity: 'review',
                         customerId: 'd4c3b2a1',
                         productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1'
+                        salesChannelId: 'd4c3b2a1',
                     }],
                     purchasePrices: [{
                         currencyId: '1',
                         linked: true,
                         gross: 0,
-                        net: 0
+                        net: 0,
                     }],
                     price: [{
                         currencyId: '1',
                         linked: true,
                         gross: 100,
-                        net: 84.034
-                    }]
+                        net: 84.034,
+                    }],
                 },
                 loading: {
                     product: false,
-                    media: false
+                    media: false,
                 },
                 modeSettings: [
                     'general_information',
@@ -147,7 +147,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     'deliverability',
                     'visibility_structure',
                     'media',
-                    'labelling'
+                    'labelling',
                 ],
                 advancedModeSetting: {
                     value: {
@@ -156,41 +156,41 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                                 key: 'general_information',
                                 label: 'sw-product.detailBase.cardTitleProductInfo',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'prices',
                                 label: 'sw-product.detailBase.cardTitlePrices',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'deliverability',
                                 label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'visibility_structure',
                                 label: 'sw-product.detailBase.cardTitleVisibilityStructure',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'labelling',
                                 label: 'sw-product.detailBase.cardTitleSettings',
                                 enabled: true,
-                                name: 'general'
-                            }
+                                name: 'general',
+                            },
                         ],
                         advancedMode: {
                             enabled: true,
-                            label: 'sw-product.general.textAdvancedMode'
-                        }
-                    }
+                            label: 'sw-product.general.textAdvancedMode',
+                        },
+                    },
                 },
-                creationStates: 'is-physical'
-            }
+                creationStates: 'is-physical',
+            },
         });
     });
 
@@ -205,7 +205,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
             states: [
-                'is-physical'
+                'is-physical',
             ],
         });
 
@@ -223,7 +223,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
             states: [
-                'is-download'
+                'is-download',
             ],
         });
 
@@ -239,7 +239,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
             states: [
-                'is-download'
+                'is-download',
             ],
         });
 
@@ -254,7 +254,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
             states: [
-                'is-physical'
+                'is-physical',
             ],
         });
     });
@@ -278,7 +278,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
-            showMediaModal: true
+            showMediaModal: true,
         });
 
         const mediaModal = wrapper.find('sw-media-modal-v2-stub');
@@ -292,7 +292,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
-            showMediaModal: false
+            showMediaModal: false,
         });
 
         const mediaModal = wrapper.find('sw-media-modal-v2-stub');
@@ -311,9 +311,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await wrapper.setData({
             product: {
                 media: [
-                    media
-                ]
-            }
+                    media,
+                ],
+            },
         });
 
         expect(wrapper.vm.addMedia).toHaveBeenCalledWith(media);
@@ -335,7 +335,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.addMedia).toHaveBeenCalledWith(media);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-product.mediaForm.errorMediaItemDuplicated'
+            message: 'sw-product.mediaForm.errorMediaItemDuplicated',
         });
 
         wrapper.vm.addMedia.mockRestore();
@@ -383,9 +383,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -403,9 +403,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -419,7 +419,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'media')
+            ...modeSettings.filter(item => item !== 'media'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -433,7 +433,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'general_information')
+            ...modeSettings.filter(item => item !== 'general_information'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -447,7 +447,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'prices')
+            ...modeSettings.filter(item => item !== 'prices'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -461,7 +461,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'deliverability')
+            ...modeSettings.filter(item => item !== 'deliverability'),
         ]);
 
         await wrapper.vm.$nextTick();
@@ -475,7 +475,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'visibility_structure')
+            ...modeSettings.filter(item => item !== 'visibility_structure'),
         ]);
 
         await wrapper.vm.$nextTick();

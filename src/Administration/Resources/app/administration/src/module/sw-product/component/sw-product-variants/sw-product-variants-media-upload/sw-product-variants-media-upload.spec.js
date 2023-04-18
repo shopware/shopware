@@ -28,11 +28,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 'sw-button': true,
                 'sw-media-url-form': true,
                 'sw-media-preview-v2': true,
-                'sw-upload-listener': true
+                'sw-upload-listener': true,
             },
             mocks: {
                 $t: v => v,
-                $tc: v => v
+                $tc: v => v,
             },
             provide: {
                 repositoryFactory: {
@@ -43,20 +43,20 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                             },
                             search: () => {
                                 return Promise.resolve();
-                            }
+                            },
                         };
-                    }
+                    },
                 },
                 mediaDefaultFolderService: {
                     getDefaultFolderId: () => {
                         return Promise.resolve('id');
-                    }
+                    },
                 },
                 configService: {},
                 mediaService: {
                     removeByTag: () => null,
                     removeListener: () => null,
-                }
+                },
             },
             propsData: {
                 uploadTag: 'upload-tag',
@@ -68,8 +68,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                         { isShopwareContext: true },
                         listEntity,
                         listEntity.length,
-                        null
-                    )
+                        null,
+                    ),
                 },
                 parentProduct: {
                     media: new EntityCollection(
@@ -79,10 +79,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                         { isShopwareContext: true },
                         listEntity,
                         listEntity.length,
-                        null
-                    )
-                }
-            }
+                        null,
+                    ),
+                },
+            },
         });
     });
 
@@ -98,7 +98,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
     it('should contain "application/pdf" value', async () => {
         await wrapper.setProps({
-            fileAccept: 'application/pdf'
+            fileAccept: 'application/pdf',
         });
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
@@ -107,7 +107,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
     it('should contain file upload', async () => {
         await wrapper.setData({
-            inputType: 'file-upload'
+            inputType: 'file-upload',
         });
 
         const urlForm = wrapper.find('.sw-media-upload-v2__url-form');
@@ -120,7 +120,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     it('should show image and have buttons action', async () => {
         const entities = [{
             mediaId: 'mediaId',
-            id: 'id1'
+            id: 'id1',
         }];
 
         await wrapper.setProps({
@@ -133,8 +133,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
-                )
+                    null,
+                ),
             },
             parentProduct: {
                 media: new EntityCollection(
@@ -144,9 +144,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
 
         const image = wrapper.find('.sw-media-upload-v2__preview');
@@ -161,13 +161,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             {
                 mediaId: 'mediaId1',
                 media: 'media1',
-                id: 'id1'
+                id: 'id1',
             },
             {
                 mediaId: 'mediaId2',
                 media: 'media2',
-                id: 'id2'
-            }
+                id: 'id2',
+            },
         ];
 
         await wrapper.setProps({
@@ -180,9 +180,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
+                    null,
                 ),
-                coverId: 'id2'
+                coverId: 'id2',
             },
             parentProduct: {
                 media: new EntityCollection(
@@ -192,9 +192,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
 
         const cover = wrapper.find('.sw-product-variants-media-upload__preview-cover sw-media-preview-v2-stub');
@@ -213,12 +213,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const entities = [
             {
                 mediaId: 'mediaId1',
-                id: 'id1'
+                id: 'id1',
             },
             {
                 mediaId: 'mediaId2',
-                id: 'id2'
-            }
+                id: 'id2',
+            },
         ];
 
         await wrapper.setProps({
@@ -231,9 +231,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
+                    null,
                 ),
-                coverId: 'id1'
+                coverId: 'id1',
             },
             parentProduct: {
                 media: new EntityCollection(
@@ -243,13 +243,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
 
         const images = wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image');
-        expect(images.length).toBe(2);
+        expect(images).toHaveLength(2);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeTruthy();
 
         const media = images.at(1);
@@ -257,8 +257,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         await button.trigger('click');
         expect(wrapper
-            .findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image')
-            .length).toBe(1);
+            .findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image')).toHaveLength(1);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeFalsy();
     });
 
@@ -284,7 +283,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         wrapper.vm.createdComponent();
 
-        expect(wrapper.vm.mediaDefaultFolderId).toEqual('id');
+        expect(wrapper.vm.mediaDefaultFolderId).toBe('id');
         wrapper.vm.getMediaDefaultFolderId.mockRestore();
     });
 
@@ -314,8 +313,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await wrapper.setProps({
             source: {
                 id: 'id',
-                media: new EntityCollection('', '', {}, null, entities)
-            }
+                media: new EntityCollection('', '', {}, null, entities),
+            },
         });
 
         await wrapper.vm.addMedia(newMedia[0]);
@@ -330,8 +329,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await wrapper.setProps({
             source: {
                 id: 'id',
-                media: new EntityCollection('', '', {}, null, entities)
-            }
+                media: new EntityCollection('', '', {}, null, entities),
+            },
         });
 
         await wrapper.vm.onUploadMediaSuccessful({ targetId: 'targetId' });
@@ -353,7 +352,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         expect(wrapper.vm.addMedia).toHaveBeenCalledWith(newMedia[0]);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-product.mediaForm.errorMediaItemDuplicated'
+            message: 'sw-product.mediaForm.errorMediaItemDuplicated',
         });
 
         wrapper.vm.addMedia.mockRestore();
@@ -368,8 +367,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await wrapper.setProps({
             source: {
                 id: 'id',
-                media: new EntityCollection('', '', {}, null, entities)
-            }
+                media: new EntityCollection('', '', {}, null, entities),
+            },
         });
 
         await wrapper.vm.onUploadMediaSuccessful({ targetId: 'targetId' });
@@ -377,8 +376,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(wrapper.vm.source.media).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ mediaId: 'mediaId' }),
-                expect.objectContaining({ mediaId: 'targetId' })
-            ])
+                expect.objectContaining({ mediaId: 'targetId' }),
+            ]),
         );
     });
 
@@ -390,16 +389,16 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await wrapper.setProps({
             source: {
                 id: 'id',
-                media: new EntityCollection('', '', {}, null, entities)
-            }
+                media: new EntityCollection('', '', {}, null, entities),
+            },
         });
 
         await wrapper.vm.onUploadMediaFailed({ targetId: 'mediaId' });
 
         expect(wrapper.vm.source.media).not.toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ mediaId: 'mediaId' })
-            ])
+                expect.objectContaining({ mediaId: 'mediaId' }),
+            ]),
         );
     });
 
@@ -407,12 +406,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const entities = [
             {
                 mediaId: 'mediaId1',
-                id: 'id1'
+                id: 'id1',
             },
             {
                 mediaId: 'mediaId2',
-                id: 'id2'
-            }
+                id: 'id2',
+            },
         ];
 
         await wrapper.setProps({
@@ -425,9 +424,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
+                    null,
                 ),
-                coverId: 'id2'
+                coverId: 'id2',
             },
             parentProduct: {
                 media: new EntityCollection(
@@ -437,9 +436,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
 
         expect(wrapper.find('.sw-product-variants-media-upload__regular-button').exists()).toBeTruthy();
@@ -449,16 +448,16 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const entities = [
             {
                 mediaId: 'mediaId1',
-                id: 'id1'
+                id: 'id1',
             },
             {
                 mediaId: 'mediaId2',
-                id: 'id2'
+                id: 'id2',
             },
             {
                 mediaId: 'mediaId3',
-                id: 'id3'
-            }
+                id: 'id3',
+            },
         ];
 
         await wrapper.setProps({
@@ -471,9 +470,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
+                    null,
                 ),
-                coverId: 'id2'
+                coverId: 'id2',
             },
             parentProduct: {
                 media: new EntityCollection(
@@ -483,9 +482,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     { isShopwareContext: true },
                     entities,
                     entities.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
 
         expect(wrapper.find('.sw-product-variants-media-upload__compact-button').exists()).toBeTruthy();

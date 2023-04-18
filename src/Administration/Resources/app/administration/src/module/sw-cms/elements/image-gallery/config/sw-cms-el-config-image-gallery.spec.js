@@ -13,15 +13,15 @@ const mediaDataMock = [
     {
         media: {
             id: '1',
-            url: 'http://shopware.com/image1.jpg'
-        }
+            url: 'http://shopware.com/image1.jpg',
+        },
     },
     {
         media: {
             id: '2',
-            url: 'http://shopware.com/image2.jpg'
-        }
-    }
+            url: 'http://shopware.com/image2.jpg',
+        },
+    },
 ];
 
 async function createWrapper(activeTab = 'content') {
@@ -33,22 +33,22 @@ async function createWrapper(activeTab = 'content') {
                 },
                 getCmsElementRegistry: () => {
                     return { 'image-gallery': {} };
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(mediaDataMock)
+                        search: () => Promise.resolve(mediaDataMock),
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-tabs': {
                 data() {
                     return { active: activeTab };
                 },
-                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
+                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
@@ -59,73 +59,73 @@ async function createWrapper(activeTab = 'content') {
             'sw-select-field': {
                 // eslint-disable-next-line max-len
                 template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options']
+                props: ['value', 'options'],
             },
             'sw-text-field': true,
             'sw-alert': true,
-            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field')
+            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
         },
         propsData: {
             element: {
                 config: {
                     sliderItems: {
                         source: 'static',
-                        value: []
+                        value: [],
                     },
                     navigationArrows: {
                         source: 'static',
-                        value: 'inside'
+                        value: 'inside',
                     },
                     navigationDots: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     galleryPosition: {
                         source: 'static',
-                        value: 'left'
+                        value: 'left',
                     },
                     displayMode: {
                         source: 'static',
-                        value: 'standard'
+                        value: 'standard',
                     },
                     minHeight: {
                         source: 'static',
-                        value: '340px'
+                        value: '340px',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     zoom: {
                         source: 'static',
-                        value: false
+                        value: false,
                     },
                     fullScreen: {
                         source: 'static',
-                        value: false
+                        value: false,
                     },
                     keepAspectRatioOnZoom: {
                         source: 'static',
-                        value: true
+                        value: true,
                     },
                     magnifierOverGallery: {
                         source: 'static',
-                        value: false
-                    }
+                        value: false,
+                    },
                 },
-                data: {}
+                data: {},
             },
-            defaultConfig: {}
+            defaultConfig: {},
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
-                }
+                        type: 'ladingpage',
+                    },
+                },
             };
-        }
+        },
     });
 }
 
@@ -135,13 +135,13 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
             namespaced: true,
             state: {
                 currentMappingTypes: {},
-                currentDemoEntity: null
+                currentDemoEntity: null,
             },
             mutations: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
-                }
-            }
+                },
+            },
         });
     });
 
@@ -165,11 +165,11 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
                 config: {
                     sliderItems: {
                         source: 'mapped',
-                        value: 'product.media'
-                    }
+                        value: 'product.media',
+                    },
                 },
-                data: {}
-            }
+                data: {},
+            },
         });
 
         const mediaList = wrapper.find('sw-media-list-selection-v2-stub');

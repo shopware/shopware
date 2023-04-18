@@ -14,13 +14,13 @@ Shopware.Component.register('sw-custom-field-set-detail-base', swCustomFieldSetD
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',
     customFields: {},
-    _isNew: false
+    _isNew: false,
 };
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-custom-field-set-detail-base'), {
         propsData: {
-            set: set
+            set: set,
         },
         mocks: {
             $tc: key => {
@@ -28,13 +28,13 @@ async function createWrapper(privileges = []) {
                     return 'position';
                 }
                 return 'foo';
-            }
+            },
         },
         provide: {
             customFieldDataProviderService: {
                 getEntityNames() {
                     return 'entity_name_example';
-                }
+                },
             },
             validationService: {},
             acl: {
@@ -42,8 +42,8 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-card': true,
@@ -53,10 +53,10 @@ async function createWrapper(privileges = []) {
                         <input :label="label"
                                class="sw-field-stub">
                         </input>
-                    `
+                    `,
             },
-            'sw-multi-select': true
-        }
+            'sw-multi-select': true,
+        },
     });
 }
 
@@ -70,6 +70,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
         const wrapper = await createWrapper();
 
         const positionField = wrapper.findAll('.sw-field-stub[label=position]');
-        expect(positionField.length).toBe(1);
+        expect(positionField).toHaveLength(1);
     });
 });

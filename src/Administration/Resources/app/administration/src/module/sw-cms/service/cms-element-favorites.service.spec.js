@@ -11,9 +11,9 @@ responses.addResponse({
             id: '8badf7ebe678ab968fe88c269c214ea6',
             userId: '8fe88c269c214ea68badf7ebe678ab96',
             key: CmsElementFavorites.USER_CONFIG_KEY,
-            value: []
-        }]
-    }
+            value: [],
+        }],
+    },
 });
 
 responses.addResponse({
@@ -21,8 +21,8 @@ responses.addResponse({
     url: '/user-config',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
@@ -30,7 +30,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
 
     beforeEach(() => {
         Shopware.State.get('session').currentUser = {
-            id: '8fe88c269c214ea68badf7ebe678ab96'
+            id: '8fe88c269c214ea68badf7ebe678ab96',
         };
 
         service = new CmsElementFavorites();
@@ -95,7 +95,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const expectedValues = {
             userId: Shopware.State.get('session').currentUser.id,
             key: CmsElementFavorites.USER_CONFIG_KEY,
-            value: []
+            value: [],
         };
 
         const entity = service.createUserConfigEntity(CmsElementFavorites.USER_CONFIG_KEY);
@@ -105,7 +105,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
 
     it('handleEmptyUserConfig > replaces the property "value" with an empty array', () => {
         const userConfigMock = {
-            value: {}
+            value: {},
         };
 
         service.handleEmptyUserConfig(userConfigMock);
@@ -121,6 +121,6 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     });
 
     it('getCurrentUserId > returns the userId of the current session user', () => {
-        expect(service.getCurrentUserId()).toEqual('8fe88c269c214ea68badf7ebe678ab96');
+        expect(service.getCurrentUserId()).toBe('8fe88c269c214ea68badf7ebe678ab96');
     });
 });

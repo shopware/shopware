@@ -22,7 +22,7 @@ describe('searchPreferencesService', () => {
             getDefaultSearchPreferences: searchPreferencesService.getDefaultSearchPreferences,
             getUserSearchPreferences: searchPreferencesService.getUserSearchPreferences,
             processSearchPreferences: searchPreferencesService.processSearchPreferences,
-            processSearchPreferencesFields: searchPreferencesService.processSearchPreferencesFields
+            processSearchPreferencesFields: searchPreferencesService.processSearchPreferencesFields,
         }));
     });
 

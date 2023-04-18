@@ -12,14 +12,14 @@ async function createWrapper(customProps = {}) {
         stubs: {
             'sw-card': true,
             'sw-switch-field': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
         },
         propsData: {
             salesChannel: {
-                hreflangActive: true
+                hreflangActive: true,
             },
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -40,7 +40,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
 
     it('should disable the sw-switch-field', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const switchField = wrapper.find('sw-switch-field-stub');
@@ -58,7 +58,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
 
     it('should disable the sw-entity-single-select', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');

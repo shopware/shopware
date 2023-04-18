@@ -17,8 +17,8 @@ async function createWrapper(
     {
         privilegesMappings = [],
         rolePrivileges = [],
-        detailedPrivileges = []
-    } = {}
+        detailedPrivileges = [],
+    } = {},
 ) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
@@ -31,15 +31,15 @@ async function createWrapper(
     return shallowMount(await Shopware.Component.build('sw-users-permissions-detailed-permissions-grid'), {
         localVue,
         stubs: {
-            'sw-card': true
+            'sw-card': true,
         },
         provide: {
-            privileges: privilegesService
+            privileges: privilegesService,
         },
         propsData: Vue.observable({
             role: { privileges: rolePrivileges },
-            detailedPrivileges: detailedPrivileges
-        })
+            detailedPrivileges: detailedPrivileges,
+        }),
     });
 }
 
@@ -51,7 +51,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const entitySchemaMockPath = path.join(__dirname, './_mock/entity-schema.json');
 
         entitySchema = JSON.parse(
-            fs.readFileSync(entitySchemaMockPath, 'utf8')
+            fs.readFileSync(entitySchemaMockPath, 'utf8'),
         );
 
         Object.entries(entitySchema).forEach(([name, value]) => {
@@ -116,7 +116,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     it('should render a row for each entity with all checkboxes disabled when prop disabled is true', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         Object.keys(entitySchema).forEach(entityName => {
@@ -147,20 +147,20 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                         viewer: {
                             privileges: [
                                 'product:read',
-                                'document:read'
+                                'document:read',
                             ],
-                            dependencies: []
+                            dependencies: [],
                         },
                         editor: {
                             privileges: [
                                 'product:update',
-                                'document:update'
+                                'document:update',
                             ],
-                            dependencies: ['product.viewer']
-                        }
-                    }
-                }
-            ]
+                            dependencies: ['product.viewer'],
+                        },
+                    },
+                },
+            ],
         });
 
         ['product', 'document'].forEach(entityName => {
@@ -230,20 +230,20 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                         viewer: {
                             privileges: [
                                 'product:read',
-                                'document:read'
+                                'document:read',
                             ],
-                            dependencies: []
+                            dependencies: [],
                         },
                         editor: {
                             privileges: [
                                 'product:update',
-                                'document:update'
+                                'document:update',
                             ],
-                            dependencies: ['product.viewer']
-                        }
-                    }
-                }
-            ]
+                            dependencies: ['product.viewer'],
+                        },
+                    },
+                },
+            ],
         });
 
         ['product', 'document'].forEach(entityName => {
@@ -313,20 +313,20 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                         viewer: {
                             privileges: [
                                 'product:read',
-                                'document:read'
+                                'document:read',
                             ],
-                            dependencies: []
+                            dependencies: [],
                         },
                         editor: {
                             privileges: [
                                 'product:update',
-                                'document:update'
+                                'document:update',
                             ],
-                            dependencies: ['product.viewer']
-                        }
-                    }
-                }
-            ]
+                            dependencies: ['product.viewer'],
+                        },
+                    },
+                },
+            ],
         });
 
         const privileges = wrapper.props().role.privileges;
@@ -359,20 +359,20 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                         viewer: {
                             privileges: [
                                 'product:read',
-                                'document:read'
+                                'document:read',
                             ],
-                            dependencies: []
+                            dependencies: [],
                         },
                         editor: {
                             privileges: [
                                 'product:update',
-                                'document:update'
+                                'document:update',
                             ],
-                            dependencies: ['product.viewer']
-                        }
-                    }
-                }
-            ]
+                            dependencies: ['product.viewer'],
+                        },
+                    },
+                },
+            ],
         });
 
         const privileges = wrapper.props().role.privileges;

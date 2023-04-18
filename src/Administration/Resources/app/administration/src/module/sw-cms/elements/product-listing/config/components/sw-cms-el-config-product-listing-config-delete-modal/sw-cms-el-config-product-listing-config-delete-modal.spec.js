@@ -10,15 +10,15 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-delete-modal'), {
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
+                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
             },
             'sw-button': {
-                template: '<div class="sw-button"></div>'
-            }
+                template: '<div class="sw-button"></div>',
+            },
         },
         propsData: {
-            productSorting: {}
-        }
+            productSorting: {},
+        },
     });
 }
 
@@ -32,25 +32,25 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
     it('cancels the dialog', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.emitted('confirm')).toBe(undefined);
-        expect(wrapper.emitted('cancel')).toBe(undefined);
+        expect(wrapper.emitted('confirm')).toBeUndefined();
+        expect(wrapper.emitted('cancel')).toBeUndefined();
 
         wrapper.find('.sw-cms-el-config-product-listing-config-delete-modal__cancel').vm.$emit('click');
 
-        expect(wrapper.emitted('confirm')).toBe(undefined);
+        expect(wrapper.emitted('confirm')).toBeUndefined();
         expect(wrapper.emitted('cancel')).toStrictEqual([[]]);
     });
 
     it('confirms the dialog', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.emitted('confirm')).toBe(undefined);
-        expect(wrapper.emitted('cancel')).toBe(undefined);
+        expect(wrapper.emitted('confirm')).toBeUndefined();
+        expect(wrapper.emitted('cancel')).toBeUndefined();
 
 
         wrapper.find('.sw-cms-el-config-product-listing-config-delete-modal__confirm').vm.$emit('click');
 
         expect(wrapper.emitted('confirm')).toStrictEqual([[]]);
-        expect(wrapper.emitted('cancel')).toBe(undefined);
+        expect(wrapper.emitted('cancel')).toBeUndefined();
     });
 });

@@ -17,7 +17,7 @@ async function createWrapper(customOptions = {}) {
             'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
             'sw-button': await Shopware.Component.build('sw-button'),
         },
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -42,7 +42,7 @@ describe('src/app/component/form/sw-file-input', () => {
         });
 
         Object.defineProperty(fileInput.element, 'files', {
-            get: fileInputFilesGet
+            get: fileInputFilesGet,
         });
 
         Object.defineProperty(fileInput.element, 'value', {
@@ -57,12 +57,12 @@ describe('src/app/component/form/sw-file-input', () => {
 
     it('upload button should be enabled', async () => {
         const uploadButton = wrapper.find('.sw-file-input__button');
-        expect(uploadButton.attributes().disabled).not.toBeDefined();
+        expect(uploadButton.attributes().disabled).toBeUndefined();
     });
 
     it('upload button should be disabled', async () => {
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const uploadButton = wrapper.find('.sw-file-input__button');
@@ -80,7 +80,7 @@ describe('src/app/component/form/sw-file-input', () => {
         fileInputFilesGet.mockReturnValue([{
             size: 12345,
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         }]);
 
         await fileInput.trigger('change');
@@ -102,7 +102,7 @@ describe('src/app/component/form/sw-file-input', () => {
         fileInputFilesGet.mockReturnValue([{
             size: 12345,
             name: 'dummy.jpg',
-            type: 'image/jpg'
+            type: 'image/jpg',
         }]);
 
         await fileInput.trigger('change');
@@ -123,7 +123,7 @@ describe('src/app/component/form/sw-file-input', () => {
         fileInputFilesGet.mockReturnValue([{
             size: 1234,
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         }]);
 
         await fileInput.trigger('change');
@@ -131,7 +131,7 @@ describe('src/app/component/form/sw-file-input', () => {
         expect(wrapper.vm.selectedFile).toEqual({
             size: 1234,
             name: 'dummy.pdf',
-            type: 'application/pdf'
+            type: 'application/pdf',
         });
     });
 
@@ -148,8 +148,8 @@ describe('src/app/component/form/sw-file-input', () => {
             selectedFile: {
                 size: 1234,
                 name: 'dummy.pdf',
-                type: 'application/pdf'
-            }
+                type: 'application/pdf',
+            },
         });
 
         const fileName = wrapper.find('.sw-file-input__file-headline');
@@ -158,7 +158,7 @@ describe('src/app/component/form/sw-file-input', () => {
         expect(removeIcon.exists()).toBeTruthy();
         expect(fileName.exists()).toBeTruthy();
 
-        expect(fileName.text()).toEqual('dummy.pdf');
+        expect(fileName.text()).toBe('dummy.pdf');
     });
 
     it('should able to remove file when click on remove icon', async () => {
@@ -166,8 +166,8 @@ describe('src/app/component/form/sw-file-input', () => {
             selectedFile: {
                 size: 1234,
                 name: 'dummy.pdf',
-                type: 'application/pdf'
-            }
+                type: 'application/pdf',
+            },
         });
 
         const removeIcon = wrapper.find('.sw-file-input__remove-icon');

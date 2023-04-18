@@ -13,13 +13,13 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                 {
                     name: 'password',
                     label: {},
-                    type: 'password'
+                    type: 'password',
                 },
                 {
                     name: 'singleSelect',
                     label: {},
                     type: 'single-select',
-                    options: ['2', '3']
+                    options: ['2', '3'],
                 },
                 {
                     name: 'datetime',
@@ -31,37 +31,37 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                     label: {},
                     type: 'colorpicker',
                 },
-            ]
+            ],
         }],
         customerGroups: [
             {
                 id: '123',
                 translated: {
-                    name: 'customer name'
-                }
-            }
+                    name: 'customer name',
+                },
+            },
         ],
         customFieldSets: [
             {
                 id: '123',
                 translated: {
-                    name: 'customer name'
+                    name: 'customer name',
                 },
                 config: {
                     label: 'customFieldSets',
                 },
-            }
+            },
         ],
         customFields: [
             {
                 id: '123',
                 translated: {
-                    name: 'customer name'
+                    name: 'customer name',
                 },
                 config: {
                     label: 'customFieldSets',
                 },
-            }
+            },
         ],
         stateMachineState: [
             {
@@ -70,8 +70,8 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                     technicalName: 'order.state',
                 },
                 translated: {
-                    name: 'translated'
-                }
+                    name: 'translated',
+                },
             },
             {
                 technicalName: 'order_delivery',
@@ -79,8 +79,8 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                     technicalName: 'order_delivery.state',
                 },
                 translated: {
-                    name: 'translated'
-                }
+                    name: 'translated',
+                },
             },
             {
                 technicalName: 'order_transaction',
@@ -88,15 +88,15 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                     technicalName: 'order_transaction.state',
                 },
                 translated: {
-                    name: 'translated'
-                }
+                    name: 'translated',
+                },
             },
         ],
         documentTypes: [
             {
                 technicalName: 'mail',
                 translated: {
-                    name: 'translated'
+                    name: 'translated',
                 },
             },
         ],
@@ -105,7 +105,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             mailTemplateType: {
                 name: 'name',
                 description: 'description',
-            }
+            },
         }],
     };
 
@@ -129,7 +129,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         let expected = {
             value: ACTION.MAIL_SEND,
             icon: 'regular-envelope',
-            label: 'sw-flow.actions.mailSend'
+            label: 'sw-flow.actions.mailSend',
         };
 
         let actionTitle = service.getActionTitle(ACTION.MAIL_SEND);
@@ -139,7 +139,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         expected = {
             value: ACTION.SET_ORDER_STATE,
             icon: 'regular-shopping-bag-alt',
-            label: 'sw-flow.actions.setOrderState'
+            label: 'sw-flow.actions.setOrderState',
         };
 
         actionTitle = service.getActionTitle(ACTION.SET_ORDER_STATE);
@@ -158,7 +158,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         const expected = {
             value: ACTION.ADD_ORDER_TAG,
             icon: 'regular-tag',
-            label: 'sw-flow.actions.addTag'
+            label: 'sw-flow.actions.addTag',
         };
 
         const actionTitle = service.getActionTitle(ACTION.ADD_ORDER_TAG);
@@ -173,19 +173,19 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             { name: 'action.remove.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
             { name: 'action.remove.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
             { name: 'action.mail.send', requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'], extensions: [] },
-            { name: 'action.stop.flow', requirements: [], extensions: [] }
+            { name: 'action.stop.flow', requirements: [], extensions: [] },
         ];
 
         const allowedAware = [
             'Shopware\\Core\\Framework\\Event\\SalesChannelAware',
             'Shopware\\Core\\Framework\\Event\\OrderAware',
             'Shopware\\Core\\Framework\\Event\\MailAware',
-            'Shopware\\Core\\Framework\\Event\\CustomerAware'
+            'Shopware\\Core\\Framework\\Event\\CustomerAware',
         ];
 
         const expected = [
             { label: 'Order', value: 'order' },
-            { label: 'Customer', value: 'customer' }
+            { label: 'Customer', value: 'customer' },
         ];
 
         const entities = service.getAvailableEntities(ACTION.ADD_ORDER_TAG, actions, allowedAware, ['tags']);
@@ -225,10 +225,10 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     it('should be able to return empty string with empty action name', async () => {
         const sequence = {
             actionName: '',
-            config: {}
+            config: {},
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('');
+        expect(description).toBe('');
     });
 
     it('should be able to show description of app action', async () => {
@@ -262,19 +262,19 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     it('should be able to show stop flow description', () => {
         const sequence = {
             actionName: 'action.stop.flow',
-            config: {}
+            config: {},
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('sw-flow.actions.textStopFlowDescription');
+        expect(description).toBe('sw-flow.actions.textStopFlowDescription');
     });
 
     it('should be able to show customer status description', () => {
         const sequence = {
             actionName: 'action.change.customer.status',
-            config: {}
+            config: {},
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('sw-flow.modals.customerStatus.inactive');
+        expect(description).toBe('sw-flow.modals.customerStatus.inactive');
     });
 
     it('should be able to show customer affiliate description', () => {
@@ -283,27 +283,27 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             config: {
                 affiliateCode: {
                     upsert: 'a',
-                    value: 'value'
+                    value: 'value',
                 },
                 campaignCode: {
                     upsert: 'a',
-                    value: 'value'
-                }
-            }
+                    value: 'value',
+                },
+            },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('sw-flow.actions.labelTo<br>sw-flow.actions.labelAffiliateCode<br>sw-flow.actions.labelCampaignCode');
+        expect(description).toBe('sw-flow.actions.labelTo<br>sw-flow.actions.labelAffiliateCode<br>sw-flow.actions.labelCampaignCode');
     });
 
     it('should be able to show change customer status description', () => {
         const sequence = {
             actionName: 'action.change.customer.group',
             config: {
-                customerGroupId: '123'
-            }
+                customerGroupId: '123',
+            },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('customer name');
+        expect(description).toBe('customer name');
     });
 
     it('should be able to show customer custom field description', () => {
@@ -311,8 +311,8 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             actionName: 'action.set.customer.custom.field',
             config: {
                 customFieldSetId: '123',
-                customFieldId: '123'
-            }
+                customFieldId: '123',
+            },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
         expect(description).toContain('sw-flow.actions.labelCustomFieldSet<br>sw-flow.actions.labelCustomField');
@@ -324,8 +324,8 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             config: {
                 order: 'order',
                 order_delivery: 'order_delivery',
-                order_transaction: 'order_transaction'
-            }
+                order_transaction: 'order_transaction',
+            },
         };
 
         const render = `sw-flow.modals.status.labelOrderStatus: translated<br>
@@ -340,31 +340,31 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             actionName: 'action.generate.document',
             config: {
                 documentTypes: [{
-                    documentType: 'mail'
-                }]
-            }
+                    documentType: 'mail',
+                }],
+            },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('translated');
+        expect(description).toBe('translated');
     });
 
     it('should be able to send mail flow description', () => {
         const sequence = {
             actionName: 'action.mail.send',
             config: {
-                mailTemplateId: 'mailTemplate_id'
-            }
+                mailTemplateId: 'mailTemplate_id',
+            },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
-        expect(description).toEqual('sw-flow.actions.labelTemplate');
+        expect(description).toBe('sw-flow.actions.labelTemplate');
     });
 
     it('should be able to default action flow description', () => {
         const sequence = {
             actionName: 'action.default',
             config: {
-                addEntityTag: 'sw-flow.actions.addTag'
-            }
+                addEntityTag: 'sw-flow.actions.addTag',
+            },
         };
         const description = service.getActionDescriptions(data, sequence, translator);
         expect(description).toContain('sw-flow.actions.addTag');

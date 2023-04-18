@@ -15,19 +15,19 @@ const exampleModule = {
     name: 'SwagExampleApp',
     label: {
         'en-GB': 'Swag Example App',
-        'de-DE': 'Swag Example App'
+        'de-DE': 'Swag Example App',
     },
     modules: [
         {
             name: 'orderList',
             label: {
                 'de-DE': 'Bestellliste',
-                'en-GB': 'Order list'
+                'en-GB': 'Order list',
             },
             /* eslint-disable-next-line */
             source: 'example/iframe/orderlist?shop-id=L5RW86IMxHFLkj4S&shop-url=http://localhost:8000&timestamp=1602699100&shopware-shop-signature=b00fd4a7d90616ff49580b78b9ad4f3855d7c11b673ccc0d2894daeb3caa1d04'
-        }
-    ]
+        },
+    ],
 };
 
 describe('appModulesService', () => {
@@ -45,8 +45,8 @@ describe('appModulesService', () => {
         clientMock.onGet('/app-system/modules').reply(
             200,
             {
-                modules: [exampleModule]
-            }
+                modules: [exampleModule],
+            },
         );
 
         const modules = await appModulesService.fetchAppModules();

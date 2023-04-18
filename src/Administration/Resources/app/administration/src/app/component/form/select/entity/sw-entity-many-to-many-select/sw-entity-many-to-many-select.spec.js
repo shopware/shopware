@@ -20,7 +20,7 @@ const { Criteria } = Shopware.Data;
 const fixture = [
     { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
     { id: utils.createId(), name: 'second entry' },
-    { id: utils.createId(), name: 'third entry' }
+    { id: utils.createId(), name: 'third entry' },
 ];
 
 function getCollection() {
@@ -31,7 +31,7 @@ function getCollection() {
         new Criteria(1, 25),
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 
@@ -53,7 +53,7 @@ const createEntityManyToManySelect = async (customOptions) => {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>',
             },
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
@@ -70,15 +70,15 @@ const createEntityManyToManySelect = async (customOptions) => {
                 create: () => ({
                     search: jest.fn(() => Promise.resolve([])),
                     delete: deleteFn,
-                    assign: assignFn
-                })
-            }
-        }
+                    assign: assignFn,
+                }),
+            },
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-many-to-many-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -112,7 +112,7 @@ describe('components/sw-entity-many-to-many-select', () => {
             new Criteria(1, 25),
             searchResult,
             searchResult.length,
-            null
+            null,
         ));
         swEntityManyToManySelect.vm.onAdvancedSelectionSubmit(searchResult);
 

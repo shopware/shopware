@@ -8,7 +8,7 @@ import { resetCurrentDrag, getCurrentDragElement } from 'src/app/directive/dragd
 jest.useFakeTimers();
 jest.spyOn(global, 'setTimeout');
 
-const createWrapper = (dragConf) => {
+const createWrapper = (startingDragConfig) => {
     const localVue = createLocalVue();
 
     const div = document.createElement('div');
@@ -41,13 +41,13 @@ const createWrapper = (dragConf) => {
                     onDragStart: this.onDragStart,
                     onDragEnter: this.onDragEnter,
                     onDrop: this.onDrop,
-                    ...this.dragConfig
+                    ...this.dragConfig,
                 };
             },
         },
         data() {
             return {
-                dragConfig: dragConf
+                dragConfig: startingDragConfig,
             };
         },
         methods: {
@@ -65,13 +65,13 @@ const createWrapper = (dragConf) => {
 
             getIdName(index) {
                 return `sw-dragdrop--${index}`;
-            }
-        }
+            },
+        },
     };
 
     return shallowMount(dragdropComponent, {
         localVue,
-        attachTo: '#root'
+        attachTo: '#root',
     });
 };
 
@@ -80,13 +80,13 @@ describe('directives/dragdrop', () => {
     let draggable;
     let droppable;
 
-    beforeEach(() => {
-        document.body.innerHTML = '';
-    });
-
     beforeAll(() => {
         draggable = Shopware.Directive.getByName('draggable');
         droppable = Shopware.Directive.getByName('droppable');
+    });
+
+    beforeEach(() => {
+        document.body.innerHTML = '';
     });
 
     it('should be exist class name is--droppable', () => {
@@ -96,7 +96,7 @@ describe('directives/dragdrop', () => {
             wrapper.findAll('span')
                 .at(0)
                 .find('.is--droppable')
-                .exists()
+                .exists(),
         ).toBeTruthy();
     });
 
@@ -107,7 +107,7 @@ describe('directives/dragdrop', () => {
             wrapper.findAll('span')
                 .at(0)
                 .find('.is--draggable')
-                .exists()
+                .exists(),
         ).toBeTruthy();
     });
 
@@ -120,14 +120,14 @@ describe('directives/dragdrop', () => {
             name: 'draggable',
             value: {
                 data: {},
-            }
+            },
         };
 
-        expect(mockElement.className).toEqual('is--droppable is--draggable');
+        expect(mockElement.className).toBe('is--droppable is--draggable');
 
         draggable.unbind(mockElement, mockBinding);
 
-        expect(mockElement.className).toEqual('is--droppable');
+        expect(mockElement.className).toBe('is--droppable');
     });
 
     it('should update data for the droppable directive with default config', () => {
@@ -143,16 +143,16 @@ describe('directives/dragdrop', () => {
             },
         };
 
-        expect(mockElement.className).toEqual('is--droppable is--draggable');
+        expect(mockElement.className).toBe('is--droppable is--draggable');
 
         draggable.update(mockElement, mockBinding);
 
-        expect(mockElement.className).toEqual('is--droppable');
+        expect(mockElement.className).toBe('is--droppable');
     });
 
     it('should update data for the droppable directive with new config', () => {
-        wrapper = createWrapper({
-            disabled: true
+        createWrapper({
+            disabled: true,
         });
 
         const mockElement = document.getElementById('sw-dragdrop--2');
@@ -164,11 +164,11 @@ describe('directives/dragdrop', () => {
             },
         };
 
-        expect(mockElement.className).toEqual('is--droppable');
+        expect(mockElement.className).toBe('is--droppable');
 
         draggable.update(mockElement, mockBinding);
 
-        expect(mockElement.className).toEqual('is--droppable is--draggable');
+        expect(mockElement.className).toBe('is--droppable is--draggable');
     });
 
     it('should remove class name `is--droppable` for the droppable directive', () => {
@@ -183,16 +183,16 @@ describe('directives/dragdrop', () => {
             },
         };
 
-        expect(mockElement.className).toEqual('is--droppable is--draggable');
+        expect(mockElement.className).toBe('is--droppable is--draggable');
 
         droppable.unbind(mockElement, mockBinding);
 
-        expect(mockElement.className).toEqual('is--draggable');
+        expect(mockElement.className).toBe('is--draggable');
     });
 
     it('should create the correct class on drag', async () => {
         wrapper = createWrapper({
-            delay: 0
+            delay: 0,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
@@ -200,7 +200,7 @@ describe('directives/dragdrop', () => {
         expect(dragDrop1.classes()).not.toContain('is--dragging');
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         expect(dragDrop1.classes()).toContain('is--dragging');
@@ -208,7 +208,7 @@ describe('directives/dragdrop', () => {
 
     it('should set the correct values when dragDrop moves over dropzone', async () => {
         wrapper = createWrapper({
-            delay: 0
+            delay: 0,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
@@ -219,7 +219,7 @@ describe('directives/dragdrop', () => {
                 left: 0,
                 top: 0,
                 width: 100,
-                height: 100
+                height: 100,
             };
         });
         dragDrop2.element.getBoundingClientRect = jest.fn(() => {
@@ -234,16 +234,16 @@ describe('directives/dragdrop', () => {
         });
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         await dragDrop2.trigger('touchmove', {
             touches: [
                 {
                     pageX: 120,
-                    pageY: 60
-                }
-            ]
+                    pageY: 60,
+                },
+            ],
         });
 
         const currentDragElement = getCurrentDragElement();
@@ -269,7 +269,7 @@ describe('directives/dragdrop', () => {
                 left: 0,
                 top: 0,
                 width: 100,
-                height: 100
+                height: 100,
             };
         });
         dragDrop2.element.getBoundingClientRect = jest.fn(() => {
@@ -284,16 +284,16 @@ describe('directives/dragdrop', () => {
         });
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         await dragDrop2.trigger('touchmove', {
             touches: [
                 {
                     pageX: 120,
-                    pageY: 60
-                }
-            ]
+                    pageY: 60,
+                },
+            ],
         });
 
         const currentDragElement = getCurrentDragElement();
@@ -307,7 +307,7 @@ describe('directives/dragdrop', () => {
 
     it('should set the correct values when dragDrop leaves dropzone', async () => {
         wrapper = createWrapper({
-            delay: 0
+            delay: 0,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
@@ -325,16 +325,16 @@ describe('directives/dragdrop', () => {
         });
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         await dragDrop2.trigger('touchmove', {
             touches: [
                 {
                     pageX: 120,
-                    pageY: 60
-                }
-            ]
+                    pageY: 60,
+                },
+            ],
         });
 
         expect(dragDrop2.classes('is--valid-drop')).toBe(true);
@@ -343,9 +343,9 @@ describe('directives/dragdrop', () => {
             touches: [
                 {
                     pageX: 10,
-                    pageY: 60
-                }
-            ]
+                    pageY: 60,
+                },
+            ],
         });
 
         expect(dragDrop2.classes('is--valid-drop')).toBe(false);
@@ -353,20 +353,20 @@ describe('directives/dragdrop', () => {
 
     it('should stop the drag correctly', async () => {
         wrapper = createWrapper({
-            delay: 0
+            delay: 0,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
 
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         expect(dragDrop1.classes()).toContain('is--dragging');
 
         await dragDrop1.trigger('mouseup', {
-            buttons: 1
+            buttons: 1,
         });
 
         expect(dragDrop1.classes()).not.toContain('is--dragging');
@@ -374,13 +374,13 @@ describe('directives/dragdrop', () => {
 
     it('should stop the drag correctly with delay', async () => {
         wrapper = createWrapper({
-            delay: 100
+            delay: 100,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         jest.runAllTimers();
@@ -388,7 +388,7 @@ describe('directives/dragdrop', () => {
         expect(dragDrop1.classes()).toContain('is--dragging');
 
         await dragDrop1.trigger('mouseup', {
-            buttons: 1
+            buttons: 1,
         });
 
         expect(dragDrop1.classes()).not.toContain('is--dragging');
@@ -396,13 +396,13 @@ describe('directives/dragdrop', () => {
 
     it('should stop the drag correctly with delay before it gets triggered', async () => {
         wrapper = createWrapper({
-            delay: 100
+            delay: 100,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         // go 50ms forward, dragging should not be active
@@ -411,7 +411,7 @@ describe('directives/dragdrop', () => {
         expect(dragDrop1.classes()).not.toContain('is--dragging');
 
         await dragDrop1.trigger('mouseup', {
-            buttons: 1
+            buttons: 1,
         });
 
         // if mouseup would not trigger then it would start dragging because it is over 100ms
@@ -424,17 +424,17 @@ describe('directives/dragdrop', () => {
         const mockMethod = jest.fn(() => null);
         wrapper = createWrapper({
             delay: 0,
-            onDrop: () => mockMethod()
+            onDrop: () => mockMethod(),
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         await dragDrop1.trigger('mouseup', {
-            buttons: 1
+            buttons: 1,
         });
 
         expect(mockMethod).toHaveBeenCalled();
@@ -448,13 +448,15 @@ describe('directives/dragdrop', () => {
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 0
+            buttons: 0,
         });
+
+        expect(dragDrop1.classes()).not.toContain('is--dragging');
     });
 
     it('should update the dropConfig correctly so that the second drop is now invalid', async () => {
         wrapper = createWrapper({
-            delay: 0
+            delay: 0,
         });
 
         const dragDrop1 = wrapper.find('#sw-dragdrop--1');
@@ -465,7 +467,7 @@ describe('directives/dragdrop', () => {
                 left: 0,
                 top: 0,
                 width: 100,
-                height: 100
+                height: 100,
             };
         });
         dragDrop2.element.getBoundingClientRect = jest.fn(() => {
@@ -480,16 +482,16 @@ describe('directives/dragdrop', () => {
         });
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
 
         await dragDrop2.trigger('touchmove', {
             touches: [
                 {
                     pageX: 120,
-                    pageY: 60
-                }
-            ]
+                    pageY: 60,
+                },
+            ],
         });
 
         let currentDragElement = getCurrentDragElement();
@@ -501,7 +503,7 @@ describe('directives/dragdrop', () => {
         expect(dragDrop2.classes('is--invalid-drop')).toBe(false);
 
         await dragDrop1.trigger('mouseup', {
-            buttons: 1
+            buttons: 1,
         });
 
         // update dragConfig
@@ -509,21 +511,21 @@ describe('directives/dragdrop', () => {
             dragConfig: {
                 delay: 0,
                 validateDrop: () => false,
-            }
+            },
         });
 
         await flushPromises();
 
         await dragDrop1.trigger('mousedown', {
-            buttons: 1
+            buttons: 1,
         });
         await dragDrop2.trigger('touchmove', {
             touches: [
                 {
                     pageX: 120,
-                    pageY: 60
-                }
-            ]
+                    pageY: 60,
+                },
+            ],
         });
 
         currentDragElement = getCurrentDragElement();

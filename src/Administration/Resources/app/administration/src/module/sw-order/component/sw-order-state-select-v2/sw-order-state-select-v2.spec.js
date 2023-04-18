@@ -14,7 +14,7 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
                 },
             },
             propsData: {
-                stateType: 'order'
+                stateType: 'order',
             },
         });
     }
@@ -41,8 +41,8 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
                     id: 'do_pay',
                     name: 'In progress',
                     stateName: 'in_progress',
-                }
-            ]
+                },
+            ],
         });
 
         const singleSelect = wrapper.find('.sw-single-select');
@@ -59,8 +59,8 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
                     id: 'do_pay',
                     name: 'In progress',
                     stateName: 'in_progress',
-                }
-            ]
+                },
+            ],
         });
 
         const singleSelect = wrapper.find('.sw-single-select');
@@ -76,12 +76,12 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         const singleSelect = wrapper.find('.sw-single-select');
 
         expect(singleSelect.attributes('placeholder'))
-            .toEqual('sw-order.stateCard.labelSelectStatePlaceholder');
+            .toBe('sw-order.stateCard.labelSelectStatePlaceholder');
 
         await wrapper.setProps({
             placeholder: 'Open',
         });
 
-        expect(singleSelect.attributes('placeholder')).toEqual('Open');
+        expect(singleSelect.attributes('placeholder')).toBe('Open');
     });
 });

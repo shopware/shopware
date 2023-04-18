@@ -12,13 +12,13 @@ describe('app/service/locale-helper.service.js', () => {
             Shopware: { Context: { api: {} }, State: { dispatch: () => Promise.resolve() } },
             localeRepository: { get: () => Promise.resolve({ code: 'abc123def456' }) },
             snippetService: { getSnippets: () => Promise.resolve() },
-            localeFactory: {}
+            localeFactory: {},
         });
     });
 
     it('should be an class', async () => {
         const type = typeof LocaleHelperService;
-        expect(type).toEqual('function');
+        expect(type).toBe('function');
     });
 
     it('setLocaleWithId should call setLocaleWithCode', async () => {

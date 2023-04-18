@@ -16,7 +16,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
     const createWrapper = async (mailerSettings = {}) => {
         return shallowMount(await Shopware.Component.build('sw-settings-mailer-smtp'), {
             provide: {
-                validationService: {}
+                validationService: {},
             },
             stubs: {
                 'sw-field': await Shopware.Component.build('sw-field'),
@@ -38,7 +38,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
             },
             propsData: {
                 mailerSettings,
-            }
+            },
         });
     };
 

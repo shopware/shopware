@@ -30,9 +30,9 @@ responses.addResponse({
                     customFields: {
                         data: [{
                             type: 'custom_field',
-                            id: 'custom_field_id1'
+                            id: 'custom_field_id1',
                         }],
-                        links: { related: 'http://host/api/custom-field-set/custom_field_set_id1/custom-fields' }
+                        links: { related: 'http://host/api/custom-field-set/custom_field_set_id1/custom-fields' },
                     },
                 },
             },
@@ -51,7 +51,7 @@ responses.addResponse({
                         placeholder: { 'en-GB': 'Type a number...' },
                         componentName: 'sw-field',
                         customFieldType: 'number',
-                        customFieldPosition: 1
+                        customFieldPosition: 1,
                     },
                     active: true,
                     customFieldSetId: 'custom_field_set_id1',
@@ -68,10 +68,10 @@ responses.addResponse({
                     entityName: 'customer',
                 },
                 relationships: {
-                    customFieldSet: {}
+                    customFieldSet: {},
                 },
             }],
-    }
+    },
 });
 
 async function createWrapper() {
@@ -82,7 +82,7 @@ async function createWrapper() {
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
-    </div>`
+    </div>`,
             },
             'sw-button': true,
             'sw-button-group': true,
@@ -100,13 +100,13 @@ async function createWrapper() {
         },
         provide: {
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve({})
+                getCustomFieldSets: () => Promise.resolve({}),
             },
-            productStreamConditionService: {}
+            productStreamConditionService: {},
         },
         propsData: {
-            productStreamId: null
-        }
+            productStreamId: null,
+        },
     });
 }
 

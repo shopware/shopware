@@ -17,7 +17,7 @@ const categoryData = [{
         id: 'categoryId-0',
     },
     translated: {
-        name: 'categoryName-0'
+        name: 'categoryName-0',
     },
     relationships: {},
 }, {
@@ -26,7 +26,7 @@ const categoryData = [{
         id: 'categoryId-1',
     },
     translated: {
-        name: 'categoryName-1'
+        name: 'categoryName-1',
     },
     relationships: {},
 }, {
@@ -35,7 +35,7 @@ const categoryData = [{
         id: 'categoryId-2',
     },
     translated: {
-        name: 'categoryName-2'
+        name: 'categoryName-2',
     },
     relationships: {},
 }];
@@ -48,7 +48,7 @@ function createCategoryCollection() {
         { isShopwareContext: true },
         [],
         2,
-        null
+        null,
     );
 }
 
@@ -58,7 +58,7 @@ responses.addResponse({
     method: 'Post',
     url: '/search/category',
     status: 200,
-    response: { data: categoryData }
+    response: { data: categoryData },
 });
 
 async function createWrapper() {
@@ -71,11 +71,11 @@ async function createWrapper() {
             'sw-label': true,
             'sw-icon': true,
             'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-tree': await Shopware.Component.build('sw-tree')
+            'sw-tree': await Shopware.Component.build('sw-tree'),
         },
         propsData: {
             placeholder: 'some-placeholder',
-            categoriesCollection: createCategoryCollection()
+            categoriesCollection: createCategoryCollection(),
         },
         attachTo: document.body,
     });
@@ -95,7 +95,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         await flushPromises();
 
         await wrapper.setProps({
-            singleSelect: true
+            singleSelect: true,
         });
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);

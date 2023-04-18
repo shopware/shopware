@@ -23,7 +23,7 @@ async function createWrapper(
     fieldType = null,
     conditionType = '',
     entity = '',
-    render = false
+    render = false,
 ) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
@@ -31,14 +31,14 @@ async function createWrapper(
 
     let stubs = {
         'sw-container': {
-            template: '<div class="sw-container"><slot></slot></div>'
+            template: '<div class="sw-container"><slot></slot></div>',
         },
         'sw-single-select': true,
         'sw-text-field': true,
         'sw-arrow-field': {
-            template: '<div class="sw-arrow-field"><slot></slot></div>'
+            template: '<div class="sw-arrow-field"><slot></slot></div>',
         },
-        'sw-entity-single-select': true
+        'sw-entity-single-select': true,
     };
 
     if (render) {
@@ -54,8 +54,8 @@ async function createWrapper(
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
-            }
+                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+            },
         };
     }
 
@@ -63,28 +63,28 @@ async function createWrapper(
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => {}
-                })
+                    search: () => {},
+                }),
             },
             conditionDataProviderService: {
                 getOperatorSet: () => [],
                 allowedJsonAccessors: {
                     'json.test': {
                         value: 'json.test',
-                        type: 'string'
-                    }
-                }
+                        type: 'string',
+                    },
+                },
             },
             acl: {
                 can: identifier => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             productCustomFields: {
-                test: 'customFields.test'
-            }
+                test: 'customFields.test',
+            },
         },
         propsData: {
             definition: {
@@ -94,13 +94,13 @@ async function createWrapper(
                 isJsonField: () => false,
                 filterProperties: () => {
                     return {};
-                }
+                },
             },
             condition: {
-                type: conditionType
-            }
+                type: conditionType,
+            },
         },
-        stubs: stubs
+        stubs: stubs,
     });
 }
 
@@ -123,7 +123,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         ['boolean', 'equals', 'sw-single-select-stub'],
         ['empty', 'equals', 'sw-single-select-stub'],
         ['uuid', 'equals', 'sw-entity-single-select-stub', 'product'],
-        ['uuid', 'equals', 'sw-entity-single-select-stub']
+        ['uuid', 'equals', 'sw-entity-single-select-stub'],
     ])('should have a disabled input with %s field type', async (fieldType, actualCondition, element, entity = '') => {
         const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity);
         await wrapper.setProps({ disabled: true });
@@ -141,12 +141,12 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
             definition: {
                 entity: 'product',
                 getField: () => undefined,
-                isJsonField: () => false
-            }
+                isJsonField: () => false,
+            },
         });
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.fieldDefinition).toEqual('customFields.test');
+        expect(wrapper.vm.fieldDefinition).toBe('customFields.test');
     });
 
     it('should fire event when trigger value for boolean type', async () => {
@@ -178,8 +178,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
-        expect(wrapper.emitted('boolean-change')[0][0].type).toEqual('equals');
-        expect(wrapper.emitted('boolean-change')[0][0].value).toEqual('1');
+        expect(wrapper.emitted('boolean-change')[0][0].type).toBe('equals');
+        expect(wrapper.emitted('boolean-change')[0][0].value).toBe('1');
     });
 
     it('should fire event with type \`not\` when trigger value for boolean type No', async () => {
@@ -196,8 +196,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueNo.trigger('click');
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
-        expect(wrapper.emitted('boolean-change')[0][0].type).toEqual('notEquals');
-        expect(wrapper.emitted('boolean-change')[0][0].value).toEqual('0');
+        expect(wrapper.emitted('boolean-change')[0][0].type).toBe('notEquals');
+        expect(wrapper.emitted('boolean-change')[0][0].value).toBe('0');
     });
 
     it('should fire events with correct types when trigger value for empty type changes', async () => {
@@ -215,7 +215,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('empty-change')).toBeTruthy();
-        expect(wrapper.emitted('empty-change')[0][0].type).toEqual('notEquals');
+        expect(wrapper.emitted('empty-change')[0][0].type).toBe('notEquals');
 
         await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
@@ -226,7 +226,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueYes.trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.emitted('empty-change')[1][0].type).toEqual('equals');
+        expect(wrapper.emitted('empty-change')[1][0].type).toBe('equals');
     });
 
     it('should return correct fieldDefinition with json accessor', async () => {
@@ -237,14 +237,14 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
             definition: {
                 entity: 'product',
                 getField: () => undefined,
-                isJsonField: () => false
-            }
+                isJsonField: () => false,
+            },
         });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.fieldDefinition).toEqual({
             value: 'json.test',
-            type: 'string'
+            type: 'string',
         });
     });
 
@@ -257,7 +257,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 entity: 'product',
                 getField: () => {
                     return {
-                        type: 'uuid'
+                        type: 'uuid',
                     };
                 },
                 isJsonField: () => false,
@@ -269,8 +269,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                     const properties = {
                         fkField: {
                             localField: 'fkField',
-                            relation: 'many_to_one'
-                        }
+                            relation: 'many_to_one',
+                        },
                     };
 
                     const result = {};
@@ -281,12 +281,12 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                     });
 
                     return result;
-                }
-            }
+                },
+            },
         });
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.fieldType).toEqual('empty');
+        expect(wrapper.vm.fieldType).toBe('empty');
     });
 });
 

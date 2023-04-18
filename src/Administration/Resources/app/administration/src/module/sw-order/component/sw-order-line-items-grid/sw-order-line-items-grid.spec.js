@@ -30,15 +30,15 @@ const mockItems = [
                 {
                     price: 200,
                     tax: 40,
-                    taxRate: 20
-                }
+                    taxRate: 20,
+                },
             ],
             taxRules: [
                 {
                     taxRate: 20,
-                    percentage: 100
-                }
-            ]
+                    percentage: 100,
+                },
+            ],
         },
         isNew: () => false,
     },
@@ -56,18 +56,18 @@ const mockItems = [
                 {
                     price: 100,
                     tax: 10,
-                    taxRate: 10
-                }
+                    taxRate: 10,
+                },
             ],
             taxRules: [
                 {
                     taxRate: 10,
-                    percentage: 100
-                }
-            ]
+                    percentage: 100,
+                },
+            ],
         },
         priceDefinition: {
-            price: 100
+            price: 100,
         },
         isNew: () => false,
     },
@@ -85,21 +85,21 @@ const mockItems = [
                 {
                     price: -100,
                     tax: -10,
-                    taxRate: 10
-                }
+                    taxRate: 10,
+                },
             ],
             taxRules: [
                 {
                     taxRate: 10,
-                    percentage: 100
-                }
-            ]
+                    percentage: 100,
+                },
+            ],
         },
         priceDefinition: {
-            price: 100
+            price: 100,
         },
         isNew: () => false,
-    }
+    },
 ];
 
 const mockMultipleTaxesItem = {
@@ -110,25 +110,25 @@ const mockMultipleTaxesItem = {
             {
                 price: -66.66,
                 tax: -13.33,
-                taxRate: 20
+                taxRate: 20,
             },
             {
                 price: -33.33,
                 tax: -3.33,
-                taxRate: 10
-            }
+                taxRate: 10,
+            },
         ],
         taxRules: [
             {
                 taxRate: 20,
-                percentage: 66.66
+                percentage: 66.66,
             },
             {
                 taxRate: 10,
-                percentage: 33.33
-            }
-        ]
-    }
+                percentage: 33.33,
+            },
+        ],
+    },
 };
 
 const deleteEndpoint = jest.fn(() => Promise.resolve());
@@ -145,7 +145,7 @@ async function createWrapper({ privileges = [] }) {
         },
         update(el, binding) {
             el.setAttribute('tooltip-message', binding.value.message);
-        }
+        },
     });
 
     localVue.filter('currency', (currency) => currency);
@@ -155,16 +155,16 @@ async function createWrapper({ privileges = [] }) {
         propsData: {
             order: {
                 price: {
-                    taxStatus: ''
+                    taxStatus: '',
                 },
                 currency: {
-                    shortName: 'EUR'
+                    shortName: 'EUR',
                 },
                 lineItems: [],
                 taxStatus: '',
                 itemRounding: {
-                    decimals: 2
-                }
+                    decimals: 2,
+                },
             },
             context: {
                 authToken: {
@@ -182,8 +182,8 @@ async function createWrapper({ privileges = [] }) {
                             id: Shopware.Utils.createId(),
                         };
                     },
-                    delete: deleteEndpoint
-                })
+                    delete: deleteEndpoint,
+                }),
             },
             orderService: {
                 addProductToOrder: () => Promise.resolve({}),
@@ -195,29 +195,29 @@ async function createWrapper({ privileges = [] }) {
                     if (!key) return true;
 
                     return privileges.includes(key);
-                }
+                },
             },
             feature: {
-                isActive: () => true
-            }
+                isActive: () => true,
+            },
         },
         stubs: {
             'sw-container': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-group': {
-                template: '<div class="sw-button-group"><slot></slot></div>'
+                template: '<div class="sw-button-group"><slot></slot></div>',
             },
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-context-menu-divider': true,
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>'
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
             },
             'sw-card-filter': true,
             'sw-checkbox-field': {
                 template: '<input class="sw-checkbox-field" type="checkbox" :checked="value" @change="$emit(\'change\', $event.target.value)" />',
-                props: ['value']
+                props: ['value'],
             },
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-settings': true,
@@ -228,14 +228,14 @@ async function createWrapper({ privileges = [] }) {
             'sw-number-field': {
                 template: '<input class="sw-number-field" type="number" v-model="value" />',
                 props: {
-                    value: 0
-                }
+                    value: 0,
+                },
             },
             'sw-order-product-select': {
                 template: '<input class="sw-order-product-select" v-model="value" />',
                 props: {
-                    value: 0
-                }
+                    value: 0,
+                },
             },
             'sw-modal': {
                 template: `
@@ -243,7 +243,7 @@ async function createWrapper({ privileges = [] }) {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
         },
         mocks: {
@@ -253,8 +253,8 @@ async function createWrapper({ privileges = [] }) {
                 }
 
                 return t;
-            }
-        }
+            },
+        },
     });
 }
 
@@ -267,16 +267,16 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
                         PRODUCT: 'product',
                         CREDIT: 'credit',
                         CUSTOM: 'custom',
-                        PROMOTION: 'promotion'
+                        PROMOTION: 'promotion',
                     });
-                }
+                },
             };
         });
     });
 
     it('the create discounts button should be disabled', async () => {
         const wrapper = await createWrapper({
-            privileges: ['orders.create_discounts']
+            privileges: ['orders.create_discounts'],
         });
 
         const button = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
@@ -296,8 +296,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         const productItem = wrapper.find('.sw-data-grid__row--0');
@@ -328,8 +328,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
@@ -344,8 +344,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [{ ...mockMultipleTaxesItem }]
-            }
+                lineItems: [{ ...mockMultipleTaxesItem }],
+            },
         });
 
         const creditItem = wrapper.find('.sw-data-grid__row--0');
@@ -360,8 +360,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [{ ...mockMultipleTaxesItem }]
-            }
+                lineItems: [{ ...mockMultipleTaxesItem }],
+            },
         });
 
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid__item-tax-tooltip');
@@ -376,18 +376,18 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         await wrapper.setData({
-            searchTerm: 'item product'
+            searchTerm: 'item product',
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
         const productLabel = firstRow.find('.sw-data-grid__cell--label');
 
-        expect(productLabel.text()).toEqual('Product item');
+        expect(productLabel.text()).toBe('Product item');
     });
 
     it('should automatically convert negative value of credit item price when user enter positive value', async () => {
@@ -396,18 +396,18 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
+                lineItems: [...mockItems],
             },
-            editable: true
+            editable: true,
         });
 
         const creditItem = wrapper.vm.order.lineItems[2];
         wrapper.vm.checkItemPrice(creditItem.priceDefinition.price, creditItem);
-        expect(creditItem.priceDefinition.price < 0).toEqual(true);
+        expect(creditItem.priceDefinition.price < 0).toBe(true);
 
         const customItem = wrapper.vm.order.lineItems[1];
         wrapper.vm.checkItemPrice(customItem.priceDefinition.price, customItem);
-        expect(customItem.priceDefinition.price > 0).toEqual(true);
+        expect(customItem.priceDefinition.price > 0).toBe(true);
     });
 
     it('should have vat column and price label is not tax free when tax status is tax free', async () => {
@@ -415,15 +415,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnVat = header.find('.sw-data-grid__cell--4');
         const columnPrice = header.find('.sw-data-grid__cell--1');
         expect(columnVat.exists()).toBe(true);
-        expect(columnPrice.text()).not.toEqual('sw-order.createBase.columnPriceTaxFree');
+        expect(columnPrice.text()).not.toBe('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -432,15 +432,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-                taxStatus: 'tax-free'
-            }
+                taxStatus: 'tax-free',
+            },
         });
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnVat = header.find('.sw-data-grid__cell--5');
         const columnPrice = header.find('.sw-data-grid__cell--3');
         expect(columnVat.exists()).toBe(false);
-        expect(columnPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
+        expect(columnPrice.text()).toBe('sw-order.detailBase.columnPriceTaxFree');
     });
 
     // eslint-disable-next-line max-len
@@ -450,9 +450,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
+                lineItems: [...mockItems],
             },
-            editable: true
+            editable: true,
         });
 
         const productItem = wrapper.vm.order.lineItems[0];
@@ -463,7 +463,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(customItem.priceDefinition).toMatchObject(customItem.priceDefinition);
 
         wrapper.vm.updateItemQuantity(customItem);
-        expect(customItem.priceDefinition.quantity === customItem.quantity).toEqual(true);
+        expect(customItem.priceDefinition.quantity === customItem.quantity).toBe(true);
     });
 
     it('should show total price title based on tax status correctly', async () => {
@@ -476,76 +476,76 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-                taxStatus: 'tax-free'
-            }
+                taxStatus: 'tax-free',
+            },
         });
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--4');
-        expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
+        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-                taxStatus: 'gross'
-            }
+                taxStatus: 'gross',
+            },
         });
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceGross');
+        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-                taxStatus: 'net'
-            }
+                taxStatus: 'net',
+            },
         });
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
+        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
     });
 
     it('should able to create new empty line item', async () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(0);
+        expect(itemRows).toHaveLength(0);
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('1 x');
-        expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toEqual('...');
-        expect(firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]').text()).toEqual('0 %');
-        expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toEqual('...');
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1 x');
+        expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
+        expect(firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]').text()).toBe('0 %');
+        expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
     });
 
     it('should able to create new product line item', async () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
@@ -561,15 +561,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid__create-custom-item');
         await buttonAddCustomItem.trigger('click');
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
@@ -583,15 +583,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             privileges: [
                 'order.viewer',
                 'order.editor',
-                'orders.create_discounts'
-            ]
+                'orders.create_discounts',
+            ],
         });
 
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
         await buttonAddCreditItem.trigger('click');
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
@@ -604,15 +604,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
@@ -628,20 +628,20 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [{ ...mockItems[0] }],
-                taxStatus: 'gross'
-            }
+                taxStatus: 'gross',
+            },
         });
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]')
@@ -655,38 +655,38 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]')
             .trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(0);
+        expect(itemRows).toHaveLength(0);
     });
 
     it('should able to delete multiple items', async () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [{ ...mockItems[0] }],
-                taxStatus: 'gross'
-            }
+                taxStatus: 'gross',
+            },
         });
 
         const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
@@ -703,8 +703,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -713,7 +713,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(2);
+        expect(itemRows).toHaveLength(2);
 
         const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
         await selectAllCheckBox.setChecked(true);
@@ -722,27 +722,27 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await deleteAllButton.trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(0);
+        expect(itemRows).toHaveLength(0);
     });
 
     it('should able to edit single item', async () => {
         const wrapper = await createWrapper({
             privileges: [
                 'order.viewer',
-                'order.editor'
-            ]
+                'order.editor',
+            ],
         });
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [{ ...mockItems[0] }],
-                taxStatus: 'gross'
-            }
+                taxStatus: 'gross',
+            },
         });
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows.length).toEqual(1);
+        expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
         await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
@@ -759,8 +759,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-                taxStatus: 'gross'
-            }
+                taxStatus: 'gross',
+            },
         });
         await wrapper.vm.$nextTick();
 
@@ -786,8 +786,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-                taxStatus: 'gross'
-            }
+                taxStatus: 'gross',
+            },
         });
 
         const deleteActions = wrapper.findAll('.sw_order_line_items_grid-item__delete-action');
@@ -813,13 +813,13 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems],
-            }
+            },
         });
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnProductNumber = header.find('.sw-data-grid__cell--2');
 
-        expect(columnProductNumber.text()).toEqual('sw-order.detailBase.columnProductNumber');
+        expect(columnProductNumber.text()).toBe('sw-order.detailBase.columnProductNumber');
     });
 
     it('should show items correctly when search by product number', async () => {
@@ -828,8 +828,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems]
-            }
+                lineItems: [...mockItems],
+            },
         });
 
         wrapper.vm.$refs.dataGrid.currentColumns.map((item) => {
@@ -841,12 +841,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         await wrapper.setData({
-            searchTerm: 'product number'
+            searchTerm: 'product number',
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
         const productLabel = firstRow.find('.sw-data-grid__cell--label');
 
-        expect(productLabel.text()).toEqual('Product item');
+        expect(productLabel.text()).toBe('Product item');
     });
 });

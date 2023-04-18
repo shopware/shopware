@@ -19,13 +19,13 @@ async function createWrapper(privileges = []) {
             $tc: key => key,
             $route: {
                 params: {
-                    id: 'id'
-                }
+                    id: 'id',
+                },
             },
             $device: {
                 getSystemKey: () => {},
-                onResize: () => {}
-            }
+                onResize: () => {},
+            },
         },
 
         propsData: {
@@ -52,9 +52,9 @@ async function createWrapper(privileges = []) {
                 translated: {},
                 translations: [],
                 updatedAt: '2020-08-16T06:57:40.559+00:00',
-                vatIdRequired: false
+                vatIdRequired: false,
             },
-            isLoading: false
+            isLoading: false,
         },
 
         provide: {
@@ -62,15 +62,15 @@ async function createWrapper(privileges = []) {
                 create: () => ({
                     get: () => {
                         return Promise.resolve({});
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
         },
 
@@ -100,10 +100,10 @@ async function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>
-                `
+                `,
             },
-            'sw-empty-state': true
-        }
+            'sw-empty-state': true,
+        },
     });
 }
 
@@ -122,7 +122,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should be able to create a new country state', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -142,7 +142,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should be able to edit a country state', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
@@ -153,11 +153,11 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
                         id: '1234',
                         shortCode: 'DE-BE',
                         translated: {
-                            name: 'Berlin'
-                        }
-                    }
-                ]
-            }
+                            name: 'Berlin',
+                        },
+                    },
+                ],
+            },
         });
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
@@ -178,11 +178,11 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
                         id: '1234',
                         shortCode: 'DE-BE',
                         translated: {
-                            name: 'Berlin'
-                        }
-                    }
-                ]
-            }
+                            name: 'Berlin',
+                        },
+                    },
+                ],
+            },
         });
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
@@ -192,7 +192,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
 
     it('should be able to delete a country state', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -204,11 +204,11 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
                         id: '1234',
                         shortCode: 'DE-BE',
                         translated: {
-                            name: 'Berlin'
-                        }
-                    }
-                ]
-            }
+                            name: 'Berlin',
+                        },
+                    },
+                ],
+            },
         });
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
@@ -228,11 +228,11 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
                         id: '1234',
                         shortCode: 'DE-BE',
                         translated: {
-                            name: 'Berlin'
-                        }
-                    }
-                ]
-            }
+                            name: 'Berlin',
+                        },
+                    },
+                ],
+            },
         });
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();

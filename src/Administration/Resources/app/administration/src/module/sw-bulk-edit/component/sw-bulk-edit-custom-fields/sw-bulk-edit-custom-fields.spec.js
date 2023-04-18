@@ -59,9 +59,9 @@ async function createWrapper(customProps = {}) {
                         name: 'field1',
                         type: 'text',
                         config: {
-                            label: 'field1Label'
-                        }
-                    }]
+                            label: 'field1Label',
+                        },
+                    }],
                 },
                 {
                     id: 'set2',
@@ -71,12 +71,12 @@ async function createWrapper(customProps = {}) {
                         name: 'field2',
                         type: 'bool',
                         config: {
-                            label: 'field2Label'
-                        }
-                    }]
-                }
+                            label: 'field2Label',
+                        },
+                    }],
+                },
             ]),
-            ...customProps
+            ...customProps,
         },
         stubs: {
             'sw-container': await Shopware.Component.build('sw-container'),
@@ -115,7 +115,7 @@ async function createWrapper(customProps = {}) {
             'sw-simple-search-field': true,
             'sw-loader': true,
             'sw-datepicker': true,
-            'sw-text-editor': true
+            'sw-text-editor': true,
         },
         provide: {
             validationService: {},
@@ -124,7 +124,7 @@ async function createWrapper(customProps = {}) {
                     search: () => Promise.resolve(),
                     get: () => Promise.resolve(),
                 }),
-            }
+            },
         },
         attachTo: document.body,
     });
@@ -144,14 +144,14 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper({
             sets: [],
-            selectedCustomFields: {}
+            selectedCustomFields: {},
         });
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be the same data with isChanged when get currentIsChanged', async () => {
         wrapper = await createWrapper({
-            isChanged: true
+            isChanged: true,
         });
 
         expect(wrapper.vm.currentIsChanged).toBe(wrapper.vm.isChanged);
@@ -167,7 +167,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(Object.keys(wrapper.vm.selectedCustomFields).length).toEqual(1);
+        expect(Object.keys(wrapper.vm.selectedCustomFields)).toHaveLength(1);
         expect(wrapper.emitted().change).toBeTruthy();
     });
 
@@ -182,24 +182,24 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted().change[0]).toBeTruthy();
-        expect(Object.keys(wrapper.emitted().change[0][0]).length).toEqual(1);
+        expect(Object.keys(wrapper.emitted().change[0][0])).toHaveLength(1);
 
         await changeToggle.find('.sw-field__checkbox input').trigger('click');
 
         await wrapper.vm.$nextTick();
 
-        expect(Object.keys(wrapper.vm.selectedCustomFields).length).toEqual(0);
+        expect(Object.keys(wrapper.vm.selectedCustomFields)).toHaveLength(0);
 
-        expect(Object.keys(wrapper.emitted().change[1][0]).length).toEqual(0);
+        expect(Object.keys(wrapper.emitted().change[1][0])).toHaveLength(0);
     });
 
     it('should be get data from target input field of the customField only if its checked', async () => {
         wrapper = await createWrapper({
             entity: {
                 customFields: {
-                    field1: ''
-                }
-            }
+                    field1: '',
+                },
+            },
         });
 
         const customField = wrapper.find('#field1');
@@ -209,7 +209,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.entity.customFields.field1).toBe('this is a text field');
-        expect(wrapper.vm.selectedCustomFields.field1).toBe(undefined);
+        expect(wrapper.vm.selectedCustomFields.field1).toBeUndefined();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
         await changeToggle.find('.sw-field__checkbox input').setChecked();

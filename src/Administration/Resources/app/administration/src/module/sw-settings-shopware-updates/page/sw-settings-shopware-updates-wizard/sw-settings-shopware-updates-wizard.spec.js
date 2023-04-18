@@ -28,7 +28,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         body: 'This is a test release',
                         date: '2022-12-08T09:04:06.000+00:00',
                         version: '6.4.18.0',
-                        fixedVulnerabilities: []
+                        fixedVulnerabilities: [],
                     }),
                     checkRequirements: () => Promise.resolve([
                         {
@@ -36,17 +36,17 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                             result: true,
                             message: 'writeableCheckValid',
                             vars: {
-                                checkedDirectories: ''
+                                checkedDirectories: '',
                             },
-                            extensions: []
+                            extensions: [],
                         },
                         {
                             name: 'validShopwareLicense',
                             result: false,
                             message: 'validShopwareLicense',
                             vars: [],
-                            extensions: []
-                        }
+                            extensions: [],
+                        },
                     ]),
                     deactivatePlugins: () => {
                         const error = new Error();
@@ -59,19 +59,19 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                         meta: {
                                             parameters: {
                                                 themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
-                                                assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6'
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
+                                                assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
                         };
 
                         return Promise.reject(error);
                     },
                     extensionCompatibility: () => Promise.resolve([]),
                     downloadRecovery: () => Promise.resolve([]),
-                }
+                },
             },
             mocks: {
                 $route: {
@@ -95,13 +95,13 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                         default: {
                                             _custom: {
                                                 type: 'function',
-                                                display: '<span>ƒ</span> VueComponent(options)'
-                                            }
-                                        }
+                                                display: '<span>ƒ</span> VueComponent(options)',
+                                            },
+                                        },
                                     },
                                     isChildren: false,
-                                    routeKey: 'index'
-                                }
+                                    routeKey: 'index',
+                                },
                             },
                             navigation: [
                                 {
@@ -111,30 +111,30 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                     icon: 'default-action-settings',
                                     path: 'sw.settings.index',
                                     position: 80,
-                                    children: []
-                                }
-                            ]
-                        }
+                                    children: [],
+                                },
+                            ],
+                        },
                     },
                     params: {
-                        id: ''
-                    }
+                        id: '',
+                    },
                 },
                 $i18n: {
-                    locale: 'de-De'
-                }
+                    locale: 'de-De',
+                },
             },
             stubs: {
                 'sw-page': await Shopware.Component.build('sw-page'),
                 'sw-search-bar': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-notification-center': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-help-center': true,
                 'sw-tooltip': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-settings-shopware-updates-requirements':
                     await Shopware.Component.build('sw-settings-shopware-updates-requirements'),
@@ -143,19 +143,19 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-ignore-class': true,
                 'sw-settings-shopware-updates-info': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-settings-shopware-updates-plugins': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-loader': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-icon': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'router-link': {
-                    template: '<a></a>'
+                    template: '<a></a>',
                 },
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-color-badge': await Shopware.Component.build('sw-color-badge'),
@@ -163,7 +163,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 'sw-extension-component-section': true,
                 'sw-error-summary': true,
                 'sw-modal': {
-                    template: '<div><slot name="modal-footer"></slot></div>'
+                    template: '<div><slot name="modal-footer"></slot></div>',
                 },
                 'sw-progress-bar': true,
                 'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
@@ -182,8 +182,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
 
-        expect(allGreenColorBadges.length).toBe(1);
-        expect(allRedColorBadges.length).toBe(1);
+        expect(allGreenColorBadges).toHaveLength(1);
+        expect(allRedColorBadges).toHaveLength(1);
     });
 
     it('should disable the button if one requirement is not met', async () => {
@@ -208,8 +208,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
             null,
             {
                 assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
-                themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508'
-            }
+                themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
+            },
         );
     });
 
@@ -217,7 +217,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         wrapper.vm.updateService.deactivatePlugins = () => {
             return Promise.resolve({
                 offset: 0,
-                total: 0
+                total: 0,
             });
         };
 
@@ -234,13 +234,13 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
             if (offset === 0) {
                 return Promise.resolve({
                     offset: 1,
-                    total: 2
+                    total: 2,
                 });
             }
 
             return Promise.resolve({
                 offset: 1,
-                total: 1
+                total: 1,
             });
         };
 
@@ -284,7 +284,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(downloadRecoverySpy).toHaveBeenCalled();
 
         expect(wrapper.emitted('update-started')).toBeTruthy();
-        expect(wrapper.emitted('update-started').length).toBe(1);
+        expect(wrapper.emitted('update-started')).toHaveLength(1);
     });
 
     it('test changelog info are rendered', async () => {
@@ -296,7 +296,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         wrapper.vm.updateService.deactivatePlugins = () => {
             return Promise.resolve({
                 offset: 1,
-                total: 1
+                total: 1,
             });
         };
         wrapper.vm.requirements = [];
@@ -322,7 +322,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         wrapper.vm.redirectToPage = redirectSpy;
 
         expect(wrapper.emitted('update-started')).toBeTruthy();
-        expect(wrapper.emitted('update-started').length).toBe(1);
+        expect(wrapper.emitted('update-started')).toHaveLength(1);
 
         await flushPromises();
 

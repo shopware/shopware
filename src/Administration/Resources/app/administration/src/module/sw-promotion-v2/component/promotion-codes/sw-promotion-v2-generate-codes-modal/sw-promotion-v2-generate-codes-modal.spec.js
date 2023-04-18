@@ -18,23 +18,23 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
             localVue,
             stubs: {
                 'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>'
+                    template: '<div class="sw-card"><slot></slot></div>',
                 },
                 'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>'
+                    template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    template: '<div class="sw-text-field"><slot></slot></div>'
+                    template: '<div class="sw-text-field"><slot></slot></div>',
                 },
                 'sw-number-field': {
-                    template: '<div class="sw-number-field"><slot></slot></div>'
+                    template: '<div class="sw-number-field"><slot></slot></div>',
                 },
                 'sw-switch-field': true,
                 'sw-field-error': true,
                 'sw-modal': true,
                 'sw-alert': true,
                 'sw-button': true,
-                'sw-button-process': true
+                'sw-button-process': true,
             },
             provide: {
                 promotionCodeApiService: {
@@ -42,8 +42,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
                         return new Promise((resolve) => {
                             resolve(mockCode);
                         });
-                    }
-                }
+                    },
+                },
             },
             propsData: {
                 promotion: {
@@ -64,7 +64,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
                     ordersPerCustomerCount: null,
                     exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
                     translated: {
-                        name: 'Test Promotion'
+                        name: 'Test Promotion',
                     },
                     apiAlias: null,
                     id: 'promotionId',
@@ -75,8 +75,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
                             salesChannelId: 'salesChannelId',
                             priority: 1,
                             createdAt: '2020-08-17T13:24:52.692+00:00',
-                            id: 'promotionSalesChannelId'
-                        }
+                            id: 'promotionSalesChannelId',
+                        },
                     ],
                     discounts: [],
                     individualCodes: [],
@@ -86,9 +86,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
                     cartRules: [],
                     translations: [],
                     hasOrders: false,
-                    ...promotionProps
-                }
-            }
+                    ...promotionProps,
+                },
+            },
         });
     }
 
@@ -132,7 +132,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
 
     it('should generate a correct preview in custom mode', async () => {
         wrapper = await createWrapper({
-            individualCodePattern: '%d%d%d'
+            individualCodePattern: '%d%d%d',
         });
 
         const inputPrefix = await wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix');
@@ -160,10 +160,10 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
                     {
                         promotionId: '47ad67b4113641b0a7c8bdfa5690d384',
                         code: 'xyzT',
-                        id: '9ddf9c0562524e2388456e13fdab1949'
-                    }
-                ]
-            } }
+                        id: '9ddf9c0562524e2388456e13fdab1949',
+                    },
+                ],
+            } },
         );
 
         await wrapper.vm.$nextTick();

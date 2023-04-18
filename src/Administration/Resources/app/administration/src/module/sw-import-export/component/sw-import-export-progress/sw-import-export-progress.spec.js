@@ -12,8 +12,8 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
     beforeEach(async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-import-export-progress'), {
             stubs: [
-                'sw-button'
-            ]
+                'sw-button',
+            ],
         });
     });
 
@@ -31,7 +31,7 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
         expect(proccessActionButton.attributes().disabled).toBeTruthy();
 
         await wrapper.setProps({
-            disableButton: false
+            disableButton: false,
         });
 
         expect(proccessActionButton.attributes().disabled).toBeFalsy();

@@ -18,9 +18,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -32,20 +32,20 @@ async function createWrapper(privileges = []) {
                                 name: '1 - 3 weeks',
                                 min: 1,
                                 max: 3,
-                                unit: 'week'
-                            }
+                                unit: 'week',
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -54,7 +54,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-icon': true,
@@ -86,9 +86,9 @@ async function createWrapper(privileges = []) {
                                 </slot>
                             </slot>
                         </template>
-                    </div>`
-            }
-        }
+                    </div>`,
+            },
+        },
     });
 }
 

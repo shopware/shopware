@@ -22,8 +22,8 @@ async function createWrapper() {
             homeCmsPageId: '',
             homeCmsPage: null,
             translated: {
-                name: ''
-            }
+                name: '',
+            },
         },
     ]);
 
@@ -36,17 +36,17 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-single-select': true,
             'sw-text-field': true,
             'sw-textarea-field': true,
             'sw-cms-list-item': true,
             'sw-switch-field': true,
-            'sw-button': true
+            'sw-button': true,
         },
         propsData: {
-            salesChannelCollection
+            salesChannelCollection,
         },
         provide: {
             cmsPageTypeService: {
@@ -64,9 +64,9 @@ async function createWrapper() {
                         name: 'product_detail',
                         title: 'product_detail',
                     }];
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -125,7 +125,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.salesChannelOptions.length).toBe(1);
+        expect(wrapper.vm.salesChannelOptions).toHaveLength(1);
         expect(wrapper.vm.hasNotAppliedChanges()).toBe(false);
     });
 

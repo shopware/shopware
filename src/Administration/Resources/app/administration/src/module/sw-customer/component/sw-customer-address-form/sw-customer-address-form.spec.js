@@ -28,11 +28,11 @@ async function createWrapper() {
                 {
                     id: 'bc05040b-9da1-41ec-93ad-add9d33cd731',
                     attributes: {
-                        id: '3a2e625b-f5e1-46d8-9e76-68c0e9b672a1'
-                    }
-                }
-            ]
-        }
+                        id: '3a2e625b-f5e1-46d8-9e76-68c0e9b672a1',
+                    },
+                },
+            ],
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-customer-address-form'), {
@@ -42,7 +42,7 @@ async function createWrapper() {
                 _isNew: true,
                 id: '1',
                 getEntityName: () => { return 'customer_address'; },
-            }
+            },
         },
         stubs: {
             'sw-container': true,
@@ -64,12 +64,12 @@ async function createWrapper() {
                                 if (id) {
                                     return Promise.resolve({
                                         id,
-                                        name: 'Germany'
+                                        name: 'Germany',
                                     });
                                 }
 
                                 return Promise.resolve({});
-                            }
+                            },
                         };
                     }
 
@@ -79,15 +79,15 @@ async function createWrapper() {
 
                             if (countryIdFilter?.value === '1') {
                                 return Promise.resolve([{
-                                    id: 'state1'
+                                    id: 'state1',
                                 }]);
                             }
                             return Promise.resolve([]);
-                        }
+                        },
                     };
                 },
             },
-        }
+        },
     });
 }
 
@@ -105,8 +105,8 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await wrapper.setProps({
             address: {
-                countryId: '2'
-            }
+                countryId: '2',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -120,8 +120,8 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await wrapper.setProps({
             address: {
-                countryId: '1'
-            }
+                countryId: '1',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -136,7 +136,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             customer: {
                 accountType: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
             },
-            address: {}
+            address: {},
         });
 
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
@@ -148,7 +148,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             customer: {
                 accountType: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
-            }
+            },
         });
 
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
@@ -187,14 +187,14 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         const firstName = wrapper.findAll('.sw-field').at(3);
 
         expect(wrapper.vm.disabled).toBe(false);
-        expect(firstName.classes().includes('has--error')).toBe(true);
-        expect(firstName.find('.sw-field__error').text()).toEqual('This value should not be blank.');
+        expect(firstName.classes()).toContain('has--error');
+        expect(firstName.find('.sw-field__error').text()).toBe('This value should not be blank.');
 
         await wrapper.setProps({ disabled: true });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.disabled).toBe(true);
-        expect(firstName.classes().includes('has--error')).toBe(false);
+        expect(firstName.classes()).not.toContain('has--error');
         expect(firstName.find('.sw-field__error').exists()).toBeFalsy();
     });
 });

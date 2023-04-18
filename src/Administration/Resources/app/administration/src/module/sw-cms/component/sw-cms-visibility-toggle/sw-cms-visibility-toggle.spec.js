@@ -18,7 +18,7 @@ async function createWrapper() {
             isCollapsed: true,
         },
         provide: {
-            cmsService: {}
+            cmsService: {},
         },
         stubs: {
             'sw-icon': await Shopware.Component.build('sw-icon'),

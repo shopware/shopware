@@ -15,23 +15,23 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-settings-listing-option-general-info'), {
             provide: {
-                validationService: {}
+                validationService: {},
             },
             directives: {
-                tooltip() {}
+                tooltip() {},
             },
             propsData: {
                 sortingOption: {
-                    label: 'Price descending'
+                    label: 'Price descending',
                 },
-                isDefaultSorting: false
+                isDefaultSorting: false,
             },
             stubs: {
                 'sw-card': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-field': await Shopware.Component.build('sw-field'),
                 'sw-text-field': await Shopware.Component.build('sw-text-field'),
@@ -40,8 +40,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                 'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error')
-            }
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            },
         });
     }
 

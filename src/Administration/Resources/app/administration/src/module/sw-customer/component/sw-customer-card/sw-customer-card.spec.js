@@ -12,15 +12,15 @@ const customer = {
     email: null,
     boundSalesChannelId: null,
     vatIds: [
-        '9f8f091c-db81-4ef3-862c-9c554a34cdc4'
-    ]
+        '9f8f091c-db81-4ef3-862c-9c554a34cdc4',
+    ],
 };
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-customer-card'), {
         propsData: {
             customer: {},
-            title: ''
+            title: '',
         },
         stubs: {
             'sw-card': true,
@@ -39,8 +39,8 @@ async function createWrapper() {
             'sw-entity-tag-select': true,
             'sw-card-section': true,
             'sw-container': true,
-            'sw-single-select': true
-        }
+            'sw-single-select': true,
+        },
     });
 }
 
@@ -56,7 +56,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
     it('should display the account type switcher', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            editMode: true
+            editMode: true,
         });
         const accountTypeSelect = wrapper.find('.sw-customer-card__account-type-select');
         expect(accountTypeSelect.exists()).toBeTruthy();
@@ -68,8 +68,8 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             editMode: true,
             customer: {
                 ...customer,
-                accountType: 'business'
-            }
+                accountType: 'business',
+            },
         });
         expect(wrapper.find('[label="sw-customer.card.labelCompany"]').exists()).toBeTruthy();
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
@@ -81,7 +81,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
             editMode: true,
             customer: {
                 ...customer,
-                accountType: 'private'
+                accountType: 'private',
             },
         });
 

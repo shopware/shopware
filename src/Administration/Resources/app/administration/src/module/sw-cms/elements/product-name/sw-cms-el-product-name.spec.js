@@ -16,37 +16,37 @@ async function createWrapper(propsOverride) {
                 config: {
                     content: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
-                }
+                        value: null,
+                    },
+                },
             },
             defaultConfig: {},
-            ...propsOverride
+            ...propsOverride,
         },
         mocks: {
-            $sanitize: key => key
+            $sanitize: key => key,
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'product_detail'
-                    }
-                }
+                        type: 'product_detail',
+                    },
+                },
             };
         },
         provide: {
             cmsService: {
-                getPropertyByMappingPath: () => {}
-            }
+                getPropertyByMappingPath: () => {},
+            },
         },
         stubs: {
-            'sw-text-editor': true
-        }
+            'sw-text-editor': true,
+        },
     });
 }
 
@@ -64,22 +64,22 @@ describe('module/sw-cms/elements/product-name/component', () => {
                 config: {
                     content: {
                         source: 'static',
-                        value: 'Sample Product'
+                        value: 'Sample Product',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
+                        value: null,
+                    },
                 },
                 translated: {
                     config: {
                         content: {
                             source: 'static',
-                            value: 'Sample Product'
-                        }
-                    }
-                }
-            }
+                            value: 'Sample Product',
+                        },
+                    },
+                },
+            },
         });
 
         expect(wrapper.vm.element.config.content.source).toBe('static');
@@ -91,8 +91,8 @@ describe('module/sw-cms/elements/product-name/component', () => {
 
         await wrapper.setData({
             cmsPageState: {
-                currentDemoEntity: null
-            }
+                currentDemoEntity: null,
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-name__placeholder').exists()).toBeTruthy();
@@ -106,20 +106,20 @@ describe('module/sw-cms/elements/product-name/component', () => {
                 config: {
                     content: {
                         source: 'mapped',
-                        value: 'product.name'
+                        value: 'product.name',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
-                }
-            }
+                        value: null,
+                    },
+                },
+            },
         });
 
         await wrapper.setData({
             cmsPageState: {
-                currentDemoEntity: null
-            }
+                currentDemoEntity: null,
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-name__placeholder').exists()).toBeTruthy();
@@ -133,20 +133,20 @@ describe('module/sw-cms/elements/product-name/component', () => {
                 config: {
                     content: {
                         source: 'mapped',
-                        value: 'product.ean'
+                        value: 'product.ean',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
-                }
-            }
+                        value: null,
+                    },
+                },
+            },
         });
 
         await wrapper.setData({
             cmsPageState: {
-                currentDemoEntity: null
-            }
+                currentDemoEntity: null,
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-name__skeleton').exists()).toBeTruthy();

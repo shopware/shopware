@@ -20,13 +20,13 @@ function mockCustomFieldSetData() {
             apiAlias: null,
             config: {
                 label: {
-                    'en-GB': 'Industrial'
-                }
+                    'en-GB': 'Industrial',
+                },
             },
             createdAt: '2020-09-04T11:22:08.376+00:00',
             global: false,
             position: 2,
-            updatedAt: '2020-09-07T07:01:50.245+00:00'
+            updatedAt: '2020-09-07T07:01:50.245+00:00',
         };
 
         _customFieldSets.push(customFieldSet);
@@ -47,38 +47,38 @@ async function createWrapper(privileges = []) {
         mocks: {
             $route: {
                 params: {
-                    id: '1234'
+                    id: '1234',
                 },
                 query: {
                     limit: '25',
                     naturalSorting: false,
                     page: 1,
                     sortBy: 'config.name',
-                    sortDirection: 'ASC'
-                }
-            }
+                    sortDirection: 'ASC',
+                },
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
                         return Promise.resolve(mockCustomFieldSetData());
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             mixins: [
                 Mixin.getByName('notification'),
                 Mixin.getByName('sw-inline-snippet'),
-                Mixin.getByName('discard-detail-page-changes')('set')
+                Mixin.getByName('discard-detail-page-changes')('set'),
             ],
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -87,26 +87,26 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-grid': await Shopware.Component.build('sw-grid'),
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+                template: '<div class="sw-context-menu-item"><slot></slot></div>',
             },
             'sw-context-menu': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-grid-column': {
-                template: '<div class="sw-grid-column"><slot></slot></div>'
+                template: '<div class="sw-grid-column"><slot></slot></div>',
             },
             'sw-grid-row': {
-                template: '<div class="sw-grid-row"><slot></slot></div>'
+                template: '<div class="sw-grid-row"><slot></slot></div>',
             },
             'sw-pagination': true,
             'sw-empty-state': true,
@@ -115,7 +115,7 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-ignore-class': true,
             'sw-extension-component-section': true,
-        }
+        },
     });
 }
 
@@ -138,7 +138,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should be able to create a new custom-field set', async () => {
         const wrapper = await createWrapper([
-            'custom_field.creator'
+            'custom_field.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -157,7 +157,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should be able to delete', async () => {
         const wrapper = await createWrapper([
-            'custom_field.deleter'
+            'custom_field.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -175,7 +175,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper([
-            'custom_field.editor'
+            'custom_field.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -187,7 +187,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.listingCriteria.page).toEqual(1);
-        expect(wrapper.vm.listingCriteria.limit).toEqual(25);
+        expect(wrapper.vm.listingCriteria.page).toBe(1);
+        expect(wrapper.vm.listingCriteria.limit).toBe(25);
     });
 });

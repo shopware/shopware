@@ -16,7 +16,7 @@ const text = {
     featureSetDetailRouterLink: 'sw.settings.product.feature.sets.detail',
     referencePriceLabel: 'sw-settings-product-feature-sets.modal.label.referencePrice',
     featureSetName: '2c1c9361-88e2-48ab-b14d-973d080717af',
-    featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58'
+    featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58',
 };
 
 Shopware.Component.register('sw-settings-product-feature-sets-list', swSettingsProductFeatureSetsList);
@@ -47,17 +47,17 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
             'sw-loader': true,
             'sw-data-grid-skeleton': true,
             i18n: true,
-            'sw-app-actions': true
+            'sw-app-actions': true,
         },
         mocks: {
             $route: {
                 meta: {
                     $module: {
-                        routes: {}
-                    }
+                        routes: {},
+                    },
                 },
-                query: {}
-            }
+                query: {},
+            },
         },
         data() {
             return {
@@ -66,7 +66,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     'product_feature_set',
                     Shopware.Context.api,
                     {
-                        page: {}
+                        page: {},
                     },
                     [
                         {
@@ -78,12 +78,12 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                                     type: 'referencePrice',
                                     id: null,
                                     name: null,
-                                    position: 0
-                                }
-                            ]
-                        }
-                    ]
-                )
+                                    position: 0,
+                                },
+                            ],
+                        },
+                    ],
+                ),
             };
         },
         provide: {
@@ -94,7 +94,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
@@ -104,17 +104,17 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                         Shopware.Context.api,
                         new Criteria(1, 1),
                         [],
-                        0
-                    ))
-                })
+                        0,
+                    )),
+                }),
             },
             validationService: {},
             mixins: [
-                Mixin.getByName('listing')
+                Mixin.getByName('listing'),
             ],
-            searchRankingService: {}
+            searchRankingService: {},
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 }
 
@@ -143,14 +143,14 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(list.props().columns.map(column => column.label)).toEqual([
             text.columnLabelTemplate,
             text.columnLabelDescription,
-            text.columnLabelValues
+            text.columnLabelValues,
         ]);
 
         // Assert that the column types are correct
         expect(list.props().columns.map(column => column.property)).toEqual([
             'name',
             'description',
-            'features'
+            'features',
         ]);
 
         // Assert that the template's name links to the detail page
@@ -165,7 +165,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(firstRowContent).toEqual([
             text.featureSetName,
             text.featureSetDescription,
-            text.referencePriceLabel
+            text.referencePriceLabel,
         ]);
     });
 
@@ -192,7 +192,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     it('should enable some fields when user has view and edit acl privileges', async () => {
         const wrapper = await createWrapper({}, [
             'product_feature_sets.viewer',
-            'product_feature_sets.editor'
+            'product_feature_sets.editor',
         ]);
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
@@ -213,7 +213,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should enable some fields when user has create acl privileges', async () => {
         const wrapper = await createWrapper({}, [
-            'product_feature_sets.creator'
+            'product_feature_sets.creator',
         ]);
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
@@ -234,7 +234,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should enable some fields when user has delete acl privileges', async () => {
         const wrapper = await createWrapper({}, [
-            'product_feature_sets.deleter'
+            'product_feature_sets.deleter',
         ]);
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
@@ -287,7 +287,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
 
         expect(errorNotificationSpy).toHaveBeenCalledWith({
-            message: 'sw-settings-product-feature-sets.detail.messageSaveError'
+            message: 'sw-settings-product-feature-sets.detail.messageSaveError',
         });
     });
 
@@ -300,25 +300,25 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
                         'product_feature_set',
                         Shopware.Context.api,
                         {
-                            page: {}
+                            page: {},
                         },
                         [
                             {
                                 id: '3d14420686274551bdfdc88ea9672cde',
                                 name: `${text.featureSetName} in false-empty`,
                                 description: 'This empty feature set is created by deleting all features',
-                                features: {}
+                                features: {},
                             },
                             {
                                 id: 'd3fdf1478e314d809463260517ef64f0',
                                 name: `${text.featureSetName} in empty`,
                                 description: 'This empty feature set is created by being empty from the start',
-                                features: []
-                            }
-                        ]
-                    )
+                                features: [],
+                            },
+                        ],
+                    ),
                 };
-            }
+            },
         });
 
         const root = wrapper.get('.sw-settings-product-feature-sets-list');
@@ -338,11 +338,11 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         // Assert that the template is rendered correctly
         expect(firstRowContent).toEqual([
             `${text.featureSetName} in false-empty`,
-            'This empty feature set is created by deleting all features'
+            'This empty feature set is created by deleting all features',
         ]);
         expect(secondRowContent).toEqual([
             `${text.featureSetName} in empty`,
-            'This empty feature set is created by being empty from the start'
+            'This empty feature set is created by being empty from the start',
         ]);
 
         expect(wrapper.vm).toBeTruthy();

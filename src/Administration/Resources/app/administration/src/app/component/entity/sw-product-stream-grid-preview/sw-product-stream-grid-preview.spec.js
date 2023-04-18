@@ -14,28 +14,28 @@ const mockProducts = [{
     id: 1,
     name: 'Product 1',
     price: [{ currencyId: 'uuid1337', gross: 444 }],
-    manufacturer: { name: 'Test' }
+    manufacturer: { name: 'Test' },
 }, {
     id: 2,
     name: 'Product 2',
     price: [{ currencyId: 'uuid1337', gross: 25 }],
-    manufacturer: { name: 'Test' }
+    manufacturer: { name: 'Test' },
 }, {
     id: 3,
     name: 'Product 3',
     price: [{ currencyId: 'uuid1337', gross: 36 }],
-    manufacturer: { name: 'Test' }
+    manufacturer: { name: 'Test' },
 }, {
     id: 4,
     name: 'Product 4',
     price: [{ currencyId: 'uuid1337', gross: 1258 }],
-    manufacturer: { name: 'Test' }
+    manufacturer: { name: 'Test' },
 }];
 
 mockProducts.total = 4;
 mockProducts.criteria = {
     page: 1,
-    limit: 25
+    limit: 25,
 };
 
 const mockCurrency = {
@@ -43,7 +43,7 @@ const mockCurrency = {
     name: 'Euro',
     isoCode: 'EUR',
     isSystemCurrency: true,
-    symbol: '€'
+    symbol: '€',
 };
 
 const createWrapper = async () => {
@@ -69,22 +69,22 @@ const createWrapper = async () => {
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-icon': true,
             'sw-field-error': true,
-            'sw-base-field': await Shopware.Component.build('sw-base-field')
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
         },
         mocks: {
-            $route: { meta: { $module: { icon: 'default' } } }
+            $route: { meta: { $module: { icon: 'default' } } },
         },
         propsData: {
-            filters: null
+            filters: null,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     get: () => Promise.resolve(mockCurrency),
-                    search: () => Promise.resolve(mockProducts)
-                })
+                    search: () => Promise.resolve(mockProducts),
+                }),
             },
-            validationService: {}
+            validationService: {},
         },
         attachTo: document.body,
     });
@@ -114,7 +114,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         const spyLoadProducts = jest.spyOn(wrapper.vm, 'loadProducts');
 
         await wrapper.setProps({
-            filters: mockFilter
+            filters: mockFilter,
         });
 
         const displayGroupFilter = {
@@ -122,9 +122,9 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             queries: [{
                 field: 'displayGroup',
                 type: 'equals',
-                value: null
+                value: null,
             }],
-            type: 'not'
+            type: 'not',
         };
 
         await wrapper.vm.$nextTick();
@@ -140,7 +140,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
     it('should render data grid when products were loaded', async () => {
         await wrapper.setProps({
-            filters: mockFilter
+            filters: mockFilter,
         });
 
         await wrapper.vm.$nextTick();
@@ -151,7 +151,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
     it('should render correct default columns for data grid', async () => {
         await wrapper.setProps({
-            filters: mockFilter
+            filters: mockFilter,
         });
 
         await wrapper.vm.$nextTick();
@@ -164,7 +164,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         const colStock = columns.at(4);
 
         // Ensure overall column amount
-        expect(columns.length).toBe(5);
+        expect(columns).toHaveLength(5);
 
         // Verify each column has correct label
         expect(colName.find('.sw-data-grid__cell-content').text())
@@ -185,12 +185,12 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             columns: [
                 {
                     property: 'name',
-                    label: 'Name'
+                    label: 'Name',
                 }, {
                     property: 'manufacturer',
-                    label: 'Manufacturer'
-                }
-            ]
+                    label: 'Manufacturer',
+                },
+            ],
         });
 
         await wrapper.vm.$nextTick();
@@ -200,7 +200,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         const colManufacturer = columns.at(1);
 
         // Ensure overall column amount
-        expect(columns.length).toBe(2);
+        expect(columns).toHaveLength(2);
 
         // Verify each column has correct label
         expect(colName.find('.sw-data-grid__cell-content').text()).toBe('Name');
@@ -209,12 +209,12 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
     it('should render a data grid row for each product', async () => {
         await wrapper.setProps({
-            filters: mockFilter
+            filters: mockFilter,
         });
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').length).toBe(4);
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(4);
     });
 
     it('should send request with term when updating searchTerm', async () => {
@@ -224,7 +224,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         wrapper = await createWrapper();
 
         await wrapper.setProps({
-            filters: mockFilter
+            filters: mockFilter,
         });
 
         const searchField = wrapper.find('.sw-product-stream-grid-preview__search-field input');
@@ -238,7 +238,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     it('should emit event when selection change with correct data', async () => {
         await wrapper.setProps({
             filters: mockFilter,
-            showSelection: true
+            showSelection: true,
         });
 
         await wrapper.vm.$nextTick();
@@ -254,9 +254,9 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
                     id: 1,
                     name: 'Product 1',
                     price: [{ currencyId: 'uuid1337', gross: 444 }],
-                    manufacturer: { name: 'Test' }
-                }
-            }
+                    manufacturer: { name: 'Test' },
+                },
+            },
         ]);
     });
 });

@@ -16,18 +16,18 @@ async function createWrapper() {
         provide: {
             shortcutService: {
                 startEventListener: () => {},
-                stopEventListener: () => {}
+                stopEventListener: () => {},
             },
             acl: {
-                can: () => true
-            }
+                can: () => true,
+            },
         },
 
         stubs: {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-button': true,
-            'sw-icon': true
-        }
+            'sw-icon': true,
+        },
     });
 }
 
@@ -51,8 +51,8 @@ describe('module/sw-settings-search/component/sw-settings-search-example-modal',
         const wrapper = await createWrapper();
         const title = await wrapper.find('.sw-settings-search-example-modal .sw-modal__title');
 
-        expect(title.text()).toEqual(
-            'sw-settings-search.generalTab.titleExampleModal'
+        expect(title.text()).toBe(
+            'sw-settings-search.generalTab.titleExampleModal',
         );
     });
 });

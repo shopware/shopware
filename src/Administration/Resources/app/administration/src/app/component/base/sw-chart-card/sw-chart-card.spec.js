@@ -37,7 +37,7 @@ async function createWrapper(additionalProps = {}) {
         propsData: {
             positionIdentifier: 'sw-chart-card__statistics-count',
             defaultRangeIndex,
-            ...additionalProps
+            ...additionalProps,
         },
         stubs: {
             'sw-card': {
@@ -101,7 +101,7 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(swCard.attributes('position-identifier')).toBe('sw-chart-card__statistics-count');
 
         await wrapper.setProps({
-            positionIdentifier: 'sw-dashboard-statistics__statistics-sum'
+            positionIdentifier: 'sw-dashboard-statistics__statistics-sum',
         });
 
         expect(swCard.attributes('position-identifier')).toBe('sw-dashboard-statistics__statistics-sum');

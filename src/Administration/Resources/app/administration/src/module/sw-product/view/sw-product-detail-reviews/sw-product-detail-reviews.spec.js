@@ -24,8 +24,8 @@ async function createWrapper(privileges = []) {
                     },
                     delete: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -34,8 +34,8 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
 
         },
         stubs: {
@@ -45,7 +45,7 @@ async function createWrapper(privileges = []) {
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-data-grid': {
                 props: ['dataSource'],
@@ -55,31 +55,31 @@ async function createWrapper(privileges = []) {
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
-                `
+                `,
             },
             'sw-empty-state': true,
             'sw-context-menu-item': true,
             'sw-modal': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
 describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     const dataSource = [
         { id: '101', productId: '01', status: true, points: 4 },
-        { id: '102', productId: '02', status: true, points: 5 }
+        { id: '102', productId: '02', status: true, points: 5 },
     ];
 
     beforeAll(() => {
         State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
-                product: {}
+                product: {},
             },
             getters: {
-                isLoading: () => false
-            }
+                isLoading: () => false,
+            },
         });
     });
 
@@ -91,7 +91,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
 
     it('should be able to edit a review', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         await wrapper.setData({ dataSource, total: 2 });
@@ -111,7 +111,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
 
     it('should be able to delete a review', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         await wrapper.setData({ dataSource, total: 2 });
@@ -149,7 +149,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
 
         const modal = wrapper.find('sw-modal-stub');
 
-        expect(wrapper.vm.deleteReviewId).toBe(null);
+        expect(wrapper.vm.deleteReviewId).toBeNull();
         expect(wrapper.vm.showReviewDeleteModal).toBe(false);
         expect(modal.exists()).toBeFalsy();
     });

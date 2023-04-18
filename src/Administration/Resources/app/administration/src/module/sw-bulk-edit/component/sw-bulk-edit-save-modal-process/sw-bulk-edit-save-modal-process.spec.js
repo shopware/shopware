@@ -22,7 +22,7 @@ async function createWrapper() {
                 },
                 generate: () => null,
             },
-        }
+        },
     });
 }
 

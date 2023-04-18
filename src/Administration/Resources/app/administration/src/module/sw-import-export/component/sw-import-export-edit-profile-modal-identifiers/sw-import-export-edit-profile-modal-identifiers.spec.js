@@ -29,35 +29,35 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 {
                     key: 'productNumber',
                     mappedKey: 'product_number',
-                    position: 0
+                    position: 0,
                 },
                 {
                     key: 'manufacturer.translations.DEFAULT.name',
                     mappedKey: 'manufacturer_name',
-                    position: 1
+                    position: 1,
                 },
                 {
                     key: 'properties',
                     mappedKey: 'properties',
-                    position: 2
+                    position: 2,
                 },
                 {
                     key: 'tax.id',
                     mappedKey: 'tax_id',
-                    position: 3
+                    position: 3,
                 },
                 {
                     key: 'tax.taxRate',
                     mappedKey: 'tax_rate',
-                    position: 4
-                }
+                    position: 4,
+                },
             ],
             updateBy: [
                 {
                     mappedKey: 'translations.DEFAULT.name',
-                    entityName: 'product_manufacturer'
-                }
-            ]
+                    entityName: 'product_manufacturer',
+                },
+            ],
         };
     }
 
@@ -68,10 +68,10 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal-identifiers'), {
             propsData: {
-                profile
+                profile,
             },
             provide: {
-                importExportUpdateByMapping: new ImportExportUpdateByMappingService(Shopware.EntityDefinition)
+                importExportUpdateByMapping: new ImportExportUpdateByMappingService(Shopware.EntityDefinition),
             },
             stubs: {
                 'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
@@ -88,9 +88,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-highlight-text': {
                     props: ['text'],
-                    template: '<div class="sw-highlight-text">{{ this.text }}</div>'
-                }
-            }
+                    template: '<div class="sw-highlight-text">{{ this.text }}</div>',
+                },
+            },
         });
     }
 
@@ -102,8 +102,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             url: '/search/language',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
 
         responses.addResponse({
@@ -111,8 +111,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             url: '/search/currency',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
 
         responses.addResponse({
@@ -120,8 +120,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             url: '/search/custom-field-set',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
     });
 

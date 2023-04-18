@@ -31,14 +31,14 @@ async function createWrapper(privileges = [], languageId = null) {
                                     usedLocales: {
                                         buckets: [],
                                     },
-                                }
-                            }
+                                },
+                            },
                         );
                     },
 
                     create: () => {
                         return Promise.resolve({
-                            isNew: () => true
+                            isNew: () => true,
                         });
                     },
 
@@ -53,8 +53,8 @@ async function createWrapper(privileges = [], languageId = null) {
 
                     save: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -63,11 +63,11 @@ async function createWrapper(privileges = [], languageId = null) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': {
@@ -83,7 +83,7 @@ async function createWrapper(privileges = [], languageId = null) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': true,
             'sw-card': true,
@@ -97,7 +97,7 @@ async function createWrapper(privileges = [], languageId = null) {
             'sw-skeleton': true,
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-inheritance-switch': true,
-        }
+        },
     });
 }
 
@@ -150,24 +150,24 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
 
     it('should be able to save the language', async () => {
         const wrapper = await createWrapper([
-            'language.editor'
+            'language.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-language-detail__save-action'
+            '.sw-settings-language-detail__save-action',
         );
         const languageNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-language.detail.labelName"]'
+            'sw-field-stub[label="sw-settings-language.detail.labelName"]',
         );
         const languageParentIdField = wrapper.find(
-            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]'
+            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
         );
         const languageTranslationCodeIdField = wrapper.find(
-            '#iso-codes'
+            '#iso-codes',
         );
         const languageLocaleIdField = wrapper.find(
-            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]'
+            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]',
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -182,19 +182,19 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-language-detail__save-action'
+            '.sw-settings-language-detail__save-action',
         );
         const languageNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-language.detail.labelName"]'
+            'sw-field-stub[label="sw-settings-language.detail.labelName"]',
         );
         const languageParentIdField = wrapper.find(
-            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]'
+            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
         );
         const languageTranslationCodeIdField = wrapper.find(
-            '#iso-codes'
+            '#iso-codes',
         );
         const languageLocaleIdField = wrapper.find(
-            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]'
+            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]',
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();

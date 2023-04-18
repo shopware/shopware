@@ -19,8 +19,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     const customFields = [{
         name: 'my_first_custom_field',
         config: {
-            label: { 'en-GB': 'asperiores sint dolore' }
-        }
+            label: { 'en-GB': 'asperiores sint dolore' },
+        },
     }];
     const localVue = createLocalVue();
 
@@ -39,25 +39,25 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         if (repository === 'custom_field') {
                             return {
                                 search: () => Promise.resolve(customFields),
-                                get: () => Promise.resolve()
+                                get: () => Promise.resolve(),
                             };
                         }
 
                         return { search: () => Promise.resolve() };
-                    }
-                }
+                    },
+                },
             },
             stubs: {
                 'sw-card': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>'
+                    template: '<div class="sw-empty-state"></div>',
                 },
                 'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-icon': {
-                    template: '<i></i>'
+                    template: '<i></i>',
                 },
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
@@ -68,7 +68,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': await Shopware.Component.build('sw-popover'),
-                'sw-loader': true
+                'sw-loader': true,
             },
             propsData: {
                 productSortingEntity: {
@@ -78,23 +78,23 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                             field: 'product.cheapestPrice',
                             order: 'desc',
                             priority: 0,
-                            naturalSorting: 0
+                            naturalSorting: 0,
                         },
                         {
                             field: 'product.stock',
                             order: 'desc',
                             priority: 3,
-                            naturalSorting: 0
+                            naturalSorting: 0,
                         },
                         {
                             field: 'product.cheapestPrice',
                             order: 'asc',
                             priority: 2,
-                            naturalSorting: 1
-                        }
-                    ]
-                }
-            }
+                            naturalSorting: 1,
+                        },
+                    ],
+                },
+            },
         });
     }
 
@@ -117,7 +117,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             return {
                 field: getContentOfCell('field'),
                 order: getContentOfCell('order'),
-                priority: getContentOfCell('priority')
+                priority: getContentOfCell('priority'),
             };
         }
 
@@ -180,32 +180,32 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     name: '8d863f0747d84544a767ea77a239b0ec',
                     naturalSorting: 0,
                     order: 'asc',
-                    priority: 1
+                    priority: 1,
                 }, {
                     field: 'customFields.custom_movies_aspernatur_enim_error',
                     name: '300d8964173b47d79cf4e348b09fce08',
                     naturalSorting: 0,
                     order: 'asc',
-                    priority: 1
-                }] }
-            }
+                    priority: 1,
+                }] },
+            },
         });
 
         let getProductSortingFieldsByName = wrapper.vm.getProductSortingFieldsByName();
 
         expect(getProductSortingFieldsByName).toEqual([
             '8d863f0747d84544a767ea77a239b0ec',
-            '300d8964173b47d79cf4e348b09fce08'
+            '300d8964173b47d79cf4e348b09fce08',
         ]);
 
         await wrapper.vm.$nextTick();
 
         getProductSortingFieldsByName = wrapper.vm.getProductSortingFieldsByName({
-            field: 'customFields.custom_movies_aspernatur_enim_error'
+            field: 'customFields.custom_movies_aspernatur_enim_error',
         });
 
         expect(getProductSortingFieldsByName).toEqual([
-            '8d863f0747d84544a767ea77a239b0ec'
+            '8d863f0747d84544a767ea77a239b0ec',
         ]);
     });
 
@@ -216,9 +216,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     field: 'customField',
                     naturalSorting: 0,
                     order: 'asc',
-                    priority: 1
-                }] }
-            }
+                    priority: 1,
+                }] },
+            },
         });
 
         await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
@@ -233,8 +233,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 name: undefined,
                 naturalSorting: 0,
                 order: 'asc',
-                priority: 1
-            }
+                priority: 1,
+            },
         ]);
     });
 });

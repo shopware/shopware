@@ -77,7 +77,7 @@ async function createWrapper(props) {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
+                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
             },
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
@@ -98,7 +98,7 @@ async function createWrapper(props) {
             'sw-datepicker': await Shopware.Component.build('sw-text-field'),
             'sw-text-editor': {
                 props: ['value'],
-                template: '<input type="text" :value="value" @change="$emit(\'change\', $event.target.value)"></input>'
+                template: '<input type="text" :value="value" @change="$emit(\'change\', $event.target.value)"></input>',
             },
             'sw-skeleton': await Shopware.Component.build('sw-skeleton'),
             'sw-skeleton-bar': await Shopware.Component.build('sw-skeleton-bar'),
@@ -113,14 +113,14 @@ async function createWrapper(props) {
                                     hasFile: true,
                                     fileName: 'media_after',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('media after')
+                                    id: uuid.get('media after'),
                                 },
                                 {
                                     hasFile: true,
                                     fileName: 'media_before',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('media before')
-                                }
+                                    id: uuid.get('media before'),
+                                },
                             ]);
                         }
 
@@ -133,7 +133,7 @@ async function createWrapper(props) {
                                     hasFile: true,
                                     fileName: 'media_before',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('media before')
+                                    id: uuid.get('media before'),
                                 });
                             }
 
@@ -142,7 +142,7 @@ async function createWrapper(props) {
                                     hasFile: true,
                                     fileName: 'media_after',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('media after')
+                                    id: uuid.get('media after'),
                                 });
                             }
                         }
@@ -162,8 +162,8 @@ async function createWrapper(props) {
                                             customFieldPosition: 1,
                                             customFieldType: 'text',
                                             componentName: 'sw-field',
-                                            type: 'text'
-                                        }
+                                            type: 'text',
+                                        },
                                     },
                                     {
                                         active: true,
@@ -176,10 +176,10 @@ async function createWrapper(props) {
                                             placeholder: { 'en-GB': 'Type a floating point number...' },
                                             componentName: 'sw-field',
                                             customFieldType: 'number',
-                                            customFieldPosition: 1
-                                        }
-                                    }
-                                ]
+                                            customFieldPosition: 1,
+                                        },
+                                    },
+                                ],
                             });
                         }
 
@@ -198,20 +198,20 @@ async function createWrapper(props) {
                                             customFieldPosition: 1,
                                             customFieldType: 'text',
                                             componentName: 'sw-field',
-                                            type: 'text'
-                                        }
-                                    }
-                                ]
+                                            type: 'text',
+                                        },
+                                    },
+                                ],
                             });
                         }
 
                         return Promise.resolve({});
-                    }
-                })
+                    },
+                }),
             },
             validationService: {},
-            mediaService: {}
-        }
+            mediaService: {},
+        },
     });
 }
 
@@ -232,8 +232,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             componentConfigAddition: {
                 options: [
                     { label: { 'en-GB': 'First choice' }, value: 'first_choice' },
-                    { label: { 'en-GB': 'Second choice' }, value: 'second_choice' }
-                ]
+                    { label: { 'en-GB': 'Second choice' }, value: 'second_choice' },
+                ],
             },
             domFallbackValue: '',
             fallbackValue: [],
@@ -254,7 +254,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // click on second option
                 await secondChoiceOption.trigger('click');
-            }
+            },
         },
         {
             testFieldLabel: 'multi select',
@@ -268,8 +268,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             componentConfigAddition: {
                 options: [
                     { label: { 'en-GB': 'First choice' }, value: 'first_choice' },
-                    { label: { 'en-GB': 'Second choice' }, value: 'second_choice' }
-                ]
+                    { label: { 'en-GB': 'Second choice' }, value: 'second_choice' },
+                ],
             },
             domFallbackValue: '',
             fallbackValue: [],
@@ -294,7 +294,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // click on second option
                 await secondChoiceOption.trigger('click');
-            }
+            },
         },
         {
             testFieldLabel: 'text field',
@@ -318,7 +318,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             changeValueFunction: async (customField) => {
                 // change input value
                 await customField.find('input[type="text"]').setValue('Beta');
-            }
+            },
         },
         {
             testFieldLabel: 'media field',
@@ -348,7 +348,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await customField.find('.sw-media-field__toggle-button').trigger('click');
                 await wrapper.vm.$nextTick();
                 await customField.find('.sw-media-field__suggestion-list-entry:first-child .sw-media-base-item').trigger('click');
-            }
+            },
         },
         {
             testFieldLabel: 'number field int',
@@ -373,7 +373,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 // change input value
                 await customField.find('input[type="text"]').setValue(49);
                 await customField.find('input[type="text"]').trigger('change');
-            }
+            },
         },
         {
             testFieldLabel: 'number field float',
@@ -398,7 +398,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 // change input value
                 await customField.find('input[type="text"]').setValue(49);
                 await customField.find('input[type="text"]').trigger('change');
-            }
+            },
         },
         {
             testFieldLabel: 'datetime field',
@@ -423,7 +423,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 // change input value
                 await customField.find('input[type="text"]').setValue('2021-01-02T12:00:00+00:00');
                 await customField.find('input[type="text"]').trigger('change');
-            }
+            },
         },
         {
             testFieldLabel: 'checkbox field',
@@ -448,7 +448,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 // change input value
                 await customField.find('input[type="checkbox"]').trigger('click');
                 await customField.find('input[type="checkbox"]').trigger('change');
-            }
+            },
         },
         {
             testFieldLabel: 'active/inactive switch field',
@@ -473,7 +473,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 // change input value
                 await customField.find('input[type="checkbox"]').trigger('click');
                 await customField.find('input[type="checkbox"]').trigger('change');
-            }
+            },
         },
         {
             testFieldLabel: 'text editor field',
@@ -498,7 +498,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 // change input value
                 await customField.find('input[type="textEditor"]').setValue('<p>Fresh and new</p>');
                 await customField.find('input[type="textEditor"]').trigger('change');
-            }
+            },
         },
         {
             testFieldLabel: 'colorpicker field',
@@ -524,8 +524,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await customField.find('input[type="text"]').setValue('#48e8e8');
                 await customField.find('input[type="text"]').trigger('change');
                 await wrapper.vm.$nextTick();
-            }
-        }
+            },
+        },
     ];
 
     beforeAll(() => {
@@ -535,7 +535,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper({
             entity: {},
-            sets: []
+            sets: [],
         });
         expect(wrapper.vm).toBeTruthy();
     });
@@ -550,27 +550,27 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'customFieldName',
                     type: 'text',
                     config: {
-                        label: 'configFieldLabel'
-                    }
-                }]
+                        label: 'configFieldLabel',
+                    },
+                }],
             }]),
             entity: {
                 customFields: {
-                    customFieldName: null
+                    customFieldName: null,
                 },
                 customFieldSetSelectionActive: null,
-                customFieldSets: createEntityCollection()
+                customFieldSets: createEntityCollection(),
             },
             parentEntity: {
                 id: 'parentId',
                 translated: {
                     customFields: {
-                        customFieldName: 'inherit me'
-                    }
+                        customFieldName: 'inherit me',
+                    },
                 },
                 customFieldSetSelectionActive: null,
-                customFieldSets: []
-            }
+                customFieldSets: [],
+            },
         };
         wrapper = await createWrapper(props);
 
@@ -583,13 +583,13 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
                 customFieldSetSelectionActive: true,
                 customFieldSets: createEntityCollection([{ id: 'set2' }]),
                 getEntityName: () => {
                     return 'product';
-                }
+                },
             },
             sets: createEntityCollection([{
                 id: 'set1',
@@ -599,9 +599,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             },
             {
                 id: 'set2',
@@ -611,11 +611,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field2',
                     type: 'text',
                     config: {
-                        label: 'field2Label'
-                    }
-                }]
+                        label: 'field2Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: false
+            showCustomFieldSetSelection: false,
         };
 
         wrapper = await createWrapper(props);
@@ -629,9 +629,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
-                customFieldSetSelectionActive: null
+                customFieldSetSelectionActive: null,
             },
             sets: createEntityCollection([{
                 id: 'set1',
@@ -641,9 +641,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             },
             {
                 id: 'set2',
@@ -653,11 +653,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field2',
                     type: 'text',
                     config: {
-                        label: 'field2Label'
-                    }
-                }]
+                        label: 'field2Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -671,27 +671,27 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
-                customFieldSetSelectionActive: null
+                customFieldSetSelectionActive: null,
             },
             sets: createEntityCollection([{
                 id: 'set1',
                 name: 'set1',
                 config: {
                     label: {
-                        'en-GB': 'Set 1 Label'
-                    }
+                        'en-GB': 'Set 1 Label',
+                    },
                 },
                 customFields: [{
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -706,27 +706,27 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
-                customFieldSetSelectionActive: null
+                customFieldSetSelectionActive: null,
             },
             sets: createEntityCollection([{
                 id: 'set1',
                 name: 'set1',
                 config: {
                     label: {
-                        'en-GB': null
-                    }
+                        'en-GB': null,
+                    },
                 },
                 customFields: [{
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -741,9 +741,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
-                customFieldSets: createEntityCollection([{ id: 'set2' }])
+                customFieldSets: createEntityCollection([{ id: 'set2' }]),
             },
             sets: createEntityCollection([{
                 id: 'set1',
@@ -753,9 +753,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             },
             {
                 id: 'set2',
@@ -765,11 +765,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field2',
                     type: 'text',
                     config: {
-                        label: 'field2Label'
-                    }
-                }]
+                        label: 'field2Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -784,10 +784,10 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
                 customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: null
+                customFieldSetSelectionActive: null,
             },
             sets: createEntityCollection([{
                 id: 'set1',
@@ -797,9 +797,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             },
             {
                 id: 'set2',
@@ -809,11 +809,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field2',
                     type: 'text',
                     config: {
-                        label: 'field2Label'
-                    }
-                }]
+                        label: 'field2Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -828,10 +828,10 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFields: {
-                    field1: null
+                    field1: null,
                 },
                 customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: null
+                customFieldSetSelectionActive: null,
             },
             sets: createEntityCollection([{
                 id: 'set1',
@@ -841,9 +841,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             },
             {
                 id: 'set2',
@@ -853,14 +853,14 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'field2',
                     type: 'text',
                     config: {
-                        label: 'field2Label'
-                    }
-                }]
+                        label: 'field2Label',
+                    },
+                }],
             }]),
             parentEntity: {
-                id: 'parentId'
+                id: 'parentId',
             },
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -874,18 +874,18 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const props = {
             entity: {
                 customFieldSetSelectionActive: false,
-                customFieldSets: undefined
+                customFieldSets: undefined,
             },
             sets: createEntityCollection([{
                 name: 'set1',
                 id: 'set1',
-                position: 2
+                position: 2,
             }, {
                 name: 'set2',
                 id: 'set2',
-                position: 1
+                position: 1,
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -902,18 +902,18 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     it('should sort sets by position', async () => {
         const props = {
             entity: {
-                customFieldSetSelectionActive: false
+                customFieldSetSelectionActive: false,
             },
             sets: createEntityCollection([{
                 name: 'set1',
                 id: 'set1',
-                position: 2
+                position: 2,
             }, {
                 name: 'set2',
                 id: 'set2',
-                position: 1
+                position: 1,
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -932,16 +932,16 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     name: 'custom_sports',
                     position: 1,
                     config: { label: { 'en-GB': 'Sports' } },
-                    customFields: []
+                    customFields: [],
                 },
                 {
                     id: uuid.get('custom_clothing'),
                     name: 'custom_clothing',
                     position: 1,
                     config: { label: { 'en-GB': 'Clothing' } },
-                    customFields: []
-                }
-            ]
+                    customFields: [],
+                },
+            ],
         });
 
         expect(wrapper.find('.sw-tab--name-custom_sports').text()).toContain('Sports');
@@ -967,8 +967,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                 customFieldPosition: 1,
                                 customFieldType: 'text',
                                 componentName: 'sw-field',
-                                type: 'text'
-                            }
+                                type: 'text',
+                            },
                         },
                         {
                             active: true,
@@ -981,10 +981,10 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                 placeholder: { 'en-GB': 'Type a floating point number...' },
                                 componentName: 'sw-field',
                                 customFieldType: 'number',
-                                customFieldPosition: 1
-                            }
-                        }
-                    ]
+                                customFieldPosition: 1,
+                            },
+                        },
+                    ],
                 },
                 {
                     id: uuid.get('custom_clothing'),
@@ -1000,12 +1000,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                 customFieldPosition: 1,
                                 customFieldType: 'text',
                                 componentName: 'sw-field',
-                                type: 'text'
-                            }
-                        }
-                    ]
-                }
-            ]
+                                type: 'text',
+                            },
+                        },
+                    ],
+                },
+            ],
         });
 
         // get tab contents
@@ -1069,7 +1069,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     position: 1,
                     config: { label: { 'en-GB': 'Sports' } },
                     customFields: [
-                    ]
+                    ],
                 },
                 {
                     id: uuid.get('custom_clothing'),
@@ -1077,9 +1077,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                     position: 1,
                     config: { label: { 'en-GB': 'Clothing' } },
                     customFields: [
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         });
 
         // get tab contents
@@ -1135,25 +1135,25 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 customFieldSetSelectionActive: null,
                 translated: {
                     customFields: {},
-                }
+                },
             },
             sets: createEntityCollection([{
                 id: 'set1',
                 name: 'set1',
                 config: {
                     label: {
-                        'en-GB': 'Set 1 Label'
-                    }
+                        'en-GB': 'Set 1 Label',
+                    },
                 },
                 customFields: [{
                     name: 'field1',
                     type: 'text',
                     config: {
-                        label: 'field1Label'
-                    }
-                }]
+                        label: 'field1Label',
+                    },
+                }],
             }]),
-            showCustomFieldSetSelection: true
+            showCustomFieldSetSelection: true,
         };
 
         wrapper = await createWrapper(props);
@@ -1161,7 +1161,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         await flushPromises();
 
         const entityCustomFields = wrapper.vm.entity.customFields;
-        expect(entityCustomFields).toBe(null);
+        expect(entityCustomFields).toBeNull();
     });
 
     /**
@@ -1184,14 +1184,14 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         domFieldValueBefore,
         domFieldValueSelectorAfter,
         domFieldValueAfter,
-        changeValueFunction
+        changeValueFunction,
     }) => {
         it(`should render the custom field and update value: ${testFieldLabel}`, async () => {
             wrapper = await createWrapper({
                 entity: {
                     customFields: {
-                        [fieldName]: entityCustomFieldValueBefore
-                    }
+                        [fieldName]: entityCustomFieldValueBefore,
+                    },
                 },
                 parentEntity: {},
                 sets: [
@@ -1211,12 +1211,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1243,15 +1243,15 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         it(`should render the custom field with parent value: ${testFieldLabel}`, async () => {
             wrapper = await createWrapper({
                 entity: Vue.observable({
-                    customFields: {}
+                    customFields: {},
                 }),
                 parentEntity: Vue.observable({
                     id: uuid.get('parentEntity'),
                     translated: {
                         customFields: {
-                            [fieldName]: entityCustomFieldValueBefore
-                        }
-                    }
+                            [fieldName]: entityCustomFieldValueBefore,
+                        },
+                    },
                 }),
                 sets: [
                     {
@@ -1270,12 +1270,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1285,7 +1285,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             const domFieldValue = customField.find(domFieldValueSelectorBefore);
 
             // entity value should be undefined
-            expect(entityValueForCustomField).toEqual(undefined);
+            expect(entityValueForCustomField).toBeUndefined();
 
             // check if parent value is visible
             await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
@@ -1302,16 +1302,16 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 entity: Vue.observable({
                     customFields: {
-                        [fieldName]: entityCustomFieldValueBefore
-                    }
+                        [fieldName]: entityCustomFieldValueBefore,
+                    },
                 }),
                 parentEntity: Vue.observable({
                     id: uuid.get('parentEntity'),
                     translated: {
                         customFields: {
-                            [fieldName]: entityCustomFieldValueAfter
-                        }
-                    }
+                            [fieldName]: entityCustomFieldValueAfter,
+                        },
+                    },
                 }),
                 sets: [
                     {
@@ -1330,12 +1330,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1361,15 +1361,15 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         it(`should render the custom field with parent value and can remove inheritance when parent has value: ${testFieldLabel}`, async () => {
             wrapper = await createWrapper({
                 entity: Vue.observable({
-                    customFields: {}
+                    customFields: {},
                 }),
                 parentEntity: {
                     id: uuid.get('parentEntity'),
                     translated: {
                         customFields: {
-                            [fieldName]: entityCustomFieldValueBefore
-                        }
-                    }
+                            [fieldName]: entityCustomFieldValueBefore,
+                        },
+                    },
                 },
                 sets: [
                     {
@@ -1388,12 +1388,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1403,7 +1403,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             let domFieldValue = customField.find(domFieldValueSelectorBefore);
 
             // entity value should be undefined
-            expect(entityValueForCustomField).toEqual(undefined);
+            expect(entityValueForCustomField).toBeUndefined();
 
             // check if parent value is visible
             await domFieldValueSelectorExpectation(domFieldValue, domFieldValueBefore);
@@ -1435,13 +1435,13 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         it(`should render the custom field with parent value and can remove inheritance when parent has no value: ${testFieldLabel}`, async () => {
             wrapper = await createWrapper({
                 entity: Vue.observable({
-                    customFields: {}
+                    customFields: {},
                 }),
                 parentEntity: Vue.observable({
                     id: uuid.get('parentEntity'),
                     translated: {
-                        customFields: {}
-                    }
+                        customFields: {},
+                    },
                 }),
                 sets: [
                     {
@@ -1460,12 +1460,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1475,7 +1475,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             let domFieldValue = customField.find(domFieldValueSelectorBefore);
 
             // entity value should be undefined
-            expect(entityValueForCustomField).toEqual(undefined);
+            expect(entityValueForCustomField).toBeUndefined();
 
             // check if fallback value is visible
             await domFieldValueSelectorExpectation(domFieldValue, domFallbackValue);
@@ -1507,16 +1507,16 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 entity: Vue.observable({
                     customFields: {
-                        [fieldName]: entityCustomFieldValueBefore
-                    }
+                        [fieldName]: entityCustomFieldValueBefore,
+                    },
                 }),
                 parentEntity: Vue.observable({
                     id: uuid.get('parentEntity'),
                     translated: {
                         customFields: {
-                            [fieldName]: entityCustomFieldValueAfter
-                        }
-                    }
+                            [fieldName]: entityCustomFieldValueAfter,
+                        },
+                    },
                 }),
                 sets: [
                     {
@@ -1535,12 +1535,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1568,7 +1568,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
             // entity value should be null
             entityValueForCustomField = wrapper.vm.entity.customFields[fieldName];
-            expect(entityValueForCustomField).toEqual(null);
+            expect(entityValueForCustomField).toBeNull();
 
             // check if parent value is visible
             domFieldValue = customField.find(domFieldValueSelectorAfter);
@@ -1583,14 +1583,14 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 entity: Vue.observable({
                     customFields: {
-                        [fieldName]: entityCustomFieldValueBefore
-                    }
+                        [fieldName]: entityCustomFieldValueBefore,
+                    },
                 }),
                 parentEntity: Vue.observable({
                     id: uuid.get('parentEntity'),
                     translated: {
-                        customFields: {}
-                    }
+                        customFields: {},
+                    },
                 }),
                 sets: [
                     {
@@ -1609,12 +1609,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                                     type: customFieldConfigType,
                                     componentName: componentName,
                                     label: { 'en-GB': componentLabel },
-                                    ...componentConfigAddition
-                                }
-                            }
-                        ]
-                    }
-                ]
+                                    ...componentConfigAddition,
+                                },
+                            },
+                        ],
+                    },
+                ],
             });
 
             await wrapper.vm.$nextTick();
@@ -1642,7 +1642,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
             // entity value should be null
             entityValueForCustomField = wrapper.vm.entity.customFields[fieldName];
-            expect(entityValueForCustomField).toEqual(null);
+            expect(entityValueForCustomField).toBeNull();
 
             // check if parent value is visible
             domFieldValue = customField.find(domFieldValueSelectorAfter);

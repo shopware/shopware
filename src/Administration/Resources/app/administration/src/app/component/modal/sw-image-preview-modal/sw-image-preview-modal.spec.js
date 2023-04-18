@@ -11,38 +11,38 @@ Shopware.Component.register('sw-image-slider', SwImageSlider);
 const mediaItems = [
     {
         id: '0',
-        media: { url: '/administration/static/img/dashboard-logo.svg' }
+        media: { url: '/administration/static/img/dashboard-logo.svg' },
     },
     {
         id: '1',
-        media: { url: 'https://via.placeholder.com/218x229?text=Placeholder1' }
+        media: { url: 'https://via.placeholder.com/218x229?text=Placeholder1' },
     },
     {
         id: '2',
-        media: { url: 'https://via.placeholder.com/218x229?text=Placeholder2' }
+        media: { url: 'https://via.placeholder.com/218x229?text=Placeholder2' },
     },
     {
         id: '3',
-        media: { url: '/administration/static/img/plugin-manager--login.png' }
+        media: { url: '/administration/static/img/plugin-manager--login.png' },
     },
     {
         id: '4',
-        media: { url: '/administration/static/img/sw-login-background.png' }
-    }
+        media: { url: '/administration/static/img/sw-login-background.png' },
+    },
 ];
 
 const zoomableImage = {
     naturalWidth: 500,
     naturalHeight: 300,
     offsetWidth: 400,
-    offsetHeight: 200
+    offsetHeight: 200,
 };
 
 const unzoomableImage = {
     naturalWidth: 400,
     naturalHeight: 200,
     offsetWidth: 400,
-    offsetHeight: 200
+    offsetHeight: 200,
 };
 
 function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) {
@@ -72,17 +72,17 @@ function createImage(element = null, dimension = {}) {
 
     Object.defineProperties(image, {
         naturalWidth: {
-            value: naturalWidth || 0
+            value: naturalWidth || 0,
         },
         naturalHeight: {
-            value: naturalHeight || 0
+            value: naturalHeight || 0,
         },
         offsetWidth: {
-            value: offsetWidth || 0
+            value: offsetWidth || 0,
         },
         offsetHeight: {
-            value: offsetHeight || 0
-        }
+            value: offsetHeight || 0,
+        },
     });
 
     return image;
@@ -92,14 +92,14 @@ async function createWrapper(propsData = {}, listeners = {}) {
     return shallowMount(await Shopware.Component.build('sw-image-preview-modal'), {
         stubs: {
             'sw-icon': true,
-            'sw-image-slider': await Shopware.Component.build('sw-image-slider')
+            'sw-image-slider': await Shopware.Component.build('sw-image-slider'),
         },
         listeners,
         propsData: {
             mediaItems,
             activeItemId: '0',
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -223,7 +223,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should set active item base on initial activeItemId', async () => {
         const wrapper = await createWrapper({
-            activeItemId: '2'
+            activeItemId: '2',
         });
 
         const expectedIndex = 2;
@@ -251,7 +251,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Mock image with natural size bigger than offset size
         await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage)
+            image: createImage(wrapper.vm.image, zoomableImage),
         });
 
         await wrapper.vm.$forceUpdate();
@@ -301,7 +301,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Mock image with natural size bigger than offset size
         await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage)
+            image: createImage(wrapper.vm.image, zoomableImage),
         });
 
         await wrapper.vm.$forceUpdate();
@@ -362,7 +362,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Mock image with natural size bigger than offset size
         await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage)
+            image: createImage(wrapper.vm.image, zoomableImage),
         });
 
         await wrapper.vm.$forceUpdate();
@@ -413,7 +413,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Mock image with natural size bigger than offset size
         await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage)
+            image: createImage(wrapper.vm.image, zoomableImage),
         });
 
         await wrapper.vm.$forceUpdate();
@@ -492,7 +492,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Mock image with natural size smaller than offset size
         await wrapper.setData({
-            image: createImage(wrapper.vm.image, unzoomableImage)
+            image: createImage(wrapper.vm.image, unzoomableImage),
         });
 
         await wrapper.vm.$forceUpdate();

@@ -24,20 +24,20 @@ async function createWrapper(customPropsData = {}) {
             $tc: key => key,
             $route: {
                 params: {
-                    id: 'id'
-                }
+                    id: 'id',
+                },
             },
             $device: {
                 getSystemKey: () => {},
-                onResize: () => {}
-            }
+                onResize: () => {},
+            },
         },
 
         propsData: {
             value: ['address/company', 'symbol/dash', 'address/department'],
             totalLines: 3,
             linePosition: 0,
-            ...customPropsData
+            ...customPropsData,
         },
 
         stubs: {
@@ -47,17 +47,17 @@ async function createWrapper(customPropsData = {}) {
             'sw-label': await Shopware.Component.build('sw-label'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-icon': true,
-        }
+        },
     });
 }
 
@@ -143,30 +143,30 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            ['symbol/dash', 'address/department']
+            ['symbol/dash', 'address/department'],
         ]);
     });
 
     it('should emit `change` when swap on the same line on dragging', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.value[1]).toEqual('symbol/dash');
-        expect(wrapper.vm.value[0]).toEqual('address/company');
+        expect(wrapper.vm.value[1]).toBe('symbol/dash');
+        expect(wrapper.vm.value[0]).toBe('address/company');
 
         await wrapper.vm.onDrop({
             index: 0,
             linePosition: 0,
-            snippet: 'address/company'
+            snippet: 'address/company',
         }, {
             index: 1,
             linePosition: 0,
-            snippet: 'symbol/dash'
-        },);
+            snippet: 'symbol/dash',
+        });
 
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            ['symbol/dash', 'address/company', 'address/department']
+            ['symbol/dash', 'address/company', 'address/department'],
         ]);
     });
 
@@ -219,12 +219,12 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await wrapper.vm.onDrop({
             index: 0,
             linePosition: 1,
-            snippet: 'address/company'
+            snippet: 'address/company',
         }, {
             index: 1,
             linePosition: 0,
-            snippet: 'symbol/dash'
-        },);
+            snippet: 'symbol/dash',
+        });
 
         expect(wrapper.emitted()['drop-end']).toBeTruthy();
     });

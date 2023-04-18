@@ -12,7 +12,7 @@ const customEntityDefinitionBare = {
     properties: {},
     'write-protected': false,
     'read-protected': false,
-    flags: {}
+    flags: {},
 };
 const customEntityCmsAwareTypes = [{
     name: 'custom_entity_detail',
@@ -31,8 +31,8 @@ const customEntityDefinitionWithAdminUi = {
     'read-protected': false,
     flags: {
         'cms-aware': {},
-        'admin-ui': {}
-    }
+        'admin-ui': {},
+    },
 };
 
 const shortHandWithAdminUiName = 'ce_with_admin_ui';
@@ -43,8 +43,8 @@ const shortHandCustomEntityDefinitionWithAdminUi = {
     'read-protected': false,
     flags: {
         'cms-aware': {},
-        'admin-ui': {}
-    }
+        'admin-ui': {},
+    },
 };
 
 const containerWithCmsAware = {
@@ -56,10 +56,10 @@ const containerWithCmsAware = {
                     [coreEntityName]: coreEntityConfig,
                     [withAdminUiName]: customEntityDefinitionWithAdminUi,
                     [shortHandWithAdminUiName]: shortHandCustomEntityDefinitionWithAdminUi,
-                }
+                },
             });
-        }
-    }
+        },
+    },
 };
 
 const containerWithoutCmsAware = {
@@ -69,15 +69,15 @@ const containerWithoutCmsAware = {
                 data: {
                     [bareConfigName]: customEntityDefinitionBare,
                     [coreEntityName]: coreEntityConfig,
-                }
+                },
             });
-        }
-    }
+        },
+    },
 };
 
 const factory = {
     entityDefinition: {
-        add() {}
+        add() {},
     },
 };
 
@@ -88,16 +88,16 @@ const service = {
     customEntityDefinitionService: {
         addDefinition(config) {
             customEntityDefinitionStore.push(config);
-        }
+        },
     },
     cmsPageTypeService: {
         register(pageType) {
             cmsPageTypeDefinitionStore.push(pageType);
-        }
+        },
     },
     loginService: {
-        getToken: () => ''
-    }
+        getToken: () => '',
+    },
 };
 
 const thisMock = {
@@ -111,7 +111,7 @@ const thisMock = {
                 throw new Error(`Container for ${containerName} isn't mocked`);
         }
     },
-    addServiceProvider() {}
+    addServiceProvider() {},
 };
 
 describe('init/repository', () => {
@@ -124,7 +124,7 @@ describe('init/repository', () => {
         await initializeRepositoryFactory.apply(thisMock, [containerWithCmsAware]);
 
         expect(customEntityDefinitionStore).toStrictEqual(
-            [customEntityDefinitionBare, customEntityDefinitionWithAdminUi, shortHandCustomEntityDefinitionWithAdminUi]
+            [customEntityDefinitionBare, customEntityDefinitionWithAdminUi, shortHandCustomEntityDefinitionWithAdminUi],
         );
     });
 

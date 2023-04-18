@@ -19,16 +19,16 @@ const pageMock = {
                 config: {
                     content: {
                         value: 'Test text',
-                        source: 'static'
+                        source: 'static',
                     },
                     entity: 'test-entity',
                     required: true,
                     type: 'text',
-                }
-            }]
-        }]
+                },
+            }],
+        }],
     }],
-    type: 'product_list'
+    type: 'product_list',
 };
 
 
@@ -41,15 +41,15 @@ async function createWrapper() {
                 props: ['page'],
             },
             'sw-button': {
-                template: '<div class="sw-button" @click="$emit(`click`)"></div>'
+                template: '<div class="sw-button" @click="$emit(`click`)"></div>',
             },
             'sw-cms-layout-modal': {
-                template: '<div class="sw-cms-layout-modal"></div>'
+                template: '<div class="sw-cms-layout-modal"></div>',
             },
             'sw-cms-page-form': {
                 template: '<div class="sw-cms-page-form"></div>',
                 props: ['page'],
-            }
+            },
         },
 
         provide: {
@@ -58,7 +58,7 @@ async function createWrapper() {
                     return {
                         title: `sw-cms.detail.label.pageType.${Shopware.Utils.string.camelCase(type)}`,
                     };
-                }
+                },
             },
             repositoryFactory: {
                 create: (name) => {
@@ -70,7 +70,7 @@ async function createWrapper() {
                         default:
                             throw new Error(`No repository for ${name} configured`);
                     }
-                }
+                },
             },
         },
     });
@@ -87,13 +87,13 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
-                currentPage: null
+                currentPage: null,
             },
             mutations: {
                 setCurrentPage(state, page) {
                     state.currentPage = page;
-                }
-            }
+                },
+            },
         });
     });
 
@@ -136,7 +136,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageId: pageMock.id
+            cmsPageId: pageMock.id,
         });
         await flushPromises();
 
@@ -151,7 +151,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         const mockPageId2 = 'TEST-PAGE-ID-2';
 
         await wrapper.setProps({
-            cmsPageId: pageMock.id
+            cmsPageId: pageMock.id,
         });
         await wrapper.vm.$nextTick();
 
@@ -169,7 +169,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageId: pageMock.id
+            cmsPageId: pageMock.id,
         });
         await wrapper.vm.$nextTick();
 
@@ -185,7 +185,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageId: pageMock.id
+            cmsPageId: pageMock.id,
         });
         await wrapper.vm.$nextTick();
 
@@ -196,8 +196,8 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         expect(updateCmsPageIdEvents).toHaveBeenCalledWith({
             name: 'sw.cms.detail',
             params: {
-                id: 'TEST-PAGE-ID'
-            }
+                id: 'TEST-PAGE-ID',
+            },
         });
     });
 
@@ -209,9 +209,9 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
                 [mockSlotId]: {
                     content: {
                         value: '<h1>TEST<h1>',
-                        source: 'static'
+                        source: 'static',
                     },
-                }
+                },
             },
         });
         await wrapper.vm.$nextTick();
@@ -227,16 +227,16 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
                         config: {
                             content: {
                                 value: '<h1>TEST<h1>',
-                                source: 'static'
+                                source: 'static',
                             },
                             entity: 'test-entity',
                             required: true,
                             type: 'text',
-                        }
-                    }]
-                }]
+                        },
+                    }],
+                }],
             }],
-            type: 'product_list'
+            type: 'product_list',
         };
 
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMockWithOverrides.name);
@@ -256,12 +256,12 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
                                 config: {
                                     content: {
                                         source: 'static',
-                                        value: '<h1>TEST</h1>'
+                                        value: '<h1>TEST</h1>',
                                     },
-                                }
-                            }]
-                        }]
-                    }]
+                                },
+                            }],
+                        }],
+                    }],
                 } };
             }
         };
@@ -274,9 +274,9 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
                 [mockSlotId]: {
                     content: {
                         value: '<h1>TEST<h1>',
-                        source: 'static'
+                        source: 'static',
                     },
-                }
+                },
             },
         });
         await wrapper.vm.$nextTick();
@@ -289,9 +289,9 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
             [mockSlotId]: {
                 content: {
                     value: '<h1>TEST</h1>',
-                    source: 'static'
+                    source: 'static',
                 },
-            }
+            },
         }]);
     });
 });

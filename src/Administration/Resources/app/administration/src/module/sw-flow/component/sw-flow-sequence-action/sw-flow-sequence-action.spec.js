@@ -35,27 +35,27 @@ const sequenceFixture = {
     trueCase: false,
     config: {
         entity: 'Customer',
-        tagIds: ['123']
-    }
+        tagIds: ['123'],
+    },
 };
 
 const sequencesFixture = [
     {
         ...sequenceFixture,
-        actionName: ACTION.ADD_TAG
+        actionName: ACTION.ADD_TAG,
     },
     {
         ...sequenceFixture,
         actionName: ACTION.MAIL_SEND,
         position: 2,
-        id: '3'
+        id: '3',
     },
     {
         ...sequenceFixture,
         actionName: ACTION.MAIL_SEND,
         position: 3,
-        id: '4'
-    }
+        id: '4',
+    },
 ];
 
 function getSequencesCollection(collection = []) {
@@ -66,7 +66,7 @@ function getSequencesCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -78,7 +78,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
         localVue,
         stubs: {
             'sw-icon': {
-                template: '<div class="sw-icon" v-on="$listeners"></div>'
+                template: '<div class="sw-icon" v-on="$listeners"></div>',
             },
             'sw-context-button': true,
             'sw-context-menu-item': {
@@ -86,7 +86,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                     <div class="sw-context-menu-item" v-on="$listeners">
                       <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-grouped-single-select': await Shopware.Component.build('sw-grouped-single-select'),
@@ -95,7 +95,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-select-result': {
                 props: ['item', 'index'],
@@ -105,12 +105,12 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-highlight-text': {
                 props: ['text'],
-                template: '<div class="sw-highlight-text">{{ this.text }}</div>'
+                template: '<div class="sw-highlight-text">{{ this.text }}</div>',
             },
             'sw-field-error': true,
             'sw-flow-sequence-modal': {
@@ -124,17 +124,17 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                             ...this.sequence,
                             config: {
                                 entity: 'Customer',
-                                tagIds: ['123']
-                            }
+                                tagIds: ['123'],
+                            },
                         });
-                    }
-                }
+                    },
+                },
             },
-            'sw-flow-sequence-action-error': true
+            'sw-flow-sequence-action-error': true,
         },
         propsData: {
             sequence: sequenceFixture,
-            ...propsData
+            ...propsData,
         },
 
         provide: {
@@ -145,7 +145,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                             create: () => {
                                 return {};
                             },
-                            search: () => Promise.resolve(appFlowResponseData)
+                            search: () => Promise.resolve(appFlowResponseData),
                         };
                     }
 
@@ -153,27 +153,27 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                         create: () => {
                             return {};
                         },
-                        search: () => Promise.resolve([])
+                        search: () => Promise.resolve([]),
                     };
-                }
+                },
             },
 
             flowBuilderService: Shopware.Service('flowBuilderService'),
-        }
+        },
     });
     wrapper.vm.$refs = {
         contextButton: [
             {
                 $el: {
                     contains: () => true,
-                }
+                },
             },
             {
                 $el: {
                     contains: () => true,
-                }
-            }
-        ]
+                },
+            },
+        ],
     };
 
     return wrapper;
@@ -186,14 +186,14 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             state: {
                 flow: {
                     eventName: '',
-                    sequences: getSequencesCollection([{ ...sequenceFixture }])
+                    sequences: getSequencesCollection([{ ...sequenceFixture }]),
                 },
                 invalidSequences: [],
                 mailTemplates: [],
                 triggerEvent: {
                     data: {
                         customer: '',
-                        order: ''
+                        order: '',
                     },
                     customerAware: true,
                     extensions: [],
@@ -201,8 +201,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     name: 'checkout.customer.login',
                     aware: [
                         'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                        'Shopware\\Core\\Framework\\Event\\MailAware'
-                    ]
+                        'Shopware\\Core\\Framework\\Event\\MailAware',
+                    ],
                 },
                 triggerActions: [
                     { name: 'action.add.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
@@ -215,7 +215,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     { name: 'action.stop.flow', requirements: [], extensions: [] },
                 ],
                 appActions: [],
-            }
+            },
         });
     });
 
@@ -235,7 +235,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const newSequence = {
             ...wrapper.props().sequence,
-            actionName: wrapper.vm.actionOptions[0].value
+            actionName: wrapper.vm.actionOptions[0].value,
         };
 
         expect(sequencesState[0]).toEqual(newSequence);
@@ -250,28 +250,28 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         const actionItems = wrapper.findAll('.sw-flow-sequence-action__action-item');
-        expect(actionItems.length).toEqual(2);
+        expect(actionItems).toHaveLength(2);
     });
 
     it('should show dynamic modal', async () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -288,8 +288,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
-                actionName: ACTION.STOP_FLOW
-            }
+                actionName: ACTION.STOP_FLOW,
+            },
         });
 
         const addAction = wrapper.find('.sw-flow-sequence-action__add-action');
@@ -302,23 +302,23 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(3);
+        expect(sequencesState).toHaveLength(3);
 
 
         const deleteContainer = wrapper.find('.sw-flow-sequence-action__delete-action-container');
         await deleteContainer.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(1);
+        expect(sequencesState).toHaveLength(1);
     });
 
     it('should able to remove an action', async () => {
@@ -327,22 +327,22 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(3);
+        expect(sequencesState).toHaveLength(3);
 
         const deleteActions = wrapper.findAll('.sw-flow-sequence-action__delete-action');
         await deleteActions.at(0).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(2);
+        expect(sequencesState).toHaveLength(2);
         expect(sequencesState[0]).toEqual(sequencesFixture[0]);
     });
 
@@ -352,8 +352,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             sequence: {
-                ...sequenceFixture
-            }
+                ...sequenceFixture,
+            },
         });
 
         const actionSelection = wrapper.find('.sw-flow-sequence-action__selection-action');
@@ -364,7 +364,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should remove error for after select an action name', async () => {
         Shopware.State.commit(
             'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }])
+            getSequencesCollection([{ ...sequenceFixture }]),
         );
         Shopware.State.commit('swFlowState/setInvalidSequences', ['2']);
 
@@ -374,8 +374,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             sequence: {
-                ...sequenceFixture
-            }
+                ...sequenceFixture,
+            },
         });
 
         const actionSelection = wrapper.find('.sw-flow-sequence-action__selection-action');
@@ -400,8 +400,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
-                actionName: ACTION.ADD_TAG
-            }
+                actionName: ACTION.ADD_TAG,
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeFalsy();
@@ -409,7 +409,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(wrapper.find('.sw-flow-sequence-action__select').exists()).toBeTruthy();
 
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeTruthy();
@@ -433,8 +433,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 4: {
                     ...sequencesFixture[2],
                     position: 7,
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeTruthy();
@@ -447,9 +447,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
-            }
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeFalsy();
@@ -470,7 +470,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     displayGroup: 1,
                     trueCase: true,
                 },
-            }
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeFalsy();
@@ -493,19 +493,19 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 4: {
                     ...sequencesFixture[2],
                     position: 7,
-                }
-            }
+                },
+            },
         });
 
         const moveDownAction = wrapper.find('.sw-flow-sequence-action__move-down');
         expect(moveDownAction.exists()).toBeTruthy();
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState[0].position).toEqual(1);
-        expect(sequencesState[1].position).toEqual(2);
+        expect(sequencesState[0].position).toBe(1);
+        expect(sequencesState[1].position).toBe(2);
         await moveDownAction.trigger('click');
-        expect(sequencesState[0].position).toEqual(1);
-        expect(sequencesState[1].position).toEqual(7);
+        expect(sequencesState[0].position).toBe(1);
+        expect(sequencesState[1].position).toBe(7);
     });
 
     it('should reset position after deleting action', async () => {
@@ -518,8 +518,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 },
                 3: {
                     ...sequencesFixture[1],
-                }
-            }
+                },
+            },
         });
 
         // delete the first action with position 1
@@ -527,7 +527,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         await deleteActions.at(0).trigger('click');
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toBe(2);
+        expect(sequencesState).toHaveLength(2);
         expect(sequencesState[0].position).toBe(1);
     });
 
@@ -536,21 +536,21 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             {
                 technicalName: 'in_progress',
                 stateMachine: {
-                    technicalName: 'order_delivery.state'
+                    technicalName: 'order_delivery.state',
                 },
                 translated: {
-                    name: 'In progress'
-                }
+                    name: 'In progress',
+                },
             },
             {
                 technicalName: 'in_progress',
                 stateMachine: {
-                    technicalName: 'order.state'
+                    technicalName: 'order.state',
                 },
                 translated: {
-                    name: 'In Progress'
-                }
-            }
+                    name: 'In Progress',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
@@ -562,10 +562,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 displayGroup: 1,
                 trueCase: false,
                 config: {
-                    order: 'in_progress'
+                    order: 'in_progress',
                 },
-                actionName: ACTION.SET_ORDER_STATE
-            }
+                actionName: ACTION.SET_ORDER_STATE,
+            },
         });
 
         const description = wrapper.find('.sw-flow-sequence-action__action-description');
@@ -580,9 +580,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = await wrapper.findAll('.sw-grouped-single-select__group-separator');
 
-        expect(actionItems.length).toEqual(2);
-        expect(actionItems.at(0).text()).toEqual('sw-flow.actions.group.general');
-        expect(actionItems.at(1).text()).toEqual('sw-flow.actions.group.tag');
+        expect(actionItems).toHaveLength(2);
+        expect(actionItems.at(0).text()).toBe('sw-flow.actions.group.general');
+        expect(actionItems.at(1).text()).toBe('sw-flow.actions.group.tag');
     });
 
     it('should has actions from app flow actions in actions list', async () => {
@@ -591,15 +591,15 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware']
-            }
+                requirements: ['customerAware', 'orderAware'],
+            },
         ];
 
         Shopware.State.commit('swFlowState/setAppActions', [{
             label: 'Telegram send message',
             name: 'telegram.send.message',
             swIcon: 'default-communication-speech-bubbles',
-            requirements: ['customerAware', 'orderAware']
+            requirements: ['customerAware', 'orderAware'],
         }]);
 
         const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
@@ -611,7 +611,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = wrapper.findAll('.sw-select-result');
 
-        expect(actionItems.length).toEqual(5);
+        expect(actionItems).toHaveLength(5);
         expect(actionItems.at(3).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
@@ -624,13 +624,13 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
-                    name: 'FlowAppSystem'
-                }
-            }
+                    name: 'FlowAppSystem',
+                },
+            },
         ];
 
         Shopware.State.commit('swFlowState/setAppActions', [{
-            name: 'telegram.send.message'
+            name: 'telegram.send.message',
         }]);
 
         const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
@@ -650,8 +650,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware']
-            }
+                requirements: ['customerAware', 'orderAware'],
+            },
         ];
 
         const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
@@ -676,9 +676,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
-                    name: 'FlowAppSystem'
-                }
-            }
+                    name: 'FlowAppSystem',
+                },
+            },
         ];
 
         const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
@@ -700,7 +700,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
-                    name: 'FlowAppSystem'
+                    name: 'FlowAppSystem',
                 },
                 config: [
                     {
@@ -708,9 +708,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                         label: {
                             'en-GB': 'Label',
                         },
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         ];
 
         const wrapper = await createWrapper({
@@ -722,15 +722,15 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 displayGroup: 1,
                 trueCase: false,
                 config: {
-                    message: 'message'
+                    message: 'message',
                 },
-                actionName: 'telegram.send.message'
-            }
+                actionName: 'telegram.send.message',
+            },
         }, appFlowResponse, 'appFlowAction');
 
         await wrapper.vm.$nextTick();
         const description = wrapper.find('.sw-flow-sequence-action__action-description');
         expect(description.exists()).toBeTruthy();
-        expect(description.text()).toEqual('message: message');
+        expect(description.text()).toBe('message: message');
     });
 });

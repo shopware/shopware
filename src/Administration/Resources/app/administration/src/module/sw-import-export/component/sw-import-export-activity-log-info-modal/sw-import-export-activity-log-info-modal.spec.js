@@ -18,7 +18,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
             username: 'admin',
             createdAt: '2021-11-05T09:08:40.015+00:00',
             profile: {
-                label: 'Default product'
+                label: 'Default product',
             },
             file: {
                 originalName: 'star-lord.csv',
@@ -30,21 +30,21 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
     async function createWrapper(logEntity = getLogEntityMock()) {
         return shallowMount(await Shopware.Component.build('sw-import-export-activity-log-info-modal'), {
             provide: {
-                importExport: {}
+                importExport: {},
             },
             stubs: {
                 'sw-modal': {
                     template: `
                     <div class="sw-modal-stub">
                         <slot></slot>
-                    </div>`
+                    </div>`,
                 },
                 'sw-button': true,
                 'sw-color-badge': true,
             },
             propsData: {
-                logEntity
-            }
+                logEntity,
+            },
         });
     }
 

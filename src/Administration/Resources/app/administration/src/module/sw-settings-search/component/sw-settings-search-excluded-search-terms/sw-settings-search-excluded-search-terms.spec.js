@@ -27,8 +27,8 @@ async function createWrapper(privileges = [], resetError = false) {
         localVue,
         propsData: {
             searchConfigs: {
-                excludedTerms: ['i', 'a', 'on', 'in', 'of', 'at', 'right', 'he', 'she', 'we', 'us', 'our']
-            }
+                excludedTerms: ['i', 'a', 'on', 'in', 'of', 'at', 'right', 'he', 'she', 'we', 'us', 'our'],
+            },
         },
 
         provide: {
@@ -37,8 +37,8 @@ async function createWrapper(privileges = [], resetError = false) {
                 create: () => ({
                     save: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -47,7 +47,7 @@ async function createWrapper(privileges = [], resetError = false) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             excludedSearchTermService: {
                 resetExcludedSearchTerm: jest.fn(() => {
@@ -55,8 +55,8 @@ async function createWrapper(privileges = [], resetError = false) {
                         return Promise.reject();
                     }
                     return Promise.resolve();
-                })
-            }
+                }),
+            },
         },
 
         stubs: {
@@ -79,7 +79,7 @@ async function createWrapper(privileges = [], resetError = false) {
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-data-grid-skeleton': true,
             'sw-loader': true,
-        }
+        },
     });
 }
 
@@ -93,13 +93,13 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should be show element no excluded search', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.setProps({
             searchConfigs: {
-                excludedTerms: []
-            }
+                excludedTerms: [],
+            },
         });
 
         expect(wrapper.vm.searchConfigs.excludedTerms).toEqual([]);
@@ -109,31 +109,31 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should have pagination on list excluded terms', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
         const pagination = wrapper.find('.sw-data-grid__pagination');
         const pages = wrapper.findAll('.sw-pagination__list-item');
         expect(pagination.exists()).toBe(true);
-        expect(pages.wrappers.length).toEqual(2);
+        expect(pages.wrappers).toHaveLength(2);
     });
 
     it('should have listing excluded terms', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
         const firstValue = wrapper.vm.searchConfigs.excludedTerms[0];
         const dataGrids = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(dataGrids.wrappers.length).toEqual(10);
+        expect(dataGrids.wrappers).toHaveLength(10);
         expect(dataGrids.at(0).text()).toEqual(firstValue);
     });
 
     it('should not able to delete excluded terms', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -148,7 +148,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should be able to delete excluded terms', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.deleter'
+            'product_search_config.deleter',
         ]);
         wrapper.vm.createNotificationSuccess = jest.fn();
         await wrapper.vm.$nextTick();
@@ -167,7 +167,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         const checkBox = firstRowAfterDelete.find('.sw-field__checkbox input');
         await checkBox.setChecked();
         await wrapper.vm.$nextTick();
-        expect(wrapper.find('.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').text()).toEqual('1');
+        expect(wrapper.find('.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').text()).toBe('1');
         const bulkButton = wrapper.find('.sw-data-grid__bulk button');
         expect(bulkButton).toBeTruthy();
         await bulkButton.trigger('click');
@@ -178,7 +178,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should not able to add a new excluded terms', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -189,7 +189,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should allow add excluded terms', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.creator'
+            'product_search_config.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -203,24 +203,24 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should be render component', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
         const dataGridsFirstLoading = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(dataGridsFirstLoading.wrappers.length).toEqual(10);
+        expect(dataGridsFirstLoading.wrappers).toHaveLength(10);
 
         const paginationGrids = wrapper.findAll('.sw-pagination li');
         await paginationGrids.at(1).find('button').trigger('click');
         await wrapper.vm.$nextTick();
 
         const dataGridsSecondPage = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(dataGridsSecondPage.wrappers.length).toEqual(2);
+        expect(dataGridsSecondPage.wrappers).toHaveLength(2);
     });
 
     it('should not able to reset excluded search term to default', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -230,7 +230,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
     it('should able to reset excluded search term to default with success message', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.creator'
+            'product_search_config.creator',
         ]);
         wrapper.vm.createNotificationSuccess = jest.fn();
         await wrapper.vm.$nextTick();
@@ -241,13 +241,13 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         await flushPromises();
 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
-            message: 'sw-settings-search.notification.resetToDefaultExcludedTermSuccess'
+            message: 'sw-settings-search.notification.resetToDefaultExcludedTermSuccess',
         });
     });
 
     it('should not able to reset excluded search term to default with error message', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.creator'
+            'product_search_config.creator',
         ], true);
 
         wrapper.vm.createNotificationError = jest.fn();
@@ -259,7 +259,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-settings-search.notification.resetToDefaultExcludedTermError'
+            message: 'sw-settings-search.notification.resetToDefaultExcludedTermError',
         });
     });
 });

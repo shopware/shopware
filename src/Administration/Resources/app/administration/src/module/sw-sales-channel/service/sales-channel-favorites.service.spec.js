@@ -15,9 +15,9 @@ responses.addResponse({
             id: '8badf7ebe678ab968fe88c269c214ea6',
             userId: '8fe88c269c214ea68badf7ebe678ab96',
             key: SalesChannelFavoritesService.USER_CONFIG_KEY,
-            value: []
-        }]
-    }
+            value: [],
+        }],
+    },
 });
 
 responses.addResponse({
@@ -25,8 +25,8 @@ responses.addResponse({
     url: '/user-config',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.js', () => {
@@ -34,7 +34,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
 
     beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
-            id: '8fe88c269c214ea68badf7ebe678ab96'
+            id: '8fe88c269c214ea68badf7ebe678ab96',
         };
 
         service = new SalesChannelFavoritesService();
@@ -95,7 +95,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         const expectedValues = {
             userId: Shopware.State.get('session').currentUser.id,
             key: SalesChannelFavoritesService.USER_CONFIG_KEY,
-            value: []
+            value: [],
         };
 
         const entity = service.createUserConfigEntity(SalesChannelFavoritesService.USER_CONFIG_KEY);
@@ -105,7 +105,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
 
     it('handleEmptyUserConfig > replaces the property "value" with an empty array', async () => {
         const userConfigMock = {
-            value: {}
+            value: {},
         };
 
         service.handleEmptyUserConfig(userConfigMock);
@@ -121,6 +121,6 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
     });
 
     it('getCurrentUserId > returns the userId of the current session user', async () => {
-        expect(service.getCurrentUserId()).toEqual('8fe88c269c214ea68badf7ebe678ab96');
+        expect(service.getCurrentUserId()).toBe('8fe88c269c214ea68badf7ebe678ab96');
     });
 });

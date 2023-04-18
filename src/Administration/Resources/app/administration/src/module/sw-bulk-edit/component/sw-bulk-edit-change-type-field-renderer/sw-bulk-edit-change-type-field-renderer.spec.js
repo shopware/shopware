@@ -12,34 +12,34 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-change-type-field-renderer'), {
         localVue,
         stubs: {
-            'sw-bulk-edit-change-type-field-renderer': true
+            'sw-bulk-edit-change-type-field-renderer': true,
         },
         props: {
             bulkEditData: {
                 description: {
                     isChanged: false,
                     type: 'overwrite',
-                    value: null
+                    value: null,
                 },
                 manufacturerId: {
                     isChanged: false,
                     type: 'overwrite',
-                    value: null
+                    value: null,
                 },
                 active: {
                     isChanged: false,
                     type: 'overwrite',
-                    value: false
+                    value: false,
                 },
                 markAsTopseller: {
                     isChanged: false,
                     type: 'overwrite',
-                    value: false
-                }
+                    value: false,
+                },
             },
             entity: [],
-            formFields: []
-        }
+            formFields: [],
+        },
     });
 }
 
@@ -64,8 +64,8 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
             type: 'bool',
             config: {
                 type: 'switch',
-                allowOverwrite: true
-            }
+                allowOverwrite: true,
+            },
         };
 
         const configValue = wrapper.vm.getConfigValue(formField, 'allowOverwrite');
@@ -77,8 +77,8 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
             name: 'markAsTopseller',
             type: 'bool',
             config: {
-                type: 'switch'
-            }
+                type: 'switch',
+            },
         };
 
         const configValue = wrapper.vm.getConfigValue(formField, 'allowOverwrite');
@@ -88,7 +88,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
     it('should be return null when config is empty', async () => {
         const formField = {
             name: 'markAsTopseller',
-            type: 'bool'
+            type: 'bool',
         };
 
         const configValue = wrapper.vm.getConfigValue(formField, 'allowOverwrite');
@@ -101,8 +101,8 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
             type: 'bool',
             config: {
                 type: 'switch',
-                allowOverwrite: true
-            }
+                allowOverwrite: true,
+            },
         };
 
         const configValue = wrapper.vm.showSelectBoxType(formField);
@@ -115,8 +115,8 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
             type: 'bool',
             config: {
                 type: 'switch',
-                allowOverwrite: false
-            }
+                allowOverwrite: false,
+            },
         };
 
         const configValue = wrapper.vm.showSelectBoxType(formField);
@@ -124,7 +124,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
 
         const formField2 = {
             name: 'markAsTopseller',
-            type: 'bool'
+            type: 'bool',
         };
 
         const configValue2 = wrapper.vm.showSelectBoxType(formField2);

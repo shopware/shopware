@@ -41,8 +41,8 @@ async function createWrapper(responsiveBindings = {}) {
             responsiveBindings: {
                 type: Object,
                 required: true,
-            }
-        }
+            },
+        },
     }, {
         localVue,
         stubs: {},
@@ -61,7 +61,7 @@ describe('src/app/directive/responsive.directive.ts', () => {
         resizeObserverList = [];
         wrapper = await createWrapper({
             'is--compact': el => el.width <= 1620,
-            timeout: 200
+            timeout: 200,
         });
 
         await flushPromises();
@@ -75,18 +75,10 @@ describe('src/app/directive/responsive.directive.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should be added to the ResizeObserver list', () => {
-        resizeObserverList.length = 1;
-    });
-
     it('should execute all observer and show the "is--compact" css class', () => {
         resizeObserverList.at(0).observerList.forEach(el => {
             el.contentRect = {
-                width: 500
+                width: 500,
             };
         });
         resizeObserverList.at(0)._execute();
@@ -97,7 +89,7 @@ describe('src/app/directive/responsive.directive.ts', () => {
     it('should execute all observer and not show the "is--compact" css class', () => {
         resizeObserverList.at(0).observerList.forEach(el => {
             el.contentRect = {
-                width: 1920
+                width: 1920,
             };
         });
         resizeObserverList.at(0)._execute();

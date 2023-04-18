@@ -17,18 +17,18 @@ async function createWrapper(action, listeners = {}) {
         localVue,
         listeners,
         propsData: {
-            action
+            action,
         },
         stubs: {
             'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-regular-external-link': {
-                template: '<span class="sw-icon sw-icon--regular-external-link"></span>'
+                template: '<span class="sw-icon sw-icon--regular-external-link"></span>',
             },
             'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
         },
         provide: {
-            acl: { can: () => true }
-        }
+            acl: { can: () => true },
+        },
     });
 }
 
@@ -41,9 +41,9 @@ const baseAction = {
     icon: 'someBase64Icon',
     label: {
         'de-DE': 'Product hinzufügen',
-        'en-GB': 'Add product'
+        'en-GB': 'Add product',
     },
-    url: 'http://test-url/actions/product/add'
+    url: 'http://test-url/actions/product/add',
 };
 
 describe('sw-app-action-button', () => {
@@ -62,7 +62,7 @@ describe('sw-app-action-button', () => {
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.classes()).toEqual(expect.arrayContaining([
             'sw-app-action-button',
-            'sw-context-menu-item'
+            'sw-context-menu-item',
         ]));
     });
 
@@ -76,7 +76,7 @@ describe('sw-app-action-button', () => {
         wrapper = await createWrapper(baseAction);
 
         expect(wrapper.classes()).toEqual(expect.arrayContaining([
-            'sw-context-menu-item--icon'
+            'sw-context-menu-item--icon',
         ]));
 
         const icon = wrapper.find('img.sw-extension-icon__icon');
@@ -87,11 +87,11 @@ describe('sw-app-action-button', () => {
     it('does not render an icon if not present', async () => {
         wrapper = await createWrapper({
             ...baseAction,
-            icon: null
+            icon: null,
         });
 
         expect(wrapper.classes()).toEqual(expect.not.arrayContaining([
-            'sw-context-menu-item--icon'
+            'sw-context-menu-item--icon',
         ]));
 
         const icon = wrapper.find('img.sw-extension-icon__icon');
@@ -102,7 +102,7 @@ describe('sw-app-action-button', () => {
         const actionListener = jest.fn();
 
         wrapper = await createWrapper(baseAction, {
-            'run-app-action': actionListener
+            'run-app-action': actionListener,
         });
 
         await wrapper.trigger('click');

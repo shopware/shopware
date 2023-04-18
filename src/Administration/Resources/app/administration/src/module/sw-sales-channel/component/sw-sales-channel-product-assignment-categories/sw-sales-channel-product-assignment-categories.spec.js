@@ -15,84 +15,84 @@ const categories = [
     {
         name: 'Home',
         translated: {
-            name: 'Home'
+            name: 'Home',
         },
         id: '1',
         active: true,
         path: null,
         childCount: 1,
-        breadcrumb: ['Home']
+        breadcrumb: ['Home'],
     },
     {
         name: 'Kitchen',
         translated: {
-            name: 'Kitchen'
+            name: 'Kitchen',
         },
         id: '2',
         active: true,
         path: '|1|',
         parentId: '1',
         childCount: 0,
-        breadcrumb: ['Home', 'Kitchen']
+        breadcrumb: ['Home', 'Kitchen'],
     },
     {
         name: 'Fashion',
         translated: {
-            name: 'Fashion'
+            name: 'Fashion',
         },
         id: '3',
         active: true,
         path: null,
         childCount: 2,
-        breadcrumb: ['Fashion']
+        breadcrumb: ['Fashion'],
     },
     {
         name: 'Skirt',
         translated: {
-            name: 'Skirt'
+            name: 'Skirt',
         },
         id: '4',
         active: true,
         path: '|3|',
         parentId: '3',
         childCount: 0,
-        breadcrumb: ['Fashion', 'Skirt']
+        breadcrumb: ['Fashion', 'Skirt'],
     },
     {
         name: 'Dress',
         translated: {
-            name: 'Dress'
+            name: 'Dress',
         },
         id: '5',
         active: true,
         path: '|3|',
         parentId: '3',
         childCount: 0,
-        breadcrumb: ['Fashion', 'Dress']
-    }
+        breadcrumb: ['Fashion', 'Dress'],
+    },
 ];
 
 const products = [
     {
         name: 'Product 1',
         id: '1111',
-        categoryIds: ['1']
+        categoryIds: ['1'],
     },
     {
         name: 'Product 2',
         id: '2222',
-        categoryIds: ['3', '1']
-    }
+        categoryIds: ['3', '1'],
+    },
 ];
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-product-assignment-categories'), {
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-card-section': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-container': true,
             'sw-alert': true,
@@ -103,13 +103,13 @@ async function createWrapper() {
                     <div class="sw-tree">
                       <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
                     </div>
-                `
+                `,
             },
             'sw-tree-item': {
                 props: ['item', 'activeItemIds', 'activeParentIds'],
                 data() {
                     return {
-                        checked: false
+                        checked: false,
                     };
                 },
                 template: `
@@ -131,13 +131,13 @@ async function createWrapper() {
                         this.item.checked = event;
 
                         this.$emit('check-item', item);
-                    }
-                }
+                    },
+                },
             },
             'sw-simple-search-field': {
                 model: {
                     prop: 'searchTerm',
-                    event: 'search-term-change'
+                    event: 'search-term-change',
                 },
                 props: ['searchTerm'],
                 template: `
@@ -147,8 +147,8 @@ async function createWrapper() {
                 methods: {
                     onInput(e) {
                         this.$emit('search-term-change', e.target.value);
-                    }
-                }
+                    },
+                },
             },
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
@@ -156,31 +156,31 @@ async function createWrapper() {
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
             'sw-highlight-text': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
         },
         provide: {
             repositoryFactory: {
                 create: (repositoryName) => {
                     if (repositoryName === 'category') {
                         return {
-                            search: () => Promise.resolve(categories)
+                            search: () => Promise.resolve(categories),
                         };
                     }
 
                     return {
-                        search: () => Promise.resolve(products)
+                        search: () => Promise.resolve(products),
                     };
-                }
+                },
             },
-            validationService: {}
+            validationService: {},
         },
         propsData: {
             salesChannel: {
                 id: '1234',
-                name: 'Storefront'
+                name: 'Storefront',
             },
-            containerStyle: {}
-        }
+            containerStyle: {},
+        },
     });
 }
 
@@ -198,7 +198,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
 
         expect(tree.exists()).toBeTruthy();
         expect(searchList.exists()).toBeFalsy();
-        expect(treeItems.length).toEqual(5);
+        expect(treeItems).toHaveLength(5);
     });
 
     it('should show search list when user type in search field', async () => {
@@ -217,7 +217,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
 
         expect(tree.exists()).toBeFalsy();
         expect(searchList.exists()).toBeTruthy();
-        expect(searchItems.length).toEqual(5);
+        expect(searchItems).toHaveLength(5);
     });
 
     it('should emit selection-change when toggling tree item checkbox', async () => {

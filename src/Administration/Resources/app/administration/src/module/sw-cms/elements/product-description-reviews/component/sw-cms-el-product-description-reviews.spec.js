@@ -9,7 +9,7 @@ Shopware.Component.register('sw-cms-el-product-description-reviews', swCmsElProd
 
 const productMock = {
     name: 'Awesome Product',
-    description: 'This product is awesome'
+    description: 'This product is awesome',
 };
 
 async function createWrapper() {
@@ -21,29 +21,29 @@ async function createWrapper() {
                 },
                 getCmsElementRegistry: () => {
                     return { 'product-description-reviews': {} };
-                }
-            }
+                },
+            },
         },
         propsData: {
             element: {
                 config: {},
-                data: {}
+                data: {},
             },
             defaultConfig: {
                 alignment: {
-                    value: null
-                }
-            }
+                    value: null,
+                },
+            },
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
-                }
+                        type: 'ladingpage',
+                    },
+                },
             };
-        }
+        },
     });
 }
 
@@ -58,9 +58,9 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {
-                    type: 'product_detail'
-                }
-            }
+                    type: 'product_detail',
+                },
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__placeholder').exists()).toBeTruthy();
@@ -73,11 +73,11 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
                 data: {
                     product: {
                         name: 'Product information',
-                        description: 'lorem'
-                    }
+                        description: 'lorem',
+                    },
                 },
-                config: {}
-            }
+                config: {},
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Product information');
@@ -89,11 +89,11 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {
-                    type: 'product_detail'
+                    type: 'product_detail',
                 },
                 currentMappingEntity: 'product',
-                currentDemoEntity: productMock
-            }
+                currentDemoEntity: productMock,
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Awesome Product');
@@ -105,11 +105,11 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {
-                    type: 'landingpage'
+                    type: 'landingpage',
                 },
                 currentMappingEntity: null,
-                currentDemoEntity: productMock
-            }
+                currentDemoEntity: productMock,
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Product information');

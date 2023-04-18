@@ -29,9 +29,9 @@ describe('addressFormattingApiService', () => {
             200,
             {
                 data: [
-                    { type: 'plain', value: '-' }
-                ]
-            }
+                    { type: 'plain', value: '-' },
+                ],
+            },
         );
 
         const { data } = await customSnippetApiService.snippets();
@@ -46,7 +46,7 @@ describe('addressFormattingApiService', () => {
             200,
             {
                 rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
-            }
+            },
         );
 
         const { rendered } = await customSnippetApiService.render(
@@ -55,11 +55,11 @@ describe('addressFormattingApiService', () => {
                 [
                     { value: 'address/first_name', type: 'snippet' },
                     { value: '-', type: 'plain' },
-                    { value: 'address/last_name', type: 'snippet' }
-                ]
-            ]
+                    { value: 'address/last_name', type: 'snippet' },
+                ],
+            ],
         );
 
-        expect(rendered).toEqual('Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>');
+        expect(rendered).toBe('Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>');
     });
 });

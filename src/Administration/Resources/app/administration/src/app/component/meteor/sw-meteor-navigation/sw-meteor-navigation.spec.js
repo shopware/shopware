@@ -12,13 +12,13 @@ async function createWrapper(customRoute, fromLink = null) {
         stubs: {
             'router-link': {
                 template: '<div class="sw-router-link"><slot></slot></div>',
-                props: ['to']
+                props: ['to'],
             },
-            'sw-icon': true
+            'sw-icon': true,
         },
         mocks: {
-            $route: customRoute
-        }
+            $route: customRoute,
+        },
     });
 }
 
@@ -51,7 +51,7 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
             name: testRoute.meta.parentPath,
         });
 
-        expect(routerLink.text()).toEqual('sw-meteor.navigation.backButton');
+        expect(routerLink.text()).toBe('sw-meteor.navigation.backButton');
     });
 
     it('should not display the back link when no parent exists', async () => {

@@ -16,9 +16,9 @@ const routes = [{
             color: '#57D9A3',
             title: 'sw-product.general.mainMenuItemGeneral',
             name: 'product',
-            routes: { index: { name: 'sw.product.index' } }
-        }
-    }
+            routes: { index: { name: 'sw.product.index' } },
+        },
+    },
 }, {
     name: 'sw.product.create.base',
     path: '/sw/product/create/base',
@@ -33,19 +33,19 @@ const routes = [{
                 index: { name: 'sw.product.index' },
                 create: {
                     children: [{
-                        name: 'sw.product.create.base'
+                        name: 'sw.product.create.base',
                     }],
-                    name: 'sw.product.create'
+                    name: 'sw.product.create',
                 },
                 detail: {
                     name: 'sw.product.detail',
                     children: [{
-                        name: 'sw.product.detail.base'
-                    }]
-                }
-            }
-        }
-    }
+                        name: 'sw.product.detail.base',
+                    }],
+                },
+            },
+        },
+    },
 }, {
     name: 'sw.product.detail.base',
     path: '/sw/product/detail/a34943fe8fe040cd9ce25742a7cf77b2/base',
@@ -60,19 +60,19 @@ const routes = [{
                 index: { name: 'sw.product.index' },
                 create: {
                     children: [{
-                        name: 'sw.product.create.base'
+                        name: 'sw.product.create.base',
                     }],
-                    name: 'sw.product.create'
+                    name: 'sw.product.create',
                 },
                 detail: {
                     name: 'sw.product.detail',
                     children: [{
-                        name: 'sw.product.detail.base'
-                    }]
-                }
-            }
-        }
-    }
+                        name: 'sw.product.detail.base',
+                    }],
+                },
+            },
+        },
+    },
 }];
 
 async function createWrapper() {
@@ -83,7 +83,7 @@ async function createWrapper() {
     localVue.use(VueRouter);
 
     const router = new VueRouter({
-        routes
+        routes,
     });
 
     return shallowMount(await Shopware.Component.build('sw-desktop'), {
@@ -93,23 +93,23 @@ async function createWrapper() {
             'sw-admin-menu': true,
             'router-view': true,
             'sw-app-app-url-changed-modal': true,
-            'sw-error-boundary': true
+            'sw-error-boundary': true,
         },
         provide: {
             appUrlChangeService: {
-                getUrlDiff: jest.fn(() => Promise.resolve())
+                getUrlDiff: jest.fn(() => Promise.resolve()),
             },
             userActivityApiService: {
-                increment: jest.fn(() => Promise.resolve())
-            }
-        }
+                increment: jest.fn(() => Promise.resolve()),
+            },
+        },
     });
 }
 
 describe('src/app/component/structure/sw-desktop', () => {
     beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
-            id: 'id'
+            id: 'id',
         };
     });
 
@@ -136,7 +136,7 @@ describe('src/app/component/structure/sw-desktop', () => {
             icon: 'default-symbol-products',
             name: 'product',
             route: { name: 'sw.product.index' },
-            title: 'sw-product.general.mainMenuItemGeneral'
+            title: 'sw-product.general.mainMenuItemGeneral',
         });
     });
 
@@ -157,7 +157,7 @@ describe('src/app/component/structure/sw-desktop', () => {
             color: '#57D9A3',
             entity: 'product',
             route: { name: 'sw.product.create' },
-            action: true
+            action: true,
         });
     });
 
@@ -169,7 +169,7 @@ describe('src/app/component/structure/sw-desktop', () => {
 
         await wrapper.vm.$router.push({
             name: 'sw.product.detail.base',
-            params: { id: 'a34943fe8fe040cd9ce25742a7cf77b2' }
+            params: { id: 'a34943fe8fe040cd9ce25742a7cf77b2' },
         });
 
         expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);

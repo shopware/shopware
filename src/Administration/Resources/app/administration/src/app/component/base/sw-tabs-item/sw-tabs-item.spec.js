@@ -16,7 +16,7 @@ async function createWrapper(propsData = {}) {
         update(el, binding) {
             el.setAttribute('data-tooltip-message', binding.value.message);
             el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-        }
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-tabs-item'), {
@@ -26,7 +26,7 @@ async function createWrapper(propsData = {}) {
 
         stubs: {
             'sw-icon': await Shopware.Component.build('sw-icon'),
-        }
+        },
     });
 }
 
@@ -47,7 +47,7 @@ describe('component/base/sw-tabs-item', () => {
             errorTooltip: 'Custom error message',
         });
 
-        expect(wrapper.classes().includes('sw-tabs-item--has-error')).toBe(true);
+        expect(wrapper.classes()).toContain('sw-tabs-item--has-error');
 
         const errorIcon = wrapper.find('.sw-tabs-item__error-badge');
         expect(errorIcon.isVisible()).toBe(true);
@@ -61,7 +61,7 @@ describe('component/base/sw-tabs-item', () => {
             warningTooltip: 'Custom warning message',
         });
 
-        expect(wrapper.classes().includes('sw-tabs-item--has-warning')).toBe(true);
+        expect(wrapper.classes()).toContain('sw-tabs-item--has-warning');
 
         const warningIcon = wrapper.find('.sw-tabs-item__warning-badge');
         expect(warningIcon.isVisible()).toBe(true);

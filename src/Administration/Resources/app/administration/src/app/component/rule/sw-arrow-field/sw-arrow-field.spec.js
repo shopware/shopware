@@ -21,8 +21,8 @@ describe('src/app/component/rule/sw-arrow-field', () => {
     it('should have disabled links', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                disabled: true
-            }
+                disabled: true,
+            },
         });
 
         expect(wrapper.classes()).toContain('is--disabled');

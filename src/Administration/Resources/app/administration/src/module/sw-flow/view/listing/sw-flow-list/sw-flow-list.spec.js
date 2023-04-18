@@ -9,9 +9,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: {
@@ -21,14 +21,14 @@ async function createWrapper(privileges = []) {
                         return Promise.resolve([
                             {
                                 id: '44de136acf314e7184401d36406c1e90',
-                                eventName: 'checkout.order.placed'
-                            }
+                                eventName: 'checkout.order.placed',
+                            },
                         ]);
                     },
                     clone: jest.fn(() => Promise.resolve({
-                        id: '0e6b005ca7a1440b8e87ac3d45ed5c9f'
+                        id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
                     })),
-                })
+                }),
             },
 
             acl: {
@@ -38,10 +38,10 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
 
-            searchRankingService: {}
+            searchRankingService: {},
         },
 
         stubs: {
@@ -58,7 +58,7 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-icon': true,
             'sw-button': true,
@@ -71,33 +71,33 @@ async function createWrapper(privileges = []) {
                             <slot name="actions" v-bind="{ item }"></slot>
                         </div>
                     </div>
-                `
+                `,
             },
             'sw-card': true,
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-search-bar': true,
-            'sw-alert': true
-        }
+            'sw-alert': true,
+        },
     });
 }
 
 describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
     it('should be able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
         await flushPromises();
 
         const duplicateMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
 
         expect(duplicateMenuItem.exists()).toBe(true);
-        expect(duplicateMenuItem.attributes().disabled).toBe(undefined);
+        expect(duplicateMenuItem.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
         await flushPromises();
 
@@ -109,18 +109,18 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should be able to edit a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-edit');
         expect(editMenuItem.exists()).toBe(true);
-        expect(editMenuItem.attributes().disabled).toBe(undefined);
+        expect(editMenuItem.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to edit a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
         await flushPromises();
 
@@ -132,18 +132,18 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should be able to delete a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.deleter'
+            'flow.deleter',
         ]);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-flow-list__item-delete');
         expect(deleteMenuItem.exists()).toBe(true);
-        expect(deleteMenuItem.attributes().disabled).toBe(undefined);
+        expect(deleteMenuItem.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to delete a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
 
         await flushPromises();
@@ -156,7 +156,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should show trigger column correctly', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
 
         await flushPromises();
@@ -168,7 +168,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should be show the success message after duplicate flow', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
         await flushPromises();
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -176,7 +176,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
         await wrapper.vm.onDuplicateFlow({
             id: '44de136acf314e7184401d36406c1e90',
-            name: 'test flow'
+            name: 'test flow',
         });
         await flushPromises();
 
@@ -185,7 +185,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
         expect(routerPush).toHaveBeenLastCalledWith({
             name: 'sw.flow.detail',
-            params: { id: '0e6b005ca7a1440b8e87ac3d45ed5c9f' }
+            params: { id: '0e6b005ca7a1440b8e87ac3d45ed5c9f' },
         });
     });
 });

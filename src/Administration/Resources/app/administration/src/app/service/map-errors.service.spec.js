@@ -15,7 +15,7 @@ describe('app/service/map-errors.service.js', () => {
 
     it('all: should be an object', async () => {
         const type = typeof mapErrors;
-        expect(type).toEqual('object');
+        expect(type).toBe('object');
     });
 
     it('all: should contain mapPropertyErrors function', async () => {
@@ -44,8 +44,8 @@ describe('app/service/map-errors.service.js', () => {
     it('mapPropertyErrors: should return the getterPropertyError function', async () => {
         const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
 
-        expect(computedValues.testEntityNameError.name).toEqual('getterPropertyError');
-        expect(computedValues.testEntityIdError.name).toEqual('getterPropertyError');
+        expect(computedValues.testEntityNameError.name).toBe('getterPropertyError');
+        expect(computedValues.testEntityIdError.name).toBe('getterPropertyError');
     });
 
     it('mapPropertyErrors: the getterPropertyError should get the entity name from the vue instance', async () => {
@@ -54,8 +54,8 @@ describe('app/service/map-errors.service.js', () => {
         const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
         const computedValueTestEntityNameError = computedValues.testEntityNameError.bind({
             testEntity: {
-                getEntityName: spyGetEntityName
-            }
+                getEntityName: spyGetEntityName,
+            },
         });
 
         expect(spyGetEntityName).not.toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe('app/service/map-errors.service.js', () => {
         const computedValues = mapErrors.mapPropertyErrors('testEntity', ['name', 'id']);
         const computedValueTestEntityNameError = computedValues.testEntityNameError.bind({});
 
-        expect(computedValueTestEntityNameError()).toEqual(null);
+        expect(computedValueTestEntityNameError()).toBeNull();
     });
 
     it('mapCollectionPropertyErrors: should return an object with properties in camel case', async () => {
@@ -82,8 +82,8 @@ describe('app/service/map-errors.service.js', () => {
     it('mapCollectionPropertyErrors: should return the getterCollectionError function', async () => {
         const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
 
-        expect(computedValues.testEntityCollectionNameError.name).toEqual('getterCollectionError');
-        expect(computedValues.testEntityCollectionIdError.name).toEqual('getterCollectionError');
+        expect(computedValues.testEntityCollectionNameError.name).toBe('getterCollectionError');
+        expect(computedValues.testEntityCollectionIdError.name).toBe('getterCollectionError');
     });
 
     // eslint-disable-next-line max-len
@@ -95,12 +95,12 @@ describe('app/service/map-errors.service.js', () => {
         const computedValueTestEntityCollectionNameError = computedValues.testEntityCollectionNameError.bind({
             testEntityCollection: [
                 {
-                    getEntityName: spyGetEntityNameOne
+                    getEntityName: spyGetEntityNameOne,
                 },
                 {
-                    getEntityName: spyGetEntityNameTwo
-                }
-            ]
+                    getEntityName: spyGetEntityNameTwo,
+                },
+            ],
         });
 
         expect(spyGetEntityNameOne).not.toHaveBeenCalled();
@@ -117,33 +117,33 @@ describe('app/service/map-errors.service.js', () => {
         const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
         const computedValueTestEntityNameError = computedValues.testEntityCollectionNameError.bind({});
 
-        expect(computedValueTestEntityNameError()).toEqual(null);
+        expect(computedValueTestEntityNameError()).toBeNull();
     });
 
     it('mapPageErrors: it should return an object', async () => {
         const mapPageErrors = mapErrors.mapPageErrors({});
 
-        expect(typeof mapPageErrors).toEqual('object');
+        expect(typeof mapPageErrors).toBe('object');
     });
 
     it('mapPageErrors: the object should contain functions for each configuration', async () => {
         const mapPageErrors = mapErrors.mapPageErrors({
             routeOne: {
                 product: {},
-                manufcaturer: {}
-            }
+                manufcaturer: {},
+            },
         });
 
-        expect(typeof mapPageErrors.routeOneError).toEqual('function');
-        expect(mapPageErrors.routeOneError.name).toEqual('getterPropertyError');
+        expect(typeof mapPageErrors.routeOneError).toBe('function');
+        expect(mapPageErrors.routeOneError.name).toBe('getterPropertyError');
     });
 
     it('mapPageErrors: it should check if the entity has an error', async () => {
         const mapPageErrors = mapErrors.mapPageErrors({
             routeOne: {
                 product: {},
-                manufcaturer: {}
-            }
+                manufcaturer: {},
+            },
         });
 
         const errorExists = mapPageErrors.routeOneError();

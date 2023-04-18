@@ -25,13 +25,13 @@ async function createWrapper() {
                 countryState: {
                     name: 'Florida',
                 },
-            }
+            },
         },
         stubs: {
             'router-link': {
                 template: '<a class="router-link" href="#"><slot></slot></a>',
-                props: ['to']
-            }
+                props: ['to'],
+            },
         },
         attachTo: document.body,
     });
@@ -71,7 +71,7 @@ describe('src/app/component/base/sw-address/index.ts', () => {
 
     it('should render address with headline', async () => {
         await wrapper.setProps({
-            headline: 'Super cool address'
+            headline: 'Super cool address',
         });
 
         expect(wrapper.get('.sw-address__headline').text()).toBe('Super cool address');
@@ -81,7 +81,7 @@ describe('src/app/component/base/sw-address/index.ts', () => {
         await wrapper.setProps({
             headline: 'Super cool address',
             showEditButton: true,
-            editLink: { path: 'path/edit-address' }
+            editLink: { path: 'path/edit-address' },
         });
 
         expect(wrapper.get('.sw-address-headline-link').text()).toBe('global.default.edit');

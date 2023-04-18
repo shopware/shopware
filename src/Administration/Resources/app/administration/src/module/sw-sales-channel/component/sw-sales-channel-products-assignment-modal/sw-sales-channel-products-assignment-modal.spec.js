@@ -11,7 +11,7 @@ Shopware.Component.register('sw-sales-channel-products-assignment-modal', swSale
 async function createWrapper(activeTab = 'singleProducts') {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
         directives: {
-            hide: {}
+            hide: {},
         },
         stubs: {
             'sw-sales-channel-products-assignment-single-products': true,
@@ -24,7 +24,7 @@ async function createWrapper(activeTab = 'singleProducts') {
                 data() {
                     return { active: activeTab };
                 },
-                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
+                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-icon': true,
@@ -33,10 +33,10 @@ async function createWrapper(activeTab = 'singleProducts') {
         propsData: {
             salesChannel: {
                 id: 1,
-                name: 'Headless'
+                name: 'Headless',
             },
-            isAssignProductLoading: false
-        }
+            isAssignProductLoading: false,
+        },
     });
 }
 
@@ -55,9 +55,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             singleProducts: [
                 {
                     id: '1',
-                    name: 'Test product'
-                }
-            ]
+                    name: 'Test product',
+                },
+            ],
         });
 
         await wrapper.find('.sw-button--primary').trigger('click');
@@ -70,17 +70,17 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         const products = [
             {
                 name: 'Test product 1',
-                id: '1'
+                id: '1',
             },
             {
                 name: 'Test product 2',
-                id: '2'
-            }
+                id: '2',
+            },
         ];
 
         const wrapper = await createWrapper();
         await wrapper.setData({
-            categoryProducts: products
+            categoryProducts: products,
         });
 
         const assignButton = wrapper.find('.sw-button--primary');
@@ -96,38 +96,38 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             singleProducts: [
                 {
                     name: 'Test product 1',
-                    id: '1'
+                    id: '1',
                 },
                 {
                     name: 'Test product 2',
-                    id: '2'
-                }
+                    id: '2',
+                },
             ],
             groupProducts: [
                 {
                     name: 'Test product 2',
-                    id: '2'
+                    id: '2',
                 },
                 {
                     name: 'Test product 3',
-                    id: '3'
-                }
-            ]
+                    id: '3',
+                },
+            ],
         });
 
         expect(wrapper.vm.products).toEqual([
             {
                 name: 'Test product 1',
-                id: '1'
+                id: '1',
             },
             {
                 name: 'Test product 2',
-                id: '2'
+                id: '2',
             },
             {
                 name: 'Test product 3',
-                id: '3'
-            }
+                id: '3',
+            },
         ]);
         expect(wrapper.vm.productCount).toBe(3);
     });
@@ -137,16 +137,16 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         const groupProductsMock = [
             {
                 id: 1,
-                name: 'Low prices'
+                name: 'Low prices',
             },
             {
                 id: 2,
-                name: 'Standard prices'
+                name: 'Standard prices',
             },
             {
                 id: 3,
-                name: 'High prices'
-            }
+                name: 'High prices',
+            },
         ];
 
         wrapper.vm.onChangeSelection(groupProductsMock, 'groupProducts');
@@ -155,8 +155,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             expect.arrayContaining([
                 expect.objectContaining({ name: 'Low prices' }),
                 expect.objectContaining({ name: 'Standard prices' }),
-                expect.objectContaining({ name: 'High prices' })
-            ])
+                expect.objectContaining({ name: 'High prices' }),
+            ]),
         );
     });
 

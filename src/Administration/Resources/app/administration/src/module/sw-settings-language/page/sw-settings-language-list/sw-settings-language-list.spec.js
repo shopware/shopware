@@ -15,13 +15,13 @@ async function createWrapper(privileges = []) {
         mocks: {
             $route: {
                 params: {
-                    sortBy: 'sortBy'
+                    sortBy: 'sortBy',
                 },
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -29,17 +29,17 @@ async function createWrapper(privileges = []) {
                     search: () => {
                         return Promise.resolve([
                             {
-                                name: 'English'
+                                name: 'English',
                             },
                             {
-                                name: 'German'
+                                name: 'German',
                             },
                             {
-                                name: 'Vietnamese'
-                            }
+                                name: 'Vietnamese',
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -48,14 +48,14 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
 
             detailPageLinkText(allowEdit) {
                 return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
             },
 
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -71,7 +71,7 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-search-bar': true,
             'sw-language-switch': true,
@@ -98,9 +98,9 @@ async function createWrapper(privileges = []) {
                             <slot name="delete-action" v-bind="{ item }"></slot>
                         </template>
                     </div>
-                `
-            }
-        }
+                `,
+            },
+        },
     });
 }
 
@@ -114,7 +114,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should be able to create a new language', async () => {
         const wrapper = await createWrapper([
-            'language.creator'
+            'language.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -134,7 +134,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should be able to view a language', async () => {
         const wrapper = await createWrapper([
-            'language.viewer'
+            'language.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -146,7 +146,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should be able to edit a language', async () => {
         const wrapper = await createWrapper([
-            'language.editor'
+            'language.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -168,7 +168,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should be able to delete a language', async () => {
         const wrapper = await createWrapper([
-            'language.deleter'
+            'language.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -188,7 +188,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should be able to inline edit a language', async () => {
         const wrapper = await createWrapper([
-            'language.editor'
+            'language.editor',
         ]);
         await wrapper.vm.$nextTick();
 

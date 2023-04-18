@@ -27,14 +27,14 @@ describe('updateApiService', () => {
         clientMock.onGet('/_action/update/check').reply(
             200,
             {
-                success: true
-            }
+                success: true,
+            },
         );
 
         const result = await updateApiService.checkForUpdates();
 
         expect(result).toEqual({
-            success: true
+            success: true,
         });
     });
 
@@ -44,14 +44,14 @@ describe('updateApiService', () => {
         clientMock.onGet('/_action/update/check-requirements').reply(
             200,
             {
-                success: true
-            }
+                success: true,
+            },
         );
 
         const result = await updateApiService.checkRequirements();
 
         expect(result).toEqual({
-            success: true
+            success: true,
         });
     });
 
@@ -69,14 +69,14 @@ describe('updateApiService', () => {
         clientMock.onGet('/_action/update/extension-compatibility').reply(
             200,
             {
-                success: true
-            }
+                success: true,
+            },
         );
 
         const result = await updateApiService.extensionCompatibility();
 
         expect(result).toEqual({
-            success: true
+            success: true,
         });
     });
 
@@ -86,14 +86,14 @@ describe('updateApiService', () => {
         clientMock.onGet('/_action/update/download-recovery').reply(
             200,
             {
-                success: true
-            }
+                success: true,
+            },
         );
 
         const result = await updateApiService.downloadRecovery();
 
         expect(result).toEqual({
-            success: true
+            success: true,
         });
     });
 
@@ -103,14 +103,14 @@ describe('updateApiService', () => {
         clientMock.onGet('/_action/update/deactivate-plugins?offset=0&deactivationFilter=foo').reply(
             200,
             {
-                success: true
-            }
+                success: true,
+            },
         );
 
         const result = await updateApiService.deactivatePlugins(0, 'foo');
 
         expect(result).toEqual({
-            success: true
+            success: true,
         });
     });
 });

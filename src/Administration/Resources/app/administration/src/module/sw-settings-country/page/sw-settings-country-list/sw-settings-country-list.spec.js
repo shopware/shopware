@@ -17,9 +17,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: {
@@ -49,11 +49,11 @@ async function createWrapper(privileges = []) {
                                 taxRules: [],
                                 translated: {},
                                 translations: [],
-                                updatedAt: '2020-08-16T06:57:40.559+00:00'
-                            }
+                                updatedAt: '2020-08-16T06:57:40.559+00:00',
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -62,12 +62,12 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             feature: {
-                isActive: () => true
+                isActive: () => true,
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
 
         stubs: {
@@ -84,21 +84,21 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card': {
                 template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-entity-listing': {
                 props: ['items', 'detailPageLinkText'],
@@ -113,14 +113,14 @@ async function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>
-                `
+                `,
             },
             'sw-language-switch': true,
             'sw-search-bar': true,
             'sw-context-menu-item': true,
             'sw-icon': true,
-            'sw-button': true
-        }
+            'sw-button': true,
+        },
     });
 }
 
@@ -134,7 +134,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to view a country', async () => {
         const wrapper = await createWrapper([
-            'country.viewer'
+            'country.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -146,7 +146,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to create a new country', async () => {
         const wrapper = await createWrapper([
-            'country.creator'
+            'country.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -167,7 +167,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to edit a country', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -187,7 +187,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to inline edit a country', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -207,7 +207,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to delete a country', async () => {
         const wrapper = await createWrapper([
-            'country.deleter'
+            'country.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -225,7 +225,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to delete mutilple country', async () => {
         const wrapper = await createWrapper([
-            'country.deleter'
+            'country.deleter',
         ]);
         await wrapper.vm.$nextTick();
 

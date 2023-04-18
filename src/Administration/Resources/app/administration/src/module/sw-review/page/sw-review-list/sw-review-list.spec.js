@@ -12,9 +12,9 @@ async function createWrapper() {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -25,7 +25,7 @@ async function createWrapper() {
                             entity: 'review',
                             customerId: 'd4c3b2a1',
                             productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1'
+                            salesChannelId: 'd4c3b2a1',
                         }]);
                     },
                     search: () => {
@@ -35,12 +35,12 @@ async function createWrapper() {
                             customerId: 'd4c3b2a1',
                             productId: 'd4c3b2a1',
                             salesChannelId: 'd4c3b2a1',
-                            sourceEntitiy: 'product-review'
+                            sourceEntitiy: 'product-review',
                         }]);
-                    }
-                })
+                    },
+                }),
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -49,7 +49,7 @@ async function createWrapper() {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-icon': true,
@@ -57,8 +57,8 @@ async function createWrapper() {
             'sw-entity-listing': true,
             'sw-language-switch': true,
             'sw-empty-state': true,
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 }
 

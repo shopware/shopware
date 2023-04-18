@@ -19,11 +19,11 @@ function createRuleMock(isNew) {
             children: [{
                 id: 'some-id',
                 children: [{
-                    id: 'some-id'
-                }]
-            }]
+                    id: 'some-id',
+                }],
+            }],
         }],
-        someRuleRelation: []
+        someRuleRelation: [],
     };
 }
 
@@ -38,22 +38,22 @@ async function createWrapper() {
                         },
                         get: () => Promise.resolve(createRuleMock(false)),
                         save: () => Promise.resolve(),
-                        search: () => Promise.resolve([])
+                        search: () => Promise.resolve([]),
                     };
-                }
+                },
             },
 
             ruleConditionDataProviderService: {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictedRuleTooltipConfig: () => ({
-                    disabled: true
-                })
+                    disabled: true,
+                }),
             },
 
             ruleConditionsConfigApiService: {
-                load: () => Promise.resolve()
-            }
+                load: () => Promise.resolve(),
+            },
         },
 
         stubs: {
@@ -64,10 +64,10 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-condition-tree': true,
             'sw-container': true,
@@ -75,8 +75,8 @@ async function createWrapper() {
             'sw-textarea-field': true,
             'sw-number-field': true,
             'sw-text-field': true,
-            'sw-field': true
-        }
+            'sw-field': true,
+        },
     });
 }
 

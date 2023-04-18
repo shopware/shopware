@@ -26,15 +26,15 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-card': true,
             'sw-internal-link': true,
             'sw-switch-field': true,
             'sw-media-preview-v2': true,
-        }
+        },
     });
 }
 

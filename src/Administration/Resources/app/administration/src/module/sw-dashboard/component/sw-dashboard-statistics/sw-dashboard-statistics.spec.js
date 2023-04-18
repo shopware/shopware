@@ -19,12 +19,12 @@ async function createWrapper(privileges = [], orderSumToday = null) {
     const responseMock = {
         aggregations: {
             order_count_bucket: {
-                buckets: []
+                buckets: [],
             },
             order_sum_bucket: {
-                buckets: []
-            }
-        }
+                buckets: [],
+            },
+        },
     };
 
     const options = {
@@ -49,15 +49,15 @@ async function createWrapper(privileges = [], orderSumToday = null) {
             $i18n: {
                 locale: 'en-GB',
                 messages: {
-                    'en-GB': dictionary
-                }
-            }
+                    'en-GB': dictionary,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve(responseMock)
-                })
+                    search: () => Promise.resolve(responseMock),
+                }),
             },
             stateStyleDataProviderService: {},
             acl: {
@@ -65,8 +65,8 @@ async function createWrapper(privileges = [], orderSumToday = null) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         computed: {
             systemCurrencyISOCode() {
@@ -74,8 +74,8 @@ async function createWrapper(privileges = [], orderSumToday = null) {
             },
             isSessionLoaded() {
                 return true;
-            }
-        }
+            },
+        },
     };
 
     if (orderSumToday !== null) {
@@ -95,13 +95,13 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     beforeAll(() => {
         Shopware.State.registerModule('session', {
             state: {
-                currentUser: null
+                currentUser: null,
             },
             mutations: {
                 setCurrentUser(state, user) {
                     state.currentUser = user;
-                }
-            }
+                },
+            },
         });
         jest.useFakeTimers('modern');
     });
@@ -170,8 +170,8 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
                             interval: 'day',
                         },
                     ];
-                }
-            }
+                },
+            },
         });
 
         wrapper = await createWrapper(['order.viewer']);

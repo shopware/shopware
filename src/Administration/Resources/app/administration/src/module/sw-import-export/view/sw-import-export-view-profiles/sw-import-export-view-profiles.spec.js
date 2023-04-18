@@ -17,8 +17,8 @@ async function createWrapper() {
             'sw-import-export-edit-profile-modal': true,
         },
         provide: {
-            importExport: new ImportExportService()
-        }
+            importExport: new ImportExportService(),
+        },
     });
 }
 
@@ -33,7 +33,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             method: 'Post',
             url: '/search/import-export-profile',
             status: 200,
-            response: { data: [] }
+            response: { data: [] },
         });
     });
 

@@ -20,9 +20,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -31,13 +31,13 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-card-view': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-card': {
-                template: '<div><slot name="grid"></slot></div>'
+                template: '<div><slot name="grid"></slot></div>',
             },
             'sw-context-menu-item': true,
             'sw-button': true,
@@ -58,9 +58,9 @@ async function createWrapper(privileges = []) {
                                 <slot name="delete-action" v-bind="{ item }"></slot>
                             </slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
-            'sw-empty-state': true
+            'sw-empty-state': true,
         },
         provide: {
             repositoryFactory: {
@@ -70,30 +70,30 @@ async function createWrapper(privileges = []) {
                             {
                                 id: '1',
                                 name: 'Net price customer group',
-                                displayGross: false
-                            }
+                                displayGross: false,
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -101,16 +101,16 @@ async function createWrapper(privileges = []) {
 function createCustomerGroupWithCustomer() {
     return {
         customers: [
-            {}
+            {},
         ],
-        salesChannels: []
+        salesChannels: [],
     };
 }
 
 function createDeletableCustomerGroup() {
     return {
         customers: [],
-        salesChannels: []
+        salesChannels: [],
     };
 }
 
@@ -228,7 +228,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -271,7 +271,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -295,7 +295,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -309,7 +309,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

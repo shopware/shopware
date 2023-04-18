@@ -36,7 +36,7 @@ async function createWrapper(privileges = []) {
         update(el, binding) {
             el.setAttribute('data-tooltip-message', binding.value.message);
             el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-        }
+        },
     });
 
     wrapper = shallowMount(await Shopware.Component.build('sw-users-permissions-user-detail'), {
@@ -47,11 +47,11 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             loginService: {},
             userService: {
-                getUser: () => Promise.resolve({ data: {} })
+                getUser: () => Promise.resolve({ data: {} }),
             },
             userValidationService: {},
             integrationService: {},
@@ -70,10 +70,10 @@ async function createWrapper(privileges = []) {
                                         email: 'info@shopware.com',
                                         accessKeys: {
                                             entity: 'product',
-                                        }
-                                    }
+                                        },
+                                    },
                                 );
-                            }
+                            },
                         };
                     }
 
@@ -85,26 +85,26 @@ async function createWrapper(privileges = []) {
                                 Shopware.Context.api,
                                 null,
                                 [],
-                                0
+                                0,
                             )),
-                            get: () => Promise.resolve()
+                            get: () => Promise.resolve(),
                         };
                     }
 
                     return {};
-                }
+                },
             },
-            validationService: {}
+            validationService: {},
         },
         mocks: {
             $route: {
                 params: {
-                    id: '1a2b3c4d'
-                }
+                    id: '1a2b3c4d',
+                },
             },
             $device: {
-                getSystemKey: () => 'STRG'
-            }
+                getSystemKey: () => 'STRG',
+            },
         },
         stubs: {
             'sw-page': {
@@ -112,7 +112,7 @@ async function createWrapper(privileges = []) {
 <div>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
-</div>`
+</div>`,
             },
             'sw-card-view': true,
             'sw-card': {
@@ -121,7 +121,7 @@ async function createWrapper(privileges = []) {
         <slot></slot>
         <slot name="grid"></slot>
     </div>
-    `
+    `,
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
@@ -146,13 +146,13 @@ async function createWrapper(privileges = []) {
       <slot name="actions" v-bind="{ item }"></slot>
   </template>
 </div>
-                `
+                `,
             },
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-skeleton': true,
             'sw-loader': true,
-        }
+        },
     });
 
     // wait until all loading promises are done
@@ -205,8 +205,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldLastName.props('value')).toBe('admin');
         expect(fieldEmail.props('value')).toBe('info@shopware.com');
         expect(fieldUsername.props('value')).toBe('admin');
-        expect(fieldProfilePicture.props('value')).toBe(undefined);
-        expect(fieldPassword.props('value')).toBe(undefined);
+        expect(fieldProfilePicture.props('value')).toBeUndefined();
+        expect(fieldPassword.props('value')).toBeUndefined();
         expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
@@ -217,7 +217,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
-                email: 'max@mustermann.com'
+                email: 'max@mustermann.com',
             },
             isLoading: false,
         });
@@ -242,8 +242,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldLastName.props('value')).toBe('Mustermann');
         expect(fieldEmail.props('value')).toBe('max@mustermann.com');
         expect(fieldUsername.props('value')).toBe('maxmuster');
-        expect(fieldProfilePicture.props('value')).toBe(undefined);
-        expect(fieldPassword.props('value')).toBe(undefined);
+        expect(fieldProfilePicture.props('value')).toBeUndefined();
+        expect(fieldPassword.props('value')).toBeUndefined();
         expect(fieldLanguage.attributes('value')).toBe('12345');
     });
 
@@ -257,7 +257,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
-                email: 'max@mustermann.com'
+                email: 'max@mustermann.com',
             },
             isLoading: false,
         });
@@ -280,7 +280,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
-                email: 'max@mustermann.com'
+                email: 'max@mustermann.com',
             },
             isLoading: false,
         });
@@ -299,11 +299,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
-                email: 'max@mustermann.com'
+                email: 'max@mustermann.com',
             },
             integrations: [
-                {}
-            ]
+                {},
+            ],
         });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');
@@ -339,11 +339,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
-                email: 'max@mustermann.com'
+                email: 'max@mustermann.com',
             },
             integrations: [
-                {}
-            ]
+                {},
+            ],
         });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');
@@ -372,7 +372,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
-        expect(wrapper.vm.user.password).toBe(undefined);
+        expect(wrapper.vm.user.password).toBeUndefined();
 
         const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
         expect(fieldPasswordInput.element.value).toBe('');
@@ -388,7 +388,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
-        expect(wrapper.vm.user.password).toBe(undefined);
+        expect(wrapper.vm.user.password).toBeUndefined();
 
         const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
         expect(fieldPasswordInput.element.value).toBe('');
@@ -401,7 +401,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         await fieldPasswordInput.setValue('');
         await fieldPasswordInput.trigger('change');
 
-        expect(wrapper.vm.user.password).toBe(undefined);
+        expect(wrapper.vm.user.password).toBeUndefined();
     });
 
     it('should send a request with the new password', async () => {
@@ -409,7 +409,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
-        expect(wrapper.vm.user.password).toBe(undefined);
+        expect(wrapper.vm.user.password).toBeUndefined();
 
         const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
         expect(fieldPasswordInput.element.value).toBe('');
@@ -425,7 +425,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
-        expect(wrapper.vm.user.password).toBe(undefined);
+        expect(wrapper.vm.user.password).toBeUndefined();
 
         const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
         expect(fieldPasswordInput.element.value).toBe('');
@@ -438,6 +438,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         await fieldPasswordInput.setValue('');
         await fieldPasswordInput.trigger('change');
 
-        expect(wrapper.vm.user.password).toBe(undefined);
+        expect(wrapper.vm.user.password).toBeUndefined();
     });
 });

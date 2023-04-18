@@ -14,7 +14,7 @@ const currentDemoProducts = [
     { id: 'PRODUCT-0' },
     { id: 'PRODUCT-1' },
     { id: 'PRODUCT-2' },
-    { id: 'PRODUCT-3' }
+    { id: 'PRODUCT-3' },
 ];
 
 const defaultConfig = {
@@ -36,26 +36,26 @@ async function createWrapper() {
         data() {
             return {
                 cmsPageState: {
-                    currentDemoProducts
-                }
+                    currentDemoProducts,
+                },
             };
         },
         propsData: {
             element: {
                 config: {
                     boxLayout: {
-                        value: 'standard'
-                    }
-                }
-            }
+                        value: 'standard',
+                    },
+                },
+            },
         },
         stubs: {
             'sw-cms-el-product-box': {
                 name: 'sw-cms-el-product-box',
                 template: '<div>Product-Box</div>',
-                props: ['element']
+                props: ['element'],
             },
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             cmsService: {
@@ -64,7 +64,7 @@ async function createWrapper() {
                 },
                 getCmsElementRegistry: () => {
                     return { 'product-listing': {} };
-                }
+                },
             },
         },
     });
@@ -93,7 +93,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
         const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });
 
-        expect(productBoxes.length).toBe(8);
+        expect(productBoxes).toHaveLength(8);
 
         productBoxes.wrappers.forEach((productBox, index) => {
             const expectedDefaultConfig = { ...defaultConfig };

@@ -16,8 +16,8 @@ async function createWrapper(categoryType) {
             category: {
                 id: categoryIdMock,
                 isColumn: true,
-            }
-        }
+            },
+        },
     });
 
     if (Shopware.State.get('cmsPageState')) {
@@ -28,7 +28,7 @@ async function createWrapper(categoryType) {
         namespaced: true,
         state: {
             currentPage: undefined,
-        }
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-category-view'), {
@@ -38,28 +38,28 @@ async function createWrapper(categoryType) {
             },
             'sw-language-info': {
                 template: '<div class="sw-language-info"></div>',
-                props: ['entityDescription']
+                props: ['entityDescription'],
             },
             'sw-alert': {
                 template: '<div class="sw-alert"><slot /></div>',
-                props: ['variant']
+                props: ['variant'],
             },
             'sw-tabs': {
                 template: '<div class="sw-tabs"><slot /></div>',
             },
             'sw-tabs-item': {
                 template: '<div class="sw-tabs-item"><slot /></div>',
-                props: ['route', 'title']
+                props: ['route', 'title'],
             },
             'router-view': {
                 template: '<div class="router-view"></div>',
-                props: ['isLoading']
-            }
+                props: ['isLoading'],
+            },
         },
         mocks: {
             placeholder: (entity, field, fallbackSnippet) => {
                 return {
-                    entity, field, fallbackSnippet
+                    entity, field, fallbackSnippet,
                 };
             },
         },
@@ -79,10 +79,10 @@ describe('src/module/sw-category/component/sw-category-view', () => {
         expect(wrapper.get('.sw-language-info').props('entityDescription')).toStrictEqual({
             entity: {
                 id: 'CATEGORY_MOCK_ID',
-                isColumn: true
+                isColumn: true,
             },
             fallbackSnippet: 'sw-manufacturer.detail.textHeadline',
-            field: 'name'
+            field: 'name',
         });
 
         expect(wrapper.get('.sw-alert').props('variant')).toBe('info');

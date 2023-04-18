@@ -17,8 +17,8 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-custom-field-type-select'), {
         mocks: {
             $i18n: {
-                fallbackLocale: 'en-GB'
-            }
+                fallbackLocale: 'en-GB',
+            },
         },
         propsData: {
             currentCustomField,
@@ -40,10 +40,10 @@ async function createWrapper() {
                     createdAt: '2021-06-30T08:02:28.996+00:00',
                     updatedAt: null,
                     apiAlias: null,
-                    id: '559b6ae735b04e199505fd4c5ac5f22c'
+                    id: '559b6ae735b04e199505fd4c5ac5f22c',
                 }],
-                products: []
-            }
+                products: [],
+            },
         },
         stubs: {
             'sw-custom-field-translated-labels': true,
@@ -52,17 +52,17 @@ async function createWrapper() {
                 props: {
                     value: {
                         type: String,
-                        default: ''
-                    }
+                        default: '',
+                    },
                 },
-                template: '<input type="text" :value="value" @input="event => $emit(\'input\', event.target.value)" />'
+                template: '<input type="text" :value="value" @input="event => $emit(\'input\', event.target.value)" />',
             },
             'sw-base-field': true,
             'sw-field': true,
             'sw-field-error': true,
             'sw-button': true,
-            'sw-container': true
-        }
+            'sw-container': true,
+        },
     });
 }
 
@@ -76,27 +76,27 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
                 options: [
                     {
                         label: { 'en-GB': 'translated-label-1' },
-                        value: 'label-with-translated-value'
+                        value: 'label-with-translated-value',
                     },
                     {
                         label: {},
-                        value: 'label-without-translated-value'
+                        value: 'label-without-translated-value',
                     },
                     {
                         label: [],
-                        value: 'label-with-incorrect-value'
-                    }
+                        value: 'label-with-incorrect-value',
+                    },
                 ],
                 helpText: { 'en-GB': null },
                 placeholder: { 'en-GB': null },
                 componentName: 'sw-single-select',
                 customFieldType: 'select',
-                customFieldPosition: 1
+                customFieldPosition: 1,
             },
             active: true,
             customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
             id: '8e1ab96faf374836a4d68febc8d4f1e1',
-            productSearchConfigFields: []
+            productSearchConfigFields: [],
         };
     });
 
@@ -123,34 +123,34 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
             customFieldPosition: 1,
             customFieldType: 'select',
             helpText: {
-                'en-GB': null
+                'en-GB': null,
             },
             label: {
-                'en-GB': null
+                'en-GB': null,
             },
             options: [
                 {
                     label: {
-                        'en-GB': 'label-0'
+                        'en-GB': 'label-0',
                     },
-                    value: 'label-with-translated-value'
+                    value: 'label-with-translated-value',
                 },
                 {
                     label: {
-                        'en-GB': 'label-1'
+                        'en-GB': 'label-1',
                     },
-                    value: 'label-without-translated-value'
+                    value: 'label-without-translated-value',
                 },
                 {
                     label: {
-                        'en-GB': 'label-2'
+                        'en-GB': 'label-2',
                     },
-                    value: 'label-with-incorrect-value'
-                }
+                    value: 'label-with-incorrect-value',
+                },
             ],
             placeholder: {
-                'en-GB': null
-            }
+                'en-GB': null,
+            },
         });
     });
 });

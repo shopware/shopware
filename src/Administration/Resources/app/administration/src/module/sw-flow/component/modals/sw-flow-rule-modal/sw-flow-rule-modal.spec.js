@@ -13,8 +13,8 @@ function createRuleMock(isNew) {
         isNew: () => isNew,
         conditions: {
             entity: 'rule',
-            source: 'foo/rule'
-        }
+            source: 'foo/rule',
+        },
     };
 }
 
@@ -29,24 +29,24 @@ async function createWrapper() {
                         },
                         get: () => Promise.resolve(createRuleMock(false)),
                         save: () => Promise.resolve(),
-                        search: () => Promise.resolve([])
+                        search: () => Promise.resolve([]),
                     };
-                }
+                },
             },
 
             ruleConditionDataProviderService: {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
-                getAwarenessConfigurationByAssignmentName: () => ({})
+                getAwarenessConfigurationByAssignmentName: () => ({}),
             },
 
             ruleConditionsConfigApiService: {
-                load: () => Promise.resolve()
+                load: () => Promise.resolve(),
             },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -59,13 +59,13 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-button-process': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-icon': true,
             'sw-condition-tree': true,
@@ -73,8 +73,8 @@ async function createWrapper() {
             'sw-multi-select': true,
             'sw-textarea-field': true,
             'sw-number-field': true,
-            'sw-text-field': true
-        }
+            'sw-text-field': true,
+        },
     });
 }
 
@@ -94,7 +94,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
             '.sw-flow-rule-modal__name',
             '.sw-flow-rule-modal__priority',
             '.sw-flow-rule-modal__description',
-            '.sw-flow-rule-modal__type'
+            '.sw-flow-rule-modal__type',
         ];
 
         const detailHeaderTab = wrapper.find('.sw-flow-rule-modal__tab-detail');

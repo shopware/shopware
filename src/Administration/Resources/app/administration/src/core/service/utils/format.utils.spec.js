@@ -78,7 +78,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             setTimeZone('America/New_York');
 
             expect(date('2000-06-18T08:30:00.000+00:00', {
-                skipTimezoneConversion: true
+                skipTimezoneConversion: true,
             })).toBe('18. Juni 2000 um 08:30');
         });
     });
@@ -137,7 +137,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             Shopware.State.commit('setAdminLocale', {
                 locales: ['de-DE'],
                 locale: 'de-DE',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             });
 
             expect(currencyFilter(42, 'EUR', 0)).toBe('42 €');
@@ -145,7 +145,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             Shopware.State.commit('setAdminLocale', {
                 locales: ['en-GB'],
                 locale: 'en-GB',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             });
         });
 

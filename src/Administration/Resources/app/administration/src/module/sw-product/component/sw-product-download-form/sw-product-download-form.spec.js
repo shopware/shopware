@@ -27,8 +27,8 @@ async function createWrapper(privileges = [], hasError = false) {
                     swProductDetail: {
                         namespaced: true,
                         getters: {
-                            isLoading: () => false
-                        }
+                            isLoading: () => false,
+                        },
                     },
                     error: {
                         namespaced: true,
@@ -36,9 +36,9 @@ async function createWrapper(privileges = [], hasError = false) {
                             getApiError: () => {
                                 return hasError ? { code: 'some-error-code' } : null;
                             },
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             }),
         },
         computed: {
@@ -53,7 +53,7 @@ async function createWrapper(privileges = [], hasError = false) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             configService: {
                 getConfig() {
@@ -64,17 +64,17 @@ async function createWrapper(privileges = [], hasError = false) {
                                 'svg',
                                 'jpg',
                                 'pdf',
-                            ]
-                        }
+                            ],
+                        },
                     });
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-upload-listener': true,
             'sw-product-image': await Shopware.Component.build('sw-product-image'),
             'sw-media-upload-v2': {
-                template: '<div class="sw-media-upload-v2"></div>'
+                template: '<div class="sw-media-upload-v2"></div>',
             },
             'sw-media-preview-v2': true,
             'sw-popover': await Shopware.Component.build('sw-popover'),
@@ -84,7 +84,7 @@ async function createWrapper(privileges = [], hasError = false) {
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-field-error': true,
-        }
+        },
     });
 }
 
@@ -100,7 +100,7 @@ const files = [
             fileExtension: 'txt',
             fileSize: 1024, // 1KB
             createdAt: new Date('02/08/2022, 13:00'),
-        }
+        },
     },
 ];
 
@@ -112,22 +112,22 @@ function getFileCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
 describe('module/sw-product/component/sw-product-download-form', () => {
     beforeAll(() => {
         const product = {
-            downloads: getFileCollection(files)
+            downloads: getFileCollection(files),
         };
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
-                product: product
-            }
+                product: product,
+            },
         });
     });
 
@@ -139,7 +139,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
 
     it('should show the sw-media-upload-v2 component', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         expect(wrapper.find('.sw-media-upload-v2').exists()).toBeTruthy();
@@ -157,21 +157,21 @@ describe('module/sw-product/component/sw-product-download-form', () => {
         wrapper.vm.onOpenMedia();
 
         const pageChangeEvents = wrapper.emitted()['media-open'];
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
     });
 
     it('should show filename and metadata in the ui', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-product-download-form-row__name').text()).toEqual('FileName.txt');
-        expect(wrapper.find('.sw-product-download-form-row__mime').text()).toEqual('plain/text');
-        expect(wrapper.find('.sw-product-download-form-row__size').text()).toEqual('1.00KB');
-        expect(wrapper.find('.sw-product-download-form-row__changed-date').text()).toEqual('08/02/2022, 13:00');
+        expect(wrapper.find('.sw-product-download-form-row__name').text()).toBe('FileName.txt');
+        expect(wrapper.find('.sw-product-download-form-row__mime').text()).toBe('plain/text');
+        expect(wrapper.find('.sw-product-download-form-row__size').text()).toBe('1.00KB');
+        expect(wrapper.find('.sw-product-download-form-row__changed-date').text()).toBe('08/02/2022, 13:00');
     });
 
     it('should accept only file extensions of the config service', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm.fileAccept).toStrictEqual('*/png,*/svg,*/jpg,*/pdf');
+        expect(wrapper.vm.fileAccept).toBe('*/png,*/svg,*/jpg,*/pdf');
     });
 
     it('should have an error state', async () => {

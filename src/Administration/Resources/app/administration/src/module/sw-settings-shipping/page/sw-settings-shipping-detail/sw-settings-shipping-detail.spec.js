@@ -18,7 +18,7 @@ async function createWrapper(privileges = []) {
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
     shippingMethod.prices = {
-        add: () => {}
+        add: () => {},
     };
 
     return shallowMount(await Shopware.Component.build('sw-settings-shipping-detail'), {
@@ -30,23 +30,23 @@ async function createWrapper(privileges = []) {
                     create: () => {
                         return shippingMethod;
                     },
-                    search: () => Promise.resolve([])
-                })
+                    search: () => Promise.resolve([]),
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
+                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-button': true,
             'sw-button-process': true,
@@ -66,7 +66,7 @@ async function createWrapper(privileges = []) {
             'sw-settings-shipping-tax-cost': true,
             'sw-language-info': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -74,7 +74,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            isProcessLoading: false
+            isProcessLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-settings-shipping-method-detail__save-action');
@@ -108,10 +108,10 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
 
     it('should have all fields enabled', async () => {
         const wrapper = await createWrapper([
-            'shipping.editor'
+            'shipping.editor',
         ]);
         await wrapper.setData({
-            isProcessLoading: false
+            isProcessLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-settings-shipping-method-detail__save-action');
@@ -147,7 +147,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 
-        expect(criteria.associations[0].association).toEqual('conditions');
+        expect(criteria.associations[0].association).toBe('conditions');
     });
 });
 

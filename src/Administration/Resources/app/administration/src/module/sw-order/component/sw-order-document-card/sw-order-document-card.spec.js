@@ -26,7 +26,7 @@ function getCollection(entity, collection) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -38,7 +38,7 @@ const orderFixture = {
     amountNet: 80,
     amountGross: 100,
     lineItems: [],
-    deepLinkCode: 'abcdef'
+    deepLinkCode: 'abcdef',
 };
 
 const documentFixture = {
@@ -51,7 +51,7 @@ const documentFixture = {
         technicalName: 'invoice',
     },
     config: {
-        documentNumber: '1000'
+        documentNumber: '1000',
     },
     id: 'document1',
     deepLinkCode: 'abcd',
@@ -64,7 +64,7 @@ const documentTypeFixture = [
         technicalName: 'delivery_note',
         translated: {
             name: 'Delivery note',
-        }
+        },
     },
     {
         id: '1',
@@ -72,7 +72,7 @@ const documentTypeFixture = [
         technicalName: 'invoice',
         translated: {
             name: 'Invoice',
-        }
+        },
     },
     {
         id: '2',
@@ -80,7 +80,7 @@ const documentTypeFixture = [
         technicalName: 'storno',
         translated: {
             name: 'Cancellation invoice',
-        }
+        },
     },
     {
         id: '3',
@@ -88,7 +88,7 @@ const documentTypeFixture = [
         technicalName: 'credit_note',
         translated: {
             name: 'Credit note',
-        }
+        },
     },
 ];
 
@@ -103,29 +103,29 @@ async function createWrapper(privileges = []) {
         },
         update(el, binding) {
             el.setAttribute('tooltip-message', binding.value.message);
-        }
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-order-document-card'), {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>'
+                template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-empty-state': {
-                template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>'
+                template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
             },
             'sw-card-section': {
-                template: '<div class="sw-card-section"><slot></slot></div>'
+                template: '<div class="sw-card-section"><slot></slot></div>',
             },
             'sw-card-filter': {
-                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>'
+                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
             },
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-text-field': true,
             'sw-context-button': true,
@@ -164,14 +164,14 @@ async function createWrapper(privileges = []) {
                         </tbody>
                     </table>
                     </div>
-                `
+                `,
             },
             'sw-data-grid-column-boolean': true,
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-radio-field': true,
             'sw-datepicker': true,
@@ -187,23 +187,23 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             documentService: {
                 setListener: () => ({}),
                 getDocument: () => Promise.resolve({
                     headers: {
-                        'content-disposition': 'attachment; filename=dummny.pdf'
+                        'content-disposition': 'attachment; filename=dummny.pdf',
                     },
-                    data: 'https://shopware.test/dummny.pdf'
+                    data: 'https://shopware.test/dummny.pdf',
                 }),
                 createDocument: () => Promise.resolve({ data: {
                     documentId: '1234',
-                    documentDeepLink: '12341234'
+                    documentDeepLink: '12341234',
                 } }),
             },
             numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1000 })
+                reserve: () => Promise.resolve({ number: 1000 }),
             },
             repositoryFactory: {
                 create: (entity) => ({
@@ -222,20 +222,20 @@ async function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     },
                     save: () => Promise.resolve({}),
-                    searchIds: () => Promise.resolve([])
+                    searchIds: () => Promise.resolve([]),
                 }),
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
             $route: {
-                query: ''
-            }
+                query: '',
+            },
         },
         propsData: {
             order: orderFixture,
-            isLoading: false
-        }
+            isLoading: false,
+        },
     });
 }
 
@@ -285,15 +285,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
                 detail: 'error message',
                 meta: {
-                    parameters: []
-                }
-            }
+                    parameters: [],
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -308,15 +308,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
                 detail: 'error message',
                 meta: {
-                    parameters: []
-                }
-            }
+                    parameters: [],
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -331,15 +331,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
                 detail: 'error message',
                 meta: {
-                    parameters: []
-                }
-            }
+                    parameters: [],
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -354,15 +354,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
                 detail: 'error message',
                 meta: {
-                    parameters: []
-                }
-            }
+                    parameters: [],
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -370,7 +370,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should save document when the event return finished', async () => {
         await wrapper.vm.convertStoreEventToVueEvent({
-            action: 'create-document-finished'
+            action: 'create-document-finished',
         });
 
         await wrapper.vm.$nextTick();
@@ -405,7 +405,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 technicalName: 'delivery_note',
                 translated: {
                     name: 'Delivery note',
-                }
+                },
             },
             showModal: true,
         });
@@ -419,7 +419,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 technicalName: 'invoice',
                 translated: {
                     name: 'Invoice',
-                }
+                },
             },
         });
 
@@ -432,7 +432,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 technicalName: 'storno',
                 translated: {
                     name: 'Cancellation invoice',
-                }
+                },
             },
         });
 
@@ -445,7 +445,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 technicalName: 'credit_note',
                 translated: {
                     name: 'Credit note',
-                }
+                },
             },
         });
 
@@ -454,13 +454,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show Send document modal when click on Send document option', async () => {
         wrapper = await createWrapper([
-            'order.editor'
+            'order.editor',
         ]);
 
         await wrapper.setData({
             documents: getCollection('document', [
-                documentFixture
-            ])
+                documentFixture,
+            ]),
         });
 
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
@@ -478,20 +478,20 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.setData({
             documents: getCollection('document', [
-                documentFixture
-            ])
+                documentFixture,
+            ]),
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
-        expect(columns.length).toEqual(4);
+        expect(columns).toHaveLength(4);
 
         await wrapper.setProps({
             attachView: true,
         });
 
         columns = wrapper.findAll('.sw-data-grid__cell--header');
-        expect(columns.length).toEqual(5);
-        expect(columns.wrappers.at(4).text()).toEqual('sw-order.documentCard.labelAttach');
+        expect(columns).toHaveLength(5);
+        expect(columns.wrappers.at(4).text()).toBe('sw-order.documentCard.labelAttach');
     });
 
     it('should show card filter when order has document', async () => {
@@ -501,15 +501,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await wrapper.setProps({
             order: {
                 documents: getCollection('document', [
-                    documentFixture
-                ])
+                    documentFixture,
+                ]),
             },
         });
 
         await wrapper.setData({
             documents: getCollection('document', [
-                documentFixture
-            ])
+                documentFixture,
+            ]),
         });
 
         expect(wrapper.find('.sw-card-filter').exists()).toBeTruthy();
@@ -520,7 +520,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.setData({
             documents: getCollection('document', [
-                documentFixture
+                documentFixture,
             ]),
         });
 
@@ -529,13 +529,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeTruthy();
 
         // Mark as sent option is disabled
-        expect(contextMenu.at(3).attributes().disabled).toEqual('disabled');
+        expect(contextMenu.at(3).attributes().disabled).toBe('disabled');
 
         // Mark as unsent
         await contextMenu.at(4).trigger('click');
 
         expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeFalsy();
-        expect(contextMenu.at(4).attributes().disabled).toEqual('disabled');
+        expect(contextMenu.at(4).attributes().disabled).toBe('disabled');
     });
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
@@ -546,7 +546,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 {
                     ...documentFixture,
                     sent: false,
-                }
+                },
             ]),
         });
 
@@ -555,18 +555,18 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeFalsy();
 
         // Mark as unsent option is disabled
-        expect(contextMenu.at(4).attributes().disabled).toEqual('disabled');
+        expect(contextMenu.at(4).attributes().disabled).toBe('disabled');
 
         // Mark as unsent
         await contextMenu.at(3).trigger('click');
 
         expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeTruthy();
-        expect(contextMenu.at(3).attributes().disabled).toEqual('disabled');
+        expect(contextMenu.at(3).attributes().disabled).toBe('disabled');
     });
 
     it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
         wrapper = await createWrapper([
-            'order.editor'
+            'order.editor',
         ]);
 
         await wrapper.setData({
@@ -576,7 +576,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 technicalName: 'invoice',
                 translated: {
                     name: 'Invoice',
-                }
+                },
             },
             showModal: true,
         });
@@ -591,7 +591,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should call downloadDocument method when choosing option Create and download in Create document modal', async () => {
         wrapper = await createWrapper([
-            'order.editor'
+            'order.editor',
         ]);
 
         wrapper.vm.downloadDocument = jest.fn();
@@ -603,7 +603,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 technicalName: 'invoice',
                 translated: {
                     name: 'Invoice',
-                }
+                },
             },
             showModal: true,
         });
@@ -621,7 +621,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper();
 
         const buttonCreate = wrapper.find('.sw-order-document-grid-button');
-        expect(buttonCreate.attributes('tooltip-message')).toEqual('sw-privileges.tooltip.warning');
+        expect(buttonCreate.attributes('tooltip-message')).toBe('sw-privileges.tooltip.warning');
         expect(buttonCreate.attributes('disabled')).toBeTruthy();
     });
 
@@ -635,7 +635,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await wrapper.vm.$nextTick();
 
         const buttonCreate = wrapper.find('.sw-order-document-grid-button');
-        expect(buttonCreate.attributes()['tooltip-message']).toEqual('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
+        expect(buttonCreate.attributes()['tooltip-message']).toBe('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         expect(buttonCreate.attributes('disabled')).toBeTruthy();
     });
 
@@ -649,16 +649,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             term: '1000',
         });
 
-        expect(wrapper.vm.documentCriteria.term).toEqual('1000');
+        expect(wrapper.vm.documentCriteria.term).toBe('1000');
         expect(wrapper.vm.documentCriteria.queries).toEqual([
             {
                 score: 500,
-                query: { type: 'contains', field: 'config.documentDate', value: '1000' }
+                query: { type: 'contains', field: 'config.documentDate', value: '1000' },
             },
             {
                 score: 500,
-                query: { type: 'equals', field: 'config.documentNumber', value: '1000' }
-            }
+                query: { type: 'equals', field: 'config.documentNumber', value: '1000' },
+            },
         ]);
     });
 });

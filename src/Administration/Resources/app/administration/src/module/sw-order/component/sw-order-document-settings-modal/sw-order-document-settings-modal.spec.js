@@ -23,17 +23,17 @@ const orderFixture = {
     orderNumber: '10000',
     amountNet: 80,
     amountGross: 100,
-    lineItems: []
+    lineItems: [],
 };
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-document-settings-modal'), {
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-text-field': true,
             'sw-datepicker': true,
@@ -43,7 +43,7 @@ async function createWrapper() {
             'sw-file-input': await Shopware.Component.build('sw-file-input'),
             'sw-media-upload-v2': await Shopware.Component.build('sw-media-upload-v2'),
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-group': await Shopware.Component.build('sw-button-group'),
@@ -51,7 +51,7 @@ async function createWrapper() {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-upload-listener': true,
             'sw-textarea-field': true,
@@ -60,12 +60,12 @@ async function createWrapper() {
         },
         provide: {
             numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1000 })
+                reserve: () => Promise.resolve({ number: 1000 }),
             },
             mediaService: {
                 addListener: () => {},
                 removeByTag: () => {},
-                removeListener: () => {}
+                removeListener: () => {},
             },
             repositoryFactory: {
                 create: () => ({
@@ -75,7 +75,7 @@ async function createWrapper() {
                                 id,
                                 fileSize: 10000,
                                 mimeType: 'application/pdf',
-                            }
+                            },
                         );
                     },
                     search: () => {
@@ -85,18 +85,18 @@ async function createWrapper() {
                             Shopware.Context.api,
                             null,
                             [{}],
-                            1
+                            1,
                         ));
-                    }
+                    },
                 }),
             },
             configService: {
                 getConfig: () => Promise.resolve({
                     settings: {
-                        enableUrlFeature: false
+                        enableUrlFeature: false,
                     },
-                })
-            }
+                }),
+            },
         },
         propsData: {
             order: orderFixture,
@@ -104,7 +104,7 @@ async function createWrapper() {
             currentDocumentType: {},
             isLoadingDocument: false,
             isLoadingPreview: false,
-        }
+        },
     });
 }
 
@@ -149,7 +149,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         await createAndSendButton.trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][1]).toEqual('send');
+        expect(wrapper.emitted()['document-create'][0][1]).toBe('send');
     });
 
     it('should emit `document-create` event when click on Create and download button', async () => {
@@ -159,7 +159,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         await createAndSendButton.trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][1]).toEqual('download');
+        expect(wrapper.emitted()['document-create'][0][1]).toBe('download');
     });
 
     it('should able to add file from media modal if media is suitable', async () => {
@@ -172,11 +172,11 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
             {
                 id: 'media1',
                 fileSize: 10000,
-                mimeType: 'application/pdf'
-            }
+                mimeType: 'application/pdf',
+            },
         ]);
 
-        expect(wrapper.vm.documentConfig.documentMediaFileId).toEqual('media1');
+        expect(wrapper.vm.documentConfig.documentMediaFileId).toBe('media1');
     });
 
     it('should able to add file uploaded from url if media is suitable', async () => {
@@ -187,11 +187,11 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
         await wrapper.vm.successfulUploadFromUrl(
             {
-                targetId: 'media1'
-            }
+                targetId: 'media1',
+            },
         );
 
-        expect(wrapper.vm.documentConfig.documentMediaFileId).toEqual('media1');
+        expect(wrapper.vm.documentConfig.documentMediaFileId).toBe('media1');
     });
 
     it('should able to show modal title responding to document type', async () => {
@@ -202,10 +202,10 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
                 id: '1',
                 name: 'Invoice',
                 technicalName: 'invoice',
-            }
+            },
         });
 
         const modal = wrapper.find('.sw-modal');
-        expect(modal.attributes().title).toEqual('sw-order.documentModal.modalTitle - Invoice');
+        expect(modal.attributes().title).toBe('sw-order.documentModal.modalTitle - Invoice');
     });
 });

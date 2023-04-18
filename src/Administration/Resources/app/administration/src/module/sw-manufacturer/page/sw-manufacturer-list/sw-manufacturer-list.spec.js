@@ -13,7 +13,7 @@ async function createWrapper(privileges = []) {
     return mount(await Shopware.Component.build('sw-manufacturer-list'), {
         stubs: {
             'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
             },
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowDelete'],
@@ -22,34 +22,34 @@ async function createWrapper(privileges = []) {
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-empty-state': true,
             'sw-button': true,
-            'sw-loader': true
+            'sw-loader': true,
         },
         provide: {
             acl: {
-                can: key => (key ? privileges.includes(key) : true)
+                can: key => (key ? privileges.includes(key) : true),
             },
             stateStyleDataProviderService: {},
             repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve([]) })
+                create: () => ({ search: () => Promise.resolve([]) }),
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
+                },
+            },
         },
         mocks: {
-            $route: { query: '' }
-        }
+            $route: { query: '' },
+        },
     });
 }
 
@@ -75,7 +75,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper([
-            'product_manufacturer.editor'
+            'product_manufacturer.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -95,7 +95,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should be able to inline delete', async () => {
         const wrapper = await createWrapper([
-            'product_manufacturer.deleter'
+            'product_manufacturer.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -116,7 +116,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -159,7 +159,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -183,7 +183,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -197,7 +197,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

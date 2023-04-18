@@ -29,7 +29,7 @@ async function createWrapper(allowInlineDataMapping = true) {
     return shallowMount(await Shopware.Component.build('sw-text-editor'), {
         attachTo: document.getElementById('app'),
         propsData: {
-            allowInlineDataMapping
+            allowInlineDataMapping,
         },
         localVue,
         stubs: {
@@ -57,15 +57,15 @@ async function createWrapper(allowInlineDataMapping = true) {
                 cmsPageState: {
                     currentMappingTypes: {
                         string: [
-                            'category.type'
-                        ]
-                    }
-                }
+                            'category.type',
+                        ],
+                    },
+                },
             };
         },
         provide: {
-            validationService: {}
-        }
+            validationService: {},
+        },
     });
 }
 
@@ -91,7 +91,7 @@ async function addAndCheckSelection(wrapper, element, start, end, text) {
     expect(range.toString()).toBe(text);
 
     // check if nothing was selected
-    expect(wrapper.vm.selection).toBe(null);
+    expect(wrapper.vm.selection).toBeNull();
 
     // add range to selection
     const selection = document.getSelection();
@@ -100,7 +100,7 @@ async function addAndCheckSelection(wrapper, element, start, end, text) {
     // check if range and selection fits
     expect(range.toString()).toEqual(text);
     expect(selection.toString()).toEqual(text);
-    expect(selection.rangeCount).toEqual(1);
+    expect(selection.rangeCount).toBe(1);
 
     // add mouseup event to get selection
     document.dispatchEvent(new Event('mouseup'));
@@ -127,7 +127,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         Object.defineProperty(global.Element.prototype, 'innerText', {
             get() {
                 return this.textContent;
-            }
+            },
         });
 
         // implement execCommand mock
@@ -184,7 +184,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         await wrapper.setProps({ value: null });
         expect(wrapper.find('.sw-text-editor__content .sw-text-editor__content-placeholder').exists()).toBeTruthy();
         expect(editorPlaceholder.element.innerText).toEqual(placeholder);
-        expect(content.element.innerText).toEqual('');
+        expect(content.element.innerText).toBe('');
     });
 
     it('should update the placeholderVisible prop in the code editor mode', async () => {
@@ -822,7 +822,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         expect(setData.mock.calls).toContainEqual(
             ['text/html', '<strike><u><bold>ware</bold></u></strike>'],
-            ['text/plain', 'ware']
+            ['text/plain', 'ware'],
         );
     });
 
@@ -925,7 +925,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     it('should render transparent background', async () => {
         wrapper = await createWrapper(false);
         await wrapper.setProps({
-            enableTransparentBackground: true
+            enableTransparentBackground: true,
         });
 
         expect(wrapper.find('.sw-text-editor__content').classes()).toContain('is--transparent-background');

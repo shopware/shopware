@@ -11,44 +11,44 @@ const defaultElementConfig = {
     product: {
         source: 'static',
         value: null,
-        required: true
+        required: true,
     },
     boxLayout: {
         source: 'static',
-        value: 'standard'
+        value: 'standard',
     },
     displayMode: {
         source: 'static',
-        value: 'standard'
+        value: 'standard',
     },
     verticalAlign: {
         source: 'static',
-        value: null
-    }
+        value: null,
+    },
 };
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-product-box'), {
         propsData: {
             element: {
-                config: { ...defaultElementConfig }
+                config: { ...defaultElementConfig },
             },
             defaultConfig: {
                 displayMode: {
-                    value: null
+                    value: null,
                 },
                 verticalAlign: {
-                    value: null
-                }
-            }
+                    value: null,
+                },
+            },
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'landingpage'
-                    }
-                }
+                        type: 'landingpage',
+                    },
+                },
             };
         },
         provide: {
@@ -57,12 +57,12 @@ async function createWrapper() {
                     return { 'product-box': {
                         defaultData: {
                             boxLayout: 'standard',
-                            product: null
-                        }
+                            product: null,
+                        },
                     } };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -86,17 +86,17 @@ describe('module/sw-cms/elements/product-box/component', () => {
                           sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                           sed diam voluptua.`.trim(),
                         price: [
-                            { gross: 19.90 }
+                            { gross: 19.90 },
                         ],
                         cover: {
                             media: {
                                 url: '/administration/static/img/cms/preview_glasses_large.jpg',
-                                alt: 'Lorem Ipsum dolor'
-                            }
-                        }
-                    }
-                }
-            }
+                                alt: 'Lorem Ipsum dolor',
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         expect(wrapper.find('.sw-cms-el-product-box__skeleton-name').exists()).toBe(false);

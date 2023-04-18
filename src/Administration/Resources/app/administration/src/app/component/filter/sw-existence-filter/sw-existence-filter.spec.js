@@ -19,8 +19,8 @@ async function createWrapper() {
             'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
             'sw-icon': true,
             'sw-field-error': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         propsData: {
             filter: {
@@ -28,11 +28,11 @@ async function createWrapper() {
                 name: 'media',
                 label: 'Product without images',
                 schema: {
-                    localField: 'id'
-                }
+                    localField: 'id',
+                },
             },
-            active: true
-        }
+            active: true,
+        },
     });
 }
 
@@ -47,7 +47,7 @@ describe('components/sw-existence-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.not('AND', [Criteria.equals('media.id', null)])],
-            'true'
+            'true',
         ]);
     });
 
@@ -61,7 +61,7 @@ describe('components/sw-existence-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.equals('media.id', null)],
-            'false'
+            'false',
         ]);
     });
 
@@ -99,7 +99,7 @@ describe('components/sw-existence-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.equals('media.id', null)],
-            'false'
+            'false',
         ]);
     });
 
@@ -115,7 +115,7 @@ describe('components/sw-existence-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.not('AND', [Criteria.equals('media.id', null)])],
-            'true'
+            'true',
         ]);
     });
 
@@ -152,8 +152,8 @@ describe('components/sw-existence-filter', () => {
                 name: 'media',
                 label: 'Product without images',
                 optionHasCriteria: 'Has media',
-                optionNoCriteria: 'No media'
-            }
+                optionNoCriteria: 'No media',
+            },
         });
 
         const options = wrapper.find('select').findAll('option');
@@ -163,7 +163,7 @@ describe('components/sw-existence-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.not('AND', [Criteria.equals('media', null)])],
-            'true'
+            'true',
         ]);
     });
 });

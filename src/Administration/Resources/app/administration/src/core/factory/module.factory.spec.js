@@ -6,13 +6,13 @@ const { Module, Application } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
 
-// We're clearing the modules registry to register the same module multiple times throughout the test suite
-beforeEach(async () => {
-    const modules = ModuleFactory.getModuleRegistry();
-    modules.clear();
-});
-
 describe('core/factory/module.factory.js', () => {
+    // We're clearing the modules registry to register the same module multiple times throughout the test suite
+    beforeEach(async () => {
+        const modules = ModuleFactory.getModuleRegistry();
+        modules.clear();
+    });
+
     it('should not register a module when no unique identifier is specified', () => {
         const spy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(spy);
@@ -35,9 +35,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     component: 'sw-foo-bar',
-                    path: 'index'
-                }
-            }
+                    path: 'index',
+                },
+            },
         };
 
         const moduleOne = register('sw-foo', moduleDefinition);
@@ -60,9 +60,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     component: 'sw-foo-bar',
-                    path: 'index'
-                }
-            }
+                    path: 'index',
+                },
+            },
         });
 
         expect(module).toBe(false);
@@ -79,7 +79,7 @@ describe('core/factory/module.factory.js', () => {
         jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
         const module = register('sw-foo', {
-            name: 'Test'
+            name: 'Test',
         });
 
         expect(module).toBe(false);
@@ -90,7 +90,7 @@ describe('core/factory/module.factory.js', () => {
             'Abort registration.',
             expect.objectContaining({
                 display: true,
-            })
+            }),
         );
     });
 
@@ -99,9 +99,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
-            }
+                    component: 'sw-foo-bar-index',
+                },
+            },
         });
 
         expect(typeof module).toBe('object');
@@ -109,7 +109,7 @@ describe('core/factory/module.factory.js', () => {
         expect(typeof module.manifest).toBe('object');
         expect(typeof module.type).toBe('string');
         expect(module.type).toBe('plugin');
-        expect(module.navigation).toBe(undefined);
+        expect(module.navigation).toBeUndefined();
     });
 
     it('should be possible to register a module with two components per route', () => {
@@ -119,10 +119,10 @@ describe('core/factory/module.factory.js', () => {
                     path: 'index',
                     components: {
                         default: 'sw-foo-bar-index',
-                        it: 'sw-foo-test'
-                    }
-                }
-            }
+                        it: 'sw-foo-test',
+                    },
+                },
+            },
         });
 
         const route = module.routes.get('sw.foo.index');
@@ -133,7 +133,7 @@ describe('core/factory/module.factory.js', () => {
         expect(typeof module.manifest).toBe('object');
         expect(typeof module.type).toBe('string');
         expect(module.type).toBe('plugin');
-        expect(module.navigation).toBe(undefined);
+        expect(module.navigation).toBeUndefined();
 
         expect(typeof route.components.it).toBe('string');
         expect(route.components.it).toBe('sw-foo-test');
@@ -146,15 +146,15 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
+                    component: 'sw-foo-bar-index',
+                },
             },
             navigation: [{
                 icon: 'box',
                 color: '#f00',
                 label: 'FooIndex',
-                path: 'sw.foo.index'
-            }]
+                path: 'sw.foo.index',
+            }],
         });
 
         expect(module.navigation).toBeInstanceOf(Array);
@@ -170,25 +170,25 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
+                    component: 'sw-foo-bar-index',
+                },
             },
             navigation: [{
                 id: 'sw.foo.index',
                 icon: 'box',
                 color: '#f00',
-                label: 'FooIndex'
+                label: 'FooIndex',
             }, {
                 link: 'http://de.shopware.com',
                 label: 'ExternalLink',
-                parent: 'sw.foo.index'
+                parent: 'sw.foo.index',
             }, {
-                label: 'InvalidEntry'
-            }]
+                label: 'InvalidEntry',
+            }],
         });
 
         expect(module.navigation).toBeInstanceOf(Array);
-        expect(module.navigation.length).toBe(2);
+        expect(module.navigation).toHaveLength(2);
         const routerNavigationEntry = module.navigation[0];
         const externalLinkNavigation = module.navigation[1];
         expect(typeof routerNavigationEntry).toBe('object');
@@ -203,9 +203,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
-            }
+                    component: 'sw-foo-bar-index',
+                },
+            },
         });
 
         const modules = ModuleFactory.getModuleRegistry();
@@ -219,16 +219,16 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
-            }
+                    component: 'sw-foo-bar-index',
+                },
+            },
         });
 
         const routes = ModuleFactory.getModuleRoutes();
 
         expect(routes).toBeInstanceOf(Array);
         expect(typeof routes[0]).toBe('object');
-        expect(routes[0].name).toEqual('sw.foo.index');
+        expect(routes[0].name).toBe('sw.foo.index');
         expect(routes[0].type).toBe('plugin');
     });
 
@@ -239,9 +239,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
-            }
+                    component: 'sw-foo-bar-index',
+                },
+            },
         });
 
         const module = ModuleFactory.getModuleByEntityName('foo');
@@ -258,9 +258,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
-            }
+                    component: 'sw-foo-bar-index',
+                },
+            },
         });
 
         register('sw-another-foo', {
@@ -269,9 +269,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-another-foo-bar-index'
-                }
-            }
+                    component: 'sw-another-foo-bar-index',
+                },
+            },
         });
 
         const module = ModuleFactory.getModuleByEntityName('foo');
@@ -288,9 +288,9 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
-            }
+                    component: 'sw-foo-bar-index',
+                },
+            },
         });
         const module = ModuleFactory.getModuleByEntityName('bar');
 
@@ -304,17 +304,17 @@ describe('core/factory/module.factory.js', () => {
                 'de-DE': {
                     global: {
                         snippets: {
-                            foo: 'foo'
-                        }
-                    }
-                }
+                            foo: 'foo',
+                        },
+                    },
+                },
             },
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-index'
-                }
-            }
+                    component: 'sw-foo-index',
+                },
+            },
         });
         register('sw-bar', {
             entity: 'bar',
@@ -323,17 +323,17 @@ describe('core/factory/module.factory.js', () => {
                 'de-DE': {
                     global: {
                         snippets: {
-                            bar: 'bar'
-                        }
-                    }
-                }
+                            bar: 'bar',
+                        },
+                    },
+                },
             },
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-index'
-                }
-            }
+                    component: 'sw-foo-index',
+                },
+            },
         });
         register('sw-baz', {
             entity: 'bar2',
@@ -342,18 +342,18 @@ describe('core/factory/module.factory.js', () => {
                 'de-DE': {
                     global: {
                         snippets: {
-                            foo: 'no foo'
-                        }
-                    }
-                }
+                            foo: 'no foo',
+                        },
+                    },
+                },
             },
 
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-index'
-                }
-            }
+                    component: 'sw-foo-index',
+                },
+            },
         });
 
         const moduleFactory = Application.getContainer('factory').module;
@@ -362,10 +362,10 @@ describe('core/factory/module.factory.js', () => {
                 global: {
                     snippets: {
                         foo: 'no foo',
-                        bar: 'bar'
-                    }
-                }
-            }
+                        bar: 'bar',
+                    },
+                },
+            },
         });
     });
 
@@ -379,15 +379,15 @@ describe('core/factory/module.factory.js', () => {
             settingsItem: {
                 group: 'fooGroup',
                 to: 'foo.bar',
-                icon: 'fooIcon'
+                icon: 'fooIcon',
             },
             flag: 'testFlag',
             routes: {
                 index: {
                     component: 'sw-foo-bar',
-                    path: 'index'
-                }
-            }
+                    path: 'index',
+                },
+            },
         });
 
         const expectedSettingsItem = {
@@ -399,9 +399,9 @@ describe('core/factory/module.factory.js', () => {
                         id: 'sw-foo',
                         label: 'barFoo',
                         name: 'fooBar',
-                        to: 'foo.bar'
-                    }
-                ]
+                        to: 'foo.bar',
+                    },
+                ],
         };
         expect(Shopware.State.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
     });
@@ -416,15 +416,15 @@ describe('core/factory/module.factory.js', () => {
             settingsItem: {
                 group: 'fooGroup',
                 to: 'foo.bar',
-                icon: 'fooIcon'
+                icon: 'fooIcon',
             },
             flag: 'testFlag',
             routes: {
                 index: {
                     component: 'sw-foo-bar',
-                    path: 'index'
-                }
-            }
+                    path: 'index',
+                },
+            },
         });
 
         expect(Shopware.State.get('settingsItems').settingsGroups).toEqual({});
@@ -439,27 +439,27 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foo-bar-index'
-                }
+                    component: 'sw-foo-bar-index',
+                },
             },
             navigation: [{
                 icon: 'box',
                 color: '#f00',
                 label: 'FooIndex',
-                path: 'sw.foo.index'
-            }]
+                path: 'sw.foo.index',
+            }],
         });
 
         // Register a module of type plugin without a "parent" in the navigation object
         expect(pluginModule.type).toBe('plugin');
         expect(pluginModule.navigation).toBeInstanceOf(Array);
-        expect(pluginModule.navigation.length).toBe(0);
+        expect(pluginModule.navigation).toHaveLength(0);
 
         // Check for the warning inside the console
         expect(spy).toHaveBeenCalledWith(
             '[ModuleFactory]',
             'Navigation entries from plugins are not allowed on the first level.',
-            'Set a property "parent" to register your navigation entry'
+            'Set a property "parent" to register your navigation entry',
         );
     });
 
@@ -473,21 +473,21 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foobar-bar-index'
-                }
+                    component: 'sw-foobar-bar-index',
+                },
             },
             navigation: [{
                 icon: 'box',
                 color: '#f00',
                 label: 'FooIndex',
-                path: 'sw.foobar.index'
-            }]
+                path: 'sw.foobar.index',
+            }],
         });
 
         expect(typeof coreModule.type).toBe('string');
         expect(coreModule.type).toBe('core');
         expect(coreModule.navigation).toBeInstanceOf(Array);
-        expect(coreModule.navigation.length).toBe(1);
+        expect(coreModule.navigation).toHaveLength(1);
 
         expect(spy).not.toHaveBeenCalled();
     });
@@ -499,15 +499,15 @@ describe('core/factory/module.factory.js', () => {
             routes: {
                 index: {
                     path: 'index',
-                    component: 'sw-foobar-bar-index'
-                }
+                    component: 'sw-foobar-bar-index',
+                },
             },
             navigation: [{
                 icon: 'box',
                 color: '#f00',
                 label: 'FooIndex',
-                path: 'sw.foobar.index'
-            }]
+                path: 'sw.foobar.index',
+            }],
         });
 
         expect(module).toBe(false);

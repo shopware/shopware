@@ -10,22 +10,22 @@ Shopware.Component.register('sw-product-clone-modal', swProductCloneModal);
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-clone-modal'), {
         propsData: {
-            product: {}
+            product: {},
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     clone: jest.fn(() => Promise.resolve({
-                        id: '1a2b3c'
+                        id: '1a2b3c',
                     })),
                     save: () => Promise.resolve(),
-                    searchIds: () => Promise.resolve({ data: { length: 0 } })
-                })
+                    searchIds: () => Promise.resolve({ data: { length: 0 } }),
+                }),
             },
             numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1337 })
-            }
-        }
+                reserve: () => Promise.resolve({ number: 1337 }),
+            },
+        },
     });
 }
 
@@ -47,12 +47,12 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         wrapper = await createWrapper();
         await wrapper.setData({
             product: {
-                name: 'shirt'
-            }
+                name: 'shirt',
+            },
         });
 
         await wrapper.vm.cloneParent({
-            number: 250
+            number: 250,
         });
 
         expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(undefined, expect.anything(), {
@@ -61,8 +61,8 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 active: false,
                 mainVariantId: null,
                 name: 'shirt global.default.copy',
-                productNumber: 250
-            }
+                productNumber: 250,
+            },
         });
     });
 });

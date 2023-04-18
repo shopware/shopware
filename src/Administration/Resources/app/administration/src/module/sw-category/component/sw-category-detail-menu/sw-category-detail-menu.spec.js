@@ -19,15 +19,15 @@ async function createWrapper() {
                 methods: {
                     onEmitSelection() {
                         this.$emit('media-modal-selection-change', [{ id: 'id' }]);
-                    }
-                }
+                    },
+                },
             },
         },
         propsData: {
             category: {
-                getEntityName: () => {}
-            }
-        }
+                getEntityName: () => {},
+            },
+        },
     });
 }
 

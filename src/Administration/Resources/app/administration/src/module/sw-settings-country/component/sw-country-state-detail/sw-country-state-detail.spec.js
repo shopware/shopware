@@ -10,8 +10,8 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-country-state-detail'), {
         propsData: {
             countryState: {
-                isNew: () => false
-            }
+                isNew: () => false,
+            },
         },
 
         provide: {
@@ -20,19 +20,19 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
 
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-container': true,
             'sw-field': true,
             'sw-button': true,
-            'sw-empty-state': true
-        }
+            'sw-empty-state': true,
+        },
     });
 }
 
@@ -46,7 +46,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
 
     it('should be able to create a new country state', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -66,21 +66,21 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
 
     it('should be able to edit a country state', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-country-state-detail__save-button'
+            '.sw-country-state-detail__save-button',
         );
         const countryStateNameField = wrapper.find(
-            'sw-field-stub[label="sw-country-state-detail.labelName"]'
+            'sw-field-stub[label="sw-country-state-detail.labelName"]',
         );
         const countryStateShortCodeField = wrapper.find(
-            'sw-field-stub[label="sw-country-state-detail.labelShortCode"]'
+            'sw-field-stub[label="sw-country-state-detail.labelShortCode"]',
         );
         const countryStatePositionField = wrapper.find(
-            'sw-field-stub[label="sw-country-state-detail.labelPosition"]'
+            'sw-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -94,16 +94,16 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-country-state-detail__save-button'
+            '.sw-country-state-detail__save-button',
         );
         const countryStateNameField = wrapper.find(
-            'sw-field-stub[label="sw-country-state-detail.labelName"]'
+            'sw-field-stub[label="sw-country-state-detail.labelName"]',
         );
         const countryStateShortCodeField = wrapper.find(
-            'sw-field-stub[label="sw-country-state-detail.labelShortCode"]'
+            'sw-field-stub[label="sw-country-state-detail.labelShortCode"]',
         );
         const countryStatePositionField = wrapper.find(
-            'sw-field-stub[label="sw-country-state-detail.labelPosition"]'
+            'sw-field-stub[label="sw-country-state-detail.labelPosition"]',
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();

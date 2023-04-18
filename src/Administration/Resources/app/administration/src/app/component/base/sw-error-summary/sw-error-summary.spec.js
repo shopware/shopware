@@ -74,8 +74,8 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
             {
                 mocks: {
                     $te: () => false,
-                }
-            }
+                },
+            },
         );
         await flushPromises();
 

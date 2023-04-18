@@ -23,8 +23,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                     version: null,
                     acceptGuidelines: null,
                     replies: [],
-                    extensions: []
-                }
+                    extensions: [],
+                },
             ],
             summary: {
                 averageRating: 5,
@@ -35,9 +35,9 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                     { count: 0, rating: 4 },
                     { count: 0, rating: 3 },
                     { count: 0, rating: 2 },
-                    { count: 0, rating: 1 }
-                ]
-            }
+                    { count: 0, rating: 1 },
+                ],
+            },
         };
 
         return shallowMount(await Shopware.Component.build('sw-extension-ratings-card'), {
@@ -45,15 +45,15 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                 isInstalledAndLicensed: false,
                 producerName: 'Sir Robert Bryson Hall II',
                 extension: {
-                    id: 'extension-id'
-                }
+                    id: 'extension-id',
+                },
             },
             stubs: {
                 'sw-meteor-card': {
                     template: `<div>
     <slot name="default"></slot>
     <slot name="footer"></slot>
-</div>`
+</div>`,
                 },
                 'sw-extension-ratings-summary': true,
                 'sw-extension-review': true,
@@ -61,15 +61,15 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                 'sw-extension-review-creation-inputs': true,
                 'sw-gtc-checkbox': true,
                 'sw-button': true,
-                'sw-button-process': true
+                'sw-button-process': true,
             },
             computed: {
                 extensionStoreDataService: () => ({
                     getReviews() {
                         return Promise.resolve(reviewsAndSummary);
-                    }
-                })
-            }
+                    },
+                }),
+            },
         });
     }
 
@@ -87,7 +87,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
 
         expect(wrapper.text())
             .toBe(
-                'sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews'
+                'sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews',
             );
     });
 });

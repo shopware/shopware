@@ -7,17 +7,17 @@ async function createWrapper(propsData) {
     return shallowMount(await Shopware.Component.build('sw-extension-domains-modal'), {
         propsData: {
             extensionLabel: 'SEO Professional App',
-            ...propsData
+            ...propsData,
         },
         mocks: {
             $t: (...args) => JSON.stringify([...args]),
-            $tc: (...args) => JSON.stringify([...args])
+            $tc: (...args) => JSON.stringify([...args]),
         },
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot></div>'
-            }
-        }
+                template: '<div class="sw-modal"><slot></slot></div>',
+            },
+        },
     });
 }
 
@@ -29,46 +29,46 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
         const wrapper = await createWrapper({
-            domains: null
+            domains: null,
         });
 
         expect(errorSpy).toHaveBeenCalled();
-        expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
+        expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(0);
     });
 
     it('should not show any domains: undefined', async () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
         const wrapper = await createWrapper({
-            domains: undefined
+            domains: undefined,
         });
 
         expect(errorSpy).toHaveBeenCalled();
-        expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
+        expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(0);
     });
 
     it('should not show any domains: []', async () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
         const wrapper = await createWrapper({
-            domains: []
+            domains: [],
         });
 
         expect(errorSpy).not.toHaveBeenCalled();
 
-        expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
+        expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(0);
     });
 
     [
         ['htpps://www.google.com'],
-        ['https://www.google.com', 'https://bing.com']
+        ['https://www.google.com', 'https://bing.com'],
     ].forEach(domains => {
         it(`should show the domains which are given via the property, domain count: ${domains.length}`, async () => {
             const wrapper = await createWrapper({
-                domains
+                domains,
             });
 
-            expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(domains.length);
+            expect(wrapper.findAll('.sw-extension-domains-modal__list li')).toHaveLength(domains.length);
 
             domains.forEach(domain => {
                 expect(wrapper.find('.sw-extension-domains-modal__list').text()).toContain(domain);

@@ -11,7 +11,7 @@ describe('entity-collection.data.ts', () => {
     it('should register conditions with correct scope', async () => {
         const condition = Shopware.Service('ruleConditionDataProviderService').getByType('language');
 
-        expect(condition).not.toBeUndefined();
+        expect(condition).toBeDefined();
         expect(condition.scopes).toEqual(['global']);
     });
 
@@ -22,13 +22,13 @@ describe('entity-collection.data.ts', () => {
                 name: 'foo',
                 group: 'misc',
                 config: {},
-            }
+            },
         ]);
 
         const condition = Shopware.Service('ruleConditionDataProviderService').getByType('bar');
 
-        expect(condition.component).toEqual('sw-condition-script');
-        expect(condition.type).toEqual('scriptRule');
-        expect(condition.label).toEqual('foo');
+        expect(condition.component).toBe('sw-condition-script');
+        expect(condition.type).toBe('scriptRule');
+        expect(condition.label).toBe('foo');
     });
 });

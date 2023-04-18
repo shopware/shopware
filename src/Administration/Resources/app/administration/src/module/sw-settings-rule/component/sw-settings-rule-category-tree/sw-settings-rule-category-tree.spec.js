@@ -55,7 +55,7 @@ async function createWrapper(criteria = new Criteria(1, 25)) {
             },
             categoryRepository() {
                 return {
-                    search: jest.fn(() => Promise.resolve([]))
+                    search: jest.fn(() => Promise.resolve([])),
                 };
             },
         },

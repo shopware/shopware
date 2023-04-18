@@ -13,7 +13,7 @@ const { State } = Shopware;
 
 const productMock = {
     id: 'productId',
-    properties: []
+    properties: [],
 };
 
 const assignedProductsMock = [
@@ -21,25 +21,25 @@ const assignedProductsMock = [
         product: {
             id: 'productId',
             translated: {
-                name: 'Product Name'
-            }
-        }
+                name: 'Product Name',
+            },
+        },
     },
     {
         product: {
             id: 'productVariantId',
             parentId: 'parentId',
             translated: {
-                name: null
+                name: null,
             },
             variation: [
                 {
                     group: 'Color',
-                    option: 'Blue'
-                }
-            ]
-        }
-    }
+                    option: 'Blue',
+                },
+            ],
+        },
+    },
 ];
 
 const variantProductsMock = [
@@ -47,9 +47,9 @@ const variantProductsMock = [
         id: 'productVariantId',
         parentId: 'parentId',
         translated: {
-            name: 'Variant Name'
-        }
-    }
+            name: 'Variant Name',
+        },
+    },
 ];
 
 async function createWrapper() {
@@ -62,29 +62,29 @@ async function createWrapper() {
             'sw-data-grid-settings': true,
             'sw-context-menu-item': true,
             'sw-data-grid-column-position': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
         },
         propsData: {
             assignedProducts: assignedProductsMock,
-            crossSellingId: 'crossSellingId'
+            crossSellingId: 'crossSellingId',
         },
         state: {
-            product: productMock
+            product: productMock,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
                         return Promise.resolve(variantProductsMock);
-                    }
-                })
-            }
+                    },
+                }),
+            },
         },
         computed: {
             searchCriteria() {
                 return {};
-            }
-        }
+            },
+        },
     });
 }
 
@@ -95,11 +95,11 @@ describe('module/sw-product/component/sw-product-cross-selling-assignment', () =
         State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
-                product: productMock
+                product: productMock,
             },
             getters: {
-                isLoading: () => false
-            }
+                isLoading: () => false,
+            },
         });
     });
 

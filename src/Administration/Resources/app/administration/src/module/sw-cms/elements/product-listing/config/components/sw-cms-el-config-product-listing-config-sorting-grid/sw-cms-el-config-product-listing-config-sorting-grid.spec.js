@@ -8,7 +8,7 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
 async function createWrapper(productSortings = []) {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
         provide: {
-            validationService: {}
+            validationService: {},
         },
         stubs: {
             'sw-data-grid': {
@@ -23,24 +23,24 @@ async function createWrapper(productSortings = []) {
           </div>
       </slot>
   </template>
-</div>`
+</div>`,
             },
             'sw-context-menu-item': {
-                template: '<div @click="$emit(\'click\')"></div>'
+                template: '<div @click="$emit(\'click\')"></div>',
             },
             'sw-number-field': {
                 template: `
                     <input type="number" :value="value" @input="$emit('input', Number($event.target.value))" />
                 `,
                 props: {
-                    value: 0
-                }
-            }
+                    value: 0,
+                },
+            },
         },
         propsData: Vue.observable({
             productSortings: productSortings,
-            defaultSorting: {}
-        })
+            defaultSorting: {},
+        }),
     });
 }
 
@@ -55,7 +55,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false },
             { id: 'foo', locked: false },
-            { id: '7a8b9c', locked: false }
+            { id: '7a8b9c', locked: false },
         ]);
 
         const wrapper = await createWrapper(productSortings);
@@ -73,7 +73,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false },
             { id: 'foo', locked: false },
-            { id: 'bar', locked: false }
+            { id: 'bar', locked: false },
         ]);
 
         const wrapper = await createWrapper(productSortings);
@@ -86,8 +86,8 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             productSortings: new EntityCollection('', '', {}, {}, [
                 { id: '1a2b3c', locked: false },
                 { id: 'foo', locked: false },
-                { id: 'bar', locked: true }
-            ])
+                { id: 'bar', locked: true },
+            ]),
         });
 
         await wrapper.vm.$nextTick();
@@ -100,7 +100,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false, priority: 1 },
             { id: 'foo', locked: false, priority: 5 },
-            { id: 'bar', locked: false, priority: 3 }
+            { id: 'bar', locked: false, priority: 3 },
         ]);
 
         const wrapper = await createWrapper(productSortings);

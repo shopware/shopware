@@ -8,31 +8,31 @@ import swOrderCreateGeneralInfo from 'src/module/sw-order/component/sw-order-cre
 const cart = {
     price: {
         totalPrice: 20.01,
-    }
+    },
 };
 
 const context = {
     paymentMethod: {
         translated: {
             distinguishableName: 'Cash on Delivery',
-        }
+        },
     },
     shippingMethod: {
         translated: {
-            name: 'Express'
-        }
+            name: 'Express',
+        },
     },
     customer: {
         firstName: 'John',
         lastName: 'Doe',
-        email: 'john@doe.dev'
+        email: 'john@doe.dev',
     },
     currency: {
         totalRounding: {
-            decimals: 2
+            decimals: 2,
         },
         translated: {
-            shortName: 'EUR'
+            shortName: 'EUR',
         },
     },
 };
@@ -44,14 +44,14 @@ async function createWrapper() {
         propsData: {
             context,
             cart,
-            isLoading: false
+            isLoading: false,
         },
         provide: {
         },
         stubs: {
             'sw-order-state-select-v2': true,
-            'sw-entity-tag-select': true
-        }
+            'sw-entity-tag-select': true,
+        },
     });
 }
 
@@ -74,11 +74,11 @@ describe('src/module/sw-order/component/sw-order-create-general-info', () => {
     it('should show correct summary header', async () => {
         const customerInfo = wrapper.find('.sw-order-create-general-info__summary-main-header');
         expect(customerInfo.exists()).toBeTruthy();
-        expect(customerInfo.text()).toEqual('John Doe (john@doe.dev)');
+        expect(customerInfo.text()).toBe('John Doe (john@doe.dev)');
 
         const totalInfo = wrapper.find('.sw-order-create-general-info__summary-main-total');
         expect(totalInfo.exists()).toBeTruthy();
-        expect(totalInfo.text()).toEqual('€20.01');
+        expect(totalInfo.text()).toBe('€20.01');
 
         const methodInfo = wrapper.find('.sw-order-create-general-info__summary-sub');
         expect(methodInfo.exists()).toBeTruthy();

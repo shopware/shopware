@@ -14,21 +14,21 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             stubs: {
                 'sw-modal': true,
                 'sw-tabs': {
-                    template: '<div><slot name="content" active="upload"></slot></div>'
+                    template: '<div><slot name="content" active="upload"></slot></div>',
                 },
                 'sw-media-sidebar': true,
                 'sw-button': true,
                 'sw-media-upload-v2': true,
                 'sw-upload-listener': true,
-                'sw-media-grid': true
+                'sw-media-grid': true,
             },
             provide: {
                 repositoryFactory: {},
-                mediaService: {}
+                mediaService: {},
             },
             propsData: {
-                uploadTag: 'my-upload'
-            }
+                uploadTag: 'my-upload',
+            },
         });
     });
 
@@ -44,7 +44,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
 
     it('should contain "application/pdf" value', async () => {
         await wrapper.setProps({
-            fileAccept: 'application/pdf'
+            fileAccept: 'application/pdf',
         });
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
         expect(fileInput.attributes()['file-accept']).toBe('application/pdf');

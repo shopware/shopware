@@ -29,7 +29,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
         mocks: {
             $router: {
                 push: routerPushImplementation,
-            }
+            },
         },
         provide: {
             loginService: {
@@ -95,7 +95,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         expect(push).toHaveBeenCalledTimes(1);
         expect(push).toHaveBeenCalledWith({
-            name: 'sw.login.index'
+            name: 'sw.login.index',
         });
     });
 

@@ -19,20 +19,20 @@ const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypesApplyIsEmpty = [
     {
         filePath: 'sw-condition-billing-zip-code',
-        value: 'zipCodes'
+        value: 'zipCodes',
     },
     {
         filePath: 'sw-condition-shipping-zip-code',
-        value: 'zipCodes'
+        value: 'zipCodes',
     },
     {
         filePath: 'sw-condition-line-item-in-category',
-        value: 'categoryIds'
+        value: 'categoryIds',
     },
     {
         filePath: 'sw-condition-line-item-purchase-price',
-        value: 'amount'
-    }
+        value: 'amount',
+    },
 ];
 
 function importAllConditionTypes() {
@@ -67,7 +67,7 @@ async function createWrapperForComponent(componentName, props = {}) {
             'sw-text-field': true,
             'sw-icon': true,
             'sw-popover': true,
-            'sw-datepicker': true
+            'sw-datepicker': true,
         },
         provide: {
             conditionDataProviderService: new ConditionDataProviderService(),
@@ -76,18 +76,18 @@ async function createWrapperForComponent(componentName, props = {}) {
             restrictedConditions: [],
             childAssociationField: {},
             repositoryFactory: {
-                create: () => ({})
+                create: () => ({}),
             },
             insertNodeIntoTree: () => ({}),
             removeNodeFromTree: () => ({}),
             createCondition: () => ({}),
             conditionScopes: [],
-            unwrapAllLineItemsCondition: () => ({})
+            unwrapAllLineItemsCondition: () => ({}),
         },
         propsData: {
             condition: {},
-            ...props
-        }
+            ...props,
+        },
     });
 }
 
@@ -105,7 +105,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         const conditionOptions = wrapper.findAll('.sw-select-result');
         expect(conditionOptions.exists()).toBeTruthy();
         // Expect always last option is "Empty"
-        expect(conditionOptions.filter(option => option.text() === 'global.sw-condition.operator.empty').length).toBe(1);
+        expect(conditionOptions.filter(option => option.text() === 'global.sw-condition.operator.empty')).toHaveLength(1);
     });
 
     it.each(conditionTypesApplyIsEmpty)('Should be delete value when operator is empty', async (conditionType) => {
@@ -114,7 +114,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         const condition = { value: { operator: '=', [conditionType.value]: 'kyln' } };
         await wrapper.setProps({ condition: condition });
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.condition.value[conditionType.value]).toEqual('kyln');
+        expect(wrapper.vm.condition.value[conditionType.value]).toBe('kyln');
 
         const conditionEmpty = { value: { operator: 'empty', [conditionType.value]: 'kyln' } };
         await wrapper.setProps({ condition: conditionEmpty });

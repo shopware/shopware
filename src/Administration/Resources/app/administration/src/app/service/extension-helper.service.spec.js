@@ -15,13 +15,13 @@ describe('src/app/service/extension-helper.service.js', () => {
             extensionStoreActionService: {
                 getMyExtensions: () => {
                     return Promise.resolve([
-                        extensionMock
+                        extensionMock,
                     ]);
                 },
                 downloadExtension: jest.fn(() => Promise.resolve()),
                 installExtension: jest.fn(() => Promise.resolve()),
-                activateExtension: jest.fn(() => Promise.resolve())
-            }
+                activateExtension: jest.fn(() => Promise.resolve()),
+            },
         });
     });
 
@@ -40,7 +40,7 @@ describe('src/app/service/extension-helper.service.js', () => {
             name: 'SwagDummyExtension',
             installedAt: null,
             active: null,
-            source: 'local'
+            source: 'local',
         };
 
         await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
@@ -54,10 +54,10 @@ describe('src/app/service/extension-helper.service.js', () => {
         extensionMock = {
             name: 'SwagDummyExtension',
             installedAt: {
-                date: '2021-01-02 09:59:46.324000'
+                date: '2021-01-02 09:59:46.324000',
             },
             active: null,
-            source: 'local'
+            source: 'local',
         };
 
         await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');
@@ -71,10 +71,10 @@ describe('src/app/service/extension-helper.service.js', () => {
         extensionMock = {
             name: 'SwagDummyExtension',
             installedAt: {
-                date: '2021-01-02 09:59:46.324000'
+                date: '2021-01-02 09:59:46.324000',
             },
             active: true,
-            source: 'local'
+            source: 'local',
         };
 
         await extensionHelperService.downloadAndActivateExtension('SwagDummyExtension');

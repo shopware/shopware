@@ -9,9 +9,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: {
@@ -21,15 +21,15 @@ async function createWrapper(privileges = []) {
                         return Promise.resolve([
                             {
                                 id: '44de136acf314e7184401d36406c1e90',
-                                eventName: 'checkout.order.placed'
-                            }
+                                eventName: 'checkout.order.placed',
+                            },
                         ]);
                     },
 
                     searchIds: () => Promise.resolve({
-                        total: 20
-                    })
-                })
+                        total: 20,
+                    }),
+                }),
             },
 
             acl: {
@@ -39,10 +39,10 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
 
-            searchRankingService: {}
+            searchRankingService: {},
         },
 
         stubs: {
@@ -59,7 +59,7 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-icon': true,
             'sw-button': true,
@@ -67,19 +67,19 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-tabs': true,
             'sw-tabs-item': true,
-        }
+        },
     });
 }
 
 describe('module/sw-flow/page/sw-flow-index', () => {
     it('should be able to create a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
 
         const createButton = wrapper.find('.sw-flow-list__create');
 
-        expect(createButton.attributes().disabled).toBe(undefined);
+        expect(createButton.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to create a flow', async () => {

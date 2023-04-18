@@ -9,8 +9,8 @@ async function createWrapper() {
         propsData: {
             title: 'Example Filter',
             showResetButton: false,
-            active: true
-        }
+            active: true,
+        },
     });
 }
 

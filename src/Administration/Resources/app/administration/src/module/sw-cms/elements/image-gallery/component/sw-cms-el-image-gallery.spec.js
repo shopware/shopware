@@ -10,27 +10,27 @@ Shopware.Component.register('sw-cms-el-image-gallery', swCmsElImageGallery);
 const sliderItemsConfigMock = [
     {
         mediaId: '1',
-        mediaUrl: 'http://shopware.com/image1.jpg'
+        mediaUrl: 'http://shopware.com/image1.jpg',
     },
     {
         mediaId: '2',
-        mediaUrl: 'http://shopware.com/image2.jpg'
-    }
+        mediaUrl: 'http://shopware.com/image2.jpg',
+    },
 ];
 
 const sliderItemsDataMock = [
     {
         media: {
             id: '1',
-            url: 'http://shopware.com/image1.jpg'
-        }
+            url: 'http://shopware.com/image1.jpg',
+        },
     },
     {
         media: {
             id: '2',
-            url: 'http://shopware.com/image2.jpg'
-        }
-    }
+            url: 'http://shopware.com/image2.jpg',
+        },
+    },
 ];
 
 async function createWrapper(propsOverride, dataOverride) {
@@ -45,69 +45,69 @@ async function createWrapper(propsOverride, dataOverride) {
                 },
                 getPropertyByMappingPath: () => {
                     return {};
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-cms-el-image-slider': true,
             'sw-media-list-selection-item-v2': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         propsData: {
             element: {
                 config: {},
-                data: {}
+                data: {},
             },
             defaultConfig: {
                 sliderItems: {
                     source: 'static',
-                    value: []
+                    value: [],
                 },
                 galleryPosition: {
                     source: 'static',
-                    value: 'left'
+                    value: 'left',
                 },
                 verticalAlign: {
                     source: 'static',
-                    value: null
+                    value: null,
                 },
                 displayMode: {
                     source: 'static',
-                    value: 'standard'
+                    value: 'standard',
                 },
                 minHeight: {
                     source: 'static',
-                    value: '340px'
+                    value: '340px',
                 },
                 zoom: {
                     source: 'static',
-                    value: false
+                    value: false,
                 },
                 fullScreen: {
                     source: 'static',
-                    value: false
+                    value: false,
                 },
                 navigationArrows: {
                     source: 'static',
-                    value: 'inside'
+                    value: 'inside',
                 },
                 navigationDots: {
-                    source: 'static'
+                    source: 'static',
 
-                }
+                },
             },
-            ...propsOverride
+            ...propsOverride,
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
+                        type: 'ladingpage',
+                    },
                 },
-                ...dataOverride
+                ...dataOverride,
             };
-        }
+        },
     });
 }
 
@@ -116,9 +116,9 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
         const wrapper = await createWrapper(null, {
             cmsPageState: {
                 currentPage: {
-                    type: 'product_detail'
-                }
-            }
+                    type: 'product_detail',
+                },
+            },
         });
 
         expect(wrapper.vm.element.config.sliderItems.source).toBe('mapped');
@@ -131,24 +131,24 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
                 config: {
                     sliderItems: {
                         source: 'static',
-                        value: sliderItemsConfigMock
-                    }
+                        value: sliderItemsConfigMock,
+                    },
                 },
                 translated: {
                     config: {
                         sliderItems: {
                             source: 'static',
-                            value: sliderItemsConfigMock
-                        }
-                    }
-                }
-            }
+                            value: sliderItemsConfigMock,
+                        },
+                    },
+                },
+            },
         }, {
             cmsPageState: {
                 currentPage: {
-                    type: 'product_detail'
-                }
-            }
+                    type: 'product_detail',
+                },
+            },
         });
 
         expect(wrapper.vm.element.config.sliderItems.source).toBe('static');
@@ -162,7 +162,7 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
         const mediaSelection = wrapper.findAll('sw-media-list-selection-item-v2-stub');
 
         expect(imagePlaceHolders.exists()).toBeTruthy();
-        expect(imagePlaceHolders.length).toBe(3);
+        expect(imagePlaceHolders).toHaveLength(3);
 
         expect(mediaSelection.exists()).toBeFalsy();
     });
@@ -175,14 +175,14 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
                 config: {
                     sliderItems: {
                         source: 'static',
-                        value: sliderItemsConfigMock
+                        value: sliderItemsConfigMock,
                     },
-                    ...wrapper.props().element.config
+                    ...wrapper.props().element.config,
                 },
                 data: {
-                    sliderItems: sliderItemsDataMock
-                }
-            }
+                    sliderItems: sliderItemsDataMock,
+                },
+            },
         });
 
         const imagePlaceHolders = wrapper.findAll('.sw-cms-el-image-gallery__item-placeholder');
@@ -191,6 +191,6 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
         expect(imagePlaceHolders.exists()).toBeFalsy();
 
         expect(mediaSelection.exists()).toBeTruthy();
-        expect(mediaSelection.length).toBe(2);
+        expect(mediaSelection).toHaveLength(2);
     });
 });

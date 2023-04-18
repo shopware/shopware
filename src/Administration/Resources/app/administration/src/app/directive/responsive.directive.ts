@@ -1,3 +1,11 @@
+import type { DirectiveBinding } from 'vue/types/options';
+
+interface ResponsiveDirectiveBinding extends DirectiveBinding {
+    value?: {
+        [key: string]: ((elementSizeValues: DOMRectReadOnly) => boolean) | number;
+    }
+}
+
 /**
  * @package admin
  *
@@ -12,14 +20,14 @@
  */
 
 Shopware.Directive.register('responsive', {
-    inserted(el, binding) {
-        const timeout = typeof binding.value.timeout === 'number' ? binding.value.timeout : 200;
+    inserted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
+        const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
 
-        const handleResize = Shopware.Utils.throttle(entries => {
+        const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {
             entries.forEach(entry => {
                 const elementSizeValues = entry.contentRect;
 
-                Object.entries(binding.value).forEach(([breakpointClass, breakpointCallback]) => {
+                Object.entries(binding.value ?? {}).forEach(([breakpointClass, breakpointCallback]) => {
                     if (typeof breakpointCallback !== 'function') {
                         return;
                     }
@@ -38,3 +46,4 @@ Shopware.Directive.register('responsive', {
         observer.observe(el);
     },
 });
+

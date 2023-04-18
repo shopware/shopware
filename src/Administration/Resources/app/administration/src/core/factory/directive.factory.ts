@@ -15,8 +15,6 @@ export default {
 
 /**
  * Registry which holds all registered directives.
- *
- * @type {Map<String, Object>}
  */
 const directiveRegistry = new Map<string, DirectiveFunction|DirectiveOptions>();
 

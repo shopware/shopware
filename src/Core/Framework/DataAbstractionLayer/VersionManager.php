@@ -451,13 +451,9 @@ class VersionManager
                 'created_at' => $date,
             ],
             ['id' => $commitId],
-            new EntityExistence(
+            EntityExistence::createForEntity(
                 $this->versionCommitDefinition->getEntityName(),
                 ['id' => Uuid::fromBytesToHex($commitId)],
-                false,
-                false,
-                false,
-                []
             ),
             ''
         );
@@ -505,13 +501,9 @@ class VersionManager
                         'created_at' => $date,
                     ],
                     ['id' => $id],
-                    new EntityExistence(
+                    EntityExistence::createForEntity(
                         $this->versionCommitDataDefinition->getEntityName(),
                         ['id' => Uuid::fromBytesToHex($id)],
-                        false,
-                        false,
-                        false,
-                        []
                     ),
                     ''
                 );

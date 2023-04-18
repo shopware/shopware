@@ -121,7 +121,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         }
 
         $stack = new DataStack($data);
-        $existence = new EntityExistence(null, [], false, false, false, []);
+        $existence = EntityExistence::createEmpty();
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
         $propertyKeys = array_map(fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());

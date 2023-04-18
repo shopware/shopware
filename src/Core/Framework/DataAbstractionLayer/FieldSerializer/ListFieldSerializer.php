@@ -69,7 +69,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
             return;
         }
 
-        $existence = new EntityExistence(null, [], false, false, false, []);
+        $existence = EntityExistence::createEmpty();
 
         /** @var Field $listField */
         $listField = new $fieldType('key', 'key');

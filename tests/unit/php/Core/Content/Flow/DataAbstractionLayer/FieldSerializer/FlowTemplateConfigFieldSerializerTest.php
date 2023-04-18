@@ -107,7 +107,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
     private function encode(?array $data = null, ?Field $field = null): ?string
     {
         $field ??= new FlowTemplateConfigField('config', 'config');
-        $existence = new EntityExistence('config', ['someId'], true, false, false, []);
+        $existence = new EntityExistence('config', ['someId' => true], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
             $this->createMock(FlowTemplateDefinition::class),

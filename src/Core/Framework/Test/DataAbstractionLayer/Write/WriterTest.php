@@ -13,15 +13,25 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\NonUuidFkFieldSerializer;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityOneDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityTwoDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -719,6 +729,136 @@ class WriterTest extends TestCase
         }
 
         static::assertFalse($exceptionThrown);
+    }
+
+    public function testCanWriteReadAndDeleteEntitiesWithFKFieldValuesThatAreNotUuids(): void
+    {
+        // Because this test creates new database tables we need to commit the current transaction. Because table
+        // creation auto-commits the current transaction on database level and would cause errors when Doctrine tries to
+        // commit the still-open transaction.
+        $this->connection->commit();
+        $container = $this->getContainer();
+        $context = Context::createDefaultContext();
+        /** @var DefinitionInstanceRegistry $definitionInstanceRegistry */
+        $definitionInstanceRegistry = $container->get(DefinitionInstanceRegistry::class);
+
+        // Prepare test entity 1 that has a non-uuid primary key
+        $this->connection->executeStatement(
+            'CREATE TABLE `test_entity_one` (
+                `technical_name` VARCHAR(255) NOT NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`technical_name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;',
+        );
+        $definitionInstanceRegistry->register(new TestEntityOneDefinition());
+        $testEntityOneRepository = new EntityRepository(
+            $definitionInstanceRegistry->getByClassOrEntityName(TestEntityOneDefinition::class),
+            $container->get(EntityReaderInterface::class),
+            $container->get(VersionManager::class),
+            $container->get(EntitySearcherInterface::class),
+            $container->get(EntityAggregatorInterface::class),
+            $container->get('event_dispatcher'),
+            $container->get(EntityLoadedEventFactory::class)
+        );
+
+        // Prepare test entity 2 that references test entity 1
+        $this->connection->executeStatement(
+            'CREATE TABLE `test_entity_two` (
+                `id` BINARY(16) NOT NULL,
+                `test_entity_one_technical_name` VARCHAR(255) NOT NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;',
+        );
+        $definitionInstanceRegistry->register(new TestEntityTwoDefinition());
+        $testEntityTwoRepository = new EntityRepository(
+            $definitionInstanceRegistry->getByClassOrEntityName(TestEntityTwoDefinition::class),
+            $container->get(EntityReaderInterface::class),
+            $container->get(VersionManager::class),
+            $container->get(EntitySearcherInterface::class),
+            $container->get(EntityAggregatorInterface::class),
+            $container->get('event_dispatcher'),
+            $container->get(EntityLoadedEventFactory::class)
+        );
+        $container->set(NonUuidFkFieldSerializer::class, new NonUuidFkFieldSerializer());
+
+        // Test creation
+        $testEntityOneRepository->create(
+            [
+                [
+                    'technicalName' => 'Some-Technical-Name',
+                ],
+            ],
+            $context,
+        );
+        $testEntityTwoId = Uuid::randomHex();
+        $testEntityTwoRepository->create(
+            [
+                [
+                    'id' => $testEntityTwoId,
+                    'testEntityOneTechnicalName' => 'Some-Technical-Name',
+                ],
+            ],
+            $context,
+        );
+
+        // Test fetch
+        $fetchedEntityOne = $testEntityOneRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
+            $context,
+        );
+        static::assertNotNull($fetchedEntityOne);
+        $fetchedEntityTwo = $testEntityTwoRepository->search(
+            (new Criteria())
+                ->addFilter(new EqualsFilter('id', $testEntityTwoId))
+                ->addAssociation('testEntityOne'),
+            $context,
+        );
+        static::assertNotNull($fetchedEntityTwo);
+
+        // Test deletion
+        $testEntityOneRepository->delete([['technicalName' => 'Some-Technical-Name']], $context);
+        $testEntityTwoRepository->delete([['id' => $testEntityTwoId]], $context);
+
+        // Clean up
+        $this->connection->executeStatement(
+            'DROP TABLE `test_entity_two`;
+            DROP TABLE `test_entity_one`;',
+        );
+        $this->connection->beginTransaction();
+    }
+
+    public function testCanUpdateEntitiesToAddCustomFields(): void
+    {
+        /** @var EntityRepository $productRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productId = Uuid::randomHex();
+
+        $productRepository->create(
+            [
+                [
+                    'id' => $productId,
+                    'name' => 'foo',
+                    'productNumber' => Uuid::randomHex(),
+                    'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
+                    'stock' => 0,
+                ],
+            ],
+            Context::createDefaultContext(),
+        );
+
+        $productRepository->update(
+            [
+                [
+                    'id' => $productId,
+                    'customFields' => ['foo' => 'bar'],
+                ],
+            ],
+            Context::createDefaultContext(),
+        );
     }
 
     public function testCloneVariantTranslation(): void

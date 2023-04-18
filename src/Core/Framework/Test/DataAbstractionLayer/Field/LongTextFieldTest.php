@@ -43,7 +43,7 @@ class LongTextFieldTest extends TestCase
             try {
                 $serializer->encode(
                     $this->getLongTextField($name, $flags),
-                    $this->getEntityExisting(),
+                    EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current();
@@ -61,7 +61,7 @@ class LongTextFieldTest extends TestCase
                 $expected,
                 $serializer->encode(
                     $this->getLongTextField($name, $flags),
-                    $this->getEntityExisting(),
+                    EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current()
@@ -95,11 +95,6 @@ class LongTextFieldTest extends TestCase
         $mockBuilder->disableOriginalConstructor();
 
         return $mockBuilder->getMock();
-    }
-
-    private function getEntityExisting(): EntityExistence
-    {
-        return new EntityExistence(null, [], true, false, false, []);
     }
 
     /**

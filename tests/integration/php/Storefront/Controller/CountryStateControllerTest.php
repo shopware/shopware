@@ -128,7 +128,10 @@ class CountryStateControllerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->countryStateController->getCountryData(new Request([], ['countryId' => $this->countryIdDE]), $this->salesChannelContext);
+        $request = new Request([], ['countryId' => $this->countryIdDE]);
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $this->countryStateController->getCountryData($request, $this->salesChannelContext);
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 

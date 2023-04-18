@@ -860,7 +860,7 @@ class CustomEntityTest extends TestCase
         ];
 
         $browser = $this->getSalesChannelBrowser();
-        $browser->request('POST', '/store-api/script/repository-test', $criteria);
+        $browser->request('POST', '/store-api/script/blog', $criteria);
 
         $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -870,12 +870,12 @@ class CustomEntityTest extends TestCase
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-repository-test::response', $traces);
-        static::assertCount(1, $traces['store-api-repository-test::response']);
-        static::assertSame('some debug information', $traces['store-api-repository-test::response'][0]['output'][0]);
+        static::assertArrayHasKey('store-api-blog::response', $traces);
+        static::assertCount(1, $traces['store-api-blog::response']);
+        static::assertSame('some debug information', $traces['store-api-blog::response'][0]['output'][0]);
 
         $expected = [
-            'apiAlias' => 'store_api_repository_test_response',
+            'apiAlias' => 'store_api_blog_response',
             'blogs' => [
                 'apiAlias' => 'dal_entity_search_result',
                 'elements' => [

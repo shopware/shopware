@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFact
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
@@ -83,6 +84,7 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
             SalesChannelRepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
             ScriptResponseFactoryFacadeHookFactory::class,
+            RequestFacadeFactory::class,
         ];
     }
 

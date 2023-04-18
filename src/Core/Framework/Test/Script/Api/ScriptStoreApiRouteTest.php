@@ -340,4 +340,22 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertEquals('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
+
+    public function testScriptExecutionWithRequestService(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('GET', '/store-api/script/request-test');
+
+        static::assertSame(405, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser->request('POST', '/store-api/script/request-test', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['foo' => 'bar'], \JSON_THROW_ON_ERROR));
+
+        $content = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        static::assertSame([
+            'apiAlias' => 'store_api_request_test_response',
+            'foo' => 'bar',
+        ], $content);
+    }
 }

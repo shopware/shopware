@@ -19,7 +19,7 @@ const orderFixture = {
             referencedId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10',
             payload: {
                 code: 'Redeem3456',
-            }
+            },
         },
         {
             id: '6066b693-97ce-4b91-a3e2-e015f0ddfb79',
@@ -27,7 +27,7 @@ const orderFixture = {
             referencedId: 'f13ed3d3-158b-4fdf-bd54-d6fa8b880b83',
             payload: {
                 code: 'Redeem23',
-            }
+            },
         },
         {
             id: '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
@@ -35,7 +35,7 @@ const orderFixture = {
             referencedId: null,
             payload: {
                 code: null,
-            }
+            },
         },
     ],
 };
@@ -47,7 +47,7 @@ const successResponseForNotification = {
     data: {
         errors: [
             {
-                message: 'success'
+                message: 'success',
             },
         ],
     },
@@ -63,8 +63,8 @@ const createStateMapper = (customOrder = {}) => {
             order: {
                 ...orderFixture,
                 ...customOrder,
-            }
-        }
+            },
+        },
     };
 
     Shopware.State.registerModule('swOrderDetail', {
@@ -75,7 +75,7 @@ const createStateMapper = (customOrder = {}) => {
                 isSavedSuccessful: false,
                 versionContext: {},
                 order: orderFixture,
-            }
+            },
         },
         ...newModule,
     });
@@ -87,7 +87,7 @@ const createWrapper = async (custom) => {
             createNotificationError() {},
             createNotificationWarning() {},
             createNotificationSuccess() {},
-        }
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-order-promotion-field'), {
@@ -132,7 +132,7 @@ const createWrapper = async (custom) => {
                                     referencedId: `this-is-reference-id-${code}`,
                                     payload: {
                                         code: code,
-                                    }
+                                    },
                                 },
                             ],
                         });
@@ -143,13 +143,13 @@ const createWrapper = async (custom) => {
                 acl: {
                     can: () => {
                         return true;
-                    }
+                    },
                 },
             },
             computed: {
                 hasOrderUnsavedChanges() {
                     return false;
-                }
+                },
             },
             mixins: [
                 notificationMixin,
@@ -203,8 +203,8 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             computed: {
                 hasOrderUnsavedChanges() {
                     return true;
-                }
-            }
+                },
+            },
         });
 
         wrapper.vm.disabledAutoPromotions = true;
@@ -229,8 +229,8 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             computed: {
                 hasOrderUnsavedChanges() {
                     return true;
-                }
-            }
+                },
+            },
         });
 
         wrapper.vm.onSubmitCode('Redeem675');
@@ -261,8 +261,8 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             computed: {
                 hasOrderUnsavedChanges() {
                     return true;
-                }
-            }
+                },
+            },
         });
 
         wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });

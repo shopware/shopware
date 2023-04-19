@@ -8,7 +8,7 @@ import fixtures from './_mocks/appBlocks.json';
 
 Shopware.Service().register('cmsService', () => {
     return {
-        registerCmsBlock: jest.fn()
+        registerCmsBlock: jest.fn(),
     };
 });
 
@@ -22,14 +22,14 @@ describe('src/app/service/app-cms.service', () => {
         vueAdapter = new VueAdapter({
             getContainer: () => ({
                 component: '',
-                locale: { getLocaleRegistry: () => [], getLastKnownLocale: () => 'en-GB' }
-            })
+                locale: { getLocaleRegistry: () => [], getLastKnownLocale: () => 'en-GB' },
+            }),
         });
 
         service = await new AppCmsService({
             fetchAppBlocks() {
                 return Promise.resolve(fixtures.blocks);
-            }
+            },
         }, vueAdapter);
     });
 
@@ -51,7 +51,7 @@ describe('src/app/service/app-cms.service', () => {
         service.setDefaultConfig({
             prefix: 'sw-cms-custom-block-',
             componentSuffix: '-foo',
-            previewComponentSuffix: '-bar'
+            previewComponentSuffix: '-bar',
         });
 
         defaultConfig = service.defaultBlockConfig;
@@ -74,7 +74,7 @@ describe('src/app/service/app-cms.service', () => {
     it('should register the block label to the global locale factory', async () => {
         service.registerBlockSnippets('fooBar', {
             'en-GB': 'MyFooBarBlock',
-            'pt-PT': 'MyFooBarBlock'
+            'pt-PT': 'MyFooBarBlock',
         });
 
         const translations = Shopware.Locale.getByName('en-GB');
@@ -82,13 +82,13 @@ describe('src/app/service/app-cms.service', () => {
             'sw-app-system-cms': {
                 'label-fooBar': 'MyFooBarBlock',
                 'label-my-first-block': 'First block from app',
-                'label-my-second-block': 'Second block from app'
-            }
+                'label-my-second-block': 'Second block from app',
+            },
         });
 
         expect(global.console.warn).toHaveBeenCalledWith(
             '[AppCmsService]',
-            'The locale "pt-PT" is not registered in Shopware.Locale.'
+            'The locale "pt-PT" is not registered in Shopware.Locale.',
         );
     });
 
@@ -96,13 +96,13 @@ describe('src/app/service/app-cms.service', () => {
         service.registerCmsBlock({
             category: 'foobar',
             label: {
-                'de-DE': 'MyBlockLabel'
-            }
+                'de-DE': 'MyBlockLabel',
+            },
         });
 
         expect(global.console.warn).toHaveBeenCalledWith(
             '[AppCmsService]',
-            'The category "foobar" is not a valid category.'
+            'The category "foobar" is not a valid category.',
         );
     });
 
@@ -110,7 +110,7 @@ describe('src/app/service/app-cms.service', () => {
         const cssFixtures = '#foo { color: #f00 }';
 
         service.registerStyles({
-            styles: cssFixtures
+            styles: cssFixtures,
         });
         expect(service.blockStyles).toContain(cssFixtures);
         expect(service.injectStyleTag()).toBeTruthy();
@@ -128,8 +128,8 @@ describe('src/app/service/app-cms.service', () => {
             stubs: {
                 'sw-cms-el-preview-manufacturer-logo': true,
                 'sw-cms-el-preview-image-gallery': true,
-                'sw-cms-el-preview-buy-box': true
-            }
+                'sw-cms-el-preview-buy-box': true,
+            },
         });
 
         expect(mountedComponent.vm).toBeTruthy();
@@ -139,8 +139,8 @@ describe('src/app/service/app-cms.service', () => {
             stubs: {
                 'sw-cms-el-preview-manufacturer-logo': true,
                 'sw-cms-el-preview-image-gallery': true,
-                'sw-cms-el-preview-buy-box': true
-            }
+                'sw-cms-el-preview-buy-box': true,
+            },
         });
 
         expect(mountedPreviewComponent.vm).toBeTruthy();

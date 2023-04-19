@@ -19,7 +19,7 @@ const parentProductData = {
         currencyId: '1',
         linked: true,
         gross: 0,
-        net: 0
+        net: 0,
     }],
     price: [{
         currencyId: '1',
@@ -37,8 +37,8 @@ const parentProductData = {
             linked: true,
             gross: 100,
             net: 93.45,
-        }
-    }]
+        },
+    }],
 };
 
 
@@ -51,12 +51,12 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 taxId: 'taxId',
                 purchasePrices: null,
                 price: null,
-                ...productEntityOverride
+                ...productEntityOverride,
             };
 
         const parentProduct = {
             ...parentProductData,
-            ...parentProductOverride
+            ...parentProductOverride,
         };
 
         return shallowMount(await Shopware.Component.build('sw-product-price-form'), {
@@ -64,8 +64,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
-                        id: 1
-                    }
+                        id: 1,
+                    },
                 },
                 $store: new Vuex.Store({
                     modules: {
@@ -82,16 +82,16 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                                                 key: 'prices',
                                                 label: 'sw-product.detailBase.cardTitlePrices',
                                                 enabled: true,
-                                                name: 'general'
-                                            }
+                                                name: 'general',
+                                            },
                                         ],
                                         advancedMode: {
                                             enabled: true,
-                                            label: 'sw-product.general.textAdvancedMode'
-                                        }
-                                    }
+                                            label: 'sw-product.general.textAdvancedMode',
+                                        },
+                                    },
                                 },
-                                creationStates: 'is-physical'
+                                creationStates: 'is-physical',
                             },
                             getters: {
                                 ...productStore.getters,
@@ -100,20 +100,20 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                                     return {
                                         id: '1',
                                         name: 'Euro',
-                                        isoCode: 'EUR'
+                                        isoCode: 'EUR',
                                     };
                                 },
                                 productTaxRate: () => {
-                                }
-                            }
-                        }
-                    }
-                })
+                                },
+                            },
+                        },
+                    },
+                }),
             },
             // eslint-disable max-len
             stubs: {
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-list-price-field': await Shopware.Component.build('sw-list-price-field'),
@@ -136,8 +136,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                         },
                         onClickRemoveInheritance() {
                             this.$emit('inheritance-remove');
-                        }
-                    }
+                        },
+                    },
                 },
                 'sw-price-field': true,
                 'sw-help-text': true,
@@ -145,8 +145,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 'sw-internal-link': true,
                 'router-link': true,
                 'sw-icon': true,
-                'sw-maintain-currencies-modal': true
-            }
+                'sw-maintain-currencies-modal': true,
+            },
             // eslint-enable max-len
         });
     }
@@ -183,8 +183,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 currencyId: '1',
                 linked: true,
                 gross: 80,
-                net: 67.27
-            }]
+                net: 67.27,
+            }],
         });
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
@@ -202,9 +202,9 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 currencyId: '1',
                 linked: true,
                 gross: 80,
-                net: 67.27
+                net: 67.27,
             }],
-            purchasePrices: []
+            purchasePrices: [],
         });
     });
 
@@ -226,10 +226,10 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         expect(wrapper.vm.prices).toEqual({
             price: parentProductData.price,
-            purchasePrices: parentProductData.purchasePrices
+            purchasePrices: parentProductData.purchasePrices,
         });
-        expect(wrapper.vm.prices.price[0].listPrice.gross).toEqual(200);
-        expect(wrapper.vm.prices.price[0].regulationPrice.gross).toEqual(100);
+        expect(wrapper.vm.prices.price[0].listPrice.gross).toBe(200);
+        expect(wrapper.vm.prices.price[0].regulationPrice.gross).toBe(100);
     });
 
     // eslint-disable-next-line max-len
@@ -255,7 +255,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         expect(wrapper.vm.prices).toEqual({
             price: parentProductData.price,
-            purchasePrices: []
+            purchasePrices: [],
         });
     });
 
@@ -266,8 +266,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 currencyId: '1',
                 linked: true,
                 gross: 80,
-                net: 67.27
-            }]
+                net: 67.27,
+            }],
         });
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
@@ -291,7 +291,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
-            '.sw-list-price-field__list-price sw-price-field-stub'
+            '.sw-list-price-field__list-price sw-price-field-stub',
         ];
 
         priceFieldsClassName.forEach(item => {
@@ -308,14 +308,14 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
-            '.sw-list-price-field__list-price sw-price-field-stub'
+            '.sw-list-price-field__list-price sw-price-field-stub',
         ];
 
         priceFieldsClassName.forEach(item => {

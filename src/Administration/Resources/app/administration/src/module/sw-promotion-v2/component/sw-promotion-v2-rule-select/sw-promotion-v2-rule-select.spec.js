@@ -13,15 +13,15 @@ async function createWrapper(customProps = {}, customOptions = {}) {
         stubs: {
             'sw-entity-many-to-many-select': true,
             'sw-arrow-field': true,
-            'sw-grouped-single-select': true
+            'sw-grouped-single-select': true,
         },
         provide: {
             ruleConditionDataProviderService: ruleConditionDataProviderService,
         },
         propsData: {
-            ...customProps
+            ...customProps,
         },
-        ...customOptions
+        ...customOptions,
     });
 }
 

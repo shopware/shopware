@@ -18,11 +18,11 @@ async function createWrapper() {
 
     const routes = [{
         name: 'sw.category.landingPage',
-        path: 'category/landingPage/:id'
+        path: 'category/landingPage/:id',
     }];
 
     const router = new VueRouter({
-        routes
+        routes,
     });
 
     return shallowMount(await Shopware.Component.build('sw-landing-page-tree'), {
@@ -37,10 +37,10 @@ async function createWrapper() {
                     <div class="sw-tree">
                       <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
                     </div>
-                `
+                `,
             },
             'sw-tree-item': true,
-            'sw-button': true
+            'sw-button': true,
         },
         provide: {
             syncService: {},
@@ -48,15 +48,15 @@ async function createWrapper() {
                 create: () => ({
                     search: () => Promise.resolve([
                         {
-                            id: '1a'
-                        }
-                    ])
-                })
+                            id: '1a',
+                        },
+                    ]),
+                }),
             },
         },
         propsData: {
-            currentLanguageId: '1a2b3c'
-        }
+            currentLanguageId: '1a2b3c',
+        },
     });
 }
 
@@ -91,11 +91,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -108,7 +108,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -121,11 +121,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -138,7 +138,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -151,11 +151,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowCreate: false
+            allowCreate: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -168,7 +168,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -181,11 +181,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -198,7 +198,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -211,11 +211,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -228,11 +228,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -245,7 +245,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -258,23 +258,23 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
-        expect(itemUrl).toEqual('#category/landingPage/1a2b');
+        expect(itemUrl).toBe('#category/landingPage/1a2b');
     });
 
     it('should get wrong landing page url', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
-        expect(itemUrl).not.toEqual('#/landingPage/1a2b');
+        expect(itemUrl).not.toBe('#/landingPage/1a2b');
     });
 });

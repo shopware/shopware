@@ -24,11 +24,11 @@ describe('core/factory/http.factory.js', () => {
     it('should not intercept if store session has not expired', async () => {
         mock.onGet('/store-session-expired').replyOnce(200, {});
 
-        expect(mock.history.get.length).toBe(0);
+        expect(mock.history.get).toHaveLength(0);
 
         await httpClient.get('/store-session-expired');
 
-        expect(mock.history.get.length).toBe(1);
+        expect(mock.history.get).toHaveLength(1);
     });
 
     it.each([
@@ -38,14 +38,14 @@ describe('core/factory/http.factory.js', () => {
         mock.onGet('/store-route-requiring-auth').replyOnce(403, {
             errors: [{
                 code: errorCode,
-            }]
+            }],
         }).onGet('/store-route-requiring-auth').replyOnce(200, {});
 
-        expect(mock.history.get.length).toBe(0);
+        expect(mock.history.get).toHaveLength(0);
 
         await httpClient.get('/store-route-requiring-auth');
 
-        expect(mock.history.get.length).toBe(2);
+        expect(mock.history.get).toHaveLength(2);
     });
 
     it.each([
@@ -55,7 +55,7 @@ describe('core/factory/http.factory.js', () => {
         mock.onGet('/store-route-requiring-auth').reply(403, {
             errors: [{
                 code: errorCode,
-            }]
+            }],
         });
 
         const getError = async () => {
@@ -73,10 +73,10 @@ describe('core/factory/http.factory.js', () => {
         expect(error.response.data).toEqual({
             errors: [{
                 code: errorCode,
-            }]
+            }],
         });
 
-        expect(mock.history.get.length).toBe(2);
+        expect(mock.history.get).toHaveLength(2);
     });
 
     it.each([
@@ -86,14 +86,14 @@ describe('core/factory/http.factory.js', () => {
         mock.onGet('/store-route-requiring-auth').reply(403, {
             errors: [{
                 code: errorCode,
-            }]
+            }],
         });
 
         const getError = async () => {
             try {
                 await Promise.all([
                     httpClient.get('/store-route-requiring-auth'),
-                    httpClient.get('/store-route-requiring-auth')
+                    httpClient.get('/store-route-requiring-auth'),
                 ]);
 
                 throw new Error('Expected error to be thrown');
@@ -107,10 +107,10 @@ describe('core/factory/http.factory.js', () => {
         expect(error.response.data).toEqual({
             errors: [{
                 code: errorCode,
-            }]
+            }],
         });
 
 
-        expect(mock.history.get.length).toBe(4);
+        expect(mock.history.get).toHaveLength(4);
     });
 });

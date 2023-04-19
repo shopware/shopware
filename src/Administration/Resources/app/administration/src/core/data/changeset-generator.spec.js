@@ -14,7 +14,7 @@ const entityFactory = new EntityFactory();
 describe('src/core/data/changeset-generator.data.js', () => {
     beforeAll(() => {
         Shopware.Application.view = {
-            setReactive: Vue.set
+            setReactive: Vue.set,
         };
         Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
             Shopware.EntityDefinition.add(entityName, entityDefinition);
@@ -26,7 +26,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
 
         const { changes } = changesetGenerator.generate(testEntity);
 
-        expect(changes).toBe(null);
+        expect(changes).toBeNull();
     });
 
     [
@@ -35,7 +35,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             entityName: 'cms_page',
             originChanges: { name: 'Microsoft' },
             entityChanges: { name: 'Shopware AG' },
-            expected: { name: 'Shopware AG' }
+            expected: { name: 'Shopware AG' },
         },
         {
             description: 'Should create full changeset',
@@ -48,9 +48,9 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: [
                         'sum',
                         'add',
-                        'divide'
-                    ]
-                }
+                        'divide',
+                    ],
+                },
             },
             expected: {
                 config: {
@@ -59,10 +59,10 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: [
                         'sum',
                         'add',
-                        'divide'
-                    ]
-                }
-            }
+                        'divide',
+                    ],
+                },
+            },
         },
         {
             description: 'should not return an changeset when origin and draft are identical',
@@ -74,9 +74,9 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: [
                         'sum',
                         'add',
-                        'divide'
-                    ]
-                }
+                        'divide',
+                    ],
+                },
             },
             entityChanges: {
                 config: {
@@ -85,11 +85,11 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: [
                         'sum',
                         'add',
-                        'divide'
-                    ]
-                }
+                        'divide',
+                    ],
+                },
             },
-            expected: null
+            expected: null,
         },
         {
             description: 'should not return an changeset when origin and draft are identical except the key order in objects',
@@ -101,41 +101,41 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: [
                         'sum',
                         'add',
-                        'divide'
-                    ]
-                }
+                        'divide',
+                    ],
+                },
             },
             entityChanges: {
                 config: {
                     test: [
                         'sum',
                         'add',
-                        'divide'
+                        'divide',
                     ],
                     b: 'bar',
-                    a: 'foo'
-                }
+                    a: 'foo',
+                },
             },
-            expected: null
+            expected: null,
         },
         {
             description: 'Should create a changeset when the order in arrays are changing',
             entityName: 'cms_page',
             originChanges: {
                 config: {
-                    numbers: [1, 2, 3]
-                }
+                    numbers: [1, 2, 3],
+                },
             },
             entityChanges: {
                 config: {
-                    numbers: [2, 1, 3]
-                }
+                    numbers: [2, 1, 3],
+                },
             },
             expected: {
                 config: {
-                    numbers: [2, 1, 3]
-                }
-            }
+                    numbers: [2, 1, 3],
+                },
+            },
         },
         {
             description: 'Should create a changeset when the order in arrays are changing. In combination with object key order changes.',
@@ -147,47 +147,47 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: [
                         'First',
                         'Second',
-                        'Third'
-                    ]
-                }
+                        'Third',
+                    ],
+                },
             },
             entityChanges: {
                 config: {
                     test: [
                         'Second',
                         'First',
-                        'Third'
+                        'Third',
                     ],
                     b: 'bar',
-                    a: 'foo'
-                }
+                    a: 'foo',
+                },
             },
             expected: {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: ['Second', 'First', 'Third']
-                }
-            }
+                    test: ['Second', 'First', 'Third'],
+                },
+            },
         },
         {
             description: 'Should be able to null an array value',
             entityName: 'cms_page',
             originChanges: {
                 config: {
-                    numbers: [1, 2, 3]
-                }
+                    numbers: [1, 2, 3],
+                },
             },
             entityChanges: {
                 config: {
-                    numbers: null
-                }
+                    numbers: null,
+                },
             },
             expected: {
                 config: {
-                    numbers: null
-                }
-            }
+                    numbers: null,
+                },
+            },
         },
         {
             description: 'Should be able to null some scalar value',
@@ -197,34 +197,34 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: {
                         foo: {
                             bar: 'Shop',
-                            second: 'ware'
+                            second: 'ware',
                         },
-                        sum: 'mary'
-                    }
-                }
+                        sum: 'mary',
+                    },
+                },
             },
             entityChanges: {
                 config: {
                     test: {
                         foo: {
                             bar: 'Shop',
-                            second: 'ware'
+                            second: 'ware',
                         },
-                        sum: null
-                    }
-                }
+                        sum: null,
+                    },
+                },
             },
             expected: {
                 config: {
                     test: {
                         foo: {
                             bar: 'Shop',
-                            second: 'ware'
+                            second: 'ware',
                         },
-                        sum: null
-                    }
-                }
-            }
+                        sum: null,
+                    },
+                },
+            },
         },
         {
             description: 'Should create a changeset the json field when a field was removed completely',
@@ -234,75 +234,75 @@ describe('src/core/data/changeset-generator.data.js', () => {
                     test: {
                         foo: {
                             bar: 'Shop',
-                            second: 'ware'
+                            second: 'ware',
                         },
                         animals: [
                             'dog',
                             'cat',
-                            'bird'
-                        ]
-                    }
-                }
+                            'bird',
+                        ],
+                    },
+                },
             },
             entityChanges: {
                 config: {
                     test: {
                         foo: {
                             bar: 'Shop',
-                            second: 'ware'
-                        }
-                    }
-                }
+                            second: 'ware',
+                        },
+                    },
+                },
             },
             expected: {
                 config: {
                     test: {
                         foo: {
                             bar: 'Shop',
-                            second: 'ware'
-                        }
-                    }
-                }
-            }
+                            second: 'ware',
+                        },
+                    },
+                },
+            },
         },
         {
             description: 'Should create a changeset when the json root is an object which is resetted to null',
             entityName: 'cms_page',
             originChanges: {
-                config: {}
+                config: {},
             },
             entityChanges: {
-                config: null
+                config: null,
             },
             expected: {
-                config: null
-            }
+                config: null,
+            },
         },
         {
             description: 'Should create a changeset when the json root is an array which is resetted to null',
             entityName: 'cms_page',
             originChanges: {
-                config: []
+                config: [],
             },
             entityChanges: {
-                config: null
+                config: null,
             },
             expected: {
-                config: null
-            }
+                config: null,
+            },
         },
         {
             description: 'Should create a changeset when the json root is an array and the order changes',
             entityName: 'cms_page',
             originChanges: {
-                config: [1, 2, 3]
+                config: [1, 2, 3],
             },
             entityChanges: {
-                config: [2, 1, 3]
+                config: [2, 1, 3],
             },
             expected: {
-                config: [2, 1, 3]
-            }
+                config: [2, 1, 3],
+            },
         },
         {
             description: 'Should not create a changeset when the json root is an object and the order changes',
@@ -311,18 +311,18 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'a',
                     b: 'b',
-                    c: 'c'
-                }
+                    c: 'c',
+                },
             },
             entityChanges: {
                 config: {
                     a: 'a',
                     c: 'c',
-                    b: 'b'
-                }
+                    b: 'b',
+                },
             },
-            expected: null
-        }
+            expected: null,
+        },
     ].forEach(({ description, entityChanges, originChanges, expected, entityName }) => {
         it(`${description}`, async () => {
             const testEntity = entityFactory.create(entityName);

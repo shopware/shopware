@@ -12,7 +12,7 @@ const createComponent = ({ customComponent, customOptions } = {}) => {
     const baseComponent = {
         name: 'base-component',
         template: '<div></div>',
-        ...customComponent
+        ...customComponent,
     };
 
     const options = { localVue, ...customOptions };
@@ -58,10 +58,10 @@ describe('app/plugins/deprecated.plugin', () => {
                         type: String,
                         required: false,
                         deprecated: '6.4.0',
-                        default: 'Lorem ipsum'
-                    }
-                }
-            }
+                        default: 'Lorem ipsum',
+                    },
+                },
+            },
         });
 
         expect(global.console.warn).not.toHaveBeenCalled();
@@ -75,16 +75,16 @@ describe('app/plugins/deprecated.plugin', () => {
                         type: String,
                         required: false,
                         deprecated: '6.4.0',
-                        default: 'Lorem ipsum'
-                    }
-                }
+                        default: 'Lorem ipsum',
+                    },
+                },
             },
 
             customOptions: {
                 propsData: {
-                    examplePropertyTest: 'Test'
-                }
-            }
+                    examplePropertyTest: 'Test',
+                },
+            },
         });
 
         expect(global.console.warn).toHaveBeenCalled();
@@ -98,18 +98,18 @@ describe('app/plugins/deprecated.plugin', () => {
                         type: String,
                         required: false,
                         deprecated: {
-                            version: '6.4.0'
+                            version: '6.4.0',
                         },
-                        default: 'Lorem ipsum'
-                    }
-                }
+                        default: 'Lorem ipsum',
+                    },
+                },
             },
 
             customOptions: {
                 propsData: {
-                    examplePropertyTest: 'Test'
-                }
-            }
+                    examplePropertyTest: 'Test',
+                },
+            },
         });
 
         expect(global.console.warn).toHaveBeenCalled();
@@ -123,16 +123,16 @@ describe('app/plugins/deprecated.plugin', () => {
                         type: String,
                         required: false,
                         deprecated: '6.4.0',
-                        default: 'Lorem ipsum'
-                    }
-                }
+                        default: 'Lorem ipsum',
+                    },
+                },
             },
 
             customOptions: {
                 propsData: {
-                    examplePropertyTest: 'Test'
-                }
-            }
+                    examplePropertyTest: 'Test',
+                },
+            },
         });
 
         const firstCall = global.console.warn.mock.calls[0];
@@ -151,18 +151,18 @@ describe('app/plugins/deprecated.plugin', () => {
                         type: String,
                         required: false,
                         deprecated: {
-                            version: '6.4.0'
+                            version: '6.4.0',
                         },
-                        default: 'Lorem ipsum'
-                    }
-                }
+                        default: 'Lorem ipsum',
+                    },
+                },
             },
 
             customOptions: {
                 propsData: {
-                    examplePropertyTest: 'Test'
-                }
-            }
+                    examplePropertyTest: 'Test',
+                },
+            },
         });
 
         const firstCall = global.console.warn.mock.calls[0];
@@ -181,16 +181,16 @@ describe('app/plugins/deprecated.plugin', () => {
                         type: String,
                         required: false,
                         deprecated: '6.4.0',
-                        default: 'Lorem ipsum'
-                    }
-                }
+                        default: 'Lorem ipsum',
+                    },
+                },
             },
 
             customOptions: {
                 propsData: {
-                    example: 'Test'
-                }
-            }
+                    example: 'Test',
+                },
+            },
         });
 
         const secondCall = global.console.warn.mock.calls[1];
@@ -208,18 +208,18 @@ describe('app/plugins/deprecated.plugin', () => {
                         required: false,
                         deprecated: {
                             version: '6.4.0',
-                            comment: 'Dale a tu cuerpo alegria, Macarena. \n Hey Macarena'
+                            comment: 'Dale a tu cuerpo alegria, Macarena. \n Hey Macarena',
                         },
-                        default: 'Lorem ipsum'
-                    }
-                }
+                        default: 'Lorem ipsum',
+                    },
+                },
             },
 
             customOptions: {
                 propsData: {
-                    examplePropertyTest: 'Test'
-                }
-            }
+                    examplePropertyTest: 'Test',
+                },
+            },
         });
 
         const firstCall = global.console.warn.mock.calls[0];
@@ -230,8 +230,8 @@ describe('app/plugins/deprecated.plugin', () => {
     it('[component] should throw an deprecation warning if the deprecated (string) component is used', async () => {
         createComponent({
             customComponent: {
-                deprecated: '6.4.0'
-            }
+                deprecated: '6.4.0',
+            },
         });
 
         const firstCall = global.console.warn.mock.calls[0];
@@ -245,9 +245,9 @@ describe('app/plugins/deprecated.plugin', () => {
         createComponent({
             customComponent: {
                 deprecated: {
-                    version: '6.4.0'
-                }
-            }
+                    version: '6.4.0',
+                },
+            },
         });
 
         const firstCall = global.console.warn.mock.calls[0];
@@ -262,9 +262,9 @@ describe('app/plugins/deprecated.plugin', () => {
             customComponent: {
                 deprecated: {
                     version: '6.4.0',
-                    comment: 'Summer of 69'
-                }
-            }
+                    comment: 'Summer of 69',
+                },
+            },
         });
 
         const firstCall = global.console.warn.mock.calls[0];
@@ -280,9 +280,9 @@ describe('app/plugins/deprecated.plugin', () => {
             customComponent: {
                 deprecated: {
                     version: '6.4.0',
-                    comment: 'Summer of 69'
-                }
-            }
+                    comment: 'Summer of 69',
+                },
+            },
         });
 
         const secondCall = global.console.warn.mock.calls[1];
@@ -298,7 +298,7 @@ describe('app/plugins/deprecated.plugin', () => {
                 <div>
                     <deprecated-component></deprecated-component>
                 </div>
-                `
+                `,
             },
 
             customOptions: {
@@ -306,10 +306,10 @@ describe('app/plugins/deprecated.plugin', () => {
                     'deprecated-component': {
                         name: 'deprecated-component',
                         template: '<div></div>',
-                        deprecated: '6.4.0'
-                    }
-                }
-            }
+                        deprecated: '6.4.0',
+                    },
+                },
+            },
         });
 
         const secondCall = global.console.warn.mock.calls[1];
@@ -319,7 +319,7 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(secondCall[1]).toEqual(expect.stringContaining('base-component'));
         expect(secondCall[1]).toMatch(
             ' --> deprecated-component \n' +
-            '      base-component '
+            '      base-component ',
         );
     });
 });

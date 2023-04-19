@@ -18,13 +18,13 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('should contain all public functions', async () => {
-        expect(typeof importExportProfileMappingService.validate).toEqual('function');
+        expect(typeof importExportProfileMappingService.validate).toBe('function');
     });
 
     it('product: should not find any missing required fields', async () => {
         const invalidFields = importExportProfileMappingService.validate('product', mappings.productProfileOnlyRequired);
 
-        expect(invalidFields.missingRequiredFields.length).toEqual(0);
+        expect(invalidFields.missingRequiredFields).toHaveLength(0);
     });
 
     [
@@ -34,13 +34,13 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         'stock',
         'productManufacturerVersionId',
         'taxId',
-        'productNumber'
+        'productNumber',
     ].forEach(fieldName => {
         it(`product: should find missing required field ${fieldName}`, async () => {
             const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== fieldName);
             const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
-            expect(invalidFields.missingRequiredFields.length).toEqual(1);
+            expect(invalidFields.missingRequiredFields).toHaveLength(1);
             expect(invalidFields.missingRequiredFields).toContain(fieldName);
         });
     });
@@ -49,7 +49,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'translations.DEFAULT.name');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
-        expect(invalidFields.missingRequiredFields.length).toEqual(1);
+        expect(invalidFields.missingRequiredFields).toHaveLength(1);
         expect(invalidFields.missingRequiredFields).toContain('name');
     });
 
@@ -57,7 +57,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'translations.DEFAULT.createdAt');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
-        expect(invalidFields.missingRequiredFields.length).toEqual(1);
+        expect(invalidFields.missingRequiredFields).toHaveLength(1);
         expect(invalidFields.missingRequiredFields).toContain('createdAt');
     });
 
@@ -75,7 +75,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'stock',
             'name',
             'cmsPageVersionId',
-            'createdAt'
+            'createdAt',
         ].sort());
     });
 
@@ -84,7 +84,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const invalidFields = importExportProfileMappingService.validate(
             'product',
             mapping,
-            mappings.productDuplicateProfileOnlyRequired
+            mappings.productDuplicateProfileOnlyRequired,
         );
 
         expect(invalidFields.missingRequiredFields).toEqual(['id', 'taxId']);
@@ -94,10 +94,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const invalidFields = importExportProfileMappingService.validate(
             'product',
             mappings.productDuplicateProfileOnlyRequired,
-            mappings.productDuplicateProfileOnlyRequired
+            mappings.productDuplicateProfileOnlyRequired,
         );
 
-        expect(invalidFields.missingRequiredFields.length).toEqual(0);
+        expect(invalidFields.missingRequiredFields).toHaveLength(0);
     });
 
     it('product: should find missing required when key.id is existing', async () => {
@@ -107,10 +107,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
                 {
                     id: 'fc416f509b0b46fabb8cd8728cf63531',
                     key: 'tax.id',
-                    mappedKey: 'tax_id'
-                }
+                    mappedKey: 'tax_id',
+                },
             ],
-            mappings.productDuplicateProfileOnlyRequired
+            mappings.productDuplicateProfileOnlyRequired,
         );
 
         expect(invalidFields.missingRequiredFields).toEqual(['id', 'productNumber']);
@@ -118,13 +118,13 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     it('media: should not find any missing required fields', async () => {
         const invalidFields = importExportProfileMappingService.validate('media', mappings.mediaProfileOnlyRequired);
-        expect(invalidFields.missingRequiredFields.length).toEqual(0);
+        expect(invalidFields.missingRequiredFields).toHaveLength(0);
     });
 
     it('media: should find missing required field id', async () => {
         const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'id');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
-        expect(invalidFields.missingRequiredFields.length).toEqual(1);
+        expect(invalidFields.missingRequiredFields).toHaveLength(1);
         expect(invalidFields.missingRequiredFields).toContain('id');
     });
 
@@ -132,7 +132,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'translations.DEFAULT.createdAt');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
 
-        expect(invalidFields.missingRequiredFields.length).toEqual(1);
+        expect(invalidFields.missingRequiredFields).toHaveLength(1);
         expect(invalidFields.missingRequiredFields).toContain('createdAt');
     });
 
@@ -144,7 +144,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'displayNestedProducts',
             'type',
             'productAssignmentType',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -156,7 +156,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'displayNestedProducts',
             'type',
             'productAssignmentType',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -168,7 +168,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'position',
             'type',
             'product.id',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -189,7 +189,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -197,7 +197,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('media', 1);
 
         expect(Object.keys(systemRequiredFields)).toEqual([
-            'id'
+            'id',
         ]);
     });
 
@@ -205,7 +205,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('media', 3);
 
         expect(Object.keys(systemRequiredFields)).toEqual([
-            'id'
+            'id',
         ]);
     });
 
@@ -218,7 +218,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'status',
             'hash',
             'language.id',
-            'salesChannel.id'
+            'salesChannel.id',
         ]);
     });
 
@@ -266,7 +266,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.navigationCategory.displayNestedProducts',
             'salesChannel.navigationCategory.type',
             'salesChannel.navigationCategory.productAssignmentType',
-            'salesChannel.navigationCategory.translations.DEFAULT.name'
+            'salesChannel.navigationCategory.translations.DEFAULT.name',
         ]);
     });
 
@@ -280,7 +280,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'productNumber',
             'stock',
             'tax.id',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -297,7 +297,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'tax.taxRate',
             'tax.name',
             'tax.position',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -307,7 +307,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(Object.keys(systemRequiredFields)).toEqual([
             'id',
             'group.id',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -320,7 +320,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'group.displayType',
             'group.sortingType',
             'group.translations.DEFAULT.name',
-            'translations.DEFAULT.name'
+            'translations.DEFAULT.name',
         ]);
     });
 
@@ -330,7 +330,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(Object.keys(systemRequiredFields)).toEqual([
             'id',
             'product.id',
-            'option.id'
+            'option.id',
         ]);
     });
 
@@ -354,7 +354,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'option.group.displayType',
             'option.group.sortingType',
             'option.group.translations.DEFAULT.name',
-            'option.translations.DEFAULT.name'
+            'option.translations.DEFAULT.name',
         ]);
     });
 });

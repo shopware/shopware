@@ -21,7 +21,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
         return shallowMount(SwExtensionConfig, {
             localVue,
             propsData: {
-                namespace: 'MyExtension'
+                namespace: 'MyExtension',
             },
             data() {
                 return { extension: null };
@@ -29,9 +29,9 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
             mocks: {
                 $route: {
                     meta: {
-                        $module: null
-                    }
-                }
+                        $module: null,
+                    },
+                },
             },
             stubs: {
                 'sw-meteor-page': await Shopware.Component.build('sw-meteor-page'),
@@ -46,7 +46,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
             },
             provide: {
                 shopwareExtensionService: {
-                    updateExtensionData: jest.fn()
+                    updateExtensionData: jest.fn(),
                 },
                 systemConfigApiService: {
                     getValues: () => {
@@ -54,11 +54,11 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
                             'core.store.apiUri': 'https://api.shopware.com',
                             'core.store.licenseHost': 'sw6.test.shopware.in',
                             'core.store.shopSecret': 'very.s3cret',
-                            'core.store.shopwareId': 'max@muster.com'
+                            'core.store.shopwareId': 'max@muster.com',
                         });
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     }
 
@@ -74,8 +74,8 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
 
         Shopware.State.registerModule('shopwareExtensions', {
             state: {
-                myExtensions: { data: { length: 0, find: () => null, } },
-            }
+                myExtensions: { data: { length: 0, find: () => null } },
+            },
         });
         wrapper = await createWrapper();
     });
@@ -95,7 +95,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
     it('Save click success', async () => {
         wrapper.vm.createNotificationSuccess = jest.fn();
         wrapper.vm.$refs.systemConfig = {
-            saveAll: () => Promise.resolve()
+            saveAll: () => Promise.resolve(),
         };
 
         await wrapper.find('.sw-extension-config__save-action').trigger('click');
@@ -106,7 +106,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
     it('Save click error', async () => {
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.$refs.systemConfig = {
-            saveAll: () => Promise.reject()
+            saveAll: () => Promise.reject(),
         };
 
         await wrapper.find('.sw-extension-config__save-action').trigger('click');
@@ -116,39 +116,39 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
 
     it('shows default header', async () => {
         const iconComponent = wrapper.get('.sw-extension-config__extension-icon img');
-        expect(iconComponent.attributes().src).toEqual('administration/static/img/theme/default_theme_preview.jpg');
-        expect(iconComponent.attributes().alt).toEqual('sw-extension-store.component.sw-extension-config.imageDescription');
+        expect(iconComponent.attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
+        expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
 
         const title = wrapper.get('.sw-meteor-page__smart-bar-title');
-        expect(title.text()).toEqual('MyExtension');
+        expect(title.text()).toBe('MyExtension');
 
         const meta = wrapper.get('.sw-meteor-page__smart-bar-meta');
-        expect(meta.text()).toEqual('');
+        expect(meta.text()).toBe('');
     });
 
     it('shows header for extension details', async () => {
         wrapper.vm.extension = {
             icon: 'icon.png',
             label: 'My extension label',
-            producerName: 'shopware AG'
+            producerName: 'shopware AG',
         };
 
         await wrapper.vm.$nextTick();
         const iconComponent = wrapper.get('.sw-extension-icon img');
-        expect(iconComponent.attributes().src).toEqual('icon.png');
-        expect(iconComponent.attributes().alt).toEqual('sw-extension-store.component.sw-extension-config.imageDescription');
+        expect(iconComponent.attributes().src).toBe('icon.png');
+        expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
 
         const title = wrapper.get('.sw-meteor-page__smart-bar-title');
-        expect(title.text()).toEqual('My extension label');
+        expect(title.text()).toBe('My extension label');
 
         const meta = wrapper.get('.sw-meteor-page__smart-bar-meta');
-        expect(meta.text()).toEqual('sw-extension-store.component.sw-extension-config.labelBy shopware AG');
+        expect(meta.text()).toBe('sw-extension-store.component.sw-extension-config.labelBy shopware AG');
     });
 
     it('shows header for extension details with producer website', async () => {
         wrapper.vm.extension = {
             producerName: 'shopware AG',
-            producerWebsite: 'https://www.shopware.com/'
+            producerWebsite: 'https://www.shopware.com/',
         };
 
         await wrapper.vm.$nextTick();
@@ -156,13 +156,13 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
         expect(meta.text()).toContain('sw-extension-store.component.sw-extension-config.labelBy');
 
         const metaLink = wrapper.get('.sw-extension-config__producer-link');
-        expect(metaLink.attributes().href).toEqual('https://www.shopware.com/');
-        expect(metaLink.text()).toEqual('shopware AG');
+        expect(metaLink.attributes().href).toBe('https://www.shopware.com/');
+        expect(metaLink.text()).toBe('shopware AG');
     });
 
     it('saves from route when router navigates to sw-extension-config page', async () => {
         const fromRoute = {
-            name: 'from.route.name'
+            name: 'from.route.name',
         };
 
         SwExtensionConfig.beforeRouteEnter.call(

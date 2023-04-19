@@ -13,15 +13,15 @@ describe('src/app/init/tabs.init', () => {
             options: {
                 routes: {
                     find: () => {},
-                }
+                },
             },
             replace: () => {},
             beforeEach: () => {},
             addRoutes: () => {},
             currentRoute: {
                 fullPath: 'sw/foo-component-section-id',
-                matched: []
-            }
+                matched: [],
+            },
         };
     });
 
@@ -39,14 +39,14 @@ describe('src/app/init/tabs.init', () => {
         // add tab
         await ui.tabs('foo-position-id').addTabItem({
             label: 'My tab item',
-            componentSectionId: 'foo-component-section-id'
+            componentSectionId: 'foo-component-section-id',
         });
 
         // Check if value was registered correctly
         expect(Shopware.State.get('tabs').tabItems).toHaveProperty('foo-position-id');
         expect(Shopware.State.get('tabs').tabItems['foo-position-id']).toEqual([{
             label: 'My tab item',
-            componentSectionId: 'foo-component-section-id'
+            componentSectionId: 'foo-component-section-id',
         }]);
     });
 });

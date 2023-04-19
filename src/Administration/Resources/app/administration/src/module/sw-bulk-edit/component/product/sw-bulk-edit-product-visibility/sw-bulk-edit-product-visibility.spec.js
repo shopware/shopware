@@ -24,8 +24,8 @@ async function createWrapper() {
                             return Promise.resolve();
                         },
                     };
-                }
-            }
+                },
+            },
         },
         propsData: {
             bulkEditProduct: {},
@@ -77,7 +77,7 @@ describe('sw-bulk-edit-product-visibility', () => {
         expect(wrapper.find('.sw-card__quick-link.advanced-visibility').classes()).toContain('is--disabled');
 
         await wrapper.setProps({ disabled: false });
-        expect(wrapper.find('sw-product-visibility-select-stub').attributes().disabled).toBe(undefined);
+        expect(wrapper.find('sw-product-visibility-select-stub').attributes().disabled).toBeUndefined();
         expect(wrapper.find('.sw-card__quick-link.advanced-visibility').classes()).not.toContain('is--disabled');
     });
 });

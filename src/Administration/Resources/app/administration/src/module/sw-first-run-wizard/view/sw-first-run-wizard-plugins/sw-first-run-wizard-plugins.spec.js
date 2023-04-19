@@ -24,9 +24,9 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                                     categories: [
                                         {
                                             name: 'payment',
-                                            label: 'Payment'
-                                        }
-                                    ]
+                                            label: 'Payment',
+                                        },
+                                    ],
                                 },
                                 {
                                     name: 'europe',
@@ -34,9 +34,9 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                                     categories: [
                                         {
                                             name: 'shipping',
-                                            label: 'Shipping'
-                                        }
-                                    ]
+                                            label: 'Shipping',
+                                        },
+                                    ],
                                 },
                                 {
                                     name: 'oceania',
@@ -44,11 +44,11 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                                     categories: [
                                         {
                                             name: 'other',
-                                            label: 'Other'
-                                        }
-                                    ]
-                                }
-                            ]
+                                            label: 'Other',
+                                        },
+                                    ],
+                                },
+                            ],
                         });
                     },
                     getRecommendations() {
@@ -60,21 +60,21 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                                     iconPath: '',
                                     label: 'Payment provider',
                                     manufacturer: 'Jon Doe Company',
-                                    shortDescription: 'Lorem ipsum'
-                                }
-                            ]
+                                    shortDescription: 'Lorem ipsum',
+                                },
+                            ],
                         });
-                    }
-                }
+                    },
+                },
             },
             stubs: {
                 'sw-loader': true,
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-label': await Shopware.Component.build('sw-label'),
-                'sw-plugin-card': true
-            }
+                'sw-plugin-card': true,
+            },
         });
     }
 
@@ -104,7 +104,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
         await regionLabel.trigger('click');
 
         const allCategoryLabels = wrapper.findAll('.sw-label-category');
-        expect(allCategoryLabels.length).toBe(1);
+        expect(allCategoryLabels).toHaveLength(1);
     });
 
     it('should show plugins when clicking on a category label', async () => {

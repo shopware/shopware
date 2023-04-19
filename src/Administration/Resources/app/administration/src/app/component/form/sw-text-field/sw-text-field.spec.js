@@ -21,12 +21,12 @@ async function createWrapper(options = {}) {
             'sw-base-field': await Component.build('sw-base-field'),
             'sw-contextual-field': await Component.build('sw-contextual-field'),
             'sw-block-field': await Component.build('sw-block-field'),
-            'sw-field-error': true
+            'sw-field-error': true,
         },
         provide: {
-            validationService: {}
+            validationService: {},
         },
-        ...options
+        ...options,
     });
 }
 
@@ -43,9 +43,9 @@ describe('src/app/component/form/sw-text-field', () => {
 
         data() {
             return {
-                mockVar: 'content'
+                mockVar: 'content',
             };
-        }
+        },
     });
 
     const createUsageWrapper = async () => shallowMount(await Component.build('sw-text-field-mock'), {
@@ -55,11 +55,11 @@ describe('src/app/component/form/sw-text-field', () => {
             'sw-base-field': await Component.build('sw-base-field'),
             'sw-contextual-field': await Component.build('sw-contextual-field'),
             'sw-block-field': await Component.build('sw-block-field'),
-            'sw-field-error': true
+            'sw-field-error': true,
         },
         provide: {
-            validationService: {}
-        }
+            validationService: {},
+        },
     });
 
     beforeEach(async () => {
@@ -90,8 +90,8 @@ describe('src/app/component/form/sw-text-field', () => {
         const wrapper = await createWrapper({
             attrs: {
                 maxlength: '12',
-                minlength: '4'
-            }
+                minlength: '4',
+            },
         });
 
         expect(wrapper.find('input[type="text"]').attributes().maxlength).toBe('12');
@@ -101,23 +101,23 @@ describe('src/app/component/form/sw-text-field', () => {
     it('should show the label from the property', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                label: 'Label from prop'
-            }
+                label: 'Label from prop',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 });

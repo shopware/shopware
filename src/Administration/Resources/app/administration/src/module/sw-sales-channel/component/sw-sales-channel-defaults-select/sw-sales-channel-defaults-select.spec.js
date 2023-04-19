@@ -15,7 +15,7 @@ async function createWrapper(customProps = {}) {
         stubs: {
             'sw-container': true,
             'sw-entity-multi-select': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
         },
         propsData: {
             salesChannel: salesChannel,
@@ -23,8 +23,8 @@ async function createWrapper(customProps = {}) {
             propertyLabel: '',
             defaultPropertyName: '',
             defaultPropertyLabel: '',
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -47,7 +47,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select
 
     it('should have selects disabled', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const multiSelect = wrapper.find('sw-entity-multi-select-stub');

@@ -31,18 +31,18 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
                             creationDate: {
                                 date: '2021-01-13 08:12:08.000000',
                                 timezone_type: 1,
-                                timezone: '+01:00'
-                            }
-                        }
+                                timezone: '+01:00',
+                            },
+                        },
                     ],
-                    extensions: []
-                }
+                    extensions: [],
+                },
             },
             stubs: {
                 'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
                 'sw-icon': true,
-                'sw-extension-review-reply': true
-            }
+                'sw-extension-review-reply': true,
+            },
         });
     }
 

@@ -25,7 +25,7 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot name="toolbar"></slot><slot name="grid"></slot></div>'
+                template: '<div class="sw-card"><slot name="toolbar"></slot><slot name="grid"></slot></div>',
             },
             'sw-loader': true,
             'sw-empty-state': true,
@@ -42,9 +42,9 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
             'sw-card-filter': true,
             'router-link': {
                 template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
-                props: ['to']
+                props: ['to'],
             },
-            'sw-alert': true
+            'sw-alert': true,
         },
         propsData: {
             ruleId: 'uuid1',
@@ -52,9 +52,9 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
                 name: 'Test rule',
                 priority: 7,
                 description: 'Lorem ipsum',
-                type: ''
+                type: '',
             },
-            ...customProps
+            ...customProps,
         },
         provide: {
             validationService: {},
@@ -62,7 +62,7 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
                 startEventListener: () => {
                 },
                 stopEventListener: () => {
-                }
+                },
             },
 
             repositoryFactory: {
@@ -72,7 +72,7 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
                             const entities = [
                                 { name: 'Foo' },
                                 { name: 'Bar' },
-                                { name: 'Baz' }
+                                { name: 'Baz' },
                             ];
 
                             if (api.inheritance) {
@@ -84,18 +84,18 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
                             }
 
                             return Promise.resolve(createEntityCollectionMock(entityName));
-                        }
+                        },
                     };
-                }
+                },
             },
 
             ruleConditionDataProviderService: {
                 getRestrictedAssociations: () => {},
                 getTranslatedConditionViolationList: () => { return 'text'; },
                 isRuleRestricted: () => { return true; },
-                getRestrictedRuleTooltipConfig: () => ({ message: 'tooltipConfig', disabled: true })
+                getRestrictedRuleTooltipConfig: () => ({ message: 'tooltipConfig', disabled: true }),
             },
-        }
+        },
     });
 }
 
@@ -112,7 +112,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'shipping_method',
             'payment_method',
             'promotion',
-            'flow'
+            'flow',
         ]);
 
         expect(wrapper.vm.associationEntities).toEqual(
@@ -126,8 +126,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
                     entityName: expect.any(String),
                     gridColumns: expect.any(Array),
                     loadedData: expect.any(Array),
-                })
-            ])
+                }),
+            ]),
         );
     });
 
@@ -137,14 +137,14 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'shipping_method',
             'payment_method',
             'promotion',
-            'flow'
+            'flow',
         ]);
         await flushPromises();
 
         const expectedEntityCollectionResult = expect.arrayContaining([
             expect.objectContaining({ name: 'Foo' }),
             expect.objectContaining({ name: 'Bar' }),
-            expect.objectContaining({ name: 'Baz' })
+            expect.objectContaining({ name: 'Baz' }),
         ]);
 
         expect(wrapper.vm.associationEntities).toEqual(
@@ -155,9 +155,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
                     repository: expect.any(Object),
                     gridColumns: expect.any(Array),
                     criteria: expect.any(Function),
-                    loadedData: expectedEntityCollectionResult // Expect loaded data
-                })
-            ])
+                    loadedData: expectedEntityCollectionResult, // Expect loaded data
+                }),
+            ]),
         );
     });
 
@@ -167,7 +167,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'shipping_method',
             'payment_method',
             'promotion',
-            'flow'
+            'flow',
         ]);
         await flushPromises();
 
@@ -249,7 +249,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const productAssignments = wrapper.findAll('.sw-settings-rule-detail-assignments__entity-listing-product .sw-data-grid__cell--name');
 
         // expect the right amount of items
-        expect(productAssignments.length).toBe(4);
+        expect(productAssignments).toHaveLength(4);
 
         const validNames = ['Foo', 'Bar', 'Baz', 'Inherited'];
 
@@ -261,7 +261,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
     it('should have the right link inside the template', async () => {
         const wrapper = await createWrapper([
-            'promotion'
+            'promotion',
         ]);
         await flushPromises();
 
@@ -288,6 +288,6 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper();
         const config = wrapper.vm.getTooltipConfig({});
 
-        expect(config.message).toEqual('tooltipConfig');
+        expect(config.message).toBe('tooltipConfig');
     });
 });

@@ -11,8 +11,8 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         return shallowMount(await Shopware.Component.build('sw-settings-mailer'), {
             stubs: {
                 'sw-page': {
-                    template: '<div />'
-                }
+                    template: '<div />',
+                },
             },
             provide: {
                 systemConfigApiService: {
@@ -26,11 +26,11 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                         'core.mailerSettings.authenticationMethod': 'null',
                         'core.mailerSettings.senderAddress': null,
                         'core.mailerSettings.deliveryAddress': null,
-                        'core.mailerSettings.disableDelivery': false
+                        'core.mailerSettings.disableDelivery': false,
                     }),
-                    saveValues: () => Promise.resolve()
-                }
-            }
+                    saveValues: () => Promise.resolve(),
+                },
+            },
         });
     };
 
@@ -62,7 +62,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true
+            'core.mailerSettings.disableDelivery': true,
         };
 
         settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
@@ -85,7 +85,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true
+            'core.mailerSettings.disableDelivery': true,
         };
 
         settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
@@ -100,8 +100,8 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         const wrapper = await new CreateSettingsMailer('smtp');
         await flushPromises();
 
-        expect(wrapper.vm.smtpHostError).toBe(null);
-        expect(wrapper.vm.smtpPortError).toBe(null);
+        expect(wrapper.vm.smtpHostError).toBeNull();
+        expect(wrapper.vm.smtpPortError).toBeNull();
 
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -120,7 +120,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
         wrapper.vm.resetSmtpHostError();
 
-        expect(wrapper.vm.smtpHostError).toBe(null);
+        expect(wrapper.vm.smtpHostError).toBeNull();
     });
 
     it('should reset smtp port error', async () => {
@@ -130,6 +130,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
         wrapper.vm.resetSmtpPortError();
 
-        expect(wrapper.vm.smtpPortError).toBe(null);
+        expect(wrapper.vm.smtpPortError).toBeNull();
     });
 });

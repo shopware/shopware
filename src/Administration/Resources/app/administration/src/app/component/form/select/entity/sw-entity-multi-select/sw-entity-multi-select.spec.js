@@ -17,7 +17,7 @@ import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/base/sw-icon';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] }
+    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
 ];
 
 const propertyFixture = [
@@ -25,23 +25,23 @@ const propertyFixture = [
         id: utils.createId(),
         name: 'first entry',
         group: {
-            name: 'example'
-        }
+            name: 'example',
+        },
     },
     {
         id: utils.createId(),
         name: 'second entry',
         group: {
-            name: 'example'
-        }
+            name: 'example',
+        },
     },
     {
         id: utils.createId(),
         name: 'third',
         group: {
-            name: 'entry'
-        }
-    }
+            name: 'entry',
+        },
+    },
 ];
 
 function getCollection() {
@@ -52,7 +52,7 @@ function getCollection() {
         { isShopwareContext: true },
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 
@@ -64,7 +64,7 @@ function getPropertyCollection() {
         { isShopwareContext: true },
         propertyFixture,
         propertyFixture.length,
-        null
+        null,
     );
 }
 
@@ -90,31 +90,31 @@ const createEntityMultiSelect = async (customOptions) => {
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
             'icons-regular-checkmark-xs': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'icons-regular-chevron-down-xs': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         propsData: {
             entity: 'test',
-            entityCollection: getCollection()
+            entityCollection: getCollection(),
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
                         get: (value) => Promise.resolve({ id: value, name: value }),
-                        search: () => Promise.resolve(getCollection())
+                        search: () => Promise.resolve(getCollection()),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-multi-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -129,17 +129,17 @@ describe('components/sw-entity-multi-select', () => {
         const swEntityMultiSelect = await createEntityMultiSelect({
             propsData: {
                 entity: 'property_group_option',
-                entityCollection: getPropertyCollection()
+                entityCollection: getPropertyCollection(),
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
 
         swEntityMultiSelect.vm.loadData();
@@ -167,8 +167,8 @@ describe('components/sw-entity-multi-select', () => {
                 value: fixture[0].id,
                 entity: 'test',
                 entityCollection: getCollection(),
-                displayVariants: true
-            }
+                displayVariants: true,
+            },
         });
 
         const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
@@ -193,21 +193,21 @@ describe('components/sw-entity-multi-select', () => {
                     </template>`,
                 'result-description-property': `<template>
                         {{ props.item.group.name }}
-                    </template>`
+                    </template>`,
             },
             propsData: {
                 entity: 'property_group_option',
-                entityCollection: getPropertyCollection()
+                entityCollection: getPropertyCollection(),
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
 
         swEntityMultiSelect.vm.loadData();
@@ -235,18 +235,18 @@ describe('components/sw-entity-multi-select', () => {
                     { isShopwareContext: true },
                     [getPropertyCollection().at(0)],
                     1,
-                    null
-                )
+                    null,
+                ),
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
 
         swEntityMultiSelect.vm.loadData();

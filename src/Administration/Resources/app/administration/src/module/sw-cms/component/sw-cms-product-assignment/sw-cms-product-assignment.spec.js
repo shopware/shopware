@@ -20,28 +20,28 @@ async function createWrapper() {
         stubs: {
             'sw-select-base': {
                 template: '<div class="sw-select-base"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-data-grid': {
                 template: '<div><slot name="actions"></slot></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-context-menu-item': {
                 template: '<div class="sw-context-menu-item"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-card': {
-                template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>'
-            }
+                template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
+            },
         },
         provide: {
-            repositoryFactory: {}
+            repositoryFactory: {},
         },
         propsData: {
             columns: [],
             entityCollection: createEntityCollection(),
             localMode: true,
-        }
+        },
     });
 }
 

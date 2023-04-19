@@ -24,7 +24,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 'sw-button': true,
                 'sw-media-url-form': true,
                 'sw-media-preview-v2': true,
-                'sw-context-menu-divider': true
+                'sw-context-menu-divider': true,
             },
             provide: {
                 repositoryFactory: {},
@@ -35,11 +35,11 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                     addListener: () => {},
                     removeByTag: () => {},
                     removeListener: () => {},
-                }
+                },
             },
             propsData: {
-                uploadTag: 'my-upload'
-            }
+                uploadTag: 'my-upload',
+            },
         });
     });
 
@@ -55,7 +55,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
 
     it('should contain "application/pdf" value', async () => {
         await wrapper.setProps({
-            fileAccept: 'application/pdf'
+            fileAccept: 'application/pdf',
         });
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
@@ -64,7 +64,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
 
     it('should contain url upload form when input type is url-upload', async () => {
         await wrapper.setData({
-            inputType: 'file-upload'
+            inputType: 'file-upload',
         });
 
         let urlForm = wrapper.find('.sw-media-upload-v2__url-form');
@@ -74,7 +74,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         expect(uploadBtn.exists()).toBeTruthy();
 
         await wrapper.setData({
-            inputType: 'url-upload'
+            inputType: 'url-upload',
         });
 
         urlForm = wrapper.find('.sw-media-upload-v2__url-form');
@@ -91,9 +91,9 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 {
                     id: '1',
                     fileName: 'example',
-                    fileExtension: 'jpg'
-                }
-            ]
+                    fileExtension: 'jpg',
+                },
+            ],
         });
 
         await wrapper.vm.$nextTick();
@@ -102,8 +102,8 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             {
                 id: '1',
                 fileName: 'example',
-                fileExtension: 'jpg'
-            }
+                fileExtension: 'jpg',
+            },
         ]);
     });
 
@@ -124,19 +124,19 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             source: {
                 fileName: 'example',
                 fileExtension: 'jpg',
-            }
+            },
         });
 
         expect(wrapper.vm.mediaPreview).toEqual({
             fileName: 'example',
-            fileExtension: 'jpg'
+            fileExtension: 'jpg',
         });
     });
 
     it('should show a fallback in single mode when no file has been provided', async () => {
         await wrapper.setProps({
             allowMultiSelect: false,
-            source: null
+            source: null,
         });
 
         expect(wrapper.vm.mediaPreview).toBeNull();
@@ -147,8 +147,8 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             {
                 id: '1',
                 fileName: 'hello-world',
-                fileExtension: 'gif'
-            }
+                fileExtension: 'gif',
+            },
         ]);
 
         const events = wrapper.emitted('selection-change');
@@ -159,10 +159,10 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 {
                     id: '1',
                     fileName: 'hello-world',
-                    fileExtension: 'gif'
-                }
+                    fileExtension: 'gif',
+                },
             ],
-            'my-upload'
+            'my-upload',
         ]);
     });
 
@@ -171,7 +171,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
 
         const name = wrapper.vm.getFileName(file);
 
-        expect(name).toEqual('example.jpg');
+        expect(name).toBe('example.jpg');
     });
 
     it('should return correct file name when using media object from the database', () => {
@@ -180,7 +180,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             fileExtension: 'jpg',
         });
 
-        expect(name).toEqual('example.jpg');
+        expect(name).toBe('example.jpg');
     });
 
     it('should render optional remove button label when corresponding prop is passed', async () => {
@@ -190,17 +190,17 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 {
                     id: '1',
                     fileName: 'example',
-                    fileExtension: 'jpg'
-                }
-            ]
+                    fileExtension: 'jpg',
+                },
+            ],
         });
         const removeButton = wrapper.find('.sw-media-upload-v2__delete-item-button');
-        expect(removeButton.text()).toEqual('global.sw-product-image.context.buttonRemove');
+        expect(removeButton.text()).toBe('global.sw-product-image.context.buttonRemove');
 
         await wrapper.setProps({
-            removeButtonLabel: 'test'
+            removeButtonLabel: 'test',
         });
-        expect(removeButton.text()).toEqual('test');
+        expect(removeButton.text()).toBe('test');
     });
 
     it('should disable deletion option in context menu when the disableDeletion is enabled and multiselect source length is lower or equal 1', async () => {
@@ -208,12 +208,12 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             allowMultiSelect: true,
             disableDeletionForLastItem: {
                 value: true,
-                helpText: 'example'
+                helpText: 'example',
             },
             sourceMultiselect: [{
                 fileName: 'example',
                 fileExtension: 'jpg',
-            }]
+            }],
         });
 
         expect(wrapper.find('.sw-context-menu-item__buttonRemove').attributes('disabled')).toBeTruthy();

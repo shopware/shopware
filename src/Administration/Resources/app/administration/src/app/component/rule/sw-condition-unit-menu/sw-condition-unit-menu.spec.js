@@ -14,7 +14,7 @@ async function createWrapper({
         },
         stubs: {
             'sw-icon': true,
-            'sw-popover': true
+            'sw-popover': true,
         },
     });
 }
@@ -148,7 +148,7 @@ describe('components/rule/sw-condition-unit-menu', () => {
         });
 
         await wrapper.find('.sw-condition-unit-menu').trigger('click');
-        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item').length).toBe(4);
+        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item')).toHaveLength(4);
     });
 
     it('should render "dimension" unit options', async () => {
@@ -159,7 +159,7 @@ describe('components/rule/sw-condition-unit-menu', () => {
         });
 
         await wrapper.find('.sw-condition-unit-menu').trigger('click');
-        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item').length).toBe(7);
+        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item')).toHaveLength(7);
     });
 
     it('should render "time" unit options', async () => {
@@ -170,7 +170,7 @@ describe('components/rule/sw-condition-unit-menu', () => {
         });
 
         await wrapper.find('.sw-condition-unit-menu').trigger('click');
-        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item').length).toBe(6);
+        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item')).toHaveLength(6);
     });
 
     it('should render "volume" unit options', async () => {
@@ -181,7 +181,7 @@ describe('components/rule/sw-condition-unit-menu', () => {
         });
 
         await wrapper.find('.sw-condition-unit-menu').trigger('click');
-        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item').length).toBe(5);
+        expect(wrapper.findAll('.sw-condition-unit-menu__menu-item')).toHaveLength(5);
     });
 
     it('should have empty unit options when type is unknown', async () => {

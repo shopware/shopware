@@ -9,16 +9,16 @@ Shopware.Component.register('sw-flow-change-customer-group-modal', swFlowChangeC
 const customerGroupMock = [
     {
         translated: { name: 'Test net group' },
-        id: '1'
+        id: '1',
     },
     {
         translated: { name: 'Test gross group' },
-        id: '2'
+        id: '2',
     },
     {
         translated: { name: 'Test VIP group' },
-        id: '3'
-    }
+        id: '3',
+    },
 ];
 
 async function createWrapper() {
@@ -31,14 +31,14 @@ async function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(customerGroupMock)
+                        search: () => Promise.resolve(customerGroupMock),
                     };
-                }
-            }
+                },
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -49,15 +49,15 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-entity-single-select': {
                 model: {
                     prop: 'value',
-                    event: 'change'
+                    event: 'change',
                 },
                 props: ['value'],
                 template: `
@@ -69,9 +69,9 @@ async function createWrapper() {
                         />
                         <slot></slot>
                     </div>
-                `
-            }
-        }
+                `,
+            },
+        },
     });
 }
 
@@ -110,8 +110,8 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
 
         expect(wrapper.emitted()['process-finish'][0]).toEqual([{
             config: {
-                customerGroupId: '2'
-            }
+                customerGroupId: '2',
+            },
         }]);
     });
 

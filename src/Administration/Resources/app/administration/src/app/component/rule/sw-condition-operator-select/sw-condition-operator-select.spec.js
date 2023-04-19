@@ -4,13 +4,13 @@ import 'src/app/component/rule/sw-condition-operator-select';
 async function createWrapper(customProps = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-operator-select'), {
         stubs: {
-            'sw-single-select': true
+            'sw-single-select': true,
         },
         propsData: {
             condition: {},
             operators: [],
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -30,7 +30,7 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
 
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const singleSelect = wrapper.find('sw-single-select-stub');

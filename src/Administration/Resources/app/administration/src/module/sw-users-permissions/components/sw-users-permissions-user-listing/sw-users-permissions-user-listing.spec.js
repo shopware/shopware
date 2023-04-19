@@ -14,19 +14,19 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             userService: {},
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([])
-                })
+                    search: () => Promise.resolve([]),
+                }),
             },
             loginService: {},
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
-            $route: { query: '' }
+            $route: { query: '' },
         },
         stubs: {
             'sw-card': true,
@@ -41,10 +41,10 @@ async function createWrapper(privileges = []) {
       <slot name="actions" v-bind="{ item }"></slot>
   </template>
 </div>
-`
+`,
             },
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 }
 
@@ -67,20 +67,20 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         const swDataGrid = wrapper.find('.sw-data-grid-stub');
         expect(swDataGrid.props().columns).toStrictEqual([{
             property: 'username',
-            label: 'sw-users-permissions.users.user-grid.labelUsername'
+            label: 'sw-users-permissions.users.user-grid.labelUsername',
         }, {
             property: 'firstName',
-            label: 'sw-users-permissions.users.user-grid.labelFirstName'
+            label: 'sw-users-permissions.users.user-grid.labelFirstName',
         }, {
             property: 'lastName',
-            label: 'sw-users-permissions.users.user-grid.labelLastName'
+            label: 'sw-users-permissions.users.user-grid.labelLastName',
         }, {
             property: 'aclRoles',
             sortable: false,
-            label: 'sw-users-permissions.users.user-grid.labelRoles'
+            label: 'sw-users-permissions.users.user-grid.labelRoles',
         }, {
             property: 'email',
-            label: 'sw-users-permissions.users.user-grid.labelEmail'
+            label: 'sw-users-permissions.users.user-grid.labelEmail',
         }]);
     });
 
@@ -94,15 +94,15 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 username: 'maxmuster',
                 firstName: 'Max',
                 lastName: 'Mustermann',
-                email: 'max@mustermann.com'
+                email: 'max@mustermann.com',
             },
             {
                 localeId: '7dc07b43229843d387bb5f59233c2d66',
                 username: 'admin',
                 firstName: '',
                 lastName: 'admin',
-                email: 'info@shopware.com'
-            }]
+                email: 'info@shopware.com',
+            }],
         });
 
         expect(swDataGrid.props().dataSource).toStrictEqual([{
@@ -110,14 +110,14 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
             username: 'maxmuster',
             firstName: 'Max',
             lastName: 'Mustermann',
-            email: 'max@mustermann.com'
+            email: 'max@mustermann.com',
         },
         {
             localeId: '7dc07b43229843d387bb5f59233c2d66',
             username: 'admin',
             firstName: '',
             lastName: 'admin',
-            email: 'info@shopware.com'
+            email: 'info@shopware.com',
         }]);
     });
 
@@ -144,8 +144,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             user: [
-                {}
-            ]
+                {},
+            ],
         });
 
         const contextMenuEdit = wrapper.find('.sw-settings-user-list__user-view-action');
@@ -160,8 +160,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             user: [
-                {}
-            ]
+                {},
+            ],
         });
 
         const contextMenuEdit = wrapper.find('.sw-settings-user-list__user-view-action');
@@ -176,8 +176,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             user: [
-                {}
-            ]
+                {},
+            ],
         });
 
         const contextMenuEdit = wrapper.find('.sw-settings-user-list__user-view-action');

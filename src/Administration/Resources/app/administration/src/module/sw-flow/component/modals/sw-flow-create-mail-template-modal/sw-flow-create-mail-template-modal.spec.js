@@ -18,13 +18,13 @@ const fieldsClasses = [
     '.sw-flow-create-mail-template-modal__sender-name',
     '.sw-flow-create-mail-template-modal__description',
     '.sw-flow-create-mail-template-modal__content-plain',
-    '.sw-flow-create-mail-template-modal__content-html'
+    '.sw-flow-create-mail-template-modal__content-html',
 ];
 
 const buttonSaveClass = '.sw-flow-create-mail-template-modal__save-button';
 
 let mailTemplate = {
-    mailTemplateTypeId: 'abc'
+    mailTemplateTypeId: 'abc',
 };
 
 const mockMailTemplateData = [
@@ -33,17 +33,17 @@ const mockMailTemplateData = [
         name: 'Cancellation invoice',
         technicalName: 'cancellation_mail',
         translated: {
-            name: 'Double opt-in on guest orders'
-        }
+            name: 'Double opt-in on guest orders',
+        },
     },
 
     {
         id: 'c8576912ec4f4cb7881dc8f7f2c7c412',
         name: 'Customer registration',
         translated: {
-            name: 'Customer registration'
-        }
-    }
+            name: 'Customer registration',
+        },
+    },
 ];
 
 async function createWrapper(privileges = []) {
@@ -61,12 +61,12 @@ async function createWrapper(privileges = []) {
                             name: 'Cancellation invoice',
                             technicalName: 'cancellation_mail',
                             translated: {
-                                name: 'Customer registration'
-                            }
+                                name: 'Customer registration',
+                            },
                         }),
                         search: () => {
                             return Promise.resolve(mockMailTemplateData);
-                        }
+                        },
                     };
                 }
 
@@ -81,8 +81,8 @@ async function createWrapper(privileges = []) {
                         id: 'c8576912ec4f4cb7881dc8f7f2c7c412',
                         name: 'Customer registration',
                         translated: {
-                            name: 'Customer registration'
-                        }
+                            name: 'Customer registration',
+                        },
                     }),
                     save: () => {
                         if (mailTemplate.mailTemplateTypeId) {
@@ -97,21 +97,21 @@ async function createWrapper(privileges = []) {
                                             code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                                             detail: 'This value should not be blank.',
                                             status: '400',
-                                            template: 'This value should not be blank.'
-                                        }
-                                    ]
-                                }
-                            }
+                                            template: 'This value should not be blank.',
+                                        },
+                                    ],
+                                },
+                            },
                         });
-                    }
+                    },
                 };
-            }
+            },
         },
         userInputSanitizeService: {},
         mailService: {},
         validationService: {},
         entityMappingService: {
-            getEntityMapping: () => []
+            getEntityMapping: () => [],
         },
         acl: { can: (identifier) => {
             if (!identifier) {
@@ -123,7 +123,7 @@ async function createWrapper(privileges = []) {
 
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -141,10 +141,10 @@ async function createWrapper(privileges = []) {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-code-editor': await Shopware.Component.build('sw-code-editor'),
             'sw-textarea-field': true,
@@ -152,7 +152,7 @@ async function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-field-error': {
                 props: ['error'],
-                template: '<div class="sw-field__error"></div>'
+                template: '<div class="sw-field__error"></div>',
             },
             'sw-highlight-text': true,
             'sw-select-result': {
@@ -163,14 +163,14 @@ async function createWrapper(privileges = []) {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
-            'sw-loader': true
-        }
+            'sw-loader': true,
+        },
     });
 }
 
@@ -213,7 +213,7 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
 
     it('should show error validation message', async () => {
         mailTemplate = {
-            mailTemplateTypeId: ''
+            mailTemplateTypeId: '',
         };
 
         const wrapper = await createWrapper();

@@ -30,10 +30,10 @@ describe('src/app/component/structure/sw-language-switch', () => {
                                 <slot name="modal-footer"></slot>
                             </div>
                         </div>
-                    `
+                    `,
                 },
-                'sw-button': true
-            }
+                'sw-button': true,
+            },
         });
     });
 
@@ -59,7 +59,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
 
         await wrapper.setProps({
-            abortChangeFunction: () => true
+            abortChangeFunction: () => true,
         });
         await wrapper.vm.onInput('456');
 
@@ -76,7 +76,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         const abortChangeMock = jest.fn(() => true);
 
         await wrapper.setProps({
-            abortChangeFunction: abortChangeMock
+            abortChangeFunction: abortChangeMock,
         });
 
         expect(abortChangeMock).not.toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         expect(abortChangeMock).toHaveBeenCalledWith({
             newLanguageId: '456',
-            oldLanguageId: '123456789'
+            oldLanguageId: '123456789',
         });
 
         const revertButton = wrapper.find('#sw-language-switch-revert-changes-button');
@@ -102,7 +102,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         await wrapper.setProps({
             abortChangeFunction: () => true,
-            saveChangesFunction: saveChangesMock
+            saveChangesFunction: saveChangesMock,
         });
 
         await wrapper.vm.onInput('456');
@@ -123,7 +123,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
 
         await wrapper.setProps({
-            abortChangeFunction: () => true
+            abortChangeFunction: () => true,
         });
         await wrapper.vm.onInput('456');
 
@@ -136,7 +136,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         await wrapper.setProps({
             abortChangeFunction: () => true,
-            allowEdit: false
+            allowEdit: false,
         });
         await wrapper.vm.onInput('456');
 

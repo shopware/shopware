@@ -16,21 +16,21 @@ const userInputSanitizeService = {
     sanitizeInput: jest.fn(() => new Promise((resolve, reject) => {
         if (serviceShouldWork) {
             resolve({
-                preview: sanitizedInput
+                preview: sanitizedInput,
             });
         } else {
             reject(new Error(`this serviceShouldWork is ${serviceShouldWork ? 'true' : 'false'}`));
         }
-    }))
+    })),
 };
 
 async function createWrapper(options = {}) {
     return shallowMount(await Shopware.Component.build('sw-code-editor'), {
         provide: { userInputSanitizeService },
         stubs: {
-            'sw-circle-icon': { template: '<i/>' }
+            'sw-circle-icon': { template: '<i/>' },
         },
-        ...options
+        ...options,
     });
 }
 
@@ -51,8 +51,8 @@ describe('asyncComponents/form/sw-code-editor', () => {
     it('should be read only when disabled', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                disabled: true
-            }
+                disabled: true,
+            },
         });
 
         expect(wrapper.vm.aceConfig.readOnly).toBe(true);
@@ -61,8 +61,8 @@ describe('asyncComponents/form/sw-code-editor', () => {
     it('should sanitize content when `sanitize-input` attibute is true', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                sanitizeInput: true
-            }
+                sanitizeInput: true,
+            },
         });
 
         await wrapper.vm.editor.setValue(vulnerableInput, 1);
@@ -77,7 +77,7 @@ describe('asyncComponents/form/sw-code-editor', () => {
 
         // now switch `sanitize-input` off
         await wrapper.setProps({
-            sanitizeInput: false
+            sanitizeInput: false,
         });
 
         await wrapper.vm.editor.setValue(vulnerableInput, 1);

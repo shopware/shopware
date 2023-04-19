@@ -10,25 +10,25 @@ const purchasePrices = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 20,
     gross: 25,
-    linked: false
+    linked: false,
 };
 const dollarPrice = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 250,
     gross: 123,
-    linked: false
+    linked: false,
 };
 const euroPrice = {
     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     net: 152.33644859813083,
     gross: 163,
-    linked: true
+    linked: true,
 };
 
 const taxRate = {
     name: '7%',
     taxRate: 7,
-    id: 'd9eac12a83984df59a618a5be1342009'
+    id: 'd9eac12a83984df59a618a5be1342009',
 };
 
 const currency = {
@@ -38,14 +38,14 @@ const currency = {
     decimalPrecision: 2,
     factor: 1.17085,
     shortName: 'USD',
-    symbol: '$'
+    symbol: '$',
 };
 
 const defaultPrice = {
     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     gross: 163,
     net: 152.33644859813083,
-    linked: true
+    linked: true,
 };
 
 // initial component setup
@@ -57,12 +57,12 @@ const setup = async (propOverride) => {
         currency,
         defaultPrice,
         enableInheritance: false,
-        ...propOverride
+        ...propOverride,
     };
 
     return shallowMount(await Shopware.Component.build('sw-list-price-field'), {
         stubs: ['sw-price-field'],
-        propsData
+        propsData,
     });
 };
 
@@ -83,7 +83,7 @@ describe('components/form/sw-list-price-field', () => {
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
             gross: parseFloat(''),
             linked: true,
-            net: 1
+            net: 1,
         };
         await wrapper.vm.listPriceChanged(listPrice);
         expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
@@ -95,7 +95,7 @@ describe('components/form/sw-list-price-field', () => {
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
             gross: 1,
             linked: true,
-            net: parseFloat('')
+            net: parseFloat(''),
         };
         await wrapper.vm.listPriceChanged(listPrice);
         expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
@@ -111,7 +111,7 @@ describe('components/form/sw-list-price-field', () => {
     it('should set the correct inherited state when inherited', async () => {
         const wrapper = await setup();
         await wrapper.setProps({
-            price: [euroPrice]
+            price: [euroPrice],
         });
 
         expect(wrapper.vm.isInherited).toBeTruthy();
@@ -121,7 +121,7 @@ describe('components/form/sw-list-price-field', () => {
         const wrapper = await setup();
 
         await wrapper.setProps({
-            price: [dollarPrice]
+            price: [dollarPrice],
         });
 
         expect(wrapper.vm.isInherited).toBeFalsy();
@@ -136,7 +136,7 @@ describe('components/form/sw-list-price-field', () => {
 
     it('should display gross help text when in vertical mode', async () => {
         const wrapper = await setup({
-            vertical: true
+            vertical: true,
         });
 
         expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
@@ -146,7 +146,7 @@ describe('components/form/sw-list-price-field', () => {
     it('should not display gross help text when in compact mode', async () => {
         const wrapper = await setup({
             vertical: true,
-            compact: true
+            compact: true,
         });
 
         expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')

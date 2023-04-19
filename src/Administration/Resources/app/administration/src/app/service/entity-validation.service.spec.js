@@ -11,7 +11,7 @@ function createService() {
     return new EntityValidationService(
         EntityDefinitionFactory,
         new ChangesetGenerator(),
-        new ErrorResolver()
+        new ErrorResolver(),
     );
 }
 
@@ -46,28 +46,28 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(isValid).toBe(false);
 
         // found errors should match
-        expect(service.errorResolver.handleWriteErrors.mock.calls.length).toBe(1);
+        expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual([
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/taxId' }
+                source: { pointer: '/0/taxId' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/price' }
+                source: { pointer: '/0/price' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/productNumber' }
+                source: { pointer: '/0/productNumber' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/stock' }
+                source: { pointer: '/0/stock' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/name' }
-            }
+                source: { pointer: '/0/name' },
+            },
         ]);
     });
 
@@ -83,7 +83,7 @@ describe('src/app/service/entity-validation.service.js', () => {
             {
                 gross: null,
                 net: null,
-            }
+            },
         ];
 
         // validate should return right result
@@ -91,15 +91,15 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(isValid).toBe(false);
 
         // found errors should match
-        expect(service.errorResolver.handleWriteErrors.mock.calls.length).toBe(1);
+        expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual([
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/price/0/net' }
+                source: { pointer: '/0/price/0/net' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/price/0/gross' }
+                source: { pointer: '/0/price/0/gross' },
             },
         ]);
     });
@@ -116,7 +116,7 @@ describe('src/app/service/entity-validation.service.js', () => {
             {
                 gross: 10,
                 net: 10,
-            }
+            },
         ];
 
         // validate should return right result
@@ -124,7 +124,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(isValid).toBe(true);
 
         // found errors should match
-        expect(service.errorResolver.handleWriteErrors.mock.calls.length).toBe(1);
+        expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual([]);
     });
 
@@ -140,7 +140,7 @@ describe('src/app/service/entity-validation.service.js', () => {
             {
                 gross: 10,
                 net: 10,
-            }
+            },
         ];
 
         const customValidator = jest.fn((errors, product) => {
@@ -155,8 +155,8 @@ describe('src/app/service/entity-validation.service.js', () => {
         const expectedErrors = [
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/downloads' }
-            }
+                source: { pointer: '/0/downloads' },
+            },
         ];
 
         // validate should return right result
@@ -164,11 +164,11 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(isValid).toBe(false);
 
         // found errors should match
-        expect(service.errorResolver.handleWriteErrors.mock.calls.length).toBe(1);
+        expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual(expectedErrors);
 
         // custom validator should have been called with the right arguments
-        expect(customValidator.mock.calls.length).toBe(1);
+        expect(customValidator.mock.calls).toHaveLength(1);
         expect(customValidator.mock.calls[0][0]).toEqual(expectedErrors); // initial errors already modified because of array reference
         expect(customValidator.mock.calls[0][1]).toBe(testEntity); // entity
         expect(customValidator.mock.calls[0][2]).toBe(Shopware.EntityDefinition.get(testEntity.getEntityName())); // entity definition

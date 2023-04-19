@@ -24,12 +24,12 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             priority: 1,
                             availabilityRuleId: null,
                             translated: {
-                                name: 'Tax provider one'
-                            }
+                                name: 'Tax provider one',
+                            },
                         });
                     },
-                    save: () => Promise.resolve()
-                })
+                    save: () => Promise.resolve(),
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -38,8 +38,8 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -55,20 +55,20 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': true,
             'sw-button-process': true,
             'sw-skeleton': true,
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>'
+                template: '<div><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-card-view': {
                 template: `
                         <div class="sw-card-view">
                             <slot></slot>
                         </div>
-                    `
+                    `,
             },
             'sw-alert': true,
             'sw-container': true,
@@ -104,14 +104,14 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-tax-tax-provider-detail__save-action'
+            '.sw-settings-tax-tax-provider-detail__save-action',
         );
 
         const taxProviderPriority = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]'
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]'
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');
@@ -124,19 +124,19 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
 
     it('should be able to save the tax provider', async () => {
         const wrapper = await createWrapper([
-            'tax.editor'
+            'tax.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-tax-tax-provider-detail__save-action'
+            '.sw-settings-tax-tax-provider-detail__save-action',
         );
 
         const taxProviderPriority = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]'
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]'
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');
@@ -168,8 +168,8 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
                     availabilityRuleId: null,
                     identifier: 'my-custom-identifier',
                     translated: {
-                        name: 'Tax provider one'
-                    }
+                        name: 'Tax provider one',
+                    },
                 },
         };
         const wrapper = await createWrapper([
@@ -182,7 +182,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         expect(wrapper.vm.hasIdentifier).toBeTruthy();
         expect(extensionComponent.exists()).toBeTruthy();
         expect(extensionComponent.attributes()['position-identifier'])
-            .toEqual('sw-settings-tax-tax-provider-detail-custom-my-custom-identifier');
+            .toBe('sw-settings-tax-tax-provider-detail-custom-my-custom-identifier');
     });
 
 

@@ -17,7 +17,7 @@ async function createWrapper() {
                         create: () => Promise.resolve({ id: '' }),
                     };
                 },
-            }
+            },
 
         },
 
@@ -31,15 +31,15 @@ async function createWrapper() {
                         firstName: 'Quynh',
                         city: 'Berlin',
                         street: 'Legiendamm',
-                        zipcode: '550000'
+                        zipcode: '550000',
                     },
-                ]
-            }
+                ],
+            },
         },
 
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>'
+                template: '<div><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-field': true,
             'sw-button': true,
@@ -54,9 +54,9 @@ async function createWrapper() {
                             </td>
                         </tbody>
                     </div>
-                `
+                `,
             },
-        }
+        },
     });
 }
 

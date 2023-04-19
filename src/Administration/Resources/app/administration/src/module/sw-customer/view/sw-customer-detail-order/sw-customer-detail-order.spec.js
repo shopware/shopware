@@ -14,7 +14,7 @@ const orderFixture = [{
     taxStatus: 'net',
     amountNet: 80,
     amountTotal: 100,
-    orderDate: '2022-05-17T00:00:00.000+00:00'
+    orderDate: '2022-05-17T00:00:00.000+00:00',
 }];
 
 function getOrderCollection(collection = []) {
@@ -25,7 +25,7 @@ function getOrderCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -42,15 +42,15 @@ async function createWrapper(orderData = []) {
                         },
                     };
                 },
-            }
+            },
 
         },
 
         propsData: {
             customerEditMode: false,
             customer: {
-                id: '1234'
-            }
+                id: '1234',
+            },
         },
 
         stubs: {
@@ -62,13 +62,13 @@ async function createWrapper(orderData = []) {
                 </div>`,
             },
             'sw-card-filter': {
-                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>'
+                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
             },
             'sw-empty-state': true,
             'sw-entity-listing': true,
             'sw-button': true,
             'sw-icon': true,
-        }
+        },
     });
 }
 

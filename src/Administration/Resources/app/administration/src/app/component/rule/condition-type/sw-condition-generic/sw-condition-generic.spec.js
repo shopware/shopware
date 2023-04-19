@@ -29,8 +29,8 @@ responses.addResponse({
     url: '/search/currency',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 responses.addResponse({
@@ -41,23 +41,23 @@ responses.addResponse({
         data: [
             {
                 attributes: {
-                    id: 'g.a'
+                    id: 'g.a',
                 },
                 id: 'g.a',
-                relationships: []
+                relationships: [],
             },
             {
                 attributes: {
-                    id: 'g.b'
+                    id: 'g.b',
                 },
                 id: 'g.b',
-                relationships: []
-            }
+                relationships: [],
+            },
         ],
         meta: {
-            total: 2
-        }
-    }
+            total: 2,
+        },
+    },
 });
 
 async function createWrapper(condition = {}) {
@@ -92,16 +92,16 @@ async function createWrapper(condition = {}) {
             'sw-label': true,
             'sw-highlight-text': true,
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-tagged-field': {
-                template: '<div class="sw-tagged-field"></div>'
-            }
+                template: '<div class="sw-tagged-field"></div>',
+            },
         },
         provide: {
             conditionDataProviderService: new ConditionDataProviderService(),
             ruleConditionsConfigApiService: {
-                load: () => Promise.resolve()
+                load: () => Promise.resolve(),
             },
             availableTypes: {},
             availableGroups: [],
@@ -111,12 +111,12 @@ async function createWrapper(condition = {}) {
             removeNodeFromTree: () => ({}),
             createCondition: () => ({}),
             conditionScopes: [],
-            unwrapAllLineItemsCondition: () => ({})
+            unwrapAllLineItemsCondition: () => ({}),
         },
         propsData: {
-            condition
+            condition,
         },
-        mixins: [Shopware.Mixin.getByName('generic-condition')]
+        mixins: [Shopware.Mixin.getByName('generic-condition')],
     });
 }
 
@@ -133,7 +133,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
     it('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
-            type: 'customerCustomerGroup'
+            type: 'customerCustomerGroup',
         });
         await flushPromises();
 
@@ -145,7 +145,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.find('.sw-select-option--1').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.operator).toEqual('!=');
+        expect(wrapper.vm.condition.value.operator).toBe('!=');
 
         await wrapper.find('.sw-entity-multi-select .sw-select__selection').trigger('click');
         await flushPromises();
@@ -159,7 +159,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
     it('should render condition with null operator', async () => {
         const wrapper = await createWrapper({
-            type: 'customerShippingStreet'
+            type: 'customerShippingStreet',
         });
         await flushPromises();
 
@@ -170,12 +170,12 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.find('.sw-select-option--2').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.operator).toEqual('empty');
+        expect(wrapper.vm.condition.value.operator).toBe('empty');
     });
 
     it('should render condition with bool value', async () => {
         const wrapper = await createWrapper({
-            type: 'customerDifferentAddresses'
+            type: 'customerDifferentAddresses',
         });
         await flushPromises();
 
@@ -196,7 +196,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
     it('should render condition with single select', async () => {
         const wrapper = await createWrapper({
-            type: 'cartTaxDisplay'
+            type: 'cartTaxDisplay',
         });
         await flushPromises();
 
@@ -206,27 +206,27 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.find('.sw-select-option--0').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.taxDisplay).toEqual('gross');
+        expect(wrapper.vm.condition.value.taxDisplay).toBe('gross');
 
         await wrapper.find('.sw-single-select .sw-select__selection').trigger('click');
         await wrapper.find('.sw-select-option--1').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.taxDisplay).toEqual('net');
+        expect(wrapper.vm.condition.value.taxDisplay).toBe('net');
     });
 
     it('should render condition with tagged field', async () => {
         const wrapper = await createWrapper({
-            type: 'customerCustomerNumber'
+            type: 'customerCustomerNumber',
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-tagged-field')).not.toBeUndefined();
+        expect(wrapper.find('.sw-tagged-field')).toBeDefined();
     });
 
     it('should render condition with custom operators', async () => {
         const wrapper = await createWrapper({
-            type: 'conditionWithCustomOperators'
+            type: 'conditionWithCustomOperators',
         });
         await flushPromises();
 
@@ -236,31 +236,31 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.find('.sw-select-option--0').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.operator).toEqual('foo');
+        expect(wrapper.vm.condition.value.operator).toBe('foo');
 
         await wrapper.find('.sw-single-select .sw-select__selection').trigger('click');
         await wrapper.find('.sw-select-option--1').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.operator).toEqual('bar');
+        expect(wrapper.vm.condition.value.operator).toBe('bar');
     });
 
     it('should render unit menu when condition has unit', async () => {
         const wrapper = await createWrapper(
             {
-                type: 'cartLineItemDimensionWeight'
-            }
+                type: 'cartLineItemDimensionWeight',
+            },
         );
         await flushPromises();
 
         const menu = wrapper.find('.sw-condition-generic__unit-menu');
-        expect(menu.props().type).toEqual('weight');
+        expect(menu.props().type).toBe('weight');
         expect(menu.exists()).toBeTruthy();
     });
 
     it('should be possible to enter a new value into the input when the base value is not selected', async () => {
         const wrapper = await createWrapper({
-            type: 'cartLineItemDimensionWeight'
+            type: 'cartLineItemDimensionWeight',
         });
 
         // set a base value
@@ -278,6 +278,6 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await unitInput.setValue('10000');
         await unitInput.trigger('change');
 
-        expect(unitInput.element.value).toEqual('10000');
+        expect(unitInput.element.value).toBe('10000');
     });
 });

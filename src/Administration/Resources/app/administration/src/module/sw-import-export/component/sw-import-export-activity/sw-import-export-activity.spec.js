@@ -45,7 +45,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     active: true,
                     admin: true,
                     lastUpdatedPasswordAt: null,
-                    timeZone: 'UTC'
+                    timeZone: 'UTC',
                 },
                 profile: {
                     name: 'Default category',
@@ -59,12 +59,12 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     type: 'import-export',
                     updatedAt: null,
                     translated: {
-                        label: 'Default category'
+                        label: 'Default category',
                     },
                     apiAlias: null,
                     id: '6c7255662b63413f97d25a6e9a16fa6f',
                     importExportLogs: [],
-                    translations: []
+                    translations: [],
                 },
                 file: {
                     originalName: 'Default category_20210920-112247.csv',
@@ -72,9 +72,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     size: 263,
                     accessToken: null,
                     apiAlias: null,
-                    id: '645cfb7d036142c7b817ffefb89ac097'
-                }
-            }
+                    id: '645cfb7d036142c7b817ffefb89ac097',
+                },
+            },
         ];
     }
 
@@ -87,7 +87,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-context-button': await Shopware.Component.build('sw-context-button'),
                 'sw-import-export-activity-result-modal': await Shopware.Component.build('sw-import-export-activity-result-modal'),
                 'sw-import-export-edit-profile-modal': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-import-export-activity-log-info-modal': await Shopware.Component.build('sw-import-export-activity-log-info-modal'),
                 'sw-modal': await Shopware.Component.build('sw-modal'),
@@ -97,7 +97,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-ignore-class': true,
                 'sw-popover': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-icon': true,
                 'sw-description-list': true,
@@ -144,10 +144,10 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                         'sw-import-export.activity.status.merging_files',
                         'sw-import-export.activity.status.succeeded',
                         'sw-import-export.activity.status.failed',
-                        'sw-import-export.activity.status.aborted'
+                        'sw-import-export.activity.status.aborted',
                     ].includes(key);
                 },
-                date: (date) => date
+                date: (date) => date,
             },
             provide: {
                 importExport: new ImportExportService(),
@@ -156,20 +156,20 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                         return {
                             search: () => {
                                 return new EntityCollection(null, null, null, new Criteria(1, 25), options.logData);
-                            }
+                            },
                         };
-                    }
+                    },
                 },
                 shortcutService: {
                     startEventListener: () => {},
-                    stopEventListener: () => {}
-                }
-            }
+                    stopEventListener: () => {},
+                },
+            },
         };
 
         const wrapper = shallowMount(
             await Shopware.Component.build('sw-import-export-activity'),
-            Object.assign(defaultOptions, options)
+            Object.assign(defaultOptions, options),
         );
 
         return { wrapper };
@@ -188,7 +188,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 originalName: 'originalName',
                 id: 'fileId',
                 accessToken: 'accessToken',
-                size: 100
+                size: 100,
             },
             profile: {
                 label: 'My profile',
@@ -197,7 +197,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             username: 'username',
             records: 1,
             createdAt: '2020-04-03T12:23:02+00:00',
-            state: 'succeeded'
+            state: 'succeeded',
         };
 
         await wrapper.setData({ selectedLog: logEntity, showDetailModal: true });
@@ -243,7 +243,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 originalName: 'originalName',
                 id: 'fileId',
                 accessToken: 'accessToken',
-                size: 100
+                size: 100,
             },
             type: 'import',
             username: 'username',
@@ -251,7 +251,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             createdAt: '2020-04-03T12:23:02+00:00',
             state: 'succeeded',
             profile: {
-                sourceEntity: 'product'
+                sourceEntity: 'product',
             },
             result: {
                 product: {
@@ -261,7 +261,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     updateError: 4,
                     insertSkip: 5,
                     updateSkip: 6,
-                    otherError: 1
+                    otherError: 1,
                 },
                 tax: {
                     insert: 7,
@@ -270,9 +270,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     updateError: 10,
                     insertSkip: 11,
                     updateSkip: 12,
-                    otherError: 0
-                }
-            }
+                    otherError: 0,
+                },
+            },
         };
 
         await wrapper.vm.onShowResult(logEntity);
@@ -287,7 +287,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             updateError: 4,
             insertSkip: 5,
             updateSkip: 6,
-            otherError: 1
+            otherError: 1,
         });
         expect(resultModal.vm.result).toEqual([{
             entityName: 'tax',
@@ -297,7 +297,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             updateError: 10,
             insertSkip: 11,
             updateSkip: 12,
-            otherError: 0
+            otherError: 0,
         }]);
 
         const mainActivityPrefix = '.sw-import-export-activity-result-modal__main-activity';
@@ -319,17 +319,17 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
     it('should show the correct label', async () => {
         const { wrapper } = await createWrapper({ logData: getLogData() });
 
-        expect(wrapper.vm.getStateLabel('progress')).toEqual('Progress');
-        expect(wrapper.vm.getStateLabel('merging_files')).toEqual('Merging files');
-        expect(wrapper.vm.getStateLabel('succeeded')).toEqual('Succeeded');
-        expect(wrapper.vm.getStateLabel('failed')).toEqual('Failed');
-        expect(wrapper.vm.getStateLabel('aborted')).toEqual('Aborted');
+        expect(wrapper.vm.getStateLabel('progress')).toBe('Progress');
+        expect(wrapper.vm.getStateLabel('merging_files')).toBe('Merging files');
+        expect(wrapper.vm.getStateLabel('succeeded')).toBe('Succeeded');
+        expect(wrapper.vm.getStateLabel('failed')).toBe('Failed');
+        expect(wrapper.vm.getStateLabel('aborted')).toBe('Aborted');
     });
 
     it('should show the technical name when no translation exists', async () => {
         const { wrapper } = await createWrapper({ logData: getLogData() });
 
-        expect(wrapper.vm.getStateLabel('waiting')).toEqual('waiting');
+        expect(wrapper.vm.getStateLabel('waiting')).toBe('waiting');
     });
 
     it('should have the status field as the third position in grid', async () => {

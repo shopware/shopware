@@ -24,11 +24,11 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
             propsData: {
                 errors: {
                     headlineError: headlineError || null,
-                    ratingError: ratingError || null
-                }
+                    ratingError: ratingError || null,
+                },
             },
             provide: {
-                validationService: {}
+                validationService: {},
             },
             stubs: {
                 'sw-text-field': await Shopware.Component.build('sw-text-field'),
@@ -40,9 +40,9 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                 'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
                 'sw-icon': true,
                 'sw-textarea-field': {
-                    template: '<textarea></textarea>'
-                }
-            }
+                    template: '<textarea></textarea>',
+                },
+            },
         });
     }
 
@@ -75,13 +75,13 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
             _code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
             _parameters: '__vue_devtool_undefined__',
             _status: '',
-            _detail: ''
+            _detail: '',
         };
 
         wrapper = await createWrapper(headlineError);
         const headlineInput = wrapper.find('.sw-field');
 
-        expect(headlineInput.attributes('class').includes('has--error')).toBe(true);
+        expect(headlineInput.attributes('class')).toContain('has--error');
     });
 
     it('should display errors on rating field', async () => {
@@ -90,12 +90,12 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
             _code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
             _parameters: '__vue_devtool_undefined__',
             _status: '',
-            _detail: ''
+            _detail: '',
         };
 
         wrapper = await createWrapper(null, ratingError);
         const headlineInput = wrapper.find('.sw-extension-review-creation-inputs__rating .sw-field');
 
-        expect(headlineInput.attributes('class').includes('has--error')).toBe(true);
+        expect(headlineInput.attributes('class')).toContain('has--error');
     });
 });

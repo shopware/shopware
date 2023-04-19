@@ -41,8 +41,8 @@ async function createWrapper(privileges = []) {
                                 },
                             ],
                         });
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -51,12 +51,12 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
 
         },
         mocks: {
-            $tc: key => key
+            $tc: key => key,
         },
         stubs: {
             'sw-card': {
@@ -65,7 +65,7 @@ async function createWrapper(privileges = []) {
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-data-grid': {
                 props: ['dataSource'],
@@ -75,7 +75,7 @@ async function createWrapper(privileges = []) {
                     <slot name="actions" v-bind="{ item }"></slot>
                   </template>
                   </div>
-                `
+                `,
             },
             'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
             'sw-context-menu-item': true,
@@ -84,8 +84,8 @@ async function createWrapper(privileges = []) {
             'sw-modal': true,
             'sw-skeleton': true,
             'sw-product-variants-overview': true,
-            'sw-tabs': true
-        }
+            'sw-tabs': true,
+        },
     });
 }
 
@@ -107,8 +107,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                         entity: 'review',
                         customerId: 'd4c3b2a1',
                         productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1'
-                    }]
+                        salesChannelId: 'd4c3b2a1',
+                    }],
                 },
                 product: {
                     isNew: () => false,
@@ -119,26 +119,26 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                         entity: 'review',
                         customerId: 'd4c3b2a1',
                         productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1'
+                        salesChannelId: 'd4c3b2a1',
                     }],
                     purchasePrices: [{
                         currencyId: '1',
                         linked: true,
                         gross: 0,
-                        net: 0
+                        net: 0,
                     }],
                     price: [{
                         currencyId: '1',
                         linked: true,
                         gross: 100,
-                        net: 84.034
+                        net: 84.034,
                     }],
                     configuratorSettings: [],
                     children: [],
                 },
                 loading: {
                     product: false,
-                    media: false
+                    media: false,
                 },
                 modeSettings: [
                     'general_information',
@@ -146,7 +146,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                     'deliverability',
                     'visibility_structure',
                     'media',
-                    'labelling'
+                    'labelling',
                 ],
                 advancedModeSetting: {
                     value: {
@@ -155,41 +155,41 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                                 key: 'general_information',
                                 label: 'sw-product.detailBase.cardTitleProductInfo',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'prices',
                                 label: 'sw-product.detailBase.cardTitlePrices',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'deliverability',
                                 label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'visibility_structure',
                                 label: 'sw-product.detailBase.cardTitleVisibilityStructure',
                                 enabled: true,
-                                name: 'general'
+                                name: 'general',
                             },
                             {
                                 key: 'labelling',
                                 label: 'sw-product.detailBase.cardTitleSettings',
                                 enabled: true,
-                                name: 'general'
-                            }
+                                name: 'general',
+                            },
                         ],
                         advancedMode: {
                             enabled: true,
-                            label: 'sw-product.general.textAdvancedMode'
-                        }
-                    }
+                            label: 'sw-product.general.textAdvancedMode',
+                        },
+                    },
                 },
-                creationStates: 'is-physical'
-            }
+                creationStates: 'is-physical',
+            },
         });
     });
 
@@ -198,7 +198,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
 
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -225,7 +225,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     it('should split the product states string into an array', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            activeTab: 'is-foo,is-bar'
+            activeTab: 'is-foo,is-bar',
         });
         await flushPromises();
 
@@ -237,8 +237,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             productEntity: {
-                configuratorSettings: null
-            }
+                configuratorSettings: null,
+            },
         });
 
         expect(wrapper.vm.selectedGroups).toEqual([]);
@@ -248,19 +248,19 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             groups: [{
-                id: 'second-group'
+                id: 'second-group',
             }],
             productEntity: {
                 configuratorSettings: [
                     { option: { groupId: 'first-group' } },
                     { option: { groupId: 'second-group' } },
-                    { option: { groupId: 'second-group' } }
-                ]
-            }
+                    { option: { groupId: 'second-group' } },
+                ],
+            },
         });
 
         expect(wrapper.vm.selectedGroups).toEqual([{
-            id: 'second-group'
+            id: 'second-group',
         }]);
     });
 });

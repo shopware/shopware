@@ -7,27 +7,18 @@ import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 
-beforeEach(async () => {
-    ComponentFactory.getComponentRegistry().clear();
-    ComponentFactory.getOverrideRegistry().clear();
-    ComponentFactory._clearComponentHelper();
-    TemplateFactory.getTemplateRegistry().clear();
-    TemplateFactory.getNormalizedTemplateRegistry().clear();
-    TemplateFactory.disableTwigCache();
-    ComponentFactory.markComponentTemplatesAsNotResolved();
-});
 
 function createComponentMatrix(components) {
     const possibilities = [
         (value) => value,
-        (value) => (v) => Promise.resolve(value(v))
+        (value) => (v) => Promise.resolve(value(v)),
     ];
 
     const possibilitiesForComponents = Object.entries(components).map(([key, value]) => {
         return possibilities.map(possibility => {
             return {
                 key: key,
-                value: possibility(value)
+                value: possibility(value),
             };
         });
     });
@@ -39,7 +30,7 @@ function createComponentMatrix(components) {
             (acc, set) => {
                 return flatten(acc.map(x => set.map(y => [...x, y])));
             },
-            [[]]
+            [[]],
         );
     };
 
@@ -62,7 +53,7 @@ function createComponentMatrix(components) {
 
         return {
             testCase,
-            components: resultCase
+            components: resultCase,
         };
     });
 }
@@ -75,13 +66,13 @@ expect.extend({
         ) {
             return {
                 pass: true,
-                message: () => `expected ${received} returns a Promise`
+                message: () => `expected ${received} returns a Promise`,
             };
         }
 
         return {
             pass: false,
-            message: () => `expected ${received} does not return a Promise`
+            message: () => `expected ${received} does not return a Promise`,
         };
     },
     methodReturnsNoPromise(received) {
@@ -91,52 +82,62 @@ expect.extend({
         ) {
             return {
                 pass: false,
-                message: () => `expected ${received} returns a Promise`
+                message: () => `expected ${received} returns a Promise`,
             };
         }
 
         return {
             pass: true,
-            message: () => `expected ${received} does not return a Promise`
+            message: () => `expected ${received} does not return a Promise`,
         };
-    }
+    },
 });
 
 describe('core/factory/async-component.factory.ts', () => {
+    beforeEach(async () => {
+        ComponentFactory.getComponentRegistry().clear();
+        ComponentFactory.getOverrideRegistry().clear();
+        ComponentFactory._clearComponentHelper();
+        TemplateFactory.getTemplateRegistry().clear();
+        TemplateFactory.getNormalizedTemplateRegistry().clear();
+        TemplateFactory.disableTwigCache();
+        ComponentFactory.markComponentTemplatesAsNotResolved();
+    });
+
     it('test the component matrix', async () => {
         const twoMatrix = createComponentMatrix({
             A: () => 1,
             B: () => 2,
         });
-        expect(twoMatrix.length).toEqual(4);
+        expect(twoMatrix).toHaveLength(4);
         expect(twoMatrix).toEqual([
             {
                 components: {
                     A: expect.methodReturnsNoPromise(),
                     B: expect.methodReturnsNoPromise(),
                 },
-                testCase: 'SYNC SYNC '
+                testCase: 'SYNC SYNC ',
             },
             {
                 components: {
                     A: expect.methodReturnsNoPromise(),
                     B: expect.methodReturnsPromise(),
                 },
-                testCase: 'SYNC ASYNC '
+                testCase: 'SYNC ASYNC ',
             },
             {
                 components: {
                     A: expect.methodReturnsPromise(),
                     B: expect.methodReturnsNoPromise(),
                 },
-                testCase: 'ASYNC SYNC '
+                testCase: 'ASYNC SYNC ',
             },
             {
                 components: {
                     A: expect.methodReturnsPromise(),
                     B: expect.methodReturnsPromise(),
                 },
-                testCase: 'ASYNC ASYNC '
+                testCase: 'ASYNC ASYNC ',
             },
         ]);
 
@@ -145,7 +146,7 @@ describe('core/factory/async-component.factory.ts', () => {
             B: () => 2,
             C: () => 3,
         });
-        expect(threeMatrix.length).toEqual(8);
+        expect(threeMatrix).toHaveLength(8);
         expect(threeMatrix).toEqual([
             {
                 components: {
@@ -153,7 +154,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsNoPromise(),
                     C: expect.methodReturnsNoPromise(),
                 },
-                testCase: 'SYNC SYNC SYNC '
+                testCase: 'SYNC SYNC SYNC ',
             },
             {
                 components: {
@@ -161,7 +162,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsNoPromise(),
                     C: expect.methodReturnsPromise(),
                 },
-                testCase: 'SYNC SYNC ASYNC '
+                testCase: 'SYNC SYNC ASYNC ',
             },
             {
                 components: {
@@ -169,7 +170,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsPromise(),
                     C: expect.methodReturnsNoPromise(),
                 },
-                testCase: 'SYNC ASYNC SYNC '
+                testCase: 'SYNC ASYNC SYNC ',
             },
             {
                 components: {
@@ -177,7 +178,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsPromise(),
                     C: expect.methodReturnsPromise(),
                 },
-                testCase: 'SYNC ASYNC ASYNC '
+                testCase: 'SYNC ASYNC ASYNC ',
             },
             {
                 components: {
@@ -185,7 +186,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsNoPromise(),
                     C: expect.methodReturnsNoPromise(),
                 },
-                testCase: 'ASYNC SYNC SYNC '
+                testCase: 'ASYNC SYNC SYNC ',
             },
             {
                 components: {
@@ -193,7 +194,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsNoPromise(),
                     C: expect.methodReturnsPromise(),
                 },
-                testCase: 'ASYNC SYNC ASYNC '
+                testCase: 'ASYNC SYNC ASYNC ',
             },
             {
                 components: {
@@ -201,7 +202,7 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsPromise(),
                     C: expect.methodReturnsNoPromise(),
                 },
-                testCase: 'ASYNC ASYNC SYNC '
+                testCase: 'ASYNC ASYNC SYNC ',
             },
             {
                 components: {
@@ -209,14 +210,14 @@ describe('core/factory/async-component.factory.ts', () => {
                     B: expect.methodReturnsPromise(),
                     C: expect.methodReturnsPromise(),
                 },
-                testCase: 'ASYNC ASYNC ASYNC '
+                testCase: 'ASYNC ASYNC ASYNC ',
             },
         ]);
     });
 
     describe('should register a component and it should be registered in the component registry', () => {
         createComponentMatrix({
-            A: () => ({ template: '<div>This is a test template.</div>' })
+            A: () => ({ template: '<div>This is a test template.</div>' }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const component = ComponentFactory.register('test-component', components.A());
@@ -231,7 +232,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
     describe('should not be possible to register a component with the same name twice', () => {
         createComponentMatrix({
-            A: () => ({ template: '<div>This is a test template.</div>' })
+            A: () => ({ template: '<div>This is a test template.</div>' }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const spy = jest.spyOn(console, 'warn').mockImplementation();
@@ -242,7 +243,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(spy).toHaveBeenCalledWith(
                     '[ComponentFactory]',
                     'The component "test-component" is already registered. Please select a unique name for your component.',
-                    expect.any(Function)
+                    expect.any(Function),
                 );
             });
         });
@@ -250,7 +251,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
     describe('should not be possible to register a component without a name', () => {
         createComponentMatrix({
-            A: () => ({ template: '<div>This is a test template.</div>' })
+            A: () => ({ template: '<div>This is a test template.</div>' }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const spy = jest.spyOn(console, 'warn').mockImplementation();
@@ -268,7 +269,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
     describe('should not be possible to register a component without a template', () => {
         createComponentMatrix({
-            A: () => ({})
+            A: () => ({}),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const spy = jest.spyOn(console, 'warn').mockImplementation();
@@ -288,13 +289,13 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should not have a template property after registering a component', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div>This is a test template.</div>'
-            })
+                template: '<div>This is a test template.</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const component = ComponentFactory.register('test-component', components.A());
 
-                expect(component.template).toBe(undefined);
+                expect(component.template).toBeUndefined();
             });
         });
     });
@@ -303,11 +304,11 @@ describe('core/factory/async-component.factory.ts', () => {
         createComponentMatrix({
             A: () => ({
                 created() {},
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             B: () => ({
-                updated() {}
-            })
+                updated() {},
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -328,12 +329,12 @@ describe('core/factory/async-component.factory.ts', () => {
         createComponentMatrix({
             A: () => ({
                 created() {},
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             B: () => ({
                 updated() {},
-                template: '<div>This is an extension.</div>'
-            })
+                template: '<div>This is an extension.</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -346,7 +347,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(extension.extends).toBe('test-component');
                 expect(registry.has('test-component-extension')).toBe(true);
                 expect(typeof (await registry.get('test-component-extension')())).toBe('object');
-                expect(extension.template).toBe(undefined);
+                expect(extension.template).toBeUndefined();
             });
         });
     });
@@ -358,18 +359,18 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             B: () => ({
                 methods: {
                     testMethod() {
                         return 'This is an override.';
-                    }
+                    },
                 },
-                template: '<div>This is an override.</div>'
-            })
+                template: '<div>This is an override.</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -379,12 +380,12 @@ describe('core/factory/async-component.factory.ts', () => {
                 const overrideRegistry = ComponentFactory.getOverrideRegistry();
 
                 expect(typeof (await override()).methods.testMethod).toBe('function');
-                expect(override.template).toBe(undefined);
+                expect(override.template).toBeUndefined();
                 expect(registry.has('test-component')).toBe(true);
                 expect(typeof registry.get('test-component')).toBe('function');
                 expect(overrideRegistry.has('test-component')).toBe(true);
                 expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
-                expect(overrideRegistry.get('test-component').length).toBe(1);
+                expect(overrideRegistry.get('test-component')).toHaveLength(1);
                 expect(overrideRegistry.get('test-component')[0]).toBeInstanceOf(Object);
             });
         });
@@ -397,24 +398,24 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             B: () => ({
                 methods: {
                     testMethod() {
                         return 'This is the first override.';
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
                 methods: {
                     testMethod() {
                         return 'This is the second override.';
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -426,13 +427,13 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 expect(typeof (await overrideOne()).methods.testMethod).toBe('function');
                 expect(typeof (await overrideTwo()).methods.testMethod).toBe('function');
-                expect(overrideOne.template).toBe(undefined);
-                expect(overrideTwo.template).toBe(undefined);
+                expect(overrideOne.template).toBeUndefined();
+                expect(overrideTwo.template).toBeUndefined();
                 expect(registry.has('test-component')).toBe(true);
                 expect(registry.get('test-component')).toBeInstanceOf(Object);
                 expect(overrideRegistry.has('test-component')).toBe(true);
                 expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
-                expect(overrideRegistry.get('test-component').length).toBe(2);
+                expect(overrideRegistry.get('test-component')).toHaveLength(2);
                 expect(overrideRegistry.get('test-component')[0]).toBeInstanceOf(Object);
                 expect(overrideRegistry.get('test-component')[1]).toBeInstanceOf(Object);
                 expect(typeof (await overrideRegistry.get('test-component')[0]()).methods.testMethod).toBe('function');
@@ -446,11 +447,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should provide the rendered template of a component including overrides', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is a template override.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -465,11 +466,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend a block within a component', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block content %}<div>This is the {% block name %}base{% endblock %} component</div>{% endblock %}'
+                template: '{% block content %}<div>This is the {% block name %}base{% endblock %} component</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block name %}extended{% endblock %}'
-            })
+                template: '{% block name %}extended{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -487,11 +488,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should be able to extend a component before itself was registered', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block base %}<div>This is a template override.</div>{% endblock %}'
+                template: '{% block base %}<div>This is a template override.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block base %}<div>This is a test template.</div>{% endblock %}'
-            })
+                template: '{% block base %}<div>This is a test template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.extend('test-component-extension', 'test-component', components.A());
@@ -509,11 +510,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should be able to extend a component with blocks before itself was registered', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a template override.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.extend('test-component-extension', 'test-component', components.A());
@@ -532,11 +533,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should be able to override a component before itself was registered', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a template override.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('test-component', components.A());
@@ -552,11 +553,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should ignore overrides if block does not exists', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block name %}<div>This is a template override.</div>{% endblock %}'
+                template: '{% block name %}<div>This is a template override.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('test-component', components.A());
@@ -573,11 +574,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should ignore overrides if override has no blocks', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block name %}<div>This is a template override.</div>{% endblock %}'
+                template: '{% block name %}<div>This is a template override.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '<div>This is a test template.</div>'
-            })
+                template: '<div>This is a test template.</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('test-component', components.A());
@@ -598,10 +599,10 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -624,18 +625,18 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
                 methods: {
                     testMethod() {
                         return 'This is an extension.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is an extended template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is an extended template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -657,7 +658,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(extension.template).toBe('<div>This is an extended template.</div>');
 
                 expect(extension.extends).toBeInstanceOf(Object);
-                expect(extension.extends.template).toBe(undefined);
+                expect(extension.extends.template).toBeUndefined();
                 expect(extension.extends.methods).toBeInstanceOf(Object);
                 expect(typeof extension.extends.methods.testMethod).toBe('function');
                 expect(extension.extends.methods.testMethod()).toBe('This is a test method.');
@@ -669,14 +670,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should build multiple extended component with parent template', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block content %}<div>{% parent %}I am a child.</div>{% endblock %}'
+                template: '{% block content %}<div>{% parent %}I am a child.</div>{% endblock %}',
             }),
             C: () => ({
-                template: '{% block content %}<div>{% parent %}I am a grandchild.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>{% parent %}I am a grandchild.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -703,18 +704,18 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
                 methods: {
                     testMethod() {
                         return 'This is an override.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is an override of a template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is an override of a template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -729,7 +730,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(component.template).toBe('<div>This is an override of a template.</div>');
 
                 expect(component.extends).toBeInstanceOf(Object);
-                expect(component.extends.template).toBe(undefined);
+                expect(component.extends.template).toBeUndefined();
                 expect(component.extends.methods).toBeInstanceOf(Object);
                 expect(typeof component.extends.methods.testMethod).toBe('function');
                 expect(component.extends.methods.testMethod()).toBe('This is a test method.');
@@ -744,18 +745,18 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
                 methods: {
                     testMethod() {
                         return 'This is an override.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>{% parent %}This is an override of a template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>{% parent %}This is an override of a template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -770,7 +771,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(component.template).toBe('<div><div>This is a test template.</div>This is an override of a template.</div>');
 
                 expect(component.extends).toBeInstanceOf(Object);
-                expect(component.extends.template).toBe(undefined);
+                expect(component.extends.template).toBeUndefined();
                 expect(component.extends.methods).toBeInstanceOf(Object);
                 expect(typeof component.extends.methods.testMethod).toBe('function');
                 expect(component.extends.methods.testMethod()).toBe('This is a test method.');
@@ -788,9 +789,9 @@ describe('core/factory/async-component.factory.ts', () => {
                     },
                     doubleOverride() {
                         return 'This method should be overridden twice.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
                 methods: {
@@ -799,19 +800,19 @@ describe('core/factory/async-component.factory.ts', () => {
                     },
                     doubleOverride() {
                         return 'This is the first override.';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>{% parent %}This is an override of a template.</div>{% endblock %}'
+                template: '{% block content %}<div>{% parent %}This is an override of a template.</div>{% endblock %}',
             }),
             C: () => ({
                 methods: {
                     doubleOverride() {
                         return 'This is the second override.';
-                    }
+                    },
                 },
                 // eslint-disable-next-line max-len
-                template: '{% block content %}<div>{% parent %}This is an override of an overridden template.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>{% parent %}This is an override of an overridden template.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -839,7 +840,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(componentAfterSecondOverride.template).toBe('<div><div><div>This is a test template.</div>This is an override of a template.</div>This is an override of an overridden template.</div>');
 
                 expect(componentAfterSecondOverride.extends).toBeInstanceOf(Object);
-                expect(componentAfterSecondOverride.extends.template).toBe(undefined);
+                expect(componentAfterSecondOverride.extends.template).toBeUndefined();
                 expect(componentAfterSecondOverride.extends.methods).toBeInstanceOf(Object);
             });
         });
@@ -851,9 +852,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 methods: {
@@ -861,10 +862,10 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an override. ${prev}`;
-                    }
+                    },
                 },
-                template: '<div>extended-component</div>'
-            })
+                template: '<div>extended-component</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -884,9 +885,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 methods: {
@@ -894,9 +895,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an override. ${prev}`;
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -916,9 +917,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 methods: {
@@ -926,8 +927,8 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an override. ${prev}`;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
                 methods: {
@@ -935,9 +936,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an overridden override. ${prev}`;
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -959,9 +960,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is the original method.';
-                    }
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 methods: {
@@ -969,8 +970,8 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an override. ${prev}`;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
                 methods: {
@@ -978,10 +979,10 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an extension. ${prev}`;
-                    }
+                    },
                 },
-                template: '<div>extended-component</div>'
-            })
+                template: '<div>extended-component</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1003,9 +1004,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is the original method.';
-                    }
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 methods: {
@@ -1013,8 +1014,8 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an override 1. ${prev}`;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
                 methods: {
@@ -1022,8 +1023,8 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an override 2. ${prev}`;
-                    }
-                }
+                    },
+                },
             }),
             D: () => ({
                 methods: {
@@ -1031,9 +1032,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an extension 1. ${prev}`;
-                    }
+                    },
                 },
-                template: '<div>extended-component</div>'
+                template: '<div>extended-component</div>',
             }),
             E: () => ({
                 methods: {
@@ -1041,10 +1042,10 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an extension 2. ${prev}`;
-                    }
+                    },
                 },
-                template: '<div>extended-component</div>'
-            })
+                template: '<div>extended-component</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1059,7 +1060,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(extensionComponent.vm.testMethod())
                     .toBe(
                         'This is an extension 2. This is an extension 1. This is an override 2. This is an override 1. '
-                        + 'This is the original method.'
+                        + 'This is the original method.',
                     );
             });
         });
@@ -1071,9 +1072,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     testMethod() {
                         return 'This is a test method.';
-                    }
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 methods: {
@@ -1081,9 +1082,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an extension. ${prev}`;
-                    }
+                    },
                 },
-                template: '<div>extension-1</div>'
+                template: '<div>extension-1</div>',
             }),
             C: () => ({
                 methods: {
@@ -1091,10 +1092,10 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('testMethod');
 
                         return `This is an extended extension. ${prev}`;
-                    }
+                    },
                 },
-                template: '<div>extension-2</div>'
-            })
+                template: '<div>extension-2</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1123,10 +1124,10 @@ describe('core/factory/async-component.factory.ts', () => {
                         },
                         set(value) {
                             this._getterSetter = value;
-                        }
-                    }
+                        },
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 computed: {
@@ -1145,10 +1146,10 @@ describe('core/factory/async-component.factory.ts', () => {
                             this.$super('getterSetter.set', value);
 
                             this._getterSetter = `${value}Baz!`;
-                        }
-                    }
+                        },
+                    },
                 },
-                template: '<div>extension-1</div>'
+                template: '<div>extension-1</div>',
             }),
             C: () => ({
                 computed: {
@@ -1167,11 +1168,11 @@ describe('core/factory/async-component.factory.ts', () => {
                             this.$super('getterSetter.set', value);
 
                             this._getterSetter = value;
-                        }
-                    }
+                        },
+                    },
                 },
-                template: '<div>extension-2</div>'
-            })
+                template: '<div>extension-2</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1204,10 +1205,10 @@ describe('core/factory/async-component.factory.ts', () => {
                         },
                         set(value) {
                             this._getterSetter = value;
-                        }
-                    }
+                        },
+                    },
                 },
-                template: '<div>test-component</div>'
+                template: '<div>test-component</div>',
             }),
             B: () => ({
                 computed: {
@@ -1226,9 +1227,9 @@ describe('core/factory/async-component.factory.ts', () => {
                             this.$super('getterSetter.set', value);
 
                             this._getterSetter = `${value}Baz!`;
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             }),
             C: () => ({
                 computed: {
@@ -1247,10 +1248,10 @@ describe('core/factory/async-component.factory.ts', () => {
                             this.$super('getterSetter.set', value);
 
                             this._getterSetter = value;
-                        }
-                    }
-                }
-            })
+                        },
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1276,9 +1277,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     fooBar() {
                         return 'fooBar';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
                 methods: {
@@ -1286,12 +1287,12 @@ describe('core/factory/async-component.factory.ts', () => {
                         const prev = this.$super('fooBar');
 
                         return `${prev}Baz`;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
-                template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
-            })
+                template: '{% block content %}<div>This is a template override.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1316,9 +1317,9 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     fooBar() {
                         return 'fooBar';
-                    }
+                    },
                 },
-                template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
             }),
             B: () => ({
                 methods: {
@@ -1333,9 +1334,9 @@ describe('core/factory/async-component.factory.ts', () => {
 
                             return `${prev}${value}`;
                         });
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
@@ -1354,15 +1355,15 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend an extended component and all three components get build before with usage of parent', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
+                template: '{% block first %}<div>First.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
-            })
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1379,19 +1380,19 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend an extended component and all four components get build before with multiple usage of parent', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
+                template: '{% block first %}<div>First.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}',
             }),
             D: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% parent %}{% endblock %}</div>{% endblock %}'
-            })
+                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% parent %}{% endblock %}</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1412,23 +1413,23 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend an extended component and all five components get build before with multiple usage of parent', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
+                template: '{% block first %}<div>First.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}',
             }),
             D: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
+                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% endblock %}{% parent %}</div>{% endblock %}',
             }),
             E: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block second %}<div>{% block fifth %}<div>Fifth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
-            })
+                template: '{% block second %}<div>{% block fifth %}<div>Fifth.</div>{% endblock %}{% parent %}</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.B());
@@ -1452,14 +1453,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend an extended component', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
+                template: '{% block first %}<div>First.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}'
-            })
+                template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1475,14 +1476,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend an extended component in a mixed order', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}'
+                template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
-            })
+                template: '{% block first %}<div>First.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.extend('third-component', 'second-component', components.A());
@@ -1498,14 +1499,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should extend an extended component and all components get build before', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
+                template: '{% block first %}<div>First.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}'
-            })
+                template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1523,14 +1524,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should ignore a parent call when the block was not defined in the upper template', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}<div>First.</div>{% endblock %}'
+                template: '{% block first %}<div>First.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% block second %}{% parent %}{% endblock %}{% endblock %}'
+                template: '{% block first %}{% block second %}{% parent %}{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                template: '{% block first %}{% parent %}{% endblock %}'
-            })
+                template: '{% block first %}{% parent %}{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1550,14 +1551,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should render a component which extends a component with an override', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
+                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>',
             }),
             B: () => ({
-                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}',
             }),
             C: () => ({
-                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
-            })
+                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1569,7 +1570,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
                 expect(secondComponent.template).toBe(
-                    '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>'
+                    '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>',
                 );
             });
         });
@@ -1578,17 +1579,17 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should render a component which extends a component with multiple overrides in mixed order', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}{% parent %}<div>First overridden-1.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First overridden-1.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}',
             }),
             C: () => ({
-                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
+                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>',
             }),
             D: () => ({
-                template: '{% block first %}{% parent %}<div>First overridden-2.</div>{% endblock %}'
-            })
+                template: '{% block first %}{% parent %}<div>First overridden-2.</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('first-component', components.A());
@@ -1600,11 +1601,11 @@ describe('core/factory/async-component.factory.ts', () => {
                 const firstComponent = await ComponentFactory.build('first-component');
 
                 expect(firstComponent.template).toBe(
-                    '<div><div>First.</div><div>First overridden-1.</div><div>First overridden-2.</div></div>'
+                    '<div><div>First.</div><div>First overridden-1.</div><div>First overridden-2.</div></div>',
                 );
                 expect(secondComponent.template).toBe(
                     '<div><div>First.</div><div>First overridden-1.</div><div>First overridden-2.</div>' +
-                    '<div>First extended.</div></div>'
+                    '<div>First extended.</div></div>',
                 );
             });
         });
@@ -1613,20 +1614,20 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('with different registration and build order', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}First.{% endblock %}'
+                template: '{% block first %}First.{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% parent %} Override-1.{% endblock %}'
+                template: '{% block first %}{% parent %} Override-1.{% endblock %}',
             }),
             C: () => ({
-                template: '{% block first %}{% parent %} Override-2.{% endblock %}'
+                template: '{% block first %}{% parent %} Override-2.{% endblock %}',
             }),
             D: () => ({
-                template: '{% block first %}{% parent %} Extension-1.{% endblock %}'
+                template: '{% block first %}{% parent %} Extension-1.{% endblock %}',
             }),
             E: () => ({
-                template: '{% block first %}{% parent %} Extension-2.{% endblock %}'
-            })
+                template: '{% block first %}{% parent %} Extension-2.{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             describe(`${testCase}`, () => {
                 const registerFirst = () => ComponentFactory.register('first-component', components.A());
@@ -1699,7 +1700,7 @@ describe('core/factory/async-component.factory.ts', () => {
                         expect(firstComponent.template).toBe('First. Override-1. Override-2.');
                         expect(secondComponent.template).toBe('First. Override-1. Override-2. Extension-1.');
                         expect(thirdComponent.template).toBe('First. Override-1. Override-2. Extension-1. Extension-2.');
-                    }
+                    },
                 );
             });
         });
@@ -1708,14 +1709,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should render a component which extends a component with an override using a mixed order', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}',
             }),
             C: () => ({
-                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
-            })
+                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('first-component', components.A());
@@ -1727,7 +1728,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
                 expect(secondComponent.template).toBe(
-                    '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>'
+                    '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>',
                 );
             });
         });
@@ -1736,20 +1737,20 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should fix the Social Shopping chain bug', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block first %}{% parent %}<div>Second overridden.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>Second overridden.</div>{% endblock %}',
             }),
             C: () => ({
-                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+                template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}',
             }),
             D: () => ({
-                template: '{% block first %}foobar{% endblock %}'
+                template: '{% block first %}foobar{% endblock %}',
             }),
             E: () => ({
-                template: '{% block base %}<div>{% block first %}<div>First.</div>{% endblock %}</div>{% endblock %}'
-            })
+                template: '{% block base %}<div>{% block first %}<div>First.</div>{% endblock %}</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 // Social Shopping - sw-sales-channel-detail (override)
@@ -1778,8 +1779,8 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('should replace all parent placeholders with an empty string when parent was used incorrectly', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div>{% block first %}{% parent %}{% parent %}{% parent %}{% parent %}{% endblock %}</div>'
-            })
+                template: '<div>{% block first %}{% parent %}{% parent %}{% parent %}{% parent %}{% endblock %}</div>',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('first-component', components.A());
@@ -1793,24 +1794,24 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('correctly builds the super call stack when root component of the inheritance chain does not implement an overridden method', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             B: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     fooBar() {
                         return 'called';
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     fooBar() {
                         return this.$super('fooBar');
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('grandparent-component', components.A());
@@ -1831,20 +1832,20 @@ describe('core/factory/async-component.factory.ts', () => {
                 methods: {
                     fooBar() {
                         return 'called';
-                    }
-                }
+                    },
+                },
             }),
             B: () => ({
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             C: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     fooBar() {
                         return this.$super('fooBar');
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('grandparent-component', components.A());
@@ -1861,27 +1862,27 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('correctly builds the super call stack when components in the beginning of the inheritance chain do not implement an overridden method', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             B: () => ({
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             C: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     fooBar() {
                         return 'called';
-                    }
-                }
+                    },
+                },
             }),
             D: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     fooBar() {
                         return this.$super('fooBar');
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('great-grandparent-component', components.A());
@@ -1911,8 +1912,8 @@ describe('core/factory/async-component.factory.ts', () => {
 
                     getData() {
                         return ['root'];
-                    }
-                }
+                    },
+                },
             }),
             B: (createdData) => ({
                 template: '<div>This is a test template.</div>',
@@ -1924,17 +1925,17 @@ describe('core/factory/async-component.factory.ts', () => {
                         createdData.push(...data);
 
                         return data;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     createdComponent() {
                         this.$super('createdComponent');
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const createdData = [];
@@ -1965,8 +1966,8 @@ describe('core/factory/async-component.factory.ts', () => {
 
                     getData() {
                         return ['root'];
-                    }
-                }
+                    },
+                },
             }),
             B: (createdData) => ({
                 template: '<div>This is a test template.</div>',
@@ -1978,20 +1979,20 @@ describe('core/factory/async-component.factory.ts', () => {
                         createdData.push(...data);
 
                         return data;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             D: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     createdComponent() {
                         this.$super('createdComponent');
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const createdData = [];
@@ -2023,8 +2024,8 @@ describe('core/factory/async-component.factory.ts', () => {
 
                     getData() {
                         return ['root'];
-                    }
-                }
+                    },
+                },
             }),
             B: () => ({
                 template: '<div>This is a test template.</div>',
@@ -2034,20 +2035,20 @@ describe('core/factory/async-component.factory.ts', () => {
                         data.push('overridden');
 
                         return data;
-                    }
-                }
+                    },
+                },
             }),
             C: () => ({
-                template: '<div>This is a test template.</div>'
+                template: '<div>This is a test template.</div>',
             }),
             D: () => ({
                 template: '<div>This is a test template.</div>',
                 methods: {
                     createdComponent() {
                         this.$super('createdComponent');
-                    }
-                }
-            })
+                    },
+                },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('root-component', components.A());
@@ -2060,7 +2061,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 const expected = cloneDeep(ComponentFactory.getOverrideRegistry().get('root-component'));
 
                 ComponentFactory.extend('child-component', 'root-component', {
-                    template: '<div>This is a test template.</div>'
+                    template: '<div>This is a test template.</div>',
                 });
                 ComponentFactory.build('child-component');
 
@@ -2074,14 +2075,14 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('overrides template and use these blocks', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div>{% block test %}This is a test template.{% endblock %}</div>'
+                template: '<div>{% block test %}This is a test template.{% endblock %}</div>',
             }),
             B: () => ({
-                template: '{% block test %}Override{% block new_block %}foo{% endblock %}{% endblock %}'
+                template: '{% block test %}Override{% block new_block %}foo{% endblock %}{% endblock %}',
             }),
             C: () => ({
-                template: '{% block new_block %}<div>Test</div>{% endblock %}'
-            })
+                template: '{% block new_block %}<div>Test</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('component', components.A());
@@ -2097,11 +2098,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('extends a component which is also an extension without a template', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block sw_settings_user_detail %}<h1>Foo</h1>{% endblock %}'
+                template: '{% block sw_settings_user_detail %}<h1>Foo</h1>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block sw_settings_user_detail %}<h1>Test</h1>{% endblock %}'
-            })
+                template: '{% block sw_settings_user_detail %}<h1>Test</h1>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('root-component', components.A());
@@ -2117,11 +2118,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('extends a component with wrapping template', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block text_field %}<input type="text">{% endblock %}'
+                template: '{% block text_field %}<input type="text">{% endblock %}',
             }),
             B: () => ({
-                template: '{% block password_field %}{% block text_field %}<input type="password">{% endblock %}{% endblock %}'
-            })
+                template: '{% block password_field %}{% block text_field %}<input type="password">{% endblock %}{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('text-field-component', components.A());
@@ -2137,14 +2138,14 @@ describe('core/factory/async-component.factory.ts', () => {
         createComponentMatrix({
             A: () => ({
                 // eslint-disable-next-line max-len
-                template: '{% block base_component %}<div>{% block content %}This is the base content.{% endblock %}</div>{% endblock %}'
+                template: '{% block base_component %}<div>{% block content %}This is the base content.{% endblock %}</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block content %}{% parent %} This is the inner override.{% endblock %}'
+                template: '{% block content %}{% parent %} This is the inner override.{% endblock %}',
             }),
             C: () => ({
-                template: '{% block base_component %}<div>This is the outer override. {% parent %}</div>{% endblock %}'
-            })
+                template: '{% block base_component %}<div>This is the outer override. {% parent %}</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('base-component', components.A());
@@ -2164,13 +2165,13 @@ describe('core/factory/async-component.factory.ts', () => {
         createComponentMatrix({
             A: () => ({
                 // eslint-disable-next-line max-len
-                template: '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+                template: '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>',
             }),
             B: () => ({
                 template:
                     '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
-                    '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
-            })
+                    '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('root-component', components.A());
@@ -2189,13 +2190,13 @@ describe('core/factory/async-component.factory.ts', () => {
         createComponentMatrix({
             A: () => ({
                 // eslint-disable-next-line max-len
-                template: '<div class="root-component">{% block outer_block %}Im the outer block {% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+                template: '<div class="root-component">{% block outer_block %}Im the outer block {% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>',
             }),
             B: () => ({
                 template:
                     '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
-                    '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
-            })
+                    '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('root-component', components.A());
@@ -2213,11 +2214,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('ignores component overrides or extensions of components that are not registered', () => {
         createComponentMatrix({
             A: () => ({
-                template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
+                template: '{% block text_field %}<div>Not registered</div>{% endblock %}',
             }),
             B: () => ({
-                template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
-            })
+                template: '{% block text_field %}<div>Not registered</div>{% endblock %}',
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('override-without-register', components.A());
@@ -2235,11 +2236,11 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('returns a component if it has no template but a render function', () => {
         createComponentMatrix({
             A: () => ({
-                render(h) { return h('div', {}, 'i was not registered'); }
+                render(h) { return h('div', {}, 'i was not registered'); },
             }),
             B: () => ({
-                render(h) { return h('div', {}, 'registered component'); }
-            })
+                render(h) { return h('div', {}, 'registered component'); },
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 ComponentFactory.override('not-registered-with-render-function', components.A());
@@ -2257,26 +2258,26 @@ describe('core/factory/async-component.factory.ts', () => {
     describe('returns a component which has multiple overrides with array based properties', () => {
         createComponentMatrix({
             A: () => ({
-                template: '<div class="base-component">{% block overrides %}{% endblock %}</div>'
+                template: '<div class="base-component">{% block overrides %}{% endblock %}</div>',
             }),
             B: () => ({
                 template: '{% block overrides %}{% parent %} {{logAnotherService}}{% endblock %}',
 
                 inject: ['someService', 'anotherService'],
                 mixins: [{
-                    computed: { logSomeService() { return this.someService(); } }
+                    computed: { logSomeService() { return this.someService(); } },
                 }, {
-                    computed: { logAnotherService() { return this.anotherService(); } }
-                }]
+                    computed: { logAnotherService() { return this.anotherService(); } },
+                }],
             }),
             C: () => ({
                 template: '{% block overrides %}{% parent %} {{logSomeService}}{% endblock %}',
 
                 inject: ['someService'],
                 mixins: [{
-                    computed: { logSomeService() { return this.someService(); } }
-                }]
-            })
+                    computed: { logSomeService() { return this.someService(); } },
+                }],
+            }),
         }).forEach(({ testCase, components }) => {
             it(`${testCase}`, async () => {
                 const componentName = 'baseComponent';
@@ -2290,11 +2291,11 @@ describe('core/factory/async-component.factory.ts', () => {
                 const wrapper = await shallowMount(buildConfig, {
                     provide: {
                         someService() { return 'foo'; },
-                        anotherService() { return 'bar'; }
-                    }
+                        anotherService() { return 'bar'; },
+                    },
                 });
 
-                expect(wrapper.html()).toEqual('<div class="base-component"> bar foo</div>');
+                expect(wrapper.html()).toBe('<div class="base-component"> bar foo</div>');
 
                 wrapper.destroy();
             });
@@ -2309,7 +2310,7 @@ describe('core/factory/async-component.factory.ts', () => {
             componentALoaded();
 
             return Promise.resolve({
-                template: '<h1>Component A</h1>'
+                template: '<h1>Component A</h1>',
             });
         });
 
@@ -2317,7 +2318,7 @@ describe('core/factory/async-component.factory.ts', () => {
             componentBLoaded();
 
             return Promise.resolve({
-                template: '<h1>Component B</h1>'
+                template: '<h1>Component B</h1>',
             });
         });
 
@@ -2338,63 +2339,63 @@ describe('core/factory/async-component.factory.ts', () => {
     it('should use the default property by module import when register a component', async () => {
         ComponentFactory.register('component-a', () => Promise.resolve({
             default: {
-                template: '<h1>Hello from component A</h1>'
-            }
+                template: '<h1>Hello from component A</h1>',
+            },
         }));
 
         ComponentFactory.register('component-b', () => Promise.resolve({
-            template: '<h1>Hello from component B</h1>'
+            template: '<h1>Hello from component B</h1>',
         }));
 
         const componentA = await ComponentFactory.build('component-a');
         const componentB = await ComponentFactory.build('component-b');
 
-        expect(shallowMount(componentA).html()).toEqual('<h1>Hello from component A</h1>');
-        expect(shallowMount(componentB).html()).toEqual('<h1>Hello from component B</h1>');
+        expect(shallowMount(componentA).html()).toBe('<h1>Hello from component A</h1>');
+        expect(shallowMount(componentB).html()).toBe('<h1>Hello from component B</h1>');
     });
 
     it('should use the default property by module import when extend a component', async () => {
         ComponentFactory.register('component-a', () => Promise.resolve({
             default: {
-                template: '{% block main %}<h1>Hello from component A{% endblock %}</h1>'
-            }
+                template: '{% block main %}<h1>Hello from component A{% endblock %}</h1>',
+            },
         }));
 
         ComponentFactory.extend('component-b', 'component-a', () => Promise.resolve({
             default: {
-                template: '{% block main %}<h1>Hello from component B{% endblock %}</h1>'
-            }
+                template: '{% block main %}<h1>Hello from component B{% endblock %}</h1>',
+            },
         }));
 
         ComponentFactory.extend('component-c', 'component-a', () => Promise.resolve({
-            template: '{% block main %}<h1>Hello from component C{% endblock %}</h1>'
+            template: '{% block main %}<h1>Hello from component C{% endblock %}</h1>',
         }));
 
         const componentA = await ComponentFactory.build('component-a');
         const componentB = await ComponentFactory.build('component-b');
         const componentC = await ComponentFactory.build('component-c');
 
-        expect(shallowMount(componentA).html()).toEqual('<h1>Hello from component A</h1>');
-        expect(shallowMount(componentB).html()).toEqual('<h1>Hello from component B</h1>');
-        expect(shallowMount(componentC).html()).toEqual('<h1>Hello from component C</h1>');
+        expect(shallowMount(componentA).html()).toBe('<h1>Hello from component A</h1>');
+        expect(shallowMount(componentB).html()).toBe('<h1>Hello from component B</h1>');
+        expect(shallowMount(componentC).html()).toBe('<h1>Hello from component C</h1>');
     });
 
     it('should use the default property by module import when override a component', async () => {
         ComponentFactory.register('component-a', () => Promise.resolve({
             default: {
-                template: '{% block main %}<h1>Hello from component A{% endblock %}</h1>'
-            }
+                template: '{% block main %}<h1>Hello from component A{% endblock %}</h1>',
+            },
         }));
 
         ComponentFactory.override('component-a', () => Promise.resolve({
             default: {
-                template: '{% block main %}<h1>Hello from the override{% endblock %}</h1>'
-            }
+                template: '{% block main %}<h1>Hello from the override{% endblock %}</h1>',
+            },
         }));
 
         const componentA = await ComponentFactory.build('component-a');
 
-        expect(shallowMount(componentA).html()).toEqual('<h1>Hello from the override</h1>');
+        expect(shallowMount(componentA).html()).toBe('<h1>Hello from the override</h1>');
     });
 
     it('should register and execute component helper', async () => {
@@ -2443,9 +2444,9 @@ describe('core/factory/async-component.factory.ts', () => {
         const inputConfig = {
             data() {
                 return {
-                    test: 'data'
+                    test: 'data',
                 };
-            }
+            },
         };
 
         const outputConfig = ComponentFactory.wrapComponentConfig(inputConfig);

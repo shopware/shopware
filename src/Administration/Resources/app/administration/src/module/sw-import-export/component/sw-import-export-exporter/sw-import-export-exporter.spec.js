@@ -21,23 +21,23 @@ const repositoryMockFactory = () => {
                 {
                     label: 'Default product',
                     sourceEntity: 'product',
-                    config: []
+                    config: [],
                 },
                 {
                     label: 'Default configurator settings',
                     sourceEntity: 'product_configurator_setting',
-                    config: []
+                    config: [],
                 },
                 {
                     label: 'Default category',
                     sourceEntity: 'category',
-                    config: []
+                    config: [],
                 },
                 {
                     label: 'Default media',
                     sourceEntity: 'media',
-                    config: []
-                }
+                    config: [],
+                },
             ];
 
             return Promise.resolve(profiles.filter((profile) => {
@@ -51,7 +51,7 @@ const repositoryMockFactory = () => {
 
                 return isAllowed;
             }));
-        }
+        },
     };
 };
 
@@ -76,7 +76,7 @@ describe('components/sw-import-export-exporter', () => {
                 'sw-popover': true,
                 'sw-alert': true,
                 'sw-modal': true,
-                'sw-button': true
+                'sw-button': true,
             },
             provide: {
                 importExport: {
@@ -92,18 +92,18 @@ describe('components/sw-import-export-exporter', () => {
                                     errors: [
                                         {
                                             code: 'This is an error code',
-                                            detail: 'This is an detailed error message'
-                                        }
-                                    ]
-                                }
-                            }
+                                            detail: 'This is an detailed error message',
+                                        },
+                                    ],
+                                },
+                            },
                         });
-                    }
+                    },
                 },
                 repositoryFactory: {
-                    create: () => repositoryMockFactory()
-                }
-            }
+                    create: () => repositoryMockFactory(),
+                },
+            },
         });
     });
 
@@ -162,9 +162,9 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.setData({
             config: {
                 parameters: {
-                    includeVariants: true
-                }
-            }
+                    includeVariants: true,
+                },
+            },
         });
 
         const variantsWarning = wrapper.find('.sw-import-export-exporter__variants-warning');
@@ -182,20 +182,20 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.setData({
             config: {
                 parameters: {
-                    includeVariants: true
-                }
-            }
+                    includeVariants: true,
+                },
+            },
         });
 
         const variantsWarningLink = wrapper.findAll(
-            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link'
+            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link',
         );
         expect(variantsWarningLink.at(0).exists()).toBeTruthy();
         expect(variantsWarningLink.at(0).text()).toContain('sw-import-export.exporter.directExportVariantsLabel');
 
         expect(variantsWarningLink.at(1).exists()).toBeTruthy();
         expect(variantsWarningLink.at(1).text()).toContain(
-            'sw-import-export.exporter.directExportPropertiesLabel'
+            'sw-import-export.exporter.directExportPropertiesLabel',
         );
     });
 
@@ -208,13 +208,13 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.setData({
             config: {
                 parameters: {
-                    includeVariants: true
-                }
-            }
+                    includeVariants: true,
+                },
+            },
         });
 
         const variantsWarningLink = wrapper.find(
-            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link'
+            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link',
         );
         await variantsWarningLink.trigger('click');
 
@@ -232,13 +232,13 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.setData({
             config: {
                 parameters: {
-                    includeVariants: true
-                }
-            }
+                    includeVariants: true,
+                },
+            },
         });
 
         const variantsWarningLink = wrapper.find(
-            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link'
+            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link',
         );
         await variantsWarningLink.trigger('click');
 
@@ -281,8 +281,8 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.setData({
             selectedProfileId: 'a1b2c3d4e5',
             config: {
-                error: true
-            }
+                error: true,
+            },
         });
 
 
@@ -293,7 +293,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'This is an error code: This is an detailed error message'
+            message: 'This is an error code: This is an detailed error message',
         });
 
         wrapper.vm.createNotificationError.mockRestore();

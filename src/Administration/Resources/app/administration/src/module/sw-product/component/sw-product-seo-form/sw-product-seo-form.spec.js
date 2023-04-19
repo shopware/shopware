@@ -22,12 +22,12 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity = productEntityOverride ||
             {
-                metaTitle: 'test'
+                metaTitle: 'test',
             };
 
         const parentProduct = parentProductOverride ||
             {
-                id: null
+                id: null,
             };
 
         const productVariants = [
@@ -35,9 +35,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 id: 'first',
                 name: 'first',
                 translated: {
-                    name: 'first'
-                }
-            }
+                    name: 'first',
+                },
+            },
         ];
 
         const localVue = createLocalVue();
@@ -50,9 +50,9 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     create: () => ({
                         search: () => {
                             return Promise.resolve(productVariants);
-                        }
-                    })
-                }
+                        },
+                    }),
+                },
             },
             mocks: {
                 $store: new Vuex.Store({
@@ -61,14 +61,14 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                             namespaced: true,
                             state: {
                                 product: productEntity,
-                                parentProduct
+                                parentProduct,
                             },
                             getters: {
-                                isLoading: () => false
-                            }
-                        }
-                    }
-                })
+                                isLoading: () => false,
+                            },
+                        },
+                    },
+                }),
             },
             stubs: {
                 'sw-inherit-wrapper': true,
@@ -82,8 +82,8 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
-                'sw-popover': true
-            }
+                'sw-popover': true,
+            },
         });
     }
 
@@ -103,7 +103,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         const productEntity = {
             canonicalProductId: null,
             childCount: 0,
-            metaTitle: 'title'
+            metaTitle: 'title',
         };
 
         wrapper = await createWrapper(productEntity);
@@ -119,11 +119,11 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         const productEntity = {
             canonicalProductId: null,
             childCount: 2,
-            metaTitle: 'title'
+            metaTitle: 'title',
         };
 
         const parentProduct = {
-            id: 'parent-id'
+            id: 'parent-id',
         };
 
         wrapper = await createWrapper(productEntity, parentProduct);
@@ -139,7 +139,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         const productEntity = {
             canonicalProductId: null,
             childCount: 3,
-            metaTitle: 'title'
+            metaTitle: 'title',
         };
 
         wrapper = await createWrapper(productEntity);
@@ -159,7 +159,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             id: 'product-id',
             canonicalProductId: 'first',
             childCount: 3,
-            metaTitle: 'title'
+            metaTitle: 'title',
         };
 
         wrapper = await createWrapper(productEntity);
@@ -174,7 +174,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         expect(switchComponent.vm.value).toBe(true);
 
         // check if single select is enabled
-        expect(singleSelectComponent.attributes('disabled')).toBe(undefined);
+        expect(singleSelectComponent.attributes('disabled')).toBeUndefined();
 
         // check value of select field
         const textOfSelectField = singleSelectComponent.find('.sw-product-variant-info__product-name').text();

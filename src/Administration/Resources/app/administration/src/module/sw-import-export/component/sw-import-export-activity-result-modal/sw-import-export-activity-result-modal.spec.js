@@ -46,22 +46,22 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
     async function createWrapper(logEntity = getLogEntityMock()) {
         return shallowMount(await Shopware.Component.build('sw-import-export-activity-result-modal'), {
             propsData: {
-                logEntity
+                logEntity,
             },
             provide: {
-                importExport: {}
+                importExport: {},
             },
             stubs: {
                 'sw-modal': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-card': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-color-badge': true,
                 'sw-button': true,
                 'sw-grid': true,
-            }
+            },
         });
     }
 

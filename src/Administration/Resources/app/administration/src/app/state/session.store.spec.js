@@ -24,18 +24,18 @@ describe('src/app/state/session.store.js', () => {
                         'system.core_update',
                         'system:core:update',
                         'system.clear_cache',
-                        'system:clear:cache'
-                    ]
+                        'system:clear:cache',
+                    ],
                 },
                 {
                     privileges: [
                         'system.plugin_maintain',
                         'system:plugin:maintain',
                         'orders.create_discounts',
-                        'order:create:discount'
-                    ]
-                }
-            ]
+                        'order:create:discount',
+                    ],
+                },
+            ],
         });
 
         expect(sessionStore.getters.userPrivileges).toContain('system.core_update');

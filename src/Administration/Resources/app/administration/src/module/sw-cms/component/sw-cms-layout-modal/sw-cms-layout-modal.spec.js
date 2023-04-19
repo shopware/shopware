@@ -17,8 +17,8 @@ const productMocks = [
         categories: [],
         products: [],
         translated: {
-            name: 'CMS Page 1'
-        }
+            name: 'CMS Page 1',
+        },
     },
     {
         id: defaultProductId,
@@ -26,8 +26,8 @@ const productMocks = [
         categories: [],
         products: [],
         translated: {
-            name: 'CMS Page 2'
-        }
+            name: 'CMS Page 2',
+        },
     },
     {
         id: defaultCategoryId,
@@ -35,9 +35,9 @@ const productMocks = [
         categories: [],
         products: [],
         translated: {
-            name: 'CMS Page 3'
-        }
-    }
+            name: 'CMS Page 3',
+        },
+    },
 ];
 
 async function createWrapper() {
@@ -45,8 +45,8 @@ async function createWrapper() {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: jest.fn(() => Promise.resolve(productMocks))
-                })
+                    search: jest.fn(() => Promise.resolve(productMocks)),
+                }),
             },
             searchRankingService: {},
             systemConfigApiService: {
@@ -57,10 +57,10 @@ async function createWrapper() {
 
                     return {
                         'core.cms.default_category_cms_page': defaultCategoryId,
-                        'core.cms.default_product_cms_page': defaultProductId
+                        'core.cms.default_product_cms_page': defaultProductId,
                     };
                 },
-                saveValues: () => null
+                saveValues: () => null,
             },
             cmsPageTypeService: {
                 getType: () => {
@@ -71,8 +71,8 @@ async function createWrapper() {
                         class: ['sw-cms-create-wizard__page-type-custom-entity-detail'],
                         hideInList: false,
                     };
-                }
-            }
+                },
+            },
         },
 
         stubs: {
@@ -88,9 +88,9 @@ async function createWrapper() {
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-cms-list-item': {
                 template: '<div class="sw-cms-list-item"></div>',
-                props: ['isDefault']
-            }
-        }
+                props: ['isDefault'],
+            },
+        },
     });
 }
 
@@ -103,7 +103,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageTypes: ['page', 'landingpage', 'product_list']
+            cmsPageTypes: ['page', 'landingpage', 'product_list'],
         });
         await wrapper.vm.getList();
         await flushPromises();
@@ -113,9 +113,9 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
                 {
                     type: 'equalsAny',
                     field: 'type',
-                    value: 'page|landingpage|product_list'
-                }
-            ]
+                    value: 'page|landingpage|product_list',
+                },
+            ],
         }));
 
         expect(wrapper.vm.pageRepository.search).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
@@ -125,13 +125,13 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageTypes: []
+            cmsPageTypes: [],
         });
         await wrapper.vm.getList();
         await flushPromises();
 
         expect(wrapper.vm.cmsPageCriteria).toEqual(expect.objectContaining({
-            filters: []
+            filters: [],
         }));
 
         expect(wrapper.vm.pageRepository.search).toHaveBeenCalledWith(wrapper.vm.cmsPageCriteria);
@@ -148,7 +148,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
 
         const listItems = wrapper.findAll('.sw-cms-list-item');
 
-        expect(listItems.length).toBe(3);
+        expect(listItems).toHaveLength(3);
 
         expect(listItems.at(0).props('isDefault')).toBe(false);
         expect(listItems.at(1).props('isDefault')).toBe(true);

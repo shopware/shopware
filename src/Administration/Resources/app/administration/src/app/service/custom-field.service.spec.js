@@ -43,7 +43,7 @@ describe('src/app/service/custom-field.service.js', () => {
             config: {
                 componentName: 'sw-field',
                 type: 'newType',
-            }
+            },
         };
         customFieldService.upsertType('newType', newTypeConfig);
 
@@ -59,7 +59,7 @@ describe('src/app/service/custom-field.service.js', () => {
             config: {
                 ...expectedTypeConfigs.number.config,
                 numberType: 'float',
-            }
+            },
         };
 
         customFieldService.upsertType('number', newConfig);

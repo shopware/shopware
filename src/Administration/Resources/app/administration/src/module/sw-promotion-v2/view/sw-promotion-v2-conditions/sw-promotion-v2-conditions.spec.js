@@ -11,30 +11,30 @@ async function createWrapper(privileges = []) {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-text-field': {
-                template: '<div class="sw-text-field"></div>'
+                template: '<div class="sw-text-field"></div>',
             },
             'sw-number-field': {
-                template: '<div class="sw-number-field"></div>'
+                template: '<div class="sw-number-field"></div>',
             },
             'sw-entity-multi-select': {
-                template: '<div class="sw-entity-multi-select"></div>'
+                template: '<div class="sw-entity-multi-select"></div>',
             },
             'sw-promotion-v2-sales-channel-select': {
-                template: '<div class="sw-promotion-v2-sales-channel-select"></div>'
+                template: '<div class="sw-promotion-v2-sales-channel-select"></div>',
             },
             'sw-promotion-v2-rule-select': {
-                template: '<div class="sw-promotion-v2-rule-select"></div>'
+                template: '<div class="sw-promotion-v2-rule-select"></div>',
             },
             'sw-switch-field': {
-                template: '<div class="sw-switch-field"></div>'
+                template: '<div class="sw-switch-field"></div>',
             },
-            'sw-promotion-v2-cart-condition-form': true
+            'sw-promotion-v2-cart-condition-form': true,
         },
         provide: {
             acl: {
@@ -42,20 +42,20 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }])
-                })
+                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                }),
             },
             ruleConditionDataProviderService: {
                 getAwarenessConfigurationByAssignmentName: () => {
                     return {
-                        snippet: ''
+                        snippet: '',
                     };
-                }
-            }
+                },
+            },
         },
         propsData: {
             promotion: {
@@ -76,7 +76,7 @@ async function createWrapper(privileges = []) {
                 ordersPerCustomerCount: null,
                 exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
                 translated: {
-                    name: 'Test Promotion'
+                    name: 'Test Promotion',
                 },
                 apiAlias: null,
                 id: 'promotionId',
@@ -87,8 +87,8 @@ async function createWrapper(privileges = []) {
                         salesChannelId: 'salesChannelId',
                         priority: 1,
                         createdAt: '2020-08-17T13:24:52.692+00:00',
-                        id: 'promotionSalesChannelId'
-                    }
+                        id: 'promotionSalesChannelId',
+                    },
                 ],
                 discounts: [],
                 individualCodes: [],
@@ -100,9 +100,9 @@ async function createWrapper(privileges = []) {
                 hasOrders: false,
                 isNew() {
                     return true;
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -123,35 +123,35 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
 
     it('should disable adding discounts when privileges not set', async () => {
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled,
         ).toBeTruthy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled,
         ).toBeTruthy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled,
         ).toBeTruthy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled,
         ).toBeTruthy();
     });
 
     it('should enable adding discounts when privilege is set', async () => {
         wrapper = await createWrapper([
-            'promotion.editor'
+            'promotion.editor',
         ]);
 
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled,
         ).toBeFalsy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled,
         ).toBeFalsy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled,
         ).toBeFalsy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled
+            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled,
         ).toBeFalsy();
     });
 });

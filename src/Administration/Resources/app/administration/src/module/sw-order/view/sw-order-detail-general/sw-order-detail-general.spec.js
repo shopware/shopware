@@ -5,7 +5,7 @@ import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 const orderMock = {
     orderCustomer: {
-        email: 'test@example.com'
+        email: 'test@example.com',
     },
     shippingCosts: {
         calculatedTaxes: [
@@ -16,31 +16,31 @@ const orderMock = {
             {
                 tax: 1.9,
                 taxRate: 19,
-            }
+            },
         ],
-        totalPrice: 10
+        totalPrice: 10,
     },
     currency: {
         shortName: 'EUR',
         translated: {
-            shortName: 'EUR'
-        }
+            shortName: 'EUR',
+        },
     },
     deliveries: [
         {
             stateMachineState: {
                 translated: {
-                    name: 'Open'
-                }
+                    name: 'Open',
+                },
             },
             shippingCosts: {
                 calculatedTaxes: [],
-                totalPrice: 10
+                totalPrice: 10,
             },
             shippingOrderAddress: {
-                id: 'address1'
+                id: 'address1',
             },
-        }
+        },
     ],
     price: {
         calculatedTaxes: [
@@ -51,18 +51,18 @@ const orderMock = {
             {
                 tax: 19,
                 taxRate: 19,
-            }
+            },
         ],
         taxStatus: 'gross',
         totalPrice: 139,
     },
     totalRounding: {
         interval: 0.01,
-        decimals: 2
+        decimals: 2,
     },
     itemRounding: {
         interval: 0.01,
-        decimals: 2
+        decimals: 2,
     },
     amountNet: 100,
     lineItems: [],
@@ -82,7 +82,7 @@ async function createWrapper(privileges = []) {
         },
         update(el, binding) {
             el.setAttribute('tooltip-message', binding.value.message);
-        }
+        },
     });
     localVue.filter('currency', Shopware.Filter.getByName('currency'));
 
@@ -92,17 +92,17 @@ async function createWrapper(privileges = []) {
             'sw-container': {
                 template: `
                     <div class="sw-container"><slot></slot></div>
-                `
+                `,
             },
             'sw-card-section': {
                 template: `
                     <div class="sw-card-section"><slot></slot></div>
-                `
+                `,
             },
             'sw-description-list': {
                 template: `
                     <div class="sw-description-list"><slot></slot></div>
-                `
+                `,
             },
             'sw-card': {
                 template: `
@@ -110,7 +110,7 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-order-general-info': true,
             'sw-order-line-items-grid': true,
@@ -133,13 +133,13 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
         },
         propsData: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false
-        }
+            isSaveSuccessful: false,
+        },
     });
 }
 
@@ -172,18 +172,18 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {
         const shippingCostField = wrapper.find('.sw-order-saveable-field');
         expect(shippingCostField.attributes()['tooltip-message'])
-            .toEqual('sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}');
+            .toBe('sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}');
     });
 
     it('should tax description correctly if taxStatus is not tax-free', async () => {
         const descriptionTitles = wrapper.findAll('dt');
         const descriptionInfos = wrapper.findAll('dd');
 
-        expect(descriptionTitles.at(3).text()).toEqual('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
-        expect(descriptionInfos.at(3).text()).toEqual('€10.00');
+        expect(descriptionTitles.at(3).text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
+        expect(descriptionInfos.at(3).text()).toBe('€10.00');
 
-        expect(descriptionTitles.at(4).text()).toEqual('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
-        expect(descriptionInfos.at(4).text()).toEqual('€19.00');
+        expect(descriptionTitles.at(4).text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
+        expect(descriptionInfos.at(4).text()).toBe('€19.00');
     });
 
     it('should able to edit shipping cost', async () => {
@@ -192,8 +192,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         await shippingCostField.setValue(20);
         await shippingCostField.trigger('input');
 
-        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toEqual('20');
-        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toEqual('20');
+        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe('20');
+        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe('20');
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 

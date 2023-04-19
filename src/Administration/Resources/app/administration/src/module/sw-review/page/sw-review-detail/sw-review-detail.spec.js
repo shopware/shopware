@@ -19,15 +19,15 @@ async function createWrapper() {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
+                    limit: 25,
                 },
                 params: {
-                    id: '12312'
-                }
+                    id: '12312',
+                },
             },
             date: () => {},
             placeholder: () => {},
-            salutation: () => {}
+            salutation: () => {},
         },
         provide: {
             repositoryFactory: {
@@ -40,27 +40,27 @@ async function createWrapper() {
                             productId: 'd4c3b2a1',
                             salesChannelId: 'd4c3b2a1',
                             customer: {
-                                name: 'Customer Number 1'
+                                name: 'Customer Number 1',
                             },
                             product: {
                                 name: 'Product Number 1',
                                 translated: {
-                                    name: 'Product Number 1'
-                                }
+                                    name: 'Product Number 1',
+                                },
                             },
                             salesChannel: {
                                 name: 'Channel Number 1',
                                 translated: {
-                                    name: 'Channel Number 1'
-                                }
-                            }
+                                    name: 'Channel Number 1',
+                                },
+                            },
                         });
-                    }
-                })
+                    },
+                }),
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': {
@@ -69,7 +69,7 @@ async function createWrapper() {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-button-process': true,
@@ -78,7 +78,7 @@ async function createWrapper() {
             'sw-description-list': true,
             'sw-card-view': true,
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-container': true,
             'sw-loader': true,
@@ -88,7 +88,7 @@ async function createWrapper() {
             'sw-textarea-field': true,
             'sw-language-switch': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -117,7 +117,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
 
         const wrapper = await createWrapper();
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
         await wrapper.vm.$nextTick();
 

@@ -22,12 +22,12 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                 metaTitle: 'Product1',
                 id: 'productId1',
                 isCloseout: false,
-                ...productEntityOverride
+                ...productEntityOverride,
             };
 
         const parentProduct = {
             id: 'productId',
-            ...parentProductOverride
+            ...parentProductOverride,
         };
 
         return shallowMount(await Shopware.Component.build('sw-product-deliverability-downloadable-form'), {
@@ -35,8 +35,8 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
-                        id: 1
-                    }
+                        id: 1,
+                    },
                 },
                 $store: new Vuex.Store({
                     modules: {
@@ -48,7 +48,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                                 parentProduct,
                                 loading: {
                                     product: false,
-                                    media: false
+                                    media: false,
                                 },
                                 advancedModeSetting: {
                                     value: {
@@ -57,31 +57,31 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                                                 key: 'deliverability',
                                                 label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                                                 enabled: true,
-                                                name: 'general'
-                                            }
+                                                name: 'general',
+                                            },
                                         ],
                                         advancedMode: {
                                             enabled: true,
-                                            label: 'sw-product.general.textAdvancedMode'
-                                        }
-                                    }
+                                            label: 'sw-product.general.textAdvancedMode',
+                                        },
+                                    },
                                 },
-                                creationStates: 'is-physical'
+                                creationStates: 'is-physical',
                             },
                             getters: {
                                 ...productStore.getters,
-                                isLoading: () => false
-                            }
-                        }
-                    }
-                })
+                                isLoading: () => false,
+                            },
+                        },
+                    },
+                }),
             },
             provide: {
                 validationService: {},
             },
             stubs: {
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-field': await Shopware.Component.build('sw-field'),
@@ -96,7 +96,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                 'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
                 'sw-help-text': true,
-            }
+            },
         });
     }
 
@@ -123,9 +123,9 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         const deliveryFieldsClassName = [
@@ -160,7 +160,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
 
     it('should set stock to persisted product stock if stock was saved and stock deliverability menu is reopened', async () => {
         wrapper = await createWrapper({
-            stock: 10
+            stock: 10,
         });
 
         const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');

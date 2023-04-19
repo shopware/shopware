@@ -13,7 +13,7 @@ Shopware.Component.register('sw-cms-missing-element-modal', swCmsMissingElementM
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-missing-element-modal'), {
         propsData: {
-            missingElements: []
+            missingElements: [],
         },
         mocks: {
             $tc: (key, number, value) => {
@@ -21,13 +21,13 @@ async function createWrapper() {
                     return key;
                 }
                 return key + JSON.stringify(value);
-            }
+            },
         },
         provide: {
             shortcutService: {
                 startEventListener: () => {},
-                stopEventListener: () => {}
-            }
+                stopEventListener: () => {},
+            },
         },
         stubs: {
             'sw-modal': await Shopware.Component.build('sw-modal'),
@@ -36,7 +36,7 @@ async function createWrapper() {
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
-        }
+        },
     });
 }
 
@@ -48,7 +48,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
 
         const pageChangeEvents = wrapper.emitted('modal-close');
 
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
     });
 
     it('should emit an event when clicking on save button', async () => {
@@ -58,7 +58,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
 
         const pageChangeEvents = wrapper.emitted('modal-save');
 
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
     });
 
     it('should emit an event when check on dont remind checkbox', async () => {
@@ -68,7 +68,7 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
 
         const pageChangeEvents = wrapper.emitted()['modal-dont-remind-change'];
 
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
     });
 
     it('should expose no missing element', async () => {
@@ -76,8 +76,8 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
-        expect(title.text()).toEqual(
-            'sw-cms.components.cmsMissingElementModal.title{"element":""}'
+        expect(title.text()).toBe(
+            'sw-cms.components.cmsMissingElementModal.title{"element":""}',
         );
     });
 
@@ -85,13 +85,13 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: ['buyBox']
+            missingElements: ['buyBox'],
         });
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
-        expect(title.text()).toEqual(
-            'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label"}'
+        expect(title.text()).toBe(
+            'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label"}',
         );
     });
 
@@ -99,14 +99,14 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: ['buyBox', 'productDescriptionReviews']
+            missingElements: ['buyBox', 'productDescriptionReviews'],
         });
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
-        expect(title.text()).toEqual(
+        expect(title.text()).toBe(
             // eslint-disable-next-line max-len
-            'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label"}'
+            'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label"}',
         );
     });
 
@@ -114,14 +114,14 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: ['buyBox', 'productDescriptionReviews', 'crossSelling']
+            missingElements: ['buyBox', 'productDescriptionReviews', 'crossSelling'],
         });
 
         const title = wrapper.find('.sw-cms-missing-element-modal__title');
 
-        expect(title.text()).toEqual(
+        expect(title.text()).toBe(
             // eslint-disable-next-line max-len
-            'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label, sw-cms.elements.crossSelling.label"}'
+            'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label, sw-cms.elements.crossSelling.label"}',
         );
     });
 });

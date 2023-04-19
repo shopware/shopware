@@ -18,53 +18,53 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                     field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
+                    naturalSorting: 0,
                 },
                 {
                     field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
+                    naturalSorting: 0,
                 },
                 {
                     field: 'my_first_custom_field',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
-                }
+                    naturalSorting: 0,
+                },
             ],
             label: 'asasdsafsdfsdafsdafasdf',
             createdAt: '2020-08-06T13:06:03.799+00:00',
             updatedAt: null,
             translated: {
-                label: 'asasdsafsdfsdafsdafasdf'
+                label: 'asasdsafsdfsdafsdafasdf',
             },
             apiAlias: null,
             id: '481a3502b72c4fd99b693c7998b93e37',
-            translations: []
+            translations: [],
         };
     }
 
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-settings-listing-option-create'), {
             mocks: {
-                $router: {}
+                $router: {},
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve(),
                         create: () => Promise.resolve(getProductSortingEntity()),
-                        save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } })
-                    })
+                        save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
+                    }),
                 },
-                systemConfigApiService: {}
+                systemConfigApiService: {},
             },
             stubs: {
                 'sw-page': {
-                    template: '<div></div>'
-                }
-            }
+                    template: '<div></div>',
+                },
+            },
         });
     }
 
@@ -90,20 +90,20 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                     field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
-                    position: 0
+                    position: 0,
                 },
                 {
                     field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
-                    position: 0
+                    position: 0,
                 },
                 {
                     field: 'my_first_custom_field',
                     naturalSorting: 0,
                     order: 'desc',
-                    position: 0
-                }
+                    position: 0,
+                },
             ],
             id: '481a3502b72c4fd99b693c7998b93e37',
             key: 'asasdsafsdfsdafsdafasdf',
@@ -112,7 +112,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
             position: 1,
             translated: { label: 'asasdsafsdfsdafsdafasdf' },
             translations: [],
-            updatedAt: null
+            updatedAt: null,
         });
     });
 
@@ -147,8 +147,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
         wrapper.vm.productSortingRepository.save = jest.fn().mockResolvedValue({
             config: {
-                data: JSON.stringify([])
-            }
+                data: JSON.stringify([]),
+            },
         });
         wrapper.vm.transformCustomFieldCriterias = jest.fn();
 

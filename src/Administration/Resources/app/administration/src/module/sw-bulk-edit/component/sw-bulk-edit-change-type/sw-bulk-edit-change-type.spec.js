@@ -31,14 +31,14 @@ async function createWrapper(propsData = {}) {
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-icon': true,
-            'sw-field-error': await Shopware.Component.build('sw-field-error')
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
         },
         propsData: {
             value: 'overwrite',
             allowOverwrite: true,
             allowClear: true,
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -78,7 +78,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
             value: 'overwrite',
             allowOverwrite: true,
             allowClear: true,
-            allowAdd: true
+            allowAdd: true,
         });
 
         expect(wrapper.vm.isDisplayingValue).toBeTruthy();
@@ -113,7 +113,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
             allowOverwrite: false,
             allowClear: false,
             allowAdd: true,
-            allowRemove: true
+            allowRemove: true,
         });
 
         const selection = wrapper.find('.sw-bulk-edit-change-type__selection');

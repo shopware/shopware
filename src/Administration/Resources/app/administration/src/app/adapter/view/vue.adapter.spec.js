@@ -23,7 +23,7 @@ jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
 
 Shopware.Service().register('localeHelper', () => {
     return {
-        setLocaleWithId: jest.fn()
+        setLocaleWithId: jest.fn(),
     };
 });
 
@@ -49,7 +49,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         if (!Shopware.Service('loginService')) {
             Shopware.Service().register('loginService', () => {
                 return {
-                    isLoggedIn: () => true
+                    isLoggedIn: () => true,
                 };
             });
         }
@@ -57,7 +57,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         if (!Shopware.Service('localeToLanguageService')) {
             Shopware.Service().register('localeToLanguageService', () => {
                 return {
-                    localeToLanguage: () => Promise.resolve()
+                    localeToLanguage: () => Promise.resolve(),
                 };
             });
         }
@@ -85,7 +85,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     it('should be an class', async () => {
         const type = typeof VueAdapter;
-        expect(type).toEqual('function');
+        expect(type).toBe('function');
     });
 
     it('should extends the view adapter', async () => {
@@ -108,7 +108,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         vueAdapter.initLocales({
             subscribe: () => {},
             dispatch: () => {},
-            state: { session: { currentLocale: 'en-GB' } }
+            state: { session: { currentLocale: 'en-GB' } },
         });
 
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     it('setLocaleFromUser should not set the user when user does not exists', async () => {
         vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: null } }
+            state: { session: { currentUser: null } },
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
@@ -124,7 +124,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     it('setLocaleFromUser should set the user when user does not exists', async () => {
         vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: '12345' } } }
+            state: { session: { currentUser: { localeId: '12345' } } },
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalled();
@@ -134,7 +134,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         const expectedId = '12345678';
 
         vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: expectedId } } }
+            state: { session: { currentUser: { localeId: expectedId } } },
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
@@ -145,8 +145,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component1', {
@@ -154,17 +154,17 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component1',
             data() {
                 return {
-                    title: 'testComponent'
+                    title: 'testComponent',
                 };
             },
             mixins: [
-                Shopware.Mixin.getByName('foo1')
+                Shopware.Mixin.getByName('foo1'),
             ],
             methods: {
                 bar() {
                     return 'bar';
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component1'))();
@@ -181,8 +181,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component2', {
@@ -190,30 +190,30 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component2',
             data() {
                 return {
-                    title: 'testComponent'
+                    title: 'testComponent',
                 };
             },
             mixins: [
-                Shopware.Mixin.getByName('foo2')
+                Shopware.Mixin.getByName('foo2'),
             ],
             methods: {
                 bar() {
                     return 'bar';
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.override('test-component2', {
             data() {
                 return {
-                    title: 'testComponentOverride'
+                    title: 'testComponentOverride',
                 };
             },
             methods: {
                 buz() {
                     return 'buz';
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component2'))();
@@ -232,8 +232,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component3', {
@@ -241,15 +241,15 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component3',
             data() {
                 return {
-                    title: 'testComponent3'
+                    title: 'testComponent3',
                 };
             },
             mixins: [
-                'foo3'
+                'foo3',
             ],
             methods: {
-                bar() {}
-            }
+                bar() {},
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component3'))();
@@ -265,8 +265,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component4', {
@@ -274,26 +274,26 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component4',
             data() {
                 return {
-                    title: 'testComponent4'
+                    title: 'testComponent4',
                 };
             },
             mixins: [
-                'foo4'
+                'foo4',
             ],
             methods: {
-                bar() {}
-            }
+                bar() {},
+            },
         });
 
         Shopware.Component.override('test-component4', {
             data() {
                 return {
-                    title: 'testComponentOverride4'
+                    title: 'testComponentOverride4',
                 };
             },
             methods: {
-                buz() {}
-            }
+                buz() {},
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component4'))();
@@ -309,14 +309,14 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         Shopware.Mixin.register('foo-with-data', {
             data() {
                 return {
-                    sortBy: null
+                    sortBy: null,
                 };
             },
             methods: {
                 fooBar() {
                     return this.sortBy;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component-foobar-with-mixin', {
@@ -324,18 +324,18 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component',
             data() {
                 return {
-                    sortBy: 'date'
+                    sortBy: 'date',
                 };
             },
             mixins: [
-                'foo-with-data'
+                'foo-with-data',
             ],
             methods: {
                 bar() {},
                 fooBar() {
                     return this.sortBy;
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
@@ -361,8 +361,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Mixin.register('swBar', {
@@ -372,8 +372,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 },
                 buz() {
                     return 'mixin';
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('extendable-component', {
@@ -381,32 +381,32 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'extendable-component',
             data() {
                 return {
-                    title: 'testComponent'
+                    title: 'testComponent',
                 };
             },
             mixins: [
-                'swFoo'
+                'swFoo',
             ],
             methods: {
-                bar() {}
-            }
+                bar() {},
+            },
         });
 
         Shopware.Component.extend('sw-test-component-extended', 'extendable-component', {
             template: '{% block foo %}<div>bbbbb</div>{% endblock %}',
             mixins: [
-                'swBar'
+                'swBar',
             ],
             data() {
                 return {
-                    title: 'testComponentExtended'
+                    title: 'testComponentExtended',
                 };
             },
             methods: {
                 buz() {
                     return 'component';
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('sw-test-component-extended'))();
@@ -427,26 +427,26 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 lifecycleSpy();
             },
             methods: {
-                foo() { return 'foo'; }
-            }
+                foo() { return 'foo'; },
+            },
         });
 
         Shopware.Mixin.register('second-mixin', {
             methods: {
-                bar() { return 'bar'; }
-            }
+                bar() { return 'bar'; },
+            },
         });
 
         Shopware.Component.register('base-component', {
-            template: '<div class="base-component"></div>'
+            template: '<div class="base-component"></div>',
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['first-mixin']
+            mixins: ['first-mixin'],
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['second-mixin', 'first-mixin']
+            mixins: ['second-mixin', 'first-mixin'],
         });
 
         const buildComp = (await vueAdapter.createComponent('base-component'))();
@@ -467,10 +467,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             render(h) {
                 return h('div', {
                     class: {
-                        'sw-foo': true
-                    }
+                        'sw-foo': true,
+                    },
                 }, ['Some text']);
-            }
+            },
         };
 
         const component = vueAdapter.buildAndCreateComponent(componentDefinition);
@@ -508,14 +508,14 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 locale.register('en-GB', {
                     global: {
                         'sw-admin-menu': {
-                            textShopwareAdmin: 'Text Shopware Admin'
+                            textShopwareAdmin: 'Text Shopware Admin',
                         },
                         my: {
                             mock: {
-                                title: 'Mock title'
-                            }
-                        }
-                    }
+                                title: 'Mock title',
+                            },
+                        },
+                    },
                 });
             }
 
@@ -532,7 +532,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                         inserted() {},
                         update() {},
                         componentUpdated() {},
-                        unbind() {}
+                        unbind() {},
                     };
                 });
             }
@@ -546,7 +546,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             // add main component
             if (!Shopware.Component.getComponentRegistry().has('sw-admin')) {
                 Shopware.Component.register('sw-admin', {
-                    template: '<div class="sw-admin"></div>'
+                    template: '<div class="sw-admin"></div>',
                 });
             }
 
@@ -561,7 +561,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             rootComponent = vueAdapter.init(
                 '#app',
                 router,
-                {}
+                {},
             );
         });
 
@@ -587,15 +587,15 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         it('should have correct working createTitle method', () => {
             const result = rootComponent.$createTitle.call({
                 $root: {
-                    $tc: (v) => rootComponent.$tc(v)
+                    $tc: (v) => rootComponent.$tc(v),
                 },
                 $route: {
                     meta: {
                         $module: {
-                            title: 'global.my.mock.title'
-                        }
-                    }
-                }
+                            title: 'global.my.mock.title',
+                        },
+                    },
+                },
             }, 'Test');
 
             expect(result).toBe('Test | Mock title | Text Shopware Admin');

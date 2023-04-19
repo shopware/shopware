@@ -24,13 +24,13 @@ const createWrapper = () => {
                     active: true,
                     resizeWidth: 400,
                 };
-            }
+            },
         },
     };
 
     return shallowMount(dragdropComponent, {
         localVue,
-        attachTo: '#root'
+        attachTo: '#root',
     });
 };
 
@@ -93,7 +93,7 @@ describe('directives/popover', () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
-            $el: document.createElement('div')
+            $el: document.createElement('div'),
         };
 
         popover.registerVirtualScrollingElement(mockElement, mockContext);
@@ -107,7 +107,7 @@ describe('directives/popover', () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
-            $el: document.createElement('div')
+            $el: document.createElement('div'),
         };
 
         popover.registerVirtualScrollingElement(mockElement, mockContext);
@@ -127,7 +127,7 @@ describe('directives/popover', () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
-            $el: document.createElement('div')
+            $el: document.createElement('div'),
         };
 
         popover.registerVirtualScrollingElement(mockElement, mockContext);
@@ -142,7 +142,7 @@ describe('directives/popover', () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
-            $el: document.createElement('div')
+            $el: document.createElement('div'),
         };
 
         popover.registerVirtualScrollingElement(mockElement, mockContext);
@@ -166,7 +166,7 @@ describe('directives/popover', () => {
         setBoundingClientAndWindow({
             elTop: 100,
             elBottom: 110,
-            windowHeight: 1000
+            windowHeight: 1000,
         });
 
         const wrapper = createWrapper();
@@ -179,7 +179,7 @@ describe('directives/popover', () => {
         setBoundingClientAndWindow({
             elTop: 120,
             elBottom: 110,
-            windowHeight: 1000
+            windowHeight: 1000,
         });
 
         const wrapper = createWrapper();

@@ -8,8 +8,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-shortcut-overview'), {
             stubs: {
                 'sw-modal': true,
-                'sw-shortcut-overview-item': true
-            }
+                'sw-shortcut-overview-item': true,
+            },
         });
     });
 
@@ -23,17 +23,17 @@ describe('app/component/utils/sw-shortcut-overview', () => {
 
     it('should add the privilege attribute to some shortcut-overview-items', async () => {
         await wrapper.setData({
-            showShortcutOverviewModal: true
+            showShortcutOverviewModal: true,
         });
 
         const privilegeSystemClearCacheItems = wrapper.findAll(
-            'sw-shortcut-overview-item-stub[privilege="system.clear_cache"]'
+            'sw-shortcut-overview-item-stub[privilege="system.clear_cache"]',
         );
         const privilegeSystemPluginMaintainItems = wrapper.findAll(
-            'sw-shortcut-overview-item-stub[privilege="system.plugin_maintain"]'
+            'sw-shortcut-overview-item-stub[privilege="system.plugin_maintain"]',
         );
 
-        expect(privilegeSystemClearCacheItems.length).toBe(3);
-        expect(privilegeSystemPluginMaintainItems.length).toBe(1);
+        expect(privilegeSystemClearCacheItems).toHaveLength(3);
+        expect(privilegeSystemPluginMaintainItems).toHaveLength(1);
     });
 });

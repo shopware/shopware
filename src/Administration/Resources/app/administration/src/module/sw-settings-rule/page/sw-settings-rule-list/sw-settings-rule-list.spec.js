@@ -14,7 +14,7 @@ async function createWrapper(privileges = []) {
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
-    </div>`
+    </div>`,
             },
             'sw-button': true,
             'sw-empty-state': true,
@@ -24,17 +24,17 @@ async function createWrapper(privileges = []) {
     <div class="sw-entity-listing">
         <slot name="more-actions"></slot>
     </div>
-    `
+    `,
             },
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item')
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([
 
-                    ])
-                })
+                    ]),
+                }),
             },
             filterFactory: {
                 create: (name, filters) => filters,
@@ -52,22 +52,22 @@ async function createWrapper(privileges = []) {
                 },
                 getByGroup: () => {
                     return [{ type: 'foo' }];
-                }
+                },
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
             $route: {
-                query: 'foo'
-            }
-        }
+                query: 'foo',
+            },
+        },
     });
 }
 
@@ -75,9 +75,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     beforeEach(() => {
         Shopware.Application.view.router = {
             currentRoute: {
-                query: ''
+                query: '',
             },
-            push: () => {}
+            push: () => {},
         };
     });
 
@@ -105,7 +105,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
     it('should have enabled fields for creator', async () => {
         const wrapper = await createWrapper([
-            'rule.creator'
+            'rule.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -122,7 +122,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
     it('only should have enabled fields for editor', async () => {
         const wrapper = await createWrapper([
-            'rule.editor'
+            'rule.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -139,7 +139,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
     it('should have enabled fields for deleter', async () => {
         const wrapper = await createWrapper([
-            'rule.deleter'
+            'rule.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -210,14 +210,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
                         buckets: [{
                             key: '1',
                             productPrices: {
-                                count: 100
-                            }
-                        }]
+                                count: 100,
+                            },
+                        }],
                     },
-                }
-            }
+                },
+            },
         });
 
-        expect(wrapper.vm.getCounts('productPrices', '1')).toEqual(100);
+        expect(wrapper.vm.getCounts('productPrices', '1')).toBe(100);
     });
 });

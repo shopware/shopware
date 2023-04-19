@@ -12,12 +12,12 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
+                    limit: 25,
                 },
                 params: {
-                    id: '12312'
-                }
-            }
+                    id: '12312',
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -27,28 +27,28 @@ async function createWrapper(privileges = []) {
                             id: '1a2b3c',
                             name: 'Test settings-payment',
                             entity: 'settings-payment',
-                            pluginId: '12321-a'
+                            pluginId: '12321-a',
                         };
                     },
                     get: () => Promise.resolve({
                         id: '1a2b3c',
                         name: 'Test settings-payment',
                         entity: 'settings-payment',
-                        pluginId: '12321-a'
+                        pluginId: '12321-a',
                     }),
-                    search: () => Promise.resolve({})
-                })
+                    search: () => Promise.resolve({}),
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': true,
@@ -68,7 +68,7 @@ async function createWrapper(privileges = []) {
             'sw-sidebar': true,
             'sw-sidebar-media-item': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -76,7 +76,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     const mockPaymentMethod = {
         name: 'Cash',
         id: '1000000000',
-        pluginId: '01'
+        pluginId: '01',
     };
     mockPaymentMethod.getEntityName = () => { return 'payment_method'; };
 
@@ -84,7 +84,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,
-            isLoading: false
+            isLoading: false,
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -94,7 +94,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,
-            isLoading: false
+            isLoading: false,
         });
         await wrapper.vm.$nextTick();
 
@@ -104,11 +104,11 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
     it('should be able to save the settings-payment', async () => {
         const wrapper = await createWrapper([
-            'payment.editor'
+            'payment.editor',
         ]);
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,
-            isLoading: false
+            isLoading: false,
         });
         await wrapper.vm.$nextTick();
 
@@ -120,7 +120,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,
-            isLoading: false
+            isLoading: false,
         });
         await wrapper.vm.$nextTick();
 
@@ -145,11 +145,11 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
     it('should be able to edit payment fields', async () => {
         const wrapper = await createWrapper([
-            'payment.editor'
+            'payment.editor',
         ]);
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,
-            isLoading: false
+            isLoading: false,
         });
         await wrapper.vm.$nextTick();
 
@@ -177,10 +177,10 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,
-            isLoading: false
+            isLoading: false,
         });
         const criteria = wrapper.vm.ruleFilter;
 
-        expect(criteria.associations[0].association).toEqual('conditions');
+        expect(criteria.associations[0].association).toBe('conditions');
     });
 });

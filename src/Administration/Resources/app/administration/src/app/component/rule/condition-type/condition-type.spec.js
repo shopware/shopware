@@ -23,78 +23,78 @@ async function createWrapperForComponent(componentName, props = {}) {
     return shallowMount(await Shopware.Component.build(componentName), {
         stubs: {
             'sw-field-error': {
-                template: '<div class="sw-field-error"></div>'
+                template: '<div class="sw-field-error"></div>',
             },
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"></div>'
+                template: '<div class="sw-context-menu-item"></div>',
             },
             'sw-context-button': {
-                template: '<div class="sw-context-button"></div>'
+                template: '<div class="sw-context-button"></div>',
             },
             'sw-number-field': {
-                template: '<div class="sw-number-field"></div>'
+                template: '<div class="sw-number-field"></div>',
             },
             'sw-condition-type-select': {
-                template: '<div class="sw-condition-type-select"></div>'
+                template: '<div class="sw-condition-type-select"></div>',
             },
             'sw-condition-operator-select': {
-                template: '<div class="sw-condition-operator-select"></div>'
+                template: '<div class="sw-condition-operator-select"></div>',
             },
             'sw-condition-is-net-select': {
-                template: '<div class="sw-condition-is-net-select"></div>'
+                template: '<div class="sw-condition-is-net-select"></div>',
             },
             'sw-entity-multi-select': {
-                template: '<div class="sw-entity-multi-select"></div>'
+                template: '<div class="sw-entity-multi-select"></div>',
             },
             'sw-entity-single-select': {
-                template: '<div class="sw-entity-single-select"></div>'
+                template: '<div class="sw-entity-single-select"></div>',
             },
             'sw-text-field': {
-                template: '<div class="sw-text-field"></div>'
+                template: '<div class="sw-text-field"></div>',
             },
             'sw-tagged-field': {
-                template: '<div class="sw-tagged-field"></div>'
+                template: '<div class="sw-tagged-field"></div>',
             },
             'sw-single-select': {
-                template: '<div class="sw-single-select"></div>'
+                template: '<div class="sw-single-select"></div>',
             },
             'sw-entity-tag-select': {
-                template: '<div class="sw-entity-tag-select"></div>'
+                template: '<div class="sw-entity-tag-select"></div>',
             },
             'sw-datepicker': {
-                template: '<div class="sw-datepicker"></div>'
+                template: '<div class="sw-datepicker"></div>',
             },
             'sw-button': {
-                template: '<div class="sw-button"></div>'
+                template: '<div class="sw-button"></div>',
             },
             'sw-icon': {
-                template: '<div class="sw-icon"></div>'
+                template: '<div class="sw-icon"></div>',
             },
             'sw-textarea-field': {
-                template: '<div class="sw-textarea-field"></div>'
-            }
+                template: '<div class="sw-textarea-field"></div>',
+            },
         },
         provide: {
             conditionDataProviderService: new ConditionDataProviderService(),
             ruleConditionsConfigApiService: {
-                load: () => Promise.resolve()
+                load: () => Promise.resolve(),
             },
             availableTypes: [],
             availableGroups: [],
             restrictedConditions: [],
             childAssociationField: {},
             repositoryFactory: {
-                create: () => ({})
+                create: () => ({}),
             },
             insertNodeIntoTree: () => ({}),
             removeNodeFromTree: () => ({}),
             createCondition: () => ({}),
             conditionScopes: [],
-            unwrapAllLineItemsCondition: () => ({})
+            unwrapAllLineItemsCondition: () => ({}),
         },
         propsData: {
             condition: {},
-            ...props
+            ...props,
         },
     });
 }
@@ -120,7 +120,7 @@ function getAllFields(wrapper) {
         wrapper.findAll('.sw-entity-tag-select'),
         wrapper.findAll('.sw-datepicker'),
         wrapper.findAll('.sw-button'),
-        wrapper.findAll('.sw-textarea-field')
+        wrapper.findAll('.sw-textarea-field'),
     ];
 }
 
@@ -154,7 +154,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
 
     it.each(conditionTypes)('The component "%s" should have all fields disabled', async (conditionType) => {
         const wrapper = await createWrapperForComponent(conditionType, {
-            disabled: true
+            disabled: true,
         });
 
         eachField(getAllFields(wrapper), (field) => {

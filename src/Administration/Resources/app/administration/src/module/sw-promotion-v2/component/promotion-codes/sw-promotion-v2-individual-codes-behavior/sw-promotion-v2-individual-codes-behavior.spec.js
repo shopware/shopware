@@ -13,50 +13,50 @@ async function createWrapper(additionalPromotionData = {}) {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot><slot name="toolbar"></slot></div>'
+                template: '<div class="sw-card"><slot></slot><slot name="toolbar"></slot></div>',
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-card-filter': {
-                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>'
+                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
             },
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-confirm-modal': true,
             'sw-promotion-v2-generate-codes-modal': {
-                template: '<div class="sw-promotion-v2-generate-codes-modal"></div>'
+                template: '<div class="sw-promotion-v2-generate-codes-modal"></div>',
             },
             'sw-one-to-many-grid': true,
             'sw-empty-state': {
-                template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>'
+                template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
             },
             'sw-context-menu-item': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-number-field': {
-                template: '<div class="sw-number-field"><slot></slot></div>'
+                template: '<div class="sw-number-field"><slot></slot></div>',
             },
             'sw-icon': true,
             'sw-loader': true,
         },
         provide: {
             acl: {
-                can: () => true
+                can: () => true,
             },
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }])
-                })
+                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                }),
             },
             promotionCodeApiService: {
                 addIndividualCodes() {
                     return new Promise((resolve) => {
                         resolve();
                     });
-                }
-            }
+                },
+            },
         },
         propsData: {
             promotion: {
@@ -77,7 +77,7 @@ async function createWrapper(additionalPromotionData = {}) {
                 ordersPerCustomerCount: null,
                 exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
                 translated: {
-                    name: 'Test Promotion'
+                    name: 'Test Promotion',
                 },
                 apiAlias: null,
                 id: 'promotionId',
@@ -88,8 +88,8 @@ async function createWrapper(additionalPromotionData = {}) {
                         salesChannelId: 'salesChannelId',
                         priority: 1,
                         createdAt: '2020-08-17T13:24:52.692+00:00',
-                        id: 'promotionSalesChannelId'
-                    }
+                        id: 'promotionSalesChannelId',
+                    },
                 ],
                 discounts: [],
                 individualCodes: [],
@@ -99,9 +99,9 @@ async function createWrapper(additionalPromotionData = {}) {
                 cartRules: [],
                 translations: [],
                 hasOrders: false,
-                ...additionalPromotionData
-            }
-        }
+                ...additionalPromotionData,
+            },
+        },
     });
 }
 
@@ -138,7 +138,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
 
     it('should open the individual codes generation modal, when codes already exist', async () => {
         wrapper = await createWrapper({
-            individualCodes: ['dummy']
+            individualCodes: ['dummy'],
         });
 
         let codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
@@ -153,7 +153,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
 
     it('should open the add codes modal, when codes already exist', async () => {
         wrapper = await createWrapper({
-            individualCodes: ['dummy']
+            individualCodes: ['dummy'],
         });
 
         let addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');

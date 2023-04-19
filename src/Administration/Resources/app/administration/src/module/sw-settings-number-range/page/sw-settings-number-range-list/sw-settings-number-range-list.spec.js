@@ -17,9 +17,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -29,15 +29,15 @@ async function createWrapper(privileges = []) {
                         id: 'id',
                         name: 'Orders',
                         type: {
-                            typeName: 'Orders'
-                        }
-                    }])
-                })
+                            typeName: 'Orders',
+                        },
+                    }]),
+                }),
             },
             acl: {
-                can: key => (key ? privileges.includes(key) : true)
+                can: key => (key ? privileges.includes(key) : true),
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -47,7 +47,7 @@ async function createWrapper(privileges = []) {
                         <slot name="content"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': true,
             'sw-card': await Shopware.Component.build('sw-card'),
@@ -59,7 +59,7 @@ async function createWrapper(privileges = []) {
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-language-switch': true,
             'sw-search-bar': true,
@@ -69,7 +69,7 @@ async function createWrapper(privileges = []) {
             'sw-loader': true,
             'sw-empty-state': true,
             'sw-extension-component-section': true,
-        }
+        },
     });
 }
 
@@ -110,7 +110,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     it('should allow edit with edit permission', async () => {
         wrapper = await createWrapper([
-            'number_ranges.editor'
+            'number_ranges.editor',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -128,7 +128,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     it('should now allow delete without delete permission', async () => {
         wrapper = await createWrapper([
-            'number_ranges.editor'
+            'number_ranges.editor',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -146,7 +146,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     it('should be able to delete if user has delete permission', async () => {
         wrapper = await createWrapper([
-            'number_ranges.deleter'
+            'number_ranges.deleter',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

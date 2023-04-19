@@ -26,16 +26,16 @@ const defaultRepository = {
         Shopware.Context.api,
         null,
         [{ name: 'defaultRepository' }],
-        1
+        1,
     )),
     get: () => Promise.resolve({
         sections: [{
-            blocks: []
+            blocks: [],
         }],
         type: CMS.PAGE_TYPES.LANDING,
     }),
     save: jest.fn(() => Promise.resolve()),
-    clone: jest.fn(() => Promise.resolve())
+    clone: jest.fn(() => Promise.resolve()),
 };
 
 const categoryRepository = {
@@ -43,12 +43,12 @@ const categoryRepository = {
 };
 
 const productRepository = {
-    search: () => Promise.resolve([{ id: productID }])
+    search: () => Promise.resolve([{ id: productID }]),
 
 };
 
 const mediaRepository = {
-    get: () => Promise.resolve({ id: mediaID })
+    get: () => Promise.resolve({ id: mediaID }),
 };
 
 
@@ -81,18 +81,18 @@ async function createWrapper() {
                             <slot name="modal-footer"></slot>
                         </div>
                     </div>
-                `
+                `,
             },
             'sw-confirm-modal': {
                 template: '<div></div>',
-                props: ['text']
-            }
+                props: ['text'],
+            },
         },
         mocks: {
             $route: { params: { id: '1a' } },
             $device: {
-                getSystemKey: () => 'Strg'
-            }
+                getSystemKey: () => 'Strg',
+            },
         },
         provide: {
             repositoryFactory: {
@@ -107,7 +107,7 @@ async function createWrapper() {
                         default:
                             return defaultRepository;
                     }
-                }
+                },
             },
             cmsPageTypeService,
             entityFactory: {},
@@ -116,17 +116,17 @@ async function createWrapper() {
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {
-                        'product-listing': {}
+                        'product-listing': {},
                     };
-                }
+                },
             },
             appCmsService: {},
             cmsDataResolverService: {
                 // eslint-disable-next-line prefer-promise-reject-errors
                 resolve: () => Promise.reject('foo'),
             },
-            systemConfigApiService: {}
-        }
+            systemConfigApiService: {},
+        },
     });
 }
 
@@ -156,7 +156,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
@@ -166,7 +166,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(saveAction.attributes().disabled).toBe('true');
 
         const cmsStageAddSections = wrapper.findAll('sw-cms-stage-add-section-stub');
-        expect(cmsStageAddSections.length).toBe(2);
+        expect(cmsStageAddSections).toHaveLength(2);
         cmsStageAddSections.wrappers.forEach(cmsStageAddSection => {
             expect(cmsStageAddSection.attributes().disabled).toBe('true');
         });
@@ -186,7 +186,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
@@ -196,7 +196,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(saveAction.attributes().disabled).toBeUndefined();
 
         const cmsStageAddSections = wrapper.findAll('sw-cms-stage-add-section-stub');
-        expect(cmsStageAddSections.length).toBe(2);
+        expect(cmsStageAddSections).toHaveLength(2);
         cmsStageAddSections.wrappers.forEach(cmsStageAddSection => {
             expect(cmsStageAddSection.attributes().disabled).toBeUndefined();
         });
@@ -220,10 +220,10 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                 name: 'Product page',
                 sections: [{
                     blocks: [{
-                        slots: [{ type: 'buy-box' }, { type: 'buy-box' }]
-                    }]
-                }]
-            }
+                        slots: [{ type: 'buy-box' }, { type: 'buy-box' }],
+                    }],
+                }],
+            },
         });
 
         const { uniqueSlotCount } = wrapper.vm.getSlotValidations(wrapper.vm.page.sections);
@@ -231,7 +231,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(buyBoxElements.count).toBe(2);
 
         expect(wrapper.vm.slotValidation()).toBe(false);
-        expect(wrapper.vm.validationWarnings.length).toBe(2);
+        expect(wrapper.vm.validationWarnings).toHaveLength(2);
     });
 
     it('should not show layout assignment when saving', async () => {
@@ -259,12 +259,12 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                             {
                                 name: 'Test block',
                                 type: 'product-listing',
-                                slots: []
-                            }
-                        ]
-                    }
-                ]
-            }
+                                slots: [],
+                            },
+                        ],
+                    },
+                ],
+            },
         });
 
         // Save the current layout
@@ -287,7 +287,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 type: 'product_list',
 
-            }
+            },
         });
 
         const State = Shopware.State._store.state.cmsPageState;
@@ -302,7 +302,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
             media: {
-                id: mediaID
+                id: mediaID,
             },
         });
         expect(State.currentDemoProducts).toMatchObject([{ id: productID }]);
@@ -315,7 +315,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
             media: {
-                id: mediaID
+                id: mediaID,
             },
         });
         expect(State.currentDemoProducts).toMatchObject([{ id: productID }]);
@@ -331,7 +331,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 type: 'product_detail',
 
-            }
+            },
         });
 
         const State = Shopware.State._store.state.cmsPageState;
@@ -343,7 +343,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        expect(State.currentDemoEntity).toEqual(null);
+        expect(State.currentDemoEntity).toBeNull();
         expect(State.currentDemoProducts).toEqual([]);
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
@@ -361,7 +361,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const idStub = 'some-id';
         await wrapper.setData({
-            page: { id: idStub }
+            page: { id: idStub },
         });
 
         wrapper.vm.createNotificationError = () => {};

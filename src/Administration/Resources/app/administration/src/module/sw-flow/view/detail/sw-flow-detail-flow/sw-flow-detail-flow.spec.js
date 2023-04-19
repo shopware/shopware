@@ -18,27 +18,27 @@ const sequenceFixture = {
     parentId: null,
     position: 1,
     displayGroup: 1,
-    config: {}
+    config: {},
 };
 
 const sequencesFixture = [
     {
         ...sequenceFixture,
-        ruleId: '1111'
+        ruleId: '1111',
     },
     {
         ...sequenceFixture,
         ruleId: '2222',
         parentId: '1',
         id: '2',
-        trueCase: true
+        trueCase: true,
     },
     {
         ...sequenceFixture,
         actionName: 'sendMail',
         parentId: '1',
         id: '3',
-        trueCase: false
+        trueCase: false,
     },
     {
         ...sequenceFixture,
@@ -46,14 +46,14 @@ const sequencesFixture = [
         parentId: '1',
         id: '4',
         position: 2,
-        trueCase: false
+        trueCase: false,
     },
     {
         ...sequenceFixture,
         displayGroup: 2,
         position: 2,
-        id: '5'
-    }
+        id: '5',
+    },
 ];
 
 const formatSequences = [
@@ -66,8 +66,8 @@ const formatSequences = [
                 ruleId: '2222',
                 parentId: '1',
                 id: '2',
-                trueCase: true
-            }
+                trueCase: true,
+            },
         },
         falseBlock: {
             3: {
@@ -75,7 +75,7 @@ const formatSequences = [
                 actionName: 'sendMail',
                 parentId: '1',
                 id: '3',
-                trueCase: false
+                trueCase: false,
             },
             4: {
                 ...sequenceFixture,
@@ -83,16 +83,16 @@ const formatSequences = [
                 parentId: '1',
                 position: 2,
                 id: '4',
-                trueCase: false
-            }
-        }
+                trueCase: false,
+            },
+        },
     },
     {
         ...sequenceFixture,
         displayGroup: 2,
         position: 2,
-        id: '5'
-    }
+        id: '5',
+    },
 ];
 
 
@@ -104,7 +104,7 @@ function getSequencesCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -123,9 +123,9 @@ async function createWrapper(privileges = []) {
                     get: (id) => Promise.resolve({
                         id,
                         name: 'Rule name',
-                        description: 'Rule description'
-                    })
-                })
+                        description: 'Rule description',
+                    }),
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -134,21 +134,21 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             flowActionService: {
                 getActions: jest.fn(() => {
                     return Promise.resolve([]);
-                })
+                }),
             },
             ruleConditionDataProviderService: {
-                getRestrictedRules: () => Promise.resolve([])
+                getRestrictedRules: () => Promise.resolve([]),
             },
         },
 
         stubs: {
             'sw-icon': {
-                template: '<div class="sw-icon" v-on="$listeners"></div>'
+                template: '<div class="sw-icon" v-on="$listeners"></div>',
             },
             'sw-flow-sequence': await Shopware.Component.build('sw-flow-sequence'),
             'sw-flow-sequence-selector': true,
@@ -164,10 +164,10 @@ async function createWrapper(privileges = []) {
                         :value="eventName"
                         @input="$emit('option-select', $event.target.value)"
                         class="sw-flow-trigger" />
-                `
+                `,
             },
-            'sw-alert': true
-        }
+            'sw-alert': true,
+        },
     });
 }
 
@@ -179,7 +179,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                 flow: {
                     name: 'Flow 1',
                     eventName: '',
-                    sequences: getSequencesCollection()
+                    sequences: getSequencesCollection(),
                 },
                 invalidSequences: [],
                 triggerActions: [
@@ -192,13 +192,13 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                     { name: 'telegram.send.message', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
                     { name: 'action.stop.flow', requirements: [], extensions: [] },
                 ],
-            }
+            },
         });
     });
 
     it('should show create an selector when select initially', async () => {
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
 
         let helpElement = wrapper.find('.sw-flow-detail-flow__trigger-explain');
@@ -226,21 +226,21 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
-                sequences: getSequencesCollection(sequencesFixture)
-            }
+                sequences: getSequencesCollection(sequencesFixture),
+            },
         );
 
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
 
         const sequences = wrapper.findAll('.sw-flow-sequence');
-        expect(sequences.length).toEqual(4);
+        expect(sequences).toHaveLength(4);
         expect(wrapper.vm.formatSequences).toEqual(formatSequences);
 
         // Based on sequences, there are 2 rootSequences
         const rootSequences = wrapper.findAll('.sw-flow-detail-flow__sequences');
-        expect(rootSequences.length).toEqual(2);
+        expect(rootSequences).toHaveLength(2);
     });
 
     it('should able to add new sequence', async () => {
@@ -249,26 +249,26 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
-                sequences: getSequencesCollection(sequencesFixture)
-            }
+                sequences: getSequencesCollection(sequencesFixture),
+            },
         );
 
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
 
         const addButton = wrapper.find('.sw-flow-detail-flow__position-plus .sw-icon');
         await addButton.trigger('click');
 
         const sequences = wrapper.findAll('.sw-flow-sequence');
-        expect(sequences.length).toEqual(5);
+        expect(sequences).toHaveLength(5);
         const selectorSequence = sequences.at(4).find('sw-flow-sequence-selector-stub');
         expect(selectorSequence.exists()).toBeTruthy();
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(6);
-        expect(sequencesState[sequencesState.length - 1].displayGroup).toEqual(3);
-        expect(sequencesState[sequencesState.length - 1].position).toEqual(1);
+        expect(sequencesState).toHaveLength(6);
+        expect(sequencesState[sequencesState.length - 1].displayGroup).toBe(3);
+        expect(sequencesState[sequencesState.length - 1].position).toBe(1);
         expect(sequencesState[sequencesState.length - 1].parentId).toBeNull();
     });
 
@@ -285,13 +285,13 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                     parentId: null,
                     position: 1,
                     displayGroup: 1,
-                    config: {}
-                }]
-            }
+                    config: {},
+                }],
+            },
         );
 
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
 
         const alertElement = wrapper.findAll('.sw-flow-detail-flow__warning-box');
@@ -309,12 +309,12 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                 parentId: null,
                 position: 1,
                 displayGroup: 1,
-                config: {}
-            }]
+                config: {},
+            }],
         });
 
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
 
         await wrapper.setProps({ isTemplate: true });

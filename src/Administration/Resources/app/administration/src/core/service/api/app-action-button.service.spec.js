@@ -32,7 +32,7 @@ describe('appActionButtonService', () => {
         expect(() => {
             appActionButtonService.getActionButtonsPerView();
         }).toThrow(
-            new InvalidActionButtonParameterError('Parameter "entity" must have a valid value. Given: undefined')
+            new InvalidActionButtonParameterError('Parameter "entity" must have a valid value. Given: undefined'),
         );
     });
 
@@ -43,7 +43,7 @@ describe('appActionButtonService', () => {
         expect(() => {
             appActionButtonService.getActionButtonsPerView('product');
         }).toThrow(
-            new InvalidActionButtonParameterError('Parameter "view" must have a valid value. Given: undefined')
+            new InvalidActionButtonParameterError('Parameter "view" must have a valid value. Given: undefined'),
         );
     });
 
@@ -55,15 +55,15 @@ describe('appActionButtonService', () => {
             200,
             {
                 actions: [{
-                    name: 'App'
-                }]
-            }
+                    name: 'App',
+                }],
+            },
         );
 
         const actionButtons = await appActionButtonService.getActionButtonsPerView('product', 'detail');
 
         expect(actionButtons).toEqual([{
-            name: 'App'
+            name: 'App',
         }]);
     });
 
@@ -74,7 +74,7 @@ describe('appActionButtonService', () => {
 
         clientMock.onPost(`app-system/action-button/run/${actionButtonId}`).reply(
             200,
-            null
+            null,
         );
 
         await appActionButtonService.runAction(actionButtonId);

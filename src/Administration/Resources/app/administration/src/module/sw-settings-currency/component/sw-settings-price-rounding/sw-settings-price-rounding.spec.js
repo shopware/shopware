@@ -11,8 +11,8 @@ async function createWrapper() {
             'sw-switch-field': true,
             'sw-number-field': true,
             'sw-single-select': true,
-            'sw-alert': true
-        }
+            'sw-alert': true,
+        },
     });
 }
 
@@ -29,12 +29,12 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
         await wrapper.setProps({
             totalRounding: {
                 interval: 0.05,
-                decimals: 2
+                decimals: 2,
             },
             itemRounding: {
                 interval: 0.10,
-                decimals: 1
-            }
+                decimals: 1,
+            },
         });
 
         expect(wrapper.find('.sw-settings-price-rounding__header-info').exists()).toBeTruthy();
@@ -46,12 +46,12 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
         await wrapper.setProps({
             totalRounding: {
                 interval: 0.01,
-                decimals: 2
+                decimals: 2,
             },
             itemRounding: {
                 interval: 0.01,
-                decimals: 2
-            }
+                decimals: 2,
+            },
         });
 
         expect(wrapper.find('.sw-settings-price-rounding__header-info').exists()).toBeFalsy();
@@ -62,11 +62,11 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
 
         await wrapper.setProps({
             totalRounding: {
-                interval: 0.01
+                interval: 0.01,
             },
             itemRounding: {
-                interval: 0.10
-            }
+                interval: 0.10,
+            },
         });
 
         expect(wrapper.find('.sw-settings-price-rounding__header-warning').exists()).toBeTruthy();
@@ -77,11 +77,11 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
 
         await wrapper.setProps({
             totalRounding: {
-                interval: 0.50
+                interval: 0.50,
             },
             itemRounding: {
-                interval: 0.50
-            }
+                interval: 0.50,
+            },
         });
 
         expect(wrapper.find('.sw-settings-price-rounding__header-warning').exists()).toBeFalsy();

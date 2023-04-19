@@ -14,8 +14,8 @@ async function createWrapper(privileges = []) {
     const mockEntitySchema = {
         product: {
             entity: 'product',
-            properties: {}
-        }
+            properties: {},
+        },
     };
 
     Shopware.EntityDefinition = EntityDefinitionFactory;
@@ -31,7 +31,7 @@ async function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-field-error': true,
             'sw-product-stream-value': true,
-            'sw-product-stream-field-select': true
+            'sw-product-stream-field-select': true,
         },
         provide: {
             conditionDataProviderService: {
@@ -40,30 +40,30 @@ async function createWrapper(privileges = []) {
                 allowedJsonAccessors: {
                     'json.test': {
                         value: 'json.test',
-                        type: 'string'
-                    }
-                }
+                        type: 'string',
+                    },
+                },
             },
             availableTypes: {},
             availableGroups: [],
             childAssociationField: {},
             createCondition: () => {},
             productCustomFields: {
-                test: 'customFields.test'
+                test: 'customFields.test',
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             insertNodeIntoTree: () => {},
-            removeNodeFromTree: () => {}
+            removeNodeFromTree: () => {},
         },
         propsData: {
-            condition: {}
-        }
+            condition: {},
+        },
     });
 }
 
@@ -83,7 +83,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
             disabled: true,
             message: 'sw-privileges.tooltip.warning',
             showDelay: 300,
-            showOnDisabledElements: true
+            showOnDisabledElements: true,
         });
     });
 
@@ -93,7 +93,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
         ['true', 'sw-product-stream-value-stub', 'product_stream.viewer'],
         [undefined, 'sw-product-stream-value-stub', 'product_stream.viewer, product_stream.editor'],
         ['true', 'sw-product-stream-field-select-stub', 'product_stream.viewer'],
-        [undefined, 'sw-product-stream-field-select-stub', 'product_stream.viewer, product_stream.editor']
+        [undefined, 'sw-product-stream-field-select-stub', 'product_stream.viewer, product_stream.editor'],
     ])('should have %p as disabled state on \'%s\' when having %s role', async (state, element, role) => {
         const roles = role.split(', ');
 
@@ -108,8 +108,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
 
         await wrapper.setProps({
             condition: {
-                field: 'customFields.test'
-            }
+                field: 'customFields.test',
+            },
         });
         await wrapper.vm.$nextTick();
 
@@ -128,8 +128,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
 
         await wrapper.setProps({
             condition: {
-                field: 'json.test'
-            }
+                field: 'json.test',
+            },
         });
         await wrapper.vm.$nextTick();
 

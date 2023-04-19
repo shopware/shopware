@@ -18,14 +18,14 @@ const mockData = [
         andLogic: false,
         minSearchLength: 4,
         excludedTerms: [],
-        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
     },
     {
         andLogic: true,
         minSearchLength: 4,
         excludedTerms: [],
-        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c'
-    }
+        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c',
+    },
 ];
 
 Shopware.Component.register('sw-settings-search', swSettingsSearch);
@@ -43,11 +43,11 @@ async function createWrapper() {
         routes: [{
             name: 'sw.settings.search.index.general',
             path: '/sw/settings/search/index/general',
-            component: await Shopware.Component.build('sw-settings-search')
+            component: await Shopware.Component.build('sw-settings-search'),
         }, {
             name: 'sw.settings.search.index.liveSearch',
-            path: '/sw/settings/search/index/live-search/'
-        }]
+            path: '/sw/settings/search/index/live-search/',
+        }],
     });
 
     return shallowMount(await Shopware.Component.build('sw-settings-search'), {
@@ -68,9 +68,9 @@ async function createWrapper() {
                     },
                     create: jest.fn(() => {
                         return {};
-                    })
-                })
-            }
+                    }),
+                }),
+            },
         },
 
         stubs: {
@@ -87,19 +87,19 @@ async function createWrapper() {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-icon': true,
             'sw-language-switch': true,
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
@@ -109,7 +109,7 @@ async function createWrapper() {
             'router-link': true,
             'router-view': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -156,8 +156,8 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         await wrapper.setData({
             productSearchConfigs: {
                 andLogic: true,
-                minSearchLength: 2
-            }
+                minSearchLength: 2,
+            },
         });
 
         const onSaveSearchSettingsSpy = jest.spyOn(wrapper.vm, 'onSaveSearchSettings');
@@ -181,7 +181,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         wrapper.vm.getProductSearchConfigs = jest.fn();
         wrapper.vm.productSearchConfigs = {
             andLogic: true,
-            minSearchLength: 2
+            minSearchLength: 2,
         };
 
         await wrapper.vm.onSaveSearchSettings();
@@ -189,7 +189,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
         expect(wrapper.vm.getProductSearchConfigs).toHaveBeenCalled();
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
-            message: 'sw-settings-search.notification.saveSuccess'
+            message: 'sw-settings-search.notification.saveSuccess',
         });
     });
 
@@ -206,7 +206,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-settings-search.notification.saveError'
+            message: 'sw-settings-search.notification.saveError',
         });
         expect(wrapper.vm.createNotificationSuccess).not.toHaveBeenCalled();
     });
@@ -220,19 +220,19 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
         expect(wrapper.vm.productSearchConfigs.andLogic).toBe(mockData[0].andLogic);
         expect(wrapper.vm.productSearchConfigs.minSearchLength).toBe(mockData[0].minSearchLength);
-        expect(wrapper.vm.productSearchConfigs.excludedTerms.length).toBe(0);
+        expect(wrapper.vm.productSearchConfigs.excludedTerms).toHaveLength(0);
         expect(wrapper.vm.productSearchConfigs.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });
 
     it('should show unsaved warning modal', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.editor'
+            'product_search_config.editor',
         ]);
         const unsavedDataLeaveHandlerSpy = jest.spyOn(wrapper.vm, 'unsavedDataLeaveHandler');
 
         await wrapper.setData({
             isEditing: true,
-            isDisplayingLeavePageWarning: false
+            isDisplayingLeavePageWarning: false,
         });
 
         wrapper.vm.$router.push('/sw/settings/search/index/live-search');

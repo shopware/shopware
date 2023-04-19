@@ -19,7 +19,7 @@ import Criteria from 'src/core/data/criteria.data';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-    POUND: 'fce3465831e8639bb2ea165d0fcf1e8b'
+    POUND: 'fce3465831e8639bb2ea165d0fcf1e8b',
 };
 
 Shopware.Component.register('sw-product-list', swProductList);
@@ -39,7 +39,7 @@ function mockContext() {
         port: 80,
         scheme: 'http',
         schemeAndHttpHost: 'http://shopware.local',
-        uri: 'http://shopware.local/admin'
+        uri: 'http://shopware.local/admin',
     };
 }
 
@@ -49,14 +49,14 @@ function mockPrices() {
             currencyId: CURRENCY_ID.POUND,
             net: 373.83,
             gross: 400,
-            linked: true
+            linked: true,
         },
         {
             currencyId: CURRENCY_ID.EURO,
             net: 560.75,
             gross: 600,
-            linked: true
-        }
+            linked: true,
+        },
     ];
 }
 
@@ -70,7 +70,7 @@ function mockCriteria() {
         },
         addSorting(sorting) {
             this.sortings.push(sorting);
-        }
+        },
     };
 }
 
@@ -86,21 +86,21 @@ function getProductData(criteria) {
                     currencyId: CURRENCY_ID.POUND,
                     net: 373.83,
                     gross: 400,
-                    linked: true
+                    linked: true,
                 },
                 {
                     currencyId: CURRENCY_ID.EURO,
                     net: 560.75,
                     gross: 600,
-                    linked: true
-                }
+                    linked: true,
+                },
             ],
             productNumber: 'SW10001',
             name: 'Product 2',
             id: 'dcc37f845b664e24b5b2e6e77c078e6c',
             manufacturer: {
-                name: 'Manufacturer B'
-            }
+                name: 'Manufacturer B',
+            },
         },
         {
             active: true,
@@ -112,23 +112,23 @@ function getProductData(criteria) {
                     currencyId: CURRENCY_ID.POUND,
                     net: 20.56,
                     gross: 22,
-                    linked: true
+                    linked: true,
                 },
                 {
                     currencyId: CURRENCY_ID.EURO,
                     net: 186.89,
                     gross: 200,
-                    linked: true
-                }
+                    linked: true,
+                },
             ],
             productNumber: 'SW10000',
             name: 'Product 1',
             id: 'bc5ff49955be4b919053add552c2815d',
             childCount: 8,
             manufacturer: {
-                name: 'Manufacturer A'
-            }
-        }
+                name: 'Manufacturer A',
+            },
+        },
     ];
 
     // check if grid is sorting for currency
@@ -205,7 +205,7 @@ function getCurrencyData() {
             decimalPrecision: 2,
             position: 1,
             isSystemDefault: true,
-            id: CURRENCY_ID.EURO
+            id: CURRENCY_ID.EURO,
         },
         {
             factor: 1.0457384950,
@@ -216,8 +216,8 @@ function getCurrencyData() {
             decimalPrecision: 2,
             position: 1,
             isSystemDefault: true,
-            id: CURRENCY_ID.POUND
-        }
+            id: CURRENCY_ID.POUND,
+        },
     ];
 }
 
@@ -237,10 +237,10 @@ async function createWrapper() {
             component: await Shopware.Component.build('sw-product-list'),
             meta: {
                 $module: {
-                    entity: 'product'
-                }
-            }
-        }]
+                    entity: 'product',
+                },
+            },
+        }],
     });
 
     router.push({ name: 'sw.product.list' });
@@ -264,91 +264,91 @@ async function createWrapper() {
                         }
 
                         return { search: () => Promise.resolve(getCurrencyData()) };
-                    }
+                    },
                 },
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
                         return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
                         });
                     },
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
-                    }
+                    },
                 },
                 filterFactory: {
-                    create: () => []
+                    create: () => [],
                 },
                 acl: {
-                    can: () => true
-                }
+                    can: () => true,
+                },
             },
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"></slot></div>'
+                    template: '<div><slot name="content"></slot></div>',
                 },
                 'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
                 'sw-context-button': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-context-menu-item': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-data-grid-settings': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>'
+                    template: '<div class="sw-empty-state"></div>',
                 },
                 'sw-pagination': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-icon': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-button': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-sidebar': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-sidebar-item': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'router-link': true,
                 'sw-language-switch': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-notification-center': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-search-bar': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-loader': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-data-grid-skeleton': {
-                    template: '<div class="sw-data-grid-skeleton"></div>'
+                    template: '<div class="sw-data-grid-skeleton"></div>',
                 },
                 'sw-checkbox-field': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-media-preview-v2': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-color-badge': {
-                    template: '<div></div>'
-                }
-            }
+                    template: '<div></div>',
+                },
+            },
         }),
-        router: router
+        router: router,
     };
 }
 
 Shopware.Service().register('filterService', () => {
     return {
-        mergeWithStoredFilters: (storeKey, criteria) => criteria
+        mergeWithStoredFilters: (storeKey, criteria) => criteria,
     };
 });
 
@@ -368,7 +368,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
     it('should be a Vue.JS component', async () => {
         await router.push({
-            name: 'sw.product.list'
+            name: 'sw.product.list',
         });
         expect(wrapper.vm).toBeTruthy();
     });
@@ -521,7 +521,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             currencyId: CURRENCY_ID.EURO,
             net: 560.75,
             gross: 600,
-            linked: true
+            linked: true,
         };
 
         expect(foundPriceData).toEqual(expectedPriceData);
@@ -536,7 +536,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             currencyId: null,
             gross: null,
             linked: true,
-            net: null
+            net: null,
         };
 
         expect(foundPriceData).toEqual(expectedPriceData);
@@ -558,7 +558,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
     it('should add query score to the criteria', async () => {
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -599,7 +599,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
     it('should not build query score when search ranking field is null', async () => {
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -622,7 +622,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
     it('should show empty state when there is not item after filling search term', async () => {
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -636,7 +636,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

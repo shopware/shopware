@@ -23,11 +23,11 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-customer-group-detail'), {
         localVue,
         mocks: {
-            $route: { query: '' }
+            $route: { query: '' },
         },
 
         propsData: {
-            customerGroupId: '1'
+            customerGroupId: '1',
         },
 
         stubs: {
@@ -37,16 +37,16 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-card-view': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-container': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-field': true,
             'sw-boolean-radio-group': true,
@@ -79,7 +79,7 @@ async function createWrapper(privileges = []) {
                             id: '',
                             name: '',
                             displayGross: false,
-                            isNew: () => true
+                            isNew: () => true,
                         };
                     },
 
@@ -92,9 +92,9 @@ async function createWrapper(privileges = []) {
                             registrationSalesChannels: new EntityCollection('/customer-group/1/registration-sales-channels', 'sales_channel', Context.api, null, [
                                 {
                                     id: '123',
-                                }
+                                },
                             ]),
-                            isNew: () => false
+                            isNew: () => false,
                         });
                     },
 
@@ -105,32 +105,32 @@ async function createWrapper(privileges = []) {
                                 seoPathInfo: 'Hello-world',
                                 salesChannel: {
                                     translated: {
-                                        name: 'Storefront'
+                                        name: 'Storefront',
                                     },
                                     domains: [
                                         {
                                             languageId: '1234',
-                                            url: 'http://shopware.test'
-                                        }
-                                    ]
+                                            url: 'http://shopware.test',
+                                        },
+                                    ],
                                 },
-                                languageId: '1234'
-                            }
+                                languageId: '1234',
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
-        }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
+        },
     });
 }
 
@@ -149,22 +149,22 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'gross radio group', selector: 'sw-boolean-radio-group-stub' },
             {
                 name: 'registration form switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]'
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]',
             },
             {
                 name: 'form title field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]'
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]',
             },
             { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
                 name: 'only company switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]'
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]'
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
-            { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' }
+            { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' },
         ].forEach(({ name, selector }) => {
             it(`${name} should be disabled`, async () => {
                 const element = wrapper.find(selector);
@@ -176,7 +176,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             expect(wrapper.vm.tooltipSave).toStrictEqual({
                 message: 'sw-privileges.tooltip.warning',
                 disabled: false,
-                showOnDisabledElements: true
+                showOnDisabledElements: true,
             });
         });
     });
@@ -195,22 +195,22 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'gross radio group', selector: 'sw-boolean-radio-group-stub' },
             {
                 name: 'registration form switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]'
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]',
             },
             {
                 name: 'form title field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]'
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]',
             },
             { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
                 name: 'only company switch',
-                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]'
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]',
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]'
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
-            { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' }
+            { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' },
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
@@ -221,7 +221,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         it('should show save shortcut tooltip', async () => {
             expect(wrapper.vm.tooltipSave).toStrictEqual({
                 message: 'CTRL + S',
-                appearance: 'light'
+                appearance: 'light',
             });
         });
     });
@@ -236,22 +236,22 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             seoPathInfo: 'Hello-world',
             salesChannel: {
                 translated: {
-                    name: 'Storefront'
+                    name: 'Storefront',
                 },
                 domains: [
                     {
                         languageId: '1234',
-                        url: 'http://shopware.test'
-                    }
-                ]
+                        url: 'http://shopware.test',
+                    },
+                ],
             },
-            languageId: '1234'
+            languageId: '1234',
         }]);
         expect(wrapper.find('sw-text-field-stub[label="Storefront"]').attributes()).toEqual({
             label: 'Storefront',
             copyable: 'true',
             disabled: 'true',
-            value: 'http://shopware.test/Hello-world'
+            value: 'http://shopware.test/Hello-world',
         });
 
         const salesChannelSelect = wrapper.find('.sw-entity-multi-select');

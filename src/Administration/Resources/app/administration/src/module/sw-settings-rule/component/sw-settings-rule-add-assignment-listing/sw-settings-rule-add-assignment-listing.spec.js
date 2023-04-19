@@ -18,21 +18,21 @@ async function createWrapper(entityContext) {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
             'sw-data-grid-skeleton': true,
             'sw-checkbox-field': true,
             'sw-icon': true,
-            'sw-button': true
+            'sw-button': true,
         },
         propsData: {
             ruleId: 'uuid1',
-            entityContext: entityContext
+            entityContext: entityContext,
         },
         provide: {
-        }
+        },
     });
 }
 
@@ -62,35 +62,35 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-listi
                         label: 'Event',
                         rawData: true,
                         sortable: true,
-                        allowEdit: false
+                        allowEdit: false,
                     },
                     {
                         property: 'title',
                         label: 'Title',
                         rawData: true,
                         sortable: true,
-                        allowEdit: false
+                        allowEdit: false,
                     },
                     {
                         property: 'active',
                         label: 'Active',
                         rawData: true,
                         sortable: true,
-                        allowEdit: false
-                    }
-                ]
+                        allowEdit: false,
+                    },
+                ],
             },
             repository: {
                 search: () => {
                     const entities = [
                         { eventName: 'Foo', rules: [] },
                         { eventName: 'Bar', rules: [] },
-                        { eventName: 'Baz', rules: [] }
+                        { eventName: 'Baz', rules: [] },
                     ];
 
                     return Promise.resolve(createEntityCollectionMock('event_action', entities));
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.vm).toBeTruthy();

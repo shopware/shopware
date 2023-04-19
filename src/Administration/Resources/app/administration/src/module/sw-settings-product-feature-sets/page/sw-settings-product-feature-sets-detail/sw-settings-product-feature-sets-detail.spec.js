@@ -13,19 +13,19 @@ Shopware.Component.register('sw-settings-product-feature-sets-detail', swSetting
 
 const classes = {
     componentRoot: 'sw-settings-product-feature-sets-detail',
-    fieldLabel: 'sw-field__label'
+    fieldLabel: 'sw-field__label',
 };
 
 const components = {
     nameField: 'sw-text-field',
-    descriptionField: 'sw-textarea-field'
+    descriptionField: 'sw-textarea-field',
 };
 
 const text = {
     labelNameField: 'sw-settings-product-feature-sets.detail.labelName',
     placeholderNameField: 'sw-settings-product-feature-sets.detail.placeholderName',
     labelDescriptionField: 'sw-settings-product-feature-sets.detail.labelDescription',
-    placeholderDescriptionField: 'sw-settings-product-feature-sets.detail.placeholderDescription'
+    placeholderDescriptionField: 'sw-settings-product-feature-sets.detail.placeholderDescription',
 };
 
 const detailPage = async (additionalOptions = {}, privileges = []) => {
@@ -42,7 +42,7 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>
-                    `
+                    `,
             },
             'sw-button-process': true,
             'sw-card-view': true,
@@ -59,7 +59,7 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
             'sw-settings-product-feature-sets-values-card': true,
             'sw-extension-component-section': true,
             'sw-skeleton': true,
-            i18n: true
+            i18n: true,
         },
         propsData: {
             productFeatureSet: {
@@ -67,9 +67,9 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                 name: null,
                 description: null,
                 features: [
-                    {}
-                ]
-            }
+                    {},
+                ],
+            },
         },
         provide: {
             acl: {
@@ -79,16 +79,16 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
-                    create: () => Promise.resolve()
-                })
+                    create: () => Promise.resolve(),
+                }),
             },
-            validationService: {}
+            validationService: {},
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 };
 
@@ -136,9 +136,9 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
                 name: null,
                 description: null,
                 features: [
-                    {}
-                ]
-            }
+                    {},
+                ],
+            },
         });
 
         const saveButton = wrapper.get('.sw-settings-currency-detail__save-action');
@@ -154,7 +154,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should have all fields enabled when user has acl rights', async () => {
         wrapper = await detailPage({}, [
-            'product_feature_sets.editor'
+            'product_feature_sets.editor',
         ]);
 
         await wrapper.setData({
@@ -163,9 +163,9 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
                 name: null,
                 description: null,
                 features: [
-                    {}
-                ]
-            }
+                    {},
+                ],
+            },
         });
 
         const saveButton = wrapper.get('.sw-settings-currency-detail__save-action');

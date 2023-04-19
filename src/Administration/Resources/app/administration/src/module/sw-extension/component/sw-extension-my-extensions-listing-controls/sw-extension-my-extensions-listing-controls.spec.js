@@ -26,8 +26,8 @@ describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-c
                 'sw-field-error': await Shopware.Component.build('sw-field-error'),
                 'sw-select-field': await Shopware.Component.build('sw-select-field'),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-icon': true
-            }
+                'sw-icon': true,
+            },
         });
     }
 

@@ -20,11 +20,11 @@ async function createWrapper() {
             selectedBlock: {
                 id: '1a2b',
                 sectionPosition: 'main',
-                type: 'foo-bar'
+                type: 'foo-bar',
             },
             isSystemDefaultLanguage: true,
             currentCmsDeviceView: 'desktop',
-        }
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-cms-section'), {
@@ -41,25 +41,25 @@ async function createWrapper() {
                     {
                         id: '1a2b',
                         sectionPosition: 'main',
-                        type: 'foo-bar'
+                        type: 'foo-bar',
                     },
                     {
                         id: '3cd4',
                         sectionPosition: 'sidebar',
-                        type: 'foo-bar'
+                        type: 'foo-bar',
                     },
                     {
                         id: '5ef6',
                         sectionPosition: 'sidebar',
-                        type: 'foo-bar-removed'
+                        type: 'foo-bar-removed',
                     },
                     {
                         id: '7gh8',
                         sectionPosition: 'main',
-                        type: 'foo-bar-removed'
-                    }
-                ]
-            }
+                        type: 'foo-bar-removed',
+                    },
+                ],
+            },
         },
         stubs: {
             'sw-icon': true,
@@ -74,11 +74,11 @@ async function createWrapper() {
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {
-                        'foo-bar': {}
+                        'foo-bar': {},
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -99,7 +99,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         expect(cmsBlock.attributes().disabled).toBeFalsy();
 
         const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
-        expect(cmsStageAddBlocks.length).toBe(4);
+        expect(cmsStageAddBlocks).toHaveLength(4);
 
         cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeTruthy();
@@ -109,7 +109,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     it('should disable all sub components', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
@@ -119,7 +119,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         expect(cmsBlock.attributes().disabled).toBe('true');
 
         const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
-        expect(cmsStageAddBlocks.length).toBe(0);
+        expect(cmsStageAddBlocks).toHaveLength(0);
 
         cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeFalsy();
@@ -136,8 +136,8 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                     mobile: true,
                     tablet: true,
                     desktop: false,
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
@@ -153,8 +153,8 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                     mobile: true,
                     tablet: true,
                     desktop: false,
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');

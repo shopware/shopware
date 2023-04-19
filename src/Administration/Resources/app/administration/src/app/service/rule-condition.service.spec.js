@@ -7,19 +7,19 @@ responses.addResponse({
     url: '/search-ids/rule',
     status: 200,
     response: {
-        data: ['restricted-rule-id']
-    }
+        data: ['restricted-rule-id'],
+    },
 });
 
 describe('src/app/service/rule-condition.service.js', () => {
     it('should be a function', async () => {
-        expect(typeof createConditionService).toEqual('function');
+        expect(typeof createConditionService).toBe('function');
     });
 
     it('should return restricted rules', async () => {
         const ruleConditionService = createConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
-            notEquals: ['cartCartAmount']
+            notEquals: ['cartCartAmount'],
         });
 
         const result = await ruleConditionService.getRestrictedRules('personaPromotions');
@@ -37,19 +37,19 @@ describe('src/app/service/rule-condition.service.js', () => {
         const ruleConditionService = createConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount'],
-            snippet: 'random-snippet'
+            snippet: 'random-snippet',
         });
 
         const rule = {
-            personaPromotions: [{ id: 'someId' }]
+            personaPromotions: [{ id: 'someId' }],
         };
 
         const restrictedConditions = ruleConditionService.getRestrictedConditions(rule);
 
         expect(restrictedConditions).toEqual({
             cartCartAmount: [
-                { associationName: 'personaPromotions', snippet: 'random-snippet' }
-            ]
+                { associationName: 'personaPromotions', snippet: 'random-snippet' },
+            ],
         });
     });
 
@@ -58,29 +58,29 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const configItemBefore = ruleConditionService.getAwarenessConfigurationByAssignmentName('personaPromotions');
 
-        expect(configItemBefore).toEqual(null);
+        expect(configItemBefore).toBeNull();
 
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
-            notEquals: ['cartCartAmount']
+            notEquals: ['cartCartAmount'],
         });
 
         const configItemAfter = ruleConditionService.getAwarenessConfigurationByAssignmentName('personaPromotions');
 
         expect(configItemAfter).toEqual({
-            notEquals: ['cartCartAmount']
+            notEquals: ['cartCartAmount'],
         });
     });
 
     it('should get config item', async () => {
         const ruleConditionService = createConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
-            notEquals: ['cartCartAmount']
+            notEquals: ['cartCartAmount'],
         });
 
         const configItem = ruleConditionService.getAwarenessConfigurationByAssignmentName('personaPromotions');
 
         expect(configItem).toEqual({
-            notEquals: ['cartCartAmount']
+            notEquals: ['cartCartAmount'],
         });
     });
 
@@ -114,23 +114,23 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         const conditions = [
             { type: 'andContainer' },
             { type: 'conditionType1' },
-            { type: 'conditionType2' }
+            { type: 'conditionType2' },
         ];
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
-        expect(restricted.assignmentName).toEqual('assignmentOne');
-        expect(restricted.assignmentSnippet).toEqual('sw-assignment-one-snippet');
+        expect(restricted.assignmentName).toBe('assignmentOne');
+        expect(restricted.assignmentSnippet).toBe('sw-assignment-one-snippet');
         expect(restricted.isRestricted).toBeTruthy();
-        expect(restricted.notEqualsViolations[0].type).toEqual('conditionType1');
-        expect(restricted.equalsAnyMatched[0].type).toEqual('conditionType2');
-        expect(restricted.equalsAnyNotMatched[0].type).toEqual('conditionType3');
+        expect(restricted.notEqualsViolations[0].type).toBe('conditionType1');
+        expect(restricted.equalsAnyMatched[0].type).toBe('conditionType2');
+        expect(restricted.equalsAnyNotMatched[0].type).toBe('conditionType3');
     });
 
     it('should return restriction config with restricted true by equals any restriction', async () => {
@@ -143,7 +143,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         const conditions = [
@@ -153,13 +153,13 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
-        expect(restricted.assignmentName).toEqual('assignmentOne');
+        expect(restricted.assignmentName).toBe('assignmentOne');
         expect(restricted.isRestricted).toBeTruthy();
         expect(restricted.notEqualsViolations).toHaveLength(0);
         expect(restricted.equalsAnyMatched).toHaveLength(0);
         expect(restricted.equalsAnyNotMatched).toHaveLength(2);
-        expect(restricted.equalsAnyNotMatched[0].type).toEqual('conditionType2');
-        expect(restricted.equalsAnyNotMatched[1].type).toEqual('conditionType3');
+        expect(restricted.equalsAnyNotMatched[0].type).toBe('conditionType2');
+        expect(restricted.equalsAnyNotMatched[1].type).toBe('conditionType3');
     });
 
     it('should return restriction config with restricted false', async () => {
@@ -172,7 +172,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         const conditions = [
@@ -183,7 +183,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
 
-        expect(restricted.assignmentName).toEqual('assignmentOne');
+        expect(restricted.assignmentName).toBe('assignmentOne');
         expect(restricted.isRestricted).toBeFalsy();
         expect(restricted.notEqualsViolations).toHaveLength(0);
         expect(restricted.equalsAnyMatched).toHaveLength(2);
@@ -200,13 +200,13 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         ruleConditionService.addAwarenessConfiguration('assignmentTwo', {
             notEquals: ['conditionType2'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         const conditions = [
@@ -229,12 +229,12 @@ describe('src/app/service/rule-condition.service.js', () => {
             { label: 'violation2' },
             { label: 'violation3' },
         ], 'and');
-        expect(translatedViolations).toEqual('"violation1", "violation2" and "violation3"');
+        expect(translatedViolations).toBe('"violation1", "violation2" and "violation3"');
 
         translatedViolations = ruleConditionService.getTranslatedConditionViolationList([
             { label: 'violation1' },
         ], 'and');
-        expect(translatedViolations).toEqual('"violation1"');
+        expect(translatedViolations).toBe('"violation1"');
     });
 
     it('should return a disabled restriction tooltip because of no violations', async () => {
@@ -243,7 +243,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         const conditions = [
@@ -271,7 +271,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: ['conditionType1'],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
@@ -286,7 +286,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeFalsy();
-        expect(tooltipConfig.message).toEqual('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip');
+        expect(tooltipConfig.message).toBe('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip');
     });
 
     it('should return an enabled restriction tooltip by equals any violation', async () => {
@@ -295,7 +295,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
@@ -309,7 +309,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
         expect(tooltipConfig.disabled).toBeFalsy();
-        expect(tooltipConfig.message).toEqual('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip');
+        expect(tooltipConfig.message).toBe('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip');
     });
 
     it('should be restricted', async () => {
@@ -318,7 +318,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
@@ -340,7 +340,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
             notEquals: [],
             equalsAny: ['conditionType2', 'conditionType3'],
-            snippet: 'sw-assignment-one-snippet'
+            snippet: 'sw-assignment-one-snippet',
         });
 
         ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
@@ -369,28 +369,28 @@ describe('src/app/service/rule-condition.service.js', () => {
         const expected = [
             {
                 identifier: '=',
-                label: 'global.sw-condition.operator.equals'
+                label: 'global.sw-condition.operator.equals',
             },
             {
                 identifier: '>',
-                label: 'global.sw-condition.operator.greaterThan'
+                label: 'global.sw-condition.operator.greaterThan',
             },
             {
                 identifier: '>=',
-                label: 'global.sw-condition.operator.greaterThanEquals'
+                label: 'global.sw-condition.operator.greaterThanEquals',
             },
             {
                 identifier: '<',
-                label: 'global.sw-condition.operator.lowerThan'
+                label: 'global.sw-condition.operator.lowerThan',
             },
             {
                 identifier: '<=',
-                label: 'global.sw-condition.operator.lowerThanEquals'
+                label: 'global.sw-condition.operator.lowerThanEquals',
             },
             {
                 identifier: '!=',
-                label: 'global.sw-condition.operator.notEquals'
-            }
+                label: 'global.sw-condition.operator.notEquals',
+            },
         ];
 
         const operators = ruleConditionService.getOperatorSet('date');
@@ -403,19 +403,19 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('flowTrigger.someFlow', {
             notEquals: ['cartCartAmount'],
-            snippet: 'someFlowSnippet'
+            snippet: 'someFlowSnippet',
         });
 
         const rule = {
             id: 'random-id',
             flowSequences: [
                 {
-                    flow: { eventName: 'someFlow', }
+                    flow: { eventName: 'someFlow' },
                 },
                 {
-                    flow: { eventName: 'anotherFlow', }
-                }
-            ]
+                    flow: { eventName: 'anotherFlow' },
+                },
+            ],
         };
         const result = ruleConditionService.getRestrictedConditions(rule);
 
@@ -423,9 +423,9 @@ describe('src/app/service/rule-condition.service.js', () => {
             cartCartAmount: [
                 {
                     associationName: 'flowTrigger.someFlow',
-                    snippet: 'someFlowSnippet'
-                }
-            ]
+                    snippet: 'someFlowSnippet',
+                },
+            ],
         });
     });
 
@@ -434,7 +434,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             equalsAny: ['cartCartAmount', 'cartLineItemsCount'],
-            snippet: 'someFlowSnippet'
+            snippet: 'someFlowSnippet',
         });
 
         const result = ruleConditionService.getAwarenessKeysWithEqualsAnyConfig();

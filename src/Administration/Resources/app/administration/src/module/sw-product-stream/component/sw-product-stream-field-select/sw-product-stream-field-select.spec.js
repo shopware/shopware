@@ -21,11 +21,11 @@ async function createWrapper(propsData = {}) {
                     'json.test': {
                         value: 'json.test',
                         type: 'string',
-                        trans: 'jsontest'
-                    }
-                }
+                        trans: 'jsontest',
+                    },
+                },
             },
-            productCustomFields: []
+            productCustomFields: [],
         },
         stubs: {
             'sw-arrow-field': true,
@@ -34,16 +34,16 @@ async function createWrapper(propsData = {}) {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-icon': true
+            'sw-icon': true,
         },
         propsData: {
             index: 0,
             definition: {
                 entity: 'product',
-                properties: {}
+                properties: {},
             },
             ...propsData,
-        }
+        },
     });
 }
 
@@ -69,7 +69,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
 
         expect(wrapper.vm.options).toEqual([{
             label: 'jsontest',
-            value: 'json.test'
+            value: 'json.test',
         }]);
     });
 

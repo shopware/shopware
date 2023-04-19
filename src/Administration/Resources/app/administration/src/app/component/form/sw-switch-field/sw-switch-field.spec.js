@@ -21,9 +21,9 @@ const createWrapper = async () => {
             return {
                 checkOne: false,
                 checkTwo: false,
-                checkThree: false
+                checkThree: false,
             };
-        }
+        },
     };
 
     return shallowMount(baseComponent, {
@@ -31,8 +31,8 @@ const createWrapper = async () => {
             'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         attachTo: document.body,
     });
@@ -134,35 +134,35 @@ describe('app/component/form/sw-switch-field', () => {
     it('should show the label from the property', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-switch-field'), {
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
-                    template: '<div></div>'
-                }
-            }
+                    template: '<div></div>',
+                },
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-switch-field'), {
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
-                    template: '<div></div>'
-                }
+                    template: '<div></div>',
+                },
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 });

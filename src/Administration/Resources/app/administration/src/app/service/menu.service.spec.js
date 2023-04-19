@@ -36,7 +36,7 @@ describe('src/app/service/menu.service', () => {
                 expect.objectContaining({ id: 'sw.first.top.level' }),
                 expect.objectContaining({ id: 'children.with.privilege' }),
                 expect.objectContaining({ id: 'children.with.privilege.first' }),
-                expect.objectContaining({ id: 'children.with.privilege.second' })
+                expect.objectContaining({ id: 'children.with.privilege.second' }),
             ]));
         });
 
@@ -44,7 +44,7 @@ describe('src/app/service/menu.service', () => {
             Shopware.Module.register('empty-navigation', {
                 name: 'empty-navigation',
                 routes: { index: { path: '/', component: 'sw-index' } },
-                navigation: []
+                navigation: [],
             });
 
             expect(menuService.getNavigationFromAdminModules()).toHaveLength(0);
@@ -54,7 +54,7 @@ describe('src/app/service/menu.service', () => {
             Shopware.Module.register('null-navigation', {
                 name: 'null-navigation',
                 routes: { index: { path: '/', component: 'sw-index' } },
-                navigation: null
+                navigation: null,
             });
 
             expect(menuService.getNavigationFromAdminModules()).toHaveLength(0);
@@ -73,8 +73,8 @@ describe('src/app/service/menu.service', () => {
                     parent: 'sw-catalogue',
                     params: {
                         appName: 'testAppA',
-                        moduleName: 'standardModule'
-                    }
+                        moduleName: 'standardModule',
+                    },
                 }),
                 expect.objectContaining({
                     id: 'app-testAppA-noPosition',
@@ -82,22 +82,22 @@ describe('src/app/service/menu.service', () => {
                     parent: 'sw.second.top.level',
                     params: {
                         appName: 'testAppA',
-                        moduleName: 'noPosition'
-                    }
+                        moduleName: 'noPosition',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',
                     path: 'sw.extension.module',
                     parent: 'app-testAppB-structure',
                     params: {
                         appName: 'testAppB',
-                        moduleName: 'default'
+                        moduleName: 'default',
                     },
-                    position: 50
+                    position: 50,
                 }), expect.objectContaining({
                     id: 'app-testAppB-structure',
                     parent: 'sw.first.top.level',
-                    position: 50
-                })
+                    position: 50,
+                }),
             ]);
         });
 
@@ -111,27 +111,27 @@ describe('src/app/service/menu.service', () => {
                     id: 'app-testAppA-standardModule',
                     label: {
                         translated: true,
-                        label: 'Standardmodul'
-                    }
+                        label: 'Standardmodul',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
-                        label: 'Modul ohne Position'
-                    }
+                        label: 'Modul ohne Position',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',
                     label: {
                         translated: true,
-                        label: 'Standard Modul'
-                    }
+                        label: 'Standard Modul',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppB-structure',
                     label: {
                         translated: true,
-                        label: 'Struktur Modul'
-                    }
-                })
+                        label: 'Struktur Modul',
+                    },
+                }),
             ]);
         });
 
@@ -145,27 +145,27 @@ describe('src/app/service/menu.service', () => {
                     id: 'app-testAppA-standardModule',
                     label: {
                         translated: true,
-                        label: 'Standard module'
-                    }
+                        label: 'Standard module',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
-                        label: 'Module without position'
-                    }
+                        label: 'Module without position',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',
                     label: {
                         translated: true,
-                        label: 'Default module'
-                    }
+                        label: 'Default module',
+                    },
                 }), expect.objectContaining({
                     id: 'app-testAppB-structure',
                     label: {
                         translated: true,
-                        label: 'Structure module'
-                    }
-                })
+                        label: 'Structure module',
+                    },
+                }),
             ]);
         });
     });

@@ -39,12 +39,12 @@ async function createWrapper() {
                     search: () => {
                         return Promise.resolve();
                     },
-                })
+                }),
             },
             shortcutService: {
                 stopEventListener: () => {},
                 startEventListener: () => {},
-            }
+            },
         },
         propsData: {
             customer: {
@@ -55,7 +55,7 @@ async function createWrapper() {
             addAddressModalTitle: '',
             editAddressModalTitle: '',
             cart: {},
-        }
+        },
     });
 }
 

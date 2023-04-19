@@ -38,7 +38,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 mediaEntites2,
                 mediaEntites2.length,
                 null,
-            )
+            ),
     };
 
     describe('registerCmsElement', () => {
@@ -100,10 +100,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toBe(false);
 
             const elementConfig = cmsService.getCmsElementConfigByName(elementName);
-            expect(elementConfig).toEqual(undefined);
+            expect(elementConfig).toBeUndefined();
 
             const elementRegistry = cmsService.getCmsElementRegistry();
-            expect(elementRegistry[elementName]).toEqual(undefined);
+            expect(elementRegistry[elementName]).toBeUndefined();
         });
     });
 
@@ -148,13 +148,13 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             };
 
             const result = cmsService.registerCmsBlock(expected);
-            expect(result).toEqual(false);
+            expect(result).toBe(false);
 
             const blockConfig = cmsService.getCmsBlockConfigByName(blockName);
-            expect(blockConfig).toEqual(undefined);
+            expect(blockConfig).toBeUndefined();
 
             const blockRegistry = cmsService.getCmsBlockRegistry();
-            expect(blockRegistry[blockName]).toEqual(undefined);
+            expect(blockRegistry[blockName]).toBeUndefined();
         });
     });
 
@@ -203,7 +203,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     key: 'tabletMedia',
                     name: 'media',
                     searchCriteria: entityMedia3Criteria,
-                }
+                },
             };
 
             expect(result).toEqual(expected);
@@ -281,7 +281,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
-                }
+                },
             });
         });
 
@@ -316,7 +316,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     name: 'media',
                     criteria: criteria,
                     searchCriteria: criteria,
-                }
+                },
             });
         });
 
@@ -349,7 +349,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
-                }
+                },
             });
         });
     });
@@ -420,7 +420,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             cmsService.registerCmsElement(element);
             element.enrich(element, {});
 
-            expect(element.data).toEqual(undefined);
+            expect(element.data).toBeUndefined();
         });
 
         it('adds no entity data when cms element defaultConfig property has no entity defined', async () => {
@@ -458,7 +458,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         mediaEntites2,
                         mediaEntites2.length,
                         null,
-                    )
+                    ),
             });
 
             expect(element.data).toEqual({
@@ -526,7 +526,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     id: '567',
                     name: 'media',
                     filtered: true,
-                }
+                },
             ];
 
             element.enrich(
@@ -600,8 +600,8 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     id: {
                         type: 'text',
                         flags: {
-                            write_protected: []
-                        }
+                            write_protected: [],
+                        },
                     },
                 },
             };
@@ -616,7 +616,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const testFormatBlocklist = {
                 properties: {
                     createdAt: {
-                        type: 'date'
+                        type: 'date',
                     },
                 },
             };
@@ -636,7 +636,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         type: 'association',
                         relation: 'many_to_one',
                     },
-                }
+                },
             };
 
             entityDefinition.add('testTypeArrayAlreadyMapped', testTypeArrayAlreadyMapped);
@@ -658,7 +658,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     property2: {
                         type: 'testTypeIsEntityAndAlreadyMapped',
                     },
-                }
+                },
             };
 
             entityDefinition.add('testTypeIsEntityAndAlreadyMapped', testTypeIsEntityAndAlreadyMapped);
@@ -684,7 +684,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         type: 'association',
                         relation: 'one_to_one',
                     },
-                }
+                },
             };
 
             entityDefinition.add('testTypeIsArrayAndAlreadyMapped', testTypeIsArrayAndAlreadyMapped);
@@ -720,7 +720,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     mediaProperty: {
                         type: 'text',
                     },
-                }
+                },
             };
 
             entityDefinition.add('media_example_entity', mediaProperties);
@@ -730,7 +730,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 entity: {
                     media_example_entity: ['testTypeObjectWithSchema.id'],
                 },
-                string: ['testTypeObjectWithSchema.id.mediaProperty']
+                string: ['testTypeObjectWithSchema.id.mediaProperty'],
             });
         });
     });
@@ -786,18 +786,18 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 something: 'abc',
                 test: {
                     something: 'xyz',
-                }
+                },
             });
 
             const result = cmsService.getPropertyByMappingPath(entity, 'test.something');
-            expect(result).toEqual('abc');
+            expect(result).toBe('abc');
         });
 
         it('returns null if property is not defined', async () => {
             const entity = new Entity('test', 'product_manufacturer', {});
 
             const result = cmsService.getPropertyByMappingPath(entity, 'test.something');
-            expect(result).toEqual(null);
+            expect(result).toBeNull();
         });
 
         it('returns translated if exists', async () => {
@@ -808,7 +808,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
 
             const result = cmsService.getPropertyByMappingPath(entity, 'translated.name');
-            expect(result).toEqual('manufacturer-translated');
+            expect(result).toBe('manufacturer-translated');
         });
     });
 
@@ -865,7 +865,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     name: 'media',
                     searchCriteria: entityMedia3Criteria,
                     context,
-                }
+                },
             };
 
             expect(result).toEqual(expected);
@@ -885,7 +885,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         ],
                         entity: {
                             name: 'product',
-                        }
+                        },
                     },
                 },
                 collect: cmsService.getCollectFunction(),
@@ -895,7 +895,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             entityCriteria.setIds([
                 '16a2beeb80f041c29390efa3432760cc',
                 'acb449f51754404596f53787b994381e',
-                'ace9aa1742764f298811fa49410ff69d'
+                'ace9aa1742764f298811fa49410ff69d',
             ]);
 
 
@@ -997,7 +997,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     criteria,
                     searchCriteria: criteria,
                     context,
-                }
+                },
             });
         });
     });

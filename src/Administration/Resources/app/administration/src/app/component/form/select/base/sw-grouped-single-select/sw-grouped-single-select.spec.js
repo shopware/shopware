@@ -25,13 +25,13 @@ const createSelect = async (customOptions) => {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>',
             },
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
         },
         propsData: {
             value: null,
@@ -39,35 +39,35 @@ const createSelect = async (customOptions) => {
                 {
                     label: 'Entry 1',
                     value: 'entryOneValue',
-                    group: 'group1'
+                    group: 'group1',
                 },
                 {
                     label: 'Entry 2',
                     value: 'entryTwoValue',
-                    group: 'group1'
+                    group: 'group1',
                 },
                 {
                     label: 'Entry 3',
                     value: 'entryThreeValue',
-                    group: 'group2'
-                }
+                    group: 'group2',
+                },
             ],
             groups: [
                 {
                     id: 'group1',
-                    label: 'Group 1'
+                    label: 'Group 1',
                 },
                 {
                     id: 'group2',
-                    label: 'Group 2'
+                    label: 'Group 2',
                 },
-            ]
-        }
+            ],
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-grouped-single-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 

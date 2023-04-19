@@ -20,7 +20,7 @@ const uploadTaskMock = {
     error: null,
     successAmount: 0,
     failureAmount: 1,
-    totalAmount: 1
+    totalAmount: 1,
 };
 
 describe('components/utils/sw-duplicated-media-v2', () => {
@@ -33,16 +33,16 @@ describe('components/utils/sw-duplicated-media-v2', () => {
             provide: {
                 shortcutService: {
                     startEventListener() {},
-                    stopEventListener() {}
+                    stopEventListener() {},
                 },
                 repositoryFactory: {
                     create: () => {
                         return {
                             search: () => Promise.resolve([{ id: 'foo' }]),
                             get: () => Promise.resolve({ id: 'foo', hasFile: true }),
-                            delete: () => Promise.resolve()
+                            delete: () => Promise.resolve(),
                         };
-                    }
+                    },
                 },
                 mediaService: {
                     addDefaultListener: jest.fn(),
@@ -56,8 +56,8 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     provideName: async (fileName) => {
                         return { fileName: `${fileName}_(2)` };
                     },
-                    keepFile: jest.fn()
-                }
+                    keepFile: jest.fn(),
+                },
             },
             stubs: {
                 'sw-modal': await Shopware.Component.build('sw-modal'),
@@ -69,8 +69,8 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
                 'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-media-media-item': true
-            }
+                'sw-media-media-item': true,
+            },
         });
     });
 

@@ -7,7 +7,7 @@ async function createWrapper(propsData = {}, provide = {}) {
     return shallowMount(await Shopware.Component.build('sw-extension-card-base'), {
         propsData: {
             extension: { installedAt: null },
-            ...propsData
+            ...propsData,
         },
         stubs: {
             'sw-meteor-card': true,
@@ -21,12 +21,12 @@ async function createWrapper(propsData = {}, provide = {}) {
         },
         provide: {
             shopwareExtensionService: {
-                getOpenLink: () => null
+                getOpenLink: () => null,
             },
             extensionStoreActionService: {},
             cacheApiService: {},
-            ...provide
-        }
+            ...provide,
+        },
     });
 }
 
@@ -43,11 +43,11 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             extension: {
                 installedAt: '845618651',
                 icon: 'my-icon',
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
-        expect(wrapper.vm.image).toEqual('my-icon');
+        expect(wrapper.vm.image).toBe('my-icon');
     });
 
     it('should show the correct image (iconRaw)', async () => {
@@ -57,70 +57,70 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             extension: {
                 installedAt: '845618651',
                 iconRaw: base64Example,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
-        expect(wrapper.vm.image).toEqual(`data:image/png;base64, ${base64Example}`);
+        expect(wrapper.vm.image).toBe(`data:image/png;base64, ${base64Example}`);
     });
 
     it('should show the correct image (default theme asset)', async () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
-        expect(wrapper.vm.image).toEqual('administration/static/img/theme/default_theme_preview.jpg');
+        expect(wrapper.vm.image).toBe('administration/static/img/theme/default_theme_preview.jpg');
     });
 
     it('should be installed', async () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
-        expect(wrapper.vm.isInstalled).toEqual(true);
+        expect(wrapper.vm.isInstalled).toBe(true);
     });
 
     it('should not be installed', async () => {
         const wrapper = await createWrapper({
             extension: {
-                installedAt: null
-            }
+                installedAt: null,
+            },
         });
 
-        expect(wrapper.vm.isInstalled).toEqual(false);
+        expect(wrapper.vm.isInstalled).toBe(false);
     });
 
     it('should not show config menu item: not active and not activated once', async () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: null,
-                active: false
-            }
+                active: false,
+            },
         }, {
             shopwareExtensionService: {
                 canBeOpened: () => false,
-                getOpenLink: () => null
-            }
+                getOpenLink: () => null,
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
-        expect(state.length).toBe(0);
+        expect(state).toHaveLength(0);
     });
 
     it('should show config menu item: active and activated once', async () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: null,
-                active: true
-            }
+                active: true,
+            },
         }, {
             shopwareExtensionService: {
                 getOpenLink: () => {
@@ -130,39 +130,39 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                             appName: 'JestApp',
                         },
                     });
-                }
-            }
+                },
+            },
         });
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
-        expect(state.length).toBe(1);
+        expect(state).toHaveLength(1);
     });
 
     it('should not show config menu item: not active and activated once', async () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: null,
-                active: false
-            }
+                active: false,
+            },
         }, {
             shopwareExtensionService: {
                 canBeOpened: () => true,
-                getOpenLink: () => null
-            }
+                getOpenLink: () => null,
+            },
         });
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
-        expect(state.length).toBe(0);
+        expect(state).toHaveLength(0);
     });
 
     it('should show a consent affirmation modal if an app requires new permissions on update', async () => {
         const wrapper = await createWrapper({
             extension: {
                 installedAt: '845618651',
-                permissions: []
-            }
+                permissions: [],
+            },
         }, {
             shopwareExtensionService: {
                 getOpenLink: () => null,
@@ -174,16 +174,16 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                                 code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
                                 meta: {
                                     parameters: {
-                                        deltas: ['permissions']
-                                    }
-                                }
-                            }]
-                        }
+                                        deltas: ['permissions'],
+                                    },
+                                },
+                            }],
+                        },
                     };
 
                     throw error;
-                }
-            }
+                },
+            },
         });
 
         await wrapper.vm.updateExtension(false);

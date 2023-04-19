@@ -21,7 +21,7 @@ async function createWrapper(privileges = []) {
 <div class="sw-page">
     <slot name="smart-bar-actions"></slot>
 </div>
-                `
+                `,
             },
             'sw-button-process': true,
             'sw-language-switch': true,
@@ -29,7 +29,7 @@ async function createWrapper(privileges = []) {
             'sw-language-info': true,
             'sw-tabs': true,
             'sw-tabs-item': true,
-            'router-view': true
+            'router-view': true,
         },
         provide: {
             acl: {
@@ -37,31 +37,31 @@ async function createWrapper(privileges = []) {
                     if (!privilegeKey) { return true; }
 
                     return privileges.includes(privilegeKey);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
                     create: () => ({}),
                     get: () => Promise.resolve({
                         productExports: {
-                            first: () => ({})
-                        }
+                            first: () => ({}),
+                        },
                     }),
-                    search: () => Promise.resolve([])
-                })
+                    search: () => Promise.resolve([]),
+                }),
             },
             exportTemplateService: {
-                getProductExportTemplateRegistry: () => ({})
-            }
+                getProductExportTemplateRegistry: () => ({}),
+            },
         },
         mocks: {
             $route: {
                 params: {
-                    id: '1a2b3c4d'
+                    id: '1a2b3c4d',
                 },
-                name: ''
-            }
-        }
+                name: '',
+            },
+        },
     });
 }
 
@@ -78,7 +78,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         expect(saveButton.attributes().disabled).toBeTruthy();
@@ -87,11 +87,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
 
     it('should enable the save button when privilege does exists', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.creator'
+            'sales_channel.creator',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');

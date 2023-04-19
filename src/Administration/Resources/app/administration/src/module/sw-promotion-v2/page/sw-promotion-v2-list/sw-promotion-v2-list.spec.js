@@ -14,11 +14,11 @@ async function createWrapper(privileges = []) {
         localVue,
         stubs: {
             'sw-page': {
-                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>'
+                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
             },
             'sw-button': true,
             'sw-entity-listing': true,
-            'sw-promotion-v2-empty-state-hero': true
+            'sw-promotion-v2-empty-state-hero': true,
         },
         provide: {
             acl: {
@@ -26,26 +26,26 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([]),
                     get: () => Promise.resolve([]),
-                    create: () => {}
-                })
+                    create: () => {},
+                }),
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -66,7 +66,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
     it('should enable create button when privilege available', async () => {
         const wrapper = await createWrapper([
-            'promotion.creator'
+            'promotion.creator',
         ]);
         const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
@@ -78,7 +78,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const element = wrapper.find('sw-entity-listing-stub');
@@ -93,11 +93,11 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     it('should enable editing of entries when privilege is set', async () => {
         const wrapper = await createWrapper([
             'promotion.viewer',
-            'promotion.editor'
+            'promotion.editor',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const element = wrapper.find('sw-entity-listing-stub');
@@ -113,11 +113,11 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         const wrapper = await createWrapper([
             'promotion.viewer',
             'promotion.editor',
-            'promotion.deleter'
+            'promotion.deleter',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const element = wrapper.find('sw-entity-listing-stub');
@@ -132,7 +132,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -175,7 +175,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -199,7 +199,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -214,7 +214,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(emptyState.attributes().description).toBe('sw-empty-state.messageNoResultSubline');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

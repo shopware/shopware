@@ -5,14 +5,14 @@
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 
-beforeEach(async () => {
-    const registry = WorkerNotificationFactory.getRegistry();
-    registry.clear();
-
-    WorkerNotificationFactory.resetHelper();
-});
-
 describe('core/factory/worker-notification.factory.js', () => {
+    beforeEach(async () => {
+        const registry = WorkerNotificationFactory.getRegistry();
+        registry.clear();
+
+        WorkerNotificationFactory.resetHelper();
+    });
+
     const noop = jest.fn((next) => {
         next();
     });
@@ -24,7 +24,7 @@ describe('core/factory/worker-notification.factory.js', () => {
     it('should initialize the middleware helper', async () => {
         WorkerNotificationFactory.register('foo', {
             name: 'foo',
-            fn: noop
+            fn: noop,
         });
 
         const helper = WorkerNotificationFactory.initialize();
@@ -41,20 +41,20 @@ describe('core/factory/worker-notification.factory.js', () => {
 
         WorkerNotificationFactory.register('bar', {
             name: 'bar',
-            fn: callback
+            fn: callback,
         });
 
         WorkerNotificationFactory.register('foo', {
             name: 'foo',
-            fn: callback
+            fn: callback,
         });
 
         const helper = WorkerNotificationFactory.initialize();
         helper.go({
             queue: [
                 { name: 'batz', stack: 1 },
-                { name: 'foo', stack: 1 }
-            ]
+                { name: 'foo', stack: 1 },
+            ],
         });
 
         expect(callback).toHaveBeenCalledTimes(1);
@@ -64,7 +64,7 @@ describe('core/factory/worker-notification.factory.js', () => {
         it('should register using an unique name', async () => {
             const result = WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             });
 
             expect(result).toBeTruthy();
@@ -73,12 +73,12 @@ describe('core/factory/worker-notification.factory.js', () => {
         it('should reject the registration using the same name', async () => {
             expect(WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             })).toBeTruthy();
 
             expect(WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             })).toBeFalsy();
         });
 
@@ -86,21 +86,21 @@ describe('core/factory/worker-notification.factory.js', () => {
             expect(WorkerNotificationFactory.register('', {})).toBeFalsy();
 
             expect(WorkerNotificationFactory.register('foo', {
-                fn: noop
+                fn: noop,
             })).toBeFalsy();
 
             expect(WorkerNotificationFactory.register('foo', {
                 name: '',
-                fn: noop
-            })).toBeFalsy();
-
-            expect(WorkerNotificationFactory.register('foo', {
-                name: 'foo'
+                fn: noop,
             })).toBeFalsy();
 
             expect(WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: { foo: 'bar' }
+            })).toBeFalsy();
+
+            expect(WorkerNotificationFactory.register('foo', {
+                name: 'foo',
+                fn: { foo: 'bar' },
             })).toBeFalsy();
         });
     });
@@ -109,12 +109,12 @@ describe('core/factory/worker-notification.factory.js', () => {
         it('should override an existing worker notification', async () => {
             WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             });
 
             expect(WorkerNotificationFactory.override('foo', {
                 name: 'bar',
-                fn: noop
+                fn: noop,
             })).toBeTruthy();
 
             const registryEntry = WorkerNotificationFactory.getRegistry().get('foo');
@@ -124,25 +124,25 @@ describe('core/factory/worker-notification.factory.js', () => {
         it('should reject the override if no worker notification with the same name is registered', async () => {
             expect(WorkerNotificationFactory.override('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             })).toBeFalsy();
         });
 
         it('should reject the override if the options are not valid', async () => {
             expect(WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             })).toBeTruthy();
             expect(WorkerNotificationFactory.override('')).toBeFalsy();
             expect(WorkerNotificationFactory.override('', {})).toBeFalsy();
             expect(WorkerNotificationFactory.override('foo', {})).toBeFalsy();
             expect(WorkerNotificationFactory.override('foo', {
-                name: ''
+                name: '',
             })).toBeFalsy();
 
             expect(WorkerNotificationFactory.override('foo', {
                 name: 'foo',
-                fn: { foo: 'bar' }
+                fn: { foo: 'bar' },
             })).toBeFalsy();
         });
     });
@@ -151,7 +151,7 @@ describe('core/factory/worker-notification.factory.js', () => {
         it('should remove an existing worker notification', async () => {
             WorkerNotificationFactory.register('foo', {
                 name: 'foo',
-                fn: noop
+                fn: noop,
             });
             expect(WorkerNotificationFactory.remove('foo')).toBeTruthy();
             expect(WorkerNotificationFactory.getRegistry().size).toBe(0);

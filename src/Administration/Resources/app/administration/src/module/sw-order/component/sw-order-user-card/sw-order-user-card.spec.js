@@ -30,8 +30,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         expect(
             userCard.methods.renderTrackingUrl(
                 trackingCode,
-                shippingMethodNoUrl
-            )
+                shippingMethodNoUrl,
+            ),
         ).toBe('');
     });
 
@@ -39,8 +39,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         expect(
             userCard.methods.renderTrackingUrl(
                 trackingCode,
-                shippingMethodWithoutPlaceholder
-            )
+                shippingMethodWithoutPlaceholder,
+            ),
         ).toBe(trackingUrl);
     });
 
@@ -48,8 +48,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         expect(
             userCard.methods.renderTrackingUrl(
                 trackingCode,
-                shippingMethodWithPlaceholder
-            )
+                shippingMethodWithPlaceholder,
+            ),
         ).toBe(`${trackingUrl}${trackingCode}`);
     });
 
@@ -57,8 +57,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${reservedCharacters}`,
-                shippingMethodWithPlaceholder
-            )
+                shippingMethodWithPlaceholder,
+            ),
         ).toBe(`${trackingUrl}${trackingCode}%3B%2C%2F%3F%3A%40%26%3D%2B%24`);
     });
 
@@ -67,8 +67,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${unescapedCharacters}`,
-                shippingMethodWithPlaceholder
-            )
+                shippingMethodWithPlaceholder,
+            ),
         ).toBe(`${trackingUrl}${trackingCode}-_.!~*'()`);
     });
 
@@ -76,8 +76,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${spaceSeparatedWords}`,
-                shippingMethodWithPlaceholder
-            )
+                shippingMethodWithPlaceholder,
+            ),
         ).toBe(`${trackingUrl}${trackingCode}lorem%20ipsum%20dolor%20sit%20amet`);
     });
 });

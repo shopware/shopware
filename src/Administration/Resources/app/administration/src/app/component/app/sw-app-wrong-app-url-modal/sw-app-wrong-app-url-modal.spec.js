@@ -19,12 +19,12 @@ describe('sw-app-wrong-app-url-modal', () => {
     async function createWrapper() {
         stubs = {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
+                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-small-default-x-line-medium': {
-                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
+                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
             },
         };
         const localVue = createLocalVue();
@@ -70,7 +70,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.registerModule('notification', {
             namespaced: true,
             mutations: {
-                removeNotification: deleteNotificationMock
+                removeNotification: deleteNotificationMock,
             },
         });
     });

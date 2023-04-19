@@ -62,7 +62,7 @@ const createWrapper = async () => {
             'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
             'sw-select-base': await Shopware.Component.build('sw-select-base'),
             'sw-skeleton': true,
-            'sw-select-rule-create': true
+            'sw-select-rule-create': true,
         },
         provide: {
             repositoryFactory: {
@@ -71,28 +71,28 @@ const createWrapper = async () => {
                         const rules = [
                             {
                                 id: 'ruleId',
-                                name: 'ruleName'
-                            }
+                                name: 'ruleName',
+                            },
                         ];
                         rules.total = rules.length;
 
                         return {
                             search: () => Promise.resolve(rules),
-                            get: () => Promise.resolve(rules)
+                            get: () => Promise.resolve(rules),
                         };
                     }
 
                     if (repositoryName === 'product_price') {
                         return {
-                            create: () => ({ search: () => Promise.resolve() })
+                            create: () => ({ search: () => Promise.resolve() }),
                         };
                     }
 
                     return {};
-                }
+                },
             },
             validationService: {},
-        }
+        },
     });
 };
 
@@ -115,8 +115,8 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             getters: {
                 isSystemDefaultLanguage() {
                     return true;
-                }
-            }
+                },
+            },
         });
     });
 
@@ -128,10 +128,10 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         Shopware.State.commit('swProductDetail/setProduct', {
             id: 'productId',
             parentId: 'parentProductId',
-            prices: []
+            prices: [],
         });
         Shopware.State.commit('swProductDetail/setParentProduct', {
-            id: 'parentProductId'
+            id: 'parentProductId',
         });
 
         wrapper = await createWrapper();
@@ -145,10 +145,10 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         Shopware.State.commit('swProductDetail/setProduct', {
             id: 'productId',
             parentId: null,
-            prices: []
+            prices: [],
         });
         Shopware.State.commit('swProductDetail/setParentProduct', {
-            id: 'parentProductId'
+            id: 'parentProductId',
         });
 
         wrapper = await createWrapper();
@@ -166,12 +166,12 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 {
                     ruleId: 'ruleId',
                     quantityStart: 1,
-                    quantityEnd: 4
-                }
-            ]
+                    quantityEnd: 4,
+                },
+            ],
         });
         Shopware.State.commit('swProductDetail/setParentProduct', {
-            id: 'parentProductId'
+            id: 'parentProductId',
         });
 
         wrapper = await createWrapper();
@@ -195,17 +195,17 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 {
                     ruleId: 'ruleId',
                     quantityStart: 1,
-                    quantityEnd: 4
+                    quantityEnd: 4,
                 },
                 {
                     ruleId: 'ruleId',
                     quantityStart: 5,
-                    quantityEnd: null
-                }
-            ]
+                    quantityEnd: null,
+                },
+            ],
         });
         Shopware.State.commit('swProductDetail/setParentProduct', {
-            id: 'parentProductId'
+            id: 'parentProductId',
         });
 
         wrapper = await createWrapper();
@@ -216,7 +216,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         // check if input field has a value of 5 and is not disabled
         expect(secondQuantityField.element.value).toBe('5');
-        expect(secondQuantityField.attributes('disabled')).toBe(undefined);
+        expect(secondQuantityField.attributes('disabled')).toBeUndefined();
     });
 
     it('should show default price', async () => {
@@ -230,9 +230,9 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                     gross: 1,
                     linked: false,
                     net: 1,
-                    listPrice: null
-                }]
-            }
+                    listPrice: null,
+                }],
+            },
         ];
 
         Shopware.State.commit('swProductDetail/setProduct', {
@@ -245,28 +245,28 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 { isShopwareContext: true },
                 entities,
                 entities.length,
-                null
-            )
+                null,
+            ),
         });
 
         Shopware.State.commit('swProductDetail/setParentProduct', {
-            id: 'parentProductId'
+            id: 'parentProductId',
         });
 
         Shopware.State.commit('swProductDetail/setCurrencies', [
-            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true, isoCode: 'EUR' }
+            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true, isoCode: 'EUR' },
         ]);
 
         wrapper = await createWrapper();
         const rulesEntities = [
             {
                 id: 'rule1',
-                name: 'customers'
+                name: 'customers',
             },
             {
                 id: 'rule2',
-                name: 'products'
-            }
+                name: 'products',
+            },
         ];
 
         await wrapper.setData({
@@ -277,12 +277,12 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 { isShopwareContext: true },
                 rulesEntities,
                 rulesEntities.length,
-                null
-            )
+                null,
+            ),
         });
 
         await wrapper.setProps({
-            isSetDefaultPrice: true
+            isSetDefaultPrice: true,
         });
 
         wrapper.vm.$parent.$el.children.item(0).scrollTo = () => {};

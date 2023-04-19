@@ -25,11 +25,11 @@ responses.addResponse({
             {
                 id: '1',
                 attributes: {
-                    id: '1'
-                }
-            }
-        ]
-    }
+                    id: '1',
+                },
+            },
+        ],
+    },
 });
 
 async function createWrapper() {
@@ -52,27 +52,27 @@ async function createWrapper() {
                     isRuleRestricted: (conditions) => { return conditions[0]; },
                 },
                 filterFactory: {
-                    create: () => []
+                    create: () => [],
                 },
                 filterService: {
                     getStoredCriteria: () => {
                         return Promise.resolve([]);
                     },
-                    mergeWithStoredFilters: (storeKey, criteria) => criteria
+                    mergeWithStoredFilters: (storeKey, criteria) => criteria,
                 },
                 shortcutService: {
                     startEventListener() {},
-                    stopEventListener() {}
+                    stopEventListener() {},
                 },
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
                         return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
                         });
                     },
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
-                    }
+                    },
                 },
             },
             propsData: {
@@ -86,22 +86,22 @@ async function createWrapper() {
                 'sw-modal': await Shopware.Component.build('sw-modal'),
                 'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-context-button': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-icon': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'router-link': true,
                 'sw-button': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-checkbox-field': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-ignore-class': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
-            }
+            },
         }),
     };
 }
@@ -129,24 +129,24 @@ describe('components/sw-advanced-selection-product', () => {
     it('should get disabled column class', async () => {
         const cls = wrapper.vm.getColumnClass({ id: '1', conditions: [true] });
 
-        expect(cls).toEqual('sw-advanced-selection-rule-disabled');
+        expect(cls).toBe('sw-advanced-selection-rule-disabled');
     });
 
     it('should get restricted tooltip', async () => {
         let tooltip = wrapper.vm.tooltipConfig({ id: '1' });
 
-        expect(tooltip.message).toEqual('restricted');
+        expect(tooltip.message).toBe('restricted');
 
         tooltip = wrapper.vm.tooltipConfig({ id: '2' });
 
-        expect(tooltip.message).toEqual('ruleAwarenessRestrictionLabelText');
+        expect(tooltip.message).toBe('ruleAwarenessRestrictionLabelText');
     });
 
     it('should notice if record selectable', async () => {
         const obj = wrapper.vm.isRecordSelectable({ id: '1', conditions: [true] });
 
         expect(obj.isSelectable).toBeFalsy();
-        expect(obj.tooltip.message).toEqual('restricted');
+        expect(obj.tooltip.message).toBe('restricted');
     });
 
     it('should return counts', async () => {
@@ -155,14 +155,14 @@ describe('components/sw-advanced-selection-product', () => {
                 buckets: [{
                     key: '1',
                     productPrices: {
-                        count: 100
-                    }
-                }]
+                        count: 100,
+                    },
+                }],
             },
         };
 
         const counts = wrapper.vm.getCounts('1', aggregations);
 
-        expect(counts.productPrices).toEqual(100);
+        expect(counts.productPrices).toBe(100);
     });
 });

@@ -33,24 +33,24 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
                 'sw-search-bar': true,
                 'sw-app-actions': true,
                 'sw-loader': true,
-                'sw-button': true
+                'sw-button': true,
             },
             mocks: {
                 $route: {
                     meta: {
                         $module: {
-                            title: 'sw-extension-my-apps.general.mainMenuItemGeneral'
-                        }
-                    }
-                }
-            }
+                            title: 'sw-extension-my-apps.general.mainMenuItemGeneral',
+                        },
+                    },
+                },
+            },
         });
     }
 
     it('sets the correct heading and source with a regular module', async () => {
         const wrapper = await createWrapper({
             appName: 'testAppA',
-            moduleName: 'standardModule'
+            moduleName: 'standardModule',
         });
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english - Standard module');
@@ -59,7 +59,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
 
     it('sets the correct heading and source with a main module', async () => {
         const wrapper = await createWrapper({
-            appName: 'testAppA'
+            appName: 'testAppA',
         });
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english');
@@ -69,7 +69,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
     it('shows no iframe and default heading if module is not found', async () => {
         const wrapper = await createWrapper({
             appName: 'notInStore',
-            moduleName: 'notAvailable'
+            moduleName: 'notAvailable',
         });
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('sw-extension-my-apps.general.mainMenuItemGeneral');
@@ -80,7 +80,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
 
         const wrapper = await createWrapper({
             appName: 'testAppA',
-            moduleName: 'standardModule'
+            moduleName: 'standardModule',
         });
 
         wrapper.get('sw-loader-stub');
@@ -98,14 +98,14 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
 
         const wrapper = await createWrapper({
             appName: 'testAppA',
-            moduleName: 'standardModule'
+            moduleName: 'standardModule',
         });
 
         wrapper.get('sw-loader-stub');
 
         const event = new MessageEvent('message', {
             origin: 'https://shopware.apps',
-            data: 'sw-app-loaded'
+            data: 'sw-app-loaded',
         });
 
         window.dispatchEvent(event);

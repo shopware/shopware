@@ -18,14 +18,14 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                 enabled: isBasedItem,
                 currencyId: '49a246dca3f245e6b83b8b3255c90038',
                 amount: 1,
-                extensions: []
+                extensions: [],
             }],
             countryId: '',
             userConfig: {},
             userConfigValues: {},
             menuOptions: [{}],
             taxFreeType: '',
-            isLoading: ''
+            isLoading: '',
         },
 
         provide: {
@@ -33,24 +33,24 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                 create: () => ({
                     search: () => {
                         return Promise.resolve([]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             feature: {
-                isActive: () => true
-            }
+                isActive: () => true,
+            },
         },
 
         stubs: {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-data-grid': {
                 props: ['dataSource', 'columns'],
@@ -62,13 +62,13 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                         <slot name="actions" v-bind="{ item }"></slot>
                     </template>
                     </div>
-                `
+                `,
             },
             'sw-context-menu-item': true,
             'sw-radio-field': true,
             'sw-number-field': true,
-            'sw-button': true
-        }
+            'sw-button': true,
+        },
     });
 }
 
@@ -87,16 +87,16 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
             inlineEdit: 'string',
             label: '',
             primary: true,
-            property: 'currencyId'
+            property: 'currencyId',
         }, {
             inlineEdit: 'string',
             label: 'sw-settings-country.detail.taxFreeFrom',
             primary: true,
-            property: 'amount'
+            property: 'amount',
         }, {
             inlineEdit: 'string',
             label: 'sw-settings-country.detail.baseCurrency',
-            property: 'enabled'
+            property: 'enabled',
         }]);
     });
 
@@ -109,7 +109,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
             enabled: true,
             currencyId: '49a246dca3f245e6b83b8b3255c90038',
             amount: 1,
-            extensions: []
+            extensions: [],
         }]);
     });
 

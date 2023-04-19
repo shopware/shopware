@@ -15,10 +15,10 @@ async function createWrapper(privileges = []) {
             'sw-card': true,
             'sw-field': true,
             'sw-users-permissions-permissions-grid': true,
-            'sw-users-permissions-additional-permissions': true
+            'sw-users-permissions-additional-permissions': true,
         },
         propsData: {
-            role: {}
+            role: {},
         },
         provide: {
             acl: {
@@ -26,9 +26,9 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 

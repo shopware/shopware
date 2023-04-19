@@ -19,10 +19,10 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply
                     creationDate: {
                         date: '2021-01-11 08:10:08.000000',
                         timezone_type: 1,
-                        timezone: '+01:00'
-                    }
-                }
-            }
+                        timezone: '+01:00',
+                    },
+                },
+            },
         });
     }
 

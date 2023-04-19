@@ -9,7 +9,7 @@ Shopware.Component.register('sw-cms-el-image', swCmsElImage);
 
 const mediaDataMock = {
     id: '1',
-    url: 'http://shopware.com/image1.jpg'
+    url: 'http://shopware.com/image1.jpg',
 };
 
 async function createWrapper() {
@@ -29,13 +29,13 @@ async function createWrapper() {
                 },
                 getPropertyByMappingPath: () => {
                     return {};
-                }
-            }
+                },
+            },
         },
         propsData: {
             element: {
                 config: {},
-                data: {}
+                data: {},
             },
             defaultConfig: {
                 media: {
@@ -43,40 +43,40 @@ async function createWrapper() {
                     value: null,
                     required: true,
                     entity: {
-                        name: 'media'
-                    }
+                        name: 'media',
+                    },
                 },
                 displayMode: {
                     source: 'static',
-                    value: 'standard'
+                    value: 'standard',
                 },
                 url: {
                     source: 'static',
-                    value: null
+                    value: null,
                 },
                 newTab: {
                     source: 'static',
-                    value: false
+                    value: false,
                 },
                 minHeight: {
                     source: 'static',
-                    value: '340px'
+                    value: '340px',
                 },
                 verticalAlign: {
                     source: 'static',
-                    value: null
-                }
-            }
+                    value: null,
+                },
+            },
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
-                }
+                        type: 'ladingpage',
+                    },
+                },
             };
-        }
+        },
     });
 }
 
@@ -98,13 +98,13 @@ describe('src/module/sw-cms/elements/image/component', () => {
                     ...wrapper.props().element.config,
                     media: {
                         source: 'static',
-                        value: '1'
-                    }
+                        value: '1',
+                    },
                 },
                 data: {
-                    media: mediaDataMock
-                }
-            }
+                    media: mediaDataMock,
+                },
+            },
         });
 
         const img = wrapper.find('img');
@@ -120,11 +120,11 @@ describe('src/module/sw-cms/elements/image/component', () => {
                     ...wrapper.props().element.config,
                     media: {
                         source: 'mapped',
-                        value: 'category.media'
-                    }
+                        value: 'category.media',
+                    },
                 },
-                data: mediaDataMock
-            }
+                data: mediaDataMock,
+            },
         });
 
         const img = wrapper.find('img');

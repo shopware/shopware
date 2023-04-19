@@ -10,35 +10,35 @@ Shopware.Component.register('sw-cms-slot', swCmsSlot);
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-slot'), {
         propsData: {
-            element: {}
+            element: {},
         },
         stubs: {
             'foo-bar': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             cmsService: {
                 getCmsElementRegistry: () => {
                     return {
                         product_list_block: null,
-                        landing_block: null
+                        landing_block: null,
                     };
                 },
                 getCmsElementConfigByName: () => ({
                     component: 'foo-bar',
                     disabledConfigInfoTextKey: 'lorem',
                     defaultConfig: {
-                        text: 'lorem'
-                    }
+                        text: 'lorem',
+                    },
                 }),
-                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType)
+                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType),
             },
             cmsElementFavorites: {
                 isFavorite() {
                     return false;
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 describe('module/sw-cms/component/sw-cms-slot', () => {
@@ -47,8 +47,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             namespaced: true,
             state: {
                 isSystemDefaultLanguage: true,
-                currentPageType: 'product_list'
-            }
+                currentPageType: 'product_list',
+            },
         });
     });
 
@@ -62,8 +62,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
-                slot: 'left'
-            }
+                slot: 'left',
+            },
         });
 
         expect(wrapper.classes()).toContain('sw-cms-slot-left');
@@ -72,7 +72,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     it('disable the custom component', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.classes()).toContain('is--disabled');
@@ -94,9 +94,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
-                locked: true
+                locked: true,
             },
-            active: true
+            active: true,
         });
 
         expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
@@ -136,7 +136,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             name: 'testElement3',
             defaultData: {
                 text: 'Test text',
-            }
+            },
         });
         expect(wrapper.vm.element).toEqual({
             type: 'testElement3',

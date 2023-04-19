@@ -17,7 +17,7 @@ import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/base/sw-product-variant-info';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry' }
+    { id: utils.createId(), name: 'first entry' },
 ];
 
 function getCollection() {
@@ -28,7 +28,7 @@ function getCollection() {
         new Criteria(1, 25),
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 
@@ -44,7 +44,7 @@ const createSelect = async (customOptions) => {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
@@ -56,23 +56,23 @@ const createSelect = async (customOptions) => {
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
         },
         propsData: {
-            entityCollection: getCollection()
+            entityCollection: getCollection(),
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
                         get: (value) => Promise.resolve({ id: value, name: value }),
-                        search: () => Promise.resolve(getCollection())
+                        search: () => Promise.resolve(getCollection()),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-many-to-many-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -91,7 +91,7 @@ describe('components/sw-entity-multi-select', () => {
 
         const checkAssociation = jest.fn(searchCriteria => {
             expect(searchCriteria.associations).toHaveLength(1);
-            expect(searchCriteria.associations[0].association).toEqual('testAssociation');
+            expect(searchCriteria.associations[0].association).toBe('testAssociation');
         });
 
         const wrapper = await createSelect({
@@ -117,14 +117,14 @@ describe('components/sw-entity-multi-select', () => {
                                         Shopware.Context.api,
                                         new Criteria(1, 1),
                                         [],
-                                        0
-                                    )
+                                        0,
+                                    ),
                                 );
                             },
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
 
         await wrapper.find('.sw-select__selection').trigger('click');

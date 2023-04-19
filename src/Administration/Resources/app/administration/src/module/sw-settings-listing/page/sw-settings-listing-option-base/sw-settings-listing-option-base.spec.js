@@ -14,21 +14,21 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                     field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
+                    naturalSorting: 0,
                 },
                 {
                     field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
+                    naturalSorting: 0,
                 },
                 {
                     field: 'my_first_custom_field',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
-                }
-            ]
+                    naturalSorting: 0,
+                },
+            ],
         };
     }
 
@@ -54,8 +54,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         return [
             {
                 name: 'my_first_custom_field',
-                id: '4aab5584aaa948eb833451390bfe374a'
-            }
+                id: '4aab5584aaa948eb833451390bfe374a',
+            },
         ];
     }
 
@@ -64,16 +64,16 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
             mocks: {
                 $route: {
                     params: {
-                        id: getProductSortingEntity().id
-                    }
-                }
+                        id: getProductSortingEntity().id,
+                    },
+                },
             },
             provide: {
                 repositoryFactory: {
                     create: repository => {
                         if (repository === 'custom_field') {
                             return {
-                                search: () => Promise.resolve(getCustomFields())
+                                search: () => Promise.resolve(getCustomFields()),
                             };
                         }
 
@@ -86,23 +86,23 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                                 }
 
                                 return Promise.resolve();
-                            }
+                            },
                         };
-                    }
+                    },
                 },
                 systemConfigApiService: {
                     getValues: () => {
                         return Promise.resolve(getDefaultSortingKey());
-                    }
-                }
+                    },
+                },
             },
             stubs: {
                 'sw-page': true,
                 'sw-button': true,
                 'sw-language-switch': true,
                 'sw-settings-listing-option-general-info': true,
-                'sw-settings-listing-option-criteria-grid': true
-            }
+                'sw-settings-listing-option-criteria-grid': true,
+            },
         });
     }
 
@@ -118,7 +118,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
     it('should disable the save button if no criteria exists', async () => {
         await wrapper.setData({
-            productSortingEntity: getProductSortingEntityWithoutCriteria()
+            productSortingEntity: getProductSortingEntityWithoutCriteria(),
         });
 
         const isSaveButtonDisabled = wrapper.vm.isSaveButtonDisabled;
@@ -140,7 +140,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
     it('should display the fallback snippet when the entity has no name', async () => {
         await wrapper.setData({
-            productSortingEntity: getProductSortingEntityWithoutName()
+            productSortingEntity: getProductSortingEntityWithoutName(),
         });
 
         const displayValue = wrapper.vm.smartBarHeading;
@@ -175,20 +175,20 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                 field: 'product.cheapestPrice',
                 naturalSorting: 0,
                 order: 'desc',
-                position: 0
+                position: 0,
             },
             {
                 field: 'product.cheapestPrice',
                 naturalSorting: 0,
                 order: 'desc',
-                position: 0
+                position: 0,
             },
             {
                 field: 'customFields.my_first_custom_field',
                 naturalSorting: 0,
                 order: 'desc',
-                position: 0
-            }
+                position: 0,
+            },
         ]);
     });
 

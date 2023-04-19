@@ -17,7 +17,7 @@ const createWrapper = async () => {
             'sw-entity-single-select': true,
         },
         propsData: {
-        }
+        },
     });
 };
 
@@ -32,7 +32,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-tax-cost', 
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.taxType).toEqual('auto');
+        expect(wrapper.vm.taxType).toBe('auto');
     });
 
     it('should use tax of shipping method if defined', async () => {
@@ -43,6 +43,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-tax-cost', 
         });
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.taxType).toEqual('fixed');
+        expect(wrapper.vm.taxType).toBe('fixed');
     });
 });

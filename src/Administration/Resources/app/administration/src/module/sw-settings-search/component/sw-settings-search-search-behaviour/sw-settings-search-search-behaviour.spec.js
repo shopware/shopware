@@ -22,17 +22,17 @@ async function createWrapper(privileges = []) {
         propsData: {
             searchBehaviourConfigs: {
                 andLogic: true,
-                minSearchLength: 2
-            }
+                minSearchLength: 2,
+            },
         },
 
         mocks: {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: {
@@ -44,8 +44,8 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
 
         },
 
@@ -57,7 +57,7 @@ async function createWrapper(privileges = []) {
             'sw-number-field': await Shopware.Component.build('sw-number-field'),
             'sw-text-field': await Shopware.Component.build('sw-text-field'),
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field')
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
         },
 
         attachTo: document.body,
@@ -74,7 +74,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
 
     it('should not be able to change the behaviour search which includes and, or', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -94,7 +94,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
 
     it('should be able to change the behaviour search which includes and, or', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.editor'
+            'product_search_config.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -113,7 +113,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
 
     it('should be able to change minimal search term length between limit value', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.editor'
+            'product_search_config.editor',
         ]);
         await wrapper.vm.$nextTick();
 

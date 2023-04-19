@@ -20,8 +20,8 @@ describe('calculatePriceService', () => {
         const prices = {
             [productId]: [{
                 price: 10,
-                currencyId
-            }]
+                currencyId,
+            }],
         };
 
         clientMock.onPost(
@@ -29,16 +29,16 @@ describe('calculatePriceService', () => {
             {
                 taxId,
                 prices,
-            }
+            },
         ).reply(
             200,
             {
-                data: {}
-            }
+                data: {},
+            },
         );
 
         await calculatePriceService.calculatePrices(taxId, prices);
 
-        expect(clientMock.history.post.length).toBe(1);
+        expect(clientMock.history.post).toHaveLength(1);
     });
 });

@@ -22,7 +22,7 @@ function getSnippets() {
                     resetTo: 'Neue Adresse hinzufügen',
                     setId: 'a2f95068665e4498ae98a2318a7963df',
                     translationKey: 'account.addressCreateBtn',
-                    value: 'Neue Adresse hinzufügen'
+                    value: 'Neue Adresse hinzufügen',
                 },
                 {
                     author: 'Shopware',
@@ -31,10 +31,10 @@ function getSnippets() {
                     resetTo: 'Add address',
                     setId: 'e54dba2ba96741868e6b6642504c6932',
                     translationKey: 'account.addressCreateBtn',
-                    value: 'Add address'
-                }
-            ]
-        }
+                    value: 'Add address',
+                },
+            ],
+        },
     };
 
     const totalAmountOfSnippets = Object.keys(data.data).length;
@@ -49,8 +49,8 @@ function getSnippetSets() {
             baseFile: 'messages.de-DE',
             id: 'a2f95068665e4498ae98a2318a7963df',
             iso: 'de-DE',
-            name: 'BASE de-DE'
-        }
+            name: 'BASE de-DE',
+        },
     ];
 
     data.total = data.length;
@@ -68,8 +68,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve(getSnippetSets())
-                    })
+                        search: () => Promise.resolve(getSnippetSets()),
+                    }),
                 },
                 acl: {
                     can: (identifier) => {
@@ -78,10 +78,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                         }
 
                         return privileges.includes(identifier);
-                    }
+                    },
                 },
                 userService: {
-                    getUser: () => Promise.resolve({ data: { username: 'admin' } })
+                    getUser: () => Promise.resolve({ data: { username: 'admin' } }),
                 },
                 snippetSetService: {
                     getAuthors: () => {
@@ -89,12 +89,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                     },
                     getCustomList: () => {
                         return Promise.resolve(getSnippets());
-                    }
+                    },
                 },
                 snippetService: {
                     save: () => Promise.resolve(),
                     delete: () => Promise.resolve(),
-                    getFilter: () => Promise.resolve({ data: [] })
+                    getFilter: () => Promise.resolve({ data: [] }),
                 },
                 searchRankingService: {},
                 userConfigService: {
@@ -106,13 +106,13 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'test'
-                        }
+                            icon: 'test',
+                        },
                     },
                     query: {
-                        ids: 'a2f95068665e4498ae98a2318a7963df'
-                    }
-                }
+                        ids: 'a2f95068665e4498ae98a2318a7963df',
+                    },
+                },
             },
             stubs: {
                 'sw-page': {
@@ -122,7 +122,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                             <slot name="smart-bar-actions"></slot>
                         </div>
                         <slot name="content"></slot>
-                    </div>`
+                    </div>`,
                 },
                 'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-pagination': true,
@@ -134,8 +134,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 'sw-data-grid-settings': true,
                 'router-link': true,
                 'sw-popover': true,
-                'sw-button': true
-            }
+                'sw-button': true,
+            },
         });
     }
 
@@ -149,7 +149,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         [true, 'snippet.viewer'],
         [true, 'snippet.viewer, snippet.editor'],
         [true, 'snippet.viewer, snippet.editor, snippet.creator'],
-        [false, 'snippet.viewer, snippet.editor, snippet.deleter']
+        [false, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a reset button with an disabled state of %p with the roles: %s', async (state, role) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
@@ -177,7 +177,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         ['true', 'snippet.viewer'],
         ['true', 'snippet.viewer, snippet.editor'],
         [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
-        ['true', 'snippet.viewer, snippet.editor, snippet.deleter']
+        ['true', 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a disabled state of %p on the new snippet button when using role: %s', async (state, role) => {
         const roles = role.split(', ');
 

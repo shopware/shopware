@@ -14,9 +14,9 @@ function createRuleMock(isNew) {
         isNew: () => isNew,
         conditions: {
             entity: 'rule',
-            source: 'foo/rule'
+            source: 'foo/rule',
         },
-        someRuleRelation: ['some-value']
+        someRuleRelation: ['some-value'],
     };
 }
 
@@ -28,7 +28,7 @@ function getCollection(repository) {
         { isShopwareContext: true },
         [],
         0,
-        null
+        null,
     );
 }
 
@@ -40,7 +40,7 @@ async function createWrapper(isNewRule = false, computed = {}, provide = {}) {
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
-    </div>`
+    </div>`,
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
@@ -63,19 +63,19 @@ async function createWrapper(isNewRule = false, computed = {}, provide = {}) {
                 template: `
     <div>
         Iam here
-    </div>`
-            }
+    </div>`,
+            },
         },
         propsData: {
-            ruleId: isNewRule ? null : 'uuid1'
+            ruleId: isNewRule ? null : 'uuid1',
         },
         provide: {
             ruleConditionDataProviderService: {
                 getModuleTypes: () => [],
-                addScriptConditions: () => {}
+                addScriptConditions: () => {},
             },
             ruleConditionsConfigApiService: {
-                load: () => Promise.resolve()
+                load: () => Promise.resolve(),
             },
             repositoryFactory: {
                 create: (repository) => {
@@ -88,10 +88,10 @@ async function createWrapper(isNewRule = false, computed = {}, provide = {}) {
                         hasChanges: (rule, hasChanges) => { return hasChanges ?? false; },
                         save: () => Promise.resolve(),
                     };
-                }
+                },
             },
             feature: {
-                isActive: () => true
+                isActive: () => true,
             },
             ...provide,
         },
@@ -100,9 +100,9 @@ async function createWrapper(isNewRule = false, computed = {}, provide = {}) {
                 meta: {
                 },
                 params: {
-                    id: ''
-                }
-            }
+                    id: '',
+                },
+            },
         },
         computed,
     });
@@ -175,7 +175,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await flushPromises();
 
         await wrapper.setData({
-            conditionsTreeContainsUserChanges: true
+            conditionsTreeContainsUserChanges: true,
         });
 
         const next = jest.fn();
@@ -193,7 +193,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await flushPromises();
 
         await wrapper.setData({
-            conditionsTreeContainsUserChanges: true
+            conditionsTreeContainsUserChanges: true,
         });
 
         const next = jest.fn();
@@ -205,7 +205,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should not open changes modal when there are no changes', async () => {
-        global.activeAclRoles = ['rule.editor'
+        global.activeAclRoles = ['rule.editor',
         ];
 
         const wrapper = await createWrapper(false);
@@ -213,7 +213,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await flushPromises();
 
         await wrapper.setData({
-            conditionsTreeContainsUserChanges: false
+            conditionsTreeContainsUserChanges: false,
         });
 
         const next = jest.fn();
@@ -245,10 +245,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             {
                 ruleNameError() {
                     return {
-                        detail: 'error'
+                        detail: 'error',
                     };
-                }
-            }
+                },
+            },
         );
 
         await flushPromises();
@@ -276,7 +276,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     }),
                     getTranslatedConditionViolationList: () => ['someSnippetPath'],
                 },
-            }
+            },
         );
 
         wrapper.vm.ruleRepository.save = jest.fn(() => Promise.resolve());
@@ -287,10 +287,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 children: [{
                     id: 'some-child-condition',
                     children: [{
-                        id: 'some-grand-child-condition'
-                    }]
-                }]
-            }]
+                        id: 'some-grand-child-condition',
+                    }],
+                }],
+            }],
         });
 
         await flushPromises();
@@ -313,7 +313,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     addScriptConditions: () => {},
                     getAwarenessKeysWithEqualsAnyConfig: () => [],
                 },
-            }
+            },
         );
         wrapper.vm.ruleRepository.save = jest.fn(() => Promise.resolve());
 
@@ -323,10 +323,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 children: [{
                     id: 'some-child-condition',
                     children: [{
-                        id: 'some-grand-child-condition'
-                    }]
-                }]
-            }]
+                        id: 'some-grand-child-condition',
+                    }],
+                }],
+            }],
         });
 
         await flushPromises();

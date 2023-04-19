@@ -30,14 +30,14 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                 translated: {
                                     distinguishableName: 'Cash on Delivery',
                                 },
-                            }
-                        )
-                    })
+                            },
+                        ),
+                    }),
                 },
                 shortcutService: {
                     startEventListener: () => {},
-                    stopEventListener: () => {}
-                }
+                    stopEventListener: () => {},
+                },
             },
             mocks: {
                 $route: {
@@ -47,14 +47,14 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                 detail: {
                                     children: {
                                         base: {},
-                                        other: {}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+                                        other: {},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
@@ -74,7 +74,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-page': await Shopware.Component.build('sw-page'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-modal': await Shopware.Component.build('sw-modal')
+            'sw-modal': await Shopware.Component.build('sw-modal'),
         };
     });
 
@@ -89,16 +89,16 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                     defaultSalesChannel: null,
                     cart: {
                         token: 'CART-TOKEN',
-                        lineItems: [{}]
+                        lineItems: [{}],
                     },
                     customer: {},
-                    promotionCodes: []
+                    promotionCodes: [],
                 };
             },
             getters: {
                 invalidPromotionCodes() {
                     return [];
-                }
+                },
             },
             actions: {
                 saveOrder() {
@@ -107,20 +107,20 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                             id: Shopware.Utils.createId(),
                             transactions: [
                                 {
-                                    paymentMethodId: Shopware.Utils.createId()
-                                }
-                            ]
-                        }
+                                    paymentMethodId: Shopware.Utils.createId(),
+                                },
+                            ],
+                        },
                     };
                 },
                 createCart() {
                     return {
                         token: null,
-                        lineItems: []
+                        lineItems: [],
                     };
                 },
-                remindPayment: remindPaymentMock
-            }
+                remindPayment: remindPaymentMock,
+            },
         });
     });
 

@@ -22,11 +22,11 @@ async function createWrapper(userConfig = {}) {
         scopedSlots: {
             item: (propsData) => {
                 return propsData.item.id;
-            }
+            },
         },
         provide: {
             repositoryFactory: {
-                create: () => ({ save: () => Promise.resolve() })
+                create: () => ({ save: () => Promise.resolve() }),
             },
         },
         mocks: {
@@ -59,7 +59,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         const items = list.findAll('.sw-sortable-list__item');
 
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -73,7 +73,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         const items = wrapper.findAll('.sw-sortable-list__item');
 
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('1');
         expect(items.at(1).text()).toBe('2');
         expect(items.at(2).text()).toBe('0');
@@ -110,7 +110,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         const items = wrapper.findAll('.sw-sortable-list__item');
 
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -135,7 +135,7 @@ describe('src/component/list/sw-sortable-list', () => {
         await wrapper.vm.$nextTick();
 
         let items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -144,7 +144,7 @@ describe('src/component/list/sw-sortable-list', () => {
         await wrapper.vm.$nextTick();
 
         items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -164,7 +164,7 @@ describe('src/component/list/sw-sortable-list', () => {
         await wrapper.vm.$nextTick();
 
         const items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -184,7 +184,7 @@ describe('src/component/list/sw-sortable-list', () => {
         await wrapper.vm.$nextTick();
 
         const items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -204,7 +204,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.emitted().itemsSorted.length).toEqual(2);
+        expect(wrapper.emitted().itemsSorted).toHaveLength(2);
 
         expect(wrapper.emitted().itemsSorted[0][1]).toBeFalsy();
         expect(wrapper.emitted().itemsSorted[1][1]).toBeTruthy();
@@ -228,7 +228,7 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper = await createWrapper({
             propsData: {
                 scrollOnDrag: true,
-            }
+            },
         });
 
         wrapper.vm.$el = {
@@ -236,7 +236,7 @@ describe('src/component/list/sw-sortable-list', () => {
             clientHeight: 0,
             id: 'element',
             addEventListener(type, callback) {
-                expect(type).toEqual('scroll');
+                expect(type).toBe('scroll');
                 expect(callback).toEqual(wrapper.vm.onScroll);
             },
         };
@@ -276,7 +276,7 @@ describe('src/component/list/sw-sortable-list', () => {
                     speed: 10,
                     margin: 10,
                     accelerationMargin: 0,
-                }
+                },
             },
         });
 
@@ -310,9 +310,9 @@ describe('src/component/list/sw-sortable-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(scrollByOptions.length).toEqual(2);
-        expect(scrollByOptions[0].top).toEqual(-10);
-        expect(scrollByOptions[1].top).toEqual(10);
+        expect(scrollByOptions).toHaveLength(2);
+        expect(scrollByOptions[0].top).toBe(-10);
+        expect(scrollByOptions[1].top).toBe(10);
     });
 
     it('should scroll accelerated when in acceleration margin', async () => {
@@ -323,7 +323,7 @@ describe('src/component/list/sw-sortable-list', () => {
                     speed: 10,
                     margin: 10,
                     accelerationMargin: 0,
-                }
+                },
             },
         });
 
@@ -357,7 +357,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(scrollByOptions.length).toEqual(2);
+        expect(scrollByOptions).toHaveLength(2);
         expect(scrollByOptions[0].top).toBeLessThan(-10);
         expect(scrollByOptions[1].top).toBeGreaterThan(10);
     });
@@ -370,7 +370,7 @@ describe('src/component/list/sw-sortable-list', () => {
                     speed: 10,
                     margin: 10,
                     accelerationMargin: 0,
-                }
+                },
             },
         });
 
@@ -404,6 +404,6 @@ describe('src/component/list/sw-sortable-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(scrollByOptions.length).toEqual(0);
+        expect(scrollByOptions).toHaveLength(0);
     });
 });

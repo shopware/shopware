@@ -18,8 +18,8 @@ responses.addResponse({
     url: '/user-config',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 const defaultAdminLanguageId = '6a357734-afe4-4f17-a814-fb89ce9724fc';
@@ -30,11 +30,11 @@ const headlessSalesChannel = {
     domains: [],
     type: {
         id: Shopware.Defaults.apiSalesChannelTypeId,
-        iconName: 'default-shopping-basket'
+        iconName: 'default-shopping-basket',
     },
     translated: {
-        name: 'Headless'
-    }
+        name: 'Headless',
+    },
 };
 
 const storeFrontWithStandardDomain = {
@@ -42,18 +42,18 @@ const storeFrontWithStandardDomain = {
     active: true,
     domains: [{
         languageId: 'ab3e5a76-9e6a-493c-bc6c-117563976bcc',
-        url: 'http://shop/custom-language'
+        url: 'http://shop/custom-language',
     }, {
         languageId: Shopware.Defaults.systemLanguageId,
-        url: 'http://shop/default-language'
+        url: 'http://shop/default-language',
     }],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
-        iconName: 'default-building-shop'
+        iconName: 'default-building-shop',
     },
     translated: {
-        name: 'Storefront with default domains'
-    }
+        name: 'Storefront with default domains',
+    },
 };
 
 const storefrontWithoutDefaultDomain = {
@@ -61,18 +61,18 @@ const storefrontWithoutDefaultDomain = {
     active: true,
     domains: [{
         languageId: 'f084d9e0-cba4-4c42-bf99-3994e8fce125',
-        url: 'http://shop/custom-language'
+        url: 'http://shop/custom-language',
     }, {
         languageId: defaultAdminLanguageId,
-        url: 'http://shop/admin-language'
+        url: 'http://shop/admin-language',
     }],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
-        iconName: 'default-building-shop'
+        iconName: 'default-building-shop',
     },
     translated: {
-        name: 'Storefront with non mapped domain'
-    }
+        name: 'Storefront with non mapped domain',
+    },
 };
 
 const storefrontWithoutDomains = {
@@ -81,11 +81,11 @@ const storefrontWithoutDomains = {
     domains: [],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
-        iconName: 'default-building-shop'
+        iconName: 'default-building-shop',
     },
     translated: {
-        name: 'Storefront with non mapped domain'
-    }
+        name: 'Storefront with non mapped domain',
+    },
 };
 
 const inactiveStorefront = {
@@ -93,18 +93,18 @@ const inactiveStorefront = {
     active: false,
     domains: [{
         languageId: '14383ce0-d2b6-4c44-94a7-cf71b42fa35a',
-        url: 'http://shop/custom-language'
+        url: 'http://shop/custom-language',
     }, {
         languageId: defaultAdminLanguageId,
-        url: 'http://shop/admin-language'
+        url: 'http://shop/admin-language',
     }],
     type: {
         id: Shopware.Defaults.storefrontSalesChannelTypeId,
-        iconName: 'default-building-shop'
+        iconName: 'default-building-shop',
     },
     translated: {
-        name: 'Storefront with non mapped domain'
-    }
+        name: 'Storefront with non mapped domain',
+    },
 };
 
 async function createWrapper(salesChannels = [], privileges = []) {
@@ -121,22 +121,22 @@ async function createWrapper(salesChannels = [], privileges = []) {
             path: '/sw/sales/channel/detail/:id',
             component: localVue.component('sw-sales-channel-detail', {
                 name: 'sw-sales-channel-detail',
-                template: '<div class="sw-sales-channel-detail"></div>'
-            })
+                template: '<div class="sw-sales-channel-detail"></div>',
+            }),
         }, {
             name: 'sw.sales.channel.list',
             path: '/sw/sales/channel/list',
             component: localVue.component('sw-sales-channel-list', {
                 name: 'sw-sales-channel-list',
-                template: '<div class="sw-sales-channel-list"></div>'
-            })
-        }]
+                template: '<div class="sw-sales-channel-list"></div>',
+            }),
+        }],
     });
 
     router.push({
         name: 'sw.sales.channel.detail',
         // the id is the storeFrontWithStandardDomain sales-channel
-        params: { id: '8106c8da-4528-406e-8b47-dcae65965f6b' }
+        params: { id: '8106c8da-4528-406e-8b47-dcae65965f6b' },
     });
 
     return mount(await Shopware.Component.build('sw-sales-channel-menu'), {
@@ -154,14 +154,14 @@ async function createWrapper(salesChannels = [], privileges = []) {
         },
         provide: {
             domainLinkService: {
-                getDomainLink: getDomainLink
+                getDomainLink: getDomainLink,
             },
             acl: {
                 can: (privilegeKey) => {
                     if (!privilegeKey) { return true; }
 
                     return privileges.includes(privilegeKey);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
@@ -175,12 +175,12 @@ async function createWrapper(salesChannels = [], privileges = []) {
                             criteria,
                             salesChannelsWithLimit,
                             salesChannels.length,
-                            null
+                            null,
                         ));
-                    })
-                })
-            }
-        }
+                    }),
+                }),
+            },
+        },
     });
 }
 
@@ -203,8 +203,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         const wrapper = await createWrapper(
             [],
             [
-                'sales_channel.creator'
-            ]
+                'sales_channel.creator',
+            ],
         );
 
         const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
@@ -230,8 +230,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(parsedCriteria).toEqual(expect.objectContaining({
             associations: expect.objectContaining({
                 type: expect.any(Object),
-                domains: expect.any(Object)
-            })
+                domains: expect.any(Object),
+            }),
         }));
 
         wrapper.destroy();
@@ -243,7 +243,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             storeFrontWithStandardDomain,
             storefrontWithoutDefaultDomain,
             storefrontWithoutDomains,
-            inactiveStorefront
+            inactiveStorefront,
         ];
 
         const wrapper = await createWrapper(testSalesChannels);
@@ -361,7 +361,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
             storefrontWithoutDomains,
-            inactiveStorefront
+            inactiveStorefront,
         ];
 
         for (let i = 0; i < 3; i += 1) {
@@ -370,8 +370,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket'
-                }
+                    iconName: 'default-shopping-basket',
+                },
             });
         }
 
@@ -392,7 +392,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
             storefrontWithoutDomains,
-            inactiveStorefront
+            inactiveStorefront,
         ];
 
         for (let i = 0; i < 51; i += 1) {
@@ -401,8 +401,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket'
-                }
+                    iconName: 'default-shopping-basket',
+                },
             });
         }
 
@@ -431,17 +431,17 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 translated: { name: '1a' },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket'
-                }
+                    iconName: 'default-shopping-basket',
+                },
             },
             {
                 id: '2b',
                 translated: { name: '2b' },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket'
-                }
-            }
+                    iconName: 'default-shopping-basket',
+                },
+            },
         ]);
 
         await flushPromises();
@@ -459,7 +459,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
             storefrontWithoutDomains,
-            inactiveStorefront
+            inactiveStorefront,
         ];
 
         const wrapper = await createWrapper(salesChannels);
@@ -481,7 +481,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
             storefrontWithoutDomains,
-            inactiveStorefront
+            inactiveStorefront,
         ];
 
         const wrapper = await createWrapper(salesChannels);
@@ -501,7 +501,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
             storefrontWithoutDomains,
-            inactiveStorefront
+            inactiveStorefront,
         ];
 
         Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);

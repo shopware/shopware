@@ -75,9 +75,9 @@ describe('sw-settings-tax-rule-modal', () => {
 
     it('should have a tax rate field with a correct "digits" property', async () => {
         const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxRuleCard.labelTaxRate"]'
+            'sw-number-field-stub[label="sw-settings-tax.taxRuleCard.labelTaxRate"]',
         );
 
-        expect(taxRateField.attributes('digits')).toEqual('3');
+        expect(taxRateField.attributes('digits')).toBe('3');
     });
 });

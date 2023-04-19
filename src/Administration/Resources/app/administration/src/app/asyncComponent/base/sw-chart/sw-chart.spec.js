@@ -14,14 +14,14 @@ const chartOptions = {
     title: { text: 'Phenomenal chart' },
     chart: {
         toolbar: {
-            show: true
-        }
-    }
+            show: true,
+        },
+    },
 };
 
 const chartSeries = [
     { name: 'Demo Serie', data: [10, 41, 35, 51, 49, 62, 69, 91, 148] },
-    { name: 'Another demo Serie', data: [12, 24, 35, 58, 88, 95, 125, 145, 148] }
+    { name: 'Another demo Serie', data: [12, 24, 35, 58, 88, 95, 125, 145, 148] },
 ];
 
 // initial component setup
@@ -31,12 +31,12 @@ const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
         series: series || chartSeries,
         options: options || chartOptions,
         fillEmptyValues: fillEmptyValues,
-        sort: sort || false
+        sort: sort || false,
     };
 
     return shallowMount(await Shopware.Component.build('sw-chart'), {
         stubs: ['apexchart'],
-        propsData
+        propsData,
     });
 };
 
@@ -44,7 +44,7 @@ describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'en-GB',
-            locales: ['en-GB', 'nl-NL']
+            locales: ['en-GB', 'nl-NL'],
         });
     });
 
@@ -61,9 +61,9 @@ describe('asyncComponent/base/sw-chart', () => {
             options: {
                 title: { text: referenceText },
                 chart: {
-                    fontFamily: referenceFont
-                }
-            }
+                    fontFamily: referenceFont,
+                },
+            },
         });
 
         expect(wrapper.vm.mergedOptions.chart.fontFamily).toMatch(referenceFont);
@@ -89,18 +89,18 @@ describe('asyncComponent/base/sw-chart', () => {
                 data: [
                     {
                         x: new Date().setDate(new Date().getDate() - 20),
-                        y: Math.random() * 100
-                    }
-                ]
+                        y: Math.random() * 100,
+                    },
+                ],
             }],
             options: {
-                xaxis: { type: 'datetime', min: dateAgo }
+                xaxis: { type: 'datetime', min: dateAgo },
             },
-            fillEmptyValues: 'day'
+            fillEmptyValues: 'day',
         });
 
         // Expect that the number of values are greater or equal the double amount of number of dates
-        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(numberOfDates + 1);
+        expect(wrapper.vm.optimizedSeries[0].data).toHaveLength(numberOfDates + 1);
     });
 
     it('should fill empty hour values', async () => {
@@ -115,18 +115,18 @@ describe('asyncComponent/base/sw-chart', () => {
                 data: [
                     {
                         x: new Date().setHours(new Date().getHours() - 20),
-                        y: Math.random() * 100
-                    }
-                ]
+                        y: Math.random() * 100,
+                    },
+                ],
             }],
             options: {
-                xaxis: { type: 'datetime', min: dateAgo }
+                xaxis: { type: 'datetime', min: dateAgo },
             },
-            fillEmptyValues: 'hour'
+            fillEmptyValues: 'hour',
         });
 
         // Expect that the number of values are greater or equal the double amount of number of dates
-        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(numberOfHours + 1);
+        expect(wrapper.vm.optimizedSeries[0].data).toHaveLength(numberOfHours + 1);
     });
 
     it('should fill empty minute values', async () => {
@@ -141,18 +141,18 @@ describe('asyncComponent/base/sw-chart', () => {
                 data: [
                     {
                         x: new Date().setMinutes(new Date().getMinutes() - 20),
-                        y: Math.random() * 100
-                    }
-                ]
+                        y: Math.random() * 100,
+                    },
+                ],
             }],
             options: {
-                xaxis: { type: 'datetime', min: dateAgo }
+                xaxis: { type: 'datetime', min: dateAgo },
             },
-            fillEmptyValues: 'minute'
+            fillEmptyValues: 'minute',
         });
 
         // Expect that the number of values are greater or equal the double amount of number of dates
-        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(numberOfMinutes + 1);
+        expect(wrapper.vm.optimizedSeries[0].data).toHaveLength(numberOfMinutes + 1);
     });
 
     it('should not fill empty values', async () => {
@@ -169,24 +169,24 @@ describe('asyncComponent/base/sw-chart', () => {
                 data: [
                     {
                         x: new Date().setDate(new Date().getDate() - 20),
-                        y: Math.random() * 100
-                    }
-                ]
+                        y: Math.random() * 100,
+                    },
+                ],
             }],
             options: {
-                xaxis: { type: 'datetime', min: dateAgo }
-            }
+                xaxis: { type: 'datetime', min: dateAgo },
+            },
         });
 
         // Expect that the number of values are greater or equal the double amount of number of dates
-        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(1);
+        expect(wrapper.vm.optimizedSeries[0].data).toHaveLength(1);
     });
 
     it('should sort the series', async () => {
         const seriesToSort = [
             {
                 name: 'First series',
-                data: [4, 2, 1, 3, 6, 7, 9, 5, 8]
+                data: [4, 2, 1, 3, 6, 7, 9, 5, 8],
             },
             {
                 name: 'Second series',
@@ -195,14 +195,14 @@ describe('asyncComponent/base/sw-chart', () => {
                     { x: 1561413600000, y: 9 },
                     { x: 1560722400000, y: 7 },
                     { x: 1559944800000, y: 9 },
-                    { x: 1560290400000, y: 7 }
-                ]
-            }
+                    { x: 1560290400000, y: 7 },
+                ],
+            },
         ];
 
         const wrapper = await setup({
             series: seriesToSort,
-            sort: true
+            sort: true,
         });
 
         const isFirstSeriesSorted = wrapper.vm.optimizedSeries[0].data.reduce((acc, value) => {
@@ -226,7 +226,7 @@ describe('asyncComponent/base/sw-chart', () => {
         const seriesToSort = [
             {
                 name: 'First series',
-                data: [4, 2, 1, 3, 6, 7, 9, 5, 8]
+                data: [4, 2, 1, 3, 6, 7, 9, 5, 8],
             },
             {
                 name: 'Second series',
@@ -235,14 +235,14 @@ describe('asyncComponent/base/sw-chart', () => {
                     { x: 1561413600000, y: 9 },
                     { x: 1560722400000, y: 7 },
                     { x: 1559944800000, y: 9 },
-                    { x: 1560290400000, y: 7 }
-                ]
-            }
+                    { x: 1560290400000, y: 7 },
+                ],
+            },
         ];
 
         const wrapper = await setup({
             series: seriesToSort,
-            sort: false
+            sort: false,
         });
 
         // check if the series matches the orginal
@@ -257,14 +257,14 @@ describe('asyncComponent/base/sw-chart', () => {
                 data: [
                     { x: 'Saleschannel A', y: 23 },
                     { x: 'Saleschannel B', y: 17 },
-                    { x: 'Saleschannel C', y: 2 }
-                ]
-            }
+                    { x: 'Saleschannel C', y: 2 },
+                ],
+            },
         ];
 
         const wrapper = await setup({
             series: seriesToConvert,
-            type: 'pie'
+            type: 'pie',
         });
 
         // check if conversion to label works
@@ -279,7 +279,7 @@ describe('asyncComponent/base/sw-chart', () => {
         const convertedSeriesStructure = seriesToConvert.map((serie) => {
             return {
                 name: serie.name,
-                data: serie.data.map(value => value.y)
+                data: serie.data.map(value => value.y),
             };
         });
 
@@ -289,26 +289,26 @@ describe('asyncComponent/base/sw-chart', () => {
     it('should load the correct default locale', async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'nl-NL',
-            locales: ['en-GB', 'nl-NL']
+            locales: ['en-GB', 'nl-NL'],
         });
 
         const wrapper = await setup();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.defaultLocale).toEqual('nl');
+        expect(wrapper.vm.defaultLocale).toBe('nl');
         expect(wrapper.vm.localeConfig).toEqual(nl);
     });
 
     it('should load the fallback locale when default locale does not exists', async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'foo-BAR',
-            locales: ['en-GB', 'nl-NL', 'foo-BAR']
+            locales: ['en-GB', 'nl-NL', 'foo-BAR'],
         });
 
         const wrapper = await setup();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.defaultLocale).toEqual('en');
+        expect(wrapper.vm.defaultLocale).toBe('en');
         expect(wrapper.vm.localeConfig).toEqual(en);
     });
 });

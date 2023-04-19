@@ -22,11 +22,11 @@ async function createWrapper(propsOverrides = {}, repositoryFactoryOverride = {}
         propsData: {
             selectedGroups: [],
             uploadTag: 'uploadTag',
-            ...propsOverrides
+            ...propsOverrides,
         },
         mocks: {
             $route: {
-                query: {}
+                query: {},
             },
         },
         provide: {
@@ -36,7 +36,7 @@ async function createWrapper(propsOverrides = {}, repositoryFactoryOverride = {}
                     save: () => Promise.resolve([]),
                     get: () => Promise.resolve({}),
                 }),
-                ...repositoryFactoryOverride
+                ...repositoryFactoryOverride,
             },
             acl: {
                 can: (identifier) => {
@@ -44,40 +44,40 @@ async function createWrapper(propsOverrides = {}, repositoryFactoryOverride = {}
                         return true;
                     }
                     return global.activeAclRoles.includes(identifier);
-                }
+                },
             },
             searchRankingService: {},
             configService: {
                 getConfig: () => Promise.resolve({
                     settings: {
-                        enableUrlFeature: false
+                        enableUrlFeature: false,
                     },
-                })
+                }),
             },
             mediaService: {
                 addListener: () => {},
                 removeByTag: () => {},
                 removeListener: () => {},
-            }
+            },
         },
         stubs: {
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-simple-search-field': true,
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-icon': true,
             'sw-context-menu': true,
             'sw-tree': true,
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>'
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
             },
             'sw-pagination': true,
             'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
             },
             'sw-data-grid-settings': true,
             'sw-context-button': true,
@@ -101,7 +101,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const product = {
             id: '72bfaf5d90214ce592715a9649d8760a',
-            media: []
+            media: [],
         };
         product.getEntityName = () => 'T-Shirt';
 
@@ -151,13 +151,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 };
             },
             getters: {
-                isLoading: () => false
+                isLoading: () => false,
             },
             mutations: {
                 setVariants(state, variants) {
                     state.variants = variants;
                 },
-                setLoading() {}
+                setLoading() {},
             },
         });
     });
@@ -265,10 +265,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 search: () => Promise.resolve([
                     {
                         id: '1',
-                        name: 'Example product'
-                    }
-                ])
-            })
+                        name: 'Example product',
+                    },
+                ]),
+            }),
         });
 
         await wrapper.vm.getList();
@@ -278,19 +278,19 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
     it('should add the downloads column when the product state is equal "is-download"', async () => {
         const wrapper = await createWrapper({
-            productStates: ['is-download']
+            productStates: ['is-download'],
         }, {
             create: (entity) => {
                 if (entity === 'media_default_folder') {
                     return { search: () => Promise.resolve([
                         {
                             id: 'defaultMediaFolderId',
-                            entity: 'product_download'
-                        }
+                            entity: 'product_download',
+                        },
                     ]) };
                 }
                 return { search: () => Promise.resolve() };
-            }
+            },
         });
 
         expect(wrapper.find('.sw-data-grid__cell--downloads').exists()).toBeTruthy();
@@ -307,22 +307,22 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                         media: {
                             fileName: 'example',
                             fileExtension: 'png',
-                        }
+                        },
                     },
                     {
                         media: {
                             fileName: 'test',
                             fileExtension: 'gif',
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             };
 
         const wrapper = await createWrapper({ productStates: ['is-download'] }, {
             create: () => ({
                 search: () => Promise.resolve([item]),
-                save: () => Promise.resolve()
-            })
+                save: () => Promise.resolve(),
+            }),
         });
         await wrapper.vm.getList();
 
@@ -333,7 +333,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
         expect(previewItems).toHaveLength(1);
-        expect(previewItems.at(0).find('.sw-context-menu-item').text()).toEqual('test.gif');
+        expect(previewItems.at(0).find('.sw-context-menu-item').text()).toBe('test.gif');
     });
 
     it('should save successful uploaded files', async () => {
@@ -348,9 +348,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                             id: 'lel',
                             fileName: 'test',
                             fileExtension: 'png',
-                        }
+                        },
                     },
-                ]
+                ],
             };
 
         const file = {
@@ -364,8 +364,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 search: () => Promise.resolve([item]),
                 save: () => Promise.resolve(),
                 create: () => Promise.resolve(),
-                get: () => Promise.resolve(file)
-            })
+                get: () => Promise.resolve(file),
+            }),
         });
         await wrapper.vm.getList();
 
@@ -376,7 +376,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
         expect(previewItems).toHaveLength(2);
-        expect(previewItems.at(1).find('.sw-context-menu-item').text()).toEqual('example.png');
+        expect(previewItems.at(1).find('.sw-context-menu-item').text()).toBe('example.png');
     });
 
     it('should push to a new route when editing items', async () => {

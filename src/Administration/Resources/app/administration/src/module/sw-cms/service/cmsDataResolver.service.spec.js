@@ -22,30 +22,30 @@ const pageMock = {
                                 config: {
                                     content: {
                                         value: '<p>TEST</p>',
-                                        source: 'static'
+                                        source: 'static',
                                     },
                                     verticalAlign: {
                                         value: null,
-                                        source: 'static'
-                                    }
+                                        source: 'static',
+                                    },
                                 },
                             },
                             config: {
                                 content: {
                                     value: '<p>TEST</p>',
-                                    source: 'static'
+                                    source: 'static',
                                 },
                                 verticalAlign: {
                                     value: null,
-                                    source: 'static'
-                                }
+                                    source: 'static',
+                                },
                             },
                             data: null,
-                        }
-                    ]
-                }
-            ]
-        }
+                        },
+                    ],
+                },
+            ],
+        },
     ],
 };
 
@@ -57,10 +57,10 @@ Shopware.Service().register('cmsService', () => {
                 text: {
                     collect() {
                         return {};
-                    }
-                }
+                    },
+                },
             };
-        }
+        },
     };
 });
 

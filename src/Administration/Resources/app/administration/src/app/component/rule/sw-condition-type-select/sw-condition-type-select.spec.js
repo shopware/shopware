@@ -31,14 +31,14 @@ async function createWrapper(customProps = {}, customOptions = {}) {
             condition: {
                 promotionAssociation: [
                     {
-                        id: 'random-promotion-id'
-                    }
-                ]
+                        id: 'random-promotion-id',
+                    },
+                ],
             },
             availableTypes: [],
-            ...customProps
+            ...customProps,
         },
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -60,7 +60,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const singleSelect = wrapper.find('.sw-condition-type-select');
@@ -78,10 +78,10 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
                     customerBillingCountry: [
                         {
                             associationName: 'customerBillingCountry',
-                            snippet: 'sw-customer-billing-country'
-                        }
-                    ]
-                }
+                            snippet: 'sw-customer-billing-country',
+                        },
+                    ],
+                },
             },
         });
 
@@ -110,7 +110,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
                 removeNodeFromTree: jest.fn(),
                 conditionDataProviderService: {},
                 restrictedConditions: {},
-            }
+            },
         });
 
         // mocking childAssociationField
@@ -130,16 +130,16 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
                 restrictedConditions: {
                     someRestriction: [
                         {
-                            associationName: 'flowTrigger.testingFlow'
-                        }
-                    ]
-                }
+                            associationName: 'flowTrigger.testingFlow',
+                        },
+                    ],
+                },
             },
         });
 
         expect(wrapper.vm.groupAssignments({
-            type: 'someRestriction'
-        })).toEqual(' sw-restricted-rules.restrictedConditions.relation.flowTrigger');
+            type: 'someRestriction',
+        })).toBe(' sw-restricted-rules.restrictedConditions.relation.flowTrigger');
     });
 
     it('should get groupAssignments with promotions', async () => {
@@ -151,24 +151,24 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
                 restrictedConditions: {
                     someRestriction: [
                         {
-                            associationName: 'promotion'
+                            associationName: 'promotion',
                         },
                         {
-                            associationName: 'flowTrigger.someFlow'
+                            associationName: 'flowTrigger.someFlow',
                         },
                         {
-                            associationName: 'flowTrigger.anotherFlow'
+                            associationName: 'flowTrigger.anotherFlow',
                         },
                         {
-                            associationName: 'flowTrigger.moreFlows'
+                            associationName: 'flowTrigger.moreFlows',
                         },
-                    ]
-                }
+                    ],
+                },
             },
         });
 
         expect(wrapper.vm.groupAssignments({
-            type: 'someRestriction'
-        })).toEqual(' sw-restricted-rules.restrictedConditions.relation.promotion </br> sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger');
+            type: 'someRestriction',
+        })).toBe(' sw-restricted-rules.restrictedConditions.relation.promotion </br> sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger');
     });
 });

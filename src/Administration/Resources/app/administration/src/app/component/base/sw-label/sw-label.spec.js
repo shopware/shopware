@@ -8,10 +8,10 @@ import 'src/app/component/base/sw-label';
 async function createWrapper(propsData = {}, listeners = {}) {
     return shallowMount(await Shopware.Component.build('sw-label'), {
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         listeners,
-        propsData: propsData
+        propsData: propsData,
     });
 }
 

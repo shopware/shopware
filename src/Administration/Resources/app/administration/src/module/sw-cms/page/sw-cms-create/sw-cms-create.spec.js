@@ -26,7 +26,7 @@ const pageRepository = {
             extensions: {
                 customEntityTestSwCmsPage: [],
                 ceTestSwCmsPage: [],
-            }
+            },
         };
     },
     save: jest.fn(() => Promise.resolve()),
@@ -57,7 +57,7 @@ async function createWrapper(routeParams = {}) {
             'sw-cms-toolbar': true,
             'router-link': true,
             'sw-page': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         mocks: {
             $route: { params: routeParams },
@@ -76,7 +76,7 @@ async function createWrapper(routeParams = {}) {
                         default:
                             throw new Error(`No repository for ${name} configured`);
                     }
-                }
+                },
             },
             cmsPageTypeService,
             entityFactory: {},
@@ -85,13 +85,13 @@ async function createWrapper(routeParams = {}) {
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {
-                        'product-listing': {}
+                        'product-listing': {},
                     };
-                }
+                },
             },
             appCmsService: {},
             cmsDataResolverService: {},
-            systemConfigApiService: {}
+            systemConfigApiService: {},
         },
     });
 }
@@ -108,8 +108,8 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
-                isSystemDefaultLanguage: true
-            }
+                isSystemDefaultLanguage: true,
+            },
         });
     });
 
@@ -132,7 +132,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
             sections: [],
-            type: 'product_list'
+            type: 'product_list',
         }));
 
         expect(callArg.categories).toHaveLength(1);
@@ -152,7 +152,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
             sections: [],
-            type: 'product_list'
+            type: 'product_list',
         }));
 
         expect(callArg.extensions.customEntityTestSwCmsPage).toHaveLength(1);
@@ -172,7 +172,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
             sections: [],
-            type: 'product_list'
+            type: 'product_list',
         }));
 
         expect(callArg.extensions.ceTestSwCmsPage).toHaveLength(1);
@@ -193,12 +193,12 @@ describe('module/sw-cms/page/sw-cms-create', () => {
             id: 'TEST-PAGE-ID',
             name: 'CMS-PAGE-NAME',
             sections: [],
-            type: 'product_list'
+            type: 'product_list',
         }));
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-cms.create.notification.assignToEntityError'
+            message: 'sw-cms.create.notification.assignToEntityError',
         });
     });
 });

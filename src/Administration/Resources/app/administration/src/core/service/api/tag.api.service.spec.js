@@ -40,7 +40,7 @@ describe('tagApiService', () => {
             isRunning: false,
             currentAssignment: null,
             progress: 0,
-            total: 0
+            total: 0,
         };
         const firstProductIdsBatch = Array.from(Array(200).keys());
         const tagRepositoryMock = {
@@ -48,11 +48,11 @@ describe('tagApiService', () => {
                 return { id: 't4' };
             }),
             save: jest.fn((tag) => {
-                expect(tag.id).toEqual('t4');
+                expect(tag.id).toBe('t4');
 
                 if (bulkMergeProgress.currentAssignment === null) {
                     // eslint-disable-next-line jest/no-conditional-expect
-                    expect(tag.name).toEqual('foo');
+                    expect(tag.name).toBe('foo');
                     return;
                 }
 
@@ -72,15 +72,15 @@ describe('tagApiService', () => {
             }),
             syncDeleted: jest.fn((ids) => {
                 expect(ids).toEqual(['t1', 't2', 't3']);
-            })
+            }),
         };
         const generalRepositoryMock = {
             searchIds: jest.fn((criteria) => {
                 const { type, field, value } = criteria.filters[0];
-                expect(type).toEqual('equalsAny');
-                expect(field).toEqual('tags.id');
-                expect(value).toEqual('t1|t2|t3');
-                expect(criteria.limit).toEqual(200);
+                expect(type).toBe('equalsAny');
+                expect(field).toBe('tags.id');
+                expect(value).toBe('t1|t2|t3');
+                expect(criteria.limit).toBe(200);
 
                 if (bulkMergeProgress.currentAssignment === 'products' && criteria.page === 1) {
                     return { data: firstProductIdsBatch, total: 203 };
@@ -88,19 +88,19 @@ describe('tagApiService', () => {
 
                 if (bulkMergeProgress.currentAssignment === 'products') {
                     // eslint-disable-next-line jest/no-conditional-expect
-                    expect(criteria.page).toEqual(2);
+                    expect(criteria.page).toBe(2);
                     // eslint-disable-next-line jest/no-conditional-expect
-                    expect(bulkMergeProgress.progress).toEqual(200);
+                    expect(bulkMergeProgress.progress).toBe(200);
                     // eslint-disable-next-line jest/no-conditional-expect
-                    expect(bulkMergeProgress.total).toEqual(203);
+                    expect(bulkMergeProgress.total).toBe(203);
 
                     return { data: [200, 201, 202], total: 203 };
                 }
 
-                expect(criteria.page).toEqual(1);
+                expect(criteria.page).toBe(1);
 
                 return { data: [0, 1, 2], total: 3 };
-            })
+            }),
         };
 
         tagApiService.getRepository = (entity) => {
@@ -118,18 +118,18 @@ describe('tagApiService', () => {
                 name: {},
                 products: {
                     relation: 'many_to_many',
-                    entity: 'product'
+                    entity: 'product',
                 },
                 categories: {
                     relation: 'many_to_many',
-                    entity: 'category'
+                    entity: 'category',
                 },
                 rules: {
                     relation: 'many_to_many',
-                    entity: 'rule'
-                }
+                    entity: 'rule',
+                },
             },
-            bulkMergeProgress
+            bulkMergeProgress,
         );
 
         expect(bulkMergeProgress.isRunning).toBeTruthy();

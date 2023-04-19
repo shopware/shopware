@@ -14,11 +14,11 @@ async function createWrapper() {
                 <div class="test-three">
                     <input class="test-three-input"/>
                 </div>
-            </div>`
+            </div>`,
         },
         {
             attachTo: document.body,
-        }
+        },
     );
 }
 

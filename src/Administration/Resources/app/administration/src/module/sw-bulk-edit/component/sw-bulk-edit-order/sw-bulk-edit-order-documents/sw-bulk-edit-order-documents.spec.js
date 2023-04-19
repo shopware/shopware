@@ -80,7 +80,7 @@ describe('sw-bulk-edit-order-documents', () => {
                 disabled: false,
             },
         });
-        expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBe(undefined);
-        expect(wrapper.find('sw-switch-field-stub').attributes().disabled).toBe(undefined);
+        expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeUndefined();
+        expect(wrapper.find('sw-switch-field-stub').attributes().disabled).toBeUndefined();
     });
 });

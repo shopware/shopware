@@ -13,26 +13,26 @@ async function createWrapper() {
                 create: () => ({
                     create: () => {
                         return {
-                            isNew: () => true
+                            isNew: () => true,
                         };
                     },
 
-                    save: jest.fn(() => Promise.resolve())
-                })
+                    save: jest.fn(() => Promise.resolve()),
+                }),
             },
             syncService: {
-                sync: jest.fn()
+                sync: jest.fn(),
             },
             acl: {
                 can: () => {
                     return true;
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-modal': true,
-            'sw-tabs': true
-        }
+            'sw-tabs': true,
+        },
     });
 }
 
@@ -48,7 +48,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.tag).not.toEqual(null);
+        expect(wrapper.vm.tag).not.toBeNull();
 
         const initialAssignments = {
             products: {},
@@ -59,7 +59,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
             orders: {},
             landingPages: {},
             rules: {},
-            shippingMethods: {}
+            shippingMethods: {},
         };
 
         expect(wrapper.vm.assignmentsToBeAdded).toEqual(initialAssignments);
@@ -72,8 +72,8 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
         await wrapper.setData({
             assignmentsToBeDeleted: {
-                products: { '0b7957f43b9b489fb7bc02a0a233274e': {} }
-            }
+                products: { '0b7957f43b9b489fb7bc02a0a233274e': {} },
+            },
         });
 
         await wrapper.vm.onSave();
@@ -82,7 +82,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         expect(wrapper.vm.tagRepository.save).toHaveBeenCalledTimes(1);
 
         const onSaveEvents = wrapper.emitted('finish');
-        expect(onSaveEvents.length).toBe(1);
+        expect(onSaveEvents).toHaveLength(1);
     });
 
     it('should emit event on cancel', async () => {
@@ -92,7 +92,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         wrapper.vm.onCancel();
 
         const onCancelEvents = wrapper.emitted('close');
-        expect(onCancelEvents.length).toBe(1);
+        expect(onCancelEvents).toHaveLength(1);
     });
 
     it('should increase and decrease counts from to be added and to be deleted', async () => {
@@ -100,7 +100,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
-            counts: { products: 7 }
+            counts: { products: 7 },
         });
 
         expect(wrapper.vm.computedCounts.products).toBe(7);
@@ -108,12 +108,12 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         await wrapper.setData({
             assignmentsToBeDeleted: {
                 products: { a: {}, b: {} },
-                invalid: { a: {} }
+                invalid: { a: {} },
             },
             assignmentsToBeAdded: {
                 products: { a: {}, b: {}, c: {}, d: {} },
-                invalid: { a: {} }
-            }
+                invalid: { a: {} },
+            },
         });
 
         expect(wrapper.vm.computedCounts.products).toBe(9);
@@ -125,11 +125,11 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
         await wrapper.setData({
             assignmentsToBeDeleted: {
-                products: { a: { id: 'a' }, b: { id: 'b' } }
+                products: { a: { id: 'a' }, b: { id: 'b' } },
             },
             assignmentsToBeAdded: {
-                products: { c: { id: 'c' }, d: { id: 'd' } }
-            }
+                products: { c: { id: 'c' }, d: { id: 'd' } },
+            },
         });
 
         wrapper.vm.addAssignment('products', 'b', { id: 'b' });

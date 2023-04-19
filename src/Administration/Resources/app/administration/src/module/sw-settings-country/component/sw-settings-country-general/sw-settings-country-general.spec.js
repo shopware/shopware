@@ -19,29 +19,29 @@ async function createWrapper(privileges = [], customPropsData = {}) {
             $tc: key => key,
             $route: {
                 params: {
-                    id: 'id'
-                }
+                    id: 'id',
+                },
             },
             $device: {
                 getSystemKey: () => {},
-                onResize: () => {}
-            }
+                onResize: () => {},
+            },
         },
 
         propsData: {
             country: {
                 isNew: () => false,
                 customerTax: {
-                    enabled: customPropsData.enabled
+                    enabled: customPropsData.enabled,
                 },
                 companyTax: {
-                    enabled: customPropsData.enabled
+                    enabled: customPropsData.enabled,
                 },
-                ...customPropsData
+                ...customPropsData,
             },
             userConfig: {},
             userConfigValues: {},
-            isLoading: false
+            isLoading: false,
         },
 
         provide: {
@@ -53,22 +53,22 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     search: () => {
                         return Promise.resolve({
                             userConfigs: {
-                                first: () => ({})
-                            }
+                                first: () => ({}),
+                            },
                         });
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             feature: {
-                isActive: () => true
-            }
+                isActive: () => true,
+            },
         },
 
         stubs: {
@@ -82,7 +82,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
             'sw-settings-country-currency-dependent-modal': true,
             'sw-entity-single-select': true,
             'sw-extension-component-section': true,
-        }
+        },
     });
 }
 
@@ -100,45 +100,45 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
 
     it('should be able to show the tax free from', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ], {
-            enabled: true
+            enabled: true,
         });
 
         await wrapper.vm.$nextTick();
 
         const countryNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-country.detail.labelName"]',
         );
         const countryPositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]'
+            'sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]',
         );
         const countryIsoField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso"]'
+            'sw-text-field-stub[label="sw-settings-country.detail.labelIso"]',
         );
         const countryIso3Field = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]'
+            'sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]',
         );
         const countryActiveField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]',
         );
         const countryShippingAvailableField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]',
         );
         const countryTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]',
         );
         const countryCompaniesTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]',
         );
         const countryCheckVatIdFormatField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]',
         );
         const countryTaxFreeFromField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]'
+            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]',
         );
         const countryVatIdRequiredField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]',
         );
 
         expect(countryNameField.attributes().disabled).toBeUndefined();
@@ -159,40 +159,40 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         await wrapper.vm.$nextTick();
 
         const countryNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-country.detail.labelName"]',
         );
         const countryPositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]'
+            'sw-number-field-stub[label="sw-settings-country.detail.labelPosition"]',
         );
         const countryIsoField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso"]'
+            'sw-text-field-stub[label="sw-settings-country.detail.labelIso"]',
         );
         const countryIso3Field = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]'
+            'sw-text-field-stub[label="sw-settings-country.detail.labelIso3"]',
         );
         const countryActiveField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelActive"]',
         );
         const countryShippingAvailableField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]',
         );
         const countryTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelTaxFree"]',
         );
         const countryCompaniesTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]',
         );
         const countryCheckVatIdFormatField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]',
         );
         const countryTaxFreeFromField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]'
+            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]',
         );
         const currencyDropdownList = wrapper.find(
-            'sw-entity-single-select-stub'
+            'sw-entity-single-select-stub',
         );
         const countryVatIdRequiredField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]'
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]',
         );
 
         expect(countryNameField.attributes().disabled).toBeTruthy();

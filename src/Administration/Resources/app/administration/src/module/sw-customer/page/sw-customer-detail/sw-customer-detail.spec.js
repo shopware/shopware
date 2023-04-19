@@ -19,9 +19,9 @@ async function createWrapper(privileges = []) {
                 query: {
                     edit: false,
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -33,30 +33,30 @@ async function createWrapper(privileges = []) {
                             company: 'Shopware AG',
                             requestedGroup: {
                                 translated: {
-                                    name: 'Test'
-                                }
-                            }
-                        })
+                                    name: 'Test',
+                                },
+                            },
+                        }),
                     };
-                }
+                },
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customerGroupRegistrationService: {
                 accept: jest.fn().mockResolvedValue(true),
-                decline: jest.fn().mockResolvedValue(true)
+                decline: jest.fn().mockResolvedValue(true),
             },
             customerValidationService: {},
         },
         propsData: {
             customerEditMode: false,
             customerId: 'test',
-            customer: {}
+            customer: {},
         },
         stubs: {
             'sw-page': {
@@ -65,36 +65,36 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-language-switch': true,
             'sw-card-view': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-container': true,
             'sw-field': true,
             'sw-language-info': true,
             'sw-tabs': {
-                template: '<div><slot name="content"></slot></div>'
+                template: '<div><slot name="content"></slot></div>',
             },
             'sw-tabs-item': true,
             'router-view': true,
             'sw-alert': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-customer-card': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-custom-field-set-renderer': await Shopware.Component.build('sw-custom-field-set-renderer'),
             'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -120,8 +120,8 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     it('should keep the customer\'s account type as private even when the company field is set', async () => {
         expect(wrapper.vm).toBeTruthy();
 
-        expect(wrapper.vm.$data.customer.accountType).toEqual('private');
-        expect(wrapper.vm.$data.customer.company).toEqual('Shopware AG');
+        expect(wrapper.vm.$data.customer.accountType).toBe('private');
+        expect(wrapper.vm.$data.customer.company).toBe('Shopware AG');
     });
 
     it('should not be able to edit the customer', async () => {
@@ -129,7 +129,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         const wrapperWithPrivileges = await createWrapper();
         await wrapperWithPrivileges.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         await wrapperWithPrivileges.vm.$nextTick();
@@ -146,10 +146,10 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await wrapper.destroy();
 
         const wrapperWithPrivileges = await createWrapper([
-            'customer.editor'
+            'customer.editor',
         ]);
         await wrapperWithPrivileges.setData({
-            isLoading: false
+            isLoading: false,
         });
         await wrapperWithPrivileges.vm.$nextTick();
 
@@ -184,7 +184,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await wrapper.destroy();
 
         const wrapperWithPrivileges = await createWrapper([
-            'customer.editor'
+            'customer.editor',
         ]);
 
         wrapperWithPrivileges.vm.createNotificationError = jest.fn();
@@ -196,7 +196,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
             customer: {
                 id: '1',
                 accountType: 'business',
-                company: ''
+                company: '',
             },
         });
         const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__save-action');
@@ -204,7 +204,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-customer.detail.messageSaveError'
+            message: 'sw-customer.detail.messageSaveError',
         });
 
         wrapperWithPrivileges.vm.createNotificationError.mockRestore();

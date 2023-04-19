@@ -11,15 +11,15 @@ async function createWrapper() {
         stubs: {
             'sw-icon': {
                 props: [
-                    'name'
+                    'name',
                 ],
-                template: '<span class="sw-icon">{{ name }}</span>'
+                template: '<span class="sw-icon">{{ name }}</span>',
             },
-            'sw-collapse': true
+            'sw-collapse': true,
         },
         mocks: {
-            $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values)
-        }
+            $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
+        },
     });
 }
 
@@ -37,7 +37,7 @@ describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
             const wrapper = await createWrapper();
 
             await wrapper.setProps({
-                expandChevronDirection: 'bottom'
+                expandChevronDirection: 'bottom',
             });
 
             expect(wrapper.find('.sw-sidebar-collapse__expand-button').text()).toContain('bottom');

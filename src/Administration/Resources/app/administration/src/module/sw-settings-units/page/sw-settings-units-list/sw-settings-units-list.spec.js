@@ -13,8 +13,8 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
+                    limit: 25,
+                },
             },
             $tc() {
                 return 'trans';
@@ -28,8 +28,8 @@ async function createWrapper(privileges = []) {
                             {
                                 id: '1a2b3c',
                                 name: 'Gramm',
-                                shortCode: 'g'
-                            }
+                                shortCode: 'g',
+                            },
                         ]);
                     },
                     save(unit) {
@@ -38,8 +38,8 @@ async function createWrapper(privileges = []) {
                         }
 
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -48,8 +48,8 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -65,7 +65,7 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-data-grid': {
                 props: ['dataSource'],
@@ -74,26 +74,26 @@ async function createWrapper(privileges = []) {
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-search-bar': true,
             'sw-icon': true,
             'sw-language-switch': true,
             'sw-button': true,
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>'
+                template: '<div><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-card-view': {
                 template: `
                         <div class="sw-card-view">
                             <slot></slot>
                         </div>
-                    `
+                    `,
             },
             'sw-empty-state': true,
             'sw-context-menu-item': true,
             'sw-context-menu-divider': true,
-        }
+        },
     });
 }
 
@@ -129,7 +129,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
 
     it('should be able to create a new units', async () => {
         const wrapper = await createWrapper([
-            'scale_unit.creator'
+            'scale_unit.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -149,7 +149,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
 
     it('should be able to edit a unit', async () => {
         const wrapper = await createWrapper([
-            'scale_unit.editor'
+            'scale_unit.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -171,7 +171,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
 
     it('should be able to delete a units', async () => {
         const wrapper = await createWrapper([
-            'scale_unit.deleter'
+            'scale_unit.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -198,7 +198,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.newUnit).toBe(null);
+        expect(wrapper.vm.newUnit).toBeNull();
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledTimes(1);
     });
 
@@ -243,8 +243,8 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
                 {
                     property: 'shortCode',
                     label: 'sw-settings-units.grid.columnShortCode',
-                }
-            ]
+                },
+            ],
         );
     });
 });

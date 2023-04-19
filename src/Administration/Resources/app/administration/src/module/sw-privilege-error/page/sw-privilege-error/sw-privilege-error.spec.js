@@ -14,12 +14,12 @@ describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
             localVue,
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"></slot></div>'
+                    template: '<div><slot name="content"></slot></div>',
                 },
                 'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
-                }
-            }
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+            },
         });
     });
 

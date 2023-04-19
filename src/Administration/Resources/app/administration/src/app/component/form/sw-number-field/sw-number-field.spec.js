@@ -16,16 +16,16 @@ const createWrapper = async (additionalOptions = {}, value = null) => {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         provide: {
-            validationService: {}
+            validationService: {},
         },
         propsData: {
-            value
+            value,
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 };
 
@@ -86,8 +86,8 @@ describe('app/component/form/sw-number-field', () => {
         const wrapper = await createWrapper({
             propsData: {
                 fillDigits: true,
-                numberType: 'int'
-            }
+                numberType: 'int',
+            },
         });
 
         const input = wrapper.find('input');
@@ -110,7 +110,7 @@ describe('app/component/form/sw-number-field', () => {
 
         // set property allowEmpty to true
         await wrapper.setProps({
-            allowEmpty: true
+            allowEmpty: true,
         });
 
         const input = wrapper.find('input');
@@ -136,25 +136,25 @@ describe('app/component/form/sw-number-field', () => {
         const wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
-                value: null
-            }
+                value: null,
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
-                value: null
+                value: null,
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
     it('should work with positive numbers', async () => {

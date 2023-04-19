@@ -10,15 +10,15 @@ const createWrapper = async () => {
     return shallowMount(await Shopware.Component.build('sw-mail-template-index'), {
         localVue,
         provide: {
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -26,13 +26,13 @@ const createWrapper = async () => {
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-card-view': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-container': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-button': true,
             'sw-context-button': {
@@ -40,11 +40,11 @@ const createWrapper = async () => {
                     <div class="sw-context-button">
                         <slot name="button"></slot>
                         <slot></slot>
-                     </div>`
+                     </div>`,
             },
             'sw-context-menu-item': true,
-            'sw-icon': true
-        }
+            'sw-icon': true,
+        },
     });
 };
 
@@ -57,7 +57,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
             {
                 method: 'warn',
                 msg: '[Listing Mixin]',
-            }
+            },
         ];
     });
 

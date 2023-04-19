@@ -8,21 +8,21 @@ async function createWrapper(customProps = {}) {
             'sw-text-field': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
-            'sw-field-error': true
+            'sw-field-error': true,
         },
         provide: {
             conditionDataProviderService: {
                 getPlaceholderData: () => {},
-                getComponentByCondition: () => {}
+                getComponentByCondition: () => {},
             },
             availableTypes: {},
             availableGroups: [],
-            childAssociationField: {}
+            childAssociationField: {},
         },
         propsData: {
             condition: {},
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -42,7 +42,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
 
     it('should have disabled condition type select', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const conditionTypeSelect = wrapper.find('sw-condition-type-select-stub');
@@ -60,7 +60,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
 
     it('should have disabled context button', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const contextButton = wrapper.find('sw-context-button-stub');
@@ -79,7 +79,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
 
     it('should have disabled context menu item', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');

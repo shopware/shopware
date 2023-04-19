@@ -20,14 +20,14 @@ const productSortingRepositoryMock = {
                 Shopware.Context.api,
                 null,
                 [{}],
-                1
-            )
+                1,
+            ),
         );
     },
     route: '/product_sorting',
     schema: {
-        entity: 'product_sorting'
-    }
+        entity: 'product_sorting',
+    },
 };
 
 const propertyGroupMock = [
@@ -47,8 +47,8 @@ const propertyGroupRepositoryMock = {
     },
     route: '/property_group',
     schema: {
-        entity: 'property_group'
-    }
+        entity: 'property_group',
+    },
 };
 
 const repositoryMockFactory = (entity) => {
@@ -87,18 +87,18 @@ async function createWrapper(activeTab = 'sorting') {
 <div>
     <slot></slot>
     <slot name="content" v-bind="{ active }"></slot>
-</div>`
+</div>`,
             },
         },
         provide: {
             cmsService: {
                 getCmsElementRegistry: () => {
                     return [];
-                }
+                },
             },
             repositoryFactory: {
-                create: (entity) => repositoryMockFactory(entity)
-            }
+                create: (entity) => repositoryMockFactory(entity),
+            },
 
         },
         propsData: Vue.observable({
@@ -106,30 +106,30 @@ async function createWrapper(activeTab = 'sorting') {
             element: {
                 config: {
                     boxLayout: {
-                        value: {}
+                        value: {},
                     },
                     defaultSorting: {
-                        value: {}
+                        value: {},
                     },
                     availableSortings: {
-                        value: {}
+                        value: {},
                     },
                     showSorting: {
-                        value: true
+                        value: true,
                     },
                     useCustomSorting: {
-                        value: true
+                        value: true,
                     },
                     filters: {
-                        value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter'
+                        value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter',
                     },
                     // eslint-disable-next-line inclusive-language/use-inclusive-words
                     propertyWhitelist: {
-                        value: []
-                    }
-                }
-            }
-        })
+                        value: [],
+                    },
+                },
+            },
+        }),
     });
 }
 
@@ -198,18 +198,18 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             productSortings: [
                 {
                     key: 'foo',
-                    priority: 2
+                    priority: 2,
                 },
                 {
                     key: 'bar',
-                    priority: 5
-                }
-            ]
+                    priority: 5,
+                },
+            ],
         });
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
             foo: 2,
-            bar: 5
+            bar: 5,
         });
     });
 
@@ -221,19 +221,19 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
                 config: {
                     availableSortings: {
                         value: {
-                            foo: 4
-                        }
-                    }
-                }
-            }
+                            foo: 4,
+                        },
+                    },
+                },
+            },
         });
 
         const before = [
             {
                 key: 'fist',
                 value: 'bump',
-                priority: 7
-            }
+                priority: 7,
+            },
         ];
 
         const after = wrapper.vm.updateValuesFromConfig(before);
@@ -242,8 +242,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             {
                 key: 'fist',
                 value: 'bump',
-                priority: 7
-            }
+                priority: 7,
+            },
         ]);
     });
 
@@ -253,23 +253,23 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const before = [
             {
                 key: 'foo',
-                priority: 2
+                priority: 2,
             },
             {
                 key: 'bar',
-                priority: 5
-            }
+                priority: 5,
+            },
         ];
 
         await wrapper.setData({
-            productSortings: before
+            productSortings: before,
         });
 
         const after = wrapper.vm.transformProductSortings();
 
         expect(after).toStrictEqual({
             bar: 5,
-            foo: 2
+            foo: 2,
         });
     });
 
@@ -388,6 +388,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should toggle property filters', async () => {
+        /* eslint-disable inclusive-language/use-inclusive-words */
         const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // fetch property_group call
@@ -420,5 +421,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         // check that foo with the id x03 got removed from the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
         expect(selectedProperties).toEqual(['x02']);
+        /* eslint-enable inclusive-language/use-inclusive-words */
     });
 });

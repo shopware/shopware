@@ -16,10 +16,10 @@ function getMockParentProfiles(total = 1) {
                     {
                         id: 'b36961c5f32c4f4d9e17ed9718f5fca2',
                         key: 'productNumber',
-                        mappedKey: 'product_number'
-                    }
-                ]
-            }
+                        mappedKey: 'product_number',
+                    },
+                ],
+            },
         ];
     }
 
@@ -42,13 +42,13 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             {
                 id: 'b36961c5f32c4f4d9e17ed9718f5fca2',
                 key: 'productNumber',
-                mappedKey: 'product_number'
-            }
+                mappedKey: 'product_number',
+            },
         ],
         config: {
             createEntities: true,
-            updateEntities: true
-        }
+            updateEntities: true,
+        },
     };
 
     beforeEach(async () => {
@@ -60,7 +60,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-select-base': true,
                 'sw-button': true,
                 'sw-tabs': true,
-                'sw-modal': true
+                'sw-modal': true,
             },
             provide: {
                 repositoryFactory: {
@@ -72,27 +72,27 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                                 }
 
                                 return Promise.resolve(getMockParentProfiles(parentProfileTotal));
-                            }
+                            },
                         };
-                    }
+                    },
                 },
                 importExportProfileMapping: {
                     validate: () => {
                         return {
                             missingRequiredFields: {
-                                length: missingRequiredFieldsLength
-                            }
+                                length: missingRequiredFieldsLength,
+                            },
                         };
                     },
                     getSystemRequiredFields: () => {
                         return systemRequiredFields;
-                    }
+                    },
                 },
                 importExportUpdateByMapping: {
                     removeUnusedMappings: () => {
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     });
 
@@ -145,7 +145,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-import-export.profile.messageSearchParentProfileError'
+            message: 'sw-import-export.profile.messageSearchParentProfileError',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -161,7 +161,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.missingRequiredFields.length).toBe(1);
+        expect(wrapper.vm.missingRequiredFields).toHaveLength(1);
     });
 
     it('should be empty array for missing required fields when run resetViolations', async () => {

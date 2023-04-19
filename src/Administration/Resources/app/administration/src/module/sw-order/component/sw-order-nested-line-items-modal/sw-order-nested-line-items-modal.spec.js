@@ -26,10 +26,10 @@ function getMockChild(id, parentId) {
         price: {
             taxRules: [
                 {
-                    taxRate: mockTax
-                }
-            ]
-        }
+                    taxRate: mockTax,
+                },
+            ],
+        },
     };
 }
 
@@ -40,17 +40,17 @@ const mockParent = {
     quantity: 1,
     children: [
         getMockChild('1', 'parent'),
-        getMockChild('2', 'parent')
+        getMockChild('2', 'parent'),
     ],
     totalPrice: 200,
     unitPrice: 200,
     price: {
         taxRules: [
             {
-                taxRate: 20
-            }
-        ]
-    }
+                taxRate: 20,
+            },
+        ],
+    },
 };
 
 const mockChildrenCollection = [
@@ -61,7 +61,7 @@ const mockChildrenCollection = [
     getMockChild('1.1.2', '1.1'),
     getMockChild('1.2', '1'),
     getMockChild('1.3', '1'),
-    getMockChild('2.1', '2')
+    getMockChild('2.1', '2'),
 ];
 
 async function createWrapper() {
@@ -74,11 +74,11 @@ async function createWrapper() {
         propsData: {
             order: {
                 currency: {
-                    shortName: 'EUR'
-                }
+                    shortName: 'EUR',
+                },
             },
             lineItem: mockParent,
-            context: {}
+            context: {},
         },
         provide: {
             repositoryFactory: {
@@ -94,19 +94,19 @@ async function createWrapper() {
                         });
 
                         return Promise.resolve(entities);
-                    }
-                })
-            }
+                    },
+                }),
+            },
         },
         stubs: {
             'sw-modal': true,
             'sw-loader': true,
             'sw-button': true,
-            'sw-order-nested-line-items-row': await Shopware.Component.build('sw-order-nested-line-items-row')
+            'sw-order-nested-line-items-row': await Shopware.Component.build('sw-order-nested-line-items-row'),
         },
         mocks: {
-            $tc: snippet => snippet
-        }
+            $tc: snippet => snippet,
+        },
     });
 }
 
@@ -132,7 +132,7 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
         await flushPromises();
 
         const content = wrapper.findAll('.sw-order-nested-line-items-row__content');
-        expect(content.length).toBe(10);
+        expect(content).toHaveLength(10);
     });
 
     it('should render the items in the correct order with correct indentation class and properties', async () => {
@@ -148,71 +148,71 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
                 quantity: 1,
                 unitPrice: 10,
                 totalPrice: 100,
-                taxRate: 1
+                taxRate: 1,
             }, {
                 label: 'lineItem 1.1',
                 nestingLevel: 2,
                 quantity: 11,
                 unitPrice: 110,
                 totalPrice: 1100,
-                taxRate: 1.1
+                taxRate: 1.1,
             }, {
                 label: 'lineItem 1.1.1',
                 nestingLevel: 3,
                 quantity: 111,
                 unitPrice: 1110,
                 totalPrice: 11100,
-                taxRate: 1.11
+                taxRate: 1.11,
             }, {
                 label: 'lineItem 1.1.1.1',
                 nestingLevel: 4,
                 quantity: 1111,
                 unitPrice: 11110,
                 totalPrice: 111100,
-                taxRate: 1.111
+                taxRate: 1.111,
             }, {
                 label: 'lineItem 1.1.1.1.1',
                 nestingLevel: 5,
                 quantity: 11111,
                 unitPrice: 111110,
                 totalPrice: 1111100,
-                taxRate: 1.1111
+                taxRate: 1.1111,
             }, {
                 label: 'lineItem 1.1.2',
                 nestingLevel: 3,
                 quantity: 112,
                 unitPrice: 1120,
                 totalPrice: 11200,
-                taxRate: 1.12
+                taxRate: 1.12,
             }, {
                 label: 'lineItem 1.2',
                 nestingLevel: 2,
                 quantity: 12,
                 unitPrice: 120,
                 totalPrice: 1200,
-                taxRate: 1.2
+                taxRate: 1.2,
             }, {
                 label: 'lineItem 1.3',
                 nestingLevel: 2,
                 quantity: 13,
                 unitPrice: 130,
                 totalPrice: 1300,
-                taxRate: 1.3
+                taxRate: 1.3,
             }, {
                 label: 'lineItem 2',
                 nestingLevel: 1,
                 quantity: 2,
                 unitPrice: 20,
                 totalPrice: 200,
-                taxRate: 2
+                taxRate: 2,
             }, {
                 label: 'lineItem 2.1',
                 nestingLevel: 2,
                 quantity: 21,
                 unitPrice: 210,
                 totalPrice: 2100,
-                taxRate: 2.1
-            }
+                taxRate: 2.1,
+            },
         ];
 
         dataProvider.forEach((data, index) => {

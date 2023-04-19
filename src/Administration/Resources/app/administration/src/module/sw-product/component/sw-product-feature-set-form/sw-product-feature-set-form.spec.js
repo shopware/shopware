@@ -31,7 +31,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         formInheritWrapper: 'sw-inherit-wrapper',
         templateSingleSelect: 'sw-entity-single-select',
         singleSelectSelection: 'sw-entity-single-select__selection',
-        inheritanceSwitch: 'sw-inheritance-switch'
+        inheritanceSwitch: 'sw-inheritance-switch',
     };
 
     const text = {
@@ -41,7 +41,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         descriptionLink: 'sw-product.featureSets.linkFeatureSetsConfig',
         descriptionLinkTarget: 'sw.settings.product.feature.sets.index',
         templateSelectLabel: 'sw-product.featureSets.templateSelectFieldLabel',
-        templateSelectPlaceholder: 'sw-product.featureSets.templateSelectFieldPlaceholder'
+        templateSelectPlaceholder: 'sw-product.featureSets.templateSelectFieldPlaceholder',
     };
 
     const featureSetMock = {
@@ -53,15 +53,15 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                 id: null,
                 name: null,
                 type: 'referencePrice',
-                position: 1
-            }
-        ]
+                position: 1,
+            },
+        ],
     };
 
     const productMock = (additionalProperties) => {
         return Vue.observable({
             featureSet: featureSetMock,
-            ...additionalProperties
+            ...additionalProperties,
         });
     };
 
@@ -81,7 +81,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
                 'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
+                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
                 },
                 'sw-icons-custom-inherited': true,
                 'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
@@ -91,7 +91,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
                 'sw-label': true,
-                i18n: true
+                i18n: true,
             },
             provide: {
                 repositoryFactory: {
@@ -101,20 +101,20 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                                 return new Promise((resolve) => {
                                     resolve(featureSetMock);
                                 });
-                            }
+                            },
                         };
                     },
                     search() {
                         return {};
-                    }
-                }
+                    },
+                },
             },
             computed: {
                 product: () => productMock({ featureSetId: featureSetMock.id }),
                 parentProduct: () => productMock({ featureSetId: featureSetMock.id, id: 'a12b3c' }),
                 loading: () => {
-                }
-            }
+                },
+            },
         });
     }
 

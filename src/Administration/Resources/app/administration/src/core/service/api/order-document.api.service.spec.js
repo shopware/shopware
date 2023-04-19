@@ -12,8 +12,8 @@ function createOrderDocumentApiService() {
     clientMock.onAny().reply(
         200,
         {
-            data: null
-        }
+            data: null,
+        },
     );
 
     return { orderDocumentApiService, clientMock };

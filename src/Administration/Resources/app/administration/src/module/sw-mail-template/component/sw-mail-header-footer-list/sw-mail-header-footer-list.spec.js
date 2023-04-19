@@ -10,17 +10,17 @@ const mailHeaderFooterMock = [
         name: 'Order Header',
         salesChannels: [
             {
-                name: 'Storefront'
-            }
-        ]
+                name: 'Storefront',
+            },
+        ],
     },
     {
         id: '2',
         description: 'Shopware Default Template',
         name: 'Order Header',
-        salesChannels: []
+        salesChannels: [],
 
-    }
+    },
 ];
 
 const createWrapper = async (privileges = []) => {
@@ -44,29 +44,29 @@ const createWrapper = async (privileges = []) => {
                         }
 
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
+                    limit: 25,
+                },
             },
         },
         stubs: {
             'sw-card': {
-                template: '<div><slot name="grid"></slot></div>'
+                template: '<div><slot name="grid"></slot></div>',
             },
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
@@ -94,10 +94,10 @@ const createWrapper = async (privileges = []) => {
                 methods: {
                     resetSelection() {},
                     doSearch() {},
-                }
+                },
             },
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 };
 
@@ -139,18 +139,18 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         await wrapper.vm.$nextTick();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
-        expect(editButton.text()).toEqual('global.default.view');
+        expect(editButton.text()).toBe('global.default.view');
     });
 
     it('should allow to edit with edit permission', async () => {
         const wrapper = await createWrapper([
             'mail_templates.viewer',
-            'mail_templates.editor'
+            'mail_templates.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
-        expect(editButton.text()).toEqual('global.default.edit');
+        expect(editButton.text()).toBe('global.default.edit');
     });
 
     it('should hide item selection if user does not have delete permission', async () => {
@@ -210,7 +210,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         // fill listing with mail templates mocks
         wrapper.vm.mailHeaderFooters = [
             { type: 'contact_form', salesChannel: 'Headless' },
-            { type: 'password_recovery', salesChannel: 'Storefront' }
+            { type: 'password_recovery', salesChannel: 'Storefront' },
         ];
 
         // wait for vue to update the grid

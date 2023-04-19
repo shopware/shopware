@@ -13,8 +13,8 @@ async function createWrapper() {
             'sw-textarea-field': true,
         },
         propsData: {
-            category: {}
-        }
+            category: {},
+        },
     });
 }
 

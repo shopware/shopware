@@ -11,18 +11,18 @@ async function createWrapper(privileges = []) {
         localVue,
         stubs: {
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-switch-field': {
-                template: '<div class="sw-switch-field"></div>'
+                template: '<div class="sw-switch-field"></div>',
             },
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-promotion-rule-select': {
-                template: '<div class="sw-promotion-rule-select"></div>'
+                template: '<div class="sw-promotion-rule-select"></div>',
             },
-            'sw-promotion-v2-rule-select': true
+            'sw-promotion-v2-rule-select': true,
         },
         provide: {
             acl: {
@@ -30,21 +30,21 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
 
             promotionSyncService: {
                 loadPackagers: () => Promise.resolve(),
-                loadSorters: () => Promise.resolve()
+                loadSorters: () => Promise.resolve(),
             },
 
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }])
-                })
+                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                }),
             },
 
-            ruleConditionDataProviderService: {}
+            ruleConditionDataProviderService: {},
         },
         propsData: {
             promotion: {
@@ -65,7 +65,7 @@ async function createWrapper(privileges = []) {
                 ordersPerCustomerCount: null,
                 exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
                 translated: {
-                    name: 'Test Promotion'
+                    name: 'Test Promotion',
                 },
                 apiAlias: null,
                 id: 'promotionId',
@@ -76,8 +76,8 @@ async function createWrapper(privileges = []) {
                         salesChannelId: 'salesChannelId',
                         priority: 1,
                         createdAt: '2020-08-17T13:24:52.692+00:00',
-                        id: 'promotionSalesChannelId'
-                    }
+                        id: 'promotionSalesChannelId',
+                    },
                 ],
                 discounts: [],
                 individualCodes: [],
@@ -88,42 +88,30 @@ async function createWrapper(privileges = []) {
                 translations: [],
                 hasOrders: false,
                 isNew: () => false,
-            }
-        }
+            },
+        },
     });
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     beforeAll(() => {
         Shopware.Service().register('syncService', () => {
             return {
                 httpClient: {
                     get() {
                         return Promise.resolve({});
-                    }
+                    },
                 },
                 getBasicHeaders() {
                     return {};
-                }
+                },
             };
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have disabled form fields', async () => {
+        const wrapper = await createWrapper();
+
         const elements = wrapper.findAll('.sw-switch-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
@@ -134,8 +122,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = await createWrapper([
-            'promotion.editor'
+        const wrapper = await createWrapper([
+            'promotion.editor',
         ]);
 
         const elements = wrapper.findAll('.sw-switch-field');
@@ -148,9 +136,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
     });
 
     it('should add conditions association', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 
-        expect(criteria.associations[0].association).toEqual('conditions');
+        expect(criteria.associations[0].association).toBe('conditions');
     });
 });

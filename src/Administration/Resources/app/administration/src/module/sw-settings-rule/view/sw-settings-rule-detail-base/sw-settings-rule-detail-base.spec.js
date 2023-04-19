@@ -16,7 +16,7 @@ async function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-field': true,
             'sw-multi-select': true,
-            'sw-entity-tag-select': true
+            'sw-entity-tag-select': true,
         },
         propsData: {
             conditionRepository: {},
@@ -25,25 +25,25 @@ async function createWrapper(privileges = []) {
                 name: 'Test rule',
                 priority: 7,
                 description: 'Foo, bar',
-                type: ''
+                type: '',
             },
-            isLoading: false
+            isLoading: false,
         },
         provide: {
             ruleConditionDataProviderService: {
-                getModuleTypes: () => []
+                getModuleTypes: () => [],
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
-        }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
+        },
     });
 }
 
@@ -72,7 +72,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
 
     it('should have enabled fields', async () => {
         const wrapper = await createWrapper([
-            'rule.editor'
+            'rule.editor',
         ]);
 
         const ruleNameField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelName"]');

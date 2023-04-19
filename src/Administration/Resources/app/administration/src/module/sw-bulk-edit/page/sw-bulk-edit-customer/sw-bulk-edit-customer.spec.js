@@ -119,7 +119,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 'sw-error-summary': true,
             },
             props: {
-                title: 'Foo bar'
+                title: 'Foo bar',
             },
             provide: {
                 validationService: {},
@@ -131,37 +131,37 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                                 if (entity === 'custom_field_set') {
                                     return {
                                         search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
-                                        get: () => Promise.resolve({ id: '' })
+                                        get: () => Promise.resolve({ id: '' }),
                                     };
                                 }
 
                                 return {
                                     id: '1a2b3c',
-                                    name: 'Test Customer'
+                                    name: 'Test Customer',
                                 };
                             },
                             search: () => Promise.resolve([
                                 {
                                     id: '1',
-                                    name: 'customer 1'
+                                    name: 'customer 1',
                                 },
                                 {
                                     id: '2',
-                                    name: 'customer 2'
-                                }
+                                    name: 'customer 2',
+                                },
                             ]),
                             get: () => Promise.resolve({
                                 id: 1,
-                                name: 'Customer'
+                                name: 'Customer',
                             }),
                             searchIds: () => Promise.resolve([
                                 {
                                     data: [1],
-                                    total: 1
-                                }
-                            ])
+                                    total: 1,
+                                },
+                            ]),
                         };
-                    }
+                    },
                 },
                 bulkEditApiFactory: {
                     getHandler: () => {
@@ -188,14 +188,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                                 }
 
                                 return Promise.resolve();
-                            }
+                            },
                         };
-                    }
+                    },
                 },
                 shortcutService: {
                     startEventListener: () => {},
-                    stopEventListener: () => {}
-                }
+                    stopEventListener: () => {},
+                },
             },
             attachTo: document.body,
         });
@@ -205,7 +205,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         routes = [
             {
                 name: 'sw.bulk.edit.customer',
-                path: 'index'
+                path: 'index',
             },
             {
                 name: 'sw.bulk.edit.customer.save',
@@ -213,11 +213,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 component: await Shopware.Component.build('sw-bulk-edit-save-modal'),
                 meta: {
                     $module: {
-                        title: 'sw-bulk-edit-customer.general.mainMenuTitle'
-                    }
+                        title: 'sw-bulk-edit-customer.general.mainMenuTitle',
+                    },
                 },
                 redirect: {
-                    name: 'sw.bulk.edit.customer.save.confirm'
+                    name: 'sw.bulk.edit.customer.save.confirm',
                 },
                 children: [
                     {
@@ -226,9 +226,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-confirm'),
                         meta: {
                             $module: {
-                                title: 'sw-bulk-edit-customer.general.mainMenuTitle'
-                            }
-                        }
+                                title: 'sw-bulk-edit-customer.general.mainMenuTitle',
+                            },
+                        },
                     },
                     {
                         name: 'sw.bulk.edit.customer.save.process',
@@ -236,9 +236,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-process'),
                         meta: {
                             $module: {
-                                title: 'sw-bulk-edit-customer.general.mainMenuTitle'
-                            }
-                        }
+                                title: 'sw-bulk-edit-customer.general.mainMenuTitle',
+                            },
+                        },
                     },
                     {
                         name: 'sw.bulk.edit.customer.save.success',
@@ -246,9 +246,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-success'),
                         meta: {
                             $module: {
-                                title: 'sw-bulk-edit-customer.general.mainMenuTitle'
-                            }
-                        }
+                                title: 'sw-bulk-edit-customer.general.mainMenuTitle',
+                            },
+                        },
                     },
                     {
                         name: 'sw.bulk.edit.customer.save.error',
@@ -256,16 +256,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-error'),
                         meta: {
                             $module: {
-                                title: 'sw-bulk-edit-customer.general.mainMenuTitle'
-                            }
-                        }
-                    }
-                ]
-            }
+                                title: 'sw-bulk-edit-customer.general.mainMenuTitle',
+                            },
+                        },
+                    },
+                ],
+            },
         ];
 
         router = new VueRouter({
-            routes
+            routes,
         });
         const orgPush = router.push;
         router.push = (location) => {
@@ -285,11 +285,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         id: Shopware.Utils.createId(),
                         attributes: {
-                            id: Shopware.Utils.createId()
-                        }
-                    }
-                ]
-            }
+                            id: Shopware.Utils.createId(),
+                        },
+                    },
+                ],
+            },
         });
 
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
@@ -312,7 +312,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         Shopware.State.commit('shopwareApps/setSelectedIds', []);
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const emptyState = wrapper.find('.sw-empty-state');
@@ -328,7 +328,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        expect(wrapper.vm.$route.path).toEqual('/confirm');
+        expect(wrapper.vm.$route.path).toBe('/confirm');
     });
 
     it('should close confirm modal', async () => {
@@ -345,7 +345,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await footerLeft.find('button').trigger('click');
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.$route.path).toEqual('index');
+        expect(wrapper.vm.$route.path).toBe('index');
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeFalsy();
     });
 
@@ -362,7 +362,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         const footerRight = wrapper.find('.footer-right');
         await footerRight.find('button').trigger('click');
 
-        expect(wrapper.vm.$route.path).toEqual('/process');
+        expect(wrapper.vm.$route.path).toBe('/process');
     });
 
     it('should open success modal', async () => {
@@ -380,7 +380,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.$route.path).toEqual('/success');
+        expect(wrapper.vm.$route.path).toBe('/success');
     });
 
     it('should open error modal', async () => {
@@ -393,9 +393,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 ...wrapper.vm.bulkEditData,
                 active: {
                     isChanged: true,
-                    value: true
-                }
-            }
+                    value: true,
+                },
+            },
         });
 
         await wrapper.find('.sw-bulk-edit-customer__save-action').trigger('click');
@@ -409,9 +409,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.$route.path).toEqual('/error');
+        expect(wrapper.vm.$route.path).toBe('/error');
         expect(spy).toHaveBeenCalledWith(
-            new Error('error occurred')
+            new Error('error occurred'),
         );
     });
 
@@ -426,7 +426,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         expect(customFieldsCard.exists()).toBeTruthy();
 
         wrapper.vm.bulkEditData.customFields.value = {
-            field1: 'abc'
+            field1: 'abc',
         };
 
         await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');

@@ -16,48 +16,48 @@ const orderMock = {
     orderCustomer: {
         firstName: 'John',
         lastName: 'Doe',
-        email: 'john@doe.dev'
+        email: 'john@doe.dev',
     },
     currency: {
         translated: {
-            name: ''
-        }
+            name: '',
+        },
     },
     totalRounding: {
-        decimals: 2
+        decimals: 2,
     },
     transactions: [
         {
             stateMachineState: {
                 translated: {
-                    name: ''
-                }
+                    name: '',
+                },
             },
             paymentMethod: {
                 translated: {
                     distinguishableName: 'Payment Method',
-                }
-            }
-        }
+                },
+            },
+        },
     ],
     deliveries: [
         {
             stateMachineState: {
                 translated: {
-                    name: ''
-                }
+                    name: '',
+                },
             },
             shippingMethod: {
                 translated: {
-                    name: ''
-                }
-            }
-        }
+                    name: '',
+                },
+            },
+        },
     ],
     stateMachineState: {
         translated: {
-            name: ''
-        }
+            name: '',
+        },
     },
     tags: [
         {
@@ -68,40 +68,40 @@ const orderMock = {
             id: '222',
             name: '2',
         },
-    ]
+    ],
 };
 
 orderMock.transactions.last = () => ({
     stateMachineState: {
         translated: {
-            name: ''
-        }
+            name: '',
+        },
     },
     paymentMethod: {
         translated: {
             distinguishableName: 'Payment Method',
-        }
-    }
+        },
+    },
 });
 
 orderMock.deliveries.last = () => ({
     stateMachineState: {
         translated: {
-            name: ''
-        }
+            name: '',
+        },
     },
     shippingMethod: {
         translated: {
-            name: ''
-        }
-    }
+            name: '',
+        },
+    },
 });
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-general-info'), {
         propsData: {
             order: orderMock,
-            isLoading: false
+            isLoading: false,
         },
         provide: {
             orderStateMachineService: {},
@@ -114,16 +114,16 @@ async function createWrapper() {
                             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
                             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
                             variant: 'neutral',
-                            colorCode: '#94a6b8'
-                        }
+                            colorCode: '#94a6b8',
+                        },
                     };
-                }
+                },
             },
             stateMachineService: {
-                getState: () => { return { data: { } }; }
+                getState: () => { return { data: { } }; },
             },
             feature: {
-                isActive: () => true
+                isActive: () => true,
             },
             repositoryFactory: {
                 create() {
@@ -135,15 +135,15 @@ async function createWrapper() {
                             null,
                         )),
                         delete: deleteFn,
-                        assign: assignFn
+                        assign: assignFn,
                     };
                 },
-            }
+            },
         },
         stubs: {
             'sw-order-state-select-v2': true,
-            'sw-entity-tag-select': true
-        }
+            'sw-entity-tag-select': true,
+        },
     });
 }
 
@@ -156,11 +156,11 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
             state: {
                 isLoading: false,
                 isSavedSuccessful: false,
-                versionContext: {}
+                versionContext: {},
             },
             mutations: {
-                setLoading() {}
-            }
+                setLoading() {},
+            },
         });
     });
 
@@ -182,7 +182,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         const summary = wrapper.find('.sw-order-general-info__summary-main-header');
 
         expect(summary.exists()).toBeTruthy();
-        expect(summary.text()).toEqual('10000 - John Doe (john@doe.dev)');
+        expect(summary.text()).toBe('10000 - John Doe (john@doe.dev)');
     });
 
     it('should not mutate the original of the order\'s tags when removing tag', async () => {
@@ -190,14 +190,14 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
         expect(tagsStub.exists()).toBeTruthy();
 
-        expect(orderMock.tags.length).toEqual(2);
-        expect(wrapper.vm.$data.tagCollection.length).toEqual(2);
+        expect(orderMock.tags).toHaveLength(2);
+        expect(wrapper.vm.$data.tagCollection).toHaveLength(2);
 
         await tagsStub.vm.$emit('item-remove', orderMock.tags[0]);
 
         expect(deleteFn).toHaveBeenCalledTimes(1);
-        expect(orderMock.tags.length).toEqual(2);
-        expect(wrapper.vm.$data.tagCollection.length).toEqual(1);
+        expect(orderMock.tags).toHaveLength(2);
+        expect(wrapper.vm.$data.tagCollection).toHaveLength(1);
     });
 
     it('should not mutate the original of the order\'s tags when adding tag', async () => {
@@ -205,13 +205,13 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
         expect(tagsStub.exists()).toBeTruthy();
 
-        expect(orderMock.tags.length).toEqual(2);
-        expect(wrapper.vm.$data.tagCollection.length).toEqual(2);
+        expect(orderMock.tags).toHaveLength(2);
+        expect(wrapper.vm.$data.tagCollection).toHaveLength(2);
 
         await tagsStub.vm.$emit('item-add', { id: '333', name: '333' });
 
         expect(assignFn).toHaveBeenCalledTimes(1);
-        expect(orderMock.tags.length).toEqual(2);
-        expect(wrapper.vm.$data.tagCollection.length).toEqual(3);
+        expect(orderMock.tags).toHaveLength(2);
+        expect(wrapper.vm.$data.tagCollection).toHaveLength(3);
     });
 });

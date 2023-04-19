@@ -7,37 +7,37 @@ Shopware.Component.register('sw-cms-el-image-slider', swCmsElImageSlider);
 const sliderItemsConfigMock = [
     {
         mediaId: '1',
-        mediaUrl: 'http://shopware.com/image1.jpg'
+        mediaUrl: 'http://shopware.com/image1.jpg',
     },
     {
         mediaId: '2',
-        mediaUrl: 'http://shopware.com/image2.jpg'
+        mediaUrl: 'http://shopware.com/image2.jpg',
     },
     {
         mediaId: '3',
-        mediaUrl: 'http://shopware.com/image3.jpg'
-    }
+        mediaUrl: 'http://shopware.com/image3.jpg',
+    },
 ];
 
 const sliderItemsDataMock = [
     {
         media: {
             id: '1',
-            url: 'http://shopware.com/image1.jpg'
-        }
+            url: 'http://shopware.com/image1.jpg',
+        },
     },
     {
         media: {
             id: '2',
-            url: 'http://shopware.com/image2.jpg'
-        }
+            url: 'http://shopware.com/image2.jpg',
+        },
     },
     {
         media: {
             id: '3',
-            url: 'http://shopware.com/image3.jpg'
-        }
-    }
+            url: 'http://shopware.com/image3.jpg',
+        },
+    },
 ];
 
 async function createWrapper() {
@@ -53,40 +53,40 @@ async function createWrapper() {
                 },
                 getCmsElementRegistry: () => {
                     return { 'image-slider': {} };
-                }
-            }
+                },
+            },
         },
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         propsData: {
             element: {
                 config: {},
-                data: {}
+                data: {},
             },
             defaultConfig: {
                 sliderItems: {
                     source: 'static',
-                    value: []
+                    value: [],
                 },
                 navigationArrows: {
                     source: 'static',
-                    value: 'outside'
+                    value: 'outside',
                 },
                 navigationDots: {
                     source: 'static',
-                    value: null
+                    value: null,
                 },
                 displayMode: {
                     source: 'static',
-                    value: 'standard'
+                    value: 'standard',
                 },
                 verticalAlign: {
                     source: 'static',
-                    value: null
-                }
-            }
-        }
+                    value: null,
+                },
+            },
+        },
     });
 }
 
@@ -100,13 +100,13 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
                     ...wrapper.props().element.config,
                     sliderItems: {
                         source: 'static',
-                        value: sliderItemsConfigMock
-                    }
+                        value: sliderItemsConfigMock,
+                    },
                 },
                 data: {
-                    sliderItems: sliderItemsDataMock
-                }
-            }
+                    sliderItems: sliderItemsDataMock,
+                },
+            },
         });
 
         // Initial state
@@ -144,24 +144,24 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
                     ...wrapper.props().element.config,
                     sliderItems: {
                         source: 'static',
-                        value: sliderItemsConfigMock
+                        value: sliderItemsConfigMock,
                     },
                     navigationDots: {
                         source: 'static',
-                        value: 'outside'
-                    }
+                        value: 'outside',
+                    },
                 },
                 data: {
-                    sliderItems: sliderItemsDataMock
-                }
-            }
+                    sliderItems: sliderItemsDataMock,
+                },
+            },
         });
 
         const navigationDots = wrapper.find('.sw-cms-el-image-slider__navigation-dots');
         expect(navigationDots.exists()).toBeTruthy();
 
         const navigationButtons = navigationDots.findAll('.sw-cms-el-image-slider__navigation-button');
-        expect(navigationButtons.length).toEqual(sliderItemsConfigMock.length);
+        expect(navigationButtons).toHaveLength(sliderItemsConfigMock.length);
         expect(navigationButtons.at(0).classes()).toContain('is--active');
     });
 
@@ -174,17 +174,17 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
                     ...wrapper.props().element.config,
                     sliderItems: {
                         source: 'static',
-                        value: sliderItemsConfigMock
+                        value: sliderItemsConfigMock,
                     },
                     navigationDots: {
                         source: 'static',
-                        value: 'outside'
-                    }
+                        value: 'outside',
+                    },
                 },
                 data: {
-                    sliderItems: sliderItemsDataMock
-                }
-            }
+                    sliderItems: sliderItemsDataMock,
+                },
+            },
         });
 
         wrapper.vm.setSliderItem(sliderItemsDataMock[1].media, 1);

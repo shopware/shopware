@@ -17,7 +17,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-    POUND: 'fce3465831e8639bb2ea165d0fcf1e8b'
+    POUND: 'fce3465831e8639bb2ea165d0fcf1e8b',
 };
 
 function mockContext() {
@@ -35,7 +35,7 @@ function mockContext() {
         port: 80,
         scheme: 'http',
         schemeAndHttpHost: 'http://shopware.local',
-        uri: 'http://shopware.local/admin'
+        uri: 'http://shopware.local/admin',
     };
 }
 
@@ -45,14 +45,14 @@ function mockPrices() {
             currencyId: CURRENCY_ID.POUND,
             net: 373.83,
             gross: 400,
-            linked: true
+            linked: true,
         },
         {
             currencyId: CURRENCY_ID.EURO,
             net: 560.75,
             gross: 600,
-            linked: true
-        }
+            linked: true,
+        },
     ];
 }
 
@@ -66,7 +66,7 @@ function mockCriteria() {
         },
         addSorting(sorting) {
             this.sortings.push(sorting);
-        }
+        },
     };
 }
 
@@ -82,21 +82,21 @@ function getProductData(criteria) {
                     currencyId: CURRENCY_ID.POUND,
                     net: 373.83,
                     gross: 400,
-                    linked: true
+                    linked: true,
                 },
                 {
                     currencyId: CURRENCY_ID.EURO,
                     net: 560.75,
                     gross: 600,
-                    linked: true
-                }
+                    linked: true,
+                },
             ],
             productNumber: 'SW10001',
             name: 'Product 2',
             id: 'dcc37f845b664e24b5b2e6e77c078e6c',
             manufacturer: {
-                name: 'Manufacturer B'
-            }
+                name: 'Manufacturer B',
+            },
         },
         {
             active: true,
@@ -108,23 +108,23 @@ function getProductData(criteria) {
                     currencyId: CURRENCY_ID.POUND,
                     net: 20.56,
                     gross: 22,
-                    linked: true
+                    linked: true,
                 },
                 {
                     currencyId: CURRENCY_ID.EURO,
                     net: 186.89,
                     gross: 200,
-                    linked: true
-                }
+                    linked: true,
+                },
             ],
             productNumber: 'SW10000',
             name: 'Product 1',
             id: 'bc5ff49955be4b919053add552c2815d',
             childCount: 8,
             manufacturer: {
-                name: 'Manufacturer A'
-            }
-        }
+                name: 'Manufacturer A',
+            },
+        },
     ];
 
     // check if grid is sorting for currency
@@ -201,7 +201,7 @@ function getCurrencyData() {
             decimalPrecision: 2,
             position: 1,
             isSystemDefault: true,
-            id: CURRENCY_ID.EURO
+            id: CURRENCY_ID.EURO,
         },
         {
             factor: 1.0457384950,
@@ -212,8 +212,8 @@ function getCurrencyData() {
             decimalPrecision: 2,
             position: 1,
             isSystemDefault: true,
-            id: CURRENCY_ID.POUND
-        }
+            id: CURRENCY_ID.POUND,
+        },
     ];
 }
 
@@ -226,20 +226,20 @@ async function createWrapper() {
             localVue,
             provide: {
                 acl: {
-                    can: () => true
+                    can: () => true,
                 },
                 filterFactory: {
-                    create: () => []
+                    create: () => [],
                 },
                 filterService: {
                     getStoredCriteria: () => {
                         return Promise.resolve([]);
                     },
-                    mergeWithStoredFilters: (storeKey, criteria) => criteria
+                    mergeWithStoredFilters: (storeKey, criteria) => criteria,
                 },
                 shortcutService: {
                     startEventListener() {},
-                    stopEventListener() {}
+                    stopEventListener() {},
                 },
                 numberRangeService: {},
                 repositoryFactory: {
@@ -255,17 +255,17 @@ async function createWrapper() {
                         }
 
                         return { search: () => Promise.resolve(getCurrencyData()) };
-                    }
+                    },
                 },
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
                         return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
                         });
                     },
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
-                    }
+                    },
                 },
             },
             stubs: {
@@ -275,67 +275,67 @@ async function createWrapper() {
                 'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-card-filter': await Shopware.Component.build('sw-card-filter'),
                 'sw-simple-search-field': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-context-button': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-context-menu-item': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-data-grid-settings': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>'
+                    template: '<div class="sw-empty-state"></div>',
                 },
                 'sw-pagination': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-icon': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'router-link': true,
                 'sw-button': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-sidebar': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-sidebar-item': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-language-switch': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-notification-center': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-search-bar': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-loader': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-data-grid-skeleton': {
-                    template: '<div class="sw-data-grid-skeleton"></div>'
+                    template: '<div class="sw-data-grid-skeleton"></div>',
                 },
                 'sw-checkbox-field': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-media-preview-v2': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-color-badge': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-extension-component-section': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-ignore-class': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
-            }
+            },
         }),
     };
 }
@@ -369,7 +369,7 @@ describe('components/sw-advanced-selection-product', () => {
             currencyId: CURRENCY_ID.EURO,
             net: 560.75,
             gross: 600,
-            linked: true
+            linked: true,
         };
 
         expect(foundPriceData).toEqual(expectedPriceData);
@@ -384,7 +384,7 @@ describe('components/sw-advanced-selection-product', () => {
             currencyId: null,
             gross: null,
             linked: true,
-            net: null
+            net: null,
         };
 
         expect(foundPriceData).toEqual(expectedPriceData);

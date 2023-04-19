@@ -18,7 +18,7 @@ const componentWithTabs = {
             </template>
         </sw-tabs>
     </div>`,
-    props: ['routes']
+    props: ['routes'],
 };
 
 async function mountSwTabs(routes) {
@@ -31,14 +31,14 @@ async function mountSwTabs(routes) {
     localVue.use(VueRouter);
 
     const router = new VueRouter({
-        routes
+        routes,
     });
 
     return mount(componentWithTabs, {
         localVue,
         router,
         propsData: {
-            routes
+            routes,
         },
         stubs: {
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
@@ -54,10 +54,10 @@ describe('sw-tabs', () => {
     it('renders active tab correctly with sub routes', async () => {
         const routes = [{
             name: 'first.route',
-            path: '/starts'
+            path: '/starts',
         }, {
             name: 'second.route',
-            path: '/starts/with'
+            path: '/starts/with',
         }];
 
         const wrapper = await mountSwTabs(routes);
@@ -68,20 +68,20 @@ describe('sw-tabs', () => {
         await wrapper.vm.$nextTick();
 
         let activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
+        expect(activeTabs).toHaveLength(1);
 
         let activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('first.route');
+        expect(activeTab.text()).toBe('first.route');
 
         wrapper.vm.$router.push({ name: 'second.route' });
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
+        expect(activeTabs).toHaveLength(1);
 
         activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('second.route');
+        expect(activeTab.text()).toBe('second.route');
 
         wrapper.destroy();
     });
@@ -89,20 +89,20 @@ describe('sw-tabs', () => {
     it('sets active tabs with query parameters', async () => {
         const routes = [{
             name: 'first.route',
-            path: '/route/first'
+            path: '/route/first',
         }];
 
         const wrapper = await mountSwTabs(routes);
         await flushPromises();
 
         const activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(0);
+        expect(activeTabs).toHaveLength(0);
 
         wrapper.vm.$router.push({ name: 'first.route', query: { a: 'a', c: 'c' } });
         await flushPromises();
 
         const activeTab = wrapper.find('.sw-tabs-item--active');
-        expect(activeTab.text()).toEqual('first.route');
+        expect(activeTab.text()).toBe('first.route');
 
         wrapper.destroy();
     });
@@ -112,7 +112,7 @@ describe('sw-tabs', () => {
             name: 'warning.route',
             path: '/route/warning',
             hasError: false,
-            hasWarning: true
+            hasWarning: true,
         }];
 
         const wrapper = await mountSwTabs(routes);
@@ -122,7 +122,7 @@ describe('sw-tabs', () => {
         await flushPromises();
 
         const slider = wrapper.find('.sw-tabs__slider');
-        expect(slider.classes().includes('has--warning')).toBe(true);
+        expect(slider.classes()).toContain('has--warning');
 
         wrapper.destroy();
     });
@@ -132,12 +132,12 @@ describe('sw-tabs', () => {
             name: 'error.route',
             path: '/route/error',
             hasError: true,
-            hasWarning: false
+            hasWarning: false,
         }, {
             name: 'errorAndWarning.route',
             path: '/route/errorAndWarning',
             hasError: true,
-            hasWarning: true
+            hasWarning: true,
         }];
 
         const wrapper = await mountSwTabs(routes);
@@ -147,13 +147,13 @@ describe('sw-tabs', () => {
         await flushPromises();
 
         let slider = wrapper.find('.sw-tabs__slider');
-        expect(slider.classes().includes('has--error')).toBe(true);
+        expect(slider.classes()).toContain('has--error');
 
         wrapper.vm.$router.push({ name: 'errorAndWarning.route' });
         await flushPromises();
 
         slider = wrapper.find('.sw-tabs__slider');
-        expect(slider.classes().includes('has--error')).toBe(true);
+        expect(slider.classes()).toContain('has--error');
 
         wrapper.destroy();
     });

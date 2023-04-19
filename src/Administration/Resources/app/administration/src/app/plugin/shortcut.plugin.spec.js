@@ -32,7 +32,7 @@ const createWrapper = async (componentOverride) => {
     const baseComponent = {
         name: 'base-component',
         template: '<div></div>',
-        ...componentOverride
+        ...componentOverride,
     };
 
     const element = document.createElement('div');
@@ -42,7 +42,7 @@ const createWrapper = async (componentOverride) => {
 
     return mount(baseComponent, {
         attachTo: element,
-        localVue
+        localVue,
     });
 };
 
@@ -51,14 +51,14 @@ function defineJsdomProperties() {
     Object.defineProperty(global.Element.prototype, 'innerText', {
         get() {
             return this.textContent;
-        }
+        },
     });
 
     // 'Implement' isContentEditable in JSDOM: https://github.com/jsdom/jsdom/issues/1670
     Object.defineProperty(global.Element.prototype, 'isContentEditable', {
         get() {
             return this.getAttribute('contenteditable');
-        }
+        },
     });
 }
 
@@ -80,22 +80,22 @@ describe('app/plugins/shortcut.plugin', () => {
 
         wrapper = await createWrapper({
             shortcuts: {
-                s: 'onSave'
+                s: 'onSave',
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
         await wrapper.trigger('keydown', {
-            key: 'CTRL'
+            key: 'CTRL',
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
@@ -108,20 +108,20 @@ describe('app/plugins/shortcut.plugin', () => {
             shortcuts: {
                 s: {
                     active: true,
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
@@ -134,20 +134,20 @@ describe('app/plugins/shortcut.plugin', () => {
             shortcuts: {
                 s: {
                     active: false,
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).not.toHaveBeenCalledWith();
@@ -162,20 +162,20 @@ describe('app/plugins/shortcut.plugin', () => {
                     active() {
                         return true;
                     },
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
@@ -190,20 +190,20 @@ describe('app/plugins/shortcut.plugin', () => {
                     active() {
                         return false;
                     },
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).not.toHaveBeenCalledWith();
@@ -218,25 +218,25 @@ describe('app/plugins/shortcut.plugin', () => {
                     active() {
                         return this.activeValue;
                     },
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             computed: {
                 activeValue() {
                     return true;
-                }
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
@@ -251,25 +251,25 @@ describe('app/plugins/shortcut.plugin', () => {
                     active() {
                         return this.activeValue;
                     },
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             computed: {
                 activeValue() {
                     return false;
-                }
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).not.toHaveBeenCalledWith();
@@ -285,21 +285,21 @@ describe('app/plugins/shortcut.plugin', () => {
                     active() {
                         return shouldExecute;
                     },
-                    method: 'onSave'
-                }
+                    method: 'onSave',
+                },
             },
             methods: {
                 onSave() {
                     onSaveMock();
-                }
-            }
+                },
+            },
         });
 
         // shortcut should be executed
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
@@ -311,7 +311,7 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).not.toHaveBeenCalled();
 
         await wrapper.trigger('keydown', {
-            key: 's'
+            key: 's',
         });
 
         // shortcut should not be executed
@@ -327,19 +327,19 @@ describe('app/plugins/shortcut.plugin', () => {
             name: 'base-component',
             template: '<div><sw-text-editor v-model="description"></sw-text-editor></div>',
             shortcuts: {
-                'SYSTEMKEY+S': 'onSave'
+                'SYSTEMKEY+S': 'onSave',
             },
             data() {
                 return {
-                    description: testString
+                    description: testString,
                 };
             },
             methods: {
                 onSave() {
                     onSaveMock();
                     testString = this.description;
-                }
-            }
+                },
+            },
         });
         const element = document.createElement('div');
         if (document.body) {
@@ -365,9 +365,9 @@ describe('app/plugins/shortcut.plugin', () => {
                 'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
                 'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
                 'sw-container': await Shopware.Component.build('sw-container'),
-                'sw-button': await Shopware.Component.build('sw-button')
+                'sw-button': await Shopware.Component.build('sw-button'),
             },
-            shouldProxy: true
+            shouldProxy: true,
         });
 
         expect(onSaveMock).not.toHaveBeenCalled();
@@ -388,7 +388,7 @@ describe('app/plugins/shortcut.plugin', () => {
 
         await contentEditor.trigger('keydown', {
             key: 's',
-            ctrlKey: true
+            ctrlKey: true,
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();

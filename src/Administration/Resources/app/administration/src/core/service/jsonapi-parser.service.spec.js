@@ -7,30 +7,30 @@ import jsonApiParserService from 'src/core/service/jsonapi-parser.service';
 describe('core/service/jsonapi-parser.service.js', () => {
     it('should reject when we are providing an array, number, undefined or null', async () => {
         const arrayParser = jsonApiParserService([1, 2, 3]);
-        expect(arrayParser).toBe(null);
+        expect(arrayParser).toBeNull();
 
         const nestedArrayParser = jsonApiParserService([
             { id: 42, name: 'foo' },
-            { id: 92, name: 'bar' }
+            { id: 92, name: 'bar' },
         ]);
-        expect(nestedArrayParser).toBe(null);
+        expect(nestedArrayParser).toBeNull();
 
         const numberParser = jsonApiParserService(42);
-        expect(numberParser).toBe(null);
+        expect(numberParser).toBeNull();
 
         const negativeNumberParser = jsonApiParserService(-3);
-        expect(negativeNumberParser).toBe(null);
+        expect(negativeNumberParser).toBeNull();
 
         const undefinedParser = jsonApiParserService(undefined);
-        expect(undefinedParser).toBe(null);
+        expect(undefinedParser).toBeNull();
 
         const nullParser = jsonApiParserService(null);
-        expect(nullParser).toBe(null);
+        expect(nullParser).toBeNull();
     });
 
     it('should not parse a malformed JSON string', async () => {
         const brokenJsonParser = jsonApiParserService('{foo:"bar"}');
-        expect(brokenJsonParser).toBe(null);
+        expect(brokenJsonParser).toBeNull();
     });
 
     it(
@@ -38,9 +38,9 @@ describe('core/service/jsonapi-parser.service.js', () => {
         async () => {
             const validJsonParser = jsonApiParserService('{"foo":"bar"}');
             expect(validJsonParser).toEqual({
-                foo: 'bar'
+                foo: 'bar',
             });
-        }
+        },
     );
 
     it('should parse a valid JSON string which follows the spec', async () => {
@@ -49,21 +49,21 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 id: 1,
                 type: 'article',
                 attributes: {
-                    title: 'Foo bar'
+                    title: 'Foo bar',
                 },
                 relationships: {
                     author: {
-                        data: { id: 1, type: 'people' }
-                    }
-                }
+                        data: { id: 1, type: 'people' },
+                    },
+                },
             }],
             included: [{
                 type: 'people',
                 id: 1,
                 attributes: {
-                    name: 'Peter'
-                }
-            }]
+                    name: 'Peter',
+                },
+            }],
         }));
 
         expect(JSON.stringify(validJsonApiParser)).toBe(JSON.stringify({
@@ -80,12 +80,12 @@ describe('core/service/jsonapi-parser.service.js', () => {
                     type: 'people',
                     links: {},
                     meta: {},
-                    name: 'Peter'
-                }
+                    name: 'Peter',
+                },
             }],
             associations: {},
             aggregations: null,
-            parsed: true
+            parsed: true,
         }));
     });
 });

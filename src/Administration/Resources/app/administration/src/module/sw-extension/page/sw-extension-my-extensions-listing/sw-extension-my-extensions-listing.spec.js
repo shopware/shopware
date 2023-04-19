@@ -28,17 +28,17 @@ async function createWrapper() {
         mocks: {
             $route: {
                 name: 'sw.extension.my-extensions.listing.app',
-                query: {}
+                query: {},
             },
             $router: {
-                replace: routerReplaceMock
-            }
+                replace: routerReplaceMock,
+            },
         },
         stubs: {
             'router-link': true,
             'sw-self-maintained-extension-card': {
                 template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
-                props: ['extension']
+                props: ['extension'],
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-meteor-card': true,
@@ -52,15 +52,15 @@ async function createWrapper() {
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-field': await Shopware.Component.build('sw-select-field'),
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-alert': await Shopware.Component.build('sw-alert')
+            'sw-alert': await Shopware.Component.build('sw-alert'),
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {};
-                }
+                },
             },
-            shopwareExtensionService: shopwareService
+            shopwareExtensionService: shopwareService,
         },
 
         attachTo: document.body,
@@ -82,16 +82,16 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     data: [
                         {
                             name: 'Test',
-                            installedAt: null
-                        }
-                    ]
-                }
+                            installedAt: null,
+                        },
+                    ],
+                },
             },
             mutations: {
                 setExtensions(state, extensions) {
                     state.myExtensions.data = extensions;
-                }
-            }
+                },
+            },
         });
 
         Shopware.State.registerModule('context', {
@@ -100,7 +100,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 app: {
                     config: {
                         settings: {
-                            appUrlReachable: true
+                            appUrlReachable: true,
                         },
                     },
                 },
@@ -112,8 +112,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         Shopware.State.commit('shopwareExtensions/setExtensions', [
             {
                 name: 'Test',
-                installedAt: null
-            }
+                installedAt: null,
+            },
         ]);
 
         routerReplaceMock.mockClear();
@@ -130,7 +130,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
     it('openStore should call router', async () => {
         wrapper.vm.$router = {
-            push: jest.fn()
+            push: jest.fn(),
         };
 
         wrapper.vm.openStore();
@@ -140,7 +140,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
     it('openThemesStore should call router', async () => {
         wrapper.vm.$router = {
-            push: jest.fn()
+            push: jest.fn(),
         };
 
         wrapper.vm.openThemesStore();
@@ -157,7 +157,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('extensionList default has a app', async () => {
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
-        expect(extensionCards.length).toBe(1);
+        expect(extensionCards).toHaveLength(1);
     });
 
     it('extensionList default has a no themes', async () => {
@@ -167,7 +167,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
-        expect(extensionCards.length).toBe(0);
+        expect(extensionCards).toHaveLength(0);
     });
 
     it('extensionList withThemes has a themes', async () => {
@@ -176,14 +176,14 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         Shopware.State.commit('shopwareExtensions/setExtensions', [{
             name: 'Test',
             installedAt: 'some date',
-            isTheme: true
+            isTheme: true,
         }]);
 
         await wrapper.vm.$nextTick();
 
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
-        expect(extensionCards.length).toBe(1);
+        expect(extensionCards).toHaveLength(1);
     });
 
     it('should update the route with the default values', async () => {
@@ -193,8 +193,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             query: {
                 limit: 25,
                 page: 1,
-                term: undefined
-            }
+                term: undefined,
+            },
         });
     });
 
@@ -214,15 +214,15 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         // check if only shows first 25 extensions
         let extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
-        expect(extensionCards.length).toBe(25);
-        expect(extensionCards.at(0).props('extension').name).toEqual('extension card number 0');
+        expect(extensionCards).toHaveLength(25);
+        expect(extensionCards.at(0).props('extension').name).toBe('extension card number 0');
 
         // go to second page
         const nextButton = wrapper.find('.sw-pagination__page-button-next');
         await nextButton.trigger('click');
 
         // check if router goes to second page
-        expect(routerReplaceMock.mock.calls[0][0].query.page).toEqual(2);
+        expect(routerReplaceMock.mock.calls[0][0].query.page).toBe(2);
 
         // simulate change in url
         wrapper.vm.$route.query = { page: 2 };
@@ -230,8 +230,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         // check if it shows now only 15 extensions
         extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
-        expect(extensionCards.length).toBe(15);
-        expect(extensionCards.at(0).props('extension').name).toEqual('extension card number 25');
+        expect(extensionCards).toHaveLength(15);
+        expect(extensionCards.at(0).props('extension').name).toBe('extension card number 25');
     });
 
     it('should search the extensions', async () => {
@@ -246,8 +246,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         // check if only shows first 25 extensions
         let extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
-        expect(extensionCards.length).toBe(25);
-        expect(extensionCards.at(0).props('extension').name).toEqual('extension card number 0');
+        expect(extensionCards).toHaveLength(25);
+        expect(extensionCards.at(0).props('extension').name).toBe('extension card number 0');
 
         // enter search value
         wrapper.vm.$route.query = { term: 'number 1' };
@@ -255,27 +255,27 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         // check if it shows now only 11 extensions
         extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
-        expect(extensionCards.length).toBe(11);
+        expect(extensionCards).toHaveLength(11);
 
         // check some random entries
-        expect(extensionCards.at(0).props('extension').name).toEqual('extension card number 1');
-        expect(extensionCards.at(1).props('extension').name).toEqual('extension card number 10');
-        expect(extensionCards.at(10).props('extension').name).toEqual('extension card number 19');
+        expect(extensionCards.at(0).props('extension').name).toBe('extension card number 1');
+        expect(extensionCards.at(1).props('extension').name).toBe('extension card number 10');
+        expect(extensionCards.at(10).props('extension').name).toBe('extension card number 19');
     });
 
     [
         {
             key: 'page',
-            value: 2
+            value: 2,
         },
         {
             key: 'limit',
-            value: 50
+            value: 50,
         },
         {
             key: 'term',
-            value: 'number 1'
-        }
+            value: 'number 1',
+        },
     ].forEach(({ key, value }) => {
         it(`should update ${key} in route when it gets changed in the pagination`, async () => {
             // load 60 extensions
@@ -311,7 +311,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 name: `extension card number ${index}`,
                 installedAt: `foo-${index}`,
                 active: false,
-                updatedAt: null
+                updatedAt: null,
             };
         });
 
@@ -320,14 +320,14 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         await wrapper.vm.$nextTick();
 
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
-        expect(allExtensions.length).toBe(25);
+        expect(allExtensions).toHaveLength(25);
 
 
         const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
         await switchField.trigger('click');
 
         const filteredExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
-        expect(filteredExtensions.length).toBe(20);
+        expect(filteredExtensions).toHaveLength(20);
     });
 
     it('should sort the extensions by their name in an ascending order', async () => {
@@ -382,7 +382,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const unsortedUpdatedAtValues = [
             '2021-04-22T23:00:00.000Z',
             '2021-01-22T23:00:00.000Z',
-            '2021-05-22T23:00:00.000Z'
+            '2021-05-22T23:00:00.000Z',
         ];
         const extensions = unsortedUpdatedAtValues.map((updatedAtValue, i) => {
             const extensionName = `extension no. ${i}`;
@@ -392,7 +392,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 label: extensionName,
                 installedAt: `foo-${i}`,
                 updatedAt: { date: updatedAtValue },
-                active: true
+                active: true,
             };
         });
 

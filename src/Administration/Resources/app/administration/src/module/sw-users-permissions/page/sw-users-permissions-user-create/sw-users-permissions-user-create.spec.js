@@ -18,11 +18,11 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             loginService: {},
             userService: {
-                getUser: () => Promise.resolve({ data: {} })
+                getUser: () => Promise.resolve({ data: {} }),
             },
             userValidationService: {},
             integrationService: {},
@@ -38,8 +38,8 @@ async function createWrapper(privileges = []) {
                                         username: 'admin',
                                         firstName: '',
                                         lastName: 'admin',
-                                        email: 'info@shopware.com'
-                                    }
+                                        email: 'info@shopware.com',
+                                    },
                                 );
                             },
                             create: () => {
@@ -49,9 +49,9 @@ async function createWrapper(privileges = []) {
                                     firstName: '',
                                     lastName: '',
                                     email: '',
-                                    password: ''
+                                    password: '',
                                 };
-                            }
+                            },
                         };
                     }
 
@@ -63,28 +63,28 @@ async function createWrapper(privileges = []) {
                                 Shopware.Context.api,
                                 null,
                                 [],
-                                0
+                                0,
                             )),
-                            get: () => Promise.resolve()
+                            get: () => Promise.resolve(),
                         };
                     }
 
                     return {};
-                }
-            }
+                },
+            },
 
 
         },
         mocks: {
             $route: {
                 params: {
-                    id: '1a2b3c4d'
-                }
-            }
+                    id: '1a2b3c4d',
+                },
+            },
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot></div>'
+                template: '<div><slot name="content"></slot></div>',
             },
             'sw-card-view': true,
             'sw-card': true,
@@ -93,14 +93,14 @@ async function createWrapper(privileges = []) {
             'sw-media-upload-v2': true,
             'sw-password-field': {
                 template: '<input type="password" :value="value" @input="$emit(\'input\', $event.target.value)">',
-                props: ['value']
+                props: ['value'],
             },
             'sw-select-field': true,
             'sw-switch-field': true,
             'sw-entity-multi-select': true,
             'sw-single-select': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 // TODO: fix these tests and add test cases
@@ -136,7 +136,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
             firstName: '',
             lastName: '',
             email: '',
-            password: ''
+            password: '',
         });
     });
 

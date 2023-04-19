@@ -11,20 +11,20 @@ async function createWrapper(privileges = []) {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([])
-                })
+                    search: () => Promise.resolve([]),
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
-            $route: { query: '' }
+            $route: { query: '' },
         },
         stubs: {
             'sw-card': true,
@@ -40,10 +40,10 @@ async function createWrapper(privileges = []) {
         <slot name="actions" v-bind="{ item }"></slot>
     </template>
 </div>
-`
+`,
             },
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 }
 
@@ -83,8 +83,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await wrapper.setData({
             roles: [
                 {},
-                {}
-            ]
+                {},
+            ],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -100,8 +100,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await wrapper.setData({
             roles: [
                 {},
-                {}
-            ]
+                {},
+            ],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -117,8 +117,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await wrapper.setData({
             roles: [
                 {},
-                {}
-            ]
+                {},
+            ],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');

@@ -14,11 +14,11 @@ async function createWrapper() {
                     searchIds: () => Promise.resolve(
                         {
                             data: [1],
-                            total: 1
-                        }
+                            total: 1,
+                        },
                     ),
-                })
-            }
+                }),
+            },
         },
         mocks: {
             $route: { query: '' },
@@ -47,7 +47,7 @@ describe('src/module/sw-settings-address/page/sw-settings-address', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.defaultCountry).toEqual(1);
+        expect(wrapper.vm.defaultCountry).toBe(1);
     });
 
     it('should be shown sw-alert component', async () => {
@@ -56,10 +56,10 @@ describe('src/module/sw-settings-address/page/sw-settings-address', () => {
         expect(wrapper.vm.isLoading).toBe(false);
         expect(wrapper.find('sw-alert-stub').exists()).toBeTruthy();
         expect(wrapper.find('sw-alert-stub span').text())
-            .toEqual('sw-settings-address.general.textWarning');
+            .toBe('sw-settings-address.general.textWarning');
         expect(
-            wrapper.find('sw-alert-stub').element.style.getPropertyValue('display')
-        ).toEqual('');
+            wrapper.find('sw-alert-stub').element.style.getPropertyValue('display'),
+        ).toBe('');
     });
 
     it('should be hide sw-alert component', async () => {
@@ -70,7 +70,7 @@ describe('src/module/sw-settings-address/page/sw-settings-address', () => {
 
         expect(wrapper.vm.isLoading).toBe(true);
         expect(
-            wrapper.find('sw-alert-stub').element.style.getPropertyValue('display')
-        ).toEqual('none');
+            wrapper.find('sw-alert-stub').element.style.getPropertyValue('display'),
+        ).toBe('none');
     });
 });

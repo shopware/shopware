@@ -11,7 +11,7 @@ async function createWrapper(privileges = []) {
         localVue,
 
         propsData: {
-            salutationId: '1'
+            salutationId: '1',
         },
 
         provide: {
@@ -26,10 +26,10 @@ async function createWrapper(privileges = []) {
                             salutationKey: 'mr-edit',
                             translated: {
                                 displayName: 'Mr.',
-                                letterName: 'Dear Mr.'
+                                letterName: 'Dear Mr.',
                             },
                             updatedAt: '2020-08-27T04:59:39.428+00:00',
-                            isNew: () => true
+                            isNew: () => true,
                         };
                     },
                     get: (id) => {
@@ -42,9 +42,9 @@ async function createWrapper(privileges = []) {
                                     createdAt: '2020-08-25T10:23:24.051+00:00',
                                     displayName: 'Mr.',
                                     letterName: 'Dear Mr.',
-                                    salutationKey: 'mr-edit'
+                                    salutationKey: 'mr-edit',
                                 },
-                                isNew: () => false
+                                isNew: () => false,
                             },
                             {
                                 id: '2',
@@ -54,17 +54,17 @@ async function createWrapper(privileges = []) {
                                     createdAt: '2020-08-25T10:23:24.051+00:00',
                                     displayName: 'Mr.',
                                     letterName: 'Dear Mr.',
-                                    salutationKey: 'mr-edit'
+                                    salutationKey: 'mr-edit',
                                 },
-                                isNew: () => false
-                            }
+                                isNew: () => false,
+                            },
                         ];
 
                         return Promise.resolve(salutations.find((salutation) => {
                             return salutation.id === id;
                         }));
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -73,11 +73,11 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
 
         stubs: {
@@ -94,21 +94,21 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card': {
                 template: `
                     <div class="sw-card">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-search-bar': true,
             'sw-icon': true,
@@ -119,7 +119,7 @@ async function createWrapper(privileges = []) {
             'sw-language-info': true,
             'sw-field': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -133,7 +133,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should be able to save a salutation if have a editor privilege', async () => {
         const wrapper = await createWrapper([
-            'salutation.editor'
+            'salutation.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -151,7 +151,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         expect(saveButton.attributes().disabled).toBeFalsy();
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'CTRL + S',
-            appearance: 'light'
+            appearance: 'light',
         });
     });
 
@@ -174,14 +174,14 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             disabled: false,
             message: 'sw-privileges.tooltip.warning',
-            showOnDisabledElements: true
+            showOnDisabledElements: true,
         });
     });
 
     it('should not be able to save a salutation if have privileges which do not contain editor privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.creator',
-            'salutation.deleter'
+            'salutation.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -200,7 +200,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             disabled: false,
             message: 'sw-privileges.tooltip.warning',
-            showOnDisabledElements: true
+            showOnDisabledElements: true,
         });
     });
 });

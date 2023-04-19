@@ -20,9 +20,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: { repositoryFactory: {
@@ -30,18 +30,18 @@ async function createWrapper(privileges = []) {
                 search: () => {
                     return Promise.resolve([
                         {
-                            id: '44de136acf314e7184401d36406c1e90'
-                        }
+                            id: '44de136acf314e7184401d36406c1e90',
+                        },
                     ]);
-                }
-            })
+                },
+            }),
         },
 
         integrationService: {},
         validationService: {},
         shortcutService: {
             stopEventListener: () => { },
-            startEventListener: () => { }
+            startEventListener: () => { },
         },
 
         acl: {
@@ -51,7 +51,7 @@ async function createWrapper(privileges = []) {
                 }
 
                 return privileges.includes(identifier);
-            }
+            },
         } },
 
         stubs: {
@@ -68,32 +68,32 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card': {
                 template: `
                     <div class="sw-card">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-language-switch': true,
             'sw-search-bar': true,
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><div class="sw-context-menu-item__text"></div></div>'
+                template: '<div class="sw-context-menu-item"><div class="sw-context-menu-item__text"></div></div>',
             },
             'sw-icon': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-container': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-field': await Shopware.Component.build('sw-field'),
             'sw-text-field': await Shopware.Component.build('sw-text-field'),
@@ -106,7 +106,7 @@ async function createWrapper(privileges = []) {
             'sw-switch-field': true,
             'sw-entity-multi-select': true,
             'sw-empty-state': {
-                template: '<div class="sw-empty-state"></div>'
+                template: '<div class="sw-empty-state"></div>',
             },
             'sw-entity-listing': {
                 props: ['items', 'detailRoute'],
@@ -117,9 +117,9 @@ async function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>
-                `
-            }
-        }
+                `,
+            },
+        },
     });
 }
 
@@ -135,7 +135,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 describe('when has privilege', () => {
     it('should be able to create a integration', async () => {
         const wrapper = await createWrapper([
-            'integration.creator'
+            'integration.creator',
         ]);
 
         await wrapper.vm.$nextTick();
@@ -146,18 +146,18 @@ describe('when has privilege', () => {
 
     it('should be able to edit a integration', async () => {
         const wrapper = await createWrapper([
-            'integration.editor'
+            'integration.editor',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            currentIntegration: true
+            currentIntegration: true,
         });
 
         [
             wrapper.find('.sw_integration_list__edit-action'),
             wrapper.find('.sw-integration-detail-modal__save-action'),
             wrapper.find('#sw-field--currentIntegration-label'),
-            wrapper.find('.sw-button--danger')
+            wrapper.find('.sw-button--danger'),
         ].forEach(element => {
             expect(element.attributes().disabled).toBeFalsy();
         });
@@ -165,7 +165,7 @@ describe('when has privilege', () => {
 
     it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper([
-            'integration.deleter'
+            'integration.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -187,7 +187,7 @@ describe('when has not privilege', () => {
     it('should be able to create a integration', async () => {
         const wrapper = await createWrapper([
             'integration.editor',
-            'integration.deleter'
+            'integration.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -200,14 +200,14 @@ describe('when has not privilege', () => {
         const wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            currentIntegration: true
+            currentIntegration: true,
         });
 
         [
             wrapper.find('.sw_integration_list__edit-action'),
             wrapper.find('.sw-integration-detail-modal__save-action'),
             wrapper.find('#sw-field--currentIntegration-label'),
-            wrapper.find('.sw-button--danger')
+            wrapper.find('.sw-button--danger'),
         ].forEach(element => {
             expect(element.attributes().disabled).toBeTruthy();
         });
@@ -216,18 +216,18 @@ describe('when has not privilege', () => {
     it('should be able to edit a integration', async () => {
         const wrapper = await createWrapper([
             'integration.viewer',
-            'integration.deleter'
+            'integration.deleter',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            currentIntegration: true
+            currentIntegration: true,
         });
 
         [
             wrapper.find('.sw_integration_list__edit-action'),
             wrapper.find('.sw-integration-detail-modal__save-action'),
             wrapper.find('#sw-field--currentIntegration-label'),
-            wrapper.find('.sw-button--danger')
+            wrapper.find('.sw-button--danger'),
         ].forEach(element => {
             expect(element.attributes().disabled).toBeTruthy();
         });
@@ -244,7 +244,7 @@ describe('when has not privilege', () => {
     it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper([
             'integration.viewer',
-            'integration.editor'
+            'integration.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -256,11 +256,11 @@ describe('when has not privilege', () => {
         const wrapper = await createWrapper([
             'integration.viewer',
             'integration.editor',
-            'integration.deleter'
+            'integration.deleter',
         ]);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            currentIntegration: true
+            currentIntegration: true,
         });
 
         const adminRoleSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
@@ -285,8 +285,8 @@ describe('when has not privilege', () => {
                     field: 'app.id',
                     type: 'equals',
                     value: null,
-                })
-            ])
+                }),
+            ]),
         );
     });
 });

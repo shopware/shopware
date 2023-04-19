@@ -9,27 +9,27 @@ Shopware.Component.register('sw-settings-tax-detail', swSettingsTaxDetail);
 async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
     return shallowMount(await Shopware.Component.build('sw-settings-tax-detail'), {
         mocks: {
-            $te: () => isShopwareDefaultTax
+            $te: () => isShopwareDefaultTax,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     get: () => {
                         return Promise.resolve({
-                            isNew: () => false
+                            isNew: () => false,
                         });
                     },
 
                     create: () => {
                         return Promise.resolve({
-                            isNew: () => true
+                            isNew: () => true,
                         });
                     },
 
                     save: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -38,16 +38,16 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
+                getCustomFieldSets: () => Promise.resolve([]),
             },
             systemConfigApiService: {
                 getConfig: () => Promise.resolve({
-                    'core.tax.defaultTaxRate': ''
-                })
-            }
+                    'core.tax.defaultTaxRate': '',
+                }),
+            },
         },
         stubs: {
             'sw-page': {
@@ -63,7 +63,7 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-alert': true,
             'sw-card-view': true,
@@ -76,7 +76,7 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
             'sw-text-field': true,
             'sw-number-field': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -90,18 +90,18 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
     it('should be able to save the tax', async () => {
         const wrapper = await createWrapper([
-            'tax.editor'
+            'tax.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-tax-detail__save-action'
+            '.sw-settings-tax-detail__save-action',
         );
         const taxNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]',
         );
         const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
+            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]',
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -111,12 +111,12 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
     it('the name should be editable for non default rates', async () => {
         const wrapper = await createWrapper([
-            'tax.editor'
+            'tax.editor',
         ], false);
         await wrapper.vm.$nextTick();
 
         const taxNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]',
         );
         expect(taxNameField.attributes().disabled).toBeUndefined();
     });
@@ -126,13 +126,13 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-tax-detail__save-action'
+            '.sw-settings-tax-detail__save-action',
         );
         const taxNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]',
         );
         const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
+            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]',
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();
@@ -144,9 +144,9 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         const wrapper = await createWrapper();
 
         const taxRateField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
+            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]',
         );
 
-        expect(taxRateField.attributes('digits')).toEqual('3');
+        expect(taxRateField.attributes('digits')).toBe('3');
     });
 });

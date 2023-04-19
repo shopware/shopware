@@ -6,7 +6,7 @@ describe('Test actions at file src/app/state/error.store.js', () => {
             type: 'addApiError',
             payload: {
                 expression: 'dummy expression',
-                error: 'dummy error'
+                error: 'dummy error',
             },
         }];
 
@@ -103,19 +103,19 @@ describe('Test actions at file src/app/state/error.store.js', () => {
     it('addSystemError', () => {
         // mock commit
         const commit = (commitType, commitPayload) => {
-            expect(commitType).toEqual('addSystemError');
+            expect(commitType).toBe('addSystemError');
             expect(commitPayload).toEqual({
                 error: {
-                    dummyKey: 'dummy error'
+                    dummyKey: 'dummy error',
                 },
-                id: 'dummy id'
+                id: 'dummy id',
             });
         };
 
         // call the action with mocked store and arguments
         const id = instance.actions.addSystemError({ commit }, { error: { dummyKey: 'dummy error' }, id: 'dummy id' });
 
-        expect(id).toEqual('dummy id');
+        expect(id).toBe('dummy id');
     });
 });
 
@@ -178,7 +178,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
                             age: {
                                 selfLink: 'dummy.expression',
                             },
-                        }
+                        },
                     },
                 },
                 dummySystemConfig: {
@@ -215,7 +215,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         const spy = jest.spyOn({
             getErrorsForEntity: () => {
                 return {};
-            }
+            },
         }, 'getErrorsForEntity');
         spy.mockReturnValue({ 0: { age: { selfLink: 'dummy.expression' } } });
 
@@ -231,7 +231,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         const spy = jest.spyOn({
             getErrorsForEntity: () => {
                 return {};
-            }
+            },
         }, 'getErrorsForEntity');
         spy.mockReturnValue({ 0: { age: { selfLink: 'dummy.expression' } } });
 
@@ -246,7 +246,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     it('getApiError', () => {
         const entity = {
             getEntityName: () => 'dummyEntityName',
-            id: 'dummyId'
+            id: 'dummyId',
         };
         const field = '0.age';
 
@@ -266,7 +266,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         const spy = jest.spyOn({
             getErrorsForEntity: () => {
                 return {
-                    dummyKey: { error: 'dummy error' }
+                    dummyKey: { error: 'dummy error' },
                 };
             },
         }, 'getErrorsForEntity');
@@ -292,7 +292,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         const spy = jest.spyOn({
             getErrorsForEntity: () => {
                 return {
-                    dummyKey: { error: 'dummy error' }
+                    dummyKey: { error: 'dummy error' },
                 };
             },
         }, 'getErrorsForEntity');
@@ -318,8 +318,8 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         const result = instance.getters.getAllApiErrors(state)();
 
         const expected = [
-            { dummyId: { 0: { age: { selfLink: 'dummy.expression', }, }, dummyField: { selfLink: 'dummy.expression', } } },
-            { dummySaleChannelId: { dummyKey: { error: 'dummy error' } } }
+            { dummyId: { 0: { age: { selfLink: 'dummy.expression' } }, dummyField: { selfLink: 'dummy.expression' } } },
+            { dummySaleChannelId: { dummyKey: { error: 'dummy error' } } },
         ];
 
         expect(result).toEqual(expected);
@@ -346,6 +346,6 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     it('countSystemError', () => {
         const result = instance.getters.countSystemError(state)();
 
-        expect(result).toEqual(1);
+        expect(result).toBe(1);
     });
 });

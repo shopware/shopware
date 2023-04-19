@@ -20,7 +20,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             stubs,
 
             propsData: {
-                taxRule
+                taxRule,
             },
 
             provide: {
@@ -37,16 +37,16 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
                                 const states = criteria.ids.map((id) => {
                                     return {
                                         id,
-                                        name: `state ${id}`
+                                        name: `state ${id}`,
                                     };
                                 });
 
                                 return Promise.resolve(states);
-                            }
+                            },
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     }
 
@@ -58,15 +58,15 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             'sw-select-selection-list': true,
             'sw-select-result-list': true,
             'sw-highlight-text': true,
-            'sw-icon': true
+            'sw-icon': true,
         };
     });
 
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper({
             data: {
-                states: []
-            }
+                states: [],
+            },
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -75,8 +75,8 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     it('creates an empty entity collection if taxRule.data.states is empty', async () => {
         const wrapper = await createWrapper({
             data: {
-                states: []
-            }
+                states: [],
+            },
         });
 
         const individualStates = wrapper.vm.individualStates;
@@ -92,23 +92,23 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     it('fetches country states at creation', async () => {
         const states = [
             Shopware.Utils.createId(),
-            Shopware.Utils.createId()
+            Shopware.Utils.createId(),
         ];
 
         const wrapper = await createWrapper({
             data: {
-                states
-            }
+                states,
+            },
         });
 
         const individualStates = wrapper.vm.individualStates;
         expect(individualStates).toHaveLength(2);
         expect(individualStates).toEqual(expect.arrayContaining([{
             id: states[0],
-            name: `state ${states[0]}`
+            name: `state ${states[0]}`,
         }, {
             id: states[1],
-            name: `state ${states[1]}`
+            name: `state ${states[1]}`,
         }]));
 
         wrapper.destroy();
@@ -117,14 +117,14 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     it('only updates its states if multiselect emits a change', async () => {
         const states = [
             { id: Shopware.Utils.createId() },
-            { id: Shopware.Utils.createId() }
+            { id: Shopware.Utils.createId() },
         ];
 
         const wrapper = await createWrapper({
             countryId: Shopware.Utils.createId(),
             data: {
-                states: []
-            }
+                states: [],
+            },
         });
 
         const select = wrapper.findComponent(stubs['sw-entity-multi-select']);
@@ -134,7 +134,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             'country-state',
             Shopware.Context.api,
             new Shopware.Data.Criteria(),
-            states
+            states,
         ));
 
         expect(wrapper.vm.individualStates).toEqual(expect.arrayContaining(states));

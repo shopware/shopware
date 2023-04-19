@@ -13,9 +13,9 @@ const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
     media: [],
     mailTemplateType: {
-        id: '6666673yd1ssd299si1d837dy1ud628'
+        id: '6666673yd1ssd299si1d837dy1ud628',
     },
-    isNew: () => false
+    isNew: () => false,
 };
 
 const mediaMock = [
@@ -24,15 +24,15 @@ const mediaMock = [
         mailTemplateId: 'ed3866445dd744bb9e0f88f8f340141f',
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         mediaId: '1svd4de52e6924d70ya5u75cd7ze4gd01',
-        position: 0
+        position: 0,
     },
     {
         id: 'ad3466455ed794bb9e0f28s8g3701s1z',
         mailTemplateId: 'ed3866445dd744bb9e0f88f8f340141f',
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         mediaId: '30c0082ccb03494799b42f22c7fa07d9',
-        position: 0
-    }
+        position: 0,
+    },
 ];
 
 const mailTemplateMediaMock = {
@@ -42,11 +42,11 @@ const mailTemplateMediaMock = {
     mimeType: 'image/jpeg',
     fileExtension: 'jpg',
     fileName: 'untitled-3-15870000742491754447780',
-    fileSize: 792866
+    fileSize: 792866,
 };
 
 const mailTemplateTypeMock = {
-    contentHtml: ''
+    contentHtml: '',
 };
 
 const repositoryMockFactory = () => {
@@ -64,9 +64,9 @@ const repositoryMockFactory = () => {
                 mailTemplateId: {},
                 languageId: {},
                 mediaId: {},
-                position: 0
+                position: 0,
             };
-        }
+        },
     };
 };
 
@@ -75,8 +75,8 @@ class SyntaxValidationTemplateError extends Error {
         data: {
             errors: [{
                 detail: 'Ooops, syntax eror',
-            }]
-        }
+            }],
+        },
     };
 }
 
@@ -91,25 +91,25 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         return shallowMount(component, {
             provide: {
                 repositoryFactory: {
-                    create: () => repositoryMockFactory()
+                    create: () => repositoryMockFactory(),
                 },
                 mailService: {
                     testMailTemplate: jest.fn(() => Promise.resolve()),
                     buildRenderPreview: jest.fn(() => Promise.reject(new SyntaxValidationTemplateError())),
                 },
                 entityMappingService: {
-                    getEntityMapping: () => []
+                    getEntityMapping: () => [],
                 },
                 acl: {
                     can: (identifier) => {
                         if (!identifier) { return true; }
 
                         return privileges.includes(identifier);
-                    }
-                }
+                    },
+                },
             },
             mocks: {
-                $route: { params: { id: Shopware.Utils.createId() } }
+                $route: { params: { id: Shopware.Utils.createId() } },
             },
             stubs: {
                 'sw-page': {
@@ -119,16 +119,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                         <slot name="content"></slot>
                         <slot name="sidebar"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
                 },
                 'sw-card-view': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-card': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-button-process': true,
@@ -145,14 +145,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                     ],
                     template: '<input type="text" class="sw-code-editor" :disabled="disabled" />',
                     methods: {
-                        defineAutocompletion() {}
-                    }
+                        defineAutocompletion() {},
+                    },
                 },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-icon': await Shopware.Component.build('sw-icon'),
                 'icons-regular-products-s': {
-                    template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>'
+                    template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>',
                 },
                 'sw-tree': await Shopware.Component.build('sw-tree'),
                 'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
@@ -167,16 +167,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
                 },
                 'sw-sidebar': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-sidebar-item': {
-                    template: '<div @click="$emit(\'click\')"><slot></slot></div>'
+                    template: '<div @click="$emit(\'click\')"><slot></slot></div>',
                 },
                 'sw-sidebar-media-item': {
-                    template: '<div><slot name="context-menu-items"></slot></div>'
+                    template: '<div><slot name="context-menu-items"></slot></div>',
                 },
                 'sw-skeleton': true,
             },
@@ -219,7 +219,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
         expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
-            message: 'sw-mail-template.list.errorMediaItemDuplicated'
+            message: 'sw-mail-template.list.errorMediaItemDuplicated',
         });
 
         wrapper.vm.createNotificationInfo.mockRestore();
@@ -227,7 +227,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should be success to get media columns', async () => {
         wrapper = await createWrapper();
-        expect(wrapper.vm.getMediaColumns().length).toBe(1);
+        expect(wrapper.vm.getMediaColumns()).toHaveLength(1);
     });
 
     it('should be success to upload an attachment', async () => {
@@ -241,9 +241,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                     { isShopwareContext: true },
                     mediaMock,
                     mediaMock.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
         wrapper.vm.successfulUpload({ targetId: 'mailTemplateMediaTestId' });
 
@@ -256,7 +256,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const mediaLengthBeforeTest = wrapper.vm.mailTemplate.media.length;
 
         expect(wrapper.vm.successfulUpload({ targetId: '30c0082ccb03494799b42f22c7fa07d9' })).toBeUndefined();
-        expect(wrapper.vm.mailTemplate.media.length).toBe(mediaLengthBeforeTest);
+        expect(wrapper.vm.mailTemplate.media).toHaveLength(mediaLengthBeforeTest);
     });
 
     it('should be able to delete media', async () => {
@@ -272,15 +272,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                     { isShopwareContext: true },
                     mediaMock,
                     mediaMock.length,
-                    null
-                )
-            }
+                    null,
+                ),
+            },
         });
 
         wrapper.vm.successfulUpload({ targetId: 'mailTemplateMediaTestId' });
 
         wrapper.vm.onSelectionChanged({
-            '30c0082ccb03494799b42f22c7fa07d9': { mailTemplateMediaMock }
+            '30c0082ccb03494799b42f22c7fa07d9': { mailTemplateMediaMock },
         });
 
         const hasMediaBeforeTest = wrapper.vm.mailTemplate.media
@@ -289,7 +289,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         wrapper.vm.onDeleteSelectedMedia();
 
-        expect(wrapper.vm.mailTemplate.media.length).toBe(mailTemplateMock.media.length);
+        expect(wrapper.vm.mailTemplate.media).toHaveLength(mailTemplateMock.media.length);
         const hasMediaAfterTest = wrapper.vm.mailTemplate.media
             .some((media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z');
         expect(hasMediaAfterTest).toBeFalsy();
@@ -314,8 +314,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             {
                 selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
                 attribute: 'showselection',
-                expect: undefined
-            }
+                expect: undefined,
+            },
         ].forEach(element => {
             if (!Array.isArray(element.selector.wrappers)) {
                 element.selector = { wrappers: [element.selector] };
@@ -329,7 +329,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'sw-privileges.tooltip.warning',
             disabled: false,
-            showOnDisabledElements: true
+            showOnDisabledElements: true,
         });
     });
 
@@ -352,8 +352,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             {
                 selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
                 attribute: 'show-selection',
-                expect: 'true'
-            }
+                expect: 'true',
+            },
         ].forEach(element => {
             if (!Array.isArray(element.selector.wrappers)) {
                 element.selector = { wrappers: [element.selector] };
@@ -366,7 +366,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'CTRL + S',
-            appearance: 'light'
+            appearance: 'light',
         });
     });
 
@@ -385,15 +385,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         await wrapper.setData({
             mailTemplate: {
-                ...mailTemplateTypeMock
+                ...mailTemplateTypeMock,
             },
             testerMail: 'foo@bar.com',
-            isLoading: false
+            isLoading: false,
         });
 
         const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toEqual(true);
+        expect(sendTestMail.props().disabled).toBe(true);
     });
 
     it('should be able to send test mails when values are filled', async () => {
@@ -406,16 +406,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
                 // eslint-disable-next-line max-len
                 contentHtml: '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
-                senderName: '{{ salesChannel.name }}'
+                senderName: '{{ salesChannel.name }}',
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c'
+            testMailSalesChannelId: '1a2b3c',
         });
 
         const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toEqual(false);
+        expect(sendTestMail.props().disabled).toBe(false);
 
         await sendTestMail.trigger('click');
 
@@ -423,7 +423,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             'foo@bar.com',
             wrapper.vm.mailTemplate,
             expect.anything(),
-            '1a2b3c'
+            '1a2b3c',
         );
     });
 
@@ -443,17 +443,17 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                     contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
                     // eslint-disable-next-line max-len
                     contentHtml: '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
-                    senderName: '{{ salesChannel.name }}'
-                }
+                    senderName: '{{ salesChannel.name }}',
+                },
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c'
+            testMailSalesChannelId: '1a2b3c',
         });
 
         const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toEqual(false);
+        expect(sendTestMail.props().disabled).toBe(false);
 
         await sendTestMail.trigger('click');
 
@@ -461,15 +461,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             'foo@bar.com',
             wrapper.vm.mailTemplate,
             expect.anything(),
-            '1a2b3c'
+            '1a2b3c',
         );
     });
 
     it('should copy variables to clipboard', async () => {
         Object.defineProperty(navigator, 'clipboard', {
             value: {
-                writeText: () => new Promise(() => {})
-            }
+                writeText: () => new Promise(() => {}),
+            },
         });
 
         const clipboardSpy = jest.spyOn(navigator.clipboard, 'writeText');
@@ -481,19 +481,19 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 name: 'order',
                 childCount: 1,
                 parentId: null,
-                afterId: null
+                afterId: null,
             },
             {
                 id: 'salesChannel',
                 name: 'salesChannel',
                 childCount: 1,
                 parentId: null,
-                afterId: null
-            }
+                afterId: null,
+            },
         ]);
 
         wrapper.vm.mailTemplateType = {
-            templateData: true
+            templateData: true,
         };
 
         await wrapper.vm.$nextTick();
@@ -516,8 +516,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 name: 'order',
                 childCount: 2,
                 parentId: null,
-                afterId: null
-            }
+                afterId: null,
+            },
         ]);
 
         wrapper.vm.mailTemplateType = {
@@ -525,10 +525,10 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             templateData: {
                 order: {
                     deleveries: {
-                        trackingCodes: {}
-                    }
-                }
-            }
+                        trackingCodes: {},
+                    },
+                },
+            },
         };
 
         await wrapper.vm.$nextTick();
@@ -547,11 +547,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
                 // eslint-disable-next-line max-len
                 contentHtml: '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
-                senderName: '{{ salesChannel.name }}'
+                senderName: '{{ salesChannel.name }}',
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c'
+            testMailSalesChannelId: '1a2b3c',
         });
 
         const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
@@ -566,7 +566,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             'foo@bar.com',
             mailTemplate,
             expect.anything(),
-            '1a2b3c'
+            '1a2b3c',
         );
     });
 
@@ -593,14 +593,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const previewSidebarButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar');
 
-        expect(previewSidebarButton.attributes().disabled).toEqual('disabled');
+        expect(previewSidebarButton.attributes().disabled).toBe('disabled');
         await previewSidebarButton.trigger('click');
 
         await flushPromises();
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationSyntaxValidationErrorMessage'
+            message: 'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -630,14 +630,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const previewSidebarButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar');
 
-        expect(previewSidebarButton.attributes().disabled).toEqual('disabled');
+        expect(previewSidebarButton.attributes().disabled).toBe('disabled');
         await previewSidebarButton.trigger('click');
 
         await flushPromises();
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'
+            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -657,12 +657,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c'
+            testMailSalesChannelId: '1a2b3c',
         });
 
         const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toEqual(false);
+        expect(sendTestMail.props().disabled).toBe(false);
         wrapper.vm.mailService.testMailTemplate = jest.fn(() => Promise.resolve({ size: 0 }));
 
         wrapper.vm.createNotificationError = jest.fn();
@@ -674,12 +674,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             'foo@bar.com',
             wrapper.vm.mailTemplate,
             expect.anything(),
-            '1a2b3c'
+            '1a2b3c',
         );
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'
+            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage',
         });
 
         wrapper.vm.createNotificationError.mockRestore();

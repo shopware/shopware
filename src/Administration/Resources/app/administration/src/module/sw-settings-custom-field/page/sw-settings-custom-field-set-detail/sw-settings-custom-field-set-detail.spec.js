@@ -11,7 +11,7 @@ Shopware.Component.register('sw-settings-custom-field-set-detail', swSettingsCus
 Shopware.Component.register('sw-custom-field-list', swCustomFieldList);
 
 const set = {
-    id: '9f359a2ab0824784a608fc2a443c5904'
+    id: '9f359a2ab0824784a608fc2a443c5904',
 };
 
 const localVue = createLocalVue();
@@ -23,9 +23,9 @@ async function createWrapper(privileges = []) {
         mocks: {
             $route: {
                 params: {
-                    id: '1234'
-                }
-            }
+                    id: '1234',
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -37,17 +37,17 @@ async function createWrapper(privileges = []) {
                     return {
                         get() {
                             return Promise.resolve(set);
-                        }
+                        },
                     };
-                }
+                },
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': true,
@@ -59,7 +59,7 @@ async function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-loader': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 

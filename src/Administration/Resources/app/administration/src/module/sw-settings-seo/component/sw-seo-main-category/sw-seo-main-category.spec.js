@@ -15,12 +15,12 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-seo-main-category'), {
         localVue,
         stubs: {
-            'sw-single-select': true
+            'sw-single-select': true,
         },
         propsData: {
             mainCategories: [],
-            categories: []
-        }
+            categories: [],
+        },
     });
 }
 
@@ -28,7 +28,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
     it('should not display main category label', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            overwriteLabel: true
+            overwriteLabel: true,
         });
 
         await wrapper.vm.$nextTick();

@@ -19,7 +19,7 @@ function mockApiCall(type) {
                 name: 'Deutsch',
                 createdAt: '2020-09-08T08:32:01.331+00:00',
                 updatedAt: null,
-                id: '25c6e7681c334d0caebae74c382c68e1'
+                id: '25c6e7681c334d0caebae74c382c68e1',
             }];
         case 'newsletter_recipient':
             return [{
@@ -40,7 +40,7 @@ function mockApiCall(type) {
                 updatedAt: '2020-09-23T13:27:01.436+00:00',
                 apiAlias: null,
                 id: '92618290af63445b973cc1021d60e3f5',
-                salesChannel: {}
+                salesChannel: {},
             }];
 
         case 'sales_channel':
@@ -59,7 +59,7 @@ function mockApiCall(type) {
                 taxCalculationType: 'horizontal',
                 accessKey: 'SWSCMVRMCKY5WXLNTXRYYLVPQG',
                 translated: { name: 'Storefront', customFields: [] },
-                id: '7b872c384b254613b5a4bd5c8b965bab'
+                id: '7b872c384b254613b5a4bd5c8b965bab',
             }];
         default:
             throw new Error(`no data for ${type} available`);
@@ -89,17 +89,17 @@ async function createWrapper(privileges = []) {
         data() {
             return {
                 total: 1,
-                isLoading: false
+                isLoading: false,
             };
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"><slot name="grid"></slot></slot></div>'
+                template: '<div><slot name="content"><slot name="grid"></slot></slot></div>',
             },
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-empty-state': {
-                template: '<div class="sw-empty-state"></div>'
+                template: '<div class="sw-empty-state"></div>',
             },
             'sw-entity-listing': {
                 props: ['items', 'allowView', 'allowEdit', 'allowDelete', 'allowInlineEdit'],
@@ -137,30 +137,30 @@ async function createWrapper(privileges = []) {
                             </sw-context-menu-item>
                         </slot>
                     </template>
-                    </div>`
+                    </div>`,
             },
             'sw-container': true,
             'sw-button': true,
-            'sw-loader': true
+            'sw-loader': true,
         },
         provide: {
             acl: {
-                can: key => (key ? privileges.includes(key) : true)
+                can: key => (key ? privileges.includes(key) : true),
             },
             repositoryFactory: {
-                create: (type) => new MockRepositoryFactory(type)
+                create: (type) => new MockRepositoryFactory(type),
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -176,45 +176,45 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(true);
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(true);
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).toContain('is--disabled');
     });
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper([
-            'newsletter_recipient.editor'
+            'newsletter_recipient.editor',
         ]);
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(false);
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(true);
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).toContain('is--disabled');
     });
 
     it('should be able to delete', async () => {
         const wrapper = await createWrapper([
-            'newsletter_recipient.deleter'
+            'newsletter_recipient.deleter',
         ]);
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(true);
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(false);
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).not.toContain('is--disabled');
     });
 
     it('should be to edit and delete', async () => {
         const wrapper = await createWrapper([
             'newsletter_recipient.editor',
-            'newsletter_recipient.deleter'
+            'newsletter_recipient.deleter',
         ]);
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(false);
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(false);
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
+        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).not.toContain('is--disabled');
     });
 
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -257,7 +257,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -281,7 +281,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -295,7 +295,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

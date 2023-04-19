@@ -7,7 +7,7 @@ async function createWrapper(customString = '') {
     return shallowMount(await Shopware.Component.build('sw-settings-store'), {
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot></div>'
+                template: '<div><slot name="content"></slot></div>',
             },
             'sw-card-view': true,
             'sw-system-config': {
@@ -16,14 +16,14 @@ async function createWrapper(customString = '') {
                     return {
                         actualConfigData: {
                             null: {
-                                'core.store.licenseHost': customString
-                            }
-                        }
+                                'core.store.licenseHost': customString,
+                            },
+                        },
                     };
-                }
+                },
             },
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -41,8 +41,8 @@ describe('src/module/sw-settings-store/page/sw-settings-store', () => {
 
         expect(wrapper.vm.$refs.systemConfig.actualConfigData).toStrictEqual({
             null: {
-                'core.store.licenseHost': '  foobar  '
-            }
+                'core.store.licenseHost': '  foobar  ',
+            },
         });
 
         wrapper.vm.trimHost();
@@ -54,7 +54,7 @@ describe('src/module/sw-settings-store/page/sw-settings-store', () => {
         setTrimAndCompare(
             '                               ' +
             '                                     String with many spaces at the beginning',
-            'String with many spaces at the beginning'
+            'String with many spaces at the beginning',
         );
 
         setTrimAndCompare(' https://www.shopware.com/de/ ', 'https://www.shopware.com/de/');
@@ -81,8 +81,8 @@ describe('src/module/sw-settings-store/page/sw-settings-store', () => {
         function compareStrings(given, expected) {
             expect(given).toStrictEqual({
                 null: {
-                    'core.store.licenseHost': expected
-                }
+                    'core.store.licenseHost': expected,
+                },
             });
         }
     });

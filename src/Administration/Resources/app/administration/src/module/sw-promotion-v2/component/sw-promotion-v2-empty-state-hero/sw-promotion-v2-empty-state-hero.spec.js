@@ -11,15 +11,15 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
         return shallowMount(await Shopware.Component.build('sw-promotion-v2-empty-state-hero'), {
             localVue,
             mocks: {
-                $route: { meta: { $module: { name: 'promotion-v2' } } }
+                $route: { meta: { $module: { name: 'promotion-v2' } } },
             },
             propsData: {
                 title: 'Oh no, nothing was found.',
                 description: 'I am some text, which is kinda small, but also somewhat longer than other texts!',
-                ...data.propsData
+                ...data.propsData,
             },
             slots: data.slots,
-            scopedSlots: data.scopedSlots
+            scopedSlots: data.scopedSlots,
         });
     }
 
@@ -46,8 +46,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     it('should render no description, if `hideDescription` is active', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                hideDescription: true
-            }
+                hideDescription: true,
+            },
         });
 
         expect(wrapper.find('.sw-promotion-v2-empty-state-hero__description').exists()).toBeFalsy();
@@ -56,8 +56,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     it('should render no description, if there is no description text', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                description: null
-            }
+                description: null,
+            },
         });
 
         expect(wrapper.find('.sw-promotion-v2-empty-state-hero__description').exists()).toBeFalsy();
@@ -72,8 +72,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     it('should render content of the actions slot (unscoped)', async () => {
         const wrapper = await createWrapper({
             slots: {
-                actions: '<button class="sw-button">BUY NOW!!!</button>'
-            }
+                actions: '<button class="sw-button">BUY NOW!!!</button>',
+            },
         });
 
         expect(wrapper.find('.sw-button').exists()).toBe(true);
@@ -82,8 +82,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     it('should render content of the actions slot (scoped)', async () => {
         const wrapper = await createWrapper({
             scopedSlots: {
-                actions: '<button class="sw-button">BUY NOW!!!</button>'
-            }
+                actions: '<button class="sw-button">BUY NOW!!!</button>',
+            },
         });
 
         expect(wrapper.find('.sw-button').exists()).toBe(true);

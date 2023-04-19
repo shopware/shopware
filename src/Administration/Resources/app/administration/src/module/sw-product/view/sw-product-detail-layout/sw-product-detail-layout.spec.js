@@ -32,36 +32,36 @@ async function createWrapper(privileges = []) {
                                         config: {
                                             content: {
                                                 value: 'product.name',
-                                                source: 'mapped'
-                                            }
-                                        }
-                                    }]
-                                }]
-                            }]
+                                                source: 'mapped',
+                                            },
+                                        },
+                                    }],
+                                }],
+                            }],
                         });
-                    }
-                })
+                    },
+                }),
             },
             cmsService: {
-                getEntityMappingTypes: () => {}
+                getEntityMappingTypes: () => {},
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-product-layout-assignment': true,
             'sw-cms-layout-modal': true,
             'sw-cms-page-form': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -71,21 +71,21 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
-                product: null
+                product: null,
             },
             mutations: {
                 setProduct(state, product) {
                     state.product = product;
-                }
+                },
             },
             getters: {
-                isLoading: () => false
-            }
+                isLoading: () => false,
+            },
         });
         State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
-                currentPage: null
+                currentPage: null,
             },
             mutations: {
                 setCurrentPage(state, currentPage) {
@@ -118,7 +118,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
 
                 removeCurrentDemoEntity(state) {
                     state.currentDemoEntity = null;
-                }
+                },
             },
 
             actions: {
@@ -127,8 +127,8 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                     commit('removeCurrentMappingEntity');
                     commit('removeCurrentMappingTypes');
                     commit('removeCurrentDemoEntity');
-                }
-            }
+                },
+            },
         });
     });
 
@@ -136,7 +136,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            showLayoutModal: true
+            showLayoutModal: true,
         });
 
         const layoutModal = wrapper.find('sw-cms-layout-modal-stub');
@@ -148,7 +148,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            showLayoutModal: false
+            showLayoutModal: false,
         });
 
         const layoutModal = wrapper.find('sw-cms-layout-modal-stub');
@@ -187,15 +187,15 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         wrapper.vm.onSelectLayout('cmsPageId');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.product.cmsPageId).toEqual('cmsPageId');
-        expect(wrapper.vm.currentPage.id).toEqual('cmsPageId');
+        expect(wrapper.vm.product.cmsPageId).toBe('cmsPageId');
+        expect(wrapper.vm.currentPage.id).toBe('cmsPageId');
     });
 
     it('should be able to reset a product page layout', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.onResetLayout();
 
-        expect(wrapper.vm.product.cmsPageId).toEqual(null);
+        expect(wrapper.vm.product.cmsPageId).toBeNull();
     });
 
     it('should be able to overwrite product config to selected layout config', async () => {
@@ -206,10 +206,10 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                 slot1: {
                     content: {
                         value: 'Hello World',
-                        source: 'static'
-                    }
-                }
-            }
+                        source: 'static',
+                    },
+                },
+            },
         });
 
         const wrapper = await createWrapper();
@@ -218,8 +218,8 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(wrapper.vm.currentPage.sections[0].blocks[0].slots[0].config).toEqual({
             content: {
                 value: 'Hello World',
-                source: 'static'
-            }
+                source: 'static',
+            },
         });
     });
 

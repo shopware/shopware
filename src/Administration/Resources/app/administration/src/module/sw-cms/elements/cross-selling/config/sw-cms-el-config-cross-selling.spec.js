@@ -9,7 +9,7 @@ Shopware.Component.register('sw-cms-el-config-cross-selling', swCmsElConfigCross
 
 async function createWrapper(customCmsElementConfig) {
     const productMock = {
-        name: 'Small Silk Heart Worms'
+        name: 'Small Silk Heart Worms',
     };
 
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-cross-selling'), {
@@ -17,29 +17,29 @@ async function createWrapper(customCmsElementConfig) {
             element: {
                 config: {
                     title: {
-                        value: ''
+                        value: '',
                     },
                     product: {
                         value: 'de8de156da134dabac24257f81ff282f',
-                        source: 'static'
+                        source: 'static',
                     },
-                    ...customCmsElementConfig
-                }
+                    ...customCmsElementConfig,
+                },
             },
-            defaultConfig: {}
+            defaultConfig: {},
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'landingpage'
-                    }
-                }
+                        type: 'landingpage',
+                    },
+                },
             };
         },
         stubs: {
             'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
+                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-container': true,
@@ -47,7 +47,7 @@ async function createWrapper(customCmsElementConfig) {
             'sw-modal': true,
             'sw-entity-single-select': true,
             'sw-alert': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             cmsService: {
@@ -56,17 +56,17 @@ async function createWrapper(customCmsElementConfig) {
                 },
                 getCmsElementRegistry: () => {
                     return {};
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
                         get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock)
+                        search: () => Promise.resolve(productMock),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -84,14 +84,14 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {
-                    type: 'product_detail'
-                }
-            }
+                    type: 'product_detail',
+                },
+            },
         });
 
         const alertMessage = wrapper.find('sw-alert-stub');
 
         expect(alertMessage.exists()).toBe(true);
-        expect(alertMessage.text()).toEqual('sw-cms.elements.crossSelling.config.infoText.productDetailElement');
+        expect(alertMessage.text()).toBe('sw-cms.elements.crossSelling.config.infoText.productDetailElement');
     });
 });

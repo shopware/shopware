@@ -16,7 +16,7 @@ async function createWrapper(privileges = []) {
         localVue,
         stubs: {
             'sw-page': {
-                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>'
+                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-search-bar': true,
             'sw-notification-center': true,
@@ -35,7 +35,7 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
@@ -46,10 +46,10 @@ async function createWrapper(privileges = []) {
                         Shopware.Context.api,
                         null,
                         [],
-                        0
+                        0,
                     )),
-                    getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] })
-                })
+                    getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
+                }),
             },
             loginService: {},
             userService: {
@@ -63,12 +63,12 @@ async function createWrapper(privileges = []) {
                 createUserSearchPreferences: () => {
                     return {
                         key: 'search.preferences',
-                        userId: 'userId'
+                        userId: 'userId',
                     };
-                }
+                },
             },
             searchRankingService: {
-                clearCacheUserSearchConfiguration: () => {}
+                clearCacheUserSearchConfiguration: () => {},
             },
             userConfigService: {
                 upsert: () => {
@@ -76,9 +76,9 @@ async function createWrapper(privileges = []) {
                 },
                 search: () => {
                     return Promise.resolve();
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -90,7 +90,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         Shopware.Service().register('localeHelper', () => {
             return {
-                setLocaleWithId: jest.fn()
+                setLocaleWithId: jest.fn(),
             };
         });
     });
@@ -106,7 +106,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-profile__save-action');
@@ -117,13 +117,13 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
     it('should be able to save own user', async () => {
         const wrapper = await createWrapper([
-            'user.update_profile'
+            'user.update_profile',
         ]);
         await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
-            isUserLoading: false
+            isUserLoading: false,
         });
         await wrapper.vm.$nextTick();
 
@@ -158,8 +158,8 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         wrapper.vm.resetGeneralData();
 
-        expect(wrapper.vm.newPassword).toEqual(null);
-        expect(wrapper.vm.newPasswordConfirm).toEqual(null);
+        expect(wrapper.vm.newPassword).toBeNull();
+        expect(wrapper.vm.newPasswordConfirm).toBeNull();
 
         expect(wrapper.vm.createdComponent).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.beforeMountComponent).toHaveBeenCalledTimes(1);

@@ -25,14 +25,14 @@ async function createWrapper(privileges = []) {
             'sw-loader': true,
             'sw-avatar': true,
             'sw-shortcut-overview': true,
-            'sw-sales-channel-menu': true
+            'sw-sales-channel-menu': true,
         },
         provide: {
             loginService: {
-                notifyOnLoginListener: () => {}
+                notifyOnLoginListener: () => {},
             },
             userService: {
-                getUser: () => Promise.resolve({ data: {} })
+                getUser: () => Promise.resolve({ data: {} }),
             },
             menuService,
             acl: {
@@ -40,17 +40,17 @@ async function createWrapper(privileges = []) {
                     if (!privilegeKey) { return true; }
 
                     return privileges.includes(privilegeKey);
-                }
+                },
             },
             appModulesService: {
-                fetchAppModules: () => Promise.resolve([])
+                fetchAppModules: () => Promise.resolve([]),
             },
             customEntityDefinitionService: {
-                getMenuEntries: () => { return []; }
-            }
+                getMenuEntries: () => { return []; },
+            },
         },
         methods: {
-        }
+        },
     });
 }
 
@@ -73,7 +73,7 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
 
     it('should show the sw-sales-channel-menu when privilege exists', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.viewer'
+            'sales_channel.viewer',
         ]);
         const swSalesChannelMenu = wrapper.find('sw-sales-channel-menu-stub');
 

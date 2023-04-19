@@ -14,7 +14,7 @@ describe('src/app/service/acl.service.ts', () => {
 
     it('should be an admin', async () => {
         const aclService = new AclService({
-            get: () => ({ currentUser: { admin: true } })
+            get: () => ({ currentUser: { admin: true } }),
         });
 
         expect(aclService.isAdmin()).toBe(true);
@@ -22,7 +22,7 @@ describe('src/app/service/acl.service.ts', () => {
 
     it('should not be an admin', async () => {
         const aclService = new AclService({
-            get: () => ({ currentUser: { admin: false } })
+            get: () => ({ currentUser: { admin: false } }),
         });
 
         expect(aclService.isAdmin()).toBe(false);
@@ -30,7 +30,7 @@ describe('src/app/service/acl.service.ts', () => {
 
     it('should not be an admin if the store is empty', async () => {
         const aclService = new AclService({
-            get: () => ({ currentUser: null })
+            get: () => ({ currentUser: null }),
         });
 
         expect(aclService.isAdmin()).toBe(false);
@@ -40,8 +40,8 @@ describe('src/app/service/acl.service.ts', () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: true } }),
             getters: {
-                userPrivileges: []
-            }
+                userPrivileges: [],
+            },
         });
 
         expect(aclService.can('system.clear_cache')).toBe(true);
@@ -51,8 +51,8 @@ describe('src/app/service/acl.service.ts', () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
-                userPrivileges: []
-            }
+                userPrivileges: [],
+            },
         });
 
         expect(aclService.can('system.clear_cache')).toBeFalsy();
@@ -62,8 +62,8 @@ describe('src/app/service/acl.service.ts', () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
-                userPrivileges: ['system.clear_cache']
-            }
+                userPrivileges: ['system.clear_cache'],
+            },
         });
 
         expect(aclService.can('system.clear_cache')).toBe(true);
@@ -75,9 +75,9 @@ describe('src/app/service/acl.service.ts', () => {
             getters: {
                 userPrivileges: [
                     'system.clear_cache',
-                    'orders.create_discounts'
-                ]
-            }
+                    'orders.create_discounts',
+                ],
+            },
         });
 
         expect(aclService.privileges).toContain('system.clear_cache');
@@ -91,9 +91,9 @@ describe('src/app/service/acl.service.ts', () => {
             get: () => ({ currentUser: { admin: false } }),
             getters: {
                 userPrivileges: [
-                    'product.viewer'
-                ]
-            }
+                    'product.viewer',
+                ],
+            },
         });
 
         expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
@@ -106,9 +106,9 @@ describe('src/app/service/acl.service.ts', () => {
             get: () => ({ currentUser: { admin: false } }),
             getters: {
                 userPrivileges: [
-                    'product.viewer'
-                ]
-            }
+                    'product.viewer',
+                ],
+            },
         });
 
         expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
@@ -117,17 +117,17 @@ describe('src/app/service/acl.service.ts', () => {
     it('should not have access to the route when privilege not matches', async () => {
         Shopware.Application.view.root.$router.match = () => ({
             meta: {
-                privilege: 'category.viewer'
-            }
+                privilege: 'category.viewer',
+            },
         });
 
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
                 userPrivileges: [
-                    'product.viewer'
-                ]
-            }
+                    'product.viewer',
+                ],
+            },
         });
 
         expect(aclService.hasAccessToRoute('sw.product.index')).toBeFalsy();
@@ -136,17 +136,17 @@ describe('src/app/service/acl.service.ts', () => {
     it('should have access to the route when privilege matches', async () => {
         Shopware.Application.view.root.$router.match = () => ({
             meta: {
-                privilege: 'product.viewer'
-            }
+                privilege: 'product.viewer',
+            },
         });
 
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
                 userPrivileges: [
-                    'product.viewer'
-                ]
-            }
+                    'product.viewer',
+                ],
+            },
         });
 
         expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
@@ -166,19 +166,19 @@ describe('src/app/service/acl.service.ts', () => {
                                     label: 'sw-settings-tax.general.mainMenuItemGeneral',
                                     name: 'settings-tax',
                                     privilege: 'tax.viewer',
-                                    to: 'sw.settings.tax.index'
-                                }
+                                    to: 'sw.settings.tax.index',
+                                },
                             ],
-                            system: []
-                        }
+                            system: [],
+                        },
                     };
                 }
 
                 return { currentUser: { admin: false } };
             },
             getters: {
-                userPrivileges: ['tax.viewer']
-            }
+                userPrivileges: ['tax.viewer'],
+            },
         });
 
         expect(aclService.hasAccessToRoute('.sw.settings.index')).toBe(true);
@@ -199,19 +199,19 @@ describe('src/app/service/acl.service.ts', () => {
                                     label: 'sw-settings-tax.general.mainMenuItemGeneral',
                                     name: 'settings-tax',
                                     privilege: 'tax.viewer',
-                                    to: 'sw.settings.tax.index'
-                                }
+                                    to: 'sw.settings.tax.index',
+                                },
                             ],
-                            system: []
-                        }
+                            system: [],
+                        },
                     };
                 }
 
                 return { currentUser: { admin: false } };
             },
             getters: {
-                userPrivileges: []
-            }
+                userPrivileges: [],
+            },
         });
 
         expect(aclService.hasAccessToRoute('.sw.settings.index')).toBe(false);

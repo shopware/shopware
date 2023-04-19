@@ -18,10 +18,10 @@ async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress 
         },
         stubs: {
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-card-section': {
-                template: '<div class="sw-card-section"><slot></slot></div>'
+                template: '<div class="sw-card-section"><slot></slot></div>',
             },
             'sw-address': await Shopware.Component.build('sw-address'),
         },
@@ -29,11 +29,11 @@ async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress 
             customSnippetApiService: {
                 render() {
                     return Promise.resolve({
-                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>'
+                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
                     });
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -50,14 +50,14 @@ describe('module/sw-customer-default-addresses', () => {
             id: 'address1',
             country: {
                 addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
-            }
+            },
         };
 
         const billingAddress = {
             id: 'address1',
             country: {
                 addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
-            }
+            },
         };
 
         wrapper = await createWrapper(shippingAddress, billingAddress);

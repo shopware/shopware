@@ -20,7 +20,7 @@ describe('src/component/grid/sw-pagination', () => {
 
     function getPositionOfActiveButton() {
         const allPageButtons = wrapper.findAll(
-            '.sw-pagination__list-item :not(span.sw-pagination__list-separator)'
+            '.sw-pagination__list-item :not(span.sw-pagination__list-separator)',
         ).wrappers;
 
         const positionOfActivePageButton = allPageButtons.findIndex(currentElement => {
@@ -66,15 +66,15 @@ describe('src/component/grid/sw-pagination', () => {
                 total: 275,
                 limit: 25,
                 page: 1,
-                autoHide: false
+                autoHide: false,
             },
             stubs: {
                 'sw-icon': {
-                    template: '<div class="icon"></div>'
+                    template: '<div class="icon"></div>',
                 },
                 'sw-field': {
-                    template: '<div class="field"></div>'
-                }
+                    template: '<div class="field"></div>',
+                },
             },
             attachTo: document.body,
         });
@@ -100,23 +100,23 @@ describe('src/component/grid/sw-pagination', () => {
 
     it('should have the right amount of elements', async () => {
         const pageButtons = wrapper.findAll('button.sw-pagination__list-button');
-        expect(pageButtons.length).toBe(6);
+        expect(pageButtons).toHaveLength(6);
 
         const separator = wrapper.findAll('.sw-pagination__list-separator');
-        expect(separator.length).toBe(1);
+        expect(separator).toHaveLength(1);
 
         const activeButton = wrapper.findAll('.sw-pagination__list-button.is-active');
-        expect(activeButton.length).toBe(1);
+        expect(activeButton).toHaveLength(1);
     });
 
     it('should have right amount of elements when on third page', async () => {
         await wrapper.vm.changePageByPageNumber(3);
 
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
-        expect(allPageButtons.length).toBe(7);
+        expect(allPageButtons).toHaveLength(7);
 
         const separator = wrapper.findAll('.sw-pagination__list-separator');
-        expect(separator.length).toBe(1);
+        expect(separator).toHaveLength(1);
 
         const activePageButton = wrapper.find('.sw-pagination__list-button.is-active');
         expect(activePageButton.exists()).toBe(true);
@@ -126,10 +126,10 @@ describe('src/component/grid/sw-pagination', () => {
         await wrapper.vm.changePageByPageNumber(9);
 
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
-        expect(allPageButtons.length).toBe(7);
+        expect(allPageButtons).toHaveLength(7);
 
         const separator = wrapper.findAll('.sw-pagination__list-separator');
-        expect(separator.length).toBe(1);
+        expect(separator).toHaveLength(1);
 
         const activePageButton = wrapper.find('.sw-pagination__list-button.is-active');
         expect(activePageButton.exists()).toBe(true);
@@ -155,7 +155,7 @@ describe('src/component/grid/sw-pagination', () => {
         await rightArrow.trigger('click');
 
         const pageChangeEvents = wrapper.emitted()['page-change'];
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
 
         const [eventObject] = pageChangeEvents[0];
         expect(eventObject).toEqual({ limit: 25, page: 2 });
@@ -177,7 +177,7 @@ describe('src/component/grid/sw-pagination', () => {
         await secondPageButton.trigger('click');
 
         const pageChangeEvents = wrapper.emitted()['page-change'];
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
 
         const [eventObject] = pageChangeEvents[0];
         expect(eventObject).toEqual({ limit: 25, page: 2 });
@@ -271,20 +271,20 @@ describe('src/component/grid/sw-pagination', () => {
 
     it('should have right amount of elements when setting the prop totalVisible to 3', async () => {
         await wrapper.setProps({
-            totalVisible: 3
+            totalVisible: 3,
         });
 
         await wrapper.vm.changePageByPageNumber(2);
 
-        expect(wrapper.findAll('.sw-pagination__list-button').length).toBe(3);
-        expect(wrapper.findAll('.sw-pagination__list-separator').length).toBe(1);
+        expect(wrapper.findAll('.sw-pagination__list-button')).toHaveLength(3);
+        expect(wrapper.findAll('.sw-pagination__list-separator')).toHaveLength(1);
 
         expect(wrapper.find('.sw-pagination__list-button.is-active').exists()).toBe(true);
 
         const rightArrow = wrapper.find('div.icon[name="regular-chevron-right-xs"]');
         await rightArrow.trigger('click');
 
-        expect(wrapper.findAll('.sw-pagination__list-button').length).toBe(3);
-        expect(wrapper.findAll('.sw-pagination__list-separator').length).toBe(2);
+        expect(wrapper.findAll('.sw-pagination__list-button')).toHaveLength(3);
+        expect(wrapper.findAll('.sw-pagination__list-separator')).toHaveLength(2);
     });
 });

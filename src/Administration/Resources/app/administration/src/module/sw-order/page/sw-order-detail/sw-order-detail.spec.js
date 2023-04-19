@@ -26,17 +26,17 @@ async function createWrapper(privileges = []) {
                                         name: 'sw.order.detail.general',
                                     },
                                     {
-                                        name: 'sw.order.detail.details'
+                                        name: 'sw.order.detail.details',
                                     },
                                     {
-                                        name: 'sw.order.detail.document'
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
+                                        name: 'sw.order.detail.document',
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -45,7 +45,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-header"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-label': true,
@@ -55,7 +55,7 @@ async function createWrapper(privileges = []) {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-alert': true,
             'sw-loader': true,
@@ -65,7 +65,7 @@ async function createWrapper(privileges = []) {
             'sw-icon': true,
         },
         propsData: {
-            orderId: Shopware.Utils.createId()
+            orderId: Shopware.Utils.createId(),
         },
         provide: {
             acl: {
@@ -73,7 +73,7 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
@@ -83,10 +83,10 @@ async function createWrapper(privileges = []) {
                     createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
                     get: () => Promise.resolve({}),
                     save: () => Promise.resolve({}),
-                })
+                }),
             },
             orderService: {},
-        }
+        },
     });
 }
 
@@ -154,7 +154,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should reload entity data with orderCriteria', () => {
         const criteria = wrapper.vm.orderCriteria;
 
-        expect(criteria.getLimit()).toEqual(25);
+        expect(criteria.getLimit()).toBe(25);
         [
             'currency',
             'orderCustomer',
@@ -165,7 +165,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'deliveries',
             'transactions',
             'documents',
-            'tags'
+            'tags',
         ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
     });
 

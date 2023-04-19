@@ -14,7 +14,7 @@ async function createWrapper(privileges = []) {
             'sw-code-editor': true,
             'sw-container': true,
             'sw-button-process': true,
-            'sw-sales-channel-detail-product-comparison-preview': true
+            'sw-sales-channel-detail-product-comparison-preview': true,
         },
         provide: {
             salesChannelService: {},
@@ -26,13 +26,13 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         propsData: {
             productExport: {},
-            salesChannel: {}
-        }
+            salesChannel: {},
+        },
     });
 }
 
@@ -55,7 +55,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
 
     it('should have codeEditors enabled when the user has privileges', async () => {
         const wrapper = await createWrapper([
-            'sales_channel.editor'
+            'sales_channel.editor',
         ]);
 
         const codeEditors = wrapper.findAll('sw-field-stub');

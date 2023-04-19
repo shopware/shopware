@@ -18,10 +18,10 @@ async function createWrapper() {
                 mobile: true,
                 tablet: true,
                 desktop: true,
-            }
+            },
         },
         provide: {
-            cmsService: {}
+            cmsService: {},
         },
         stubs: {
             'sw-icon': await Shopware.Component.build('sw-icon'),
@@ -61,7 +61,7 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
                 mobile: false,
                 tablet: false,
                 desktop: false,
-            }
+            },
         });
 
         const mobileIcon = wrapper.findAll('.sw-icon').at(0);

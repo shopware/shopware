@@ -13,13 +13,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-users-permissions'), {
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"></slot></div>'
+                    template: '<div><slot name="content"></slot></div>',
                 },
                 'sw-card-view': true,
                 'sw-users-permissions-user-listing': true,
                 'sw-users-permissions-role-listing': true,
                 'sw-users-permissions-configuration': true,
-            }
+            },
         });
     });
 

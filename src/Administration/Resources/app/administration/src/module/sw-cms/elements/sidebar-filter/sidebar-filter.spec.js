@@ -10,18 +10,18 @@ Shopware.Component.register('sw-cms-el-sidebar-filter', swCmsElSidebarFilter);
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-sidebar-filter'), {
         propsData: {
-            element: {}
+            element: {},
         },
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
             cmsService: {
                 getCmsElementRegistry: () => ({
-                    'sidebar-filter': {}
-                })
-            }
-        }
+                    'sidebar-filter': {},
+                }),
+            },
+        },
     });
 }
 
@@ -35,7 +35,7 @@ describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
     it('set a is--disabled class to wrapper', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.classes()).toContain('is--disabled');

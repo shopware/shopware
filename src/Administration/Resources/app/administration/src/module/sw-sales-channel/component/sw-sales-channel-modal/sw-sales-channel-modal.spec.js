@@ -20,7 +20,7 @@ async function createWrapper() {
         Shopware.Context.api,
         null,
         [],
-        0
+        0,
     )));
 
     return {
@@ -40,11 +40,11 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: searchFunction
-                    })
-                }
-            }
-        })
+                        search: searchFunction,
+                    }),
+                },
+            },
+        }),
     };
 }
 
@@ -52,7 +52,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-modal/', () => 
     it('should be a Vue.js component', async () => {
         const { wrapper } = await createWrapper();
         await wrapper.setData({
-            detailType: 'foo'
+            detailType: 'foo',
         });
         await flushPromises();
 
@@ -66,12 +66,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-modal/', () => 
 
         const { searchFunction, wrapper } = await createWrapper();
         await wrapper.setData({
-            detailType: 'foo'
+            detailType: 'foo',
         });
         await flushPromises();
 
         const lastSearchParameters = searchFunction.mock.calls[searchFunction.mock.calls.length - 1];
 
-        expect(lastSearchParameters[1].languageId).toEqual('dutchLanguageId');
+        expect(lastSearchParameters[1].languageId).toBe('dutchLanguageId');
     });
 });

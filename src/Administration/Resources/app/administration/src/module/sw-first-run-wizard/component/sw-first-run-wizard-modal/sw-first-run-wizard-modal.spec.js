@@ -19,26 +19,26 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 'sw-container': await Shopware.Component.build('sw-container'),
                 'sw-loader': true,
                 'sw-icon': {
-                    template: '<div />'
+                    template: '<div />',
                 },
                 'router-view': {
-                    template: '<div id="router-view" />'
+                    template: '<div id="router-view" />',
                 },
                 'sw-button': {
-                    template: '<div />'
-                }
+                    template: '<div />',
+                },
             },
             mocks: {
-                $route: { name: 'sw.first.run.wizard.index.welcome' }
+                $route: { name: 'sw.first.run.wizard.index.welcome' },
             },
             provide: {
                 firstRunWizardService: { setFRWStart: () => {} },
                 shortcutService: {
                     stopEventListener: () => {},
-                    startEventListener: () => {}
-                }
+                    startEventListener: () => {},
+                },
             },
-            props: {}
+            props: {},
         });
     };
 
@@ -86,7 +86,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'two',
@@ -94,7 +94,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.two',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'three',
@@ -102,8 +102,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: 'primary',
                 action: 'route.three',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -128,7 +128,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'two',
@@ -136,7 +136,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.two',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'three',
@@ -144,8 +144,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: 'primary',
                 action: 'route.three',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -168,8 +168,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -192,8 +192,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -218,8 +218,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', firstButtonConfig);
@@ -237,8 +237,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.two',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', secondButtonConfig);

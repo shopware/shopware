@@ -25,7 +25,7 @@ async function createWrapper(privileges = []) {
         ordersPerCustomerCount: null,
         exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
         translated: {
-            name: 'Test Promotion'
+            name: 'Test Promotion',
         },
         apiAlias: null,
         id: 'promotionId',
@@ -36,8 +36,8 @@ async function createWrapper(privileges = []) {
                 salesChannelId: 'salesChannelId',
                 priority: 1,
                 createdAt: '2020-08-17T13:24:52.692+00:00',
-                id: 'promotionSalesChannelId'
-            }
+                id: 'promotionSalesChannelId',
+            },
         ],
         discounts: [],
         individualCodes: [],
@@ -46,14 +46,14 @@ async function createWrapper(privileges = []) {
         orderRules: [],
         cartRules: [],
         translations: [],
-        hasOrders: false
+        hasOrders: false,
     };
 
     return shallowMount(await Shopware.Component.build('sw-promotion-v2-detail'), {
         localVue,
         stubs: {
             'sw-page': {
-                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>'
+                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-search-bar': true,
             'sw-notification-center': true,
@@ -73,24 +73,24 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([promotionData]),
                     get: () => Promise.resolve([promotionData]),
-                    create: () => {}
-                })
-            }
+                    create: () => {},
+                }),
+            },
         },
         mocks: {
             $device: {
-                getSystemKey: () => 'strg'
-            }
+                getSystemKey: () => 'strg',
+            },
         },
         propsData: {
-            promotionId: 'id1'
-        }
+            promotionId: 'id1',
+        },
     });
 }
 
@@ -107,7 +107,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
@@ -118,11 +118,11 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
     it('should enable the save button when privilege does not exist', async () => {
         const wrapper = await createWrapper([
-            'promotion.editor'
+            'promotion.editor',
         ]);
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');

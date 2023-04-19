@@ -17,16 +17,16 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
                         { rating: 4, count: 10 },
                         { rating: 3, count: 2 },
                         { rating: 2, count: 1 },
-                        { rating: 1, count: 2 }
+                        { rating: 1, count: 2 },
                     ],
                     averageRating: 5,
                     numberOfRatings: 20,
-                    extensions: []
-                }
+                    extensions: [],
+                },
             },
             stubs: {
                 'sw-extension-rating-stars': true,
-                'sw-progress-bar': await Shopware.Component.build('sw-progress-bar')
+                'sw-progress-bar': await Shopware.Component.build('sw-progress-bar'),
             },
             provide: {
                 userActivityService: {

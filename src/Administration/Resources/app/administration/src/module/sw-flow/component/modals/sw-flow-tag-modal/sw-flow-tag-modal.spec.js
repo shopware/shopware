@@ -17,7 +17,7 @@ Shopware.Component.register('sw-flow-tag-modal', swFlowTagModal);
 
 const fieldClasses = [
     '.sw-flow-tag-modal__to-field',
-    '.sw-flow-tag-modal__tags-field'
+    '.sw-flow-tag-modal__tags-field',
 ];
 
 function getTagCollection(collection = []) {
@@ -28,7 +28,7 @@ function getTagCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -46,26 +46,26 @@ async function createWrapper() {
                     return [
                         {
                             label: 'Order',
-                            value: 'order'
+                            value: 'order',
                         },
                         {
                             label: 'Customer',
-                            value: 'customer'
-                        }
+                            value: 'customer',
+                        },
                     ];
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve()
+                        search: () => Promise.resolve(),
                     };
-                }
-            }
+                },
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -83,13 +83,13 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-select-result': {
                 props: ['item', 'index'],
@@ -99,15 +99,15 @@ async function createWrapper() {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-loader': true,
             'sw-label': true,
             'sw-icon': true,
             'sw-field-error': true,
-            'sw-highlight-text': true
-        }
+            'sw-highlight-text': true,
+        },
     });
 }
 
@@ -119,11 +119,11 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
             triggerEvent: {
                 data: {
                     customer: {
-                        type: 'entity'
+                        type: 'entity',
                     },
                     order: {
-                        type: 'entity'
-                    }
+                        type: 'entity',
+                    },
                 },
                 customerAware: true,
                 extensions: [],
@@ -133,9 +133,9 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
                 orderAware: false,
                 salesChannelAware: true,
                 userAware: false,
-                webhookAware: true
-            }
-        }
+                webhookAware: true,
+            },
+        },
     });
 
     it('should show these fields on modal', async () => {
@@ -172,7 +172,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         });
 
         await wrapper.setData({
-            tagCollection: getTagCollection([{ name: 'new', id: '124' }])
+            tagCollection: getTagCollection([{ name: 'new', id: '124' }]),
         });
 
         const entitySelect = wrapper.find('.sw-single-select__selection');

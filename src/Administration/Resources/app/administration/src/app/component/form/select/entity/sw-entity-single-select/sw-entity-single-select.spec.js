@@ -29,7 +29,7 @@ const fixture = [
         id: utils.createId(),
         name: 'third entry',
         active: true,
-    }
+    },
 ];
 
 const propertyFixture = [
@@ -37,23 +37,23 @@ const propertyFixture = [
         id: utils.createId(),
         name: 'first entry',
         group: {
-            name: 'example'
-        }
+            name: 'example',
+        },
     },
     {
         id: utils.createId(),
         name: 'second entry',
         group: {
-            name: 'example'
-        }
+            name: 'example',
+        },
     },
     {
         id: utils.createId(),
         name: 'third',
         group: {
-            name: 'entry'
-        }
-    }
+            name: 'entry',
+        },
+    },
 ];
 
 function getCollection() {
@@ -64,7 +64,7 @@ function getCollection() {
         { isShopwareContext: true },
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 
@@ -76,7 +76,7 @@ function getPropertyCollection() {
         { isShopwareContext: true },
         propertyFixture,
         propertyFixture.length,
-        null
+        null,
     );
 }
 
@@ -95,7 +95,7 @@ async function createEntitySingleSelect(customOptions) {
         update(el, binding) {
             el.setAttribute('tooltip-message', binding.value.message);
             el.setAttribute('tooltip-disabled', binding.value.disabled);
-        }
+        },
     });
 
     const options = {
@@ -106,7 +106,7 @@ async function createEntitySingleSelect(customOptions) {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div @click="$emit(\'click\', $event)"></div>',
-                props: ['size', 'color', 'name']
+                props: ['size', 'color', 'name'],
             },
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
@@ -114,26 +114,26 @@ async function createEntitySingleSelect(customOptions) {
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info')
+            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
         },
         propsData: {
             value: null,
-            entity: 'test'
+            entity: 'test',
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
-                        get: (value) => Promise.resolve({ id: value, name: value })
+                        get: (value) => Promise.resolve({ id: value, name: value }),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-single-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -149,8 +149,8 @@ describe('components/sw-entity-single-select', () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: null,
-                entity: 'test'
-            }
+                entity: 'test',
+            },
         });
         await flushPromises();
 
@@ -164,17 +164,17 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: null,
                 entity: 'test',
-                selectionDisablingMethod: item => item.name === 'second entry'
+                selectionDisablingMethod: item => item.name === 'second entry',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -190,17 +190,17 @@ describe('components/sw-entity-single-select', () => {
         const wrapper = await createEntitySingleSelect({
             propsData: {
                 value: null,
-                entity: 'test'
+                entity: 'test',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -219,17 +219,17 @@ describe('components/sw-entity-single-select', () => {
                 value: null,
                 entity: 'test',
                 selectionDisablingMethod: item => item.name === 'second entry',
-                disabledSelectionTooltip: { message: 'test message' }
+                disabledSelectionTooltip: { message: 'test message' },
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -255,11 +255,11 @@ describe('components/sw-entity-single-select', () => {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -268,10 +268,10 @@ describe('components/sw-entity-single-select', () => {
 
         let activeStateIcons = wrapper.findAll('.sw-entity-single-select__selection-active');
 
-        expect(activeStateIcons.length).toBe(0);
+        expect(activeStateIcons).toHaveLength(0);
 
         await wrapper.setProps({
-            shouldShowActiveState: true
+            shouldShowActiveState: true,
         });
         await wrapper.vm.$nextTick();
 
@@ -280,28 +280,28 @@ describe('components/sw-entity-single-select', () => {
         const activeIconProps = {
             color: '#37d046',
             name: 'default-basic-shape-circle-filled',
-            size: '6'
+            size: '6',
         };
 
         const inActiveIconProps = {
             color: '#d1d9e0',
             name: 'default-basic-shape-circle-filled',
-            size: '6'
+            size: '6',
         };
 
-        expect(activeStateIcons.length).toBe(3);
+        expect(activeStateIcons).toHaveLength(3);
         expect(activeStateIcons.at(0).props()).toStrictEqual(activeIconProps);
         expect(activeStateIcons.at(1).props()).toStrictEqual(inActiveIconProps);
         expect(activeStateIcons.at(2).props()).toStrictEqual(activeIconProps);
 
         await wrapper.setProps({
-            shouldShowActiveState: false
+            shouldShowActiveState: false,
         });
         await wrapper.vm.$nextTick();
 
         activeStateIcons = wrapper.findAll('.sw-select-option .sw-entity-single-select__selection-active');
 
-        expect(activeStateIcons.length).toBe(0);
+        expect(activeStateIcons).toHaveLength(0);
     });
 
     it('should have a reset option when it is defined an the value is null', async () => {
@@ -309,8 +309,8 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: null,
                 entity: 'test',
-                resetOption: 'reset'
-            }
+                resetOption: 'reset',
+            },
         });
         await flushPromises();
 
@@ -318,7 +318,7 @@ describe('components/sw-entity-single-select', () => {
 
         expect(singleSelection).not.toBeNull();
         expect(singleSelection.id).toBeNull();
-        expect(singleSelection.name).toEqual('reset');
+        expect(singleSelection.name).toBe('reset');
     });
 
     it('should have no reset option when it is defined but the value is not null', async () => {
@@ -326,8 +326,8 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: 'uuid',
                 entity: 'test',
-                resetOption: 'reset'
-            }
+                resetOption: 'reset',
+            },
         });
         await flushPromises();
 
@@ -336,8 +336,8 @@ describe('components/sw-entity-single-select', () => {
         const { singleSelection } = swEntitySingleSelect.vm;
 
         expect(singleSelection).not.toBeNull();
-        expect(singleSelection.id).toEqual('uuid');
-        expect(singleSelection.name).toEqual('uuid');
+        expect(singleSelection.id).toBe('uuid');
+        expect(singleSelection.name).toBe('uuid');
     });
 
     it('should have prepend reset option to resultCollection when resetOption is given', async () => {
@@ -345,17 +345,17 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: '',
                 entity: 'test',
-                resetOption: 'reset'
+                resetOption: 'reset',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -364,8 +364,8 @@ describe('components/sw-entity-single-select', () => {
 
         const { resultCollection } = swEntitySingleSelect.vm;
 
-        expect(resultCollection.length).toEqual(getCollection().length + 1);
-        expect(resultCollection[0].name).toEqual('reset');
+        expect(resultCollection).toHaveLength(getCollection().length + 1);
+        expect(resultCollection[0].name).toBe('reset');
     });
 
     it('should not show the selected item on first entry', async () => {
@@ -375,7 +375,7 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: secondItemId,
                 entity: 'test',
-                resetOption: 'reset'
+                resetOption: 'reset',
             },
             provide: {
                 repositoryFactory: {
@@ -388,11 +388,11 @@ describe('components/sw-entity-single-select', () => {
                                 }
 
                                 return Promise.reject();
-                            }
+                            },
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -410,17 +410,17 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: '',
                 entity: 'test',
-                resetOption: 'reset'
+                resetOption: 'reset',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -436,7 +436,7 @@ describe('components/sw-entity-single-select', () => {
 
         await listContent.trigger('scroll');
 
-        expect(selectResultList.emitted('paginate')).toBe(undefined);
+        expect(selectResultList.emitted('paginate')).toBeUndefined();
     });
 
     it('should emit the paginate event when user scroll to the end of list', async () => {
@@ -444,17 +444,17 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: '',
                 entity: 'test',
-                resetOption: 'reset'
+                resetOption: 'reset',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -470,8 +470,8 @@ describe('components/sw-entity-single-select', () => {
 
         await listContent.trigger('scroll');
 
-        expect(selectResultList.emitted('paginate')).not.toBe(undefined);
-        expect(selectResultList.emitted('paginate').length).toEqual(1);
+        expect(selectResultList.emitted('paginate')).toBeDefined();
+        expect(selectResultList.emitted('paginate')).toHaveLength(1);
         expect(selectResultList.emitted('paginate')[0]).toEqual([]);
     });
 
@@ -479,17 +479,17 @@ describe('components/sw-entity-single-select', () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: null,
-                entity: 'property_group_option'
+                entity: 'property_group_option',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -519,17 +519,17 @@ describe('components/sw-entity-single-select', () => {
                 value: fixture[0].id,
                 entity: 'test',
                 displayVariants: true,
-                resetOption: 'reset'
+                resetOption: 'reset',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            get: () => Promise.resolve(fixture[0])
+                            get: () => Promise.resolve(fixture[0]),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -556,24 +556,24 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: fixture[0].id,
                 entity: 'test',
-                labelCallback: () => 'test'
+                labelCallback: () => 'test',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
                             get: () => Promise.resolve(fixture[0]),
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
         await swEntitySingleSelect.vm.$nextTick();
         expect(swEntitySingleSelect.find('.sw-entity-single-select__selection-text').text())
-            .toEqual('test');
+            .toBe('test');
 
         await swEntitySingleSelect.find('input').trigger('click');
         await swEntitySingleSelect.vm.$nextTick();
@@ -585,8 +585,8 @@ describe('components/sw-entity-single-select', () => {
     it('should show the clearable icon in the single select', async () => {
         const wrapper = await createEntitySingleSelect({
             attrs: {
-                showClearableButton: true
-            }
+                showClearableButton: true,
+            },
         });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
@@ -598,21 +598,21 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: fixture[0].id,
                 entity: 'test',
-                labelCallback: () => 'test'
+                labelCallback: () => 'test',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
                             get: () => Promise.resolve(fixture[0]),
-                            search: () => Promise.resolve(getCollection())
+                            search: () => Promise.resolve(getCollection()),
                         };
-                    }
-                }
+                    },
+                },
             },
             attrs: {
-                showClearableButton: true
-            }
+                showClearableButton: true,
+            },
         });
         await flushPromises();
 
@@ -622,10 +622,10 @@ describe('components/sw-entity-single-select', () => {
         // expect test value selected
         let selectionText = wrapper.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text())
-            .toEqual('test');
+            .toBe('test');
 
         // expect no emitted value
-        expect(wrapper.emitted('change')).toEqual(undefined);
+        expect(wrapper.emitted('change')).toBeUndefined();
 
         // click on clear
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
@@ -637,12 +637,12 @@ describe('components/sw-entity-single-select', () => {
 
         // emulate v-model change
         await wrapper.setProps({
-            value: emittedChangeValue[0]
+            value: emittedChangeValue[0],
         });
 
         // expect empty selection
         selectionText = wrapper.find('.sw-entity-single-select__selection-text');
-        expect(selectionText.text()).toEqual('');
+        expect(selectionText.text()).toBe('');
     });
 
     it('should show description line in results list', async () => {
@@ -653,21 +653,21 @@ describe('components/sw-entity-single-select', () => {
                     </template>`,
                 'result-description-property': `<template>
                         {{ props.item.group.name }}
-                    </template>`
+                    </template>`,
             },
             propsData: {
                 value: null,
-                entity: 'property_group_option'
+                entity: 'property_group_option',
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
 
@@ -692,7 +692,7 @@ describe('components/sw-entity-single-select', () => {
             Shopware.Context.api,
             null,
             [],
-            0
+            0,
         );
 
         const existingEntityMock = new EntityCollection(
@@ -702,10 +702,10 @@ describe('components/sw-entity-single-select', () => {
             null,
             [
                 {
-                    id: '12345asd'
-                }
+                    id: '12345asd',
+                },
             ],
-            1
+            1,
         );
 
         const swOriginEntitySingleSelect = await Shopware.Component.build('sw-entity-single-select');
@@ -725,7 +725,7 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: 'asdf555',
                 entity: 'product_manufacturer',
-                allowEntityCreation: true
+                allowEntityCreation: true,
             },
             provide: {
                 repositoryFactory: {
@@ -747,23 +747,23 @@ describe('components/sw-entity-single-select', () => {
                                 Shopware.Context.api,
                                 null,
                                 [],
-                                0
+                                0,
                             ));
                         },
                         get: () => Promise.resolve({
                             id: 'manufacturerId',
                             name: 'ThisIsMyEntity',
-                            product: []
+                            product: [],
                         }),
-                        create: () => Promise.resolve({})
+                        create: () => Promise.resolve({}),
                     }),
-                }
+                },
             },
             computed: {
                 searchCriteria() {
                     return {};
-                }
-            }
+                },
+            },
         });
         await flushPromises();
 
@@ -805,11 +805,11 @@ describe('components/sw-entity-single-select', () => {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            get: () => Promise.resolve()
+                            get: () => Promise.resolve(),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         await flushPromises();
         expect(swEntitySingleSelect.vm.value).toBe(fixture[0].id);

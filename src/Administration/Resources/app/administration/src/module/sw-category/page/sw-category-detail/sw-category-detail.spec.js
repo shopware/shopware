@@ -16,7 +16,7 @@ async function createWrapper() {
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="side-content"></slot>
-    </div>`
+    </div>`,
             },
             'sw-category-tree': true,
             'sw-button': true,
@@ -33,12 +33,12 @@ async function createWrapper() {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve({
-                        get: () => ({ sections: [] })
-                    })
-                })
+                        get: () => ({ sections: [] }),
+                    }),
+                }),
             },
-            seoUrlService: {}
-        }
+            seoUrlService: {},
+        },
     });
 }
 
@@ -60,7 +60,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                 setCurrentMappingTypes: () => {},
                 setCurrentDemoEntity: () => {},
                 setCurrentPage: () => {},
-            }
+            },
         });
     });
 
@@ -74,7 +74,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const wrapper = await createWrapper();
         Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {} });
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-category-detail__save-action');
@@ -88,11 +88,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const wrapper = await createWrapper();
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {
-            slotConfig: ''
+            slotConfig: '',
         } });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-category-detail__save-action');
@@ -105,12 +105,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
-                slotConfig: ''
-            }
+                slotConfig: '',
+            },
         });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
@@ -125,12 +125,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
-                slotConfig: ''
-            }
+                slotConfig: '',
+            },
         });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
@@ -143,12 +143,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
-                slotConfig: ''
-            }
+                slotConfig: '',
+            },
         });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
@@ -163,12 +163,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
-                slotConfig: ''
-            }
+                slotConfig: '',
+            },
         });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
@@ -181,12 +181,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
-                slotConfig: ''
-            }
+                slotConfig: '',
+            },
         });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
@@ -201,12 +201,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
-                slotConfig: ''
-            }
+                slotConfig: '',
+            },
         });
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');

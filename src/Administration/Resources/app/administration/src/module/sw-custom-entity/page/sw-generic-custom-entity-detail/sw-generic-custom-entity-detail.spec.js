@@ -28,16 +28,16 @@ const customEntityDefinition = {
     entity: testEntityName,
     properties: {
         id: {
-            type: 'string'
+            type: 'string',
         },
         title: {
-            type: 'string'
+            type: 'string',
         },
         description: {
-            type: 'string'
+            type: 'string',
         },
         position: {
-            type: 'int'
+            type: 'int',
         },
     },
     flags: {
@@ -49,11 +49,11 @@ const customEntityDefinition = {
                     cards: [{
                         name: 'general',
                         fields: [{
-                            ref: 'title'
+                            ref: 'title',
                         }, {
-                            ref: 'description'
+                            ref: 'description',
                         }, {
-                            ref: 'position'
+                            ref: 'position',
                         }],
                     }, {
                         name: 'useless',
@@ -62,20 +62,20 @@ const customEntityDefinition = {
                         }, {
                             ref: 'position',
                         }],
-                    }]
+                    }],
                 }, {
                     name: 'secondary',
                     cards: [{
                         name: 'secondary-useless',
                         fields: [{
-                            ref: 'position'
+                            ref: 'position',
                         }],
-                    }]
-                }]
-            }
+                    }],
+                }],
+            },
         },
         'cms-aware': true,
-    }
+    },
 };
 
 const customEntityRepository = {
@@ -99,7 +99,7 @@ const customEntityRepository = {
                 },
             });
         }
-    }
+    },
 };
 
 async function createWrapper({ activeTab = 'main', routeId = null, entityName = testEntityName } = {}) {
@@ -127,7 +127,7 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                     }
 
                     throw new Error(`Repository for ${name} is not mocked`);
-                }
+                },
             },
         },
         stubs: {
@@ -138,8 +138,8 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 template: '<div class="sw-search-bar"></div>',
                 props: [
                     'initial-search-type',
-                    'initial-search'
-                ]
+                    'initial-search',
+                ],
             },
             'sw-card-view': true,
             'sw-card': true,
@@ -154,7 +154,7 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 template: '<button></button>',
             },
             'sw-language-switch': {
-                template: '<div class="sw-language-switch"></div>'
+                template: '<div class="sw-language-switch"></div>',
             },
             'sw-custom-entity-input-field': {
                 template: '<input/>',
@@ -197,7 +197,7 @@ const numberOfElementsDataProvider = [{
         }, {
             ref: 'position',
         }],
-    }]
+    }],
 }, {
     activeTab: 'secondary',
     cardCount: 1,
@@ -207,7 +207,7 @@ const numberOfElementsDataProvider = [{
         fields: [{
             ref: 'position',
         }],
-    }]
+    }],
 }];
 
 /**
@@ -219,12 +219,12 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
 
         // Check 4 tab-items and tabs, one of them visible
         const tabItems = wrapper.findAll('.sw-generic-custom-entity-detail__tab-item');
-        expect(tabItems.length).toEqual(4);
+        expect(tabItems).toHaveLength(4);
         expect(tabItems.at(0).text()).toBe('custom_test_entity.tabs.main');
         expect(tabItems.at(1).text()).toBe('custom_test_entity.tabs.secondary');
         expect(tabItems.at(2).text()).toBe('sw-custom-entity.detail.tabs.layout');
         expect(tabItems.at(3).text()).toBe('sw-custom-entity.detail.tabs.seo');
-        expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab').length).toBe(1);
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab')).toHaveLength(1);
     });
 
     numberOfElementsDataProvider.forEach((data) => {
@@ -232,7 +232,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             const wrapper = await createWrapper({ activeTab: data.activeTab });
 
             const cardElements = wrapper.findAll('.sw-generic-custom-entity-detail__card');
-            expect(cardElements.length).toBe(data.cardCount);
+            expect(cardElements).toHaveLength(data.cardCount);
 
             // Check title and amount of children in each card
             data.cards.forEach((card, cardIndex) => {
@@ -240,7 +240,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
                     .toBe(`custom_test_entity.cards.${card.name}`);
 
                 const fieldElements = cardElements.at(cardIndex).findAll('.sw-generic-custom-entity-detail__field');
-                expect(fieldElements.length).toEqual(card.fieldCount);
+                expect(fieldElements).toHaveLength(card.fieldCount);
 
                 // Check title, placeholder & helpText of each field
                 card.fields.forEach((field, fieldIndex) => {
@@ -256,7 +256,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should create a new Entity, when no ID is given and be pushed to a detail page on save', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.customEntityDataId).toBe(null);
+        expect(wrapper.vm.customEntityDataId).toBeNull();
         expect(wrapper.vm.customEntityData.id).toBe(testEntityCreateId);
 
         await wrapper.get('.sw-generic-custom-entity-detail__save-action').trigger('click');
@@ -266,14 +266,14 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             name: 'sw.custom.entity.detail',
             params: {
                 id: testEntityCreateId,
-            }
+            },
         });
     });
 
     it('should create a new Entity, when an ID is given via $route', async () => {
         const wrapper = await createWrapper({
             activeTab: 'main',
-            routeId: testEntityData.id
+            routeId: testEntityData.id,
         });
 
         expect(wrapper.vm.customEntityDataId).toBe(testEntityData.id);
@@ -288,7 +288,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the layout tab, pass in the cmsPageId and the cmsSlotOverrides and react to changes', async () => {
         const wrapper = await createWrapper({
             activeTab: 'cms-aware-tab-layout',
-            routeId: testEntityData.id
+            routeId: testEntityData.id,
         });
         await flushPromises();
 
@@ -320,7 +320,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should create a new layout on the `create-layout` event', async () => {
         const wrapper = await createWrapper({
             activeTab: 'cms-aware-tab-layout',
-            routeId: testEntityData.id
+            routeId: testEntityData.id,
         });
         await flushPromises();
 
@@ -333,14 +333,14 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             params: {
                 id: testEntityData.id,
                 type: testEntityName,
-            }
+            },
         });
     });
 
     it('should render the sw-generic-seo-general-card and react to changes', async () => {
         const wrapper = await createWrapper({
             activeTab: 'cms-aware-tab-seo',
-            routeId: testEntityData.id
+            routeId: testEntityData.id,
         });
         await flushPromises();
 
@@ -380,7 +380,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the sw-generic-social-media-card and react to changes', async () => {
         const wrapper = await createWrapper({
             activeTab: 'cms-aware-tab-seo',
-            routeId: testEntityData.id
+            routeId: testEntityData.id,
         });
         await flushPromises();
 
@@ -423,7 +423,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             entityName: 'some-entity-that-does-not-exist',
         });
 
-        expect(wrapper.vm.customEntityData).toBe(null);
+        expect(wrapper.vm.customEntityData).toBeNull();
 
         [
             'updateCmsPageId',
@@ -433,12 +433,12 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
             'updateSeoUrl',
             'updateOgTitle',
             'updateOgDescription',
-            'updateOgImageId'
+            'updateOgImageId',
         ].forEach((eventHandler) => {
             wrapper.vm[eventHandler]('mock-value');
         });
 
-        expect(wrapper.vm.customEntityData).toBe(null);
+        expect(wrapper.vm.customEntityData).toBeNull();
         expect(console.error).toHaveBeenCalledWith(new Error(`Custom entity repository for "${entityName}" not found`));
     });
 });

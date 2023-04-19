@@ -45,7 +45,7 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
         const wrapper = await createWrapper({
             computed: {
                 mediaFolderNameError: () => 'Error',
-            }
+            },
         });
 
         expect(wrapper.vm.nameItemClasses).toStrictEqual({

@@ -8,7 +8,7 @@ const sequenceFixture = {
     parentId: null,
     position: 1,
     displayGroup: 1,
-    config: {}
+    config: {},
 };
 
 async function createWrapper(propsData = {}) {
@@ -16,12 +16,12 @@ async function createWrapper(propsData = {}) {
         stubs: {
             'sw-flow-sequence-selector': true,
             'sw-flow-sequence-action': true,
-            'sw-flow-sequence-condition': true
+            'sw-flow-sequence-condition': true,
         },
         propsData: {
             sequence: sequenceFixture,
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -43,8 +43,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
-                ruleId: '1111'
-            }
+                ruleId: '1111',
+            },
         });
 
         const selector = wrapper.find('sw-flow-sequence-selector-stub');
@@ -60,8 +60,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
-                actionName: 'sendEmail'
-            }
+                actionName: 'sendEmail',
+            },
         });
 
         const selector = wrapper.find('sw-flow-sequence-selector-stub');
@@ -82,17 +82,17 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
                     2: {
                         ...sequenceFixture,
                         parentId: '1',
-                        trueCase: true
-                    }
+                        trueCase: true,
+                    },
                 },
                 falseBlock: {
                     2: {
                         ...sequenceFixture,
                         parentId: '1',
-                        trueCase: false
-                    }
-                }
-            }
+                        trueCase: false,
+                    },
+                },
+            },
         });
 
         const trueBlock = wrapper.find('.sw-flow-sequence__true-block');

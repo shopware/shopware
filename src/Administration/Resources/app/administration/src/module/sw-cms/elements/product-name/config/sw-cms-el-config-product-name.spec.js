@@ -16,34 +16,34 @@ async function createWrapper(propsOverride) {
                 config: {
                     content: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
-                }
+                        value: null,
+                    },
+                },
             },
             defaultConfig: {},
-            ...propsOverride
+            ...propsOverride,
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'product_detail'
-                    }
-                }
+                        type: 'product_detail',
+                    },
+                },
             };
         },
         provide: {
-            cmsService: {}
+            cmsService: {},
         },
         stubs: {
             'sw-tabs': {
                 data() {
                     return {
-                        active: ''
+                        active: '',
                     };
                 },
                 template: `
@@ -51,11 +51,11 @@ async function createWrapper(propsOverride) {
                         <slot name="default" v-bind="{ active }"></slot>
                         <slot name="content" v-bind="{ active }"></slot>
                     </div>
-                `
+                `,
             },
             'sw-container': true,
-            'sw-tabs-item': true
-        }
+            'sw-tabs-item': true,
+        },
     });
 }
 
@@ -81,22 +81,22 @@ describe('module/sw-cms/elements/product-name/config', () => {
                 config: {
                     content: {
                         source: 'static',
-                        value: 'Sample Product'
+                        value: 'Sample Product',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
+                        value: null,
+                    },
                 },
                 translated: {
                     config: {
                         content: {
                             source: 'static',
-                            value: 'Sample Product'
-                        }
-                    }
-                }
-            }
+                            value: 'Sample Product',
+                        },
+                    },
+                },
+            },
         });
 
         expect(wrapper.vm.element.config.content.source).toBe('static');
@@ -109,17 +109,17 @@ describe('module/sw-cms/elements/product-name/config', () => {
                 config: {
                     content: {
                         source: 'static',
-                        value: 'Sample Product 1'
+                        value: 'Sample Product 1',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
-                    }
+                        value: null,
+                    },
                 },
                 translated: {
-                    config: null
-                }
-            }
+                    config: null,
+                },
+            },
         });
 
         expect(wrapper.vm.element.config.content.source).toBe('static');

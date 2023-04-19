@@ -17,14 +17,14 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 httpClient: {
                     get() {
                         return Promise.resolve({ data: [] });
-                    }
+                    },
                 },
                 getBasicHeaders() {
                     return {};
                 },
                 sync() {
                     return true;
-                }
+                },
             };
         });
         variantsGenerator = new VariantsGenerator();
@@ -174,8 +174,8 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         }
 
         const data = await getQueueEventHandler();
-        expect(data.deleteQueue.length).toEqual(0);
-        expect(data.createQueue.length).toEqual(2);
+        expect(data.deleteQueue).toHaveLength(0);
+        expect(data.createQueue).toHaveLength(2);
     });
 
     it('should filter variants correctly', async () => {

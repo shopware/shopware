@@ -25,124 +25,124 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 entity: 'product',
                 properties: {
                     id: {
-                        type: 'uuid'
+                        type: 'uuid',
                     },
                     price: {
                         type: 'json_object',
-                        properties: []
+                        properties: [],
                     },
                     parent: {
                         type: 'association',
                         relation: 'many_to_one',
-                        entity: 'product'
+                        entity: 'product',
                     },
                     cover: {
                         type: 'association',
                         relation: 'many_to_one',
-                        entity: 'product_media'
+                        entity: 'product_media',
                     },
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     manufacturer: {
                         type: 'association',
                         relation: 'many_to_one',
-                        entity: 'product_manufacturer'
+                        entity: 'product_manufacturer',
                     },
                     translations: {
                         type: 'association',
                         relation: 'one_to_many',
-                        entity: 'product_translation'
+                        entity: 'product_translation',
                     },
                     visibilities: {
                         type: 'association',
                         relation: 'one_to_many',
-                        entity: 'product_visibilities'
-                    }
-                }
+                        entity: 'product_visibilities',
+                    },
+                },
             },
             product_translation: {
                 entity: 'product_translation',
                 properties: {
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     customFields: {
-                        type: 'json_object'
-                    }
-                }
+                        type: 'json_object',
+                    },
+                },
             },
             product_manufacturer: {
                 entity: 'product_manufacturer',
                 properties: {
                     id: {
-                        type: 'uuid'
+                        type: 'uuid',
                     },
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     media: {
                         type: 'association',
                         relation: 'many_to_one',
-                        entity: 'media'
+                        entity: 'media',
                     },
                     products: {
                         type: 'association',
                         relation: 'one_to_many',
-                        entity: 'product'
+                        entity: 'product',
                     },
                     translations: {
                         type: 'association',
                         relation: 'one_to_many',
-                        entity: 'product_manufacturer_translation'
-                    }
-                }
+                        entity: 'product_manufacturer_translation',
+                    },
+                },
             },
             product_manufacturer_translation: {
                 entity: 'product_manufacturer_translation',
                 properties: {
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     customFields: {
-                        type: 'json_object'
-                    }
-                }
+                        type: 'json_object',
+                    },
+                },
             },
             product_media: {
                 entity: 'product_media',
                 properties: {
                     id: {
-                        type: 'uuid'
+                        type: 'uuid',
                     },
                     media: {
                         type: 'association',
                         relation: 'many_to_one',
-                        entity: 'media'
-                    }
-                }
+                        entity: 'media',
+                    },
+                },
             },
             media: {
                 entity: 'media',
                 properties: {
                     id: {
-                        type: 'uuid'
+                        type: 'uuid',
                     },
                     translations: {
                         type: 'association',
                         relation: 'one_to_many',
-                        entity: 'media_translation'
-                    }
-                }
+                        entity: 'media_translation',
+                    },
+                },
             },
             media_translation: {
                 entity: 'media_translation',
                 properties: {
                     title: {
-                        type: 'string'
-                    }
-                }
-            }
+                        type: 'string',
+                    },
+                },
+            },
         };
 
         Shopware.EntityDefinition = EntityDefinitionFactory;
@@ -156,13 +156,13 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-icon': {
-                    template: '<div></div>'
+                    template: '<div></div>',
                 },
                 'sw-field-error': await Shopware.Component.build('sw-field-error'),
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-popover': await Shopware.Component.build('sw-popover'),
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
-                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
+                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             },
             propsData: {
                 value: null,
@@ -170,14 +170,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 customFieldSets: [
                     {
                         relations: [{ entityName: 'product' }],
-                        customFields: [{ name: 'custom_field_product_1' }, { name: 'custom_field_product_2' }]
+                        customFields: [{ name: 'custom_field_product_1' }, { name: 'custom_field_product_2' }],
                     },
                     {
                         relations: [{ entityName: 'product_manufacturer' }],
-                        customFields: [{ name: 'custom_field_manufacturer_1' }, { name: 'custom_field_manufacturer_2' }]
-                    }
-                ]
-            }
+                        customFields: [{ name: 'custom_field_manufacturer_1' }, { name: 'custom_field_manufacturer_2' }],
+                    },
+                ],
+            },
         });
     });
 
@@ -191,7 +191,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
     it('should return array when calling `actualPathParts` computed property', async () => {
         await wrapper.setProps({
-            value: 'media.id.'
+            value: 'media.id.',
         });
 
         expect(wrapper.vm.actualPathParts).toEqual(['media', 'id']);
@@ -201,8 +201,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.setProps({
             currencies: [
                 { isoCode: 'EUR' },
-                { isoCode: 'USD' }
-            ]
+                { isoCode: 'USD' },
+            ],
         });
 
         const actual = wrapper.vm.getPriceProperties('');
@@ -234,7 +234,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'purchasePrices.USD.linked', value: 'purchasePrices.USD.linked' },
             { label: 'purchasePrices.USD.listPrice.net', value: 'purchasePrices.USD.listPrice.net' },
             { label: 'purchasePrices.USD.listPrice.gross', value: 'purchasePrices.USD.listPrice.gross' },
-            { label: 'purchasePrices.USD.listPrice.linked', value: 'purchasePrices.USD.listPrice.linked' }
+            { label: 'purchasePrices.USD.listPrice.linked', value: 'purchasePrices.USD.listPrice.linked' },
         ];
 
         expect(actual).toEqual(expected);
@@ -244,8 +244,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.setProps({
             currencies: [
                 { isoCode: 'EUR' },
-                { isoCode: 'USD' }
-            ]
+                { isoCode: 'USD' },
+            ],
         });
 
         const actual = wrapper.vm.getPriceProperties('parent.');
@@ -277,7 +277,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'parent.purchasePrices.USD.linked', value: 'parent.purchasePrices.USD.linked' },
             { label: 'parent.purchasePrices.USD.listPrice.net', value: 'parent.purchasePrices.USD.listPrice.net' },
             { label: 'parent.purchasePrices.USD.listPrice.gross', value: 'parent.purchasePrices.USD.listPrice.gross' },
-            { label: 'parent.purchasePrices.USD.listPrice.linked', value: 'parent.purchasePrices.USD.listPrice.linked' }
+            { label: 'parent.purchasePrices.USD.listPrice.linked', value: 'parent.purchasePrices.USD.listPrice.linked' },
         ];
 
         expect(actual).toEqual(expected);
@@ -299,7 +299,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'purchasePrices.DEFAULT.linked', value: 'purchasePrices.DEFAULT.linked' },
             { label: 'purchasePrices.DEFAULT.listPrice.net', value: 'purchasePrices.DEFAULT.listPrice.net' },
             { label: 'purchasePrices.DEFAULT.listPrice.gross', value: 'purchasePrices.DEFAULT.listPrice.gross' },
-            { label: 'purchasePrices.DEFAULT.listPrice.linked', value: 'purchasePrices.DEFAULT.listPrice.linked' }
+            { label: 'purchasePrices.DEFAULT.listPrice.linked', value: 'purchasePrices.DEFAULT.listPrice.linked' },
         ];
 
         expect(actual).toEqual(expected);
@@ -310,7 +310,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         const expected = [
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
-            { label: 'visibilities.search', value: 'visibilities.search' }
+            { label: 'visibilities.search', value: 'visibilities.search' },
         ];
 
         expect(actual).toEqual(expected);
@@ -320,15 +320,15 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         const mockProperties = [
             'metaDescription',
             'keywords',
-            'description'
+            'description',
         ];
 
         await wrapper.setProps({
             languages: [
                 { locale: { code: 'en-GB' } },
                 { locale: { code: 'de-DE' } },
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const actual = wrapper.vm.getTranslationProperties('', mockProperties);
@@ -342,7 +342,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'translations.de-DE.description', value: 'translations.de-DE.description' },
             { label: 'translations.DEFAULT.metaDescription', value: 'translations.DEFAULT.metaDescription' },
             { label: 'translations.DEFAULT.keywords', value: 'translations.DEFAULT.keywords' },
-            { label: 'translations.DEFAULT.description', value: 'translations.DEFAULT.description' }
+            { label: 'translations.DEFAULT.description', value: 'translations.DEFAULT.description' },
         ];
 
         expect(actual).toEqual(expected);
@@ -354,8 +354,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             languages: [
                 { locale: { code: 'en-GB' } },
                 { locale: { code: 'de-DE' } },
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const actual = wrapper.vm.visibleResults;
@@ -364,20 +364,20 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'cover.media.id',
                 value: 'cover.media.id',
-                relation: undefined
+                relation: undefined,
             },
             {
                 label: 'cover.media.translations.DEFAULT.title',
-                value: 'cover.media.translations.DEFAULT.title'
+                value: 'cover.media.translations.DEFAULT.title',
             },
             {
                 label: 'cover.media.translations.de-DE.title',
-                value: 'cover.media.translations.de-DE.title'
+                value: 'cover.media.translations.de-DE.title',
             },
             {
                 label: 'cover.media.translations.en-GB.title',
-                value: 'cover.media.translations.en-GB.title'
-            }
+                value: 'cover.media.translations.en-GB.title',
+            },
         ];
         expect(actual).toEqual(expected);
     });
@@ -388,8 +388,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             languages: [
                 { locale: { code: 'en-GB' } },
                 { locale: { code: 'de-DE' } },
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const actual = wrapper.vm.visibleResults;
@@ -397,16 +397,16 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         const expected = [
             {
                 label: 'parent.parent.translations.en-GB.name',
-                value: 'parent.parent.translations.en-GB.name'
+                value: 'parent.parent.translations.en-GB.name',
             },
             {
                 label: 'parent.parent.translations.de-DE.name',
-                value: 'parent.parent.translations.de-DE.name'
+                value: 'parent.parent.translations.de-DE.name',
             },
             {
                 label: 'parent.parent.translations.DEFAULT.name',
-                value: 'parent.parent.translations.DEFAULT.name'
-            }
+                value: 'parent.parent.translations.DEFAULT.name',
+            },
         ];
 
         expect(actual).toEqual(expect.arrayContaining(expected));
@@ -415,7 +415,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
     it('should return nothing for searching a invalid path', async () => {
         await wrapper.setProps({
-            value: 'id.id'
+            value: 'id.id',
         });
 
         const actual = wrapper.vm.visibleResults;
@@ -427,8 +427,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.setProps({
             value: 'parent.parent.',
             languages: [
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
         wrapper.vm.actualSearch = 'parent.parent.price';
 
@@ -437,60 +437,60 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         const expected = [
             {
                 label: 'parent.parent.price.DEFAULT.currencyId',
-                value: 'parent.parent.price.DEFAULT.currencyId'
+                value: 'parent.parent.price.DEFAULT.currencyId',
             },
             {
                 label: 'parent.parent.price.DEFAULT.gross',
-                value: 'parent.parent.price.DEFAULT.gross'
+                value: 'parent.parent.price.DEFAULT.gross',
             },
             {
                 label: 'parent.parent.price.DEFAULT.linked',
-                value: 'parent.parent.price.DEFAULT.linked'
+                value: 'parent.parent.price.DEFAULT.linked',
             },
             {
                 label: 'parent.parent.price.DEFAULT.listPrice.gross',
-                value: 'parent.parent.price.DEFAULT.listPrice.gross'
+                value: 'parent.parent.price.DEFAULT.listPrice.gross',
             },
             {
                 label: 'parent.parent.price.DEFAULT.listPrice.linked',
-                value: 'parent.parent.price.DEFAULT.listPrice.linked'
+                value: 'parent.parent.price.DEFAULT.listPrice.linked',
             },
             {
                 label: 'parent.parent.price.DEFAULT.listPrice.net',
-                value: 'parent.parent.price.DEFAULT.listPrice.net'
+                value: 'parent.parent.price.DEFAULT.listPrice.net',
             },
             {
                 label: 'parent.parent.price.DEFAULT.net',
-                value: 'parent.parent.price.DEFAULT.net'
+                value: 'parent.parent.price.DEFAULT.net',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.currencyId',
-                value: 'parent.parent.purchasePrices.DEFAULT.currencyId'
+                value: 'parent.parent.purchasePrices.DEFAULT.currencyId',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.gross',
-                value: 'parent.parent.purchasePrices.DEFAULT.gross'
+                value: 'parent.parent.purchasePrices.DEFAULT.gross',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.linked',
-                value: 'parent.parent.purchasePrices.DEFAULT.linked'
+                value: 'parent.parent.purchasePrices.DEFAULT.linked',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.listPrice.gross',
-                value: 'parent.parent.purchasePrices.DEFAULT.listPrice.gross'
+                value: 'parent.parent.purchasePrices.DEFAULT.listPrice.gross',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.listPrice.linked',
-                value: 'parent.parent.purchasePrices.DEFAULT.listPrice.linked'
+                value: 'parent.parent.purchasePrices.DEFAULT.listPrice.linked',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.listPrice.net',
-                value: 'parent.parent.purchasePrices.DEFAULT.listPrice.net'
+                value: 'parent.parent.purchasePrices.DEFAULT.listPrice.net',
             },
             {
                 label: 'parent.parent.purchasePrices.DEFAULT.net',
-                value: 'parent.parent.purchasePrices.DEFAULT.net'
-            }
+                value: 'parent.parent.purchasePrices.DEFAULT.net',
+            },
         ];
 
         expect(actual).toEqual(expected);
@@ -500,8 +500,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.setProps({
             value: '',
             languages: [
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const definition = Shopware.EntityDefinition.get('product');
@@ -510,11 +510,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             definition: definition,
             options: [],
             properties: Object.keys(definition.properties),
-            path: ''
+            path: '',
         };
 
         expect(data.properties).toEqual(
-            ['id', 'price', 'parent', 'cover', 'name', 'manufacturer', 'translations', 'visibilities']
+            ['id', 'price', 'parent', 'cover', 'name', 'manufacturer', 'translations', 'visibilities'],
         );
 
         data = wrapper.vm.processTranslations(data);
@@ -522,7 +522,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer', 'visibilities']);
         expect(data.options).toEqual([
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
-            { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true }
+            { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
         ]);
 
         data = wrapper.vm.processVisibilities(data);
@@ -533,7 +533,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
-            { label: 'visibilities.search', value: 'visibilities.search' }
+            { label: 'visibilities.search', value: 'visibilities.search' },
         ]);
 
         data = wrapper.vm.processPrice(data);
@@ -558,7 +558,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'purchasePrices.DEFAULT.linked', value: 'purchasePrices.DEFAULT.linked' },
             { label: 'purchasePrices.DEFAULT.listPrice.net', value: 'purchasePrices.DEFAULT.listPrice.net' },
             { label: 'purchasePrices.DEFAULT.listPrice.gross', value: 'purchasePrices.DEFAULT.listPrice.gross' },
-            { label: 'purchasePrices.DEFAULT.listPrice.linked', value: 'purchasePrices.DEFAULT.listPrice.linked' }
+            { label: 'purchasePrices.DEFAULT.listPrice.linked', value: 'purchasePrices.DEFAULT.listPrice.linked' },
         ]);
     });
 
@@ -566,8 +566,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.setProps({
             value: '',
             languages: [
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         const definition = Shopware.EntityDefinition.get('product_cross_selling');
@@ -576,7 +576,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             definition: definition,
             options: [],
             properties: Object.keys(definition.properties),
-            path: ''
+            path: '',
         };
         data = wrapper.vm.processTranslations(data);
 
@@ -596,7 +596,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'media', value: 'media' },
             { label: 'media', value: 'media' },
             { label: 'id', value: 'id' },
-            { label: 'cover', value: 'cover' }
+            { label: 'cover', value: 'cover' },
         ];
 
         const actual = options.sort(wrapper.vm.sortOptions);
@@ -606,7 +606,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'id', value: 'id' },
             { label: 'media', value: 'media' },
             { label: 'media', value: 'media' },
-            { label: 'name', value: 'name' }
+            { label: 'name', value: 'name' },
         ]);
     });
 
@@ -614,7 +614,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         let actual = wrapper.vm.getCustomFields('product');
         let expected = {
             custom_field_product_1: { label: 'custom_field_product_1', value: 'custom_field_product_1' },
-            custom_field_product_2: { label: 'custom_field_product_2', value: 'custom_field_product_2' }
+            custom_field_product_2: { label: 'custom_field_product_2', value: 'custom_field_product_2' },
         };
 
         expect(actual).toEqual(expected);
@@ -622,7 +622,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         actual = wrapper.vm.getCustomFields('product_manufacturer');
         expected = {
             custom_field_manufacturer_1: { label: 'custom_field_manufacturer_1', value: 'custom_field_manufacturer_1' },
-            custom_field_manufacturer_2: { label: 'custom_field_manufacturer_2', value: 'custom_field_manufacturer_2' }
+            custom_field_manufacturer_2: { label: 'custom_field_manufacturer_2', value: 'custom_field_manufacturer_2' },
         };
 
         expect(actual).toEqual(expected);
@@ -632,8 +632,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.setProps({
             value: '',
             languages: [
-                { locale: { code: 'DEFAULT' } }
-            ]
+                { locale: { code: 'DEFAULT' } },
+            ],
         });
 
         wrapper.vm.onSelectExpanded();
@@ -641,7 +641,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.vm.setValue({
             label: 'translations.DEFAULT.customFields',
             value: 'translations.DEFAULT.customFields',
-            relation: true
+            relation: true,
         });
 
         let actual = wrapper.vm.visibleResults;
@@ -649,13 +649,13 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.customFields.custom_field_product_1',
                 value: 'translations.DEFAULT.customFields.custom_field_product_1',
-                relation: undefined
+                relation: undefined,
             },
             {
                 label: 'translations.DEFAULT.customFields.custom_field_product_2',
                 value: 'translations.DEFAULT.customFields.custom_field_product_2',
-                relation: undefined
-            }
+                relation: undefined,
+            },
         ];
 
         expect(actual).toEqual(expected);
@@ -663,7 +663,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.vm.setValue({
             label: 'manufacturer.translations.DEFAULT.customFields',
             value: 'manufacturer.translations.DEFAULT.customFields',
-            relation: true
+            relation: true,
         });
 
         actual = wrapper.vm.visibleResults;
@@ -671,13 +671,13 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_1',
                 value: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_1',
-                relation: undefined
+                relation: undefined,
             },
             {
                 label: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_2',
                 value: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_2',
-                relation: undefined
-            }
+                relation: undefined,
+            },
         ];
 
         expect(actual).toEqual(expected);

@@ -33,7 +33,7 @@ const classes = {
     inheritanceWrapper: 'sw-inherit-wrapper',
     inheritanceSwitch: 'sw-inheritance-switch',
     notInherited: 'sw-inheritance-switch--is-not-inherited',
-    inherited: 'sw-inheritance-switch--is-inherited'
+    inherited: 'sw-inheritance-switch--is-inherited',
 };
 
 const storefrontId = uuid.get('storefront');
@@ -44,31 +44,31 @@ const productNotInheritedCategoryDataMock = {
             {
                 apiAlias: null,
                 routeName: 'frontend.detail.page',
-                salesChannelId: storefrontId
-            }
+                salesChannelId: storefrontId,
+            },
         ],
         mainCategories: [{
             _isNew: true,
             category: {},
             categoryId: uuid.get('category A'),
             extensions: {},
-            salesChannelId: storefrontId
+            salesChannelId: storefrontId,
         }],
-        categories: [{ id: uuid.get('category A') }]
+        categories: [{ id: uuid.get('category A') }],
     },
     parentProduct: {
         id: uuid.get('parentProduct'),
-        categories: [{ id: uuid.get('category B') }]
+        categories: [{ id: uuid.get('category B') }],
     },
-    currentSalesChannelId: storefrontId
+    currentSalesChannelId: storefrontId,
 };
 
 const productInheritedCategoryDataMock = {
     ...productNotInheritedCategoryDataMock,
     product: {
         ...productNotInheritedCategoryDataMock.product,
-        categories: []
-    }
+        categories: [],
+    },
 };
 
 const salesChannelRepositoryMock = {
@@ -77,15 +77,15 @@ const salesChannelRepositoryMock = {
             {
                 name: 'Storefront',
                 translated: { name: 'Storefront' },
-                id: storefrontId
+                id: storefrontId,
             },
             {
                 name: 'Headless',
                 translated: { name: 'Headless' },
-                id: uuid.get('headless')
-            }
+                id: uuid.get('headless'),
+            },
         ]));
-    }
+    },
 };
 
 const seoUrlRepositoryMock = {
@@ -93,8 +93,8 @@ const seoUrlRepositoryMock = {
     search: () => Promise.resolve([]),
     route: '/seo_url',
     schema: {
-        entity: 'seo_url'
-    }
+        entity: 'seo_url',
+    },
 };
 
 const repositoryMockFactory = (entity) => {
@@ -119,12 +119,12 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             repositoryFactory: {
-                create: (entity) => repositoryMockFactory(entity)
+                create: (entity) => repositoryMockFactory(entity),
             },
-            validationService: {}
+            validationService: {},
         },
         stubs: {
             'sw-card': {
@@ -134,7 +134,7 @@ async function createWrapper(privileges = []) {
                 template: '<div>' +
                     '<slot name="toolbar"></slot>' +
                     '<slot></slot>' +
-                    '</div>'
+                    '</div>',
             },
             'sw-product-seo-form': true,
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
@@ -154,13 +154,13 @@ async function createWrapper(privileges = []) {
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
             'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
+                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
             },
             'sw-help-text': true,
             'sw-loader': true,
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -178,11 +178,11 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             namespaced: true,
             state: {
                 product: {},
-                parentProduct: {}
+                parentProduct: {},
             },
             getters: {
-                isLoading: () => false
-            }
+                isLoading: () => false,
+            },
         });
     });
 
@@ -197,8 +197,8 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
 
         await wrapper.setData({
             product: {
-                mainCategories: []
-            }
+                mainCategories: [],
+            },
         });
 
         await wrapper.vm.onAddMainCategory({
@@ -206,7 +206,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             category: {},
             categoryId: '9e3bd98cd39e451ba477fc306e28af7d',
             extensions: {},
-            salesChannelId: '6eaf45a9682d43e59dd4deb8bd116de0'
+            salesChannelId: '6eaf45a9682d43e59dd4deb8bd116de0',
         });
 
         expect(wrapper.vm.product.mainCategories).toEqual(expect.arrayContaining([{
@@ -214,7 +214,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             category: {},
             categoryId: '9e3bd98cd39e451ba477fc306e28af7d',
             extensions: {},
-            salesChannelId: '6eaf45a9682d43e59dd4deb8bd116de0'
+            salesChannelId: '6eaf45a9682d43e59dd4deb8bd116de0',
         }]));
     });
 
@@ -223,7 +223,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.setData(productInheritedCategoryDataMock);
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.product.mainCategories.length).toEqual(1);
+        expect(wrapper.vm.product.mainCategories).toHaveLength(1);
 
         const salesChannelSwitch = wrapper.find('.sw-field[label="sw-seo-url.labelSalesChannelSelect"]');
         let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
@@ -249,14 +249,14 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
 
         expect(inheritanceSwitch.classes()).toContain(classes.inherited);
 
-        expect(wrapper.vm.product.mainCategories.length).toEqual(0);
+        expect(wrapper.vm.product.mainCategories).toHaveLength(0);
     });
 
     it('should not exist inheritance symbol when variant\'s category did not inherit parent\s category', async () => {
         const wrapper = await createWrapper('product.editor');
         await wrapper.setData(productNotInheritedCategoryDataMock);
 
-        expect(wrapper.vm.product.categories.length).toEqual(1);
+        expect(wrapper.vm.product.categories).toHaveLength(1);
         expect(wrapper.vm.categories).toEqual(expect.arrayContaining(wrapper.vm.product.categories));
 
         const salesChannelSwitch = wrapper.find('.sw-field[label="sw-seo-url.labelSalesChannelSelect"]');
@@ -312,7 +312,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
 
         await wrapper.setData(productInheritedCategoryDataMock);
 
-        expect(wrapper.vm.product.mainCategories.length).toEqual(1);
+        expect(wrapper.vm.product.mainCategories).toHaveLength(1);
         expect(wrapper.vm.categories).toEqual(expect.arrayContaining(wrapper.vm.parentProduct.categories));
 
         const salesChannelSwitch = wrapper.find('.sw-field[label="sw-seo-url.labelSalesChannelSelect"]');

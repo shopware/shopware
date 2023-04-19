@@ -17,8 +17,8 @@ async function createWrapper() {
         propsData: {
             text: '',
             searchTerm: '',
-            highlightClass: 'sw-settings-search-live-search-keyword__highlight'
-        }
+            highlightClass: 'sw-settings-search-live-search-keyword__highlight',
+        },
     });
 }
 
@@ -40,7 +40,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     it('should render no highlight keyword', async () => {
         await wrapper.setProps({
             searchTerm: 'made',
-            text: 'Rustic Granite ShopVN'
+            text: 'Rustic Granite ShopVN',
         });
 
         const highlightItem = wrapper.find(defaultHighlightClass);
@@ -50,7 +50,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     it('should render 1 highlight keyword', async () => {
         await wrapper.setProps({
             searchTerm: 'iron',
-            text: 'Durable Iron OpenDoor'
+            text: 'Durable Iron OpenDoor',
         });
 
         const highlightItem = wrapper.find(defaultHighlightClass);
@@ -61,7 +61,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await wrapper.setProps({
             searchTerm: 'iron',
             text: 'Durable Iron OpenDoor',
-            highlightClass: 'foo-blue-keyword'
+            highlightClass: 'foo-blue-keyword',
         });
 
         const highlightItem = wrapper.find('.foo-blue-keyword');
@@ -71,10 +71,10 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     it('should render 3 keyword highlight', async () => {
         await wrapper.setProps({
             searchTerm: 'awesome wo qlear',
-            text: 'Awesome Wooden Crystal Qlear'
+            text: 'Awesome Wooden Crystal Qlear',
         });
 
         const highlightItems = wrapper.findAll(defaultHighlightClass);
-        expect((highlightItems.length)).toBe(wrapper.vm.searchTerm.split(' ').length);
+        expect((highlightItems)).toHaveLength(wrapper.vm.searchTerm.split(' ').length);
     });
 });

@@ -18,11 +18,11 @@ async function createWrapper() {
 
     const routes = [{
         name: 'sw.category.detail',
-        path: 'category/detail/:id'
+        path: 'category/detail/:id',
     }];
 
     const router = new VueRouter({
-        routes
+        routes,
     });
 
     return shallowMount(await Shopware.Component.build('sw-category-tree'), {
@@ -37,9 +37,9 @@ async function createWrapper() {
                     <div class="sw-tree">
                       <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
                     </div>
-                `
+                `,
             },
-            'sw-tree-item': true
+            'sw-tree-item': true,
         },
         provide: {
             syncService: {},
@@ -47,19 +47,19 @@ async function createWrapper() {
                 create: () => ({
                     search: () => Promise.resolve([
                         {
-                            id: '1a'
-                        }
+                            id: '1a',
+                        },
                     ]),
                     delete: () => Promise.resolve(),
                     get: () => Promise.resolve(),
                     saveAll: () => Promise.resolve(),
-                    syncDeleted: () => Promise.resolve()
-                })
-            }
+                    syncDeleted: () => Promise.resolve(),
+                }),
+            },
         },
         propsData: {
-            currentLanguageId: '1a2b3c'
-        }
+            currentLanguageId: '1a2b3c',
+        },
     });
 }
 
@@ -82,7 +82,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -95,11 +95,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -111,7 +111,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -124,11 +124,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -141,7 +141,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -154,11 +154,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowCreate: false
+            allowCreate: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -171,7 +171,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -184,11 +184,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -201,7 +201,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -214,11 +214,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -231,11 +231,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -248,7 +248,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -261,30 +261,30 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getCategoryUrl({ id: '1a2b' });
-        expect(itemUrl).toEqual('#category/detail/1a2b');
+        expect(itemUrl).toBe('#category/detail/1a2b');
     });
 
     it('should get wrong category url', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getCategoryUrl({ id: '1a2b' });
-        expect(itemUrl).not.toEqual('#/detail/1a2b');
+        expect(itemUrl).not.toBe('#/detail/1a2b');
     });
 
     [
         { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] },
         { navigationSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7b' }] },
-        { footerSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7c' }] }
+        { footerSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7c' }] },
 
     ].forEach(entryPoint => {
         it(`should not be able to delete a category having ${Object.keys(entryPoint)[0]} as initial entry point`, async () => {
@@ -292,14 +292,14 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             wrapper.vm.createNotificationError = jest.fn();
 
             await wrapper.setData({
-                isLoadingInitialData: false
+                isLoadingInitialData: false,
             });
 
             const category = {
                 id: '1a',
                 isNew: () => false,
                 parentId: 'parent',
-                ...entryPoint
+                ...entryPoint,
             };
 
             await wrapper.vm.onDeleteCategory({ data: category, children: [] });
@@ -308,7 +308,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
             expect(notificationMock).toHaveBeenCalledTimes(1);
             expect(notificationMock).toHaveBeenCalledWith({
-                message: 'sw-category.general.errorNavigationEntryPoint'
+                message: 'sw-category.general.errorNavigationEntryPoint',
             });
 
             wrapper.vm.createNotificationError.mockRestore();
@@ -320,7 +320,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         const entryPoint = { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] };
@@ -328,7 +328,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             id: '1a',
             isNew: () => false,
             parentId: 'parent',
-            ...entryPoint
+            ...entryPoint,
         };
 
         await wrapper.vm.onDeleteCategory({ data: category, children: [] });
@@ -337,7 +337,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-category.general.errorNavigationEntryPoint'
+            message: 'sw-category.general.errorNavigationEntryPoint',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -348,12 +348,12 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         const category = {
             id: '1a',
-            isNew: () => false
+            isNew: () => false,
         };
 
         await wrapper.vm.onDeleteCategory({ data: category, children: [] });
@@ -361,7 +361,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const notificationMock = wrapper.vm.createNotificationError;
 
         expect(notificationMock).toHaveBeenCalledTimes(0);
-        expect(wrapper.emitted()['category-checked-elements-count']).not.toBeDefined();
+        expect(wrapper.emitted()['category-checked-elements-count']).toBeUndefined();
 
         wrapper.vm.createNotificationError.mockRestore();
     });
@@ -370,13 +370,13 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         wrapper.vm.$refs.categoryTree.checkedElementsCount = 2;
 
         const category = {
             id: '1a',
-            isNew: () => false
+            isNew: () => false,
         };
 
         await wrapper.vm.onDeleteCategory({ data: category, children: [], checked: true });
@@ -395,7 +395,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             id: '2',
             isNew: () => false,
             parentId: '1',
-            afterCategoryId: '1'
+            afterCategoryId: '1',
         };
 
         await wrapper.setData({
@@ -405,8 +405,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
                 // The `afterCategoryId` is "1" here, because in the actual code it was already fixed before
                 // `onDeleteCategory` is executed, see `sw-tree`::deleteElement()
                 3: { id: '3', parentId: '1', afterCategoryId: '1' },
-                4: { id: '4', parentId: '1', afterCategoryId: '3' }
-            }
+                4: { id: '4', parentId: '1', afterCategoryId: '3' },
+            },
         });
 
         await wrapper.vm.onDeleteCategory({ data: category, children: [] });
@@ -420,7 +420,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const categories = {
             2: {},
             4: {},
-            5: {}
+            5: {},
         };
 
         await wrapper.setData({
@@ -430,8 +430,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
                 3: { id: '3', parentId: '1', navigationSalesChannels: null, afterCategoryId: '2' },
                 4: { id: '4', parentId: '1', navigationSalesChannels: null, afterCategoryId: '3' },
                 5: { id: '5', parentId: '1', navigationSalesChannels: null, afterCategoryId: '4' },
-                6: { id: '6', parentId: '1', navigationSalesChannels: null, afterCategoryId: '5' }
-            }
+                6: { id: '6', parentId: '1', navigationSalesChannels: null, afterCategoryId: '5' },
+            },
         });
 
         await wrapper.vm.deleteCheckedItems(categories);

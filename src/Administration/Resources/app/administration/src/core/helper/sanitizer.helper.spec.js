@@ -83,7 +83,7 @@ describe('core/helper/sanitizer.helper.js', () => {
 
         expect(Sanitizer.sanitize(dirtyContent)).toBe('abc');
         Sanitizer.setConfig({
-            ADD_TAGS: ['my-component']
+            ADD_TAGS: ['my-component'],
         });
         expect(Sanitizer.sanitize(dirtyContent)).toBe('<my-component>abc</my-component>');
         Sanitizer.clearConfig();
@@ -122,7 +122,7 @@ describe('core/helper/sanitizer.helper.js', () => {
 
         expect(warnSpy).toHaveBeenCalledWith(
             '[Sanitizer]',
-            expect.stringContaining('No middleware found for name')
+            expect.stringContaining('No middleware found for name'),
         );
     });
 
@@ -131,19 +131,19 @@ describe('core/helper/sanitizer.helper.js', () => {
         localVue.use(SanitizePlugin);
 
         const $route = {
-            meta: { $module: { icon: null } }
+            meta: { $module: { icon: null } },
         };
 
         const wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
             localVue,
             stubs: ['sw-icon'],
             mocks: {
-                $route
+                $route,
             },
             props: {
                 title: 'Foo bar',
-                subline: '<x oncut=alert()>x'
-            }
+                subline: '<x oncut=alert()>x',
+            },
         });
 
         expect(wrapper.element).toMatchSnapshot();

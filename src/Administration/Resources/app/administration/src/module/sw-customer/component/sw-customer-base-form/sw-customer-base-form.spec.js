@@ -12,14 +12,14 @@ const customer = {
     email: null,
     boundSalesChannelId: null,
     vatIds: [
-        '9f8f091c-db81-4ef3-862c-9c554a34cdc4'
-    ]
+        '9f8f091c-db81-4ef3-862c-9c554a34cdc4',
+    ],
 };
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-customer-base-form'), {
         propsData: {
-            customer
+            customer,
         },
         stubs: {
             'sw-container': true,
@@ -29,8 +29,8 @@ async function createWrapper() {
             'sw-password-field': true,
             'sw-datepicker': true,
             'sw-entity-tag-select': true,
-            'sw-single-select': true
-        }
+            'sw-single-select': true,
+        },
     });
 }
 

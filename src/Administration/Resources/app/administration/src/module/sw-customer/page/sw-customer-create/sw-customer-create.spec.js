@@ -29,7 +29,7 @@ async function createWrapper() {
         provide: {
             numberRangeService: {},
             systemConfigApiService: {
-                getValues: () => Promise.resolve({ 'core.register.minPasswordLength': 8 })
+                getValues: () => Promise.resolve({ 'core.register.minPasswordLength': 8 }),
             },
             customerValidationService: {},
             repositoryFactory: {
@@ -41,7 +41,7 @@ async function createWrapper() {
                                     id: '63e27affb5804538b5b06cb4e344b130',
                                     addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
                                 };
-                            }
+                            },
                         };
                     }
 
@@ -50,16 +50,16 @@ async function createWrapper() {
                             searchIds: () => Promise.resolve({
                                 total: 1,
                                 data: ['1'],
-                            })
+                            }),
                         };
                     }
 
                     return {
-                        create: () => Promise.resolve()
+                        create: () => Promise.resolve(),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -72,8 +72,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             customer: {
                 id: '1',
                 email: null,
-                boundSalesChannelId: null
-            }
+                boundSalesChannelId: null,
+            },
         });
 
         const response = await wrapper.vm.validateEmail();
@@ -95,8 +95,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
                 password: 'shopware',
             },
             address: {
-                company: ''
-            }
+                company: '',
+            },
         });
         const saveButton = wrapper.find('.sw-customer-create__save-action');
         await saveButton.trigger('click');
@@ -104,7 +104,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
 
         expect(notificationMock).toHaveBeenCalledTimes(2);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-customer.detail.messageSaveError'
+            message: 'sw-customer.detail.messageSaveError',
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -130,11 +130,11 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             },
         });
 
-        expect(await wrapper.vm.languageId).toEqual('1');
+        expect(await wrapper.vm.languageId).toBe('1');
 
         const context = await wrapper.vm.onSave();
 
-        expect(context.languageId).toEqual('1');
+        expect(context.languageId).toBe('1');
     });
 
     it('should keep context when sales channel exists language compared to API language', async () => {

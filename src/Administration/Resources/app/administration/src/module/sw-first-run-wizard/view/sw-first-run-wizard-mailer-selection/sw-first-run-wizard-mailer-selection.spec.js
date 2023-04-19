@@ -17,22 +17,22 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
         return shallowMount(await Shopware.Component.build('sw-first-run-wizard-mailer-selection'), {
             stubs: {
                 'sw-help-text': {
-                    template: '<div />'
+                    template: '<div />',
                 },
                 'sw-icon': {
-                    template: '<div />'
+                    template: '<div />',
                 },
                 'sw-loader': {
-                    template: '<div />'
-                }
+                    template: '<div />',
+                },
             },
             provide: {
                 systemConfigApiService: {
                     saveValues: function saveValues() {
                         return Promise.resolve();
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     };
 

@@ -14,9 +14,9 @@ const mockData = [
         id: '44de136acf314e7184401d36406c1e90',
         name: 'test flow template',
         config: {
-            eventName: 'checkout.order.placed'
-        }
-    }
+            eventName: 'checkout.order.placed',
+        },
+    },
 ];
 
 async function createWrapper(privileges = [], propsData = {}) {
@@ -26,17 +26,17 @@ async function createWrapper(privileges = [], propsData = {}) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: jest.fn((criteria) => {
                         return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
-                    })
-                })
+                    }),
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -45,9 +45,9 @@ async function createWrapper(privileges = [], propsData = {}) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-page': {
@@ -63,14 +63,14 @@ async function createWrapper(privileges = [], propsData = {}) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card': true,
             'sw-internal-link': await Shopware.Component.build('sw-internal-link'),
             'router-link': {
                 props: ['to'],
                 // eslint-disable-next-line no-template-curly-in-string
-                template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>'
+                template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>',
             },
             'sw-icon': true,
             'sw-button': true,
@@ -80,27 +80,27 @@ async function createWrapper(privileges = [], propsData = {}) {
             'sw-data-grid-skeleton': true,
             'sw-pagination': true,
             'sw-empty-state': true,
-            'sw-search-bar': true
-        }
+            'sw-search-bar': true,
+        },
     });
 }
 
 describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     it('should be able to create a flow from template', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
         await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
         expect(createFlowLink.exists()).toBe(true);
 
-        expect(createFlowLink.attributes().disabled).toBe(undefined);
+        expect(createFlowLink.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to create a flow from template', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
         await flushPromises();
 
@@ -112,7 +112,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
 
     it('should be able to redirect to create flow page from flow template', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
         await flushPromises();
 
@@ -123,7 +123,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
 
     it('should be able to view detail flow template', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
 
         await flushPromises();
@@ -135,8 +135,8 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
             name: 'sw.flow.detail',
             params: { id: '44de136acf314e7184401d36406c1e90' },
             query: {
-                type: 'template'
-            }
+                type: 'template',
+            },
         });
 
         wrapper.vm.$router.push = jest.fn();
@@ -157,11 +157,11 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
 
     it('should set searchTerm to criteria', async () => {
         const wrapper = await createWrapper([], {
-            searchTerm: 'test-term'
+            searchTerm: 'test-term',
         });
 
         expect(wrapper.vm.flowTemplateRepository.search).toHaveBeenNthCalledWith(1, expect.objectContaining({
-            term: 'test-term'
+            term: 'test-term',
         }));
     });
 

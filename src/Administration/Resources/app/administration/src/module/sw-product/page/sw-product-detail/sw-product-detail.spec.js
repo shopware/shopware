@@ -15,47 +15,47 @@ const advancedModeSettings = {
     value: {
         advancedMode: {
             label: 'sw-product.general.textAdvancedMode',
-            enabled: true
+            enabled: true,
         },
         settings: [
             {
                 key: 'general_information',
                 label: 'sw-product.detailBase.cardTitleProductInfo',
                 enabled: true,
-                name: 'general'
+                name: 'general',
             },
             {
                 key: 'prices',
                 label: 'sw-product.detailBase.cardTitlePrices',
                 enabled: true,
-                name: 'general'
+                name: 'general',
             },
             {
                 key: 'deliverability',
                 label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                 enabled: true,
-                name: 'general'
+                name: 'general',
             },
             {
                 key: 'visibility_structure',
                 label: 'sw-product.detailBase.cardTitleVisibilityStructure',
                 enabled: true,
-                name: 'general'
+                name: 'general',
             },
             {
                 key: 'labelling',
                 label: 'sw-product.detailBase.cardTitleSettings',
                 enabled: true,
-                name: 'general'
-            }
-        ]
-    }
+                name: 'general',
+            },
+        ],
+    },
 };
 
 const defaultSalesChannelData = {
     'core.defaultSalesChannel.active': false,
     'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
-    'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
+    'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 },
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
@@ -65,7 +65,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         localVue.directive('tooltip', {
             bind(el, binding) {
                 el.setAttribute('tooltip-message', binding.value.message);
-            }
+            },
         });
 
         return shallowMount(await Shopware.Component.build('sw-product-detail'), {
@@ -74,13 +74,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
-                        id: productId
-                    }
+                        id: productId,
+                    },
                 },
             },
             provide: {
                 numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1 })
+                    reserve: () => Promise.resolve({ number: 1 }),
                 },
                 seoUrlService: {},
                 mediaService: {},
@@ -93,7 +93,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                     parentId: '1',
                                     properties: [],
                                     visibilities: [],
-                                    isNew: () => true
+                                    isNew: () => true,
                                 };
                             }
                             return {};
@@ -101,18 +101,18 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         search: searchFunction,
                         get: () => {
                             return Promise.resolve({
-                                variation: []
+                                variation: [],
                             });
                         },
                         hasChanges: () => false,
                         save: () => Promise.resolve({}),
-                    })
+                    }),
                 },
                 systemConfigApiService: {
                     getConfig: () => Promise.resolve({
-                        'core.tax.defaultTaxRate': ''
+                        'core.tax.defaultTaxRate': '',
                     }),
-                    getValues: () => Promise.resolve(defaultSalesChannelData)
+                    getValues: () => Promise.resolve(defaultSalesChannelData),
                 },
                 entityValidationService: {
                     validate: (entity, customValidator) => {
@@ -123,7 +123,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                         return errors.length < 1;
                     },
-                }
+                },
             },
             stubs: {
                 'sw-page': {
@@ -134,7 +134,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                 <div class="sw-tabs"></div>
                             </slot>
                             <slot></slot>
-                        </div>`
+                        </div>`,
                 },
                 'sw-product-variant-info': true,
                 'sw-button': true,
@@ -145,7 +145,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'sw-context-menu-item': true,
                 'sw-language-switch': true,
                 'sw-card-view': {
-                    template: '<div class="sw-card-view"><slot></slot></div>'
+                    template: '<div class="sw-card-view"><slot></slot></div>',
                 },
                 'sw-language-info': true,
                 'router-view': true,
@@ -157,11 +157,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-inheritance-warning': true,
-                'router-link': true
+                'router-link': true,
             },
             propsData: {
-                productId
-            }
+                productId,
+            },
         });
     }
 
@@ -175,8 +175,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             actions: {
-                resetCmsPageState: () => {}
-            }
+                resetCmsPageState: () => {},
+            },
         });
     });
 
@@ -205,7 +205,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-layout',
             '.sw-product-detail__tab-seo',
             '.sw-product-detail__tab-cross-selling',
-            '.sw-product-detail__tab-reviews'
+            '.sw-product-detail__tab-reviews',
         ];
 
         tabItemClassName.forEach(item => {
@@ -220,9 +220,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             value: {
                 ...advancedModeSettings.value,
                 advancedMode: {
-                    enabled: false
-                }
-            }
+                    enabled: false,
+                },
+            },
         });
 
         const tabItemClassName = [
@@ -230,7 +230,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-layout',
             '.sw-product-detail__tab-seo',
             '.sw-product-detail__tab-cross-selling',
-            '.sw-product-detail__tab-reviews'
+            '.sw-product-detail__tab-reviews',
         ];
 
         tabItemClassName.forEach(item => {
@@ -240,7 +240,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should show Advance mode setting on the variant product page', async () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
-            parentId: '1234'
+            parentId: '1234',
         });
 
         const contextButton = wrapper.find('.sw-product-settings-mode');
@@ -248,13 +248,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         const visibleTabItem = [
             '.sw-product-detail__tab-seo',
-            '.sw-product-detail__tab-reviews'
+            '.sw-product-detail__tab-reviews',
         ];
 
         const invisibleTabItem = [
             '.sw-product-detail__tab-variants',
             '.sw-product-detail__tab-layout',
-            '.sw-product-detail__tab-cross-selling'
+            '.sw-product-detail__tab-cross-selling',
         ];
 
         visibleTabItem.forEach(item => {
@@ -282,15 +282,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     enabled: false,
                     key,
                     label: key,
-                    name: 'general'
+                    name: 'general',
                 };
             });
 
             const result = new EntityCollection('/route', 'userModeSettings', {}, {}, [{
                 value: {
                     advancedMode: { label: 'sw-product.general.textAdvancedMode', enabled: true },
-                    settings
-                }
+                    settings,
+                },
             }], 1);
 
             return Promise.resolve(result);
@@ -318,8 +318,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 currencyId: undefined,
                 gross: 0,
                 net: 0,
-                linked: true
-            }
+                linked: true,
+            },
         ]);
     });
 
@@ -343,7 +343,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 linked: true,
                 gross: 0,
                 net: 0,
-            }
+            },
         }];
 
         wrapper.vm.onSave();
@@ -355,8 +355,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 net: 84.034,
                 linked: true,
                 listPrice: null,
-                regulationPrice: null
-            }
+                regulationPrice: null,
+            },
         ]);
         await flushPromises();
     });
@@ -370,13 +370,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper = await createWrapper(
             () => Promise.resolve([{
                 id: '98432def39fc4624b33213a56b8c944d',
-                name: 'Headless'
+                name: 'Headless',
             }]),
-            null
+            null,
         );
 
         await flushPromises();
-        expect(wrapper.vm.product.visibilities.length).toBe(1);
+        expect(wrapper.vm.product.visibilities).toHaveLength(1);
     });
 
     it('should run custom validation service and handle errors', async () => {
@@ -400,7 +400,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     linked: true,
                     gross: 0,
                     net: 0,
-                }
+                },
             }],
         });
 
@@ -411,7 +411,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         wrapper.vm.onSave();
 
         // save shouldn't finish successfully (nothing should be sent to the server - no saveProduct call)
-        expect(wrapper.vm.saveProduct.mock.calls.length).toEqual(0);
+        expect(wrapper.vm.saveProduct.mock.calls).toHaveLength(0);
         await flushPromises();
     });
 });

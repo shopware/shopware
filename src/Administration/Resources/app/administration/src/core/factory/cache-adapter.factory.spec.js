@@ -15,7 +15,7 @@ describe('core/factory/cache-adapter.factory.js', () => {
         requestCaches = {};
         mockAdapter = jest.fn((config) => Promise.resolve({
             request: config,
-            response: 'success'
+            response: 'success',
         }));
     });
 
@@ -33,14 +33,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do first request
@@ -80,14 +80,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do first request
@@ -127,14 +127,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         const productManufacturerRequest = {
@@ -146,14 +146,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do first request
@@ -192,22 +192,22 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         const productSearchRequestWithNewToken = {
             ...productSearchRequest,
             headers: {
                 ...productSearchRequest.headers,
-                Authorization: 'Bearer NeWlOnGtOkEn'
-            }
+                Authorization: 'Bearer NeWlOnGtOkEn',
+            },
         };
 
         // do first request
@@ -246,23 +246,23 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do first request
         const firstRequest = await cacheAdapter(productSearchRequest);
-        expect(firstRequest.response).toEqual('success');
+        expect(firstRequest.response).toBe('success');
 
         // mutate value from first request
         firstRequest.response = 'Very dangerous';
-        expect(firstRequest.response).toEqual('Very dangerous');
+        expect(firstRequest.response).toBe('Very dangerous');
 
         // expect that the original adapter was called only once
         expect(mockAdapter).toHaveBeenCalledTimes(1);
@@ -274,7 +274,7 @@ describe('core/factory/cache-adapter.factory.js', () => {
 
         // do second request
         const secondRequest = await cacheAdapter(productSearchRequest);
-        expect(secondRequest.response).toEqual('success');
+        expect(secondRequest.response).toBe('success');
 
         // expect that the original adapter was called only once
         // because the second request should be cached when it is identical
@@ -299,14 +299,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         const productDeleteRequest = {
@@ -317,25 +317,25 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do post request
         await cacheAdapter(productSearchRequest);
         // expect caching the request
-        expect(Object.values(requestCaches).length).toEqual(1);
+        expect(Object.values(requestCaches)).toHaveLength(1);
 
         // do delete request
         await cacheAdapter(productDeleteRequest);
         // expect removal off all cached requests
-        expect(Object.values(requestCaches).length).toEqual(0);
+        expect(Object.values(requestCaches)).toHaveLength(0);
     });
 
     it('should clear the requestCaches when patch request is happening', async () => {
@@ -350,14 +350,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         const productPatchRequest = {
@@ -368,25 +368,25 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do post request
         await cacheAdapter(productSearchRequest);
         // expect caching the request
-        expect(Object.values(requestCaches).length).toEqual(1);
+        expect(Object.values(requestCaches)).toHaveLength(1);
 
         // do delete request
         await cacheAdapter(productPatchRequest);
         // expect removal off all cached requests
-        expect(Object.values(requestCaches).length).toEqual(0);
+        expect(Object.values(requestCaches)).toHaveLength(0);
     });
 
     it('should clear the requestCaches when specifc data is created', async () => {
@@ -401,14 +401,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         const userConfigCreateRequest = {
@@ -419,25 +419,25 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do post request
         await cacheAdapter(productSearchRequest);
         // expect caching the request
-        expect(Object.values(requestCaches).length).toEqual(1);
+        expect(Object.values(requestCaches)).toHaveLength(1);
 
         // create new user config
         await cacheAdapter(userConfigCreateRequest);
         // expect removal off all cached requests
-        expect(Object.values(requestCaches).length).toEqual(0);
+        expect(Object.values(requestCaches)).toHaveLength(0);
     });
 
     it('should not cache requests which are not in the allowUrlList', async () => {
@@ -454,14 +454,14 @@ describe('core/factory/cache-adapter.factory.js', () => {
                 'Content-Type': 'application/json',
                 'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
                 Authorization: 'Bearer lOnGtOkEn',
-                'sw-api-compatibility': true
+                'sw-api-compatibility': true,
             },
             baseURL: '/api',
             timeout: 0,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             maxContentLength: -1,
-            maxBodyLength: -1
+            maxBodyLength: -1,
         };
 
         // do first request

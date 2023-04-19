@@ -6,13 +6,13 @@ Shopware.Component.register('sw-category-detail-custom-entity', swCategoryDetail
 const customEntity1 = {
     id: 'CUSTOM_ENTITY_ID_1',
     name: 'CUSTOM_ENTITY_NAME_1',
-    instanceRepository: ['CUSTOM_ENTITY_INSTANCES_1']
+    instanceRepository: ['CUSTOM_ENTITY_INSTANCES_1'],
 };
 
 const customEntity2 = {
     id: 'CUSTOM_ENTITY_ID_2',
     name: 'CUSTOM_ENTITY_NAME_2',
-    instanceRepository: ['CUSTOM_ENTITY_INSTANCES_2']
+    instanceRepository: ['CUSTOM_ENTITY_INSTANCES_2'],
 };
 
 const emptyEntityCollection = ['EMPTY_ENTITY_COLLECTION'];
@@ -51,33 +51,33 @@ async function createWrapper() {
                 extensions: {
                     customEntityName1SwCategories: customEntity1.instanceRepository,
                     customEntityName2SwCategories: customEntity2.instanceRepository,
-                }
-            }
-        }
+                },
+            },
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-category-detail-custom-entity'), {
         stubs: {
             'sw-card': {
                 template: '<div class="sw-card"><slot /></div>',
-                props: ['title', 'position-identifier']
+                props: ['title', 'position-identifier'],
             },
             'sw-entity-single-select': {
                 template: '<div class="sw-entity-single-select"></div>',
-                props: ['value', 'label', 'help-text', 'disabled', 'criteria', 'entity', 'required']
+                props: ['value', 'label', 'help-text', 'disabled', 'criteria', 'entity', 'required'],
             },
             'sw-many-to-many-assignment-card': {
                 template: '<div class="sw-many-to-many-assignment-card"><slot name="prepend-select" /><slot name="empty-state" /></div>',
                 props: ['entityCollection', 'title', 'columns', 'local-mode', 'label-property', 'criteria', 'select-label', 'placeholder'],
                 model: {
                     prop: 'entityCollection',
-                    event: 'change'
-                }
+                    event: 'change',
+                },
             },
             'sw-empty-state': {
                 template: '<div class="sw-empty-state"></div>',
-                props: ['title', 'absolute']
-            }
+                props: ['title', 'absolute'],
+            },
         },
         provide: {
             repositoryFactory: {
@@ -88,9 +88,9 @@ async function createWrapper() {
                         default:
                             throw new Error(`No Mock for ${repositoryName} Repository not found`);
                     }
-                }
+                },
             },
-        }
+        },
     });
 }
 
@@ -109,7 +109,7 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         // check initial state without custom entity type selected
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').props()).toStrictEqual({
             positionIdentifier: 'category-detail-custom-entity',
-            title: 'sw-category.base.customEntity.cardTitle'
+            title: 'sw-category.base.customEntity.cardTitle',
         });
 
         const entitySelect = wrapper.find('.sw-entity-single-select');
@@ -122,11 +122,11 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                 filters: [{
                     field: 'flags',
                     type: 'contains',
-                    value: 'cms-aware'
-                }]
+                    value: 'cms-aware',
+                }],
             }),
             entity: 'custom_entity',
-            required: ''
+            required: '',
         });
 
         // select a custom entity type
@@ -150,14 +150,14 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                     field: 'cmsAwareTitle',
                     naturalSorting: false,
                     order: 'ASC',
-                }]
+                }],
             }),
             entityCollection: customEntity1.instanceRepository,
             labelProperty: 'cmsAwareTitle',
             localMode: false,
             placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
             selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
-            title: 'sw-category.base.customEntity.cardTitle'
+            title: 'sw-category.base.customEntity.cardTitle',
         });
     });
 
@@ -179,11 +179,11 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                 filters: [{
                     field: 'flags',
                     type: 'contains',
-                    value: 'cms-aware'
-                }]
+                    value: 'cms-aware',
+                }],
             }),
             entity: 'custom_entity',
-            required: ''
+            required: '',
         });
 
         expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
@@ -197,14 +197,14 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                     field: 'cmsAwareTitle',
                     naturalSorting: false,
                     order: 'ASC',
-                }]
+                }],
             }),
             entityCollection: customEntity1.instanceRepository,
             labelProperty: 'cmsAwareTitle',
             localMode: false,
             placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
             selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
-            title: 'sw-category.base.customEntity.cardTitle'
+            title: 'sw-category.base.customEntity.cardTitle',
         });
 
         // select another custom entity type
@@ -220,11 +220,11 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                 filters: [{
                     field: 'flags',
                     type: 'contains',
-                    value: 'cms-aware'
-                }]
+                    value: 'cms-aware',
+                }],
             }),
             entity: 'custom_entity',
-            required: ''
+            required: '',
         });
 
         expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
@@ -238,14 +238,14 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                     field: 'cmsAwareTitle',
                     naturalSorting: false,
                     order: 'ASC',
-                }]
+                }],
             }),
             entityCollection: customEntity2.instanceRepository,
             labelProperty: 'cmsAwareTitle',
             localMode: false,
             placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
             selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
-            title: 'sw-category.base.customEntity.cardTitle'
+            title: 'sw-category.base.customEntity.cardTitle',
         });
 
         // trigger a change event
@@ -263,14 +263,14 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
                     field: 'cmsAwareTitle',
                     naturalSorting: false,
                     order: 'ASC',
-                }]
+                }],
             }),
             entityCollection: emptyEntityCollection,
             labelProperty: 'cmsAwareTitle',
             localMode: false,
             placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
             selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
-            title: 'sw-category.base.customEntity.cardTitle'
+            title: 'sw-category.base.customEntity.cardTitle',
         });
     });
 });

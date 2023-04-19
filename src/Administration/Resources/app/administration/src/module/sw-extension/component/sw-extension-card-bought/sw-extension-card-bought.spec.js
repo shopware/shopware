@@ -23,21 +23,21 @@ Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 Shopware.Application.addServiceProvider('loginService', () => {
     return {
-        getToken: jest.fn(() => Promise.resolve({ access: true, refresh: true }))
+        getToken: jest.fn(() => Promise.resolve({ access: true, refresh: true })),
     };
 });
 
 const httpClient = {
     post: jest.fn(),
     get: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
 };
 
 Shopware.Application.getContainer('init').httpClient = httpClient;
 
 const extensionStoreActionService = new ExtensionStoreActionService(
     Shopware.Application.getContainer('init').httpClient,
-    Shopware.Service('loginService')
+    Shopware.Service('loginService'),
 );
 
 Shopware.Application.addServiceProvider('extensionStoreActionService', () => {
@@ -48,7 +48,7 @@ Shopware.Application.addServiceProvider('shopwareExtensionService', () => {
     return new ShopwareExtensionService(
         Shopware.Service('appModulesService'),
         Shopware.Service('extensionStoreActionService'),
-        Shopware.Service('shopwareDiscountCampaignService')
+        Shopware.Service('shopwareDiscountCampaignService'),
     );
 });
 
@@ -56,7 +56,7 @@ Shopware.Application.addServiceProvider('shopwareExtensionService', () => {
 Shopware.Application.addServiceProvider('extensionErrorService', () => {
     return new ExtensionErrorService({}, {
         title: 'global.default.error',
-        message: 'global.notification.unspecifiedSaveErrorMessage'
+        message: 'global.notification.unspecifiedSaveErrorMessage',
     });
 });
 
@@ -64,13 +64,13 @@ Shopware.Application.addServiceProvider('extensionErrorService', () => {
 async function createWrapper(extension) {
     return shallowMount(await Shopware.Component.build('sw-extension-card-bought'), {
         propsData: {
-            extension
+            extension,
         },
         mocks: {
-            $tc: (v1, v2, v3) => (v1 || v2 ? v1 : JSON.stringify([v1, v2, v3]))
+            $tc: (v1, v2, v3) => (v1 || v2 ? v1 : JSON.stringify([v1, v2, v3])),
         },
         mixins: [
-            Shopware.Mixin.getByName('sw-extension-error')
+            Shopware.Mixin.getByName('sw-extension-error'),
         ],
         stubs: {
             'sw-meteor-card': true,
@@ -82,7 +82,7 @@ async function createWrapper(extension) {
             'sw-circle-icon': true,
             'router-link': {
                 template: '<div class="sw-router-link"><slot></slot></div>',
-                props: ['to']
+                props: ['to'],
             },
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-extension-removal-modal': await Shopware.Component.build('sw-extension-removal-modal'),
@@ -99,9 +99,9 @@ async function createWrapper(extension) {
             cacheApiService: {},
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
-            }
-        }
+                startEventListener: () => {},
+            },
+        },
     });
 }
 
@@ -129,7 +129,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: 3,
             numberOfRatings: 10,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
                 id: 1095324,
@@ -142,18 +142,18 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 expirationDate: null,
                 subscription: null,
                 trialPhaseIncluded: true,
-                discountInformation: null
+                discountInformation: null,
             },
             permissions: {},
             images: [{
                 remoteLink: 'https://example.com',
                 raw: null,
-                extensions: []
+                extensions: [],
             }],
             icon: null,
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         });
         expect(wrapper.vm).toBeTruthy();
     });
@@ -167,7 +167,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: 3,
             numberOfRatings: 10,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
                 id: 1095324,
@@ -180,13 +180,13 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 expirationDate: null,
                 subscription: null,
                 trialPhaseIncluded: true,
-                discountInformation: null
+                discountInformation: null,
             },
             permissions: {},
             icon: 'https://example.com',
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         });
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
@@ -207,24 +207,24 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: 3,
             numberOfRatings: 10,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
-                variants: [{}]
+                variants: [{}],
             },
             permissions: {},
             images: [],
             icon: null,
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         }, {
             licensedExtension: {
                 id: 1,
                 variant: 'rent',
                 netPrice: 497,
-                permissions: []
-            }
+                permissions: [],
+            },
         }, true);
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
@@ -245,17 +245,17 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: 3,
             numberOfRatings: 10,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
-                variants: [{}]
+                variants: [{}],
             },
             permissions: {},
             images: [],
             icon: null,
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         });
 
         expect(wrapper.find('.sw-extension-card-bought__detail-link').props().routerLink)
@@ -271,20 +271,20 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: 3,
             numberOfRatings: 10,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
-                variants: [{}]
+                variants: [{}],
             },
             storeExtension: {
-                id: 5
+                id: 5,
             },
             permissions: {},
             images: [],
             icon: null,
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         });
 
         expect(wrapper.find('.sw-extension-card-bought__detail-link')
@@ -302,7 +302,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: 3,
             numberOfRatings: 10,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
                 id: 1095324,
@@ -315,21 +315,21 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 expirationDate: null,
                 subscription: null,
                 trialPhaseIncluded: true,
-                discountInformation: null
+                discountInformation: null,
             },
             permissions: {},
             icon: 'https://example.com',
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         });
-        expect(wrapper.vm.showRatingModal).toEqual(false);
+        expect(wrapper.vm.showRatingModal).toBe(false);
 
         expect(wrapper.find('.sw-extension-card-bought__rate-link')
             .text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel');
         await wrapper.find('.sw-extension-card-bought__rate-link').trigger('click');
 
-        expect(wrapper.vm.showRatingModal).toEqual(true);
+        expect(wrapper.vm.showRatingModal).toBe(true);
     });
 
     it('should not try to cancel the extension subscription on remove attempt when it already has an expiry date', async () => {
@@ -352,10 +352,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 variants: [{}],
                 variant: 'rent',
                 // The expiration date is already given before the remove attempt
-                expirationDate: '2025-08-01T03:30:35+01:00'
+                expirationDate: '2025-08-01T03:30:35+01:00',
             },
             storeExtension: {
-                id: 5
+                id: 5,
             },
             permissions: {},
             images: [],
@@ -363,7 +363,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             iconRaw: null,
             active: false,
             type: 'plugin',
-            source: 'local'
+            source: 'local',
         });
 
         // Click remove to open remove modal
@@ -408,23 +408,23 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             rating: null,
             numberOfRatings: 0,
             installedAt: {
-                date: '2021-02-01T03:30:35+01:00'
+                date: '2021-02-01T03:30:35+01:00',
             },
             storeLicense: {
                 variants: [{}],
                 variant: 'rent',
                 expirationDate: null,
-                id: '1337'
+                id: '1337',
             },
             storeExtension: {
-                id: 5
+                id: 5,
             },
             permissions: {},
             images: [],
             icon: null,
             iconRaw: null,
             active: false,
-            type: 'plugin'
+            type: 'plugin',
         });
 
         // Click remove to open remove modal
@@ -464,14 +464,14 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                                 code: 'FRAMEWORK__STORE_ERROR',
                                 detail: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
                                 meta: {
-                                    documentationLink: 'https://docs.shopware.com/en/shopware-6-en'
+                                    documentationLink: 'https://docs.shopware.com/en/shopware-6-en',
                                 },
                                 status: '500',
-                                title: 'Download not allowed'
-                            }
-                        ]
-                    }
-                }
+                                title: 'Download not allowed',
+                            },
+                        ],
+                    },
+                },
             });
         });
 
@@ -487,7 +487,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 variants: [{}],
                 variant: 'rent',
                 expirationDate: '2021-06-08T00:00:00+02:00',
-                id: 5552
+                id: 5552,
             },
             storeExtension: null,
             permissions: {},
@@ -496,7 +496,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             iconRaw: null,
             active: false,
             source: 'store',
-            type: 'app'
+            type: 'app',
         });
 
         // Click install
@@ -513,8 +513,8 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             title: 'Download not allowed',
             message: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
             parameters: {
-                documentationLink: 'https://docs.shopware.com/en/shopware-6-en'
-            }
+                documentationLink: 'https://docs.shopware.com/en/shopware-6-en',
+            },
         });
 
         // Ensure error is rendered correctly in modal DOM
@@ -530,35 +530,35 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             storeLicense: {
                 variant: 'rent',
                 expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: false
+                expired: false,
             },
-            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt'
+            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentWillExpireAt',
         }, {
             testCaseName: 'should display when a rent is already expired',
             storeLicense: {
                 variant: 'rent',
                 expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: true
+                expired: true,
             },
             expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
-            expectedIcon: 'solid-exclamation-circle'
+            expectedIcon: 'solid-exclamation-circle',
         }, {
             testCaseName: 'should display when a test phase will expire',
             storeLicense: {
                 variant: 'test',
                 expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: false
+                expired: false,
             },
-            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt'
+            expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseWillExpireAt',
         }, {
             testCaseName: 'should display when a test phase is already expired',
             storeLicense: {
                 variant: 'test',
                 expirationDate: '2021-06-08T00:00:00+02:00',
-                expired: true
+                expired: true,
             },
             expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-            expectedIcon: 'solid-exclamation-circle'
+            expectedIcon: 'solid-exclamation-circle',
         }];
 
         testCases.forEach(({ testCaseName, storeLicense, expectedTextSnippet, expectedIcon }) => {
@@ -579,7 +579,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                     iconRaw: null,
                     active: false,
                     source: 'store',
-                    type: 'app'
+                    type: 'app',
                 });
 
                 // Ensure the correct message is rendered

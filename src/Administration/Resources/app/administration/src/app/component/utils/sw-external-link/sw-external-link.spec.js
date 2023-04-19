@@ -8,15 +8,15 @@ import 'src/app/component/utils/sw-external-link';
 // initial component setup
 const setup = async (propOverride) => {
     const propsData = {
-        ...propOverride
+        ...propOverride,
     };
 
     return shallowMount(await Shopware.Component.build('sw-external-link'), {
         stubs: ['sw-icon'],
         slots: {
-            default: 'test external link'
+            default: 'test external link',
         },
-        propsData
+        propsData,
     });
 };
 
@@ -34,7 +34,7 @@ describe('components/utils/sw-external-link', () => {
     it('should display a custom icon', async () => {
         const wrapper = await setup({
             href: 'https://google.com',
-            icon: 'default-test-icon'
+            icon: 'default-test-icon',
         });
 
         expect(wrapper.find('sw-icon-stub').attributes().name).toBe('default-test-icon');
@@ -53,7 +53,7 @@ describe('components/utils/sw-external-link', () => {
     it('should render small', async () => {
         const wrapper = await setup({
             href: 'https://google.com',
-            small: true
+            small: true,
         });
 
         expect(wrapper.find('sw-icon-stub').attributes().size).toBe('8px');

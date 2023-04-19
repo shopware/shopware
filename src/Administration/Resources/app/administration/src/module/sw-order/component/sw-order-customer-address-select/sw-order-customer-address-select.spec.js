@@ -23,14 +23,14 @@ const addresses = [
         street: 'Summerfield 27',
         country: {
             translated: {
-                name: 'USA'
-            }
+                name: 'USA',
+            },
         },
         countryState: {
             translated: {
-                name: 'California'
-            }
-        }
+                name: 'California',
+            },
+        },
     },
     {
         id: '2',
@@ -39,21 +39,21 @@ const addresses = [
         street: 'Ebbinghoff 10',
         country: {
             translated: {
-                name: 'United Kingdom'
-            }
+                name: 'United Kingdom',
+            },
         },
         countryState: {
             translated: {
-                name: 'Nottingham'
-            }
-        }
+                name: 'Nottingham',
+            },
+        },
     },
 ];
 
 const customerData = {
     id: '123',
     salesChannel: {
-        languageId: 'english'
+        languageId: 'english',
     },
     billingAddressId: '1',
     shippingAddressId: '2',
@@ -80,7 +80,7 @@ async function createWrapper() {
         },
         stubs: {
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
@@ -99,8 +99,8 @@ async function createWrapper() {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
         },
         provide: {
@@ -118,11 +118,11 @@ async function createWrapper() {
 
                             return Promise.resolve(collection);
                         },
-                        get: () => Promise.resolve()
+                        get: () => Promise.resolve(),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -139,8 +139,8 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
-        expect(wrapper.find('li[selected="selected"]').text()).toEqual('Summerfield 27, 10332, San Francisco, California, USA');
-        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toEqual('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(wrapper.find('li[selected="selected"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
+        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
     });
 
     it('should able to show same address label', async () => {
@@ -149,11 +149,11 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
 
         await wrapper.setProps({
             sameAddressValue: '1',
-            sameAddressLabel: 'Same as billing address'
+            sameAddressLabel: 'Same as billing address',
         });
 
         const selectionLabel = wrapper.find('.sw-single-select__selection-text');
-        expect(selectionLabel.text()).toEqual('Same as billing address');
+        expect(selectionLabel.text()).toBe('Same as billing address');
     });
 
     it('should filter entries correctly', async () => {

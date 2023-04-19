@@ -9,18 +9,18 @@ import 'src/app/component/utils/sw-internal-link';
 const setup = async (propOverride) => {
     const propsData = {
         routerLink: { name: 'sw.product.index' },
-        ...propOverride
+        ...propOverride,
     };
 
     return shallowMount(await Shopware.Component.build('sw-internal-link'), {
         stubs: {
             'sw-icon': true,
-            RouterLink: RouterLinkStub
+            RouterLink: RouterLinkStub,
         },
         slots: {
-            default: 'test internal link'
+            default: 'test internal link',
         },
-        propsData
+        propsData,
     });
 };
 

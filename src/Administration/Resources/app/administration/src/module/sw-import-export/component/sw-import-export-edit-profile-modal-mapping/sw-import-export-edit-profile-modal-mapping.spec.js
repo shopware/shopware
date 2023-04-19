@@ -22,16 +22,16 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         return [
             {
                 position: 0,
-                key: 'id'
+                key: 'id',
             },
             {
                 position: 1,
-                key: 'parentId'
+                key: 'parentId',
             },
             {
                 position: 2,
-                key: 'productNumber'
-            }
+                key: 'productNumber',
+            },
         ];
     }
 
@@ -43,31 +43,31 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     key: 'id',
                     mappedKey: 'id',
                     position: 0,
-                    id: '0363d01e226846748f318eda91ab3450'
+                    id: '0363d01e226846748f318eda91ab3450',
                 },
                 {
                     key: 'parentId',
                     mappedKey: 'parent_id',
                     position: 1,
-                    id: 'a6388d0f7f7245ecaba4a4db6e683972'
+                    id: 'a6388d0f7f7245ecaba4a4db6e683972',
                 },
                 {
                     key: 'productNumber',
                     mappedKey: 'product_number',
                     position: 2,
-                    id: 'a4209aad611b4a51a32f69b9a2c693ff'
-                }
-            ]
+                    id: 'a4209aad611b4a51a32f69b9a2c693ff',
+                },
+            ],
         };
     }
 
     async function createWrapper(profile) {
         return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal-mapping'), {
             propsData: {
-                profile
+                profile,
             },
             provide: {
-                validationService: {}
+                validationService: {},
             },
             stubs: {
                 'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
@@ -83,11 +83,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-button-group': {
-                    template: '<div class="sw-button-group"><slot></slot></div>'
+                    template: '<div class="sw-button-group"><slot></slot></div>',
                 },
                 'sw-field-error': true,
-                'sw-icon': true
-            }
+                'sw-icon': true,
+            },
         });
     }
 
@@ -99,8 +99,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             url: '/search/language',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
 
         responses.addResponse({
@@ -108,8 +108,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             url: '/search/currency',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
 
         responses.addResponse({
@@ -117,8 +117,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             url: '/search/custom-field-set',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
     });
 
@@ -170,20 +170,20 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 position: 1,
                 key: 'id',
                 mappedKey: 'id',
-                id: '0363d01e226846748f318eda91ab3450'
+                id: '0363d01e226846748f318eda91ab3450',
             },
             {
                 position: 0,
                 key: 'parentId',
                 mappedKey: 'parent_id',
-                id: 'a6388d0f7f7245ecaba4a4db6e683972'
+                id: 'a6388d0f7f7245ecaba4a4db6e683972',
             },
             {
                 position: 2,
                 mappedKey: 'product_number',
                 key: 'productNumber',
-                id: 'a4209aad611b4a51a32f69b9a2c693ff'
-            }
+                id: 'a4209aad611b4a51a32f69b9a2c693ff',
+            },
         ];
 
 
@@ -215,20 +215,20 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 id: '0363d01e226846748f318eda91ab3450',
                 position: 0,
                 key: 'id',
-                mappedKey: 'id'
+                mappedKey: 'id',
             },
             {
                 id: 'a6388d0f7f7245ecaba4a4db6e683972',
                 position: 2,
                 key: 'parentId',
-                mappedKey: 'parent_id'
+                mappedKey: 'parent_id',
             },
             {
                 position: 1,
                 id: 'a4209aad611b4a51a32f69b9a2c693ff',
                 key: 'productNumber',
-                mappedKey: 'product_number'
-            }
+                mappedKey: 'product_number',
+            },
         ];
 
         const emittedMappings = wrapper.emitted('update-mapping')[0][0];
@@ -238,7 +238,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
     it.each([
         ['.sw-data-grid__row--0 .sw-button-group .sw-button:first-of-type'],
-        ['.sw-data-grid__row--2 .sw-button-group .sw-button:last-of-type']
+        ['.sw-data-grid__row--2 .sw-button-group .sw-button:last-of-type'],
     ])('should have a first disabled button', async (selector) => {
         const profileMock = getProfileMock();
         profileMock.systemDefault = false;
@@ -288,18 +288,18 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const enabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button:not([disabled])');
 
-        expect(enabledPositionButtons.wrappers.length).toBe(4);
+        expect(enabledPositionButtons.wrappers).toHaveLength(4);
         enabledPositionButtons.wrappers.forEach(button => {
             expect(button.attributes('disabled')).toBeUndefined();
         });
 
         await wrapper.setData({
-            searchTerm: 'search term'
+            searchTerm: 'search term',
         });
 
         const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button');
 
-        expect(disabledPositionButtons.wrappers.length).toBe(6);
+        expect(disabledPositionButtons.wrappers).toHaveLength(6);
         disabledPositionButtons.wrappers.forEach(button => {
             expect(button.attributes('disabled')).toBe('disabled');
         });
@@ -343,7 +343,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             {
                 key: '',
                 mappedKey: 'custom_value',
-                position: 1
+                position: 1,
             },
             {
                 key: 'id',
@@ -359,7 +359,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 key: 'productNumber',
                 mappedKey: 'product_number',
                 position: 3,
-            }
+            },
         ];
 
         expect(actualEventData).toEqual(expectedEventData);

@@ -27,7 +27,7 @@ async function createWrapper() {
                 origin: null,
                 resetTo: 'english',
                 translationKey: 'test.snippet',
-                setId: 'en-GB-MOCK-ID'
+                setId: 'en-GB-MOCK-ID',
             }, {
                 author: 'testUser',
                 id: null,
@@ -35,43 +35,43 @@ async function createWrapper() {
                 origin: null,
                 resetTo: 'deutsch',
                 translationKey: 'test.snippet',
-                setId: 'de-DE-MOCK-ID'
+                setId: 'de-DE-MOCK-ID',
             }],
             snippetSets: createEntityCollection([
                 {
                     name: 'Base en-GB',
                     iso: 'en-GB',
-                    id: 'en-GB-MOCK-ID'
+                    id: 'en-GB-MOCK-ID',
                 },
                 {
                     name: 'Base de-DE',
                     iso: 'de-DE',
-                    id: 'de-DE-MOCK-ID'
-                }
-            ])
+                    id: 'de-DE-MOCK-ID',
+                },
+            ]),
         },
         stubs: {
             'sw-field': {
                 template: '<input class="sw-field"></input>',
-                props: ['value', 'disabled']
+                props: ['value', 'disabled'],
             },
             'sw-loader': true,
             'sw-icon': true,
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-button': {
                 template: '<button class="sw-button"></button>',
-                props: ['disabled']
-            }
+                props: ['disabled'],
+            },
         },
         provide: {
             validationService: {},
             snippetService: {
-                save: () => {}
+                save: () => {},
             },
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
-            }
+                startEventListener: () => {},
+            },
         },
     });
 }
@@ -96,16 +96,16 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
 
     ([{
         shouldBeDisabled: true,
-        roles: ['snippet.viewer']
+        roles: ['snippet.viewer'],
     }, {
         shouldBeDisabled: false,
-        roles: ['snippet.viewer', 'snippet.editor']
+        roles: ['snippet.viewer', 'snippet.editor'],
     }, {
         shouldBeDisabled: false,
-        roles: ['snippet.viewer', 'snippet.editor', 'snippet.creator']
+        roles: ['snippet.viewer', 'snippet.editor', 'snippet.creator'],
     }, {
         shouldBeDisabled: false,
-        roles: ['snippet.viewer', 'snippet.editor', 'snippet.deleter']
+        roles: ['snippet.viewer', 'snippet.editor', 'snippet.deleter'],
     }]).forEach((testcase) => {
         it(`should have ${testcase.shouldBeDisabled ? '' : 'not'} disabled inputs with roles ${testcase.roles.join(', ')}`, async () => {
             global.activeAclRoles = testcase.roles;

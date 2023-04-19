@@ -22,7 +22,7 @@ describe('core/service/api/promotion-sync.api.service', () => {
     it('should fire the necessary requests for loadPackagers & loadSorters', async () => {
         const client = createHTTPClient();
         const getMethod = jest.spyOn(client, 'get').mockImplementation(() => Promise.resolve({
-            data: null
+            data: null,
         }));
 
         const promotionSyncApiService = getPromotionSyncApiService(client, null);
@@ -30,13 +30,13 @@ describe('core/service/api/promotion-sync.api.service', () => {
         promotionSyncApiService.loadPackagers();
         expect(getMethod).toHaveBeenCalledTimes(1);
         expect(getMethod).toHaveBeenCalledWith('/_action/promotion/setgroup/packager', {
-            headers: promotionSyncApiService.getBasicHeaders()
+            headers: promotionSyncApiService.getBasicHeaders(),
         });
 
         promotionSyncApiService.loadSorters();
         expect(getMethod).toHaveBeenCalledTimes(2);
         expect(getMethod).toHaveBeenCalledWith('/_action/promotion/setgroup/sorter', {
-            headers: promotionSyncApiService.getBasicHeaders()
+            headers: promotionSyncApiService.getBasicHeaders(),
         });
     });
 });

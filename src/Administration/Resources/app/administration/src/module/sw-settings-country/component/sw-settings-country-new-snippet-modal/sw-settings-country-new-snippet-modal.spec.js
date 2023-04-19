@@ -27,13 +27,13 @@ async function createWrapper(customPropsData = {}) {
             $tc: key => key,
             $route: {
                 params: {
-                    id: 'id'
-                }
+                    id: 'id',
+                },
             },
             $device: {
                 getSystemKey: () => {},
-                onResize: () => {}
-            }
+                onResize: () => {},
+            },
         },
 
         propsData: {
@@ -41,17 +41,17 @@ async function createWrapper(customPropsData = {}) {
                 {
                     id: 'symbol/dash',
                     name: '-',
-                    parentId: 'symbol'
+                    parentId: 'symbol',
                 },
                 {
                     id: 'symbol/comma',
                     name: ',',
-                    parentId: 'symbol'
+                    parentId: 'symbol',
                 },
                 {
                     id: 'address/country_state',
                     name: 'Country State',
-                    parentId: null
+                    parentId: null,
                 },
                 {
                     id: 'address/salutation',
@@ -61,31 +61,31 @@ async function createWrapper(customPropsData = {}) {
                 {
                     id: 'address/country',
                     name: 'Country',
-                    parentId: null
+                    parentId: null,
                 },
                 {
                     id: 'address/zipcode',
                     name: 'Zip code',
-                    parentId: null
+                    parentId: null,
                 },
                 {
                     id: 'address/first_name',
                     name: 'First name',
-                    parentId: null
-                }
+                    parentId: null,
+                },
             ],
             currentPosition: 0,
             addressFormat: [
-                ['address/company', 'symbol/dash', 'address/department']
+                ['address/company', 'symbol/dash', 'address/department'],
             ],
-            ...customPropsData
+            ...customPropsData,
         },
 
         provide: {
             shortcutService: {
                 startEventListener: () => {},
-                stopEventListener: () => {}
-            }
+                stopEventListener: () => {},
+            },
         },
 
         stubs: {
@@ -102,19 +102,19 @@ async function createWrapper(customPropsData = {}) {
             'sw-tree-input-field': await Shopware.Component.build('sw-tree-input-field'),
             'sw-confirm-field': true,
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-skeleton': true,
             'sw-checkbox-field': true,
-        }
+        },
     });
 }
 
@@ -143,7 +143,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            ['symbol/dash', 'address/department']
+            ['symbol/dash', 'address/department'],
         ]);
     });
 
@@ -157,7 +157,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            ['address/company', 'symbol/dash', 'address/department', 'symbol/dash']
+            ['address/company', 'symbol/dash', 'address/department', 'symbol/dash'],
         ]);
     });
 
@@ -169,7 +169,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         const searchInputField = wrapper.find('.sw-settings-country-new-snippet-modal__input-field');
         let treesItem = wrapper.find('.tree-items .sw-tree-item__children');
 
-        expect(treesItem.findAll('.sw-tree-item').length).toBe(2);
+        expect(treesItem.findAll('.sw-tree-item')).toHaveLength(2);
 
         await searchInputField.setValue('First');
         await searchInputField.trigger('input');
@@ -180,8 +180,8 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         treesItem = wrapper.find('.tree-items .sw-tree-item__children');
 
         let results = treesItem.findAll('.sw-tree-item');
-        expect(results.at(0).find('.sw-tree-item__label').text()).toEqual('First name');
-        expect(results.length).toBe(1);
+        expect(results.at(0).find('.sw-tree-item__label').text()).toBe('First name');
+        expect(results).toHaveLength(1);
 
         // no snippet match
         await searchInputField.setValue('xyz');
@@ -191,8 +191,8 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         treesItem = wrapper.find('.tree-items .sw-tree-item__children');
         results = treesItem.findAll('.sw-tree-item');
 
-        expect(results.at(0).find('.sw-tree-item__label').text()).toEqual('First name');
-        expect(results.length).toBe(1);
+        expect(results.at(0).find('.sw-tree-item__label').text()).toBe('First name');
+        expect(results).toHaveLength(1);
 
         // no snippet
         await searchInputField.setValue('');
@@ -202,6 +202,6 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
 
         treesItem = wrapper.find('.tree-items .sw-tree-item__children');
 
-        expect(treesItem.findAll('.sw-tree-item').length).toBe(2);
+        expect(treesItem.findAll('.sw-tree-item')).toHaveLength(2);
     });
 });

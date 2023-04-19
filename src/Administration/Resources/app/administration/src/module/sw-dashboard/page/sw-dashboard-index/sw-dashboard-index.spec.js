@@ -20,9 +20,9 @@ async function createWrapper(privileges = []) {
             $i18n: {
                 locale: 'en-GB',
                 messages: {
-                    'en-GB': dictionary
-                }
-            }
+                    'en-GB': dictionary,
+                },
+            },
         },
         provide: {
             acl: {
@@ -30,8 +30,8 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
     });
 }
@@ -45,13 +45,13 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     beforeAll(async () => {
         Shopware.State.registerModule('session', {
             state: {
-                currentUser: null
+                currentUser: null,
             },
             mutations: {
                 setCurrentUser(state, user) {
                     state.currentUser = user;
-                }
-            }
+                },
+            },
         });
         jest.useFakeTimers('modern');
     });
@@ -78,7 +78,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
 
     it('should display users firstName', async () => {
         Shopware.State.commit('setCurrentUser', {
-            firstName: 'userFirstName'
+            firstName: 'userFirstName',
         });
         await wrapper.vm.$nextTick();
 
@@ -87,7 +87,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
 
     it('should display `null` as greetingName, we only greet by firstName', async () => {
         Shopware.State.commit('setCurrentUser', {
-            username: 'username'
+            username: 'username',
         });
         await wrapper.vm.$nextTick();
 
@@ -97,40 +97,40 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     [
         {
             dateTime: new Date(2021, 4, 19, 4, 30, 30),
-            expectedTimeSlot: '23h'
+            expectedTimeSlot: '23h',
         },
         {
             dateTime: new Date(2021, 4, 19, 5, 30, 30),
-            expectedTimeSlot: '5h'
+            expectedTimeSlot: '5h',
         },
         {
             dateTime: new Date(2021, 4, 19, 10, 30, 30),
-            expectedTimeSlot: '5h'
+            expectedTimeSlot: '5h',
         },
         {
             dateTime: new Date(2021, 4, 19, 11, 30, 30),
-            expectedTimeSlot: '11h'
+            expectedTimeSlot: '11h',
         },
         {
             dateTime: new Date(2021, 4, 19, 14, 30, 30),
-            expectedTimeSlot: '11h'
+            expectedTimeSlot: '11h',
         },
         {
             dateTime: new Date(2021, 4, 19, 18, 30, 30),
-            expectedTimeSlot: '18h'
+            expectedTimeSlot: '18h',
         },
         {
             dateTime: new Date(2021, 4, 19, 22, 30, 30),
-            expectedTimeSlot: '18h'
+            expectedTimeSlot: '18h',
         },
         {
             dateTime: new Date(2021, 4, 19, 23, 30, 30),
-            expectedTimeSlot: '23h'
+            expectedTimeSlot: '23h',
         },
         {
             dateTime: new Date(2021, 4, 19, 0, 0, 0),
-            expectedTimeSlot: '23h'
-        }
+            expectedTimeSlot: '23h',
+        },
     ].forEach(({ dateTime, expectedTimeSlot }) => {
         it(
             `should return datetime aware headline for daytime: ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
@@ -141,47 +141,47 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
                 jest.setSystemTime(dateTime);
                 expect(wrapper.vm.getGreetingTimeKey(greetingType))
                     .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
-            }
+            },
         );
     });
 
     [
         {
             dateTime: new Date(2021, 4, 19, 4, 30, 30),
-            expectedTimeSlot: '23h'
+            expectedTimeSlot: '23h',
         },
         {
             dateTime: new Date(2021, 4, 19, 5, 30, 30),
-            expectedTimeSlot: '5h'
+            expectedTimeSlot: '5h',
         },
         {
             dateTime: new Date(2021, 4, 19, 10, 30, 30),
-            expectedTimeSlot: '5h'
+            expectedTimeSlot: '5h',
         },
         {
             dateTime: new Date(2021, 4, 19, 11, 30, 30),
-            expectedTimeSlot: '11h'
+            expectedTimeSlot: '11h',
         },
         {
             dateTime: new Date(2021, 4, 19, 14, 30, 30),
-            expectedTimeSlot: '11h'
+            expectedTimeSlot: '11h',
         },
         {
             dateTime: new Date(2021, 4, 19, 18, 30, 30),
-            expectedTimeSlot: '18h'
+            expectedTimeSlot: '18h',
         },
         {
             dateTime: new Date(2021, 4, 19, 22, 30, 30),
-            expectedTimeSlot: '18h'
+            expectedTimeSlot: '18h',
         },
         {
             dateTime: new Date(2021, 4, 19, 23, 30, 30),
-            expectedTimeSlot: '23h'
+            expectedTimeSlot: '23h',
         },
         {
             dateTime: new Date(2021, 4, 19, 0, 0, 0),
-            expectedTimeSlot: '23h'
-        }
+            expectedTimeSlot: '23h',
+        },
     ].forEach(({ dateTime, expectedTimeSlot }) => {
         it(
             `should return datetime aware welcoming subline for daytime:\
@@ -193,7 +193,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
                 jest.setSystemTime(dateTime);
                 expect(wrapper.vm.getGreetingTimeKey(greetingType))
                     .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
-            }
+            },
         );
     });
 });

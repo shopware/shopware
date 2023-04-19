@@ -27,7 +27,7 @@ const createMultiSelect = async (customOptions) => {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
@@ -36,30 +36,30 @@ const createMultiSelect = async (customOptions) => {
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-label': await Shopware.Component.build('sw-label'),
-            'sw-button': await Shopware.Component.build('sw-button')
+            'sw-button': await Shopware.Component.build('sw-button'),
         },
         propsData: {
             value: [],
             options: [
                 {
                     label: 'Entry 1',
-                    value: 'entryOneValue'
+                    value: 'entryOneValue',
                 },
                 {
                     label: 'Entry 2',
-                    value: 'entryTwoValue'
+                    value: 'entryTwoValue',
                 },
                 {
                     label: 'Entry 3',
-                    value: 'entryThreeValue'
-                }
-            ]
-        }
+                    value: 'entryThreeValue',
+                },
+            ],
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-multi-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -97,8 +97,8 @@ describe('components/sw-multi-select', () => {
 
         const swMultiSelect = await createMultiSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
         await swMultiSelect.find('.sw-select__selection').trigger('click');
 
@@ -114,8 +114,8 @@ describe('components/sw-multi-select', () => {
 
         const swMultiSelect = await createMultiSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
         await swMultiSelect.find('.sw-select__selection').trigger('click');
 
@@ -131,12 +131,12 @@ describe('components/sw-multi-select', () => {
 
         const swMultiSelect = await createMultiSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
 
         await swMultiSelect.setProps({
-            value: ['entryOneValue']
+            value: ['entryOneValue'],
         });
 
         await swMultiSelect.find('.sw-select__selection').trigger('click');
@@ -156,7 +156,7 @@ describe('components/sw-multi-select', () => {
 
         await swMultiSelect.find('.sw-select-option--0').trigger('click');
         await swMultiSelect.setProps({
-            value: ['entryOneValue']
+            value: ['entryOneValue'],
         });
 
         const resultList = swMultiSelect.find('.sw-select-result-list__content');
@@ -170,18 +170,18 @@ describe('components/sw-multi-select', () => {
                 options: [
                     {
                         label: 'Entry 1',
-                        value: 'entryOneValue'
+                        value: 'entryOneValue',
                     },
                     {
                         label: 'Entry 2',
-                        value: 'entryTwoValue'
+                        value: 'entryTwoValue',
                     },
                     {
                         label: 'Entry 3',
-                        value: 'entryThreeValue'
-                    }
-                ]
-            }
+                        value: 'entryThreeValue',
+                    },
+                ],
+            },
         });
 
         const selectedText = swMultiSelect.find('.sw-select-selection-list__item-holder--0').text();
@@ -195,18 +195,18 @@ describe('components/sw-multi-select', () => {
                 options: [
                     {
                         label: 'Entry 1',
-                        value: 'entryOneValue'
+                        value: 'entryOneValue',
                     },
                     {
                         label: 'Entry 2',
-                        value: 'entryTwoValue'
+                        value: 'entryTwoValue',
                     },
                     {
                         label: 'Entry 3',
-                        value: 'entryThreeValue'
-                    }
-                ]
-            }
+                        value: 'entryThreeValue',
+                    },
+                ],
+            },
         });
 
         const selectedTextOne = swMultiSelect.find('.sw-select-selection-list__item-holder--0').text();

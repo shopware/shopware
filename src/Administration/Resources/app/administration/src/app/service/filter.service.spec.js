@@ -29,36 +29,36 @@ describe('app/service/filter.service.js', () => {
                 filter3: {
                     value: [
                         {
-                            id: '123'
-                        }
+                            id: '123',
+                        },
                     ],
                     criteria: [{
                         type: 'equalsAny',
                         field: 'salutation.id',
-                        value: '123'
-                    }]
-                }
-            }
+                        value: '123',
+                    }],
+                },
+            },
         }]);
 
         Shopware.State.get('session').currentUser = {
             currentUser: {
-                id: '123'
-            }
+                id: '123',
+            },
         };
 
         filterService = new FilterService({
             userConfigRepository: {
                 create: () => Promise.resolve({
                     key: 'test',
-                    userId: '123'
+                    userId: '123',
                 }),
                 search: () => Promise.resolve(filterData),
                 save: criteria => {
                     filterData = criteria;
                     return Promise.resolve();
-                }
-            }
+                },
+            },
         });
     });
 
@@ -74,15 +74,15 @@ describe('app/service/filter.service.js', () => {
             filter3: {
                 value: [
                     {
-                        id: '123'
-                    }
+                        id: '123',
+                    },
                 ],
                 criteria: [{
                     type: 'equalsAny',
                     field: 'salutation.id',
-                    value: '123'
-                }]
-            }
+                    value: '123',
+                }],
+            },
         };
 
         expect(data).toEqual(filterResult);
@@ -96,21 +96,21 @@ describe('app/service/filter.service.js', () => {
         const urlEncodedValue = encodeURIComponent(JSON.stringify({
             'stock-filter': {
                 value: null,
-                criteria: null
-            }
+                criteria: null,
+            },
         }));
         Shopware.Application.view.router.push({
             query: {
-                test: urlEncodedValue
-            }
+                test: urlEncodedValue,
+            },
         });
 
         const data = await filterService.getStoredFilters('test');
         expect(data).toEqual({
             'stock-filter': {
                 value: null,
-                criteria: null
-            }
+                criteria: null,
+            },
         });
     });
 
@@ -118,21 +118,21 @@ describe('app/service/filter.service.js', () => {
         const urlEncodedValue = encodeURIComponent(JSON.stringify({
             'stock-filter': {
                 value: null,
-                criteria: null
-            }
+                criteria: null,
+            },
         }));
         Shopware.Application.view.router.push({
             query: {
-                test: urlEncodedValue
-            }
+                test: urlEncodedValue,
+            },
         });
 
         const data = await filterService.getStoredFilters('test');
         expect(data).toEqual({
             'stock-filter': {
                 value: null,
-                criteria: null
-            }
+                criteria: null,
+            },
         });
     });
 
@@ -150,23 +150,23 @@ describe('app/service/filter.service.js', () => {
                 criteria: [{
                     type: 'equalsAny',
                     field: 'salutation.id',
-                    value: 'filter1'
-                }]
+                    value: 'filter1',
+                }],
             },
             filter2: {
                 value: 'filter2',
                 criteria: [{
                     type: 'equalsAny',
                     field: 'salutation.id',
-                    value: 'filter2'
-                }]
-            }
+                    value: 'filter2',
+                }],
+            },
         };
 
         await filterService.saveFilters('test', filters);
         expect(filterService._storedFilters.test).toEqual([
             { type: 'equalsAny', field: 'salutation.id', value: 'filter1' },
-            { type: 'equalsAny', field: 'salutation.id', value: 'filter2' }
+            { type: 'equalsAny', field: 'salutation.id', value: 'filter2' },
         ]);
     });
 
@@ -176,12 +176,12 @@ describe('app/service/filter.service.js', () => {
         criteria.addFilter({
             type: 'equalsAny',
             field: 'salutation.id',
-            value: 'filter1'
+            value: 'filter1',
         });
         criteria.addFilter({
             type: 'equalsAny',
             field: 'salutation.id',
-            value: 'filter2'
+            value: 'filter2',
         });
 
         await filterService.mergeWithStoredFilters('test', criteria);

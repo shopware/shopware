@@ -15,19 +15,19 @@ const productMock = [{
     id: 'de8de156da134dabac24257f81ff282f',
     name: 'Translated',
     translated: {
-        name: 'Übersetzt'
-    }
+        name: 'Übersetzt',
+    },
 }, {
     id: 'c336e6ad6a174c76bb201ce7ba0e2ab3',
     name: 'Test',
-    translated: {}
+    translated: {},
 }];
 
 
 const productStreamMock = {
     name: 'Cheap pc parts',
     apiFilter: ['foo', 'bar'],
-    invalid: false
+    invalid: false,
 };
 
 
@@ -37,26 +37,26 @@ async function createWrapper(customCmsElementConfig) {
             element: {
                 config: {
                     title: {
-                        value: ''
+                        value: '',
                     },
                     products: {
                         value: ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-                        source: 'static'
+                        source: 'static',
                     },
                     productStreamSorting: {
-                        value: 'name:ASC'
+                        value: 'name:ASC',
                     },
                     productStreamLimit: {
-                        value: 10
+                        value: 10,
                     },
-                    ...customCmsElementConfig
-                }
+                    ...customCmsElementConfig,
+                },
             },
-            defaultConfig: {}
+            defaultConfig: {},
         },
         stubs: {
             'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
+                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-container': true,
@@ -77,7 +77,7 @@ async function createWrapper(customCmsElementConfig) {
             'sw-number-field': true,
             'sw-icon': true,
             'sw-loader': true,
-            'sw-popover': true
+            'sw-popover': true,
         },
         provide: {
             cmsService: {
@@ -86,7 +86,7 @@ async function createWrapper(customCmsElementConfig) {
                 },
                 getCmsElementRegistry: () => {
                     return {};
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
@@ -98,11 +98,11 @@ async function createWrapper(customCmsElementConfig) {
                             products.has = id => products.some(i => i.id === id);
 
                             return Promise.resolve(products);
-                        }
+                        },
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -150,8 +150,8 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
-                source: 'product_stream'
-            }
+                source: 'product_stream',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -177,15 +177,15 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.productStream).toEqual(null);
+        expect(wrapper.vm.productStream).toBeNull();
     });
 
     it('should render product stream selection when element product type is "product_stream"', async () => {
         const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
-                source: 'product_stream'
-            }
+                source: 'product_stream',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -212,15 +212,15 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         const expectedProductIds = ['de8de156da134dabac24257f81ff282f', '2fbb5fe2e29a4d70aa5854ce7ce3e20b'];
 
         expect(wrapper.vm.tempProductIds).toEqual(expectedProductIds);
-        expect(wrapper.vm.element.config.products.value).toBe(null);
+        expect(wrapper.vm.element.config.products.value).toBeNull();
     });
 
     it('should store the streamIds after changing the assignment type to "static"', async () => {
         const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
-                source: 'product_stream'
-            }
+                source: 'product_stream',
+            },
         });
 
         wrapper.vm.onChangeAssignmentType('static');
@@ -237,8 +237,8 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
-                source: 'product_stream'
-            }
+                source: 'product_stream',
+            },
         });
 
         const expectedSortingCriteria = [{ field: 'name', order: 'ASC', naturalSorting: false }];
@@ -250,14 +250,14 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
-                source: 'product_stream'
-            }
+                source: 'product_stream',
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
-            showProductStreamPreview: true
+            showProductStreamPreview: true,
         });
 
         await wrapper.vm.$nextTick();

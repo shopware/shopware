@@ -21,8 +21,8 @@ async function createWrapper(privileges = [], isNew = true) {
                 return 'foo';
             },
             $i18n: {
-                fallbackLocale: 'en-GB'
-            }
+                fallbackLocale: 'en-GB',
+            },
         },
         provide: {
             acl: {
@@ -32,8 +32,8 @@ async function createWrapper(privileges = [], isNew = true) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         propsData: {
             currentCustomField: {
@@ -42,13 +42,13 @@ async function createWrapper(privileges = [], isNew = true) {
                 config: {
                     label: { 'en-GB': 'Entity Type Field' },
                     customFieldType: 'entity',
-                    customFieldPosition: 1
+                    customFieldPosition: 1,
                 },
-                _isNew: isNew
+                _isNew: isNew,
             },
             set: {
-                config: {}
-            }
+                config: {},
+            },
         },
         stubs: {
             'sw-custom-field-type-base': true,
@@ -57,7 +57,7 @@ async function createWrapper(privileges = [], isNew = true) {
             'sw-field': true,
             'sw-switch-field': true,
             'sw-button': true,
-        }
+        },
     });
 }
 

@@ -14,11 +14,11 @@ async function createWrapper(privileges = []) {
         stubs: {
             'sw-alert': true,
             'sw-users-permissions-detailed-permissions-grid': true,
-            'sw-users-permissions-detailed-additional-permissions': true
+            'sw-users-permissions-detailed-additional-permissions': true,
         },
         propsData: {
             role: {},
-            detailedPrivileges: []
+            detailedPrivileges: [],
         },
         provide: {
             acl: {
@@ -26,9 +26,9 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 

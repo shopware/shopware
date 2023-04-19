@@ -29,23 +29,23 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
             mappings: [
                 {
                     key: 'id',
-                    mappedKey: 'id'
-                }
+                    mappedKey: 'id',
+                },
             ],
             translated: {
-                label: 'Product profile'
-            }
+                label: 'Product profile',
+            },
         };
     }
 
     async function createWrapper(profile) {
         return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-general'), {
             propsData: {
-                profile
+                profile,
             },
             stubs: {
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-field': await Shopware.Component.build('sw-field'),
                 'sw-text-field': await Shopware.Component.build('sw-text-field'),
@@ -56,16 +56,16 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
                 'sw-single-select': await Shopware.Component.build('sw-single-select'),
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-select-base': await Shopware.Component.build('sw-select-base'),
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-                'sw-icon': true
+                'sw-icon': true,
             },
             provide: {
-                validationService: {}
-            }
+                validationService: {},
+            },
         });
     }
 
@@ -96,7 +96,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
 
     it.each([
         'import-export',
-        'import'
+        'import',
     ])('should disable export forbidden entity when type is %s', async (type) => {
         const profile = getProfileMock();
         profile.type = type;

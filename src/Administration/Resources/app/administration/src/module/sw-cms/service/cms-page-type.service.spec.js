@@ -73,7 +73,7 @@ describe('module/sw-cms/service/cms-page-type.service.ts', () => {
         expect(() => {
             cmsPageTypeService.register(mockType);
         }).toThrow(
-            new Error("Can't register new Page Type with \"mock_type\" already in use.")
+            new Error("Can't register new Page Type with \"mock_type\" already in use."),
         );
     });
 

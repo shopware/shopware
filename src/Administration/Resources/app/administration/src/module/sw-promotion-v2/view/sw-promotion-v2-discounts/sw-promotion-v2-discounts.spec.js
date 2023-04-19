@@ -15,24 +15,24 @@ async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     stubs = {
         'sw-card': {
-            template: '<div class="sw-card"><slot></slot></div>'
+            template: '<div class="sw-card"><slot></slot></div>',
         },
         'sw-empty-state': await Component.build('sw-empty-state'),
         'sw-modal': {
-            template: '<div class="sw-modal"><slot></slot></div>'
+            template: '<div class="sw-modal"><slot></slot></div>',
         },
         'sw-wizard': await Component.build('sw-wizard'),
         'sw-wizard-page': await Component.build('sw-wizard-page'),
         'sw-wizard-dot-navigation': true,
         'sw-promotion-v2-wizard-description': {
-            template: '<div class="sw-promotion-v2-wizard-description"><slot></slot></div>'
+            template: '<div class="sw-promotion-v2-wizard-description"><slot></slot></div>',
         },
         'sw-promotion-v2-wizard-discount-selection': await Component.build('sw-promotion-v2-wizard-discount-selection'),
         'sw-promotion-v2-settings-discount-type': true,
         'sw-button': true,
         'sw-button-process': true,
         'sw-icon': true,
-        'sw-radio-field': true
+        'sw-radio-field': true,
     };
     localVue.filter('asset', ((key) => {
         return key;
@@ -47,21 +47,21 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }])
-                })
+                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                }),
             },
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
-            }
+                startEventListener: () => {},
+            },
         },
         mocks: {
             $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
-            $sanitize: key => key
+            $sanitize: key => key,
         },
         propsData: {
             promotion: {
@@ -82,7 +82,7 @@ async function createWrapper(privileges = []) {
                 ordersPerCustomerCount: null,
                 exclusionIds: ['d671d6d3efc74d2a8b977e3be3cd69c7'],
                 translated: {
-                    name: 'Test Promotion'
+                    name: 'Test Promotion',
                 },
                 apiAlias: null,
                 id: 'promotionId',
@@ -93,8 +93,8 @@ async function createWrapper(privileges = []) {
                         salesChannelId: 'salesChannelId',
                         priority: 1,
                         createdAt: '2020-08-17T13:24:52.692+00:00',
-                        id: 'promotionSalesChannelId'
-                    }
+                        id: 'promotionSalesChannelId',
+                    },
                 ],
                 discounts: [],
                 individualCodes: [],
@@ -103,9 +103,9 @@ async function createWrapper(privileges = []) {
                 orderRules: [],
                 cartRules: [],
                 translations: [],
-                hasOrders: false
-            }
-        }
+                hasOrders: false,
+            },
+        },
     });
 }
 
@@ -119,14 +119,14 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () =>
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            showDiscountModal: true
+            showDiscountModal: true,
         });
 
         expect(wrapper.vm.showDiscountModal).toBeTruthy();
         expect(wrapper.findComponent({ name: 'sw-wizard' }).exists()).toBeTruthy();
 
         await wrapper.setData({
-            showDiscountModal: false
+            showDiscountModal: false,
         });
 
         expect(wrapper.vm.showDiscountModal).toBeFalsy();
@@ -144,7 +144,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () =>
 
     it('should enable adding discounts when privilege is set', async () => {
         const wrapper = await createWrapper([
-            'promotion.editor'
+            'promotion.editor',
         ]);
 
         const element = wrapper.find('sw-button-stub');

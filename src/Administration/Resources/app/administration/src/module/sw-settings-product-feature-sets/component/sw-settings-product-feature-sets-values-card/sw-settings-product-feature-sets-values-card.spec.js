@@ -28,7 +28,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         valueListPositionButtons: 'sw-data-grid-column-position__group',
         valueListFirstRow: 'sw-data-grid__row--0',
         valueListSecondRow: 'sw-data-grid__row--1',
-        valueListThirdRow: 'sw-data-grid__row--2'
+        valueListThirdRow: 'sw-data-grid__row--2',
     };
 
     const text = {
@@ -40,7 +40,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         labelReferencePriceValue: 'sw-settings-product-feature-sets.modal.textReferencePriceLabel',
         labelReferencePrice: 'sw-settings-product-feature-sets.modal.label.referencePrice',
         labelDescription: 'sw-settings-product-feature-sets.modal.label.description',
-        labelName: 'sw-settings-product-feature-sets.modal.label.name'
+        labelName: 'sw-settings-product-feature-sets.modal.label.name',
     };
 
     const valuesCard = async (additionalOptions = {}) => {
@@ -58,7 +58,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-data-grid-column-position': swDataGridColumnPosition,
                 'sw-button-group': true,
                 'sw-extension-component-section': true,
-                i18n: true
+                i18n: true,
             },
             propsData: {
                 isLoading: false,
@@ -71,33 +71,33 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                             type: 'referencePrice',
                             id: null,
                             name: null,
-                            position: 0
+                            position: 0,
                         },
                         {
                             type: 'product',
                             id: null,
                             name: 'description',
-                            position: 1
+                            position: 1,
                         },
                         {
                             type: 'product',
                             id: null,
                             name: 'name',
-                            position: 2
-                        }
-                    ]
-                }
+                            position: 2,
+                        },
+                    ],
+                },
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.reject()
+                        search: () => Promise.reject(),
                     }),
                     search: () => {
-                    }
-                }
+                    },
+                },
             },
-            ...additionalOptions
+            ...additionalOptions,
         });
     };
 
@@ -137,7 +137,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             selectAll: '',
             value: text.labelValue,
             type: text.labelType,
-            position: text.labelPosition
+            position: text.labelPosition,
         };
         const headerCells = header.findAll(`.${classes.valueListCellContent}`);
 
@@ -159,7 +159,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             '',
             text.labelReferencePriceType,
             text.labelReferencePriceValue,
-            ''
+            '',
         ].forEach((value, index) => {
             expect(bodyCells.at(index).text()).toEqual(value);
         });
@@ -173,7 +173,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         const secondRow = body.get(`.${classes.valueListSecondRow}`);
         const firstRowPositionButtons = firstRow.get(`.${classes.valueListPositionButtons}`);
 
-        expect(getReferencePrice(wrapper.props()).position).toEqual(0);
+        expect(getReferencePrice(wrapper.props()).position).toBe(0);
 
         // Same check for DOM
         expect(firstRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelReferencePrice);
@@ -181,7 +181,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         await firstRowPositionButtons.find('button.arrow_down').trigger('click');
 
-        expect(getReferencePrice(wrapper.props()).position).toEqual(1);
+        expect(getReferencePrice(wrapper.props()).position).toBe(1);
 
         // Same check for DOM
         expect(secondRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelReferencePrice);
@@ -212,7 +212,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
     it('all fields are disabled when prop allowEdit is false', async () => {
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         const searchField = wrapper.find('sw-simple-search-field-stub');
@@ -244,9 +244,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     id: '21605c15655f441f9e1275e2a2f2e1d1',
                     name: '4d4c4b4e-a52a-4756-a93b-2c5345224389',
                     description: 'c67c181d-f883-4e3d-bce0-97ed913927fe',
-                    features: []
-                }
-            }
+                    features: [],
+                },
+            },
         });
 
         const rootEmpty = wrapper.get(`.${classes.componentRoot}.is--empty`);

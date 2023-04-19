@@ -23,7 +23,7 @@ const setLocaleWithIdMock = jest.fn(() => Promise.resolve({}));
 
 Shopware.Service().register('localeHelper', () => {
     return {
-        setLocaleWithId: setLocaleWithIdMock
+        setLocaleWithId: setLocaleWithIdMock,
     };
 });
 
@@ -135,14 +135,14 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                     verifyUserToken: () => Promise.resolve(),
                 },
                 cacheApiService: {
-                    clear: () => Promise.resolve()
+                    clear: () => Promise.resolve(),
                 },
                 extensionHelperService: {
                     downloadAndActivateExtension: (extension) => Promise.resolve(extension),
                 },
                 shortcutService: {
                     startEventListener: () => {},
-                    stopEventListener: () => {}
+                    stopEventListener: () => {},
                 },
                 validationService: {
                     validate: () => true,
@@ -152,7 +152,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                         switch (entity) {
                             case 'language':
                                 return {
-                                    search: () => Promise.resolve(searchLanguage)
+                                    search: () => Promise.resolve(searchLanguage),
                                 };
                             case 'user':
                                 return {
@@ -168,7 +168,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
             },
             mixins: [
                 Shopware.Mixin.getByName('notification'),
-            ]
+            ],
         });
     }
 
@@ -176,7 +176,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.findAll('.sw-plugin-card').length).toBe(1);
+        expect(wrapper.findAll('.sw-plugin-card')).toHaveLength(1);
 
         await wrapper.find('.button-plugin-install').trigger('click');
         await flushPromises();

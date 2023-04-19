@@ -15,13 +15,13 @@ async function createWrapper() {
         mocks: {
             $route: {
                 params: {
-                    id: 'id'
-                }
-            }
+                    id: 'id',
+                },
+            },
         },
         provide: {
             numberRangeService: {
-                previewPattern: () => Promise.resolve({ number: 1337 })
+                previewPattern: () => Promise.resolve({ number: 1337 }),
             },
             repositoryFactory: {
                 create: () => ({
@@ -34,20 +34,20 @@ async function createWrapper() {
                         translated: {
                             customFields: [],
                             description: null,
-                            name: 'Delivery notes'
+                            name: 'Delivery notes',
                         },
                         translations: [],
                         type: {
-                            typeName: 'Delivery notes'
+                            typeName: 'Delivery notes',
                         },
-                        typeId: '72ea130130404f67a426332f7a8c7277'
+                        typeId: '72ea130130404f67a426332f7a8c7277',
                     }),
-                    search: () => Promise.resolve([])
-                })
+                    search: () => Promise.resolve([]),
+                }),
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': {
@@ -56,25 +56,25 @@ async function createWrapper() {
                         <slot name="smart-bar-actions" />
                         <slot name="content" />
                         <slot />
-                    </div>`
+                    </div>`,
             },
             'sw-button': {
                 template: '<div class="sw-button"><slot /></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-button-process': {
                 template: '<div class="sw-button-process"><slot /></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-card': {
-                template: '<div class="sw-card"><slot /></div>'
+                template: '<div class="sw-card"><slot /></div>',
             },
             'sw-field': {
                 template: '<div class="sw-field"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-card-view': {
-                template: '<div><slot /></div>'
+                template: '<div><slot /></div>',
             },
             'sw-container': true,
             'sw-language-info': true,
@@ -82,11 +82,11 @@ async function createWrapper() {
             'sw-multi-select': true,
             'sw-entity-single-select': {
                 template: '<div class="sw-entity-single-select"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-alert': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -104,7 +104,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'sw-privileges.tooltip.warning',
             disabled: false,
-            showOnDisabledElements: true
+            showOnDisabledElements: true,
         });
     });
 
@@ -114,7 +114,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -124,7 +124,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(saveButton.props('disabled')).toBe(false);
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'CTRL + S',
-            appearance: 'light'
+            appearance: 'light',
         });
     });
 
@@ -141,7 +141,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
             'sw-settings-number-range.detail.labelCurrentNumber',
             'sw-settings-number-range.detail.labelPreview',
             'sw-settings-number-range.detail.labelSuffix',
-            'sw-settings-number-range.detail.labelPrefix'
+            'sw-settings-number-range.detail.labelPrefix',
         ];
 
         const elements = wrapper.findAllComponents('.sw-field');

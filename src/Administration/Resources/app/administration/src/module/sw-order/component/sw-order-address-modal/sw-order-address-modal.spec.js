@@ -14,7 +14,7 @@ async function createWrapper() {
         localVue,
         stubs: {
             'sw-modal': true,
-            'sw-tabs': true
+            'sw-tabs': true,
         },
         provide: {
             repositoryFactory: {
@@ -24,20 +24,20 @@ async function createWrapper() {
                     },
                     save: () => {
                         return Promise.resolve();
-                    }
-                })
-            }
+                    },
+                }),
+            },
         },
         propsData: {
             address: {},
             countries: [],
             order: {
                 orderCustomer: {
-                    customerId: 'customerId'
-                }
+                    customerId: 'customerId',
+                },
             },
-            versionContext: {}
-        }
+            versionContext: {},
+        },
     });
 }
 
@@ -72,9 +72,9 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         await wrapper.setProps({
             order: {
                 orderCustomer: {
-                    customerId: null
-                }
-            }
+                    customerId: null,
+                },
+            },
         });
 
         wrapper.vm.createdComponent();

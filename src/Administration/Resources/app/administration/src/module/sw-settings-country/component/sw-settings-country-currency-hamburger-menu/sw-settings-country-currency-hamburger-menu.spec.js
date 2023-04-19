@@ -18,7 +18,7 @@ async function createWrapper(privileges = []) {
 
         propsData: {
             isLoading: false,
-            options: [{}]
+            options: [{}],
         },
 
         provide: {
@@ -27,11 +27,11 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             feature: {
-                isActive: () => true
-            }
+                isActive: () => true,
+            },
         },
 
         stubs: {
@@ -40,12 +40,12 @@ async function createWrapper(privileges = []) {
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-popover': true,
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-checkbox-field': {
-                template: '<div class="checkbox"></div>'
-            }
-        }
+                template: '<div class="checkbox"></div>',
+            },
+        },
     });
 }
 
@@ -66,12 +66,12 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
         expect(hamburgerButton.isVisible()).toBeTruthy();
 
         const hamburgerItem = wrapper.findAll('.sw-settings-country-currency-hamburger-menu__item');
-        expect(hamburgerItem.length).toBe(wrapper.props().options.length);
+        expect(hamburgerItem).toHaveLength(wrapper.props().options.length);
     });
 
     it('should able to edit on hamburger menu', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -81,13 +81,13 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
         expect(hamburgerButton.isVisible()).toBeTruthy();
 
         const hamburgerItem = wrapper.findAll('.sw-settings-country-currency-hamburger-menu__item');
-        expect(hamburgerItem.length).toBe(wrapper.props().options.length);
+        expect(hamburgerItem).toHaveLength(wrapper.props().options.length);
         expect(hamburgerItem.at(0).find('.checkbox').attributes().disabled).toBeUndefined();
     });
 
     it('should not able to edit on hamburger menu', async () => {
         const wrapper = await createWrapper([
-            'country.viewer'
+            'country.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -97,7 +97,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
         expect(hamburgerButton.isVisible()).toBeTruthy();
 
         const hamburgerItem = wrapper.findAll('.sw-settings-country-currency-hamburger-menu__item');
-        expect(hamburgerItem.length).toBe(wrapper.props().options.length);
+        expect(hamburgerItem).toHaveLength(wrapper.props().options.length);
         expect(hamburgerItem.at(0).find('.checkbox').attributes().disabled).toBe('disabled');
     });
 });

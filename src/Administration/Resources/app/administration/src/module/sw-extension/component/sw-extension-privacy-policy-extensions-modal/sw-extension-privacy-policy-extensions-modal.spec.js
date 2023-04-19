@@ -8,7 +8,7 @@ Shopware.Component.register('sw-extension-privacy-policy-extensions-modal', swEx
 async function createWrapper(props) {
     return shallowMount(await Shopware.Component.build('sw-extension-privacy-policy-extensions-modal'), {
         propsData: {
-            ...props
+            ...props,
         },
         mocks: {
             $tc: (path, choice, values) => {
@@ -17,16 +17,16 @@ async function createWrapper(props) {
                 }
 
                 return path;
-            }
+            },
         },
         stubs: {
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-modal': {
                 // eslint-disable-next-line max-len
                 template: '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
-                props: ['title']
-            }
-        }
+                props: ['title'],
+            },
+        },
     });
 }
 
@@ -44,7 +44,7 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
-            extensionName: 'Tes11Test'
+            extensionName: 'Tes11Test',
         });
 
 
@@ -54,7 +54,7 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
     it('should display the values', async () => {
         wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
-            extensionName: 'Tes11Test'
+            extensionName: 'Tes11Test',
 
         });
         expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__text')
@@ -63,8 +63,8 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
             path: 'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
             choice: 0,
             values: {
-                extensionLabel: 'Tes11Test'
-            }
+                extensionLabel: 'Tes11Test',
+            },
         }));
 
         expect(wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button')
@@ -74,7 +74,7 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
     it('should close the modal', async () => {
         wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
-            extensionName: 'Tes11Test'
+            extensionName: 'Tes11Test',
 
         });
         expect(wrapper.emitted()).toEqual({});
@@ -85,7 +85,7 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
 
 
         expect(wrapper.emitted()).toEqual({
-            'modal-close': [[]]
+            'modal-close': [[]],
         });
     });
 });

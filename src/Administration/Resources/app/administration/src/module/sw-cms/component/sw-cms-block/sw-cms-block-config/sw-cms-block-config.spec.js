@@ -19,7 +19,7 @@ const block = {
     backgroundColor: '',
     backgroundMedia: {},
     backgroundMediaId: 'mediaId',
-    backgroundMediaMode: ''
+    backgroundMediaMode: '',
 };
 
 jest.useFakeTimers();
@@ -29,7 +29,7 @@ async function createWrapper() {
     return shallowMount(await Component.build('sw-cms-block-config'), {
         localVue,
         propsData: {
-            block
+            block,
         },
         provide: {
             validationService: {},
@@ -43,8 +43,8 @@ async function createWrapper() {
                     create: () => {
                         return Promise.resolve();
                     },
-                })
-            }
+                }),
+            },
         },
         stubs: {
             'sw-base-field': await Component.build('sw-base-field'),
@@ -55,13 +55,13 @@ async function createWrapper() {
             'sw-icon': true,
             'sw-text-field': {
                 template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value']
+                props: ['value'],
             },
             'sw-media-compact-upload-v2': true,
             'sw-upload-listener': true,
             'sw-select-field': true,
             'sw-help-text': true,
-        }
+        },
     });
 }
 
@@ -97,6 +97,6 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.block.backgroundMediaId).toBe(block.backgroundMediaId);
         await wrapper.vm.removeMedia();
-        expect(wrapper.vm.block.backgroundMediaId).toBe(null);
+        expect(wrapper.vm.block.backgroundMediaId).toBeNull();
     });
 });

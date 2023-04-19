@@ -8,9 +8,9 @@ async function createWrapper() {
     config.mocks.$route = {
         meta: {
             $module: {
-                color: testColor
-            }
-        }
+                color: testColor,
+            },
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-page'), {
@@ -21,7 +21,7 @@ async function createWrapper() {
             'sw-icon': true,
             'sw-app-actions': true,
             'sw-help-center': true,
-        }
+        },
     });
 }
 
@@ -36,10 +36,10 @@ describe('src/app/component/structure/sw-page', () => {
     it('should use the header bottom-color specified with the headerBorderColor prop', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-page__head-area').attributes('style')).toStrictEqual('border-bottom-color: red; padding-right: 0px;');
+        expect(wrapper.get('.sw-page__head-area').attributes('style')).toBe('border-bottom-color: red; padding-right: 0px;');
 
         await wrapper.setProps({ headerBorderColor: 'green' });
 
-        expect(wrapper.get('.sw-page__head-area').attributes('style')).toStrictEqual('border-bottom-color: green; padding-right: 0px;');
+        expect(wrapper.get('.sw-page__head-area').attributes('style')).toBe('border-bottom-color: green; padding-right: 0px;');
     });
 });

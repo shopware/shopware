@@ -36,23 +36,23 @@ async function createWrapper(options = {}) {
             'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
             'sw-loader': true,
             'sw-avatar': true,
-            'sw-shortcut-overview': true
+            'sw-shortcut-overview': true,
         },
         provide: {
             menuService,
             loginService: {
-                notifyOnLoginListener: () => {}
+                notifyOnLoginListener: () => {},
             },
             userService: {
-                getUser: () => Promise.resolve({ data: { password: '' } })
+                getUser: () => Promise.resolve({ data: { password: '' } }),
             },
             appModulesService: {
-                fetchAppModules: () => Promise.resolve([])
+                fetchAppModules: () => Promise.resolve([]),
             },
             acl: {
                 can: (privilege) => {
                     return privilege !== 'shouldReturnFalse';
-                }
+                },
             },
             customEntityDefinitionService: {
                 getMenuEntries: () => {
@@ -68,10 +68,10 @@ async function createWrapper(options = {}) {
                         position: 100,
                         parent: 'sw.second.top.level',
                     }];
-                }
-            }
+                },
+            },
         },
-        ...options
+        ...options,
     });
 }
 
@@ -87,9 +87,9 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             state: {
                 settingsGroups: {
                     shop: [],
-                    system: []
-                }
-            }
+                    system: [],
+                },
+            },
         });
     });
 
@@ -122,7 +122,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.commit('setCurrentUser', {
             admin: true,
             title: 'Master of something',
-            aclRoles: []
+            aclRoles: [],
         });
 
         await wrapper.vm.$nextTick();
@@ -136,7 +136,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.commit('setCurrentUser', {
             admin: false,
             title: 'Master of something',
-            aclRoles: []
+            aclRoles: [],
         });
         await wrapper.vm.$nextTick();
 
@@ -149,7 +149,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.commit('setCurrentUser', {
             admin: false,
             title: null,
-            aclRoles: []
+            aclRoles: [],
         });
         await wrapper.vm.$nextTick();
 
@@ -163,8 +163,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             admin: false,
             title: null,
             aclRoles: [
-                { name: 'Copyreader' }
-            ]
+                { name: 'Copyreader' },
+            ],
         });
 
         await wrapper.vm.$nextTick();
@@ -184,7 +184,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         wrapper.vm.removeClassesFromElements([
             element1,
-            element2
+            element2,
         ], ['foo'], [element2]);
 
         expect(element1.classList.contains('bar')).toBe(true);
@@ -199,18 +199,18 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             [0, 287],
             [0, 335],
             [300, 431],
-            [300, 287]
+            [300, 287],
         ];
 
         const insideMousePosition = {
             x: 10,
-            y: 300
+            y: 300,
         };
         expect(wrapper.vm.isPositionInPolygon(insideMousePosition.x, insideMousePosition.y, polygon)).toBe(true);
 
         const outsideMousePosition = {
             x: 1,
-            y: 1
+            y: 1,
         };
         expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBe(false);
     });
@@ -219,8 +219,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const element = document.createElement('div');
         const entry = {
             children: [{
-                name: 'foo'
-            }]
+                name: 'foo',
+            }],
         };
 
         expect(wrapper.vm.getPolygonFromMenuItem(element, entry))
@@ -235,7 +235,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         const topLevelEntry = topLevelEntries.at(0);
         expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
-            id: 'sw.second.top.level'
+            id: 'sw.second.top.level',
         }));
 
         const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
@@ -245,24 +245,24 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             return childMenuEntry.props('entry');
         })).toEqual([
             expect.objectContaining({
-                id: 'sw.second.level.first'
+                id: 'sw.second.level.first',
             }),
             expect.objectContaining({
-                id: 'sw.second.level.second'
+                id: 'sw.second.level.second',
             }),
             expect.objectContaining({
-                id: 'sw.second.level.last'
+                id: 'sw.second.level.last',
             }),
             expect.objectContaining({
-                id: 'custom-entity/customEntityName'
-            })
+                id: 'custom-entity/customEntityName',
+            }),
         ]);
     });
 
     it('should render third level menu correctly', async () => {
         const thirdLevelEntries = wrapper.findAll('.navigation-list-item__level-3');
 
-        expect(thirdLevelEntries.length).toEqual(1);
+        expect(thirdLevelEntries).toHaveLength(1);
         expect(thirdLevelEntries.at(0).text()).toContain('first child of third top level entry');
     });
 
@@ -271,18 +271,18 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const fifthLevelEntries = wrapper.findAll('.navigation-list-item__level-5');
 
         // Levels dont get rendered
-        expect(fourthLevelEntries.length).toEqual(0);
-        expect(fifthLevelEntries.length).toEqual(0);
+        expect(fourthLevelEntries).toHaveLength(0);
+        expect(fifthLevelEntries).toHaveLength(0);
 
         // Console error gets thrown for both levels
         expect(Shopware.Utils.debug.error.mock.calls[0][0]).toBeInstanceOf(Error);
-        expect(Shopware.Utils.debug.error.mock.calls[0][0].toString()).toEqual(
-            'Error: The navigation entry \"sw.fourth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.'
+        expect(Shopware.Utils.debug.error.mock.calls[0][0].toString()).toBe(
+            'Error: The navigation entry \"sw.fourth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
         );
 
         expect(Shopware.Utils.debug.error.mock.calls[1][0]).toBeInstanceOf(Error);
-        expect(Shopware.Utils.debug.error.mock.calls[1][0].toString()).toEqual(
-            'Error: The navigation entry \"sw.fifth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.'
+        expect(Shopware.Utils.debug.error.mock.calls[1][0].toString()).toBe(
+            'Error: The navigation entry \"sw.fifth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.',
         );
     });
 
@@ -293,7 +293,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         const topLevelEntry = topLevelEntries.at(1);
         expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
-            id: 'children.with.privilege'
+            id: 'children.with.privilege',
         }));
 
         const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
@@ -304,8 +304,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             return childMenuEntry.props('entry');
         })).toEqual([
             expect.objectContaining({
-                id: 'children.with.privilege.second'
-            })
+                id: 'children.with.privilege.second',
+            }),
         ]);
     });
 
@@ -321,8 +321,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 return menuEntry.props('entry');
             })).toEqual(expect.arrayContaining([
                 expect.objectContaining({
-                    id: 'app-testAppA-noPosition'
-                })
+                    id: 'app-testAppA-noPosition',
+                }),
             ]));
         });
 
@@ -335,21 +335,21 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             expect(structureElement.props('entry')).toEqual(
                 expect.objectContaining({
-                    id: 'app-testAppB-structure'
-                })
+                    id: 'app-testAppB-structure',
+                }),
             );
 
             const appMenuEntry = structureElement.get('.navigation-list-item__level-3');
 
             expect(appMenuEntry.props('entry')).toEqual(
                 expect.objectContaining({
-                    id: 'app-testAppB-default'
-                })
+                    id: 'app-testAppB-default',
+                }),
             );
         });
     });
 
-    test('get the first plugin menu entry', () => {
+    it('get the first plugin menu entry', () => {
         let entry = {
             path: 'sw.foo.index',
             label: 'sw-foo.general.mainMenuItemList',
@@ -358,7 +358,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             parent: 'sw-catalogue',
             position: 1010,
             children: [],
-            level: 2
+            level: 2,
         };
 
         expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBe(true);
@@ -371,7 +371,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             parent: 'sw-catalogue',
             position: 1010,
             children: [],
-            level: 2
+            level: 2,
         };
 
         expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBe(false);

@@ -10,36 +10,36 @@ async function createWrapper() {
     const responseMockAll = [
         {
             id: '0',
-            name: 'Parent 1 with tag'
+            name: 'Parent 1 with tag',
         },
         {
             id: '1',
             parentId: '0',
-            name: 'Variant 1 with inherited tag'
+            name: 'Variant 1 with inherited tag',
         },
         {
             id: '2',
             parentId: '0',
-            name: 'Variant 2 with own tag'
+            name: 'Variant 2 with own tag',
         },
         {
             id: '3',
             parentId: '0',
-            name: 'Parent 2 with different tag'
+            name: 'Parent 2 with different tag',
         },
         {
             id: '4',
             parentId: '3',
-            name: 'Variant inheriting from Parent 2'
-        }
+            name: 'Variant inheriting from Parent 2',
+        },
     ];
     const aggregationsInherited = {
         tags: {
             buckets: [
                 { key: '0', tags: { count: 1 } },
                 { key: '1', tags: { count: 1 } },
-                { key: '2', tags: { count: 1 } }
-            ]
+                { key: '2', tags: { count: 1 } },
+            ],
         },
         parentTags: {
             buckets: [
@@ -47,20 +47,20 @@ async function createWrapper() {
                 { key: '1', parentTags: { count: 1 } },
                 { key: '2', parentTags: { count: 1 } },
                 { key: '3', parentTags: { count: 0 } },
-                { key: '4', parentTags: { count: 1 } }
-            ]
-        }
+                { key: '4', parentTags: { count: 1 } },
+            ],
+        },
     };
     const responseMockSelected = [
         {
             id: '0',
-            name: 'Parent with tag'
+            name: 'Parent with tag',
         },
         {
             id: '2',
             parentId: '0',
-            name: 'Variant 2 with own tag'
-        }
+            name: 'Variant 2 with own tag',
+        },
     ];
     const aggregations = {
         tags: {
@@ -69,9 +69,9 @@ async function createWrapper() {
                 { key: '1', tags: { count: 0 } },
                 { key: '2', tags: { count: 1 } },
                 { key: '3', tags: { count: 1 } },
-                { key: '4', tags: { count: 0 } }
-            ]
-        }
+                { key: '4', tags: { count: 0 } },
+            ],
+        },
     };
 
     const parentComponent = shallowMount(await Shopware.Component.build('sw-settings-tag-detail-modal'), {
@@ -81,22 +81,22 @@ async function createWrapper() {
                 create: () => ({
                     create: () => {
                         return {
-                            isNew: () => true
+                            isNew: () => true,
                         };
-                    }
-                })
+                    },
+                }),
             },
             syncService: {},
             acl: {
                 can: () => {
                     return true;
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-modal': true,
-            'sw-tabs': true
-        }
+            'sw-tabs': true,
+        },
     }).vm;
 
     const wrapper = shallowMount(await Shopware.Component.build('sw-settings-tag-detail-assignments'), {
@@ -106,13 +106,13 @@ async function createWrapper() {
                 id: '123',
                 isNew() {
                     return false;
-                }
+                },
             },
             toBeAdded: parentComponent.assignmentsToBeAdded,
             toBeDeleted: parentComponent.assignmentsToBeDeleted,
             initialCounts: {
-                products: 2
-            }
+                products: 2,
+            },
         },
         provide: {
             repositoryFactory: {
@@ -124,17 +124,17 @@ async function createWrapper() {
 
                         return Promise.resolve(response);
                     },
-                    searchIds: jest.fn(() => Promise.resolve())
-                })
+                    searchIds: jest.fn(() => Promise.resolve()),
+                }),
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         stubs: {
             'sw-card': true,
             'sw-card-section': true,
             'sw-switch-field': true,
-            'sw-container': true
-        }
+            'sw-container': true,
+        },
     });
 
     wrapper.vm.$on('add-assignment', parentComponent.addAssignment);
@@ -159,25 +159,25 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.entities).not.toEqual(null);
+        expect(wrapper.vm.entities).not.toBeNull();
         expect(Object.keys(wrapper.vm.preSelected)).toEqual(['0', '2']);
 
         await wrapper.setProps({
             toBeAdded: { orders: [] },
-            toBeDeleted: { orders: [] }
+            toBeDeleted: { orders: [] },
         });
         await wrapper.vm.onAssignmentChange({
             entity: 'order',
-            assignment: 'orders'
+            assignment: 'orders',
         });
 
         await wrapper.vm.onTermChange('');
         await wrapper.vm.onPageChange({
             page: 1,
-            limit: 25
+            limit: 25,
         });
 
-        expect(wrapper.vm.entities).not.toEqual(null);
+        expect(wrapper.vm.entities).not.toBeNull();
         expect(Object.keys(wrapper.vm.preSelected)).toEqual(['0', '2']);
     });
 
@@ -194,7 +194,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
             { id: '1', parentId: '0', expected: true },
             { id: '2', parentId: '0', expected: true },
             { id: '3', parentId: null, expected: false },
-            { id: '4', parentId: null, expected: true }
+            { id: '4', parentId: null, expected: true },
         ].forEach(({ id, parentId, expected }) => {
             expect(wrapper.vm.parentHasTags(id, parentId)).toEqual(expected);
         });
@@ -204,7 +204,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
             { id: '1', parentId: '0', expected: true },
             { id: '2', parentId: '0', expected: false },
             { id: '3', parentId: null, expected: false },
-            { id: '4', parentId: '3', expected: true }
+            { id: '4', parentId: '3', expected: true },
         ].forEach(({ id, parentId, expected }) => {
             expect(wrapper.vm.isInherited(id, parentId)).toEqual(expected);
         });
@@ -214,33 +214,33 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
             { id: '1', parentId: '0', expected: true },
             { id: '2', parentId: '0', expected: true },
             { id: '3', parentId: null, expected: false },
-            { id: '4', parentId: '3', expected: false }
+            { id: '4', parentId: '3', expected: false },
         ].forEach(({ id, parentId, expected }) => {
             expect(wrapper.vm.hasInheritedTag(id, parentId)).toEqual(expected);
         });
 
-        expect(wrapper.vm.getCount('products')).toEqual(2);
+        expect(wrapper.vm.getCount('products')).toBe(2);
 
         // remove the assignment of the parent, parent shouldn't have tags anymore
         wrapper.vm.onSelectionChange([], { id: '0' }, false);
-        expect(wrapper.vm.getCount('products')).toEqual(1);
+        expect(wrapper.vm.getCount('products')).toBe(1);
 
         [
             { id: '1', parentId: '0', expected: false },
-            { id: '2', parentId: '0', expected: false }
+            { id: '2', parentId: '0', expected: false },
         ].forEach(({ id, parentId, expected }) => {
             expect(wrapper.vm.parentHasTags(id, parentId)).toEqual(expected);
         });
 
         // re-add the assignment of the parent
         wrapper.vm.onSelectionChange([], { id: '0' }, true);
-        expect(wrapper.vm.getCount('products')).toEqual(2);
+        expect(wrapper.vm.getCount('products')).toBe(2);
         // remove direct assignment of variant 2, should become inherited
         wrapper.vm.onSelectionChange([], { id: '2' }, false);
 
         [
             { id: '1', parentId: '0', expected: true },
-            { id: '2', parentId: '0', expected: true }
+            { id: '2', parentId: '0', expected: true },
         ].forEach(({ id, parentId, expected }) => {
             expect(wrapper.vm.isInherited(id, parentId)).toEqual(expected);
         });
@@ -258,7 +258,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         wrapper.vm.onSelectionChange([], { id: '3' }, true);
 
         await wrapper.setData({
-            showSelected: true
+            showSelected: true,
         });
 
         await wrapper.vm.$nextTick();
@@ -280,13 +280,13 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
             shippingMethods: 'shipping_method',
             newsletterRecipients: 'newsletter_recipient',
             landingPages: 'landing_page',
-            rules: 'rule'
+            rules: 'rule',
         };
         const expected = Object.entries(properties).map(([assignment, entity]) => {
             return {
                 name: `sw-settings-tag.detail.assignments.${assignment}`,
                 entity,
-                assignment
+                assignment,
             };
         });
 
@@ -299,7 +299,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         const columns = wrapper.vm.assignmentAssociationsColumns;
 
-        expect(columns[0].property).toEqual('name');
+        expect(columns[0].property).toBe('name');
     });
 
     it('should return entity columns', async () => {
@@ -308,7 +308,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         const columns = wrapper.vm.entitiesColumns;
 
-        expect(columns[0].property).toEqual('name');
+        expect(columns[0].property).toBe('name');
     });
 
     it('should return selected assignments', async () => {
@@ -317,18 +317,18 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         let selectedAssignments = wrapper.vm.selectedAssignments;
 
-        expect(selectedAssignments['0'].id).toEqual('0');
-        expect(selectedAssignments['2'].id).toEqual('2');
+        expect(selectedAssignments['0'].id).toBe('0');
+        expect(selectedAssignments['2'].id).toBe('2');
 
         await wrapper.setProps({
             toBeAdded: { products: [{ id: '3' }] },
-            toBeDeleted: { products: [{ id: '2' }] }
+            toBeDeleted: { products: [{ id: '2' }] },
         });
 
         selectedAssignments = wrapper.vm.selectedAssignments;
 
-        expect(selectedAssignments['0'].id).toEqual('0');
-        expect(selectedAssignments['3'].id).toEqual('3');
+        expect(selectedAssignments['0'].id).toBe('0');
+        expect(selectedAssignments['3'].id).toBe('3');
         expect(selectedAssignments.hasOwnProperty('2')).toBeFalsy();
     });
 
@@ -338,10 +338,10 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         wrapper.vm.countIncrease('foo');
 
-        expect(wrapper.vm.counts.foo).toEqual(1);
+        expect(wrapper.vm.counts.foo).toBe(1);
 
         wrapper.vm.countDecrease('bar');
 
-        expect(wrapper.vm.counts.bar).toEqual(0);
+        expect(wrapper.vm.counts.bar).toBe(0);
     });
 });

@@ -14,7 +14,7 @@ async function createWrapper() {
                 name: 'My custom layout',
                 type: 'product_list',
                 translated: {
-                    name: 'some-name'
+                    name: 'some-name',
                 },
                 sections: [
                     {
@@ -23,13 +23,13 @@ async function createWrapper() {
                             {
                                 name: 'Test block',
                                 type: 'product-listing',
-                                slots: []
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
+                                slots: [],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
     });
 }
 

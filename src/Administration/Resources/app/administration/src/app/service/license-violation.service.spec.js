@@ -5,10 +5,10 @@ const Application = Shopware.Application;
 const extensionApiServiceMock = {
     deactivateExtension: jest.fn(() => Promise.resolve()),
     uninstallExtension: jest.fn(() => Promise.resolve()),
-    removeExtension: jest.fn(() => Promise.resolve())
+    removeExtension: jest.fn(() => Promise.resolve()),
 };
 const cacheApiServiceMock = {
-    clear: jest.fn(() => Promise.resolve())
+    clear: jest.fn(() => Promise.resolve()),
 };
 
 /**
@@ -25,23 +25,23 @@ describe('app/service/license-violation.service.js', () => {
 
     it('should be an object', async () => {
         const type = typeof licenseViolationService;
-        expect(type).toEqual('object');
+        expect(type).toBe('object');
     });
 
     it('should have the correct lastLicenseWarningsKey', async () => {
-        expect(licenseViolationService.key.lastLicenseWarningsKey).toEqual('lastLicenseWarningsShowed');
+        expect(licenseViolationService.key.lastLicenseWarningsKey).toBe('lastLicenseWarningsShowed');
     });
 
     it('should have the correct lastLicenseViolationsFetched', async () => {
-        expect(licenseViolationService.key.lastLicenseFetchedKey).toEqual('lastLicenseViolationsFetched');
+        expect(licenseViolationService.key.lastLicenseFetchedKey).toBe('lastLicenseViolationsFetched');
     });
 
     it('should have the correct licenseViolationCache', async () => {
-        expect(licenseViolationService.key.responseCacheKey).toEqual('licenseViolationCache');
+        expect(licenseViolationService.key.responseCacheKey).toBe('licenseViolationCache');
     });
 
     it('should have the correct licenseViolationShowViolations', async () => {
-        expect(licenseViolationService.key.showViolationsKey).toEqual('licenseViolationShowViolations');
+        expect(licenseViolationService.key.showViolationsKey).toBe('licenseViolationShowViolations');
     });
 
     it('should save violation to cache', async () => {
@@ -114,9 +114,9 @@ describe('app/service/license-violation.service.js', () => {
 
         licenseViolationService.resetLicenseViolations();
 
-        expect(localStorage.getItem('licenseViolationShowViolations')).not.toEqual('hans');
-        expect(localStorage.getItem('lastLicenseViolationsFetched')).not.toEqual('franz');
-        expect(localStorage.getItem('licenseViolationCache')).not.toEqual('sams');
+        expect(localStorage.getItem('licenseViolationShowViolations')).not.toBe('hans');
+        expect(localStorage.getItem('lastLicenseViolationsFetched')).not.toBe('franz');
+        expect(localStorage.getItem('licenseViolationCache')).not.toBe('sams');
     });
 
     it('should ignore the plugin', async () => {
@@ -152,7 +152,7 @@ describe('app/service/license-violation.service.js', () => {
             { name: 'Dolor' },
             { name: 'Cat' },
             { name: 'Sit' },
-            { name: 'Amet' }
+            { name: 'Amet' },
         ];
 
         const ignoreTheseWarnings = ['Dog', 'Cat'];
@@ -164,7 +164,7 @@ describe('app/service/license-violation.service.js', () => {
             { name: 'Non' },
             { name: 'Dolor' },
             { name: 'Sit' },
-            { name: 'Amet' }
+            { name: 'Amet' },
         ];
 
         expect(filteredWarnings).toEqual(expect.arrayContaining(expected));
@@ -181,7 +181,7 @@ describe('app/service/license-violation.service.js', () => {
     it('should force delete the plugin (deactivate & uninstall & remove)', async () => {
         const extensionMock = {
             active: true,
-            installedAt: '123456'
+            installedAt: '123456',
         };
         await licenseViolationService.forceDeletePlugin(extensionMock);
 
@@ -194,7 +194,7 @@ describe('app/service/license-violation.service.js', () => {
     it('should force delete the plugin (uninstall & remove)', async () => {
         const extensionMock = {
             active: false,
-            installedAt: '123456'
+            installedAt: '123456',
         };
         await licenseViolationService.forceDeletePlugin(extensionMock);
 
@@ -207,7 +207,7 @@ describe('app/service/license-violation.service.js', () => {
     it('should force delete the plugin (remove)', async () => {
         const extensionMock = {
             active: false,
-            installedAt: null
+            installedAt: null,
         };
         await licenseViolationService.forceDeletePlugin(extensionMock);
 

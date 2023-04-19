@@ -14,11 +14,11 @@ const store = new Vuex.Store({
         swProductDetail: {
             namespaced: true,
             getters: {
-                isLoading: () => false
+                isLoading: () => false,
             },
             state: {
-                product: product
-            }
+                product: product,
+            },
         },
         context: {
             namespaced: true,
@@ -26,10 +26,10 @@ const store = new Vuex.Store({
             getters: {
                 isSystemDefaultLanguage() {
                     return true;
-                }
-            }
-        }
-    }
+                },
+            },
+        },
+    },
 });
 
 async function createWrapper() {
@@ -41,7 +41,7 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-detail-cross-selling'), {
         localVue,
         propsData: {
-            crossSelling: null
+            crossSelling: null,
         },
         stubs: {
             'sw-card': true,
@@ -51,14 +51,14 @@ async function createWrapper() {
             'sw-skeleton': true,
         },
         mocks: {
-            $store: store
+            $store: store,
         },
         provide: {
             repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve('bar') })
+                create: () => ({ search: () => Promise.resolve('bar') }),
             },
-            acl: { can: () => true }
-        }
+            acl: { can: () => true },
+        },
     });
 }
 
@@ -67,9 +67,9 @@ function buildProduct() {
         crossSellings: [
             {
                 assignedProducts: [
-                ]
-            }
-        ]
+                ],
+            },
+        ],
     };
 }
 

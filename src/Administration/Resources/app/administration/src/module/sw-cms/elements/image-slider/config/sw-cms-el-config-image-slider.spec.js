@@ -25,15 +25,15 @@ async function createWrapper(activeTab = 'content') {
                 },
                 getCmsElementRegistry: () => {
                     return { 'image-slider': {} };
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve()
+                        search: () => Promise.resolve(),
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-tabs': {
@@ -41,12 +41,12 @@ async function createWrapper(activeTab = 'content') {
                 data() {
                     return { active: activeTab };
                 },
-                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
+                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-select-field': {
                 template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options']
+                props: ['value', 'options'],
             },
             'sw-container': true,
             'sw-field': true,
@@ -68,55 +68,55 @@ async function createWrapper(activeTab = 'content') {
                         value: [],
                         required: true,
                         entity: {
-                            name: 'media'
-                        }
+                            name: 'media',
+                        },
                     },
                     navigationArrows: {
                         source: 'static',
-                        value: 'outside'
+                        value: 'outside',
                     },
                     navigationDots: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     displayMode: {
                         source: 'static',
-                        value: 'standard'
+                        value: 'standard',
                     },
                     minHeight: {
                         source: 'static',
-                        value: '300px'
+                        value: '300px',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     autoSlide: {
                         source: 'static',
-                        value: false
+                        value: false,
                     },
                     speed: {
                         source: 'static',
-                        value: 300
+                        value: 300,
                     },
                     autoplayTimeout: {
                         source: 'static',
-                        value: 5000
+                        value: 5000,
                     },
                 },
-                data: {}
+                data: {},
             },
-            defaultConfig: {}
+            defaultConfig: {},
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
-                }
+                        type: 'ladingpage',
+                    },
+                },
             };
-        }
+        },
     });
 }
 
@@ -126,13 +126,13 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
             namespaced: true,
             state: {
                 currentMappingTypes: {},
-                currentDemoEntity: null
+                currentDemoEntity: null,
             },
             mutations: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
-                }
-            }
+                },
+            },
         });
     });
 
@@ -179,7 +179,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showSlideConfig).toBe(true);
-        expect(delaySlide.attributes().disabled).toBe(undefined);
-        expect(speedSlide.attributes().disabled).toBe(undefined);
+        expect(delaySlide.attributes().disabled).toBeUndefined();
+        expect(speedSlide.attributes().disabled).toBeUndefined();
     });
 });

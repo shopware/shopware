@@ -21,8 +21,8 @@ describe('src/app/component/media/sw-media-field', () => {
             },
             mocks: {
                 $route: {
-                    query: ''
-                }
+                    query: '',
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -35,13 +35,13 @@ describe('src/app/component/media/sw-media-field', () => {
                         },
                         search: () => {
                             return Promise.resolve();
-                        }
-                    })
-                }
+                        },
+                    }),
+                },
             },
             propsData: {
                 fileAccept: '*/*',
-            }
+            },
         });
     }
 
@@ -53,13 +53,13 @@ describe('src/app/component/media/sw-media-field', () => {
     it('should contain the default folder in criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            defaultFolder: 'product'
+            defaultFolder: 'product',
         });
         const criteria = wrapper.vm.suggestionCriteria;
         expect(criteria.filters).toContainEqual({
             type: 'equals',
             field: 'mediaFolder.defaultFolder.entity',
-            value: 'product'
+            value: 'product',
         });
     });
 

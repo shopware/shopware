@@ -14,9 +14,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
 
         provide: {
@@ -28,11 +28,11 @@ async function createWrapper(privileges = []) {
                                 ids: '44e90239c4c546c0896882623f6b3eff',
                                 limit: 25,
                                 page: 1,
-                                totalCountMode: 1
-                            }
+                                totalCountMode: 1,
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -41,9 +41,9 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
 
         stubs: {
@@ -60,21 +60,21 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card': {
                 template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowDelete'],
@@ -101,7 +101,7 @@ async function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>
-                `
+                `,
             },
             'sw-search-bar': true,
             'sw-icon': true,
@@ -109,7 +109,7 @@ async function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-context-menu-item': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -123,7 +123,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should be able to create a new salutation if have a creator privilege', async () => {
         const wrapper = await createWrapper([
-            'salutation.creator'
+            'salutation.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -148,19 +148,19 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         async () => {
             const wrapper = await createWrapper([
                 'salutation.editor',
-                'salutation.deleter'
+                'salutation.deleter',
             ]);
             await wrapper.vm.$nextTick();
 
             const createButton = wrapper.find('.sw-settings-salutation-list__create');
 
             expect(createButton.attributes().disabled).toBeTruthy();
-        }
+        },
     );
 
     it('should be able to edit a salutation if have a editor privilege', async () => {
         const wrapper = await createWrapper([
-            'salutation.editor'
+            'salutation.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -179,7 +179,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
     it('should not be able to edit a salutation if have privileges which do not contain editor privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.creator',
-            'salutation.deleter'
+            'salutation.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -189,7 +189,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
     it('should be able to edit a salutation inline if have a editor privilege', async () => {
         const wrapper = await createWrapper([
-            'salutation.editor'
+            'salutation.editor',
         ]);
         await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
@@ -210,18 +210,18 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         async () => {
             const wrapper = await createWrapper([
                 'salutation.creator',
-                'salutation.deleter'
+                'salutation.deleter',
             ]);
             await wrapper.vm.$nextTick();
             const entityListing = wrapper.find('.sw-settings-salutation-list-grid');
             expect(entityListing.exists()).toBeTruthy();
             expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
-        }
+        },
     );
 
     it('should be able to delete a salutation if have a deleter privilege', async () => {
         const wrapper = await createWrapper([
-            'salutation.deleter'
+            'salutation.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -240,7 +240,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
     it('should not be able to delete a salutation if have privileges which do not contain deleter privilege', async () => {
         const wrapper = await createWrapper([
             'salutation.creator',
-            'salutation.editor'
+            'salutation.editor',
         ]);
         await wrapper.vm.$nextTick();
 

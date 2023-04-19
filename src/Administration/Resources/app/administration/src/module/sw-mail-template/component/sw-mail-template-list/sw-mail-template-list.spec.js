@@ -19,40 +19,40 @@ const createWrapper = async (privileges = []) => {
                                 description: 'Shopware Default Template',
                                 mailTemplateType: {
                                     id: '1',
-                                    name: 'Enter delivery state: Returned'
+                                    name: 'Enter delivery state: Returned',
                                 },
                                 salesChannels: [
                                     {
                                         salesChannel: {
-                                            name: 'Storefront'
-                                        }
-                                    }
-                                ]
-                            }
+                                            name: 'Storefront',
+                                        },
+                                    },
+                                ],
+                            },
                         ]);
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
-            searchRankingService: {}
+            searchRankingService: {},
         },
         mocks: {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         stubs: {
             'sw-card': {
-                template: '<div><slot name="grid"></slot></div>'
+                template: '<div><slot name="grid"></slot></div>',
             },
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
@@ -76,10 +76,10 @@ const createWrapper = async (privileges = []) => {
                                 </slot>
                             </slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 };
 
@@ -121,18 +121,18 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         await wrapper.vm.$nextTick();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
-        expect(editButton.text()).toEqual('global.default.view');
+        expect(editButton.text()).toBe('global.default.view');
     });
 
     it('should allow to edit with edit permission', async () => {
         const wrapper = await createWrapper([
             'mail_templates.viewer',
-            'mail_templates.editor'
+            'mail_templates.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
-        expect(editButton.text()).toEqual('global.default.edit');
+        expect(editButton.text()).toBe('global.default.edit');
     });
 
     it('should hide item selection if user does not have delete permission', async () => {
@@ -171,7 +171,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         // fill listing with mail templates mocks
         wrapper.vm.mailTemplates = [
             { type: 'contact_form', salesChannel: 'Headless' },
-            { type: 'password_recovery', salesChannel: 'Storefront' }
+            { type: 'password_recovery', salesChannel: 'Storefront' },
         ];
 
         const amountOfSkeletons = wrapper.vm.skeletonItemAmount;

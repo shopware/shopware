@@ -15,18 +15,18 @@ async function createWrapper() {
                     desktop: true,
                     tablet: true,
                     mobile: true,
-                }
-            }
+                },
+            },
         },
         provide: {
-            cmsService: {}
+            cmsService: {},
         },
         stubs: {
             'sw-icon': true,
             'sw-cms-visibility-toggle': {
-                template: '<div class="sw-cms-visibility-toggle-wrapper"></div>'
+                template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
             },
-        }
+        },
     });
 }
 describe('module/sw-cms/component/sw-cms-block', () => {
@@ -58,7 +58,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
     it('the overlay should not exist', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.find('.sw-cms-block__config-overlay').exists()).toBeFalsy();
@@ -73,8 +73,8 @@ describe('module/sw-cms/component/sw-cms-block', () => {
                     mobile: true,
                     tablet: true,
                     desktop: false,
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
@@ -89,8 +89,8 @@ describe('module/sw-cms/component/sw-cms-block', () => {
                     mobile: true,
                     tablet: true,
                     desktop: false,
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');

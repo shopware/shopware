@@ -1,25 +1,34 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
+/**
+ * @internal
+ *
+ * @covers \Shopware\Core\Framework\Struct\ArrayStruct
+ */
 class ArrayStructTest extends TestCase
 {
     /**
+     * @param array<string|int, mixed> $dataSet
+     *
      * @dataProvider hasDataProvider
      */
-    public function testHas(array $dataSet, mixed $searchFor, bool $expectFound): void
+    public function testHas(array $dataSet, int|string $searchFor, bool $expectFound): void
     {
         $arrayStruct = new ArrayStruct($dataSet);
         static::assertSame($expectFound, $arrayStruct->has($searchFor));
     }
 
     /**
+     * @param array<string|int, mixed> $dataSet
+     *
      * @dataProvider hasDataProvider
      */
-    public function testOffsetExists(array $dataSet, mixed $searchFor, bool $expectFound): void
+    public function testOffsetExists(array $dataSet, int|string $searchFor, bool $expectFound): void
     {
         $arrayStruct = new ArrayStruct($dataSet);
         static::assertSame($expectFound, $arrayStruct->offsetExists($searchFor));
@@ -130,7 +139,7 @@ class ArrayStructTest extends TestCase
         static::assertCount(1, $arrayStruct);
     }
 
-    public function hasDataProvider(): \Generator
+    public static function hasDataProvider(): \Generator
     {
         $defaultDataSet = [
             'a' => 'value',
@@ -145,5 +154,4 @@ class ArrayStructTest extends TestCase
         yield 'key not existing' => [$defaultDataSet, 'not_existing', false];
         yield 'null value' => [$defaultDataSet, 'null_value', true];
     }
-
 }

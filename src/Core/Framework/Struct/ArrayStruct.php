@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Traversable;
 
 /**
  * @template-covariant TKey
  * @template-covariant TValue
  *
  * @implements \ArrayAccess<string|int, mixed>
+ * @implements \IteratorAggregate<string|int, mixed>
  */
 #[Package('core')]
 class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \Countable
@@ -103,13 +103,13 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
         return $this->data;
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->data);
     }
 
     public function count(): int
     {
-        return count($this->data);
+        return \count($this->data);
     }
 }

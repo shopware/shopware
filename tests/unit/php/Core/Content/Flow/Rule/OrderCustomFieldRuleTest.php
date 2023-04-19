@@ -197,7 +197,7 @@ class OrderCustomFieldRuleTest extends TestCase
         $this->assignRule('text', 'testValue');
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_NEQ,
+                'operator' => '=',
             ]
         );
 
@@ -318,7 +318,7 @@ class OrderCustomFieldRuleTest extends TestCase
     {
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_EQ,
+                'operator' => '=',
                 'renderedField' => [
                     'type' => $type,
                     'name' => self::CUSTOM_FIELD_NAME,

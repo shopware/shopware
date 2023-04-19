@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -33,15 +34,22 @@ class SalesChannelUpdateDomainCommand extends Command
     {
         $this->addArgument('domain', InputArgument::REQUIRED, 'Domain of the new sales channel');
         $this->addOption('previous-domain', null, InputOption::VALUE_OPTIONAL, 'Only apply to this previous domain');
+        $this->addOption('sales-channel-id', 's', InputOption::VALUE_OPTIONAL, 'Update a specific sales channel ID');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $context = Context::createDefaultContext();
-        $domains = $this->salesChannelDomainRepository->search(new Criteria(), $context);
+        $criteria = new Criteria();
 
         $host = $input->getArgument('domain');
         $previousHost = $input->getOption('previous-domain');
+        $salesChannelId = $input->getOption('sales-channel-id');
+
+        if ($salesChannelId) {
+            $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+        }
+        $domains = $this->salesChannelDomainRepository->search($criteria, $context);
 
         $payload = [];
         /** @var SalesChannelDomainEntity $domain */
@@ -71,13 +79,20 @@ class SalesChannelUpdateDomainCommand extends Command
     private function replaceDomain(string $url, string $newDomain): string
     {
         $components = parse_url($url);
+        $newComponents = parse_url($newDomain);
 
-        if ($components === false) {
+        if ($components === false || $newComponents === false) {
             return $url;
         }
 
-        if (\array_key_exists('host', $components)) {
-            $components['host'] = $newDomain;
+        if (\array_key_exists('host', $newComponents)) {
+            $components['host'] = $newComponents['host'];
+        } elseif (\array_key_exists('path', $newComponents)) {
+            $components['host'] = $newComponents['path'];
+        }
+
+        if (\array_key_exists('port', $newComponents)) {
+            $components['port'] = $newComponents['port'];
         }
 
         return $this->buildUrl($components);

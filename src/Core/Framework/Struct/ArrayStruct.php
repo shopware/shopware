@@ -9,9 +9,10 @@ use Shopware\Core\Framework\Log\Package;
  * @template-covariant TValue
  *
  * @implements \ArrayAccess<string|int, mixed>
+ * @implements \IteratorAggregate<string|int, mixed>
  */
 #[Package('core')]
-class ArrayStruct extends Struct implements \ArrayAccess
+class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @param array<string|int, mixed> $data
@@ -100,5 +101,15 @@ class ArrayStruct extends Struct implements \ArrayAccess
     public function getVars(): array
     {
         return $this->data;
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator($this->data);
+    }
+
+    public function count(): int
+    {
+        return \count($this->data);
     }
 }

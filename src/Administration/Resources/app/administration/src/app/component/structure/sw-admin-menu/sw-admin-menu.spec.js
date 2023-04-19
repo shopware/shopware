@@ -82,6 +82,10 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
 
+        if (Shopware.State.get('settingsItems')) {
+            Shopware.State.unregisterModule('settingsItems');
+        }
+
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,
             state: {

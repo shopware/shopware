@@ -93,6 +93,10 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper = null;
 
     beforeAll(() => {
+        if (Shopware.State.get('session')) {
+            Shopware.State.unregisterModule('session');
+        }
+
         Shopware.State.registerModule('session', {
             state: {
                 currentUser: null,

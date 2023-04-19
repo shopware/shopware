@@ -6,15 +6,12 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigImageSlider from 'src/module/sw-cms/elements/image-slider/config';
 import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
-import swSwitchField from 'src/app/component/form/sw-switch-field';
-import swCheckboxField from 'src/app/component/form/sw-checkbox-field';
-import swBaseField from 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/field-base/sw-base-field';
 
 Shopware.Component.register('sw-cms-el-config-image-slider', swCmsElConfigImageSlider);
 Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
-Shopware.Component.register('sw-switch-field', swSwitchField);
-Shopware.Component.register('sw-checkbox-field', swCheckboxField);
-Shopware.Component.register('sw-base-field', swBaseField);
 
 async function createWrapper(activeTab = 'content') {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-image-slider'), {

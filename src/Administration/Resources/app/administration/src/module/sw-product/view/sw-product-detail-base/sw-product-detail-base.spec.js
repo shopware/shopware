@@ -5,16 +5,14 @@
 import { shallowMount } from '@vue/test-utils';
 import swProductDetailBase from 'src/module/sw-product/view/sw-product-detail-base';
 import swProductBasicForm from 'src/module/sw-product/component/sw-product-basic-form';
-import swInheritWrapper from 'src/app/component/utils/sw-inherit-wrapper';
-import swField from 'src/app/component/form/sw-field';
+import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/form/sw-field';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
 
 Shopware.Component.register('sw-product-detail-base', swProductDetailBase);
 Shopware.Component.register('sw-product-basic-form', swProductBasicForm);
-Shopware.Component.register('sw-inherit-wrapper', swInheritWrapper);
-Shopware.Component.register('sw-field', swField);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-detail-base'), {

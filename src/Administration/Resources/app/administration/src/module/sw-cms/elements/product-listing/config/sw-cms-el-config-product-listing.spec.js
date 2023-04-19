@@ -5,11 +5,10 @@ import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigProductListing from 'src/module/sw-cms/elements/product-listing/config';
-import swDataGrid from 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/data-grid/sw-data-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 Shopware.Component.register('sw-cms-el-config-product-listing', swCmsElConfigProductListing);
-Shopware.Component.register('sw-data-grid', swDataGrid);
 
 const productSortingRepositoryMock = {
     search() {

@@ -35,6 +35,10 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         shopwareExtensionService = Shopware.Service('shopwareExtensionService');
 
         initState(Shopware);
+
+        if (Shopware.State.get('extensionEntryRoutes')) {
+            Shopware.State.unregisterModule('extensionEntryRoutes');
+        }
         Shopware.State.registerModule('extensionEntryRoutes', {
             namespaced: true,
             state: {

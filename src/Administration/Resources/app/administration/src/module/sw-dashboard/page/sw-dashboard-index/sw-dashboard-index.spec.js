@@ -43,6 +43,10 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;
 
     beforeAll(async () => {
+        if (Shopware.State.get('session')) {
+            Shopware.State.unregisterModule('session');
+        }
+
         Shopware.State.registerModule('session', {
             state: {
                 currentUser: null,

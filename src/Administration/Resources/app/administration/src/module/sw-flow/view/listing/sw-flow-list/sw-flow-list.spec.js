@@ -73,6 +73,7 @@ async function createWrapper(privileges = []) {
                     </div>
                 `
             },
+            'sw-card': true,
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-search-bar': true,

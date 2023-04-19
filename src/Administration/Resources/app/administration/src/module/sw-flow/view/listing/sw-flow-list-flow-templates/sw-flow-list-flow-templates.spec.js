@@ -1,5 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import swFlowListFlowTemplates from 'src/module/sw-flow/view/listing/sw-flow-list-flow-templates';
+import 'src/app/component/utils/sw-internal-link';
+import 'src/app/component/entity/sw-entity-listing';
+import 'src/app/component/data-grid/sw-data-grid';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -16,8 +19,9 @@ const mockData = [
     }
 ];
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], propsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-flow-list-flow-templates'), {
+        propsData,
         mocks: {
             $route: {
                 query: {
@@ -26,16 +30,14 @@ async function createWrapper(privileges = []) {
                 }
             }
         },
-
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => {
-                        return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData, 1));
-                    }
+                    search: jest.fn((criteria) => {
+                        return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
+                    })
                 })
             },
-
             acl: {
                 can: (identifier) => {
                     if (!identifier) {
@@ -45,10 +47,8 @@ async function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-
             searchRankingService: {}
         },
-
         stubs: {
             'sw-page': {
                 template: `
@@ -65,21 +65,20 @@ async function createWrapper(privileges = []) {
                     </div>
                 `
             },
+            'sw-card': true,
+            'sw-internal-link': await Shopware.Component.build('sw-internal-link'),
+            'router-link': {
+                props: ['to'],
+                // eslint-disable-next-line no-template-curly-in-string
+                template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>'
+            },
             'sw-icon': true,
             'sw-button': true,
-            'sw-entity-listing': {
-                props: ['items'],
-                template: `
-                    <div class="sw-data-grid">
-                    <div class="sw-data-grid__row" v-for="item in items">
-                        <slot name="column-name" v-bind="{ item }"></slot>
-                        <slot name="column-createFlow" v-bind="{ item }"></slot>
-                        <slot name="actions" v-bind="{ item }"></slot>
-                    </div>
-                    </div>
-                `
-            },
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-context-menu-item': true,
+            'sw-data-grid-skeleton': true,
+            'sw-pagination': true,
             'sw-empty-state': true,
             'sw-search-bar': true
         }
@@ -108,7 +107,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
         expect(createFlowLink.exists()).toBe(true);
 
-        expect(createFlowLink.attributes().disabled).toBe('disabled');
+        expect(createFlowLink.classes()).toContain('sw-internal-link--disabled');
     });
 
     it('should be able to redirect to create flow page from flow template', async () => {
@@ -116,14 +115,10 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
             'flow.creator'
         ]);
         await flushPromises();
-        await wrapper.find('.sw-flow-list-my-flows__content__create-flow-link').trigger('click');
 
-        const routerPush = wrapper.vm.$router.push;
+        const link = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
 
-        expect(routerPush).toHaveBeenLastCalledWith({
-            name: 'sw.flow.create',
-            params: { flowTemplateId: '44de136acf314e7184401d36406c1e90' }
-        });
+        expect(link.attributes('href')).toBe('sw.flow.create/44de136acf314e7184401d36406c1e90');
     });
 
     it('should be able to view detail flow template', async () => {
@@ -149,5 +144,41 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         await flushPromises();
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(0);
+    });
+
+    it('provides a metaInfo object containing a title', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.$options.$createTitle = () => 'foo-bar';
+
+        expect(wrapper.vm.$options.metaInfo()).toMatchObject({
+            title: wrapper.vm.$options.$createTitle(),
+        });
+    });
+
+    it('should set searchTerm to criteria', async () => {
+        const wrapper = await createWrapper([], {
+            searchTerm: 'test-term'
+        });
+
+        expect(wrapper.vm.flowTemplateRepository.search).toHaveBeenNthCalledWith(1, expect.objectContaining({
+            term: 'test-term'
+        }));
+    });
+
+    it('should correctly align table columns', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__header').exists()).toBe(true);
+
+        const headers = wrapper.findAll('.sw-data-grid__header th');
+        expect(headers).toHaveLength(3);
+
+        // name
+        expect(headers.at(0).classes()).toContain('sw-data-grid__cell--align-left');
+        // description
+        expect(headers.at(1).classes()).toContain('sw-data-grid__cell--align-left');
+        // createFlow
+        expect(headers.at(2).classes()).toContain('sw-data-grid__cell--align-right');
     });
 });

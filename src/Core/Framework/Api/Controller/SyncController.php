@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\ConnectionException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -56,13 +57,18 @@ class SyncController extends AbstractController
             if (isset($operation['key'])) {
                 $key = $operation['key'];
             }
+            $key = (string) $key;
             $operations[] = new SyncOperation(
-                (string) $key,
+                $key,
                 $operation['entity'],
                 $operation['action'],
                 $operation['payload'] ?? [],
                 $operation['criteria'] ?? []
             );
+
+            if (empty($operation['entity'])) {
+                throw ApiException::invalidSyncOperationException(sprintf('Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.', (string) $key));
+            }
         }
 
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));

@@ -607,6 +607,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncFkResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Sync\SyncFkResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="tagged" tag="shopware.sync.fk_resolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry">

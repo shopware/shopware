@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Sync;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -289,5 +289,54 @@ class SyncServiceTest extends TestCase
         static::assertContains($ids->get('p1') . '-' . $ids->get('c1'), $existing);
         static::assertContains($ids->get('p2') . '-' . $ids->get('c1'), $existing);
         static::assertContains($ids->get('p3') . '-' . $ids->get('c1'), $existing);
+    }
+
+    public function testResolveForeignKeys(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $categories = [
+            ['id' => $ids->create('c1'), 'name' => 'c1'],
+            ['id' => $ids->create('c2'), 'name' => 'c2'],
+        ];
+
+        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation(
+                'map-categories',
+                'product_category',
+                SyncOperation::ACTION_UPSERT,
+                [
+                    [
+                        'categoryId' => $ids->get('c1'),
+                        'productId' => ['resolver' => 'product.number', 'value' => 'p1'],
+                    ],
+                    [
+                        'categoryId' => $ids->get('c2'),
+                        'productId' => ['resolver' => 'product.number', 'value' => 'p1'],
+                    ],
+                ]
+            ),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        $existing = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(category_id)) FROM product_category WHERE product_id = :id',
+            ['id' => $ids->getBytes('p1')]
+        );
+
+        static::assertCount(2, $existing);
+        static::assertContains($ids->get('c1'), $existing);
+        static::assertContains($ids->get('c2'), $existing);
     }
 }

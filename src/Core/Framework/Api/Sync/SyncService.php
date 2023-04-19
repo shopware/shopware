@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -32,7 +33,8 @@ class SyncService implements SyncServiceInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly EntitySearcherInterface $searcher,
-        private readonly RequestCriteriaBuilder $criteriaBuilder
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly SyncFkResolver $syncFkResolver
     ) {
     }
 
@@ -137,12 +139,22 @@ class SyncService implements SyncServiceInterface
 
                 continue;
             }
+
+            if ($operation->getAction() === SyncOperation::ACTION_UPSERT) {
+                $resolved = $this->syncFkResolver->resolve($operation->getEntity(), $operation->getPayload());
+
+                $operation->replacePayload($resolved);
+            }
         }
     }
 
     private function handleCriteriaDelete(SyncOperation $operation, Context $context): void
     {
         $definition = $this->registry->getByEntityName($operation->getEntity());
+
+        if (!$definition instanceof MappingEntityDefinition) {
+            throw ApiException::invalidSyncCriteriaException($operation->getKey());
+        }
 
         $criteria = $this->criteriaBuilder->fromArray(['filter' => $operation->getCriteria()], new Criteria(), $definition, $context);
 

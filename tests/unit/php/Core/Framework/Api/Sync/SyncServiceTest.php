@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
@@ -56,7 +57,8 @@ class SyncServiceTest extends TestCase
                 $this->createMock(EntityWriteGatewayInterface::class),
             ),
             $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(RequestCriteriaBuilder::class)
+            $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(SyncFkResolver::class)
         );
 
         $upsert = new SyncOperation('foo', 'product', SyncOperation::ACTION_UPSERT, [
@@ -151,7 +153,8 @@ class SyncServiceTest extends TestCase
                 $this->createMock(EntityWriteGatewayInterface::class),
             ),
             $searcher,
-            $criteriaBuilder
+            $criteriaBuilder,
+            $this->createMock(SyncFkResolver::class)
         );
 
         $delete = new SyncOperation(

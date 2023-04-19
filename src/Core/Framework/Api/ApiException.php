@@ -10,13 +10,33 @@ use Symfony\Component\HttpFoundation\Response;
 class ApiException extends HttpException
 {
     public const API_INVALID_SYNC_CRITERIA_EXCEPTION = 'API_INVALID_SYNC_CRITERIA_EXCEPTION';
+    public const API_RESOLVER_NOT_FOUND_EXCEPTION = 'API_RESOLVER_NOT_FOUND_EXCEPTION';
+    public const API_INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__INVALID_SYNC_OPERATION';
 
     public static function invalidSyncCriteriaException(string $operationKey): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::API_INVALID_SYNC_CRITERIA_EXCEPTION,
-            \sprintf('Sync operation %s, with action "delete", requires a criteria with at least one filter', $operationKey)
+            \sprintf('Sync operation %s, with action "delete", requires a criteria with at least one filter and can only be applied for mapping entities', $operationKey)
+        );
+    }
+
+    public static function invalidSyncOperationException(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_SYNC_OPERATION_EXCEPTION,
+            $message
+        );
+    }
+
+    public static function resolverNotFoundException(string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_RESOLVER_NOT_FOUND_EXCEPTION,
+            \sprintf('Foreign key resolver for key %s not found', $key)
         );
     }
 }

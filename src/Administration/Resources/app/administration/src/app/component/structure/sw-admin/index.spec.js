@@ -143,4 +143,21 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
     });
+
+    it('should not handle session_channel message if inactivity logout is disabled', async () => {
+        Shopware.Context.app.config.disableInactivityLogout = true;
+
+        const forwardLogout = jest.fn();
+        wrapper = await createWrapper(false, forwardLogout);
+
+        const channel = new BroadcastChannel('session_channel');
+        channel.postMessage({
+            inactive: true
+        });
+
+        await flushPromises();
+
+        expect(forwardLogout).toHaveBeenCalledTimes(0);
+        channel.close();
+    });
 });

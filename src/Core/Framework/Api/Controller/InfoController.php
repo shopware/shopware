@@ -47,7 +47,8 @@ class InfoController extends AbstractController
         private readonly AppUrlVerifier $appUrlVerifier,
         private readonly ?FlowActionCollector $flowActionCollector = null,
         private readonly bool $enableUrlFeature = true,
-        private readonly array $cspTemplates = []
+        private readonly array $cspTemplates = [],
+        private readonly bool $disableInactivityLogout = false,
     ) {
     }
 
@@ -153,6 +154,7 @@ class InfoController extends AbstractController
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
             ],
+            'disableInactivityLogout' => $this->disableInactivityLogout,
         ]);
     }
 

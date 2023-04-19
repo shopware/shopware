@@ -29,6 +29,7 @@ interface ContextState {
                     active?: boolean,
                 }
             },
+            disableInactivityLogout: boolean,
             version: null | string,
             versionRevision: null | string,
         },
@@ -73,6 +74,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             config: {
                 adminWorker: null,
                 bundles: null,
+                disableInactivityLogout: false,
                 version: null,
                 versionRevision: null,
             },
@@ -186,6 +188,10 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             }
         }) {
             state.app.config.bundles = value;
+        },
+
+        setAppConfigDisableInactivityLogout(state, value: boolean) {
+            state.app.config.disableInactivityLogout = value;
         },
 
         setAppConfigVersion(state, value: string) {

@@ -63,6 +63,10 @@
                                 "description": "State of the `urlFeature` setting."
                             }
                         }
+                    },
+                    "disableInactivityLogout": {
+                        "type": "boolean",
+                        "description": "Flag to disable inactivity logout."
                     }
                 }
             }

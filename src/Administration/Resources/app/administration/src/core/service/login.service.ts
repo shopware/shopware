@@ -288,7 +288,7 @@ export default function createLoginService(
     function shouldConsiderUserActivity(): boolean {
         const devEnv = Shopware.Context.app.environment === 'development';
 
-        return !devEnv;
+        return !devEnv && !Shopware.Context.app.config.disableInactivityLogout;
     }
 
     /**

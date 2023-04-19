@@ -280,3 +280,6 @@ shopware:
     dompdf:
         options:
             isRemoteEnabled: true
+
+    security:
+        disable_admin_inactivity_logout: false

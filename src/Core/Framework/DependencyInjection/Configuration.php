@@ -40,6 +40,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createIncrementSection())
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
+                ->append($this->createSecuritySection())
             ->end();
 
         return $treeBuilder;
@@ -662,6 +663,19 @@ class Configuration implements ConfigurationInterface
                 ->scalarPrototype()
                 ->end()
             ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSecuritySection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('security');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->booleanNode('disable_admin_inactivity_logout')->defaultFalse()->end()
             ->end();
 
         return $rootNode;

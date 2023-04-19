@@ -61,6 +61,7 @@ class InfoControllerTest extends TestCase
                 'appsRequireAppUrl' => false,
                 'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
             ],
+            'disableInactivityLogout' => false,
         ];
 
         $url = '/api/_info/config';
@@ -81,8 +82,10 @@ class InfoControllerTest extends TestCase
 
         static::assertEquals($expected['settings'], $decodedResponse['settings']);
 
-        unset($expected['settings']);
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+        unset($expected['settings'], $decodedResponse['settings']);
+        $decodedResponse['bundles'] = [];
+
+        static::assertEquals($expected, $decodedResponse);
     }
 
     public function testGetConfigWithPermissions(): void

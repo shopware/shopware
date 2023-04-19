@@ -92,6 +92,9 @@
                 },
                 "dompdf": {
                     "$ref": "#/definitions/dompdf"
+                },
+                "security": {
+                    "$ref": "#/definitions/security"
                 }
             },
             "title": "Shopware"
@@ -140,6 +143,17 @@
                     "additionalProperties": true
                 }
             }
+        },
+        "security": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "disable_admin_inactivity_logout": {
+                    "type": "boolean",
+                    "title": "This setting disables administration logout on inactivity. "
+                }
+            },
+            "title": "Security"
         },
         "mail": {
             "type": "object",

@@ -33,6 +33,8 @@ Component.register('sw-admin', {
     },
 
     created() {
+        const context = Shopware.Context.app;
+
         this.channel = new BroadcastChannel('session_channel');
         this.channel.onmessage = (event) => {
             const data = event.data as { inactive?: boolean };
@@ -42,7 +44,11 @@ Component.register('sw-admin', {
             }
 
             const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
-            if (!data.inactive || routeBlocklist.includes(this.$router.currentRoute.name || '')) {
+            if (
+                !data.inactive
+                || routeBlocklist.includes(this.$router.currentRoute.name || '')
+                || context.config.disableInactivityLogout
+            ) {
                 return;
             }
 

@@ -39,7 +39,6 @@ async function createWrapper(responsiveBindings = {}) {
 `,
         props: {
             responsiveBindings: {
-                type: Object,
                 required: true,
             },
         },
@@ -95,5 +94,19 @@ describe('src/app/directive/responsive.directive.ts', () => {
         resizeObserverList.at(0)._execute();
 
         expect(wrapper.classes()).not.toContain('is--compact');
+    });
+
+    it('should execute all observer without error even if no binding was provided', async () => {
+        resizeObserverList = [];
+        wrapper = await createWrapper(null);
+        await flushPromises();
+
+        resizeObserverList.at(0).observerList.forEach(el => {
+            el.contentRect = {
+                width: 500,
+            };
+        });
+
+        expect(() => resizeObserverList.at(0)._execute()).not.toThrow();
     });
 });

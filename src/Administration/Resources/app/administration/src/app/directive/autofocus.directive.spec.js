@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper({ template = '' } = { template: '' }) {
     return shallowMount(
         {
-            template: `
+            template: template.length > 0 ? template : `
             <div>
                 <div class="test-one">
                     <input class="test-one"/>
@@ -52,5 +52,26 @@ describe('src/app/directive/autofocus.directive.ts', () => {
         const secondInput = wrapper.find('.test-two-input');
 
         expect(secondInput.element).toHaveFocus();
+    });
+
+    it('should not do anything when autofocus does not contain an input element', async () => {
+        wrapper = await createWrapper({
+            template: `
+            <div>
+                <div class="test-one">
+                    <span class="test-one-non-input">One</span>
+                </div>
+                <div class="test-two" v-autofocus>
+                    <span class="test-two-non-input">Two</span>
+                </div>
+                <div class="test-three">
+                    <span class="test-three-non-input">Three</span>
+                </div>
+            </div>`,
+        });
+
+        const secondNonInput = wrapper.find('.test-two-non-input');
+
+        expect(secondNonInput.element).not.toHaveFocus();
     });
 });

@@ -104,6 +104,7 @@
         "labelLanguagePlaceholder": "Sprache auswählen ...",
         "labelChangePassword": "Passwort ändern",
         "labelAdministrator": "Administrator",
+        "labelActive": "Aktiv",
         "labelTimezone": "Zeitzone",
         "labelJobTitle": "Job-Titel",
         "labelRoles": "Rollen",

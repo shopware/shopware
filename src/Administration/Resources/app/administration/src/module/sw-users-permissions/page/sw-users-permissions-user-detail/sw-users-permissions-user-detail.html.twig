@@ -188,15 +188,29 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_user_detail_grid_content_acl_is_admin %}
-                        <sw-switch-field
-                            v-model="user.admin"
-                            class="sw-settings-user-detail__grid-is-admin"
-                            :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                            :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
-                        />
-                        {% endblock %}
+                        <sw-container
+                            columns="1fr 1fr"
+                        >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_user_detail_grid_content_acl_is_admin %}
+                            <sw-switch-field
+                                v-model="user.admin"
+                                class="sw-settings-user-detail__grid-is-admin"
+                                :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
+                                :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
+                            />
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_user_detail_grid_content_acl_is_active %}
+                            <sw-switch-field
+                                v-model="user.active"
+                                class="sw-settings-user-detail__grid-is-active"
+                                :label="$tc('sw-users-permissions.users.user-detail.labelActive')"
+                                :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
+                            />
+                            {% endblock %}
+                        </sw-container>
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_job_title %}

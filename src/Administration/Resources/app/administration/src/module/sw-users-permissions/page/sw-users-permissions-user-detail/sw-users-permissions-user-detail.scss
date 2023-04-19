@@ -70,10 +70,6 @@ $sw-field-help-color: $color-darkgray-200;
         grid-area: AclRoles;
     }
 
-    .sw-settings-user-detail__grid-is-admin {
-        grid-area: IsAdmin;
-    }
-
     &__grid-timezone {
         grid-area: Timezone;
         margin-top: 0;

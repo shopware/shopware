@@ -55,6 +55,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
             ->select(['last_updated_password_at'])
             ->from('user')
             ->where('id = :userId')
+            ->andWhere('active = 1')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
             ->executeQuery()
             ->fetchOne();

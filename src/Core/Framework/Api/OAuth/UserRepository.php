@@ -37,6 +37,7 @@ class UserRepository implements UserRepositoryInterface
         $user = $builder->select(['user.id', 'user.password'])
             ->from('user')
             ->where('username = :username')
+            ->andWhere('active = 1')
             ->setParameter('username', $username)
             ->executeQuery()
             ->fetchAssociative();

@@ -3,8 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -219,8 +222,161 @@ class AssetServiceTest extends TestCase
         static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
     }
 
+    /**
+     * @return array<string, array{manifest: array<string, string>, expected-writes: array<string, string>, expected-deletes: array<string>}>
+     */
+    public static function adminFilesProvider(): array
+    {
+        return [
+            'destination-empty' => [
+                'manifest' => [],
+                'expected-writes' => [
+                    'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
+                    'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+                    'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+                    'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
+                ],
+                'expected-deletes' => [],
+            ],
+            'destination-nothing-changed' => [
+                'manifest' => [
+                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                ],
+                'expected-writes' => [],
+                'expected-deletes' => [],
+            ],
+            'destination-new-and-removed' => [
+                'manifest' => [
+                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'four.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                ],
+                'expected-writes' => [
+                    'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
+                ],
+                'expected-deletes' => [
+                    'bundles/administration/four.js',
+                ],
+            ],
+            'destination-content-changed' => [
+                'manifest' => [
+                    'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                    'one.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', //incorrect hash to simulate content change
+                    'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', //incorrect hash to simulate content change
+                    'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                ],
+                'expected-writes' => [
+                    'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+                    'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+                ],
+                'expected-deletes' => [],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider adminFilesProvider
+     *
+     * @param array<string, string> $manifest
+     * @param array<string, string> $expectedWrites
+     * @param array<string> $expectedDeletes
+     */
+    public function testCopyAssetsFromAdminBundle(array $manifest, array $expectedWrites, array $expectedDeletes): void
+    {
+        ksort($manifest);
+        $bundle = new Administration();
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel
+            ->method('getBundle')
+            ->with('AdministrationBundle')
+            ->willReturn($bundle);
+
+        $filesystem = $this->createMock(FilesystemOperator::class);
+        $assetService = new AssetService(
+            $filesystem,
+            $kernel,
+            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
+            $this->createMock(CacheInvalidator::class),
+            $this->createMock(AbstractAppLoader::class),
+            new ParameterBag()
+        );
+
+        $adapter = new MemoryFilesystemAdapter();
+        $config = new Config();
+
+        $adapter->write('asset-manifest.json', (string) json_encode(['administration' => $manifest]), $config);
+
+        $filesystem
+            ->expects(static::once())
+            ->method('fileExists')
+            ->with('asset-manifest.json')
+            ->willReturn(true);
+
+        $filesystem
+            ->expects(static::once())
+            ->method('read')
+            ->with('asset-manifest.json')
+            ->willReturn($adapter->read('asset-manifest.json'));
+
+        $filesystem
+            ->expects(static::exactly(\count($expectedWrites)))
+            ->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) use ($expectedWrites) {
+                static::assertIsResource($stream);
+                $meta = stream_get_meta_data($stream);
+
+                $local = $expectedWrites[$path];
+                unset($expectedWrites[$path]);
+
+                static::assertEquals(__DIR__ . '/../_fixtures/' . $local, $meta['uri']);
+
+                return true;
+            });
+
+        $filesystem
+            ->expects(static::exactly(\count($expectedDeletes)))
+            ->method('delete')
+            ->with(static::callback(function (string $path) use ($expectedDeletes) {
+                return $path === array_pop($expectedDeletes);
+            }));
+
+        $expectedManifestFiles = [
+            'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+        ];
+        ksort($expectedManifestFiles);
+
+        $filesystem
+            ->expects(empty($expectedWrites) && empty($expectedDeletes) ? static::never() : static::once())
+            ->method('write')
+            ->with(
+                'asset-manifest.json',
+                json_encode(['administration' => $expectedManifestFiles], \JSON_PRETTY_PRINT)
+            );
+
+        $assetService->copyAssetsFromBundle('AdministrationBundle');
+    }
+
     private function getBundle(): ExampleBundle
     {
         return new ExampleBundle(true, __DIR__ . '/_fixtures/ExampleBundle');
+    }
+}
+
+/**
+ * @internal
+ */
+class Administration extends ShopwareAdministration
+{
+    public function getPath(): string
+    {
+        return __DIR__ . '/../_fixtures/AdminBundle';
     }
 }

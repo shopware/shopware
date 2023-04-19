@@ -41,6 +41,7 @@ class SyncController extends AbstractController
     #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse
     {
+        /** @var list<string> $indexingSkips */
         $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         $behavior = new SyncBehavior(
@@ -55,7 +56,13 @@ class SyncController extends AbstractController
             if (isset($operation['key'])) {
                 $key = $operation['key'];
             }
-            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
+            $operations[] = new SyncOperation(
+                (string) $key,
+                $operation['entity'],
+                $operation['action'],
+                $operation['payload'] ?? [],
+                $operation['criteria'] ?? []
+            );
         }
 
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));

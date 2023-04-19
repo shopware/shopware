@@ -238,4 +238,56 @@ class SyncServiceTest extends TestCase
         static::assertInstanceOf(WriteConstraintViolationException::class, $first);
         static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
     }
+
+    public function testDeleteWithWildCards(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->category('c1')
+                ->category('c2')
+                ->build(),
+            (new ProductBuilder($ids, 'p2'))
+                ->price(100)
+                ->category('c1')
+                ->category('c3')
+                ->build(),
+            (new ProductBuilder($ids, 'p3'))
+                ->price(100)
+                ->category('c4')
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation('delete-mapping', 'product_category', SyncOperation::ACTION_DELETE, [], [
+                ['type' => 'or', 'queries' => [
+                    ['type' => 'equals',    'field' => 'categoryId', 'value' => $ids->get('c4')],
+                    ['type' => 'equalsAny', 'field' => 'productId',  'value' => $ids->getList(['p1', 'p2'])],
+                ]],
+            ]),
+            new SyncOperation('new-mapping', 'product_category', SyncOperation::ACTION_UPSERT, [
+                ['productId' => $ids->get('p1'), 'categoryId' => $ids->get('c1')],
+                ['productId' => $ids->get('p2'), 'categoryId' => $ids->get('c1')],
+                ['productId' => $ids->get('p3'), 'categoryId' => $ids->get('c1')],
+            ]),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        $existing = $this->connection->fetchFirstColumn(
+            'SELECT CONCAT(LOWER(HEX(product_id)), \'-\', LOWER(HEX(category_id))) FROM product_category WHERE product_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['p1', 'p2', 'p3']))],
+            ['ids' => ArrayParameterType::STRING]
+        );
+
+        static::assertCount(3, $existing);
+
+        static::assertContains($ids->get('p1') . '-' . $ids->get('c1'), $existing);
+        static::assertContains($ids->get('p2') . '-' . $ids->get('c1'), $existing);
+        static::assertContains($ids->get('p3') . '-' . $ids->get('c1'), $existing);
+    }
 }

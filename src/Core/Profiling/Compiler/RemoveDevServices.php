@@ -16,7 +16,7 @@ class RemoveDevServices implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
+        if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle') || !$container->hasDefinition('profiler')) {
             $container->removeDefinition(ProfilerController::class);
         }
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\Log\Package;
+use Traversable;
 
 /**
  * @template-covariant TKey
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @implements \ArrayAccess<string|int, mixed>
  */
 #[Package('core')]
-class ArrayStruct extends Struct implements \ArrayAccess
+class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @param array<string|int, mixed> $data
@@ -100,5 +101,15 @@ class ArrayStruct extends Struct implements \ArrayAccess
     public function getVars(): array
     {
         return $this->data;
+    }
+
+    public function getIterator(): Traversable
+    {
+        return new \ArrayIterator($this->data);
+    }
+
+    public function count(): int
+    {
+        return count($this->data);
     }
 }

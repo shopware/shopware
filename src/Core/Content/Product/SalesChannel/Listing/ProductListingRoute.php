@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -51,7 +52,11 @@ class ProductListingRoute extends AbstractProductListingRoute
         $categoryCriteria->addFields(['productAssignmentType', 'productStreamId']);
         $categoryCriteria->setLimit(1);
 
+        /** @var PartialEntity|null $category */
         $category = $this->categoryRepository->search($categoryCriteria, $context->getContext())->first();
+        if (!$category) {
+            throw ProductException::categoryNotFound($categoryId);
+        }
 
         $this->extendCriteria($context, $criteria, $category);
 

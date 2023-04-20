@@ -72,7 +72,11 @@ class Migration1595422169ProductSortingTest extends TestCase
         $this->connection->executeStatement('DELETE FROM `product_sorting_translation`');
         $this->connection->executeStatement('DELETE FROM `product_sorting`');
 
-        $defaultSorting = $this->fetchSystemConfig();
+        $defaultSorting = $this->connection->fetchOne('
+            SELECT configuration_value
+            FROM `system_config`
+            WHERE configuration_key = "core.listing.defaultSorting";
+        ');
         $sortings = $this->migrationCases();
 
         $this->insert($sortings);
@@ -223,15 +227,6 @@ class Migration1595422169ProductSortingTest extends TestCase
         ');
 
         return $result;
-    }
-
-    private function fetchSystemConfig(): string
-    {
-        return $this->connection->fetchOne('
-            SELECT configuration_value
-            FROM `system_config`
-            WHERE configuration_key = "core.listing.defaultSorting";
-        ');
     }
 
     private function getLocaleId(string $code): string

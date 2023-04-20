@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -136,7 +137,7 @@ class CustomerCustomFieldRuleTest extends TestCase
         $this->setupRule('testValue', 'text');
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_NEQ,
+                'operator' => Rule::OPERATOR_NEQ,
             ]
         );
         $this->setCustomerCustomFields([self::CUSTOM_FIELD_NAME => null]);
@@ -233,7 +234,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     {
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_EQ,
+                'operator' => Rule::OPERATOR_EQ,
                 'renderedField' => [
                     'type' => $type,
                     'name' => self::CUSTOM_FIELD_NAME,

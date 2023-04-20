@@ -87,10 +87,12 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             fn ($error) => $error instanceof PaymentMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
             'newPaymentMethodName' => 'default-payment-method-name',
             'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
+        ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalWithTranslatedName(): void
@@ -113,10 +115,12 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             fn ($error) => $error instanceof PaymentMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
             'newPaymentMethodName' => 'translated-payment-method-name',
             'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
+        ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalAndDefaultSwitchToAnyOther(): void
@@ -162,10 +166,12 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         );
 
         static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
             'newPaymentMethodName' => 'any-other-payment-method-name',
             'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
+        ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalAndDefaultAndAnyOtherDoesNotSwitch(): void

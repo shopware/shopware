@@ -47,7 +47,7 @@ class IndexCreator
     {
         // NEXT-21735 - does not execute if there's no index yet
         // @codeCoverageIgnoreStart
-        if ($this->indexExists($index)) {
+        if ($this->client->indices()->exists(['index' => $index])) {
             $this->client->indices()->delete(['index' => $index]);
         }
         // @codeCoverageIgnoreEnd
@@ -79,11 +79,6 @@ class IndexCreator
     public function aliasExists(string $alias): bool
     {
         return $this->client->indices()->existsAlias(['name' => $alias]);
-    }
-
-    private function indexExists(string $index): bool
-    {
-        return $this->client->indices()->exists(['index' => $index]);
     }
 
     /**

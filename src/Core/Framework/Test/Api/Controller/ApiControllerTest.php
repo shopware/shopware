@@ -46,10 +46,7 @@ class ApiControllerTest extends TestCase
     private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -2151,10 +2148,10 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
-        $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
-        $error = $content->errors[0];
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $error = $content['errors'][0];
 
-        static::assertSame(sprintf(self::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+        static::assertSame(sprintf(self::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);
     }
 
     public function testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList(): void
@@ -2168,10 +2165,10 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
-        $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
-        $error = $content->errors[0];
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $error = $content['errors'][0];
 
-        static::assertSame(sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+        static::assertSame(sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);
     }
 
     public function testDirectlyAddMappingEntry(): void

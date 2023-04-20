@@ -245,7 +245,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
             $index = $alias . '_' . time();
 
-            if ($this->indexExists($index)) {
+            if ($this->client->indices()->exists(['index' => $index])) {
                 continue;
             }
 
@@ -283,7 +283,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         foreach ($this->indexer as $indexer) {
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
 
-            if ($this->aliasExists($alias)) {
+            if ($this->client->indices()->existsAlias(['name' => $alias])) {
                 continue;
             }
 
@@ -338,16 +338,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
         ]);
 
         $this->createAliasIfNotExisting($index, $alias);
-    }
-
-    private function indexExists(string $name): bool
-    {
-        return $this->client->indices()->exists(['index' => $name]);
-    }
-
-    private function aliasExists(string $alias): bool
-    {
-        return $this->client->indices()->existsAlias(['name' => $alias]);
     }
 
     /**

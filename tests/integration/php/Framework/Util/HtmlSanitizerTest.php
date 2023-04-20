@@ -90,8 +90,10 @@ class HtmlSanitizerTest extends TestCase
         /** @var \HTMLPurifier $newPurifier */
         $newPurifier = array_pop($purifiers);
 
-        static::assertNull($newPurifier->config->get('Cache.DefinitionImpl'));
-        static::assertEquals($cacheDir, $newPurifier->config->get('Cache.SerializerPath'));
+        $config = $newPurifier->config;
+        static::assertInstanceOf(\HTMLPurifier_Config::class, $config);
+        static::assertNull($config->get('Cache.DefinitionImpl'));
+        static::assertEquals($cacheDir, $config->get('Cache.SerializerPath'));
     }
 
     public function testSanitizeNotThrowingOnNull(): void
@@ -144,7 +146,9 @@ class HtmlSanitizerTest extends TestCase
 
         $expectedPermissions = 0775 & ~umask();
 
-        static::assertSame($expectedPermissions, $newPurifier->config->get('Cache.SerializerPermissions'));
+        $config = $newPurifier->config;
+        static::assertInstanceOf(\HTMLPurifier_Config::class, $config);
+        static::assertSame($expectedPermissions, $config->get('Cache.SerializerPermissions'));
         umask($currentUmask);
     }
 

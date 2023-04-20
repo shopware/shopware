@@ -43,6 +43,7 @@ class RepositoryFacadeTest extends TestCase
 
     /**
      * @param array<string, array<int, mixed>> $criteria
+     * @param callable(EntitySearchResult): void $expectation
      *
      * @dataProvider withoutAppTestCases
      */
@@ -56,7 +57,7 @@ class RepositoryFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $result = $facade->$method('product', $criteria);
+        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
 
         $expectation($result);
     }
@@ -223,7 +224,7 @@ class RepositoryFacadeTest extends TestCase
         );
 
         static::expectException(MissingPrivilegeException::class);
-        $facade->$method('product', []);
+        $facade->$method('product', []); /* @phpstan-ignore-line */
     }
 
     /**

@@ -25,7 +25,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
         }
 
         if (!\is_array($value)) {
-            $this->context->buildViolation($constraint::INVALID_TYPE_MESSAGE)
+            $this->context->buildViolation(ArrayOfType::INVALID_TYPE_MESSAGE)
                 ->addViolation();
 
             return;
@@ -37,11 +37,11 @@ class ArrayOfTypeValidator extends ConstraintValidator
             $isFunction = 'is_' . $type;
             $ctypeFunction = 'ctype_' . $type;
 
-            if (\function_exists($isFunction) && $isFunction($item)) {
+            if (\function_exists($isFunction) && $isFunction($item)) { /* @phpstan-ignore-line */
                 continue;
             }
 
-            if (\function_exists($ctypeFunction) && $ctypeFunction($item)) {
+            if (\function_exists($ctypeFunction) && $ctypeFunction($item)) { /* @phpstan-ignore-line */
                 continue;
             }
 
@@ -53,7 +53,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
                 $item = print_r($item, true);
             }
 
-            $this->context->buildViolation($constraint::INVALID_MESSAGE)
+            $this->context->buildViolation(ArrayOfType::INVALID_MESSAGE)
                 ->setCode(Type::INVALID_TYPE_ERROR)
                 ->setParameter('{{ type }}', $constraint->type)
                 ->setParameter('{{ value }}', (string) $item)

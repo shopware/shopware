@@ -58,6 +58,7 @@ class Webhook extends XmlElement
         $values = [];
 
         foreach ($element->attributes as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 

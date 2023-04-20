@@ -80,17 +80,14 @@ class LineItemPurchasePriceRule extends Rule
         if (!$purchasePricePayload) {
             return null;
         }
-        $purchasePrice = json_decode((string) $purchasePricePayload, null, 512, \JSON_THROW_ON_ERROR);
-        if (!$purchasePrice) {
-            return null;
+        $purchasePrice = json_decode((string) $purchasePricePayload, true, 512, \JSON_THROW_ON_ERROR);
+
+        if ($this->isNet && \array_key_exists('net', $purchasePrice)) {
+            return $purchasePrice['net'];
         }
 
-        if ($this->isNet && property_exists($purchasePrice, 'net')) {
-            return $purchasePrice->net;
-        }
-
-        if (property_exists($purchasePrice, 'gross')) {
-            return $purchasePrice->gross;
+        if (\array_key_exists('gross', $purchasePrice)) {
+            return $purchasePrice['gross'];
         }
 
         return null;

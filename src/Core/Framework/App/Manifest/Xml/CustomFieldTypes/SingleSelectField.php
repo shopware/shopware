@@ -76,6 +76,7 @@ class SingleSelectField extends CustomFieldType
         $values = [];
 
         foreach ($element->attributes as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = $attribute->value;
         }
 

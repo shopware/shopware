@@ -202,17 +202,23 @@ class AccountServiceEventTest extends TestCase
         $dispatcher->removeListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
     }
 
+    /**
+     * @return callable(CustomerBeforeLoginEvent): void
+     */
     private function getEmailListenerClosure(bool &$eventDidRun): callable
     {
-        return function ($event) use (&$eventDidRun): void {
+        return function (CustomerBeforeLoginEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertSame('info@example.com', $event->getEmail());
         };
     }
 
+    /**
+     * @return callable(CustomerLoginEvent|CustomerLogoutEvent|CustomerChangedPaymentMethodEvent): void
+     */
     private function getCustomerListenerClosure(bool &$eventDidRun): callable
     {
-        return function ($event) use (&$eventDidRun): void {
+        return function (CustomerLoginEvent|CustomerLogoutEvent|CustomerChangedPaymentMethodEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertSame('info@example.com', $event->getCustomer()->getEmail());
         };

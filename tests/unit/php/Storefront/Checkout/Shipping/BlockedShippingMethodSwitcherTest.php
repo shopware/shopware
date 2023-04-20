@@ -87,10 +87,12 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
             'newShippingMethodName' => 'default-shipping-method-name',
             'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
+        ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalWithTranslatedName(): void
@@ -113,10 +115,12 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             fn ($error) => $error instanceof ShippingMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
             'newShippingMethodName' => 'translated-shipping-method-name',
             'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
+        ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalAndDefaultSwitchToAnyOther(): void
@@ -162,10 +166,12 @@ class BlockedShippingMethodSwitcherTest extends TestCase
         );
 
         static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
             'newShippingMethodName' => 'any-other-shipping-method-name',
             'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
+        ], $error->getParameters());
     }
 
     public function testSwitchBlockedOriginalAndDefaultAndAnyOtherDoesNotSwitch(): void

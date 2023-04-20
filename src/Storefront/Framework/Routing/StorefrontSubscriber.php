@@ -24,6 +24,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -214,6 +215,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @var callable(): Response $controller */
         $controller = $event->getController();
 
         // happens if Controller is a closure

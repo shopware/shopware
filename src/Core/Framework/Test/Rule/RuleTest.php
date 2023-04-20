@@ -161,7 +161,7 @@ class RuleTest extends TestCase
     {
         /** @var Rule $rule */
         foreach ($this->getRules() as $rule) {
-            $ruleNameConstant = $rule::RULE_NAME;
+            $ruleNameConstant = $rule::RULE_NAME; /* @phpstan-ignore-line */
 
             static::assertNotNull($ruleNameConstant, sprintf(
                 'Rule name constant is empty in condition %s',

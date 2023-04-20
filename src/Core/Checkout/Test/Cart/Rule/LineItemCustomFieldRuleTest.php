@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -88,7 +89,7 @@ class LineItemCustomFieldRuleTest extends TestCase
         $this->setupRule('testValue', 'text');
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_NEQ,
+                'operator' => Rule::OPERATOR_NEQ,
             ]
         );
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => null]), $this->salesChannelContext);
@@ -108,7 +109,7 @@ class LineItemCustomFieldRuleTest extends TestCase
         $scope = new LineItemScope($this->createLineItem(), $this->salesChannelContext);
         static::assertFalse($this->rule->match($scope));
 
-        $this->rule->assign(['operator' => $this->rule::OPERATOR_NEQ]);
+        $this->rule->assign(['operator' => Rule::OPERATOR_NEQ]);
 
         static::assertTrue($this->rule->match($scope));
     }
@@ -202,7 +203,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     {
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_EQ,
+                'operator' => Rule::OPERATOR_EQ,
                 'renderedField' => [
                     'type' => $type,
                     'name' => self::CUSTOM_FIELD_NAME,

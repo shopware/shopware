@@ -43,7 +43,7 @@ class SystemInstallCommandTest extends TestCase
 
         $refMethod = ReflectionHelper::getMethod(SystemInstallCommand::class, 'execute');
 
-        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->getMockOutput());
+        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), $this->createMock(OutputInterface::class));
 
         static::assertEquals($result, Command::FAILURE);
     }
@@ -203,10 +203,5 @@ class SystemInstallCommandTest extends TestCase
             ->willReturnOnConsecutiveCalls(...array_values($mockInputValues));
 
         return $input;
-    }
-
-    private function getMockOutput(): OutputInterface
-    {
-        return $this->createMock(OutputInterface::class);
     }
 }

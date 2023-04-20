@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Framework\Api\Converter;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed as it is unused
+ */
 #[Package('core')]
 abstract class ApiConverter
 {
@@ -14,6 +18,11 @@ abstract class ApiConverter
      */
     public function convert(string $entityName, array $payload): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         $converterFns = $this->getConverterFunctions();
         if (\array_key_exists($entityName, $converterFns)) {
             $payload = $converterFns[$entityName]($payload);
@@ -32,7 +41,7 @@ abstract class ApiConverter
      *      }
      * ]
      *
-     * @return callable[]
+     * @return array<string, callable(array<string, mixed>): array<string, mixed>>
      */
     abstract protected function getConverterFunctions(): array;
 }

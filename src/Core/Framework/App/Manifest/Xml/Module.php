@@ -88,10 +88,9 @@ class Module extends XmlElement
     {
         $values = [];
 
-        if ($element->attributes instanceof \DOMNamedNodeMap) {
-            foreach ($element->attributes as $attribute) {
-                $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
-            }
+        foreach ($element->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
+            $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

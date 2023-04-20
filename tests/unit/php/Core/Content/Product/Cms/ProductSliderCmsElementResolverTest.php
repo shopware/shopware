@@ -28,6 +28,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
@@ -410,7 +411,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
             static::assertNull($products->first());
         } else {
             $productEntity = $products->first();
-            static::assertNotNull($productEntity);
+            static::assertInstanceOf(ProductEntity::class, $productEntity);
 
             $productId = $productEntity->getId();
             static::assertSame($productId, $product->getId());

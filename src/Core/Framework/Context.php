@@ -138,6 +138,8 @@ class Context extends Struct
     }
 
     /**
+     * @param callable(Context): mixed $callback
+     *
      * @return mixed the return value of the provided callback function
      */
     public function scope(string $scope, callable $callback)
@@ -201,6 +203,8 @@ class Context extends Struct
     }
 
     /**
+     * @param callable(Context): mixed $function
+     *
      * @return mixed
      */
     public function enableInheritance(callable $function)
@@ -214,6 +218,8 @@ class Context extends Struct
     }
 
     /**
+     * @param callable(Context): mixed $function
+     *
      * @return mixed
      */
     public function disableInheritance(callable $function)

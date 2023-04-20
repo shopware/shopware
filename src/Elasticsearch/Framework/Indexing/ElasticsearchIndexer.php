@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -292,11 +291,6 @@ class ElasticsearchIndexer
         return $languages->get($languageId);
     }
 
-    private function getCurrencies(): EntitySearchResult
-    {
-        return $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
-    }
-
     private function createScripts(): void
     {
         $finder = (new Finder())
@@ -370,7 +364,7 @@ class ElasticsearchIndexer
 
         $context = $message->getContext();
 
-        $context->addExtension('currencies', $this->getCurrencies());
+        $context->addExtension('currencies', $this->currencyRepository->search(new Criteria(), Context::createDefaultContext()));
 
         if (!$definition) {
             throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));

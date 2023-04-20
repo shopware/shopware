@@ -23,7 +23,7 @@ trait CreateFromTrait
         }
 
         foreach (get_object_vars($object) as $property => $value) {
-            $self->$property = $value;
+            $self->$property = $value; /* @phpstan-ignore-line */
         }
 
         return $self;

@@ -19,8 +19,8 @@ class AfterSort
 
         // pre-sort elements to pull elements without an after id parent to the front
         uasort($elements, function (Struct $a, Struct $b) use ($propertyName) {
-            $aValue = $a->$propertyName;
-            $bValue = $b->$propertyName;
+            $aValue = $a->$propertyName; /* @phpstan-ignore-line */
+            $bValue = $b->$propertyName; /* @phpstan-ignore-line */
             if ($aValue === $bValue && $aValue === null) {
                 return 0;
             }
@@ -46,7 +46,7 @@ class AfterSort
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
-                if ($lastId !== $element->$propertyName) {
+                if ($lastId !== $element->$propertyName) {  /* @phpstan-ignore-line */
                     continue;
                 }
 
@@ -67,7 +67,7 @@ class AfterSort
                 break;
             }
 
-            $lastId = $nextItem->$propertyName;
+            $lastId = $nextItem->$propertyName; /* @phpstan-ignore-line */
         }
 
         return $sorted;

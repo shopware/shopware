@@ -14,7 +14,7 @@ class GuzzleHistoryCollector
      */
     private static array $historyContainer;
 
-    public function getHistoryMiddleWare(): callable
+    public function getHistoryMiddleWare(): callable /* @phpstan-ignore-line callable can not be typed as it is recursive */
     {
         self::$historyContainer = [];
 

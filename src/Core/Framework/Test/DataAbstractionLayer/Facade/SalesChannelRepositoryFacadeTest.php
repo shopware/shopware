@@ -50,6 +50,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     /**
      * @param array<string, array<int, mixed>> $criteria
+     * @param callable(EntitySearchResult): void $expectation
      *
      * @dataProvider testCases
      */
@@ -63,7 +64,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $result = $facade->$method('product', $criteria);
+        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
 
         $expectation($result);
     }

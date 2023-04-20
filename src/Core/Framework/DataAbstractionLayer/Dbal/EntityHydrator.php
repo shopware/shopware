@@ -313,7 +313,7 @@ class EntityHydrator
         foreach ($translatedFields as $field => $typed) {
             $entity->addTranslated($field, $typed->getSerializer()->decode($typed, self::value($row, $root, $field)));
 
-            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field));
+            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field)); /* @phpstan-ignore-line */
         }
     }
 

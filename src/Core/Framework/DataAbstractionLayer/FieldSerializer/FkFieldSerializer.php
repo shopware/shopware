@@ -86,7 +86,9 @@ class FkFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param string|int|float|bool|array|object|callable|resource|null $value
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Parameter $value will be natively typed as mixed
+     *
+     * @param mixed $value
      */
     protected function shouldUseContext(FkField $field, bool $isRaw, $value): bool
     {

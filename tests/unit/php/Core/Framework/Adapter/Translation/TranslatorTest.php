@@ -101,6 +101,7 @@ class TranslatorTest extends TestCase
         $cache->expects(static::once())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertEquals($expectedCacheKey, $key);
 
+            /** @var callable(CacheItem): mixed $callback */
             return $callback($item);
         });
 

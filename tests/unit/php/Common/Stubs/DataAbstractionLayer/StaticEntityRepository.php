@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 
 /**
  * @internal
+ *
+ * @phpstan-type ResultTypes = EntitySearchResult|AggregationResultCollection|mixed|EntityCollection<Entity>|IdSearchResult
  */
 class StaticEntityRepository extends EntityRepository
 {
@@ -34,7 +36,7 @@ class StaticEntityRepository extends EntityRepository
     private array $creates;
 
     /**
-     * @param array<\Closure|EntitySearchResult|AggregationResultCollection|mixed|EntityCollection<Entity>|IdSearchResult> $searches
+     * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
      */
     public function __construct(private array $searches)
     {
@@ -43,9 +45,11 @@ class StaticEntityRepository extends EntityRepository
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         $result = \array_shift($this->searches);
+        $callable = $result;
 
-        if (\is_callable($result)) {
-            $result = $result($criteria, $context);
+        if (\is_callable($callable)) {
+            /** @var callable(Criteria, Context): ResultTypes $callable */
+            $result = $callable($criteria, $context);
         }
 
         if ($result instanceof EntitySearchResult) {
@@ -66,9 +70,11 @@ class StaticEntityRepository extends EntityRepository
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = \array_shift($this->searches);
+        $callable = $result;
 
-        if (\is_callable($result)) {
-            return $result($criteria, $context);
+        if (\is_callable($callable)) {
+            /** @var callable(Criteria, Context): ResultTypes $callable */
+            return $callable($criteria, $context);
         }
 
         if ($result instanceof IdSearchResult) {

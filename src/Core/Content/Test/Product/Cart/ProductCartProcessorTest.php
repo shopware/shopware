@@ -291,11 +291,11 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertInstanceOf(LineItem::class, $lineItem);
         $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode((string) $payload['purchasePrices'], null, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
-        static::assertSame(7.5, $purchasePrices->gross);
-        static::assertSame(5, $purchasePrices->net);
-        static::assertFalse($purchasePrices->linked);
+        $purchasePrices = json_decode((string) $payload['purchasePrices'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Defaults::CURRENCY, $purchasePrices['currencyId']);
+        static::assertSame(7.5, $purchasePrices['gross']);
+        static::assertSame(5, $purchasePrices['net']);
+        static::assertFalse($purchasePrices['linked']);
     }
 
     public function testPayloadContainsFeatures(): void

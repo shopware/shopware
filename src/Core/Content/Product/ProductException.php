@@ -12,6 +12,7 @@ class ProductException extends HttpException
     public const PRODUCT_INVALID_CHEAPEST_PRICE_FACADE = 'PRODUCT_INVALID_CHEAPEST_PRICE_FACADE';
     public const PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
     public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
+    public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -39,6 +40,16 @@ class ProductException extends HttpException
             self::PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE,
             'Manipulation of pricing proxy field {{ property }} is not allowed',
             ['property' => (string) $property]
+        );
+    }
+
+    public static function categoryNotFound(string $categoryId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CATEGORY_NOT_FOUND,
+            'Category "{{ categoryId }}" not found.',
+            ['categoryId' => $categoryId]
         );
     }
 }

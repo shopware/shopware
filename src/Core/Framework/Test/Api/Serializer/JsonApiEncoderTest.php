@@ -48,15 +48,9 @@ class JsonApiEncoderTest extends TestCase
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
@@ -312,7 +306,7 @@ class JsonApiEncoderTest extends TestCase
 
     /**
      * @param array<mixed> $input
-     * @param array<mixed>|\stdClass|null $output
+     * @param array<mixed>|null $output
      *
      * @dataProvider customFieldsProvider
      */
@@ -326,9 +320,9 @@ class JsonApiEncoderTest extends TestCase
         $struct->setUniqueIdentifier(Uuid::randomHex());
         $struct->assign($input);
 
-        $actual = json_decode((string) $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL), null, 512, \JSON_THROW_ON_ERROR);
+        $actual = json_decode((string) $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($output, $actual->data->attributes->customFields);
+        static::assertEquals($output, $actual['data']['attributes']['customFields']);
     }
 
     public static function customFieldsProvider(): \Generator
@@ -344,7 +338,7 @@ class JsonApiEncoderTest extends TestCase
             [
                 'customFields' => [],
             ],
-            new \stdClass(),
+            [],
         ];
 
         yield 'Custom field with values' => [

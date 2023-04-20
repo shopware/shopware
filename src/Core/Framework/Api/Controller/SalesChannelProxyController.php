@@ -202,6 +202,9 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
+    /**
+     * @param callable(): Response $call
+     */
     private function wrapInSalesChannelApiRoute(Request $request, callable $call): Response
     {
         $requestStackBackup = $this->clearRequestStackWithBackup($this->requestStack);

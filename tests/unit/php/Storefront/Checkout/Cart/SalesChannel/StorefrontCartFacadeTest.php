@@ -61,7 +61,9 @@ class StorefrontCartFacadeTest extends TestCase
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
-                    static::assertSame('fallback-shipping-method-name', $newMethods['shippingMethod']->getName());
+                    $shippingMethod = $newMethods['shippingMethod'];
+                    static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+                    static::assertSame('fallback-shipping-method-name', $shippingMethod->getName());
                 }
             );
 
@@ -71,11 +73,14 @@ class StorefrontCartFacadeTest extends TestCase
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodChangedError::class));
+        $filtered = $errorCollection->filterInstance(ShippingMethodChangedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
             'newShippingMethodName' => 'fallback-shipping-method-name',
             'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodChangedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true));
@@ -94,7 +99,9 @@ class StorefrontCartFacadeTest extends TestCase
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
-                    static::assertSame('fallback-payment-method-name', $newMethods['paymentMethod']->getName());
+                    $paymentMethod = $newMethods['paymentMethod'];
+                    static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
+                    static::assertSame('fallback-payment-method-name', $paymentMethod->getName());
                 }
             );
 
@@ -105,11 +112,14 @@ class StorefrontCartFacadeTest extends TestCase
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodChangedError::class));
+        $filtered = $errorCollection->filterInstance(PaymentMethodChangedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
             'newPaymentMethodName' => 'fallback-payment-method-name',
             'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodChangedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(false, true));
@@ -128,8 +138,12 @@ class StorefrontCartFacadeTest extends TestCase
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
-                    static::assertSame('fallback-payment-method-name', $newMethods['paymentMethod']->getName());
-                    static::assertSame('fallback-shipping-method-name', $newMethods['shippingMethod']->getName());
+                    $paymentMethod = $newMethods['paymentMethod'];
+                    static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
+                    static::assertSame('fallback-payment-method-name', $paymentMethod->getName());
+                    $shippingMethod = $newMethods['shippingMethod'];
+                    static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+                    static::assertSame('fallback-shipping-method-name', $shippingMethod->getName());
                 }
             );
 
@@ -140,17 +154,23 @@ class StorefrontCartFacadeTest extends TestCase
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodChangedError::class));
+        $filtered = $errorCollection->filterInstance(PaymentMethodChangedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $error);
         static::assertSame([
             'newPaymentMethodName' => 'fallback-payment-method-name',
             'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodChangedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodChangedError::class));
+        $filtered = $errorCollection->filterInstance(ShippingMethodChangedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
         static::assertSame([
             'newShippingMethodName' => 'fallback-shipping-method-name',
             'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodChangedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true, true));
@@ -169,7 +189,9 @@ class StorefrontCartFacadeTest extends TestCase
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
-                    static::assertSame('original-shipping-method-name', $newMethods['shippingMethod']->getName());
+                    $shippingMethod = $newMethods['shippingMethod'];
+                    static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+                    static::assertSame('original-shipping-method-name', $shippingMethod->getName());
                 }
             );
 
@@ -177,10 +199,13 @@ class StorefrontCartFacadeTest extends TestCase
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
         static::assertCount(0, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodBlockedError::class));
+        $filtered = $errorCollection->filterInstance(ShippingMethodBlockedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
         static::assertSame([
             'name' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodBlockedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true));
@@ -199,7 +224,9 @@ class StorefrontCartFacadeTest extends TestCase
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
-                    static::assertSame('original-payment-method-name', $newMethods['paymentMethod']->getName());
+                    $paymentMethod = $newMethods['paymentMethod'];
+                    static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
+                    static::assertSame('original-payment-method-name', $paymentMethod->getName());
                 }
             );
 
@@ -207,10 +234,13 @@ class StorefrontCartFacadeTest extends TestCase
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
         static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodBlockedError::class));
+        $filtered = $errorCollection->filterInstance(PaymentMethodBlockedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
         static::assertSame([
             'name' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodBlockedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(false, true));
@@ -229,8 +259,13 @@ class StorefrontCartFacadeTest extends TestCase
             ->method('assign')
             ->willReturnCallback(
                 function ($newMethods): void {
-                    static::assertSame('fallback-payment-method-name', $newMethods['paymentMethod']->getName());
-                    static::assertSame('fallback-shipping-method-name', $newMethods['shippingMethod']->getName());
+                    $paymentMethod = $newMethods['paymentMethod'];
+                    static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
+                    static::assertSame('fallback-payment-method-name', $paymentMethod->getName());
+
+                    $shippingMethod = $newMethods['shippingMethod'];
+                    static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+                    static::assertSame('fallback-shipping-method-name', $shippingMethod->getName());
                 }
             );
 
@@ -242,16 +277,22 @@ class StorefrontCartFacadeTest extends TestCase
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
         static::assertCount(0, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodBlockedError::class));
+        $filtered = $errorCollection->filterInstance(ShippingMethodBlockedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
         static::assertSame([
             'name' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodBlockedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodBlockedError::class));
+        $filtered = $errorCollection->filterInstance(PaymentMethodBlockedError::class);
+        static::assertCount(1, $filtered);
+        $error = $filtered->first();
+        static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
         static::assertSame([
             'name' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodBlockedError::class)->first()->getParameters());
+        ], $error->getParameters());
 
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true, true));
@@ -425,6 +466,10 @@ class StorefrontCartFacadeTest extends TestCase
         return $cartErrors;
     }
 
+    /**
+     * @param callable(ErrorCollection, SalesChannelContext): ShippingMethodEntity|null $shippingSwitcherCallbackMethod
+     * @param callable(ErrorCollection, SalesChannelContext): PaymentMethodEntity|null $paymentSwitcherCallbackMethod
+     */
     private function getStorefrontCartFacade(Cart $cart, ?callable $shippingSwitcherCallbackMethod = null, ?callable $paymentSwitcherCallbackMethod = null): StorefrontCartFacade
     {
         $cartService = $this->createMock(CartService::class);

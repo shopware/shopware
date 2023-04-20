@@ -28,7 +28,10 @@ class FlowBuilder
             $sequences[] = $this->createNestedSequence($flowSequence, [], $flatBag);
         }
 
-        return new Flow($id, $sequences, $flatBag->all());
+        /** @var array<string, Sequence> $flat */
+        $flat = $flatBag->all();
+
+        return new Flow($id, $sequences, $flat);
     }
 
     private function buildHierarchyTree(array $flowSequences, ?string $parentId = null): array

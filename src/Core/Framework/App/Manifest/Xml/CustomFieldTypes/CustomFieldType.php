@@ -109,6 +109,7 @@ abstract class CustomFieldType extends XmlElement
         $values = [];
 
         foreach ($element->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = $attribute->value;
         }
 

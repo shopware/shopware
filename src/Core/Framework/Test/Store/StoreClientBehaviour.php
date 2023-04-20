@@ -15,6 +15,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\System\User\UserCollection;
+use Shopware\Core\System\User\UserEntity;
 
 /**
  * @internal
@@ -53,7 +54,7 @@ trait StoreClientBehaviour
      */
     public function resetStoreMock(): void
     {
-        $this->getRequestHandler()->reset();
+        $this->getStoreRequestHandler()->reset();
     }
 
     /**
@@ -103,14 +104,20 @@ trait StoreClientBehaviour
             throw new \RuntimeException('No user id found in context');
         }
 
-        /** @var UserCollection $user */
-        $user = $this->getUserRepository()->search(new Criteria([$userId]), $context)->getEntities();
+        /** @var UserCollection $users */
+        $users = $this->getUserRepository()->search(new Criteria([$userId]), $context)->getEntities();
 
-        if ($user->count() === 0) {
+        if ($users->count() === 0) {
             throw new \RuntimeException('No user found with id ' . $userId);
         }
 
-        return $user->first()->getStoreToken();
+        $user = $users->first();
+        static::assertInstanceOf(UserEntity::class, $user);
+
+        $token = $user->getStoreToken();
+        static::assertIsString($token);
+
+        return $token;
     }
 
     protected function getFrwUserTokenFromContext(Context $context): ?string

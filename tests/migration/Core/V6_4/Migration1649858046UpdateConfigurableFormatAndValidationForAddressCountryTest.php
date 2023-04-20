@@ -55,9 +55,7 @@ class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryT
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $migration = new Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry();
-
-        foreach ($migration::PATTERNS as $iso => $pattern) {
+        foreach (Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry::PATTERNS as $iso => $pattern) {
             $defaultPostalCodePattern = $connection->fetchOne('SELECT `default_postal_code_pattern` FROM `country` WHERE iso = :iso', ['iso' => $iso]);
 
             if (empty($defaultPostalCodePattern)) {

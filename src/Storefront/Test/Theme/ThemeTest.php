@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Storefront\Test\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -43,15 +44,9 @@ class ThemeTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var ThemeService
-     */
-    protected $themeService;
+    private ThemeService $themeService;
 
-    /**
-     * @var Context
-     */
-    protected $context;
+    private Context $context;
 
     private EntityRepository $themeRepository;
 
@@ -552,7 +547,7 @@ class ThemeTest extends TestCase
         $kernel = new class($this->getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;
 
-            public function __construct(private readonly KernelInterface $kernel)
+            public function __construct(private readonly Kernel $kernel)
             {
                 $this->simpleTheme = new SimpleTheme();
             }
@@ -572,92 +567,82 @@ class ThemeTest extends TestCase
 
             public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->handle(...\func_get_args());
             }
 
             public function registerBundles(): iterable
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->registerBundles();
             }
 
-            public function registerContainerConfiguration(LoaderInterface $loader) /* @phpstan-ignore-line  */
+            public function registerContainerConfiguration(LoaderInterface $loader): void
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                $this->kernel->registerContainerConfiguration(...\func_get_args());
             }
 
-            public function boot() /* @phpstan-ignore-line  */
+            public function boot(): void
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                $this->kernel->boot();
             }
 
-            public function shutdown() /* @phpstan-ignore-line  */
+            public function shutdown(): void
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                $this->kernel->shutdown();
             }
 
             public function locateResource(string $name): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
-            }
-
-            public function getName() /* @phpstan-ignore-line  */
-            {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->locateResource(...\func_get_args());
             }
 
             public function getEnvironment(): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getEnvironment();
             }
 
             public function isDebug(): bool
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
-            }
-
-            public function getRootDir() /* @phpstan-ignore-line  */
-            {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->isDebug();
             }
 
             public function getProjectDir(): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getProjectDir();
             }
 
             public function getContainer(): ContainerInterface
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getContainer();
             }
 
             public function getStartTime(): float
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getStartTime();
             }
 
             public function getCacheDir(): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getCacheDir();
             }
 
             public function getBuildDir(): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getBuildDir();
             }
 
             public function getLogDir(): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getLogDir();
             }
 
             public function getCharset(): string
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->getCharset();
             }
 
             public function __call($name, $arguments) /* @phpstan-ignore-line  */
             {
-                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                return $this->kernel->$name(...\func_get_args()); /* @phpstan-ignore-line  */
             }
         };
 

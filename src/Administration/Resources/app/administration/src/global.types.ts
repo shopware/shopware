@@ -52,6 +52,8 @@ import type CheckoutStoreService from './core/service/api/checkout-store.api.ser
 import type ExtensionHelperService from './app/service/extension-helper.service';
 import type AsyncComponentFactory from './core/factory/async-component.factory';
 import type FilterFactory from './core/factory/filter.factory';
+import type StateStyleService from './app/service/state-style.service';
+import type RuleConditionService from './app/service/rule-condition.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -128,12 +130,12 @@ declare global {
         validationService: $TSFixMe,
         entityValidationService: EntityValidationService,
         timezoneService: $TSFixMe,
-        ruleConditionDataProviderService: $TSFixMe,
+        ruleConditionDataProviderService: RuleConditionService,
         productStreamConditionService: $TSFixMe,
         customFieldDataProviderService: $TSFixMe,
         extensionHelperService: ExtensionHelperService,
         languageAutoFetchingService: $TSFixMe,
-        stateStyleDataProviderService: $TSFixMe,
+        stateStyleDataProviderService: StateStyleService,
         searchTypeService: $TSFixMe,
         localeToLanguageService: $TSFixMe,
         entityMappingService: $TSFixMe,

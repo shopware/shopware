@@ -1,9 +1,11 @@
+import type RuleConditionService from '../service/rule-condition.service';
+
 const { Application, Feature } = Shopware;
 
 /**
  * @package business-ops
  */
-Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
+Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService: RuleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
         component: 'sw-condition-date-range',
         label: 'global.sw-condition.condition.dateRangeRule.label',

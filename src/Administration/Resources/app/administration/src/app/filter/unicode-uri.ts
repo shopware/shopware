@@ -4,12 +4,10 @@
 
 import Punycode from 'punycode';
 
-const { Filter } = Shopware;
-
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Filter.register('unicodeUri', (value) => {
+Shopware.Filter.register('unicodeUri', (value: string) => {
     if (!value) {
         return '';
     }
@@ -18,3 +16,7 @@ Filter.register('unicodeUri', (value) => {
 
     return decodeURI(unicode);
 });
+
+/* @private */
+export {};
+

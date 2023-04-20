@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -27,6 +28,7 @@ class PluginManagementService
         private readonly string $projectDir,
         private readonly PluginZipDetector $pluginZipDetector,
         private readonly PluginExtractor $pluginExtractor,
+        private readonly PluginService $pluginService,
         private readonly Filesystem $filesystem,
         private readonly CacheClearer $cacheClearer,
         private readonly Client $client
@@ -72,7 +74,11 @@ class PluginManagementService
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
-        $this->extractPluginZip($tempFile->getPathname());
+        $type = $this->extractPluginZip($tempFile->getPathname());
+
+        if ($type === self::PLUGIN) {
+            $this->pluginService->refreshPlugins($context, new NullIO());
+        }
     }
 
     public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
@@ -91,11 +97,17 @@ class PluginManagementService
         }
 
         $this->extractPluginZip($tempFileName, true, $location->getType());
+
+        if ($location->getType() === self::PLUGIN) {
+            $this->pluginService->refreshPlugins($context, new NullIO());
+        }
     }
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
         $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
+
+        $this->pluginService->refreshPlugins($context, new NullIO());
     }
 }

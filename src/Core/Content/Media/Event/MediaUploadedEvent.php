@@ -10,13 +10,15 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - MediaUploadedAware is deprecated and will be removed in v6.6.0
  */
 #[Package('content')]
-class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValuesAware, FlowEventAware
+class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValuesAware, FlowEventAware, Hookable
 {
     public const EVENT_NAME = 'media.uploaded';
 
@@ -52,5 +54,17 @@ class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValu
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getWebhookPayload(): array
+    {
+        return [
+            'mediaId' => $this->mediaId,
+        ];
+    }
+
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
+    {
+        return $permissions->isAllowed('media', 'read');
     }
 }

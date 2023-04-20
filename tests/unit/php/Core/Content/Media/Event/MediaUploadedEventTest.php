@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
 /**
  * @internal
@@ -63,5 +64,35 @@ class MediaUploadedEventTest extends TestCase
 
         static::assertArrayHasKey('mediaId', $flow->data());
         static::assertEquals('media-id', $flow->data()['mediaId']);
+    }
+
+    public function testGetWebhookPayload(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $mediaUploadEvent = new MediaUploadedEvent(
+            $mediaId,
+            $context
+        );
+
+        static::assertEquals(
+            [
+                'mediaId' => $mediaId,
+            ],
+            $mediaUploadEvent->getWebhookPayload()
+        );
+    }
+
+    public function testACL(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $mediaUploadEvent = new MediaUploadedEvent(
+            $mediaId,
+            $context
+        );
+
+        static::assertFalse($mediaUploadEvent->isAllowed('1', new AclPrivilegeCollection(['media:create'])));
+        static::assertTrue($mediaUploadEvent->isAllowed('1', new AclPrivilegeCollection(['media:read'])));
     }
 }

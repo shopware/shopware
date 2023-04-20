@@ -59,6 +59,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             $criteria = new Criteria($products->getArrayValue());
             $criteria->addAssociation('cover');
             $criteria->addAssociation('options.group');
+            $criteria->addAssociation('manufacturer');
             $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
         }
 
@@ -160,6 +161,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         return $criteria;
     }
@@ -186,6 +188,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $criteria->addFilter(...$filters);
         $criteria->setLimit($limit);
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         // Ensure storefront presentation settings of product variants
         $criteria->addGroupField(new FieldGrouping('displayGroup'));

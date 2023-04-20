@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\Cms\Type;
+namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
@@ -14,15 +15,24 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -30,44 +40,38 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\Tag\TagDefinition;
+use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver
  */
-class ProductSliderTypeDataResolverTest extends TestCase
+class ProductSliderCmsElementResolverTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
-
     private ProductSliderCmsElementResolver $sliderResolver;
 
     private string $productStreamId;
-
-    private Context $context;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $randomProductIds;
 
     private MockObject&SystemConfigService $systemConfig;
 
     protected function setUp(): void
     {
-        $this->context = Context::createDefaultContext();
-
         $this->systemConfig = $this->createMock(SystemConfigService::class);
 
-        $this->sliderResolver = new ProductSliderCmsElementResolver($this->getContainer()->get(ProductStreamBuilder::class), $this->systemConfig);
+        $this->sliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig);
 
         $this->productStreamId = Uuid::randomHex();
     }
@@ -149,7 +153,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $category = new CategoryEntity();
         $category->setUniqueIdentifier('category1');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(CategoryDefinition::class), $category);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(CategoryDefinition::class), $category);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'category.foo'));
@@ -179,7 +183,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $category->setUniqueIdentifier('category1');
         $category->setProducts($products);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(CategoryDefinition::class), $category);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(CategoryDefinition::class), $category);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'category.products'));
@@ -196,9 +200,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfigProductStream(): void
     {
-        $this->createTestProductStreamEntity();
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = $this->createMock(SalesChannelContextFactory::class);
 
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -229,7 +231,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $expectedCriteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new EqualsAnyFilter('product.id', $this->randomProductIds),
+                new EqualsAnyFilter('product.id', [Uuid::randomHex()]),
                 new RangeFilter('product.width', [
                     'gte' => 120,
                     'lte' => 180,
@@ -262,7 +264,31 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $category = new CategoryEntity();
         $category->setUniqueIdentifier('category1');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(CategoryDefinition::class), $category);
+        $container = new Container();
+        $categoryDefinition = new CategoryDefinition();
+        $productDefinition = new ProductDefinition();
+        $categoryProductDefinition = new ProductCategoryDefinition();
+
+        $container->set(CategoryDefinition::class, $categoryDefinition);
+        $container->set(ProductDefinition::class, $productDefinition);
+        $container->set(ProductCategoryDefinition::class, $categoryProductDefinition);
+
+        $container->set(ProductOptionDefinition::class, $this->createMock(ProductOptionDefinition::class));
+        $container->set(PropertyGroupOptionDefinition::class, $this->createMock(PropertyGroupOptionDefinition::class));
+        $container->set(ProductPropertyDefinition::class, $this->createMock(ProductPropertyDefinition::class));
+        $container->set(ProductStreamMappingDefinition::class, $this->createMock(ProductStreamMappingDefinition::class));
+        $container->set(ProductStreamDefinition::class, $this->createMock(ProductStreamDefinition::class));
+        $container->set(ProductCategoryTreeDefinition::class, $this->createMock(ProductCategoryTreeDefinition::class));
+        $container->set(ProductTagDefinition::class, $this->createMock(ProductTagDefinition::class));
+        $container->set(TagDefinition::class, $this->createMock(TagDefinition::class));
+        $container->set(ProductCustomFieldSetDefinition::class, $this->createMock(ProductCustomFieldSetDefinition::class));
+        $container->set(CustomFieldSetDefinition::class, $this->createMock(CustomFieldSetDefinition::class));
+
+        $productDefinition->compile(new DefinitionInstanceRegistry($container, [], []));
+        $categoryDefinition->compile(new DefinitionInstanceRegistry($container, [], []));
+        $categoryProductDefinition->compile(new DefinitionInstanceRegistry($container, [], []));
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $categoryDefinition, $category);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'category.products'));
@@ -278,6 +304,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.categories.id', $category->getUniqueIdentifier()));
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
@@ -288,7 +315,20 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setUniqueIdentifier('product1');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(ProductDefinition::class), $product);
+        $productDefinition = new ProductDefinition();
+
+        $container = new Container();
+        $container->set(ProductDefinition::class, $productDefinition);
+        $container->set(DeliveryTimeDefinition::class, $this->createMock(DeliveryTimeDefinition::class));
+        $container->set(TaxDefinition::class, $this->createMock(TaxDefinition::class));
+        $container->set(ProductManufacturerDefinition::class, $this->createMock(ProductManufacturerDefinition::class));
+        $container->set(UnitDefinition::class, $this->createMock(UnitDefinition::class));
+        $container->set(ProductMediaDefinition::class, $this->createMock(ProductMediaDefinition::class));
+        $container->set(ProductFeatureSetDefinition::class, $this->createMock(ProductFeatureSetDefinition::class));
+        $container->set(CmsPageDefinition::class, $this->createMock(CmsPageDefinition::class));
+
+        $productDefinition->compile(new DefinitionInstanceRegistry($container, [], []));
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $productDefinition, $product);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'product.children'));
@@ -304,6 +344,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.parent.id', $product->getUniqueIdentifier()));
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
+        $criteria->addAssociation('manufacturer');
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
@@ -390,86 +431,5 @@ class ProductSliderTypeDataResolverTest extends TestCase
             [true, true, 1],
             [true, true, 0],
         ];
-    }
-
-    private function createTestProductStreamEntity(): ProductStreamEntity
-    {
-        $this->randomProductIds = array_column($this->createProducts(), 'id');
-        $randomProductIdsString = implode('|', $this->randomProductIds);
-
-        $stream = [
-            'id' => $this->productStreamId,
-            'name' => 'testStream',
-            'filters' => [
-                [
-                    'type' => 'multi',
-                    'queries' => [
-                        [
-                            'type' => 'equalsAny',
-                            'field' => 'product.id',
-                            'value' => $randomProductIdsString,
-                        ],
-                        [
-                            'type' => 'range',
-                            'field' => 'product.width',
-                            'parameters' => [
-                                'gte' => 120,
-                                'lte' => 180,
-                            ],
-                        ],
-                    ],
-                    'operator' => 'AND',
-                ],
-            ],
-        ];
-        $productRepository = $this->getContainer()->get('product_stream.repository');
-        $productRepository->create([$stream], $this->context);
-
-        return $productRepository->search(new Criteria([$this->productStreamId]), $this->context)->first();
-    }
-
-    /**
-     * @return array<array<string, mixed>>
-     */
-    private function createProducts(): array
-    {
-        $productRepository = $this->getContainer()->get('product.repository');
-        $manufacturerId = Uuid::randomHex();
-        $taxId = Uuid::randomHex();
-        $salesChannelId = TestDefaults::SALES_CHANNEL;
-        $products = [];
-
-        $widths = [
-            '100',
-            '110',
-            '120',
-            '130',
-            '140',
-            '150',
-            '160',
-            '170',
-            '180',
-            '190',
-        ];
-
-        for ($i = 0; $i < 10; ++$i) {
-            $products[] = [
-                'id' => Uuid::randomHex(),
-                'productNumber' => Uuid::randomHex(),
-                'width' => $widths[$i],
-                'stock' => 1,
-                'name' => 'Test',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
-                'visibilities' => [
-                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
-        }
-
-        $productRepository->create($products, $this->context);
-
-        return $products;
     }
 }

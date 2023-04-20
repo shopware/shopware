@@ -35,5 +35,6 @@ describe('src/app/asyncComponent/asyncComponent', () => {
         expect(Shopware.Component.getComponentRegistry().has('sw-media-upload-v2')).toBe(true);
         expect(Shopware.Component.getComponentRegistry().has('sw-media-url-form')).toBe(true);
         expect(Shopware.Component.getComponentRegistry().has('sw-sidebar-media-item')).toBe(true);
+        expect(Shopware.Component.getComponentRegistry().has('sw-ai-copilot-badge')).toBe(true);
     });
 });

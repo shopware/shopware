@@ -289,6 +289,7 @@ class OrderConverter
                     $transaction->getStateMachineState() !== null
                     && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
                     && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
+                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_FAILED
                 ) {
                     break;
                 }

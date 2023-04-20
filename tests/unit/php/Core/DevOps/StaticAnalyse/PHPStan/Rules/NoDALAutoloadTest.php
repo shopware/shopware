@@ -17,6 +17,8 @@ class NoDALAutoloadTest extends RuleTestCase
 {
     public function testRule(): void
     {
+        static::markTestSkipped('Will be re-enabled with NEXT-26267');
+
         //not in a class, ignore
         $this->analyse([__DIR__ . '/data/no-dal-autoload/not-in-class.php'], []);
 

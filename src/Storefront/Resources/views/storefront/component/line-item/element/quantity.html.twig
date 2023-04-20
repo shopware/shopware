@@ -54,32 +54,32 @@
                                 {% block component_line_item_quantity_select %}
                                     {% block component_line_item_quantity_select_input %}
                                         <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
-                                                <button
-                                                    {% if isDigital %}disabled="disabled"{% endif %}
-                                                    type="button"
-                                                    class="btn btn-outline-light btn-minus js-btn-minus"
-                                                >
-                                                        {% sw_icon 'minus' style {'size': 'xs'}  %}
-                                                </button>
-                                                <input
-                                                    {% if isDigital %}disabled="disabled"{% endif %}
-                                                    type="number"
-                                                    name="quantity"
-                                                    class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
-                                                    min="{{ quantityInformation.minPurchase }}"
-                                                    max="{{ maxQuantity }}"
-                                                    step="{{ quantityInformation.purchaseSteps }}"
-                                                    value="{{ lineItem.quantity }}"
-                                                />
-                                                <button
-                                                    {% if isDigital %}disabled="disabled"{% endif %}
-                                                    type="button"
-                                                    class="btn btn-outline-light btn-plus js-btn-plus"
-                                                >
-                                                        {% sw_icon 'plus' style {'size': 'xs'} %}
-                                                </button>
-                                        {% endblock %}
-                                    </div>
+                                            <button
+                                                {% if isDigital %}disabled="disabled"{% endif %}
+                                                type="button"
+                                                class="btn btn-outline-light btn-minus js-btn-minus"
+                                            >
+                                                {% sw_icon 'minus' style {'size': 'xs'}  %}
+                                            </button>
+                                            <input
+                                                {% if isDigital %}disabled="disabled"{% endif %}
+                                                type="number"
+                                                name="quantity"
+                                                class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
+                                                min="{{ quantityInformation.minPurchase }}"
+                                                max="{{ maxQuantity }}"
+                                                step="{{ quantityInformation.purchaseSteps }}"
+                                                value="{{ lineItem.quantity }}"
+                                            />
+                                            <button
+                                                {% if isDigital %}disabled="disabled"{% endif %}
+                                                type="button"
+                                                class="btn btn-outline-light btn-plus js-btn-plus"
+                                            >
+                                                {% sw_icon 'plus' style {'size': 'xs'} %}
+                                            </button>
+                                        </div>
+                                    {% endblock %}
                                 {% endblock %}
                             </form>
                         {% endblock %}

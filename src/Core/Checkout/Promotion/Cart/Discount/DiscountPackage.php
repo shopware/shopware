@@ -15,9 +15,15 @@ class DiscountPackage
 {
     private LineItemFlatCollection $cartItems;
 
+    /**
+     * @var array<string, LineItem>|null
+     */
+    private ?array $hashMap;
+
     public function __construct(private LineItemQuantityCollection $metaItems)
     {
         $this->cartItems = new LineItemFlatCollection();
+        $this->hashMap = null;
     }
 
     public function getMetaData(): LineItemQuantityCollection
@@ -37,10 +43,10 @@ class DiscountPackage
 
     public function getCartItem(string $id): LineItem
     {
-        foreach ($this->cartItems as $item) {
-            if ($item->getId() === $id) {
-                return $item;
-            }
+        $map = $this->hasMap();
+
+        if (isset($map[$id])) {
+            return $map[$id];
         }
 
         throw CartException::lineItemNotFound($id);
@@ -85,5 +91,27 @@ class DiscountPackage
         }
 
         return $affectedPrices;
+    }
+
+    /**
+     * @return array<string, LineItem>
+     */
+    private function hasMap(): array
+    {
+        if ($this->hashMap !== null) {
+            return $this->hashMap;
+        }
+
+        $this->hashMap = [];
+        foreach ($this->cartItems as $item) {
+            // previous implementation always took the first element which maps the id
+            // to prevent side effects, we keep this logic
+            if (isset($this->hashMap[$item->getId()])) {
+                continue;
+            }
+            $this->hashMap[$item->getId()] = $item;
+        }
+
+        return $this->hashMap;
     }
 }

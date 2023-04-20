@@ -53,6 +53,11 @@ class PromotionCalculator
     use PromotionCartInformationTrait;
 
     /**
+     * @var array<string, LineItem>
+     */
+    private array $splitted = [];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -233,19 +238,19 @@ class PromotionCalculator
      * @throws LineItemGroupSorterNotFoundException
      * @throws SetGroupNotFoundException
      */
-    private function calculateDiscount(LineItem $lineItem, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
+    private function calculateDiscount(LineItem $item, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
     {
         /** @var string $label */
-        $label = $lineItem->getLabel();
+        $label = $item->getLabel();
 
         /** @var PriceDefinitionInterface $priceDefinition */
-        $priceDefinition = $lineItem->getPriceDefinition();
+        $priceDefinition = $item->getPriceDefinition();
 
         $discount = new DiscountLineItem(
             $label,
             $priceDefinition,
-            $lineItem->getPayload(),
-            $lineItem->getReferencedId()
+            $item->getPayload(),
+            $item->getReferencedId()
         );
 
         $packager = match ($discount->getScope()) {
@@ -268,6 +273,11 @@ class PromotionCalculator
 
         // remember our initial package count
         $originalPackageCount = $packages->count();
+
+        foreach ($calculatedCart->getLineItems() as $item) {
+            $item->setStackable(true);
+            $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, 1, $context);
+        }
 
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
 
@@ -396,17 +406,9 @@ class PromotionCalculator
             $cartItemsForUnit = new LineItemFlatCollection();
 
             foreach ($package->getMetaData() as $item) {
-                /** @var LineItem $cartItem */
-                $cartItem = $cart->get($item->getLineItemId());
+                $lineItemId = $item->getLineItemId();
 
-                $cartItem->setStackable(true);
-
-                // create a new item with only a quantity of x
-                // including calculated price for our original cart item
-                $qtyItem = $this->lineItemQuantitySplitter->split($cartItem, $item->getQuantity(), $context);
-
-                // add the single item to our unit
-                $cartItemsForUnit->add($qtyItem);
+                $cartItemsForUnit->add($this->splitted[$lineItemId]);
             }
 
             $package->setCartItems($cartItemsForUnit);

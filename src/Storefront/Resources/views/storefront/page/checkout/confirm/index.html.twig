@@ -73,7 +73,7 @@
 
                         {% block page_checkout_confirm_revocation_control %}
                             {% if page.showRevocation() %}
-                                <div class="{{ formCheckboxWrapperClass }}">
+                                <div class="form-check">
                                     {% block page_checkout_confirm_revocation_control_checkbox %}
                                         <input type="checkbox"
                                                class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"

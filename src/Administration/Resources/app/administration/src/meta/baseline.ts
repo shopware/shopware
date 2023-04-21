@@ -202,7 +202,7 @@ const missingTests = [
     'asset.filter.ts',
     'date.filter.ts',
     'file-size.filter.js',
-    'filter/index.js',
+    'filter/index.ts',
     'media-name.filter.js',
     'salutation.filter.ts',
     'stock-color-variant.filter.js',

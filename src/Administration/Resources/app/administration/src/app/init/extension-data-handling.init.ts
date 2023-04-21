@@ -14,7 +14,7 @@ function getRepository(
         .find(key => Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin));
 
     if (!extensionName) {
-        return null;
+        throw new Error(`Could not find a extension with the given event origin "${additionalInformation._event_.origin}"`);
     }
 
     const extension = Shopware.State.get('extensions')?.[extensionName];
@@ -39,7 +39,7 @@ function rejectRepositoryCreation(entityName: string): unknown {
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default function initializeExtensionDataLoader(): void {
-    Shopware.ExtensionAPI.handle('repositorySearch', (
+    Shopware.ExtensionAPI.handle('repositorySearch', async (
         {
             entityName,
             criteria = new Shopware.Data.Criteria(),
@@ -47,16 +47,25 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
-        if (!repository) {
-            return rejectRepositoryCreation(
-                entityName as keyof EntitySchema.Entities,
-            ) as Promise<EntityCollection<keyof EntitySchema.Entities>>;
+        try {
+            const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+
+            if (!repository) {
+                return rejectRepositoryCreation(
+                    entityName as keyof EntitySchema.Entities,
+                ) as Promise<EntityCollection<keyof EntitySchema.Entities>>;
+            }
+
+            const mergedContext = { ...Shopware.Context.api, ...context };
+
+            try {
+                return await repository.search(criteria, mergedContext);
+            } catch (e) {
+                return Promise.reject(e);
+            }
+        } catch (error) {
+            return Promise.reject(error);
         }
-
-        const mergedContext = { ...Shopware.Context.api, ...context };
-
-        return repository.search(criteria, mergedContext);
     });
 
     Shopware.ExtensionAPI.handle('repositoryGet', (

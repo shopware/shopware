@@ -119,6 +119,8 @@ class CustomEntityTest extends TestCase
 
         $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
         static::assertCount(0, $categories);
+
+        $container->get(Connection::class)->executeStatement('DROP TABLE IF EXISTS `test_with_enum_column`');
     }
 
     /**
@@ -221,6 +223,30 @@ class CustomEntityTest extends TestCase
 
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
+
+        self::cleanUp($this->getContainer());
+    }
+
+    public function testPersistsCustomEntitiesIfSchemaContainsEnumColumns(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->executeStatement('
+            CREATE TABLE test_with_enum_column (
+                id BINARY(16) NOT NULL PRIMARY KEY,
+                enum_column ENUM(\'foo\', \'bar\') DEFAULT NULL
+            )
+        ');
+
+        $columns = $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative();
+
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/custom-entity-test', false);
+
+        $schema = $this->getSchema();
+        static::assertTrue($schema->hasTable('test_with_enum_column'));
+        static::assertTrue($schema->hasTable('custom_entity_blog'));
+        static::assertTrue($schema->hasTable('ce_blog_comment'));
+        static::assertEquals($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
 
         self::cleanUp($this->getContainer());
     }

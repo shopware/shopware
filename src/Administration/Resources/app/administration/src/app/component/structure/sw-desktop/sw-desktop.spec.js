@@ -107,6 +107,13 @@ async function createWrapper() {
 }
 
 describe('src/app/component/structure/sw-desktop', () => {
+    beforeAll(() => {
+        Shopware.State.get('context').app.config.settings = {
+            appsRequireAppUrl: true,
+            appUrlReachable: true,
+        };
+    });
+
     beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
             id: 'id',
@@ -175,5 +182,18 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata.mock.results[0].value).toBe(false);
+    });
+
+    it('should call not urlDiffService when appUrlReachable is false', async () => {
+        Shopware.State.get('context').app.config.settings.appsRequireAppUrl = false;
+
+        const wrapper = await createWrapper();
+
+        const urlDiffSpy = jest.spyOn(wrapper.vm.appUrlChangeService, 'getUrlDiff');
+
+        await wrapper.vm.$router.push({ name: 'sw.product.create.base' });
+        await flushPromises();
+
+        expect(urlDiffSpy).not.toHaveBeenCalled();
     });
 });

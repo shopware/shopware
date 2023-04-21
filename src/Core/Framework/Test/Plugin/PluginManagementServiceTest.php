@@ -9,7 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
+use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -165,9 +167,21 @@ class PluginManagementServiceTest extends TestCase
                 'plugin' => self::PLUGINS_PATH,
                 'app' => self::APPS_PATH,
             ], $this->filesystem),
+            $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
             $this->getContainer()->get('shopware.store_download_client')
+        );
+    }
+
+    private function getPluginService(): PluginService
+    {
+        return $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get('plugin.repository'),
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->get(PluginFinder::class)
         );
     }
 

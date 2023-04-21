@@ -31,27 +31,17 @@
                 <template #column-points="{ item }">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_reviews_data_stars_content %}
-                    <div class="sw-product-detail-reviews__stars">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_product_detail_reviews_data_stars_filled %}
-                        <sw-icon
-                            v-for="(filledStar, index) in item.points"
-                            :key="`filledStar-${index}`"
-                            size="14"
-                            name="default-review-star-full"
-                        />
-                        {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_product_detail_reviews_data_stars_empty %}
-                        <sw-icon
-                            v-for="(emptyStar, index) in (5-item.points)"
-                            :key="`emptyStar-${index}`"
-                            size="14"
-                            name="regular-star"
-                        />
-                        {% endblock %}
-                    </div>
+                    <sw-rating-stars v-model="item.points" />
+
+                    {# @deprecated tag:v6.6.0 - Block will removed because it will be replaced by `sw-rating-stars` component. Use upper block `sw_product_detail_reviews_data_stars_content` instead.  #}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_reviews_data_stars_filled %}{% endblock %}
+
+                    {# @deprecated tag:v6.6.0 - Block will removed because it will be replaced by `sw-rating-stars` component. Use upper block `sw_product_detail_reviews_data_stars_content` instead.  #}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_reviews_data_stars_empty %}{% endblock %}
+
                     {% endblock %}
                 </template>
                 {% endblock %}

@@ -110,6 +110,11 @@ describe('module/sw-cms/page/sw-cms-create', () => {
             state: {
                 isSystemDefaultLanguage: true,
             },
+            mutations: {
+                removeCurrentPage() {},
+                removeSelectedBlock() {},
+                removeSelectedSection() {},
+            },
         });
     });
 

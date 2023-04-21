@@ -75,6 +75,10 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     let wrapper;
 
     beforeAll(() => {
+        if (Shopware.State.get('shopwareExtensions')) {
+            Shopware.State.unregisterModule('shopwareExtensions');
+        }
+
         Shopware.State.registerModule('shopwareExtensions', {
             namespaced: true,
             state: {
@@ -93,6 +97,10 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 },
             },
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
 
         Shopware.State.registerModule('context', {
             namespaced: true,

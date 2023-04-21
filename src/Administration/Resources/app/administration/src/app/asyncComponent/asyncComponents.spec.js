@@ -4,37 +4,48 @@
 
 import registerAsyncComponents from 'src/app/asyncComponent/asyncComponents';
 
+const componentNames = [
+    'sw-code-editor',
+    'sw-chart',
+    'sw-datepicker',
+    'sw-image-slider',
+    'sw-media-add-thumbnail-form',
+    'sw-media-base-item',
+    'sw-media-compact-upload-v2',
+    'sw-media-entity-mapper',
+    'sw-media-field',
+    'sw-media-folder-content',
+    'sw-media-folder-item',
+    'sw-media-list-selection-item-v2',
+    'sw-media-list-selection-v2',
+    'sw-media-media-item',
+    'sw-media-modal-delete',
+    'sw-media-modal-folder-dissolve',
+    'sw-media-modal-folder-settings',
+    'sw-media-modal-move',
+    'sw-media-modal-replace',
+    'sw-media-preview-v2',
+    'sw-media-replace',
+    'sw-media-upload-v2',
+    'sw-media-url-form',
+    'sw-sidebar-media-item',
+    'sw-ai-copilot-badge',
+];
+
 describe('src/app/asyncComponent/asyncComponent', () => {
-    it('should register the components asynchronously', async () => {
-        expect(Shopware.Component.getComponentRegistry().size).toBe(0);
-
+    beforeAll(async () => {
         await registerAsyncComponents();
+    });
 
-        expect(Shopware.Component.getComponentRegistry().has('sw-code-editor')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-chart')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-datepicker')).toBe(true);
+    componentNames.forEach((componentName) => {
+        it('should register the components asynchronously', async () => {
+            expect(Shopware.Component.getComponentRegistry().has(componentName)).toBe(true);
+        });
 
-        expect(Shopware.Component.getComponentRegistry().has('sw-image-slider')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-add-thumbnail-form')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-base-item')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-compact-upload-v2')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-entity-mapper')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-field')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-folder-content')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-folder-item')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-list-selection-item-v2')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-list-selection-v2')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-media-item')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-modal-delete')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-modal-folder-dissolve')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-modal-folder-settings')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-modal-move')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-modal-replace')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-preview-v2')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-replace')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-upload-v2')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-media-url-form')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-sidebar-media-item')).toBe(true);
-        expect(Shopware.Component.getComponentRegistry().has('sw-ai-copilot-badge')).toBe(true);
+        it('should be able to build all the components correctly', async () => {
+            const buildResult = await Shopware.Component.build(componentName);
+            // If component could not get build then the component library returns "false"
+            expect(buildResult).not.toBe(false);
+        });
     });
 });

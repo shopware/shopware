@@ -163,15 +163,11 @@ global.console.warn = (...args) => {
 };
 
 // eslint-disable-next-line jest/require-top-level-describe
-beforeEach(() => {
-    if (consoleHasErrorOrWarning) {
-        consoleHasErrorOrWarning = false;
-    }
-});
-
-// eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
     if (consoleHasErrorOrWarning) {
+        // reset variable for next test
+        consoleHasErrorOrWarning = false;
+
         throw new Error('console.error and console.warn are not allowed');
     }
 });

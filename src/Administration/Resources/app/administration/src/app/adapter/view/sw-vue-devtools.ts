@@ -1,3 +1,6 @@
+/* istanbul ignore file */
+
+/* Vue devtools plugins couldn't be tested well yet */
 /**
  * @package admin
  */

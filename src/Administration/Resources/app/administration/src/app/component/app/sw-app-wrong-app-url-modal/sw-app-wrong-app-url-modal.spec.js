@@ -52,6 +52,10 @@ describe('sw-app-wrong-app-url-modal', () => {
     }
 
     beforeAll(() => {
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
         Shopware.State.registerModule('context', {
             namespaced: true,
             state: {

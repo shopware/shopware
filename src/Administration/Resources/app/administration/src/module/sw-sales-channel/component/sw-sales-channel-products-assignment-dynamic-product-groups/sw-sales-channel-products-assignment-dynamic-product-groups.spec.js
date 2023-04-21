@@ -3,9 +3,7 @@
  */
 
 import { shallowMount } from '@vue/test-utils';
-import swSalesChannelProductsAssignmentDynamicProductGroups from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
-
-Shopware.Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', swSalesChannelProductsAssignmentDynamicProductGroups);
+import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
 
 async function getError(method, ...args) {
     try {

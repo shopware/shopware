@@ -81,6 +81,10 @@ async function createWrapper({ propsData = {}, privileges = [] } = {}) {
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeAll(() => {
+        if (Shopware.State.get('settingsItems')) {
+            Shopware.State.unregisterModule('settingsItems');
+        }
+
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,
             state: {

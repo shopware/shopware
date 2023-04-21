@@ -1,4 +1,4 @@
-import swGrid from 'src/app/component/grid/sw-grid';
+import 'src/app/component/grid/sw-grid';
 import 'src/app/mixin/notification.mixin';
 import 'src/app/mixin/listing.mixin';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -9,7 +9,6 @@ import swSettingsDocumentList from 'src/module/sw-settings-document/page/sw-sett
  * @package customer-order
  */
 
-Shopware.Component.register('sw-grid', swGrid);
 Shopware.Component.register('sw-settings-document-list', swSettingsDocumentList);
 
 async function createWrapper(privileges = []) {

@@ -68,8 +68,7 @@ export default {
 
         installPayPal() {
             return this.extensionStoreActionService.downloadExtension(this.pluginName)
-                .then(async () => {
-                    await this.extensionStoreActionService.refresh();
+                .then(() => {
                     return this.extensionStoreActionService.installExtension(this.pluginName, 'plugin');
                 });
         },

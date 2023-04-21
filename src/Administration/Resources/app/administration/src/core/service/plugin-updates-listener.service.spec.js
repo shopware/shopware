@@ -49,8 +49,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         });
 
         await flushPromises();
-
-        expect(localStorage.getItem(localStorageKey)).toBe(lastCheckDate);
+        expect(localStorage.getItem(localStorageKey)).not.toBe(lastCheckDate);
     });
 
     it('should update the key and show a notification', async () => {

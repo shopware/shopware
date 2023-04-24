@@ -26,9 +26,9 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
         if (Number.isNaN(lastUpdate) || lastUpdate < Date.now() - oneDay) {
             // @ts-expect-error
             void innerServiceContainer.storeService.getUpdateList().then((response: UpdatedListResponse) => {
+                localStorage.setItem(localStorageKey, Date.now().toString());
                 if (response.total > 0 && canUpdateExtensions()) {
                     createUpdatesAvailableNotification();
-                    localStorage.setItem(localStorageKey, Date.now().toString());
                 }
             }).catch(() => { /* ignore notification could not be created */ });
         }

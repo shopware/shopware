@@ -25,7 +25,7 @@ async function createWrapper(propsData) {
     localVue.directive('tooltip', {
         unbind() {
             return {
-                hasAttribute() {}
+                hasAttribute() {},
             };
         },
     });
@@ -33,7 +33,7 @@ async function createWrapper(propsData) {
         stubs: {
             'sw-condition-base': await Shopware.Component.build('sw-condition-base'),
             'sw-condition-type-select': {
-                template: '<div class="sw-condition-type-select"></div>'
+                template: '<div class="sw-condition-type-select"></div>',
             },
             'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
             'sw-select-base': await Shopware.Component.build('sw-select-base'),
@@ -55,8 +55,8 @@ async function createWrapper(propsData) {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-condition-operator-select': await Shopware.Component.build('sw-condition-operator-select'),
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
@@ -67,7 +67,7 @@ async function createWrapper(propsData) {
         },
 
         propsData: {
-            ...propsData
+            ...propsData,
         },
 
         provide: {
@@ -80,7 +80,7 @@ async function createWrapper(propsData) {
                             return Promise.resolve({
                                 config: {
                                     label: null,
-                                    componentName: 'sw-field'
+                                    componentName: 'sw-field',
                                 },
                             });
                         },
@@ -90,20 +90,20 @@ async function createWrapper(propsData) {
                                 id: 'field-set-id-1',
                                 config: {
                                     label: {
-                                        'en-GB': 'sit quo amet'
+                                        'en-GB': 'sit quo amet',
                                     },
-                                    componentName: 'sw-field'
-                                }
-                            }
-                        ])
+                                    componentName: 'sw-field',
+                                },
+                            },
+                        ]),
                     };
-                }
+                },
             },
             conditionDataProviderService: Shopware.Service('conditionDataProviderService'),
             availableTypes: [],
             childAssociationField: {},
             availableGroups: [],
-        }
+        },
     });
 }
 
@@ -114,8 +114,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
             value: {
                 renderedField: {
                     config: {
-                        componentName: 'sw-field'
-                    }
+                        componentName: 'sw-field',
+                    },
                 },
                 selectedField: '2b9c448cfbdf4f55b256221c66cc73b9',
                 selectedFieldSet: '9b8018573b644e1686e878bb4b7dc688',
@@ -134,12 +134,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
                     get: () => {
                         return {
                             config: {
-                                componentName: 'sw-field'
-                            }
+                                componentName: 'sw-field',
+                            },
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
 
         // Find and trigger on custom field
@@ -169,8 +169,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
             value: {
                 renderedField: {
                     config: {
-                        componentName: 'sw-field'
-                    }
+                        componentName: 'sw-field',
+                    },
                 },
                 selectedField: '2b9c448cfbdf4f55b256221c66cc73b9',
                 selectedFieldSet: '9b8018573b644e1686e878bb4b7dc688',
@@ -189,12 +189,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
                     get: () => {
                         return {
                             config: {
-                                componentName: 'sw-field'
-                            }
+                                componentName: 'sw-field',
+                            },
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
 
         // Find and trigger on custom field
@@ -206,6 +206,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         await wrapper.vm.$nextTick();
         const customItem = await customFieldList.find('li.sw-select-result');
         await customItem.trigger('click');
-        expect(wrapper.vm.renderedField).toEqual(null);
+        expect(wrapper.vm.renderedField).toBeNull();
     });
 });

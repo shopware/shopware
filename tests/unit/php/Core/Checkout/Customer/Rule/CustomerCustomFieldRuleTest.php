@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Rule\Rule\Context;
+namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -15,6 +15,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @group rules
+ *
+ * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule
  */
 #[Package('business-ops')]
 class CustomerCustomFieldRuleTest extends TestCase
@@ -25,8 +29,6 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     private CustomerCustomFieldRule $rule;
 
-    private SalesChannelContext $salesChannelContext;
-
     private MockObject $customer;
 
     private CheckoutRuleScope $scope;
@@ -35,13 +37,13 @@ class CustomerCustomFieldRuleTest extends TestCase
     {
         $this->rule = new CustomerCustomFieldRule();
 
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $this->salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->customer = $this->getMockBuilder(CustomerEntity::class)->disableOriginalConstructor()->getMock();
-        $this->salesChannelContext->method('getCustomer')->willReturn($this->customer);
+        $salesChannelContext->method('getCustomer')->willReturn($this->customer);
 
-        $this->scope = new CheckoutRuleScope($this->salesChannelContext);
+        $this->scope = new CheckoutRuleScope($salesChannelContext);
     }
 
     public function testGetName(): void
@@ -65,6 +67,37 @@ class CustomerCustomFieldRuleTest extends TestCase
         $this->setupRule(false, 'bool');
         $this->setCustomerCustomFields([]);
         static::assertTrue($this->rule->match($this->scope));
+    }
+
+    public function testMatchWithWrongRuleScope(): void
+    {
+        $scope = $this->createMock(TestRuleScope::class);
+
+        $match = $this->rule->match($scope);
+
+        static::assertFalse($match);
+    }
+
+    public function testMatchWithoutCustomer(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $scope = new CheckoutRuleScope($context);
+
+        $rule = new CustomerCustomFieldRule();
+        $rule->assign(
+            [
+                'operator' => Rule::OPERATOR_EQ,
+                'renderedField' => [
+                    'type' => 'bool',
+                    'name' => self::CUSTOM_FIELD_NAME,
+                ],
+                'renderedFieldValue' => true,
+            ]
+        );
+
+        static::assertFalse($rule->match($scope));
     }
 
     public function testBooleanCustomFieldFalse(): void
@@ -167,14 +200,11 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     /**
      * @dataProvider customFieldCheckoutScopeProvider
-     *
-     * @param bool|string|null $customFieldValue
-     * @param bool|string|null $customFieldValueInCustomer
      */
     public function testCustomFieldCheckoutScope(
-        $customFieldValue,
+        bool|string|null $customFieldValue,
         string $type,
-        $customFieldValueInCustomer,
+        bool|string|null $customFieldValueInCustomer,
         bool $result
     ): void {
         $this->setupRule($customFieldValue, $type);
@@ -182,6 +212,9 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertSame($result, $this->rule->match($this->scope));
     }
 
+    /**
+     * @return array<string, array<int, bool|string|null>>
+     */
     public static function customFieldCheckoutScopeProvider(): array
     {
         return [
@@ -222,15 +255,15 @@ class CustomerCustomFieldRuleTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $customFields
+     */
     private function setCustomerCustomFields(array $customFields = []): void
     {
         $this->customer->method('getCustomFields')->willReturn($customFields);
     }
 
-    /**
-     * @param bool|string|null $customFieldValue
-     */
-    private function setupRule($customFieldValue, string $type): void
+    private function setupRule(bool|string|null $customFieldValue, string $type): void
     {
         $this->rule->assign(
             [

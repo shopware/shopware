@@ -465,6 +465,7 @@ class OrderConverterTest extends TestCase
         $lineItem = $cart->getLineItems()->first();
 
         static::assertNotNull($lineItem);
+        static::assertInstanceOf(LineItem::class, $lineItem);
         $collection = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
         static::assertInstanceOf(OrderLineItemDownloadCollection::class, $collection);
         static::assertEquals(1, $collection->count());
@@ -591,6 +592,7 @@ class OrderConverterTest extends TestCase
 
         // Transactions
         $orderTransactionCollection = new OrderTransactionCollection();
+
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('order-transaction-payment-method-id');
@@ -598,7 +600,26 @@ class OrderConverterTest extends TestCase
         $stateMachineState->setId('state-machine-state-id');
         $stateMachineState->setTechnicalName('state-machine-state-technical-name');
         $orderTransaction->setStateMachineState($stateMachineState);
+
+        $orderTransactionCancelled = new OrderTransactionEntity();
+        $orderTransactionCancelled->setId('order-transaction-cancelled-id');
+        $orderTransactionCancelled->setPaymentMethodId('order-transaction-cancelled-payment-method-id');
+        $stateMachineStateCancelled = new StateMachineStateEntity();
+        $stateMachineStateCancelled->setId('state-machine-cancelled-state-id');
+        $stateMachineStateCancelled->setTechnicalName('cancelled');
+        $orderTransactionCancelled->setStateMachineState($stateMachineStateCancelled);
+
+        $orderTransactionFailed = new OrderTransactionEntity();
+        $orderTransactionFailed->setId('order-transaction-failed-id');
+        $orderTransactionFailed->setPaymentMethodId('order-transaction-failed-payment-method-id');
+        $stateMachineStateFailed = new StateMachineStateEntity();
+        $stateMachineStateFailed->setId('state-machine-failed-state-id');
+        $stateMachineStateFailed->setTechnicalName('failed');
+        $orderTransactionFailed->setStateMachineState($stateMachineStateFailed);
+
+        $orderTransactionCollection->add($orderTransactionCancelled);
         $orderTransactionCollection->add($orderTransaction);
+        $orderTransactionCollection->add($orderTransactionFailed);
 
         // Cart price
         $cartPrice = new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE);

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 class ContainsFilter extends SingleFieldFilter
 {
     public function __construct(
-        private readonly string $field,
-        private readonly mixed $value
+        protected readonly string $field,
+        protected mixed $value
     ) {
     }
 

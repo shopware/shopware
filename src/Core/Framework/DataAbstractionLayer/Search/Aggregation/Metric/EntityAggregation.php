@@ -14,7 +14,7 @@ class EntityAggregation extends Aggregation
     public function __construct(
         string $name,
         string $field,
-        private readonly string $entity
+        protected readonly string $entity
     ) {
         parent::__construct($name, $field);
     }

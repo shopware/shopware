@@ -14,10 +14,10 @@ class StatsAggregation extends Aggregation
     public function __construct(
         string $name,
         string $field,
-        private readonly bool $max = true,
-        private readonly bool $min = true,
-        private readonly bool $sum = true,
-        private readonly bool $avg = true
+        protected readonly bool $max = true,
+        protected readonly bool $min = true,
+        protected readonly bool $sum = true,
+        protected readonly bool $avg = true
     ) {
         parent::__construct($name, $field);
     }

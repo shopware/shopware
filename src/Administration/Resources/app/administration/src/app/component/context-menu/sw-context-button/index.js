@@ -149,6 +149,7 @@ Component.register('sw-context-button', {
         },
 
         openMenu() {
+            this.$emit('on-open-change', true);
             this.showMenu = true;
             document.addEventListener('click', this.handleClickEvent);
         },
@@ -189,6 +190,7 @@ Component.register('sw-context-button', {
         },
 
         closeMenu() {
+            this.$emit('on-open-change', false);
             this.showMenu = false;
             document.removeEventListener('click', this.handleClickEvent);
         },

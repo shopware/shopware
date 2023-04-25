@@ -98,9 +98,9 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right'],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return ['bottom', 'right'].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {

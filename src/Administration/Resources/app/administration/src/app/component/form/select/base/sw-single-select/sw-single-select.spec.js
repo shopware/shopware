@@ -70,6 +70,7 @@ describe('components/sw-single-select', () => {
 
         const resultList = swSingleSelect.find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
+        expect(swSingleSelect.emitted()).toHaveProperty('on-open-change');
     });
 
     it('should show the result items', async () => {
@@ -128,6 +129,7 @@ describe('components/sw-single-select', () => {
 
         const resultList = swSingleSelect.find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeFalsy();
+        expect(swSingleSelect.emitted()).toHaveProperty('on-open-change');
     });
 
     it('should show the label for the selected value property', async () => {

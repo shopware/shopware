@@ -43,14 +43,18 @@
         border: 1px solid $color-gray-300;
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
         overflow: hidden;
+        transition: all 100ms ease-in-out;
+
+        &:hover {
+            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
+        }
     }
 
     &__header {
         display: flex;
-        padding: 16px 16px 12px 24px;
+        padding: 16px 12px 12px 20px;
         justify-content: space-between;
         align-items: baseline;
-        max-height: 55px;
         border-bottom: 1px solid $color-gray-300;
     }
 
@@ -60,13 +64,14 @@
     }
 
     &__title {
-        font-size: $font-size-s;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
         margin: 0;
     }
 
     &__description {
-        font-size: $font-size-s;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
         color: $color-darkgray-200;
     }
@@ -97,7 +102,7 @@
     }
 
     &__action-item {
-        padding: 12px 16px 16px 24px;
+        padding: 12px 12px 16px 20px;
         cursor: pointer;
         transition: all 100ms ease-in-out;
 
@@ -112,6 +117,10 @@
         &:hover {
             background: $color-gray-50;
         }
+
+        &:active {
+            background: $color-gray-100;
+        }
     }
 
     &__action-header {
@@ -121,11 +130,14 @@
         margin-bottom: 4px;
     }
 
+    &__action-icon {
+        align-self: baseline;
+    }
+
     &__action-name {
         overflow: hidden;
         word-wrap: break-word;
         flex-basis: 100%;
-        padding-top: 2px;
 
         h3 {
             font-size: $font-size-xs;
@@ -139,12 +151,6 @@
             width: 12px;
             height: 12px;
         }
-
-        &.is--stop-flow {
-            h3 {
-                color: $color-crimson-500;
-            }
-        }
     }
 
     &__action-description {
@@ -154,54 +160,6 @@
 
         .entity {
             text-transform: capitalize;
-        }
-    }
-
-    &__context-button {
-        &.is--stop-flow {
-            .sw-context-button__button:hover,
-            .sw-context-button__button:focus {
-                border-color: $color-crimson-200;
-            }
-
-            .sw-icon {
-                color: $color-crimson-500;
-            }
-        }
-    }
-
-    &.is--stop-flow {
-        .sw-flow-sequence-action__card {
-            border-color: $color-crimson-300;
-        }
-
-        .sw-flow-sequence-action__header {
-            background: $color-crimson-50;
-            border-bottom: 1px solid $color-crimson-300;
-        }
-
-        .sw-flow-sequence-action__title,
-        .sw-flow-sequence-action__description {
-            color: $color-crimson-500;
-        }
-
-        .sw-flow-sequence-action__action-item:last-child {
-            color: $color-crimson-500;
-
-            .sw-flow-sequence-action__action-name h3 {
-                color: $color-crimson-500;
-            }
-
-            .sw-flow-sequence-action__context-button {
-                .sw-context-button__button:hover,
-                .sw-context-button__button:focus {
-                    border-color: $color-crimson-200;
-                }
-
-                .sw-icon {
-                    color: $color-crimson-500;
-                }
-            }
         }
     }
 
@@ -278,13 +236,6 @@
                 width: 12px;
                 height: 12px;
                 margin-right: 8px;
-            }
-
-            &.is--stop-flow {
-                .sw-select-result__result-item-text,
-                .sw-icon {
-                    color: $color-crimson-500;
-                }
             }
         }
     }

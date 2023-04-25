@@ -95,6 +95,22 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         }
     }
 
+    &.is--description-left {
+        grid-template-columns: 2fr 7fr 2fr;
+        grid-template-areas:
+            "a b d"
+            "c c c";
+
+        .sw-select-result__result-item-text {
+            grid-area: a;
+        }
+
+        .sw-select-result__result-item-description {
+            grid-area: b;
+            padding: 0;
+        }
+    }
+
     &.is--disabled {
         color: $sw-select-result-disabled-color-text;
 

@@ -153,6 +153,8 @@ Component.register('sw-single-select', {
 
         onSelectExpanded() {
             this.isExpanded = true;
+            this.$emit('on-open-change', true);
+
             // Always start with a fresh list when opening the result list
             this.results = this.options;
 
@@ -180,6 +182,7 @@ Component.register('sw-single-select', {
             this.$refs.swSelectInput.blur();
             this.searchTerm = '';
             this.itemRecentlySelected = false;
+            this.$emit('on-open-change', false);
             this.isExpanded = false;
         },
 

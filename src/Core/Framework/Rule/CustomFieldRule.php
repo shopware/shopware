@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -61,6 +62,10 @@ class CustomFieldRule
             return false;
         }
 
+        if (self::isFloat($renderedField)) {
+            return self::floatMatch($operator, (float) $actual, (float) $expected);
+        }
+
         return match ($operator) {
             Rule::OPERATOR_NEQ => $actual !== $expected,
             Rule::OPERATOR_GTE => $actual >= $expected,
@@ -68,6 +73,19 @@ class CustomFieldRule
             Rule::OPERATOR_EQ => $actual === $expected,
             Rule::OPERATOR_GT => $actual > $expected,
             Rule::OPERATOR_LT => $actual < $expected,
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
+    }
+
+    private static function floatMatch(string $operator, float $actual, float $expected): bool
+    {
+        return match ($operator) {
+            Rule::OPERATOR_NEQ => FloatComparator::notEquals($actual, $expected),
+            Rule::OPERATOR_GTE => FloatComparator::greaterThanOrEquals($actual, $expected),
+            Rule::OPERATOR_LTE => FloatComparator::lessThanOrEquals($actual, $expected),
+            Rule::OPERATOR_EQ => FloatComparator::equals($actual, $expected),
+            Rule::OPERATOR_GT => FloatComparator::greaterThan($actual, $expected),
+            Rule::OPERATOR_LT => FloatComparator::lessThan($actual, $expected),
             default => throw new UnsupportedOperatorException($operator, self::class),
         };
     }
@@ -131,5 +149,13 @@ class CustomFieldRule
     private static function isSwitchOrBoolField(array $renderedField): bool
     {
         return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
+    }
+
+    /**
+     * @param array<string, string> $renderedField
+     */
+    private static function isFloat(array $renderedField): bool
+    {
+        return $renderedField['type'] === CustomFieldTypes::FLOAT;
     }
 }

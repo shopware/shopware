@@ -43,7 +43,7 @@ class CustomFieldRuleTest extends TestCase
      */
     public function testMatch(
         array $customFields,
-        bool|string|null $renderedFieldValue,
+        bool|string|null|int $renderedFieldValue,
         string $type,
         string $operator,
         bool $isMatching
@@ -278,6 +278,13 @@ class CustomFieldRuleTest extends TestCase
                 'string',
                 '=',
                 false,
+            ],
+            'custom field "123.0" value / rendered field float value "123"/ string type/ EQ operator / matching' => [
+                [self::CUSTOM_FIELD_NAME => 123.0],
+                123,
+                'float',
+                '=',
+                true,
             ],
         ];
     }

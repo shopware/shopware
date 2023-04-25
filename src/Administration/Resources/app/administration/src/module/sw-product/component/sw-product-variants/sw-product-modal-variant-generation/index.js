@@ -348,9 +348,12 @@ export default {
             }
 
             variants.forEach((item) => {
-                item.downloads = [];
+                item.downloads = [...this.downloadFilesForAllVariants];
+                this.updateUsageForAllVariantFiles(item.id);
+
                 item.productStates = ['is-download'];
             });
+
             this.getList();
         },
 
@@ -369,6 +372,9 @@ export default {
                 item.productStates = [];
                 return;
             }
+
+            item.downloads = [...this.downloadFilesForAllVariants];
+            this.updateUsageForAllVariantFiles(item.id);
 
             item.productStates = ['is-download'];
         },
@@ -415,6 +421,12 @@ export default {
                         this.pushFileToUsageList(`${media.fileName}.${media.fileExtension}`, currentItem.id);
                     }
                 });
+            });
+        },
+
+        updateUsageForAllVariantFiles(id) {
+            this.downloadFilesForAllVariants.forEach((download) => {
+                this.pushFileToUsageList(`${download.fileName}.${download.fileExtension}`, id);
             });
         },
 

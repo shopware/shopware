@@ -24,6 +24,7 @@ import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
 import type ModuleFactory from 'src/core/factory/module.factory';
 import type DirectiveFactory from 'src/core/factory/directive.factory';
+import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -164,6 +165,7 @@ declare global {
         cartStoreService: CartStoreService,
         customSnippetApiService: CustomSnippetApiService,
         userActivityService: UserActivityService,
+        filterFactory: FilterFactoryData,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{

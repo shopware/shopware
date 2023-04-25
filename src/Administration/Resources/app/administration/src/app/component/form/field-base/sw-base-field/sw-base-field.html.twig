@@ -25,6 +25,9 @@
             <slot name="label">
                 {{ label }}
             </slot>
+
+            <sw-ai-copilot-badge v-if="aiBadge" />
+
         </label>
 
         <sw-help-text

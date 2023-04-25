@@ -35,4 +35,18 @@ abstract class Aggregation extends Struct implements CriteriaPartInterface
     {
         return 'aggregation-' . $this->name;
     }
+
+    /**
+     * Include the class name in the json serialization.
+     * So the criteria hash is different for different aggregation types when the same field and value is used.
+     *
+     * @return array<mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $value = parent::jsonSerialize();
+        $value['_class'] = static::class;
+
+        return $value;
+    }
 }

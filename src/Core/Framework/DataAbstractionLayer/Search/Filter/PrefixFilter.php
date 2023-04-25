@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class PrefixFilter extends SingleFieldFilter
 {
-    private readonly string $value;
+    protected readonly string $value;
 
-    public function __construct(private readonly string $field, string|bool|float|int|null $value)
-    {
+    public function __construct(
+        protected readonly string $field,
+        string|bool|float|int|null $value
+    ) {
         $this->value = (string) $value;
     }
 

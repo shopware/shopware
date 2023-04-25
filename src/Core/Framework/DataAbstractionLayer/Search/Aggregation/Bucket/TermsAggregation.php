@@ -15,8 +15,8 @@ class TermsAggregation extends BucketAggregation
     public function __construct(
         string $name,
         string $field,
-        private readonly ?int $limit = null,
-        private readonly ?FieldSorting $sorting = null,
+        protected readonly ?int $limit = null,
+        protected ?FieldSorting $sorting = null,
         ?Aggregation $aggregation = null
     ) {
         parent::__construct($name, $field, $aggregation);

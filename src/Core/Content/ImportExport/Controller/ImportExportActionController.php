@@ -112,7 +112,9 @@ class ImportExportActionController extends AbstractController
         $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
 
-        $this->messageBus->dispatch(new ImportExportMessage($context, $logEntity->getId(), $logEntity->getActivity()));
+        $message = new ImportExportMessage($context, $logEntity->getId(), $logEntity->getActivity());
+
+        $this->messageBus->dispatch($message);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -236,13 +238,19 @@ class ImportExportActionController extends AbstractController
         }
     }
 
+    /**
+     * @param array<string> $properties
+     * @param array<string> $missingPrivileges
+     *
+     * @return array<string>
+     */
     private function getMissingPrivilges(
         array $properties,
         EntityDefinition $definition,
         Context $context,
         array $missingPrivileges
     ): array {
-        $property = array_shift($properties);
+        $property = (string) array_shift($properties);
 
         $property = $definition->getField($property);
 

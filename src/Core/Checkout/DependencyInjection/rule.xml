@@ -176,6 +176,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\NumberOfReviewsRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\OrderCountRule">
             <tag name="shopware.rule.definition"/>
         </service>

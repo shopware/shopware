@@ -755,6 +755,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
+        "numberOfReviews": "Number of submitted reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total quantity of all products",

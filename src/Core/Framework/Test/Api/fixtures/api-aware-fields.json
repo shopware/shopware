@@ -1070,6 +1070,7 @@
     "customer.birthday",
     "customer.lastOrderDate",
     "customer.orderCount",
+    "customer.reviewCount",
     "customer.orderTotalAmount",
     "customer.customFields",
     "customer.group",

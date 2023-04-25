@@ -14,8 +14,8 @@ class SearchTerm
      * @internal
      */
     public function __construct(
-        private readonly string $term,
-        private readonly float $score = 1.0
+        protected readonly string $term,
+        protected readonly float $score = 1.0
     ) {
     }
 

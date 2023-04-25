@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 class EqualsFilter extends SingleFieldFilter
 {
     public function __construct(
-        private readonly string $field,
-        private readonly string|bool|float|int|null $value
+        protected readonly string $field,
+        protected readonly string|bool|float|int|null $value
     ) {
     }
 

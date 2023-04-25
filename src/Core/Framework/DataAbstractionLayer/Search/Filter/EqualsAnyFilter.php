@@ -14,8 +14,8 @@ class EqualsAnyFilter extends SingleFieldFilter
      * @param string[]|float[]|int[] $value
      */
     public function __construct(
-        private readonly string $field,
-        private readonly array $value = []
+        protected readonly string $field,
+        protected array $value = []
     ) {
     }
 

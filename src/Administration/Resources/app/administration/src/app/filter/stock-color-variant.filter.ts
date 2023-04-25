@@ -2,10 +2,8 @@
  * @package inventory
  */
 
-const { Filter } = Shopware;
-
-Filter.register('stockColorVariant', (value) => {
-    if (!value) {
+Shopware.Filter.register('stockColorVariant', (value: number) => {
+    if (typeof value !== 'number' && !value) {
         return '';
     }
 
@@ -19,3 +17,6 @@ Filter.register('stockColorVariant', (value) => {
 
     return 'error';
 });
+
+/* @private */
+export {};

@@ -2,15 +2,12 @@
  * @package admin
  */
 
-const { Filter } = Shopware;
-const { date } = Shopware.Utils.format;
-
-Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions = {}): string => {
+Shopware.Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions = {}): string => {
     if (!value) {
         return '';
     }
 
-    return date(value, options);
+    return Shopware.Utils.format.date(value, options);
 });
 
 /**

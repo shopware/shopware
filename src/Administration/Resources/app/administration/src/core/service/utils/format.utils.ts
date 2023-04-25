@@ -16,7 +16,8 @@ export default {
     toISODate,
 };
 
-interface CurrencyOptions extends Intl.NumberFormatOptions {
+/* @private */
+export interface CurrencyOptions extends Intl.NumberFormatOptions {
     language?: string
 }
 

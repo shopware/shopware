@@ -1,9 +1,9 @@
-const { Filter } = Shopware;
-
 /**
  * @package content
  */
-Filter.register('thumbnailSize', (value) => {
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+
+Shopware.Filter.register('thumbnailSize', (value: Entity<'media_thumbnail_size'>) => {
     if (!value || !(value.getEntityName() === 'media_thumbnail_size')) {
         return '';
     }
@@ -14,3 +14,6 @@ Filter.register('thumbnailSize', (value) => {
 
     return `${value.width}x${value.height}`;
 });
+
+/* @private */
+export {};

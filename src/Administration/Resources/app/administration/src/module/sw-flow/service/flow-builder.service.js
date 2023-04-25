@@ -88,6 +88,7 @@ export default function flowBuilderService() {
         convertTagString,
         getGenerateDocumentDescription,
         getMailSendDescription,
+        getDownloadAccessDescription,
         convertConfig,
         getAppFlowActionDescription,
         formatValuePreview,
@@ -245,6 +246,9 @@ export default function flowBuilderService() {
 
             case $actionNames.MAIL_SEND:
                 return this.getMailSendDescription(mailTemplates, config, translator);
+
+            case $actionNames.GRANT_DOWNLOAD_ACCESS:
+                return this.getDownloadAccessDescription(config, translator);
 
             default: {
                 const convertedDescription = this.convertConfig(config, translator);
@@ -451,6 +455,12 @@ export default function flowBuilderService() {
         }
 
         return mailSendDescription;
+    }
+
+    function getDownloadAccessDescription(config, translator) {
+        return config.value
+            ? translator.$tc('sw-flow.actions.downloadAccessLabel.granted')
+            : translator.$tc('sw-flow.actions.downloadAccessLabel.revoked');
     }
 
     function getActionModalName(actionName) {

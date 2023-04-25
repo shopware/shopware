@@ -126,8 +126,11 @@
         "order": "Order"
       },
       "unknownLabel": "Unknown action",
-      "warningText": "This action was provided by an extension that is inactive or no longer installed."
-
+      "warningText": "This action was provided by an extension that is inactive or no longer installed.",
+      "downloadAccessLabel": {
+        "granted": "Granted",
+        "revoked": "Revoked"
+      }
     },
     "rule": {
       "addRule": "Add rule",

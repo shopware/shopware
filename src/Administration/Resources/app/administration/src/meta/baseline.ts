@@ -216,7 +216,7 @@ const missingTests = [
     'component-helper.init.js',
     'component.init.js',
     'context.init.ts',
-    'directive.init.js',
+    'directive.init.ts',
     'extension-component-sections.init.ts',
     'extension-data-handling.init.ts',
     'filter-factory.init.js',

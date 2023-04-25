@@ -11,8 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class EntityAggregation extends Aggregation
 {
-    public function __construct(string $name, string $field, private readonly string $entity)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        protected readonly string $entity
+    ) {
         parent::__construct($name, $field);
     }
 

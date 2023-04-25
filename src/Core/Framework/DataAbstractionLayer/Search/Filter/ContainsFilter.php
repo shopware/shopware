@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ContainsFilter extends SingleFieldFilter
 {
-    public function __construct(private readonly string $field, private readonly mixed $value)
-    {
+    public function __construct(
+        protected readonly string $field,
+        protected mixed $value
+    ) {
     }
 
     public function getField(): string

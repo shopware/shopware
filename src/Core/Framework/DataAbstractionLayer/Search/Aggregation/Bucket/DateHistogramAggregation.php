@@ -20,13 +20,13 @@ class DateHistogramAggregation extends BucketAggregation
     final public const PER_QUARTER = 'quarter';
     final public const PER_YEAR = 'year';
 
-    private readonly string $interval;
+    protected readonly string $interval;
 
     public function __construct(
         string $name,
         string $field,
         string $interval,
-        private readonly ?FieldSorting $sorting = null,
+        private ?FieldSorting $sorting = null,
         ?Aggregation $aggregation = null,
         private readonly ?string $format = null,
         private readonly ?string $timeZone = null

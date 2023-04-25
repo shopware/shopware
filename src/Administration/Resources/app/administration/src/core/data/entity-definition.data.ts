@@ -2,6 +2,23 @@
  * @package admin
  */
 
+/* @private */
+export interface Property {
+    flags?: {
+        primary_key?: boolean,
+        required?: boolean,
+        translatable?: boolean,
+    },
+    required?: boolean,
+    type?: string,
+    relation?: 'one_to_one' | 'one_to_many' | 'many_to_one' | 'many_to_many',
+    entity?: string,
+}
+
+interface Properties {
+    [key: string]: Property;
+}
+
 const scalarTypes = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
 const jsonTypes = ['json_list', 'json_object'];
 
@@ -16,8 +33,12 @@ export function getJsonTypes() {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default class EntityDefinition {
-    constructor({ entity, properties }) {
+export default class EntityDefinition<EntityName extends keyof EntitySchema.Entities> {
+    readonly entity: EntitySchema.Entity<EntityName>;
+
+    readonly properties: Properties;
+
+    constructor({ entity, properties }: { entity: EntitySchema.Entity<EntityName>, properties: Properties }) {
         this.entity = entity;
         this.properties = properties;
     }
@@ -32,7 +53,7 @@ export default class EntityDefinition {
      */
     getPrimaryKeyFields() {
         return this.filterProperties((property) => {
-            return property.flags.primary_key === true;
+            return property.flags?.primary_key === true;
         });
     }
 
@@ -56,7 +77,7 @@ export default class EntityDefinition {
                 return false;
             }
 
-            return ['one_to_many', 'many_to_many'].includes(property.relation);
+            return ['one_to_many', 'many_to_many'].includes(property.relation ?? '');
         });
     }
 
@@ -70,7 +91,7 @@ export default class EntityDefinition {
                 return false;
             }
 
-            return ['one_to_one', 'many_to_one'].includes(property.relation);
+            return ['one_to_one', 'many_to_one'].includes(property.relation ?? '');
         });
     }
 
@@ -90,7 +111,7 @@ export default class EntityDefinition {
      */
     getRequiredFields() {
         return this.filterProperties((property) => {
-            return property.flags.required === true;
+            return property.flags?.required === true;
         });
     }
 
@@ -98,14 +119,14 @@ export default class EntityDefinition {
      * Filter field definitions by a given predicate
      * @param {Function} filter
      */
-    filterProperties(filter) {
+    filterProperties(filter: (property: Property) => boolean) {
         if (typeof filter !== 'function') {
             return {};
         }
 
-        const result = {};
+        const result: Properties = {};
         Object.keys(this.properties).forEach((propertyName) => {
-            if (filter(this.properties[propertyName]) === true) {
+            if (filter(this.properties[propertyName])) {
                 result[propertyName] = this.properties[propertyName];
             }
         });
@@ -113,11 +134,11 @@ export default class EntityDefinition {
         return result;
     }
 
-    getField(name) {
+    getField(name: string) {
         return this.properties[name];
     }
 
-    forEachField(callback) {
+    forEachField(callback: (property: Property, propertyName: string, properties: Properties) => void) {
         if (typeof callback !== 'function') {
             return;
         }
@@ -127,31 +148,31 @@ export default class EntityDefinition {
         });
     }
 
-    isScalarField(field) {
-        return scalarTypes.includes(field.type);
+    isScalarField(field: Property) {
+        return scalarTypes.includes(field.type ?? '');
     }
 
-    isJsonField(field) {
-        return jsonTypes.includes(field.type);
+    isJsonField(field: Property) {
+        return jsonTypes.includes(field.type ?? '');
     }
 
-    isJsonObjectField(field) {
+    isJsonObjectField(field: Property) {
         return field.type === 'json_object';
     }
 
-    isJsonListField(field) {
+    isJsonListField(field: Property) {
         return field.type === 'json_list';
     }
 
-    isToManyAssociation(field) {
-        return field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
+    isToManyAssociation(field: Property) {
+        return field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation ?? '');
     }
 
-    isToOneAssociation(field) {
-        return field.type === 'association' && ['many_to_one', 'one_to_one'].includes(field.relation);
+    isToOneAssociation(field: Property) {
+        return field.type === 'association' && ['many_to_one', 'one_to_one'].includes(field.relation ?? '');
     }
 
-    isTranslatableField(field) {
-        return (field.type === 'string' || field.type === 'text') && field.flags.translatable === true;
+    isTranslatableField(field: Property) {
+        return (field.type === 'string' || field.type === 'text') && field.flags?.translatable === true;
     }
 }

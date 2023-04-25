@@ -22,7 +22,7 @@ export type ValidationError = {
  * @private
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,max-len,sw-deprecation-rules/private-feature-declarations
-export type CustomValidator = (errors: ValidationError[], entity: Entity<any>, definition: EntityDefinition) => ValidationError[];
+export type CustomValidator = (errors: ValidationError[], entity: Entity<any>, definition: EntityDefinition<any>) => ValidationError[];
 
 
 /**

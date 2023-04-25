@@ -98,7 +98,8 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         this.options = options;
     }
 
-    get schema(): EntityDefinition {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    get schema(): EntityDefinition<any> {
         return Shopware.EntityDefinition.get(this.entityName);
     }
 

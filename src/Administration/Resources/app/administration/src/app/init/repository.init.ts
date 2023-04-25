@@ -16,10 +16,10 @@ const customEntityTypes = [{
 }];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default function initializeRepositoryFactory(container) {
+export default function initializeRepositoryFactory(container: InitContainer) {
     const httpClient = container.httpClient;
-    const factoryContainer = this.getContainer('factory');
-    const serviceContainer = this.getContainer('service');
+    const factoryContainer = Shopware.Application.getContainer('factory');
+    const serviceContainer = Shopware.Application.getContainer('service');
 
     return httpClient.get('_info/entity-schema.json', {
         headers: {
@@ -31,11 +31,15 @@ export default function initializeRepositoryFactory(container) {
         const cmsPageTypeService = serviceContainer.cmsPageTypeService;
         let hasCmsAwareDefinitions = false;
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         Object.entries(data).forEach(([key, value]) => {
             entityDefinitionFactory.add(key, value);
 
             if (key.startsWith('custom_entity_') || key.startsWith('ce_')) {
+                // @ts-expect-error - value is defined
                 customEntityDefinitionService.addDefinition(value);
+                // @ts-expect-error - value is defined
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 hasCmsAwareDefinitions = hasCmsAwareDefinitions || !!value?.flags?.['cms-aware'];
             }
         });
@@ -51,7 +55,7 @@ export default function initializeRepositoryFactory(container) {
         const entityFactory = new EntityFactory();
         const errorResolver = new ErrorResolverError();
 
-        this.addServiceProvider('repositoryFactory', () => {
+        Shopware.Application.addServiceProvider('repositoryFactory', () => {
             return new RepositoryFactory(
                 hydrator,
                 changesetGenerator,
@@ -60,10 +64,10 @@ export default function initializeRepositoryFactory(container) {
                 errorResolver,
             );
         });
-        this.addServiceProvider('entityHydrator', () => {
+        Shopware.Application.addServiceProvider('entityHydrator', () => {
             return hydrator;
         });
-        this.addServiceProvider('entityFactory', () => {
+        Shopware.Application.addServiceProvider('entityFactory', () => {
             return entityFactory;
         });
     });

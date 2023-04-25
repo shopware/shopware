@@ -8,7 +8,7 @@ export default function initializeSettingItems(): void {
             .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
 
         if (!extension) {
-            return;
+            throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
         let group = 'plugins';

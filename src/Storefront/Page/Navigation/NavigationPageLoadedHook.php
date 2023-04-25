@@ -13,6 +13,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0
+ *
+ * @final
  */
 #[Package('storefront')]
 class NavigationPageLoadedHook extends PageLoadedHook

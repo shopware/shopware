@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
 #[Package('core')]
 class StoreApiHook extends InterfaceHook implements SalesChannelContextAware

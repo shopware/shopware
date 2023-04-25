@@ -6,9 +6,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @final
- */
 #[Package('checkout')]
 abstract class AbstractRuleLoader
 {

@@ -89,9 +89,6 @@ In this case you should mark the service as follows:
 - if you want that developers can call public functions of your service but should not extend it, mark all classes as `@final`
 
 ```php
-/**
- * @final You can use this service, and we keep the api stable, but you should not extend it
- */
 abstract class AbstractRuleLoader
 {
     abstract public function load(Context $context): RuleCollection;

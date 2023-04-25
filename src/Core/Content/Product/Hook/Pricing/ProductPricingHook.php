@@ -17,6 +17,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @hook-use-case product
  *
  * @since 6.5.1.0
+ *
+ * @final
  */
 #[Package('inventory')]
 class ProductPricingHook extends Hook implements SalesChannelContextAware

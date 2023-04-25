@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  * @hook-use-case app_lifecycle
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
 #[Package('core')]
 class AppDeactivatedHook extends AppLifecycleHook implements AppSpecificHook

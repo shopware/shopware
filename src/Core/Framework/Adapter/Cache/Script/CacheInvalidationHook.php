@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Script\Execution\Hook;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
 #[Package('core')]
 class CacheInvalidationHook extends Hook

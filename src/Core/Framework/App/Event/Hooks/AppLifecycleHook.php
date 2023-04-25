@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
- * @internal
+ * @internal only rely on the concrete hook implementations
  */
 #[Package('core')]
 abstract class AppLifecycleHook extends Hook

@@ -18,6 +18,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['global'],
         group: 'general',
     });
+    ruleConditionService.addCondition('numberOfReviews', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.numberOfReviews',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
     ruleConditionService.addCondition('customerOrderCount', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderCountRule',

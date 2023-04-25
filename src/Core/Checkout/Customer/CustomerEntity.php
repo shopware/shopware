@@ -105,6 +105,8 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected float $orderTotalAmount;
 
+    protected int $reviewCount;
+
     /**
      * @var \DateTimeInterface|null
      */
@@ -498,6 +500,16 @@ class CustomerEntity extends Entity implements \Stringable
     public function getOrderTotalAmount(): float
     {
         return $this->orderTotalAmount;
+    }
+
+    public function getReviewCount(): int
+    {
+        return $this->reviewCount;
+    }
+
+    public function setReviewCount(int $reviewCount): void
+    {
+        $this->reviewCount = $reviewCount;
     }
 
     public function setOrderTotalAmount(float $orderTotalAmount): void

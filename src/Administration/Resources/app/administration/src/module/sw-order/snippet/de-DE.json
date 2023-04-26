@@ -547,6 +547,10 @@
         "label": "Kampagnen-Code",
         "placeholder": "Kampagnen-Code auswählen..."
       },
+      "promotionCodeFilter": {
+        "label": "Aktionscode",
+        "placeholder": "Aktionscode auswählen ..."
+      },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
     },

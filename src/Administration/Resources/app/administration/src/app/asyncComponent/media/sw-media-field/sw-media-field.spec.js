@@ -12,7 +12,13 @@ describe('src/app/component/media/sw-media-field', () => {
             stubs: {
                 'sw-media-media-item': true,
                 'sw-button': true,
-                'sw-popover': true,
+                'sw-popover': {
+                    template: `
+                         <div>
+                            <slot />
+                        </div>
+                    `,
+                },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-simple-search-field': true,
@@ -67,5 +73,20 @@ describe('src/app/component/media/sw-media-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.$props.fileAccept).toBe('*/*');
+    });
+
+    it('should stop propagation when sw-popover content is clicked', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            showPicker: true,
+        });
+
+        const stopPropagation = jest.fn();
+        await wrapper.find('.sw-media-field__actions_bar').trigger('click', {
+            stopPropagation,
+        });
+
+        expect(stopPropagation).toHaveBeenCalled();
     });
 });

@@ -17,6 +17,8 @@ use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 #[Package('storefront')]
 class ThemeLifecycleHandler
 {
+    public const STATE_SKIP_THEME_COMPILATION = 'skip-theme-compilation';
+
     /**
      * @internal
      */
@@ -105,6 +107,10 @@ class ThemeLifecycleHandler
         StorefrontPluginConfigurationCollection $configurationCollection,
         ?string $themeId
     ): void {
+        if ($context->hasState(self::STATE_SKIP_THEME_COMPILATION)) {
+            return;
+        }
+
         if (!$config->hasFilesToCompile()) {
             return;
         }

@@ -50,6 +50,11 @@ Component.register('sw-card', {
             required: false,
             default: false,
         },
+        aiBadge: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

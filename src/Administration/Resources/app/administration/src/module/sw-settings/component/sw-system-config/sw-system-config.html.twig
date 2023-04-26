@@ -19,6 +19,7 @@
         :class="`sw-system-config__card--${index}`"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
+        :ai-badge="card.aiBadge"
     >
         <slot
             name="beforeElements"
@@ -77,7 +78,8 @@
         <slot
             name="afterElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
-        ></slot>
+        >
+        </slot>
     </sw-card>
     {% endblock %}
 </div>

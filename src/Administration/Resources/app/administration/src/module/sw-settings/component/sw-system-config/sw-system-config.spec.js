@@ -114,6 +114,7 @@ async function createWrapper(defaultValues = {}) {
             'sw-datepicker': await Shopware.Component.build('sw-text-field'),
             'sw-text-editor': await Shopware.Component.build('sw-text-field'),
             'sw-extension-component-section': true,
+            'sw-ai-copilot-badge': true,
         },
         provide: {
             systemConfigApiService: {
@@ -697,6 +698,12 @@ function createConfig() {
                 },
             ],
         },
+        {
+            name: null,
+            title: { 'en-GB': 'Card with AI badge' },
+            elements: [],
+            aiBadge: true,
+        },
     ];
 }
 
@@ -992,5 +999,13 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             // check if value in actualConfigData is null to inherit value from parent
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
         });
+    });
+
+    it('should contain ai badge in second card', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__card--0 sw-ai-copilot-badge-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
     });
 });

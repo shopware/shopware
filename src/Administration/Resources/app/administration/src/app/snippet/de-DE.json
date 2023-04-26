@@ -698,6 +698,7 @@
         "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
+        "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",

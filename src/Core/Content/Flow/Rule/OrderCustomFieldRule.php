@@ -1,18 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Customer\Rule;
+namespace Shopware\Core\Content\Flow\Rule;
 
-use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 #[Package('business-ops')]
-class CustomerCustomFieldRule extends Rule
+class OrderCustomFieldRule extends FlowRule
 {
-    final public const RULE_NAME = 'customerCustomField';
+    final public const RULE_NAME = 'orderCustomField';
 
     protected string|int|bool|null|float $renderedFieldValue = null;
 
@@ -33,19 +32,13 @@ class CustomerCustomFieldRule extends Rule
      */
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof CheckoutRuleScope) {
+        if (!$scope instanceof FlowRuleScope) {
             return false;
         }
 
-        $customer = $scope->getSalesChannelContext()->getCustomer();
+        $orderCustomFields = $scope->getOrder()->getCustomFields() ?? [];
 
-        if ($customer === null) {
-            return false;
-        }
-
-        $customFields = $customer->getCustomFields() ?? [];
-
-        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $customFields);
+        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $orderCustomFields);
     }
 
     public function getConstraints(): array

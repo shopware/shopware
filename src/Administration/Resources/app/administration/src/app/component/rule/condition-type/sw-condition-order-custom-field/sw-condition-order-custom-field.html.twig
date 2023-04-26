@@ -1,0 +1,55 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_condition_value_content %}
+<div class="sw-condition-order-custom-field sw-condition__condition-value">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_order_custom_field_field %}
+    <sw-entity-single-select
+        ref="selectedField"
+        v-model="selectedField"
+        entity="custom_field"
+        :criteria="customFieldCriteria"
+        :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
+        :disabled="disabled"
+        size="medium"
+        show-clearable-button
+        @change="onFieldChange"
+    >
+        <template #selection-label-property="slotProps">
+            {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+        </template>
+
+        <template #result-label-property="slotProps">
+            {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+        </template>
+
+        <template #result-description-property="slotProps">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_condition_order_custom_field_field_description %}
+            {{ getInlineSnippet(slotProps.item.customFieldSet.config.label) || slotProps.item.customFieldSet.name }}
+            {% endblock %}
+        </template>
+    </sw-entity-single-select>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_order_custom_field_operator %}
+    <sw-condition-operator-select
+        v-if="renderedField"
+        v-model="operator"
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_condition_order_custom_field_value %}
+    <sw-form-field-renderer
+        v-if="renderedField"
+        v-model="renderedFieldValue"
+        :config="renderedField.config"
+        :disabled="disabled"
+        size="medium"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

@@ -2161,16 +2161,6 @@ parameters:
 			path: src/Core/Checkout/Test/Rule/Rule/Cart/CartPositionPriceRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Rule\\\\Rule\\\\Context\\\\CustomerCustomFieldRuleTest\\:\\:customFieldCheckoutScopeProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Rule/Rule/Context/CustomerCustomFieldRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Rule\\\\Rule\\\\Context\\\\CustomerCustomFieldRuleTest\\:\\:setCustomerCustomFields\\(\\) has parameter \\$customFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Rule/Rule/Context/CustomerCustomFieldRuleTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$resultSet\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 4
 			path: src/Core/Checkout/Test/Shipping/ShippingMethodRepositoryTest.php

@@ -40,6 +40,12 @@ Component.register('sw-base-field', {
             default: false,
         },
 
+        aiBadge: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         error: {
             type: [Object],
             required: false,

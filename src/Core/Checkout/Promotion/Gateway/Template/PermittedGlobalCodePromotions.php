@@ -7,12 +7,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
 #[Package('checkout')]
 class PermittedGlobalCodePromotions extends MultiFilter
 {
     /**
      * Gets a criteria for all permitted promotions of the provided
      * sales channel context, that do require a global code.
+     *
+     * @param list<string> $codes
      */
     public function __construct(
         array $codes,

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
+ */
 #[Package('core')]
 class MultiFilter extends Filter
 {

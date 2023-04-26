@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
+ */
 #[Package('core')]
 class DeleteCommand extends WriteCommand implements ChangeSetAware
 {

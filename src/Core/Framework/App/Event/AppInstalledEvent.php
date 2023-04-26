@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
 #[Package('core')]
 class AppInstalledEvent extends ManifestChangedEvent
 {

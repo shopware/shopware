@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
+ */
 #[Package('core')]
 class BucketResult extends AggregationResult
 {
@@ -41,7 +44,7 @@ class BucketResult extends AggregationResult
             $keys[] = $bucket->getKey();
         }
 
-        return array_filter($keys);
+        return array_values(array_filter($keys));
     }
 
     public function has(?string $key): bool

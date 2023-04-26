@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed
+ *
+ * @internal
  */
 #[Package('sales-channel')]
 class SeoUrlAssociationFieldResolver extends AbstractFieldResolver

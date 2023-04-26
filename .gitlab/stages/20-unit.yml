@@ -264,7 +264,7 @@ PHP Full:
                 DEV_IMAGE: [ "shopware/development:8.1-composer-2" , "shopware/development:8.2-composer-2"]
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-            -   MYSQL_IMAGE: mariadb:10.4
+            -   MYSQL_IMAGE: mariadb:10.3
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'

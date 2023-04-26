@@ -42,7 +42,11 @@ describe('Administration meta tests', () => {
 
         const [whole, lastFolder, fileName, fileNameWithoutExtension, extension] = file.match(regex);
 
-        const isInBaseLine = baseline.includes(fileName) || baseline.includes(`${lastFolder}/${fileName}`);
+        const isInBaseLine = baseline.includes(fileName) ||
+            baseline.includes(`${lastFolder}/${fileName}`) ||
+            baseline.some(filePath => {
+                return whole.includes(filePath);
+            });
 
         const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.${extension}`);
         const specFileExists = fs.existsSync(specFile);
@@ -63,6 +67,16 @@ describe('Administration meta tests', () => {
         const specFileWithFolderNameAlternativeExtensionExists = fs.existsSync(specFileWithFolderNameAlternativeExtension);
 
         const fileIsTested = isInBaseLine || specFileExists || specFileWithFolderNameExists || specFileAlternativeExtensionExists || specFileWithFolderNameAlternativeExtensionExists;
+
+        // check if spec file exists but file is still in baseline
+        expect(
+            isInBaseLine && (
+                specFileExists ||
+                specFileWithFolderNameExists ||
+                specFileAlternativeExtensionExists ||
+                specFileWithFolderNameAlternativeExtensionExists
+            ),
+        ).toBe(false);
 
         expect(fileIsTested).toBeTruthy();
     });

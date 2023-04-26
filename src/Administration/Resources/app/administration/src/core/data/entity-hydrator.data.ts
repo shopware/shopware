@@ -8,6 +8,7 @@ import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals
 import EntityClass from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
+import type { Property } from './entity-definition.data';
 
 type meta = {
     totalCountMode: number,
@@ -157,7 +158,7 @@ export default class EntityHydrator {
 
         // hydrate empty json fields
         Object.entries(data).forEach(([attributeKey, attributeValue]) => {
-            const field = schema.getField(attributeKey) as string;
+            const field = schema.getField(attributeKey);
 
             if (!field) {
                 return;
@@ -186,17 +187,25 @@ export default class EntityHydrator {
             const value = row.relationships[property] as data;
 
             if (property === 'extensions') {
+                // @ts-expect-error - schema can be any
                 data[property] = this.hydrateExtensions(id, value, schema, response, context, criteria);
             }
 
-            const field = (schema.properties as {[key: string]: unknown})[property] as field;
+            const field: Property = (schema.properties as {[key: string]: unknown})[property] as Property;
 
             if (!field) {
                 return true;
             }
 
             if (schema.isToManyAssociation(field)) {
-                data[property] = this.hydrateToMany(criteria, property, value, field.entity, context, response);
+                data[property] = this.hydrateToMany(
+                    criteria,
+                    property,
+                    value,
+                    (field.entity as keyof EntitySchema.Entities),
+                    context,
+                    response,
+                );
 
                 return true;
             }

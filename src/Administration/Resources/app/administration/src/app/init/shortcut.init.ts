@@ -1,30 +1,37 @@
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeShortcutService() {
-    const factoryContainer = this.getContainer('factory');
+    const factoryContainer = Shopware.Application.getContainer('factory');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const shortcutFactory = factoryContainer.shortcut;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const shortcutService = Shopware.Service('shortcutService');
     const loginService = Shopware.Service('loginService');
 
     // Register default Shortcuts
     const defaultShortcuts = defaultShortcutMap();
     defaultShortcuts.forEach((sc) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         shortcutFactory.register(sc.combination, sc.path);
     });
 
     // Initializes the global event listener
     if (loginService.isLoggedIn()) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         shortcutService.startEventListener();
     } else {
         loginService.addOnTokenChangedListener(() => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             shortcutService.startEventListener();
         });
     }
 
     // Release global event listener on logout
     loginService.addOnLogoutListener(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         shortcutService.stopEventListener();
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return shortcutFactory;
 }
 

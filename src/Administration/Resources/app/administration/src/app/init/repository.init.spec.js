@@ -118,6 +118,7 @@ describe('init/repository', () => {
     beforeEach(() => {
         customEntityDefinitionStore = [];
         cmsPageTypeDefinitionStore = [];
+        Shopware.Application = thisMock;
     });
 
     it('should register custom entities to the customEntityDefinitionService', async () => {

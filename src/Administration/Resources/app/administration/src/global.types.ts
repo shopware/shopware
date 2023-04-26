@@ -24,6 +24,7 @@ import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
 import type ModuleFactory from 'src/core/factory/module.factory';
 import type DirectiveFactory from 'src/core/factory/directive.factory';
+import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
@@ -147,6 +148,8 @@ declare global {
         mediaDefaultFolderService: $TSFixMe,
         appAclService: $TSFixMe,
         appCmsService: $TSFixMe,
+        entityHydrator: $TSFixMe,
+        entityFactory: $TSFixMe,
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
         cmsService: CmsService,
         cmsElementFavorites: cmsElementFavoritesService,
@@ -189,7 +192,7 @@ declare global {
         shortcut: $TSFixMe,
         plugin: $TSFixMe,
         apiService: $TSFixMe,
-        entityDefinition: $TSFixMe,
+        entityDefinition: typeof EntityDefinitionFactory,
         workerNotification: $TSFixMe,
     }
 

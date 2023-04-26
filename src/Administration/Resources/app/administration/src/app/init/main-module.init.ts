@@ -9,7 +9,7 @@ export default function initMainModules(): void {
             .find(key => Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin));
 
         if (!extensionName) {
-            return;
+            throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
         const extension = Shopware.State.get('extensions')?.[extensionName];

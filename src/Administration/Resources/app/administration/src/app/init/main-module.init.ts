@@ -30,4 +30,8 @@ export default function initMainModules(): void {
             });
         });
     });
+
+    Shopware.ExtensionAPI.handle('smartBarButtonAdd', (configuration) => {
+        Shopware.State.commit('extensionSdkModules/addSmartBarButton', configuration);
+    });
 }

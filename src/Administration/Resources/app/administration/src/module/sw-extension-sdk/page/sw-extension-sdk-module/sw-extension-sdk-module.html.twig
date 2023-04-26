@@ -10,6 +10,22 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_extension_sdk_module_smart_bar_buttons %}
+    <template #smart-bar-actions>
+        <sw-button
+            v-for="button in smartBarButtons"
+            :id="button.buttonId"
+            :key="button.buttonId"
+            :disabled="button.disabled"
+            :variant="button.variant"
+            @click="button.onClickCallback"
+        >
+            {{ button.label }}
+        </sw-button>
+    </template>
+    {% endblock %}
+
     <template #content>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content %}
@@ -34,5 +50,18 @@
         {% endblock %}
         {% endblock %}
     </template>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_extension_sdk_module_language_switch %}
+    <template
+        v-if="showLanguageSwitch"
+        #language-switch
+    >
+        <sw-language-switch
+            :change-global-language="true"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
 </sw-page>
 {% endblock %}

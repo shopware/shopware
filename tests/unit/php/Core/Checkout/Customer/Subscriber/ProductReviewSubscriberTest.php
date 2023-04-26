@@ -58,8 +58,7 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $binaryIds = \array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
-        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($binaryIds, true);
+        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($ids, true);
 
         $this->productReviewSubscriber->deleteReview($this->getBeforeDeleteEvent($ids));
     }
@@ -80,8 +79,7 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $binaryIds = \array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
-        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($binaryIds, false);
+        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($ids, false);
 
         $this->productReviewSubscriber->createReview($this->getEntityWrittenEvent($ids));
     }

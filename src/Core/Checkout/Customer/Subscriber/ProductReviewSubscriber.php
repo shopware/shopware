@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -40,7 +39,6 @@ class ProductReviewSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $ids = \array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
         $this->productReviewCountService->updateReviewCount($ids, true);
     }
 
@@ -53,7 +51,6 @@ class ProductReviewSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $ids = \array_map(fn ($id) => Uuid::fromHexToBytes($id), $reviewEvent->getIds());
-        $this->productReviewCountService->updateReviewCount($ids);
+        $this->productReviewCountService->updateReviewCount($reviewEvent->getIds());
     }
 }

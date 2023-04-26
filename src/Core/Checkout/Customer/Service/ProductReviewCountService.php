@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('business-ops')]
 /**
@@ -25,6 +26,8 @@ class ProductReviewCountService
      */
     public function updateReviewCount(array $reviewIds, bool $isDelete = false): void
     {
+        $reviewIds = \array_map(fn ($id) => Uuid::fromHexToBytes($id), $reviewIds);
+
         $results = $this->connection->executeQuery(
             'SELECT * FROM product_review WHERE id IN (:ids)',
             ['ids' => $reviewIds],

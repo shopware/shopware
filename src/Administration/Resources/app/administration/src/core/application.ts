@@ -213,7 +213,7 @@ class ApplicationBootstrapper {
      */
     addServiceProviderMiddleware<SERVICE extends keyof ServiceContainer>(
         nameOrMiddleware: SERVICE|Bottle.Middleware,
-        middleware? : Bottle.Middleware,
+        middleware? : ((service: ServiceContainer[SERVICE], next: (error?: Error) => void) => void),
     ): ApplicationBootstrapper {
         return this._addMiddleware('service', nameOrMiddleware, middleware);
     }

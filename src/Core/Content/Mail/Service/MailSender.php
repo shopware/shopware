@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Envelope;
-use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
 #[Package('system-settings')]
@@ -17,7 +17,7 @@ class MailSender extends AbstractMailSender
      * @internal
      */
     public function __construct(
-        private readonly Mailer $mailer,
+        private readonly MailerInterface $mailer,
         private readonly SystemConfigService $configService
     ) {
     }

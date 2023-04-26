@@ -64,14 +64,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $data = [
             'id' => $id,
             'displayGross' => false,
-            'translations' => [
-                'en-GB' => [
-                    'name' => 'Net price customer group',
-                ],
-                'de-DE' => [
-                    'name' => 'Nettopreis-Kundengruppe',
-                ],
-            ],
+            'name' => 'Net price customer group',
         ];
 
         $this->customerGroupRepository->create([$data], $context);
@@ -218,7 +211,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
     /**
      * @param list<string> $tags
      *
-     * @return list<array{id: string}>
+     * @return array<array{id: string}>
      */
     private function getTags(array $tags): array
     {

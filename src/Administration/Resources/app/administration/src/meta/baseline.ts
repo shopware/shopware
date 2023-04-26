@@ -42,7 +42,6 @@ const missingTests = [
     'src/app/component/data-grid/sw-data-grid-column-position/index.js',
     'src/app/component/data-grid/sw-data-grid-inline-edit/index.js',
     'src/app/component/data-grid/sw-data-grid-skeleton/index.js',
-    'src/app/component/extension-api/sw-extension-component-section/index.ts',
     'src/app/component/filter/sw-sidebar-filter-panel/index.js',
     'src/app/component/form/field-base/sw-base-field/index.js',
     'src/app/component/form/field-base/sw-block-field/index.js',

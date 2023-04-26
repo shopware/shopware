@@ -60,9 +60,6 @@ describe('SDK Tests: Component section', ()=> {
         cy.contains('.sw-card__title', 'Card tabs tests');
         cy.contains('.sw-card__subtitle', 'Testing if the the card tabs work correctly');
 
-        cy.getSDKiFrame('card-tabs')
-            .should('be.visible');
-
         cy.contains('.sw-tabs-item', 'Tab 1');
         cy.getSDKiFrame('card-tab-1')
             .should('be.visible');

@@ -1,6 +1,6 @@
 ---
 title: Implement language switch and smart bar buttons for main module in App
-issue: -
+issue: NEXT-26177
 author: Vu Le
 author_email: vu.le@shapeandshift.dev
 author_github: crisalder2806

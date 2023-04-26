@@ -29,7 +29,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-ignore-class': true,
             'sw-iframe-renderer': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
         };
     });
@@ -93,13 +93,13 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         await flushPromises();
 
         const tabs = wrapper.findAll('.sw-tabs-item');
-        expect(tabs.length).toBe(2);
+        expect(tabs).toHaveLength(2);
 
         const activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
+        expect(activeTabs).toHaveLength(1);
 
         const activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('Tab 1');
+        expect(activeTab.text()).toBe('Tab 1');
     });
 
     it('should switch tab when clicking', async () => {
@@ -129,7 +129,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
         // Default active tab
         const defaultIframe = wrapper.findComponent(stubs['sw-iframe-renderer']);
-        expect(defaultIframe.vm.$attrs['location-id']).toEqual('tab-1');
+        expect(defaultIframe.vm.$attrs['location-id']).toBe('tab-1');
 
         // Click the 2nd tab
         const tabItems = wrapper.findAll('.sw-tabs-item');
@@ -137,6 +137,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
         // Check tab content
         const activeIframe = wrapper.findComponent(stubs['sw-iframe-renderer']);
-        expect(activeIframe.vm.$attrs['location-id']).toEqual('tab-2');
+        expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });
 });

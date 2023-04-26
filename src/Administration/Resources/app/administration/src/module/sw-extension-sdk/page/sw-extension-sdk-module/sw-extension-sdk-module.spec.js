@@ -1,8 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swExtensionSdkModule from 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
+import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
 import 'src/app/component/base/sw-button';
-
-Shopware.Component.register('sw-extension-sdk-module', swExtensionSdkModule);
 
 const module = {
     heading: 'jest',
@@ -82,7 +80,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
             buttonId: 'test-button-1',
             label: 'Test button 1',
             variant: 'primary',
-            onClickCallback: () => spy()
+            onClickCallback: () => spy(),
         });
 
         await wrapper.vm.$nextTick();
@@ -97,6 +95,6 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
         // Test if callback function is called
         await smartBarButton.trigger('click');
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
     });
 });

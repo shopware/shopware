@@ -15,10 +15,11 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload;
  */
 class NoDALAutoloadTest extends RuleTestCase
 {
+    /**
+     * @runInSeparateProcess run in separate process to prevent autoloading issues, see https://github.com/phpstan/phpdoc-parser/issues/188
+     */
     public function testRule(): void
     {
-        static::markTestSkipped('Will be re-enabled with NEXT-26267');
-
         //not in a class, ignore
         $this->analyse([__DIR__ . '/data/no-dal-autoload/not-in-class.php'], []);
 

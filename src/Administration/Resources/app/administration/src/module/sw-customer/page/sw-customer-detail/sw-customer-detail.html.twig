@@ -3,19 +3,21 @@
 <sw-page class="sw-customer-detail">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_header %}
-    <template #smart-bar-header>
-        <h2 v-if="customer && customer.salutation">
+    <template
+        v-if="!isLoading"
+        #smart-bar-header
+    >
+        <h2>
             {{ salutation(customer) }}
-
-            <sw-label
-                v-if="customer.createdById"
-                appearance="pill"
-                size="small"
-                class="sw-customer-detail__created-by-admin-label"
-            >
-                {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
-            </sw-label>
         </h2>
+        <sw-label
+            v-if="customer.createdById"
+            appearance="pill"
+            size="small"
+            class="sw-customer-detail__created-by-admin-label"
+        >
+            {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
+        </sw-label>
     </template>
     {% endblock %}
 

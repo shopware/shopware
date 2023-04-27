@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
@@ -51,43 +52,25 @@ class CustomerStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
-
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(true);
-
-        $storable->expects(static::exactly(2))
-            ->method('getStore')
-            ->willReturn('test_id');
-
-        $storable->expects(static::exactly(1))
-            ->method('lazy');
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'test_id']);
 
         $this->storer->restore($storable);
+
+        static::assertArrayHasKey('customer', $storable->data());
     }
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
-
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(false);
-
-        $storable->expects(static::never())
-            ->method('getStore');
-
-        $storable->expects(static::never())
-            ->method('lazy');
+        $storable = new StorableFlow('name', Context::createDefaultContext());
 
         $this->storer->restore($storable);
+
+        static::assertEmpty($storable->data());
     }
 
     public function testLoadEntity(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $entity = new CustomerEntity();
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->willReturn($entity);
@@ -100,6 +83,7 @@ class CustomerStorerTest extends TestCase
 
     public function testLoadNullEntity(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->willReturn($entity);
@@ -108,5 +92,42 @@ class CustomerStorerTest extends TestCase
         $res = $this->storer->load(['3443', Context::createDefaultContext()]);
 
         static::assertEquals($res, $entity);
+    }
+
+    public function testLazyLoadEntity(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
+        $this->storer->restore($storable);
+        $entity = new CustomerEntity();
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->expects(static::once())->method('get')->willReturn($entity);
+
+        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $res = $storable->getData('customer');
+
+        static::assertEquals($res, $entity);
+    }
+
+    public function testLazyLoadNullEntity(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
+        $this->storer->restore($storable);
+        $entity = null;
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->expects(static::once())->method('get')->willReturn($entity);
+
+        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $res = $storable->getData('customer');
+
+        static::assertEquals($res, $entity);
+    }
+
+    public function testLazyLoadNullId(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => null], []);
+        $this->storer->restore($storable);
+        $customerGroup = $storable->getData('customer');
+
+        static::assertNull($customerGroup);
     }
 }

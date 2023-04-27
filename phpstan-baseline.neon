@@ -2566,11 +2566,6 @@ parameters:
 			path: src/Core/Content/Flow/Dispatching/FlowLoader.php
 
 		-
-			message: "#^Anonymous variable in a `\\$context\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/Storer/ProductStorer.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\ActionSequence\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/Struct/ActionSequence.php
@@ -17134,21 +17129,6 @@ parameters:
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/CustomerGroupStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/CustomerRecoveryStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/CustomerStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
 			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/DataStorerTest.php
 
 		-
@@ -17175,26 +17155,6 @@ parameters:
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
 			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/NameStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/NewsletterRecipientStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/OrderStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/OrderTransactionStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ProductStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
@@ -17230,11 +17190,6 @@ parameters:
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
 			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/UrlStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/UserStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"

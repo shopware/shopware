@@ -91,7 +91,8 @@ class StorableFlowTest extends TestCase
     {
         $callback = fn () => 'Data';
 
-        $this->storableFlow->lazy('data', $callback, []);
+        $this->storableFlow->lazy('data', $callback);
+
         static::assertEquals('Data', $this->storableFlow->getData('data'));
     }
 }

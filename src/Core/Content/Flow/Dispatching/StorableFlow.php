@@ -108,12 +108,13 @@ class StorableFlow extends Struct
     }
 
     /**
-     * @param callable(array<int, mixed>): mixed $closure
-     * @param array<int, mixed> $args
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $args will be removed in v6.6.0.0
+     *
+     * @param callable(StorableFlow): mixed $closure
      */
-    public function lazy(string $key, callable $closure, array $args): void
+    public function lazy(string $key, callable $closure/*, array $args = []*/): void
     {
-        $this->data[$key] = $closure($args);
+        $this->data[$key] = $closure;
     }
 
     /**

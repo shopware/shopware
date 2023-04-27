@@ -10800,10 +10800,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteException.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CustomerGenerator\\:\\:getTags\\(\\) should return list\\<array\\{id\\: string\\}\\> but returns array\\<array\\{id\\: mixed\\}\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomerGenerator.php
+
 
 		-
 			message: "#^Anonymous variable in a `\\$sequences\\-\\>last\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

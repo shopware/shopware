@@ -74,6 +74,10 @@ class CartPersister extends AbstractCartPersister
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
+        if ($cart->getBehavior()?->isRecalculation()) {
+            return;
+        }
+
         $shouldPersist = $this->shouldPersist($cart);
 
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);

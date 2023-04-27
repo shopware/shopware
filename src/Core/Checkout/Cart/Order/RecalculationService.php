@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -290,6 +291,7 @@ class RecalculationService
             return;
         }
 
+        /** @var Delivery $delivery */
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;
@@ -371,7 +373,7 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = new CartBehavior($context->getPermissions());
+        $behavior = new CartBehavior($context->getPermissions(), true, true);
 
         // all prices are now prepared for calculation -  starts the cart calculation
         $cart = $this->processor->process($cart, $context, $behavior);

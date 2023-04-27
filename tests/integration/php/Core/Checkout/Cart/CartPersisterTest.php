@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
@@ -29,6 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\CartPersister
  */
 #[Package('checkout')]
 class CartPersisterTest extends TestCase
@@ -146,6 +149,27 @@ class CartPersisterTest extends TestCase
         static::assertNotEmpty($token);
     }
 
+    public function testRecalculationCartShouldNotBeSaved(): void
+    {
+        $cartBehavior = new CartBehavior([], true, true);
+
+        $cart = new Cart('existing');
+        $cart->setBehavior($cartBehavior);
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertFalse($token);
+    }
+
     public function testCartSavedEventIsFired(): void
     {
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
@@ -173,7 +197,7 @@ class CartPersisterTest extends TestCase
         static::assertInstanceOf(CartSavedEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
         $firstLineItem = $caughtEvent->getCart()->getLineItems()->first();
-        static::assertNotNull($firstLineItem);
+        static::assertInstanceOf(LineItem::class, $firstLineItem);
         static::assertSame('test', $firstLineItem->getLabel());
     }
 

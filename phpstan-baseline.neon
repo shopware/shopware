@@ -371,16 +371,6 @@ parameters:
 			path: src/Core/Checkout/Cart/LineItemFactoryHandler/PromotionLineItemFactory.php
 
 		-
-			message: "#^Anonymous variable in a `\\$delivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Order/RecalculationService.php
-
-		-
-			message: "#^Anonymous variable in a `\\$delivery\\-\\>getPositions\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/RecalculationService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\AddressTransformer\\:\\:transform\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/Transformer/AddressTransformer.php
@@ -1319,11 +1309,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodTranslation\\\\ShippingMethodTranslationCollection\\:\\:getShippingMethodIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Shipping/Aggregate/ShippingMethodTranslation/ShippingMethodTranslationCollection.php
-
-		-
-			message: "#^Anonymous variable in a `\\$firstLineItem\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/CartPersisterTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$delivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

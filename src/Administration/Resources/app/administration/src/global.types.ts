@@ -26,6 +26,7 @@ import type ModuleFactory from 'src/core/factory/module.factory';
 import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
+import type UserApiService from 'src/core/service/api/user.api.service';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -150,6 +151,7 @@ declare global {
         appCmsService: $TSFixMe,
         entityHydrator: $TSFixMe,
         entityFactory: $TSFixMe,
+        userService: UserApiService,
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
         cmsService: CmsService,
         cmsElementFavorites: cmsElementFavoritesService,

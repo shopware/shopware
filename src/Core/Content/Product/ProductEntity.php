@@ -275,7 +275,7 @@ class ProductEntity extends Entity implements \Stringable
     protected $variantListingConfig;
 
     /**
-     * @var array<string>
+     * @var array<array<string>>
      */
     protected $variation = [];
 
@@ -1260,7 +1260,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>
+     * @return array<array<string>>
      */
     public function getVariation(): array
     {
@@ -1268,7 +1268,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string> $variation
+     * @param array<array<string>> $variation
      */
     public function setVariation(array $variation): void
     {

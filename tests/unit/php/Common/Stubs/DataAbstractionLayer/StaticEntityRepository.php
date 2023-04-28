@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -21,25 +22,32 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 class StaticEntityRepository extends EntityRepository
 {
     /**
-     * @var array<mixed>
+     * @var array<array<mixed>>
      */
-    private array $upserts;
+    public array $upserts = [];
 
     /**
-     * @var array<mixed>
+     * @var array<array<mixed>>
      */
-    private array $updates;
+    public array $updates = [];
 
     /**
-     * @var array<mixed>
+     * @var array<array<mixed>>
      */
-    private array $creates;
+    public array $creates = [];
+
+    /**
+     * @var array<array<string, mixed|null>>
+     */
+    public array $deletes = [];
 
     /**
      * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
      */
-    public function __construct(private array $searches)
-    {
+    public function __construct(
+        private array $searches,
+        private readonly ?EntityDefinition $definition = null
+    ) {
     }
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
@@ -74,7 +82,7 @@ class StaticEntityRepository extends EntityRepository
 
         if (\is_callable($callable)) {
             /** @var callable(Criteria, Context): ResultTypes $callable */
-            return $callable($criteria, $context);
+            $result = $callable($criteria, $context);
         }
 
         if ($result instanceof IdSearchResult) {
@@ -125,43 +133,20 @@ class StaticEntityRepository extends EntityRepository
 
     /**
      * @experimental
-     *
-     * @return array<mixed>
      */
-    public function getUpsert(): array
+    public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        if (empty($this->upserts)) {
-            throw new \RuntimeException('Upsert queue is empty');
-        }
+        $this->deletes[] = $ids;
 
-        return array_pop($this->upserts);
+        return EntityWrittenContainerEvent::createWithDeletedEvents([], Context::createDefaultContext(), []);
     }
 
-    /**
-     * @experimental
-     *
-     * @return array<mixed>
-     */
-    public function getUpdates(): array
+    public function getDefinition(): EntityDefinition
     {
-        if (empty($this->updates)) {
-            throw new \RuntimeException('Updates queue is empty');
+        if ($this->definition === null) {
+            throw new \RuntimeException('No definition set');
         }
 
-        return array_pop($this->updates);
-    }
-
-    /**
-     * @experimental
-     *
-     * @return array<mixed>
-     */
-    public function getCreates(): array
-    {
-        if (empty($this->creates)) {
-            throw new \RuntimeException('Creates queue is empty');
-        }
-
-        return array_pop($this->creates);
+        return $this->definition;
     }
 }

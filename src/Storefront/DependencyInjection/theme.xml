@@ -299,6 +299,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\Subscriber\UnusedMediaSubscriber">
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeIndexer">
             <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>

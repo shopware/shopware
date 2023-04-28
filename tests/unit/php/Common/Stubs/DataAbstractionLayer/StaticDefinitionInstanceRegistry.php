@@ -40,7 +40,7 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     private array $serializers;
 
     /**
-     * @param class-string<EntityDefinition>[] $registeredDefinitions
+     * @param array<int|string, class-string<EntityDefinition>|EntityDefinition> $registeredDefinitions
      */
     public function __construct(
         array $registeredDefinitions,
@@ -51,8 +51,11 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 
         $this->setUpSerializers();
 
-        foreach ($registeredDefinitions as $definitionClass) {
-            $this->register(new $definitionClass());
+        foreach ($registeredDefinitions as $serviceId => $definition) {
+            $this->register(
+                $definition instanceof EntityDefinition ? $definition : new $definition(),
+                \is_string($serviceId) ? $serviceId : null
+            );
         }
     }
 

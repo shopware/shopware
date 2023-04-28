@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Media;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
@@ -22,11 +21,6 @@ class MediaEntityTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var EntityRepository
      */
     private $repository;
@@ -35,7 +29,6 @@ class MediaEntityTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();
     }
@@ -61,10 +54,11 @@ class MediaEntityTest extends TestCase
         $searchResult = $this->repository->search($criteria, $this->context);
         $fetchedMedia = $searchResult->getEntities()->get($media->getId());
 
-        static::assertEquals(MediaThumbnailCollection::class, $fetchedMedia->getThumbnails()::class);
+        static::assertInstanceOf(MediaEntity::class, $fetchedMedia);
+        static::assertInstanceOf(MediaThumbnailCollection::class, $fetchedMedia->getThumbnails());
 
         $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
-        static::assertEquals(MediaThumbnailEntity::class, $persistedThumbnail::class);
+        static::assertInstanceOf(MediaThumbnailEntity::class, $persistedThumbnail);
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
     }

@@ -90,13 +90,8 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle->install($manifest, false, Context::createDefaultContext());
 
-        // First upsert to update configurable and allowDisable, not interesting for this test
-        $appRepository->getUpsert();
-
-        $upsert = $appRepository->getUpsert();
-
-        static::assertCount(1, $upsert);
-        static::assertSame('test', $upsert[0]['name']);
+        static::assertCount(1, $appRepository->upserts[0]);
+        static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
     public function testInstallSavesNoSnippetsGiven(): void
@@ -143,13 +138,8 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle->install($manifest, false, Context::createDefaultContext());
 
-        // First upsert to update configurable and allowDisable, not interesting for this test
-        $appRepository->getUpsert();
-
-        $upsert = $appRepository->getUpsert();
-
-        static::assertCount(1, $upsert);
-        static::assertSame('test', $upsert[0]['name']);
+        static::assertCount(1, $appRepository->upserts[0]);
+        static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
     public function testUpdateSavesNoSnippetsGiven(): void
@@ -195,13 +185,8 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
-        // First upsert to update configurable and allowDisable, not interesting for this test
-        $appRepository->getUpsert();
-
-        $upsert = $appRepository->getUpsert();
-
-        static::assertCount(1, $upsert);
-        static::assertSame('test', $upsert[0]['name']);
+        static::assertCount(1, $appRepository->upserts[0]);
+        static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
     public function testUpdateSavesSnippets(): void
@@ -247,13 +232,8 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
-        // First upsert to update configurable and allowDisable, not interesting for this test
-        $appRepository->getUpsert();
-
-        $upsert = $appRepository->getUpsert();
-
-        static::assertCount(1, $upsert);
-        static::assertSame('test', $upsert[0]['name']);
+        static::assertCount(1, $appRepository->upserts[0]);
+        static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
     public function testUpdateResetsConfigurableFlagToFalseWhenConfigXMLWasRemoved(): void
@@ -297,11 +277,9 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle->update($manifest, ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
 
-        $updates = $appRepository->getUpsert();
+        static::assertCount(1, $appRepository->upserts[0]);
 
-        static::assertCount(1, $updates);
-
-        static::assertEquals([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $updates);
+        static::assertEquals([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
     }
 
     private function getAppLifecycle(

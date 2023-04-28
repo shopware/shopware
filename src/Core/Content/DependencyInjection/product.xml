@@ -503,7 +503,7 @@
 
         <service id="Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService"/>
+            <argument type="service" id="Shopware\Core\Content\Media\UnusedMediaPurger"/>
             <tag name="messenger.message_handler"/>
         </service>
 

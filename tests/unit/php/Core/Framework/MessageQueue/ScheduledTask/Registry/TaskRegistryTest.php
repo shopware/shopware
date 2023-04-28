@@ -62,25 +62,29 @@ class TaskRegistryTest extends TestCase
 
         $registry->registerTasks();
 
-        static::assertSame([
+        static::assertSame(
             [
-                'name' => CreateAliasTask::getTaskName(),
-                'scheduledTaskClass' => CreateAliasTask::class,
-                'runInterval' => CreateAliasTask::getDefaultInterval(),
-                'defaultRunInterval' => CreateAliasTask::getDefaultInterval(),
-                'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
+                [
+                    [
+                        'name' => InvalidateCacheTask::getTaskName(),
+                        'scheduledTaskClass' => InvalidateCacheTask::class,
+                        'runInterval' => InvalidateCacheTask::getDefaultInterval(),
+                        'defaultRunInterval' => InvalidateCacheTask::getDefaultInterval(),
+                        'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+                    ],
+                ],
+                [
+                    [
+                        'name' => CreateAliasTask::getTaskName(),
+                        'scheduledTaskClass' => CreateAliasTask::class,
+                        'runInterval' => CreateAliasTask::getDefaultInterval(),
+                        'defaultRunInterval' => CreateAliasTask::getDefaultInterval(),
+                        'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
+                    ],
+                ],
             ],
-        ], $staticRepository->getCreates());
-
-        static::assertSame([
-            [
-                'name' => InvalidateCacheTask::getTaskName(),
-                'scheduledTaskClass' => InvalidateCacheTask::class,
-                'runInterval' => InvalidateCacheTask::getDefaultInterval(),
-                'defaultRunInterval' => InvalidateCacheTask::getDefaultInterval(),
-                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-            ],
-        ], $staticRepository->getCreates());
+            $staticRepository->creates
+        );
     }
 
     public function testInvalidTasksAreDeleted(): void

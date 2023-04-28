@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -23,6 +24,10 @@ class Migration1654839361ProductDownloadMediaTest extends TestCase
 
     protected function setUp(): void
     {
+        if (Feature::isActive('v6.6.0.0')) {
+            static::markTestSkipped('This test is not compatible with v6.6.0.0. Re-enable when migration refactoring is complete or remove the unit test with next major.');
+        }
+
         $this->connection = KernelLifecycleManager::getConnection();
         $this->prepare();
     }

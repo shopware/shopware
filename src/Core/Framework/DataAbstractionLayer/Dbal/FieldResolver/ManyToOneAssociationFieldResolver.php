@@ -76,16 +76,13 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column#' . $this->buildWhere($field, $context)
-            )
+                '#source# = #alias#.#reference_column#' . $this->buildVersionWhere($context, $field),
+            ),
         );
 
         return $alias;
     }
 
-    /**
-     * @internal Overwritten in parent association field resolver to handle join filters
-     */
     protected function getSourceColumn(EntityDefinition $definition, AssociationField $field, string $root, Context $context): string
     {
         if (!$field instanceof ManyToOneAssociationField && !$field instanceof OneToOneAssociationField) {
@@ -124,21 +121,58 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
     }
 
     /**
-     * @internal Overwritten in parent association field resolver to add join conditions for inherited associations
+     * Builds a versioning string to append in the where condition based on the available fields
+     *
+     * @param ManyToOneAssociationField|OneToOneAssociationField $field
      */
-    protected function buildWhere(AssociationField $field, FieldResolverContext $context): string
+    private function buildVersionWhere(FieldResolverContext $context, AssociationField $field): string
     {
-        $reference = $field->getReferenceDefinition();
-
-        $versionAware = $context->getDefinition()->isVersionAware() && $reference->isVersionAware();
-
-        if ($versionAware) {
-            return ' AND #root#.`version_id` = #alias#.`version_id`';
+        if (!$field->getReferenceDefinition()->isVersionAware()) {
+            return '';
         }
 
-        return '';
+        $fkVersionId = $field->getReferenceDefinition()->getEntityName() . '_version_id';
+        if ($context->getDefinition()->getFields()->getByStorageName($fkVersionId)) {
+            return sprintf(
+                ' AND #root#.%s = #alias#.%s',
+                EntityDefinitionQueryHelper::escape($fkVersionId),
+                EntityDefinitionQueryHelper::escape('version_id'),
+            );
+        }
+
+        $fkVersionId = \substr($field->getStorageName(), 0, -3) . '_version_id';
+        if ($context->getDefinition()->getFields()->getByStorageName($fkVersionId)) {
+            return sprintf(
+                ' AND #root#.%s = #alias#.%s',
+                EntityDefinitionQueryHelper::escape($fkVersionId),
+                EntityDefinitionQueryHelper::escape('version_id'),
+            );
+        }
+
+        if ($field instanceof OneToOneAssociationField) {
+            // When the field is a OneToOneAssociation (e.g. order <> order_customer) the other definition may have a
+            // fk version id pointing to the current definition.
+            $ownFkVersionIdk = $context->getDefinition()->getEntityName() . '_version_id';
+            if ($field->getReferenceDefinition()->getFields()->getByStorageName($ownFkVersionIdk)) {
+                return sprintf(
+                    ' AND #root#.%s = #alias#.%s',
+                    EntityDefinitionQueryHelper::escape('version_id'),
+                    EntityDefinitionQueryHelper::escape($ownFkVersionIdk),
+                );
+            }
+        }
+
+        return sprintf(
+            ' AND #alias#.%s = UNHEX("%s")',
+            EntityDefinitionQueryHelper::escape('version_id'),
+            Defaults::LIVE_VERSION,
+        );
     }
 
+    /**
+     * Constructs a sub query that returns the version of the entity requested in the context. IF that version DOES NOT
+     * exist, the live version is returned instead.
+     */
     private function createSubVersionQuery(
         AssociationField $field,
         Context $context,
@@ -150,7 +184,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         $versionQuery->select(EntityDefinitionQueryHelper::escape($subRoot) . '.*');
         $versionQuery->from(
             EntityDefinitionQueryHelper::escape($subRoot),
-            EntityDefinitionQueryHelper::escape($subRoot)
+            EntityDefinitionQueryHelper::escape($subRoot),
         );
         $queryHelper->joinVersion($versionQuery, $field->getReferenceDefinition(), $subRoot, $context);
 
@@ -169,6 +203,15 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         return EntityDefinitionQueryHelper::escape($field->getReferenceField());
     }
 
+    /**
+     * Adds a left join with a sub-select to the query that results in the entity version requested in the context or the
+     * live version if that version does not exist.
+     *
+     * @param string $root e.g. "document"
+     * @param string $alias e.g. "document.order"
+     * @param string $source e.g. "document.order_id
+     * @param string $referenceColumn e.g. "id" (for the order)
+     */
     private function joinVersion(AssociationField $field, string $root, string $alias, QueryBuilder $query, Context $context, string $source, string $referenceColumn): void
     {
         $versionQuery = $this->createSubVersionQuery($field, $context, $this->queryHelper);
@@ -187,8 +230,8 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column#'
-            )
+                '#source# = #alias#.#reference_column#',
+            ),
         );
 
         foreach ($versionQuery->getParameters() as $key => $value) {

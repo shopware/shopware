@@ -136,8 +136,9 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand">
-            <argument type="service" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService"/>
+        <service id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand" shared="false">
+            <argument type="service" id="Shopware\Core\Content\Media\UnusedMediaPurger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="console.command"/>
         </service>
@@ -241,6 +242,11 @@
             <argument type="service" id="media_default_folder.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\UnusedMediaPurger">
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\MediaFolderService">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
@@ -327,6 +333,13 @@
             <argument type="service" id="Shopware\Core\Content\Media\Message\DeleteFileHandler"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="media.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

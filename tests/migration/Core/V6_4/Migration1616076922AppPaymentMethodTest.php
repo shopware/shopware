@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1616076922AppPaymentMethod;
 use Shopware\Core\Migration\V6_4\Migration1643386819AddPreparedPaymentsToAppPaymentMethod;
@@ -21,6 +22,10 @@ class Migration1616076922AppPaymentMethodTest extends TestCase
 
     protected function setUp(): void
     {
+        if (Feature::isActive('v6.6.0.0')) {
+            static::markTestSkipped('This test is not compatible with v6.6.0.0. Re-enable when migration refactoring is complete or remove the unit test with next major.');
+        }
+
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();

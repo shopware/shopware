@@ -12,9 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, use \Shopware\Core\Content\Media\UnusedMediaPurger instead
+ */
 #[Package('content')]
 class DeleteNotUsedMediaService
 {
@@ -31,6 +35,11 @@ class DeleteNotUsedMediaService
 
     public function countNotUsedMedia(Context $context): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            sprintf('%s is deprecated and will be removed in v6.6.0.0. Use %s instead.', self::class, UnusedMediaPurger::class),
+        );
+
         $criteria = $this->createFilterForNotUsedMedia($context);
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
@@ -40,6 +49,11 @@ class DeleteNotUsedMediaService
 
     public function deleteNotUsedMedia(Context $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            sprintf('%s is deprecated and will be removed in v6.6.0.0. Use %s instead.', self::class, UnusedMediaPurger::class),
+        );
+
         $criteria = $this->createFilterForNotUsedMedia($context);
 
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();

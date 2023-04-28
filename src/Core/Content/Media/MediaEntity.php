@@ -431,6 +431,15 @@ class MediaEntity extends Entity
         return $this->fileName;
     }
 
+    public function getFileNameIncludingExtension(): ?string
+    {
+        if ($this->fileName === null || $this->fileExtension === null) {
+            return null;
+        }
+
+        return sprintf('%s.%s', $this->fileName, $this->fileExtension);
+    }
+
     public function setFileName(string $fileName): void
     {
         $this->fileName = $fileName;

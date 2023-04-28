@@ -97,6 +97,117 @@ class LayoutBuilder
         return $this;
     }
 
+    public function image(string $key, string $section = 'main'): self
+    {
+        $this->section($section);
+
+        $this->sections[$section]['blocks'][] = array_merge(
+            [
+                'type' => 'image',
+                'position' => $this->blockPosition($section),
+                'sectionPosition' => 'main',
+                'backgroundMediaMode' => 'cover',
+                'slots' => [
+                    [
+                        'type' => 'image',
+                        'slot' => 'image',
+                        'config' => [
+                            'url' => ['source' => 'static', 'value' => 300],
+                            'media' => ['source' => 'static', 'value' => $this->ids->get($key)],
+                            'newTab' => ['source' => 'static', 'value' => false],
+                            'minHeight' => ['source' => 'static', 'value' => '340px'],
+                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                            'verticalAlign' => ['source' => 'static', 'value' => null],
+                        ],
+                    ],
+                ],
+            ],
+            self::margin(20, 20, 20, 20)
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $keys
+     */
+    public function imageSlider(array $keys, string $section = 'main'): self
+    {
+        $this->section($section);
+
+        $this->sections[$section]['blocks'][] = array_merge(
+            [
+                'type' => 'image-slider',
+                'position' => $this->blockPosition($section),
+                'sectionPosition' => 'main',
+                'backgroundMediaMode' => 'cover',
+                'slots' => [
+                    [
+                        'type' => 'image-slider',
+                        'slot' => 'imageSlider',
+                        'config' => [
+                            'sliderItems' => [
+                                'source' => 'static',
+                                'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
+                            ],
+                            'speed' => ['source' => 'static', 'value' => 300],
+                            'autoSlide' => ['source' => 'static', 'value' => false],
+                            'minHeight' => ['source' => 'static', 'value' => '300px'],
+                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                            'verticalAlign' => ['source' => 'static', 'value' => null],
+                            'navigationDots' => ['source' => 'static', 'value' => true],
+                            'autoplayTimeout' => ['source' => 'static', 'value' => 5000],
+                            'navigationArrows' => ['source' => 'static', 'value' => 'outside'],
+                        ],
+                    ],
+                ],
+            ],
+            self::margin(20, 20, 20, 20)
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $keys
+     */
+    public function imageGallery(array $keys, string $section = 'main'): self
+    {
+        $this->section($section);
+
+        $this->sections[$section]['blocks'][] = array_merge(
+            [
+                'type' => 'image-gallery',
+                'position' => $this->blockPosition($section),
+                'sectionPosition' => 'main',
+                'backgroundMediaMode' => 'cover',
+                'slots' => [
+                    [
+                        'type' => 'image-gallery',
+                        'slot' => 'imageGallery',
+                        'config' => [
+                            'sliderItems' => [
+                                'source' => 'static',
+                                'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
+                            ],
+                            'speed' => ['source' => 'static', 'value' => 300],
+                            'autoSlide' => ['source' => 'static', 'value' => false],
+                            'minHeight' => ['source' => 'static', 'value' => '300px'],
+                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                            'verticalAlign' => ['source' => 'static', 'value' => null],
+                            'navigationDots' => ['source' => 'static', 'value' => true],
+                            'autoplayTimeout' => ['source' => 'static', 'value' => 5000],
+                            'navigationArrows' => ['source' => 'static', 'value' => 'outside'],
+                        ],
+                    ],
+                ],
+            ],
+            self::margin(20, 20, 20, 20)
+        );
+
+        return $this;
+    }
+
     /**
      * @param string[] $keys
      */

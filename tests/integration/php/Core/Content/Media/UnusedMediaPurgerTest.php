@@ -1,23 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media;
+namespace Shopware\Tests\Integration\Core\Content\Media;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use function fopen;
 
 /**
- * @deprecated tag:v6.6.0 - Will be removed with \Shopware\Core\Content\Media\DeleteNotUsedMediaService
- *
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
-class DeleteNotUsedMediaServiceTest extends TestCase
+class UnusedMediaPurgerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MediaFixtures;
@@ -25,7 +27,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
 
     private const FIXTURE_FILE = __DIR__ . '/fixtures/shopware-logo.png';
 
-    private DeleteNotUsedMediaService $deleteMediaService;
+    private UnusedMediaPurger $unusedMediaPurger;
 
     private EntityRepository $mediaRepo;
 
@@ -33,28 +35,14 @@ class DeleteNotUsedMediaServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
         $this->mediaRepo = $this->getContainer()->get('media.repository');
 
         $this->context = Context::createDefaultContext();
 
-        $this->deleteMediaService = new DeleteNotUsedMediaService(
+        $this->unusedMediaPurger = new UnusedMediaPurger(
             $this->mediaRepo,
-            $this->getContainer()->get('media_default_folder.repository')
+            new EventDispatcher()
         );
-    }
-
-    public function testCountNotUsedMedia(): void
-    {
-        $this->setFixtureContext($this->context);
-
-        $this->getTxt();
-        $this->getPngWithoutExtension();
-        $this->getMediaWithProduct();
-        $this->getMediaWithManufacturer();
-
-        static::assertEquals(2, $this->deleteMediaService->countNotUsedMedia($this->context));
     }
 
     public function testDeleteNotUsedMedia(): void
@@ -77,7 +65,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $this->getPublicFilesystem()->writeStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
         $this->getPublicFilesystem()->writeStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
-        $this->deleteMediaService->deleteNotUsedMedia($this->context);
+        $this->unusedMediaPurger->deleteNotUsedMedia();
         $this->runWorker();
 
         $result = $this->mediaRepo->search(

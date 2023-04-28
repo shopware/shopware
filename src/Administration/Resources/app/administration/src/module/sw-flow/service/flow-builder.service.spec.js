@@ -369,4 +369,26 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         const description = service.getActionDescriptions(data, sequence, translator);
         expect(description).toContain('sw-flow.actions.addTag');
     });
+
+    it('should be able to render granted download access action description', () => {
+        const sequence = {
+            actionName: 'action.grant.download.access',
+            config: {
+                value: true,
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.downloadAccessLabel.granted');
+    });
+
+    it('should be able to render revoked download access action description', () => {
+        const sequence = {
+            actionName: 'action.grant.download.access',
+            config: {
+                value: false,
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.downloadAccessLabel.revoked');
+    });
 });

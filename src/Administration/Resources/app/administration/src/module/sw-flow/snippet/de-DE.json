@@ -126,7 +126,11 @@
         "order": "Bestellung"
       },
       "unknownLabel": "Unbekannte Aktion",
-      "warningText": "Diese Aktion wurde durch eine Erweiterung bereitgestellt, die inaktiv oder nicht mehr installiert ist."
+      "warningText": "Diese Aktion wurde durch eine Erweiterung bereitgestellt, die inaktiv oder nicht mehr installiert ist.",
+      "downloadAccessLabel": {
+        "granted": "Erteilt",
+        "revoked": "Entzogen"
+      }
     },
     "rule": {
       "addRule": "Regel hinzufügen",

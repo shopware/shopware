@@ -119,7 +119,6 @@ export default {
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
             criteria.addAssociation('documentType');
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
-            criteria.addFilter(Criteria.equals('order.versionId', this.order.versionId));
 
             if (!this.term) {
                 return criteria;

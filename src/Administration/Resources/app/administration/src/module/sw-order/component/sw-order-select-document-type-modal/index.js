@@ -70,7 +70,6 @@ export default {
         documentCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
-            criteria.addFilter(Criteria.equals('order.versionId', this.order.versionId));
             criteria.addFilter(Criteria.equals('documentType.technicalName', 'invoice'));
 
             return criteria;

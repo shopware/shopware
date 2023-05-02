@@ -114,4 +114,45 @@ class CustomEntityRegistrarTest extends TestCase
         static::assertSame('ce_test_two', $definitions[1]->getEntityName());
         static::assertInstanceOf(EntityRepository::class, $container->get($definitions[1]->getEntityName() . '.repository'));
     }
+
+    public function testAfterMigrationWithEmptyFlags(): void
+    {
+        $container = new Container();
+
+        /** @var DynamicEntityDefinition[] $definitions */
+        $definitions = [
+            DynamicEntityDefinition::create('ce_test_one', [], [], $container),
+            DynamicEntityDefinition::create('ce_test_two', [], [], $container),
+        ];
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('isConnected')
+            ->willReturn(true);
+        $connection->expects(static::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'name' => 'ce_test_one',
+                    'fields' => json_encode([]),
+                    'flags' => '',
+                ],
+            ]);
+
+        $container->set(Connection::class, $connection);
+        $container->set(DefinitionInstanceRegistry::class, new DefinitionInstanceRegistry($container, [], []));
+        $container->set(EntityReaderInterface::class, $this->createMock(EntityReaderInterface::class));
+        $container->set(VersionManager::class, $this->createMock(VersionManager::class));
+        $container->set(EntitySearcherInterface::class, $this->createMock(EntitySearcherInterface::class));
+        $container->set(EntityAggregatorInterface::class, $this->createMock(EntityAggregatorInterface::class));
+        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set(EntityLoadedEventFactory::class, $this->createMock(EntityLoadedEventFactory::class));
+
+        $registrar = new CustomEntityRegistrar($container);
+
+        $registrar->register();
+
+        static::assertInstanceOf(DynamicEntityDefinition::class, $definitions[0]);
+        static::assertSame('ce_test_one', $definitions[0]->getEntityName());
+        static::assertInstanceOf(EntityRepository::class, $container->get($definitions[0]->getEntityName() . '.repository'));
+    }
 }

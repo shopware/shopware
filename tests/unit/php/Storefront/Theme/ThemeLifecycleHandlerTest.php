@@ -26,25 +26,15 @@ use Shopware\Storefront\Theme\ThemeService;
  */
 class ThemeLifecycleHandlerTest extends TestCase
 {
-    /**
-     * @var MockObject&ThemeService
-     */
-    private ThemeService $themeServiceMock;
+    private MockObject&ThemeService $themeServiceMock;
 
-    /**
-     * @var StorefrontPluginRegistryInterface&MockObject
-     */
-    private StorefrontPluginRegistryInterface $configurationRegistryMock;
+    private StorefrontPluginRegistryInterface&MockObject $configurationRegistryMock;
 
-    /**
-     * @var MockObject&EntityRepository
-     */
-    private EntityRepository $themeRepositoryMock;
+    private ThemeLifecycleService&MockObject $themeLifecycleServiceMock;
 
-    /**
-     * @var MockObject&Connection
-     */
-    private Connection $connectionsMock;
+    private EntityRepository&MockObject $themeRepositoryMock;
+
+    private Connection&MockObject $connectionMock;
 
     private ThemeLifecycleHandler $themeLifecycleHandler;
 
@@ -54,16 +44,16 @@ class ThemeLifecycleHandlerTest extends TestCase
     {
         $this->themeServiceMock = $this->createMock(ThemeService::class);
         $this->configurationRegistryMock = $this->createMock(StorefrontPluginRegistryInterface::class);
-        $themeLifecycleServiceMock = $this->createMock(ThemeLifecycleService::class);
+        $this->themeLifecycleServiceMock = $this->createMock(ThemeLifecycleService::class);
         $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->connectionsMock = $this->createMock(Connection::class);
+        $this->connectionMock = $this->createMock(Connection::class);
 
         $this->themeLifecycleHandler = new ThemeLifecycleHandler(
-            $themeLifecycleServiceMock,
+            $this->themeLifecycleServiceMock,
             $this->themeServiceMock,
             $this->themeRepositoryMock,
             $this->configurationRegistryMock,
-            $this->connectionsMock
+            $this->connectionMock
         );
 
         $this->context = Context::createDefaultContext();
@@ -111,7 +101,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $themeId = Uuid::randomHex();
 
-        $this->connectionsMock->method('fetchAllAssociative')->willReturn([
+        $this->connectionMock->method('fetchAllAssociative')->willReturn([
             [
                 'id' => $themeId,
                 'dependentId' => Uuid::randomHex(),
@@ -140,7 +130,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $themeId = Uuid::randomHex();
 
-        $this->connectionsMock->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
+        $this->connectionMock->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
             [
                 [
                     'id' => $themeId,
@@ -201,7 +191,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $themeId = Uuid::randomHex();
 
-        $this->connectionsMock->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
+        $this->connectionMock->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
             [
                 [
                     'id' => $themeId,
@@ -228,6 +218,34 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
             $this->context
+        );
+    }
+
+    public function testSkipThemeCompilationIfContextStateIsSet(): void
+    {
+        $config = new StorefrontPluginConfiguration('simple-theme');
+        $config->setIsTheme(true);
+
+        $context = Context::createDefaultContext();
+        $context->addState('skip-theme-compilation');
+
+        $this->themeLifecycleServiceMock
+            ->expects(static::once())
+            ->method('refreshTheme')
+            ->with($config, $context);
+
+        $this->connectionMock
+            ->expects(static::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
+
+        $this->themeServiceMock->expects(static::never())->method('compileThemeById');
+        $this->themeServiceMock->expects(static::never())->method('compileTheme');
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
+            $config,
+            new StorefrontPluginConfigurationCollection([$config]),
+            $context,
         );
     }
 }

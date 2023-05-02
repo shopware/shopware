@@ -51,6 +51,7 @@ async function createWrapper(privileges = []) {
         mocks: {
             $tc: key => key,
             $device: {
+                removeResizeListener: () => {},
                 getSystemKey: () => {},
                 onResize: () => {},
             },

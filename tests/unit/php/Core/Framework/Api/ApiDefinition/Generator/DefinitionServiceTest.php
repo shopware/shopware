@@ -22,7 +22,7 @@ class DefinitionServiceTest extends TestCase
         );
 
         static::assertNull($definitionService->toApiType('foobar'));
-        static::assertSame(DefinitionService::TypeJsonApi, $definitionService->toApiType('jsonapi'));
-        static::assertSame(DefinitionService::TypeJson, $definitionService->toApiType('json'));
+        static::assertSame(DefinitionService::TYPE_JSON_API, $definitionService->toApiType('jsonapi'));
+        static::assertSame(DefinitionService::TYPE_JSON, $definitionService->toApiType('json'));
     }
 }

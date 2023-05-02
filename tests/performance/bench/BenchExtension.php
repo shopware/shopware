@@ -59,7 +59,7 @@ class BenchExtension implements ExtensionInterface
             }
 
             if (
-                is_subclass_of($currentFixtureClass, GroupAwareExtension::class)
+                is_subclass_of($currentFixtureClass, AbstractGroupAwareExtension::class)
                 && \constant("$currentFixtureClass::TARGET_GROUP") === $runGroup
             ) {
                 $fixture = new $currentFixtureClass($container);

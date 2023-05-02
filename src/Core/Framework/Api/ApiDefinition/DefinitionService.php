@@ -20,8 +20,23 @@ class DefinitionService
     final public const API = 'api';
     final public const STORE_API = 'store-api';
 
-    final public const TypeJsonApi = 'jsonapi';
-    final public const TypeJson = 'json';
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use DefinitionService::TYPE_JSON_API instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
+    final public const TypeJsonApi = self::TYPE_JSON_API;
+
+    final public const TYPE_JSON_API = 'jsonapi';
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use DefinitionService::TYPE_JSON instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
+    final public const TypeJson = self::TYPE_JSON;
+
+    final public const TYPE_JSON = 'json';
 
     /**
      * @var ApiDefinitionGeneratorInterface[]
@@ -45,7 +60,7 @@ class DefinitionService
      *
      * @return OpenApiSpec
      */
-    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TypeJsonApi): array
+    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API): array
     {
         return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType);
     }
@@ -65,7 +80,7 @@ class DefinitionService
      */
     public function toApiType(string $apiType): ?string
     {
-        if ($apiType !== self::TypeJsonApi && $apiType !== self::TypeJson) {
+        if ($apiType !== self::TYPE_JSON_API && $apiType !== self::TYPE_JSON) {
             return null;
         }
 

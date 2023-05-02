@@ -50,7 +50,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TypeJsonApi): array
+    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
@@ -65,7 +65,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $onlyFlat = match ($apiType) {
-                DefinitionService::TypeJson => true,
+                DefinitionService::TYPE_JSON => true,
                 default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
             };
 
@@ -83,7 +83,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if ($apiType === DefinitionService::TypeJsonApi) {
+            if ($apiType === DefinitionService::TYPE_JSON_API) {
                 $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }

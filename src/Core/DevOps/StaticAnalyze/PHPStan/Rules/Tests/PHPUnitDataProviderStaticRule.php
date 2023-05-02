@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
+namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;

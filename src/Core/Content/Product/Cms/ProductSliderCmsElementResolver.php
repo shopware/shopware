@@ -200,7 +200,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         );
 
         if ($sorting === 'random') {
-            return $this->setRandomSort($criteria);
+            return $this->addRandomSort($criteria);
         }
 
         if ($sorting) {
@@ -214,7 +214,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         return $criteria;
     }
 
-    private function setRandomSort(Criteria $criteria): Criteria
+    private function addRandomSort(Criteria $criteria): Criteria
     {
         $fields = [
             'id',

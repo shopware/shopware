@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Storefront\Test\Framework\Cookie;
+
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;

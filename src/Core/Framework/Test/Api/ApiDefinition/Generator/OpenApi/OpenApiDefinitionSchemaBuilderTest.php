@@ -48,7 +48,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 '',
                 false,
                 false,
-                DefinitionService::TypeJson
+                DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
         ), true, 512, \JSON_THROW_ON_ERROR);
@@ -78,7 +78,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 '',
                 false,
                 false,
-                DefinitionService::TypeJson
+                DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
         ), true, 512, \JSON_THROW_ON_ERROR);

@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Storefront\Test\Framework\Twig\Extension;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;

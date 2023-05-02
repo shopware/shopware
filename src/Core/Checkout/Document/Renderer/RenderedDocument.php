@@ -71,6 +71,11 @@ final class RenderedDocument extends Struct
         return $this->config['pageSize'] ?? 'a4';
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - will be changed to void and not return anything anymore
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
     public function setContent(string $content): string
     {
         return $this->content = $content;

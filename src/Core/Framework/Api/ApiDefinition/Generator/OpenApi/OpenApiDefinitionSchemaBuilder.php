@@ -48,7 +48,7 @@ class OpenApiDefinitionSchemaBuilder
         string $path,
         bool $forSalesChannel,
         bool $onlyFlat = false,
-        string $apiType = DefinitionService::TypeJsonApi
+        string $apiType = DefinitionService::TYPE_JSON_API
     ): array {
         $schema = [];
         $attributes = [];

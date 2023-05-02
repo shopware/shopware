@@ -5,6 +5,9 @@ namespace Shopware\Core\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 
+/**
+ * @internal
+ */
 class Definition
 {
     public function __construct()

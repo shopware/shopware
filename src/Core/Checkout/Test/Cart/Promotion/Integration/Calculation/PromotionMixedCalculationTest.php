@@ -244,7 +244,7 @@ class PromotionMixedCalculationTest extends TestCase
      * the percent rate
      * and the type of picking (vertical or horizontal)
      *
-     * @dataProvider setGroupPackageAndPickerTestData
+     * @dataProvider groupPackageAndPickerProvider
      *
      * @group promotions
      */
@@ -318,7 +318,7 @@ class PromotionMixedCalculationTest extends TestCase
      * groupCount,
      * groupSorting
      */
-    public static function setGroupPackageAndPickerTestData(): array
+    public static function groupPackageAndPickerProvider(): array
     {
         return [
             /*

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Checkout\Cart\TaxProvider;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;

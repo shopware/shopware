@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace integration\php\Core\Checkout\Cart\TaxProvider;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart\TaxProvider;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;

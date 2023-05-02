@@ -41,7 +41,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public static function setGetDifferentTypesProvider(): array
+    public static function differentTypesProvider(): array
     {
         return [
             [true],
@@ -59,7 +59,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @param array<mixed>|bool|int|float|string|null $expected
      *
-     * @dataProvider setGetDifferentTypesProvider
+     * @dataProvider differentTypesProvider
      */
     public function testSetGetDifferentTypes($expected): void
     {

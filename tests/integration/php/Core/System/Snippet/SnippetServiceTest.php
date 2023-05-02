@@ -31,7 +31,7 @@ class SnippetServiceTest extends TestCase
         MockSnippetFile::cleanup();
     }
 
-    public function getStorefrontSnippetsForNotExistingSnippetSet(): void
+    public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 

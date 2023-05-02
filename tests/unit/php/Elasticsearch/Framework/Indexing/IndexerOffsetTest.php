@@ -40,7 +40,7 @@ class IndexerOffsetTest extends TestCase
         static::assertSame($timestamp, $offset->getTimestamp());
         static::assertNull($offset->getLastId());
 
-        $offset->setNextDefinition();
+        $offset->selectNextDefinition();
 
         static::assertEquals(ProductManufacturerDefinition::ENTITY_NAME, $offset->getDefinition());
         static::assertEmpty($offset->getDefinitions());
@@ -73,7 +73,7 @@ class IndexerOffsetTest extends TestCase
         static::assertEquals('foo', $offset->getLanguageId());
         static::assertEquals(['bar'], $offset->getLanguages());
         static::assertTrue($offset->hasNextLanguage());
-        $offset->setNextLanguage();
+        $offset->selectNextLanguage();
         static::assertEquals('bar', $offset->getLanguageId());
         static::assertFalse($offset->hasNextLanguage());
     }

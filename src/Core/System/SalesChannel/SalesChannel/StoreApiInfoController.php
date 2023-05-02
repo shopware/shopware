@@ -32,7 +32,7 @@ class StoreApiInfoController
     #[Route(path: '/store-api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
 
         $apiType = $this->definitionService->toApiType($apiType);
         if ($apiType === null) {
@@ -56,7 +56,7 @@ class StoreApiInfoController
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
         $response = new Response($this->twig->render(
             '@Framework/swagger.html.twig',
             [

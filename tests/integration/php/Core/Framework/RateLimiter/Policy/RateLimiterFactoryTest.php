@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Core\Framework\RateLimiter\Policy;
+namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;

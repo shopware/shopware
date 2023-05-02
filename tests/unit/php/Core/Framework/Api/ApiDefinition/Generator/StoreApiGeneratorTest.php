@@ -48,7 +48,7 @@ class StoreApiGeneratorTest extends TestCase
         $schema = $this->generator->generate(
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::API,
-            DefinitionService::TypeJsonApi
+            DefinitionService::TYPE_JSON_API
         );
         $paths = $schema['paths'];
 
@@ -60,7 +60,7 @@ class StoreApiGeneratorTest extends TestCase
         $schema = $this->generator->generate(
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::API,
-            DefinitionService::TypeJsonApi
+            DefinitionService::TYPE_JSON_API
         );
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Simple', $entities);

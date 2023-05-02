@@ -34,9 +34,8 @@ parameters:
         - src/WebInstaller/tests/_fixtures
 
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
-        # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
-        - src/Core/Framework/Compatibility/AnnotationReader.php
-        - src/Core/Framework/Compatibility/DocParser.php
+        # vendor patches over autoload files
+        - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
 
         # Symfony interface typehints `Predis\ClientInterface` which is by default not available
         - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
@@ -203,98 +202,29 @@ parameters:
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
+        # Tests for Abstract classes should reflect the class naming, but not be abstract itself
+        -
+            message: '#Class name starting with "Abstract" must have an `abstract` keyword#'
+            paths:
+                - tests/unit/php
+
+        # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
+        -
+            message: '#.*#'
+            paths:
+                - src/Core/Framework/Test/Store/_fixtures/AppStoreTestPlugin/*
+                - src/Core/Framework/Test/Plugin/_fixture/plugins/*
+                - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
+                - tests/integration/php/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
+
 services:
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
-        tags:
-            - phpstan.rules.rule
-
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
 
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PHPUnitDataProviderStaticRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
-        tags:
-            - phpstan.rules.rule
+    -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
+        class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 
 # Activate again when https://github.com/symplify/phpstan-rules/pull/25 is released
 #    -
@@ -313,6 +243,26 @@ services:
 #                - Twig\Compiler
 
 rules:
+    # shopware specific rules
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitDataProviderStaticRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
+
     # rules from https://github.com/symplify/phpstan-rules
     - Symplify\PHPStanRules\Rules\Spotter\IfElseToMatchSpotterRule
     - Symplify\PHPStanRules\Rules\Missing\CheckSprintfMatchingTypesRule
@@ -347,3 +297,11 @@ rules:
     - Symplify\PHPStanRules\Rules\Explicit\NoGetterAndPropertyRule
     - Symplify\PHPStanRules\Rules\PHPUnit\NoRightPHPUnitAssertScalarRule
     - Symplify\PHPStanRules\Rules\NoDynamicNameRule
+
+    # naming rules
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
+    - Symplify\PHPStanRules\Rules\RequiredAbstractClassKeywordRule
+    # activate again when https://github.com/symplify/phpstan-rules/pull/40 is released
+    # - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
+    - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+    - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule

@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal - only for performance benchmarks
  */
 #[Groups(['base'])]
-abstract class BenchCase
+abstract class AbstractBenchCase
 {
     protected IdsCollection $ids;
 

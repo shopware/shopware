@@ -16,7 +16,7 @@ class ThemeCreateCommandTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private const ThemeName = 'TestPlugin';
+    private const THEME_NAME = 'TestPlugin';
 
     private string $projectDir;
 
@@ -27,14 +27,14 @@ class ThemeCreateCommandTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->removeTheme(self::ThemeName);
+        $this->removeTheme(self::THEME_NAME);
     }
 
     public function testSuccessfulCreateCommand(): void
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['theme-name' => self::ThemeName]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
         static::assertStringContainsString('Creating theme structure under', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
@@ -43,13 +43,13 @@ class ThemeCreateCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['theme-name' => self::ThemeName]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
         static::assertStringContainsString('Creating theme structure under', $commandTester->getDisplay(true));
 
-        $commandTester->execute(['theme-name' => self::ThemeName]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
-        static::assertStringContainsString(self::ThemeName . ' already exists', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
+        static::assertStringContainsString(self::THEME_NAME . ' already exists', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
 
     /**

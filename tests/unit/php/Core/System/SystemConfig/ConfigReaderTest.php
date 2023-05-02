@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\SystemConfig;
+namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -9,6 +9,8 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\System\SystemConfig\Util\ConfigReader
  */
 #[Package('system-settings')]
 class ConfigReaderTest extends TestCase

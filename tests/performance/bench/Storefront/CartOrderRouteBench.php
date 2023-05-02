@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Bench\Cases\Storefront;
+namespace Shopware\Tests\Bench\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PhpBench\Attributes as Bench;
@@ -13,13 +13,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 use Shopware\Tests\Bench\Fixtures;
 
 /**
  * @internal - only for performance benchmarks
  */
-class CartOrderRouteBench extends BenchCase
+class CartOrderRouteBench extends AbstractBenchCase
 {
     private const SUBJECT_CUSTOMER = 'customer-0';
     private const CART_ITEMS_COUNT = 10;

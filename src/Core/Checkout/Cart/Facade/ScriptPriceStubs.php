@@ -82,10 +82,6 @@ class ScriptPriceStubs implements ResetInterface
         $this->currencies = [];
     }
 
-    public function getRules(string $taxId): void
-    {
-    }
-
     /**
      * @param array<string, array{gross:float, net:float, linked?:bool}> $price
      *

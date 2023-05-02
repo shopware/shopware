@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Checkout\Order\Aggregate\OrderLineItem;
+namespace Shopware\Tests\Unit\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;

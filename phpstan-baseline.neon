@@ -372,11 +372,6 @@ parameters:
 
 		-
 			message: "#^Anonymous variable in a `\\$delivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/OrderConverter.php
-
-		-
-			message: "#^Anonymous variable in a `\\$delivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Core/Checkout/Cart/Order/RecalculationService.php
 
@@ -17980,11 +17975,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$errors\\-\\>last\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/LineItem/LineItemValidatorTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$lineItem\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Order/OrderConverterTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$level1Item\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

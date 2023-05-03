@@ -13,7 +13,7 @@ Jest (Administration):
       - !reference [ .scripts, init, npm, admin ]
       - composer run admin:generate-entity-schema-types
     script:
-      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=true]\r\e[0Kjest output"
+      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
       - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
       - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
@@ -40,7 +40,7 @@ Jest (Storefront):
       - !reference [ .scripts, install-node, script ]
       - !reference [ .scripts, init, npm, storefront ]
     script:
-      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=true]\r\e[0Kjest output"
+      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
       - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% | grep -A 5 -E '^(All files|Fail|    )'
       - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

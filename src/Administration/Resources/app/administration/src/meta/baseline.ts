@@ -137,7 +137,6 @@ const missingTests = [
     'src/app/init-pre/api-services.init.js',
     'src/app/init-pre/index.js',
     'src/app/init-pre/state.init.js',
-    'src/app/main.ts',
     'src/app/mixin/discard-detail-page-changes.mixin.js',
     'src/app/mixin/form-field.mixin.js',
     'src/app/mixin/index.js',

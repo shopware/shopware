@@ -35,6 +35,20 @@ class PhpConfigForcerListenerTest extends TestCase
         static::assertNull($event->getResponse());
     }
 
+    public function testMissingRouteCreatesNoLoop(): void
+    {
+        $listener = new PhpConfigForcerListener($this->createMock(RouterInterface::class));
+
+        $event = $this->createMock(RequestEvent::class);
+        $request = $this->getRequest();
+
+        $event->method('getRequest')->willReturn($request);
+
+        $listener($event);
+
+        static::assertNull($event->getResponse());
+    }
+
     public function testCallOtherPageRedirectsPHP(): void
     {
         $router = $this->createMock(RouterInterface::class);

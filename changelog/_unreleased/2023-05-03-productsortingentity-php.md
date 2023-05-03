@@ -41,7 +41,7 @@ public function createDalSorting(): array
     $sorting = [];
 
     $fields = $this->fields;
-    array_push($fields, $this->getFallbackSortingField());
+    $fields[] = , $this->getFallbackSortingField();
 
     usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 

@@ -58,6 +58,68 @@ describe('app/component/form/sw-number-field', () => {
         expect(input.element.value).toBe('0');
     });
 
+    it('should set value 2 when user deletes everything via input change and min is set to 2', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({ min: 2 });
+
+        const input = wrapper.find('input');
+
+        // type "10"
+        await input.setValue('10');
+        await input.trigger('change');
+
+        // expect 10
+        expect(wrapper.emitted('change')[0]).toEqual([10]);
+        expect(input.element.value).toBe('10');
+
+        // clear input
+        await input.setValue('');
+
+        const inputChangeEvt = wrapper.emitted('input-change');
+        expect(inputChangeEvt[inputChangeEvt.length - 1]).toEqual([2]);
+    });
+
+    it('should set value 0 when user deletes everything via input change and min is not set', async () => {
+        const wrapper = await createWrapper();
+
+        const input = wrapper.find('input');
+
+        // type "10"
+        await input.setValue('10');
+        await input.trigger('change');
+
+        // expect 5
+        expect(wrapper.emitted('change')[0]).toEqual([10]);
+        expect(input.element.value).toBe('10');
+
+        // clear input
+        await input.setValue('');
+
+        const inputChangeEvt = wrapper.emitted('input-change');
+        expect(inputChangeEvt[inputChangeEvt.length - 1]).toEqual([0]);
+    });
+
+    it('should emit input change event with NaN when allowEmpty is true and user deletes everything', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({ allowEmpty: true });
+
+        const input = wrapper.find('input');
+
+        // type "5"
+        await input.setValue('5');
+        await input.trigger('change');
+
+        // expect 5
+        expect(wrapper.emitted('change')[0]).toEqual([5]);
+        expect(input.element.value).toBe('5');
+
+        // clear input
+        await input.setValue('');
+
+        const inputChangeEvt = wrapper.emitted('input-change');
+        expect(inputChangeEvt[inputChangeEvt.length - 1]).toEqual([NaN]);
+    });
+
     it('should fill digits when appropriate', async () => {
         const wrapper = await createWrapper({ propsData: { fillDigits: true } });
 

@@ -131,6 +131,12 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.gross).toBeNull();
     });
 
+    it('should set gross value null when the net value is null and allow empty is true', async () => {
+        const wrapper = await setup({ allowEmpty: true });
+        wrapper.vm.convertNetToGross(null);
+        expect(wrapper.vm.priceForCurrency.gross).toBeNull();
+    });
+
     it('should set gross value 0 when the net value is not a number and allow empty is false', async () => {
         const wrapper = await setup({ allowEmpty: false });
         wrapper.vm.convertNetToGross(parseFloat(''));
@@ -140,6 +146,12 @@ describe('components/form/sw-price-field', () => {
     it('should set net value null when the gross value is not a number and allow empty is true', async () => {
         const wrapper = await setup({ allowEmpty: true });
         wrapper.vm.convertGrossToNet(parseFloat(''));
+        expect(wrapper.vm.priceForCurrency.net).toBeNull();
+    });
+
+    it('should set net value null when the gross value is null and allow empty is true', async () => {
+        const wrapper = await setup({ allowEmpty: true });
+        wrapper.vm.convertGrossToNet(null);
         expect(wrapper.vm.priceForCurrency.net).toBeNull();
     });
 

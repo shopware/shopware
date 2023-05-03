@@ -135,7 +135,7 @@ class RecoveryManagerTest extends TestCase
     {
         $fs->mkdir($tmpDir);
 
-        $_SERVER['SCRIPT_FILENAME'] = $tmpDir . '/shopware-installer.phar.php';
+        $_SERVER['SCRIPT_FILENAME'] = $tmpDir . '/public/shopware-installer.phar.php';
 
         $fs->dumpFile($tmpDir . '/composer.json', json_encode([
             'require' => [

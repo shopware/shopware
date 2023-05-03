@@ -341,6 +341,10 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-26081 - Fix entity mapping service](/changelog/release-6-5-0-0/2023-04-05-fix-entity-mapping-service.md)
 *  [NEXT-26111 - Frontend cart access](/changelog/release-6-5-0-0/2023-04-05-frontend-cart-access.md)
 *  [NEXT-26049 - Document can not be send](/changelog/release-6-5-0-0/2023-04-06-document-can-not-be-send.md)
+*  [NEXT-26140 - Improve twig security extension](/changelog/release-6-5-0-1/2023-04-11-improve-twig-security-extension.md)
+*  [NEXT-26164 - Fix JWT key generation](/changelog/release-6-5-0-1/2023-04-12-fix-jwt-key-generation.md)
+*  [NEXT-26073 - Allow snippet value to include bootstrap 5 data attributes](/changelog/release-6-5-0-1/2023-04-14-allow-snippet-value-to-include-bootstrap-5-data-attributes.md)
+*  [NEXT-26255 - Refresh plugins in management service](/changelog/release-6-5-0-1/2023-04-20-refresh-plugins-in-management-service.md)
 
 ## 6.4.20.0 
 *  [NEXT-24983 - Make user activity tab overarching](/changelog/release-6-4-20-0/2023-01-30-make-user-activity-tab-overarching.md)

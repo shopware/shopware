@@ -18,6 +18,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
 #[Package('core')]
 class ApiHook extends Hook implements StoppableHook
@@ -29,6 +31,9 @@ class ApiHook extends Hook implements StoppableHook
 
     public function __construct(
         private readonly string $name,
+        /**
+         * @var array<string, mixed>
+         */
         private readonly array $request,
         Context $context
     ) {
@@ -40,6 +45,9 @@ class ApiHook extends Hook implements StoppableHook
         return $this->name;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRequest(): array
     {
         return $this->request;

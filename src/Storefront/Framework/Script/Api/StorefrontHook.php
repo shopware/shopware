@@ -23,6 +23,8 @@ use Shopware\Storefront\Page\Page;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
 #[Package('core')]
 class StorefrontHook extends Hook implements SalesChannelContextAware, StoppableHook

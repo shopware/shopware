@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
 #[Package('core')]
 class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
@@ -31,18 +33,30 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 
     public function __construct(
         private readonly string $script,
+        /**
+         * @var array<string, mixed>
+         */
         private readonly array $request,
+        /**
+         * @var array<string, mixed>
+         */
         private readonly array $query,
         private readonly SalesChannelContext $salesChannelContext
     ) {
         parent::__construct($salesChannelContext->getContext());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRequest(): array
     {
         return $this->request;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getQuery(): array
     {
         return $this->query;

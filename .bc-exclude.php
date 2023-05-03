@@ -51,5 +51,12 @@ return [
         'Hook::getDeprecatedServices\\(\\)',
         'Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook#__construct\\(\\) (was removed|was marked "@internal")',
         'Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook#getName\\(\\) (was removed|was marked "@internal")',
+
+        // internal visibility fixes based on parent classes
+        'Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Field\\\\.* was marked "@internal"',
+        'Shopware\\\\Storefront\\\\Page\\\\PageLoadedHook was marked "@internal"',
+        'Shopware\\\\Storefront\\\\Framework\\\\App\\\\Template\\\\IconTemplateLoader was marked "@internal"',
+        'Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiRequestHook was marked "@internal"',
+        'Shopware\\\\Core\\\\Content\\\\Seo\\\\Entity\\\\Dbal\\\\SeoUrlAssociationFieldResolver was marked "@internal"',
     ],
 ];

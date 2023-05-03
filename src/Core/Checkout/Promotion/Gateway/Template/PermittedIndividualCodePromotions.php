@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
 #[Package('checkout')]
 class PermittedIndividualCodePromotions extends MultiFilter
 {
@@ -14,6 +17,8 @@ class PermittedIndividualCodePromotions extends MultiFilter
      * Gets a criteria for all permitted promotions of the provided
      * sales channel context, that do require an individual code
      * and have not yet been used in an order.
+     *
+     * @param list<string> $codes
      */
     public function __construct(
         array $codes,

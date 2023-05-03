@@ -16,6 +16,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @hook-use-case cart_manipulation
  *
  * @since 6.4.8.0
+ *
+ * @final
  */
 #[Package('checkout')]
 class CartHook extends Hook implements CartAware

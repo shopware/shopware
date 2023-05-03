@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
 #[Package('checkout')]
 class ActiveDateRange extends MultiFilter
 {

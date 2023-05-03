@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final
+ * @internal only rely on the concrete hook implementations
  */
 #[Package('core')]
 abstract class Hook

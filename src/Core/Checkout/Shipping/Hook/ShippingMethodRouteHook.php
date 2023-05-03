@@ -14,6 +14,8 @@ use Shopware\Core\System\SalesChannel\StoreApiRequestHook;
  * @hook-use-case data_loading
  *
  * @since 6.5.0.0
+ *
+ * @final
  */
 #[Package('checkout')]
 class ShippingMethodRouteHook extends StoreApiRequestHook

@@ -97,7 +97,7 @@ class InternalClassRule implements Rule
         }
 
         if ($this->isEventSubscriber($node) && !$this->isFinal($node->getClassReflection(), $doc) && !\in_array($class, self::SUBSCRIBER_EXCEPTIONS, true)) {
-            return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
+            return ['Event subscribers must be flagged @internal or @final to not be captured by the BC checker.'];
         }
 
         if ($namespace = $this->isInInternalNamespace($node)) {
@@ -116,8 +116,8 @@ class InternalClassRule implements Rule
             return ['MessageHandlers must be flagged @internal to not be captured by the BC checker.'];
         }
 
-        if ($this->isParentInternalAndAbstract($scope)) {
-            return ['Classes that extend an @internal abstract class must be flagged @internal to not be captured by the BC checker.'];
+        if ($this->isParentInternalAndAbstract($scope) && !$this->isFinal($node->getClassReflection(), $doc)) {
+            return ['Classes that extend an @internal abstract class must be flagged @internal or @final to not be captured by the BC checker.'];
         }
 
         return [];

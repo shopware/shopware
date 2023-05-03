@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
+/**
+ * @internal only rely on the concrete implementations
+ */
 #[Package('storefront')]
 abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
 {

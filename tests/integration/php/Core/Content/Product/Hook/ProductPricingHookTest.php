@@ -125,6 +125,8 @@ class ProductPricingHookTest extends TestCase
 
 /**
  * @internal
+ *
+ * @phpstan-ignore-next-line
  */
 class ProductPricingHookExtension extends ProductPricingHook
 {

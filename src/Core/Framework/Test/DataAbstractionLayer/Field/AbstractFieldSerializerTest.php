@@ -75,6 +75,9 @@ namespace TestSerializer {
     use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
     use Symfony\Component\Validator\Constraints\NotBlank;
 
+    /**
+     * @internal
+     */
     class TestFieldSerializer extends AbstractFieldSerializer
     {
         public int $getConstraintsCallCounter = 0;

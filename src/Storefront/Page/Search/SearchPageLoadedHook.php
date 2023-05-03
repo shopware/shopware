@@ -13,6 +13,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0
+ *
+ * @final
  */
 #[Package('system-settings')]
 class SearchPageLoadedHook extends PageLoadedHook

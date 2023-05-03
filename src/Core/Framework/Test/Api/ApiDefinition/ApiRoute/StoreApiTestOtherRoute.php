@@ -10,6 +10,9 @@ use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @internal
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
 {

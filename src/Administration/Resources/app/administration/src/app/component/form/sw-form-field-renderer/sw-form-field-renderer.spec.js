@@ -79,4 +79,18 @@ describe('components/form/sw-form-field-renderer', () => {
 
         expect(wrapper.props().error).toBeInstanceOf(ShopwareError);
     });
+
+    it('should has props error', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                config: { name: 'field2', type: 'text', config: { label: 'field2Label' } },
+                value: 'data value',
+                error: new ShopwareError({ code: 'dummyCode' }),
+            },
+        });
+
+        const fieldRenderer = wrapper.find('.sw-form-field-renderer');
+
+        expect(fieldRenderer.attributes('error')).toBeTruthy();
+    });
 });

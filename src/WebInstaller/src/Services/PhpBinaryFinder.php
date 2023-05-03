@@ -68,7 +68,7 @@ class PhpBinaryFinder
             $fileName = explode('-', basename(\PHP_BINARY), 2);
             $expectedPath = $phpPath . \DIRECTORY_SEPARATOR . $fileName[0];
 
-            if (file_exists($expectedPath) && $this->isPHPRunning($expectedPath)) {
+            if ($this->isPHPRunning($expectedPath)) {
                 return $expectedPath;
             }
         }
@@ -92,7 +92,7 @@ class PhpBinaryFinder
         foreach (self::PHP_KNOWN_LOCATIONS as $knownLocation) {
             $path = $this->getPhpVersionPath($knownLocation);
 
-            if (file_exists($path) && $this->isPHPRunning($path)) {
+            if ($this->isPHPRunning($path)) {
                 return $path;
             }
         }

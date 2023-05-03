@@ -368,8 +368,8 @@
             "@php bin/console e2e:dump-db"
         ],
         "e2e:web-update:start": [
-            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.0.0-rc1",
-            "@putenv SW_RECOVERY_NEXT_BRANCH=6.5.0.0-rc1",
+            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.0.0",
+            "@putenv SW_RECOVERY_NEXT_BRANCH=6.5.0.0",
             "@putenv CYPRESS_SKIP_INIT=1",
             "symfony local:server:stop --dir=shop",
             "symfony local:server:stop --dir=tests/e2e/update-api-mock",
@@ -510,5 +510,5 @@
             "Shopware\\Tests\\Migration\\": "tests/migration/"
         }
     },
-    "version": "6.5.0.0-rc4"
+    "version": "6.5.0.0"
 }

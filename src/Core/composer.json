@@ -162,5 +162,5 @@
             "symfony/runtime": true
         }
     },
-    "version": "6.5.0.0-rc4"
+    "version": "6.5.0.0"
 }

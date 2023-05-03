@@ -23,6 +23,7 @@ class Migration1679584289AddCustomerReviewCount extends MigrationStep
             $connection->executeStatement('ALTER TABLE `customer` ADD COLUMN review_count INT DEFAULT 0;');
         }
 
+        $offset = 0;
         do {
             $result = $connection->executeStatement('
                 UPDATE `customer`
@@ -31,11 +32,12 @@ class Migration1679584289AddCustomerReviewCount extends MigrationStep
                     COUNT(`product_review`.id) as review_count
                     FROM `product_review`
                     GROUP BY `product_review`.customer_id
-                    ) as meta_data
-                    ON `meta_data`.customer_id = `customer`.id
-                    SET `customer`.review_count = `meta_data`.review_count
-                LIMIT 1000
-            ');
+                    LIMIT 1000
+                    OFFSET :offset
+                ) AS meta_data ON `meta_data`.customer_id = `customer`.id
+                SET `customer`.review_count = `meta_data`.review_count
+            ', ['offset' => $offset], ['offset' => \PDO::PARAM_INT]);
+            $offset += 1000;
         } while ($result > 0);
     }
 

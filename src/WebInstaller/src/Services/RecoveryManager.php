@@ -40,21 +40,15 @@ class RecoveryManager
     {
         $projectDir = $this->getProjectDir();
 
-        $composerLookups = [
-            \dirname($projectDir) . '/composer.lock',
-            $projectDir . '/composer.lock',
-            $projectDir . '/shopware/composer.lock',
-        ];
+        $composerLookup = \dirname($projectDir) . '/composer.lock';
 
-        foreach ($composerLookups as $composerLookup) {
-            if (file_exists($composerLookup)) {
-                /** @var array{packages: array{name: string, version: string}[]} $composerJson */
-                $composerJson = json_decode((string) file_get_contents($composerLookup), true, \JSON_THROW_ON_ERROR);
+        if (file_exists($composerLookup)) {
+            /** @var array{packages: array{name: string, version: string}[]} $composerJson */
+            $composerJson = json_decode((string) file_get_contents($composerLookup), true, \JSON_THROW_ON_ERROR);
 
-                foreach ($composerJson['packages'] as $package) {
-                    if ($package['name'] === 'shopware/core' || $package['name'] === 'shopware/platform') {
-                        return \dirname($composerLookup);
-                    }
+            foreach ($composerJson['packages'] as $package) {
+                if ($package['name'] === 'shopware/core' || $package['name'] === 'shopware/platform') {
+                    return \dirname($composerLookup);
                 }
             }
         }

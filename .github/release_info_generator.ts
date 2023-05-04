@@ -1,4 +1,7 @@
-import * as marked from "npm:marked";
+import { marked } from "npm:marked";
+import { baseUrl } from "npm:marked-base-url";
+
+marked.use(baseUrl('https://github.com/shopware/platform/blob/trunk/changelog'));
 
 marked.setOptions({
     gfm: true,

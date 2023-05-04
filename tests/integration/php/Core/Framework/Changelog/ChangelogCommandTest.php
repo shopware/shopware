@@ -115,7 +115,7 @@ class ChangelogCommandTest extends TestCase
                 [
                     __DIR__ . '/_fixture/stage/command-valid/CHANGELOG.md' => [
                         '## 12.13.14.15',
-                        '*  [NEXT-1111 - _TITLE_](/changelog/release-12-13-14-15/1977-12-10-a-full-change.md) ([_AUTHOR_](https://github.com/_GITHUB_))',
+                        '*  [NEXT-1111 - _TITLE_](./changelog/release-12-13-14-15/1977-12-10-a-full-change.md) ([_AUTHOR_](https://github.com/_GITHUB_))',
                     ],
                     __DIR__ . '/_fixture/stage/command-valid/UPGRADE-12.13.md' => [
                         '# 12.13.14.15',
@@ -138,7 +138,7 @@ class ChangelogCommandTest extends TestCase
                     __DIR__ . '/_fixture/stage/command-valid-minor-update/CHANGELOG.md' => [
                         '## 12.13.14.15',
                         '## 12.13.15.0',
-                        '*  [_ISSUE_ - _TITLE_](/changelog/release-12-13-14-15/1977-12-10-a-full-change.md) ([_AUTHOR_](https://github.com/_GITHUB_))',
+                        '*  [_ISSUE_ - _TITLE_](./changelog/release-12-13-14-15/1977-12-10-a-full-change.md) ([_AUTHOR_](https://github.com/_GITHUB_))',
                     ],
                     __DIR__ . '/_fixture/stage/command-valid-minor-update/UPGRADE-12.13.md' => [
                         '# 12.13.14.15',

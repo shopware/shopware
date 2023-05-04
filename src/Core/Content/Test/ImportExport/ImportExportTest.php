@@ -50,6 +50,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityC
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -152,6 +153,15 @@ class ImportExportTest extends AbstractImportExportTestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($product);
+    }
+    
+    public function testMediaWithEncodedUrl(): void
+    {
+        $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
+        $progress = $this->import(Context::createDefaultContext(), MediaDefinition::ENTITY_NAME, $fixturesPath, 'media_encoded_url.csv', null, false, true);
+    
+        static::assertTrue($progress->isFinished());
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
     }
 
     public function testCategory(): void

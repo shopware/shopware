@@ -2,17 +2,37 @@
  * @package admin
  */
 
-const { Mixin } = Shopware;
-const types = Shopware.Utils.types;
-const { debug } = Shopware.Utils;
+/* @private */
+import type { Dictionary } from 'vue-router/types/router';
+import type { RawLocation } from 'vue-router';
+import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+
+/* @private */
+export {};
+
+/* Mixin uses many untyped dependencies */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Mixin.register('listing', {
+Shopware.Mixin.register('listing', {
     inject: ['searchRankingService', 'feature'],
 
-    data() {
+    data(): {
+        page: number,
+        limit: number,
+        total: number,
+        sortBy: string|null,
+        sortDirection: string,
+        naturalSorting: boolean,
+        selection: Record<string, any>,
+        term: string|undefined,
+        disableRouteParams: boolean,
+        searchConfigEntity: string|null,
+        entitySearchable: boolean,
+        freshSearchTerm: boolean,
+        } {
         return {
             page: 1,
             limit: 25,
@@ -46,7 +66,9 @@ Mixin.register('listing', {
             return this.selectionArray.length;
         },
 
-        filters() {
+        filters(): {
+            active: boolean,
+        }[] {
             // You can create your custom filters by defining the computed property "filters"
             return [];
         },
@@ -70,10 +92,10 @@ Mixin.register('listing', {
             return;
         }
 
-        const actualQueryParameters = this.$route.query;
+        const actualQueryParameters: Dictionary<(string|null)[]|string|boolean> = this.$route.query;
 
         // When no route information are provided
-        if (types.isEmpty(actualQueryParameters)) {
+        if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
             this.resetListing();
         } else {
             // When we get the parameters on the route, true and false will be a string so we should convert to boolean
@@ -100,7 +122,7 @@ Mixin.register('listing', {
 
             const query = this.$route.query;
 
-            if (types.isEmpty(query)) {
+            if (Shopware.Utils.types.isEmpty(query)) {
                 this.resetListing();
             }
 
@@ -108,6 +130,7 @@ Mixin.register('listing', {
             this.updateData(query);
 
             if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
+                // @ts-expect-error - filterCriteria is defined in base component
                 this.filterCriteria = [];
                 return;
             }
@@ -136,16 +159,30 @@ Mixin.register('listing', {
     },
 
     methods: {
-        updateData(customData) {
-            this.page = parseInt(customData.page, 10) || this.page;
-            this.limit = parseInt(customData.limit, 10) || this.limit;
-            this.term = customData.term || this.term;
+        updateData(customData: {
+            page?: number,
+            limit?: number,
+            term?: string,
+            sortBy?: string,
+            sortDirection?: string,
+            naturalSorting?: boolean,
+        }) {
+            this.page = parseInt(customData.page as unknown as string, 10) || this.page;
+            this.limit = parseInt(customData.limit as unknown as string, 10) || this.limit;
+            this.term = customData.term ?? this.term;
             this.sortBy = customData.sortBy || this.sortBy;
             this.sortDirection = customData.sortDirection || this.sortDirection;
             this.naturalSorting = customData.naturalSorting || this.naturalSorting;
         },
 
-        updateRoute(customQuery, queryExtension = {}) {
+        updateRoute(customQuery: {
+            limit?: number,
+            page?: number,
+            term?: string,
+            sortBy?: string,
+            sortDirection?: string,
+            naturalSorting?: boolean,
+        }, queryExtension = {}) {
             // Get actual query parameter
             const query = customQuery || this.$route.query;
             const routeQuery = this.$route.query;
@@ -166,15 +203,16 @@ Mixin.register('listing', {
             };
 
             // If query is empty then replace route, otherwise push
-            if (types.isEmpty(routeQuery)) {
-                this.$router.replace(route);
+            if (Shopware.Utils.types.isEmpty(routeQuery)) {
+                void this.$router.replace(route as unknown as RawLocation);
             } else {
-                this.$router.push(route);
+                void this.$router.push(route as unknown as RawLocation);
             }
         },
 
         resetListing() {
             this.updateRoute({
+                // @ts-expect-error
                 name: this.$route.name,
                 query: {
                     limit: this.limit,
@@ -211,11 +249,14 @@ Mixin.register('listing', {
             };
         },
 
-        updateSelection(selection) {
+        updateSelection(selection: Record<string, any>) {
             this.selection = selection;
         },
 
-        onPageChange(opts) {
+        onPageChange(opts: {
+            page: number,
+            limit: number,
+        }) {
             this.page = opts.page;
             this.limit = opts.limit;
             if (this.disableRouteParams) {
@@ -227,10 +268,7 @@ Mixin.register('listing', {
             });
         },
 
-        onSearch(value) {
-            if (value.length === 0) {
-                value = undefined;
-            }
+        onSearch(value: string|undefined) {
             this.term = value;
 
             if (this.disableRouteParams) {
@@ -245,13 +283,16 @@ Mixin.register('listing', {
             });
         },
 
-        onSwitchFilter(filter, filterIndex) {
+        onSwitchFilter(filter: any, filterIndex: number) {
             this.filters[filterIndex].active = !this.filters[filterIndex].active;
 
             this.page = 1;
         },
 
-        onSort({ sortBy, sortDirection }) {
+        onSort({ sortBy, sortDirection }: {
+            sortBy: string,
+            sortDirection: string,
+        }) {
             if (this.disableRouteParams) {
                 this.updateData({
                     sortBy,
@@ -267,7 +308,10 @@ Mixin.register('listing', {
             this.getList();
         },
 
-        onSortColumn(column) {
+        onSortColumn(column: {
+            dataIndex: string,
+            naturalSorting: boolean,
+        }) {
             if (this.disableRouteParams) {
                 if (this.sortBy === column.dataIndex) {
                     this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
@@ -298,22 +342,23 @@ Mixin.register('listing', {
         },
 
         getList() {
-            debug.warn(
+            Shopware.Utils.debug.warn(
                 'Listing Mixin',
                 'When using the listing mixin you have to implement your custom "getList()" method.',
             );
         },
 
-        isValidTerm(term) {
+        isValidTerm(term: string) {
             return term && term.trim().length > 1;
         },
 
-        async addQueryScores(term, originalCriteria) {
+        async addQueryScores(term: string, originalCriteria: Criteria) {
             this.entitySearchable = true;
             if (!this.searchConfigEntity || !this.isValidTerm(term)) {
                 return originalCriteria;
             }
             const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
                 this.entitySearchable = false;
                 return originalCriteria;

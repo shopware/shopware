@@ -2,25 +2,27 @@
  * @package admin
  */
 
-const { Mixin } = Shopware;
-const types = Shopware.Utils.types;
+/* @private */
+export {};
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Mixin.register('sw-inline-snippet', {
+Shopware.Mixin.register('sw-inline-snippet', {
     computed: {
-        swInlineSnippetLocale() {
-            return Shopware.State.get('session').currentLocale;
+        swInlineSnippetLocale(): string {
+            return Shopware.State.get('session').currentLocale as unknown as string;
         },
-        swInlineSnippetFallbackLocale() {
-            return Shopware.Context.app.fallbackLocale;
+        swInlineSnippetFallbackLocale(): string {
+            return Shopware.Context.app.fallbackLocale as unknown as string;
         },
     },
 
     methods: {
-        getInlineSnippet(value) {
-            if (types.isEmpty(value)) {
+        getInlineSnippet(value: {
+            [key: string]: string;
+        }) {
+            if (Shopware.Utils.types.isEmpty(value)) {
                 return '';
             }
             if (value[this.swInlineSnippetLocale]) {
@@ -29,7 +31,7 @@ Mixin.register('sw-inline-snippet', {
             if (value[this.swInlineSnippetFallbackLocale]) {
                 return value[this.swInlineSnippetFallbackLocale];
             }
-            if (types.isObject(value)) {
+            if (Shopware.Utils.types.isObject(value)) {
                 const locale = Object.keys(value).find((key) => {
                     return value[key] !== '';
                 });

@@ -2,12 +2,13 @@
  * @package admin
  */
 
-const { Mixin } = Shopware;
+/* @private */
+export {};
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Mixin.register('ruleContainer', {
+Shopware.Mixin.register('ruleContainer', {
     inject: [
         'conditionDataProviderService',
         'createCondition',
@@ -42,7 +43,11 @@ Mixin.register('ruleContainer', {
 
     computed: {
         containerRowClass() {
-            const classes = {
+            const classes: {
+                'is--disabled': boolean;
+                'container-condition-level__is--odd'?: boolean;
+                'container-condition-level__is--even'?: boolean;
+            } = {
                 'is--disabled': this.disabled,
             };
 
@@ -54,7 +59,11 @@ Mixin.register('ruleContainer', {
         },
 
         nextPosition() {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
                 return this.condition[this.childAssociationField].length;
             }
             return 0;
@@ -64,6 +73,8 @@ Mixin.register('ruleContainer', {
     watch: {
         nextPosition() {
             if (this.nextPosition === 0) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.onAddPlaceholder();
             }
         },

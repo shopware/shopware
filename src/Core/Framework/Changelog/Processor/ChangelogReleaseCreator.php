@@ -85,7 +85,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         foreach ($collection as $changelog) {
             $log = sprintf(
-                '*  [%s - %s](/changelog/%s)',
+                '*  [%s - %s](./changelog/%s)',
                 $changelog->getDefinition()->getIssue(),
                 $changelog->getDefinition()->getTitle(),
                 $releaseDir . '/' . $changelog->getName()

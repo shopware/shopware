@@ -35,5 +35,5 @@
         "symfony/routing": "~5.4.0",
         "symfony/mime": "~5.4.0"
     },
-    "version": "6.4.20.1"
+    "version": "6.4.20.2"
 }

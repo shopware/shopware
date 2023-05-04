@@ -35,6 +35,7 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -152,6 +153,15 @@ class ImportExportTest extends AbstractImportExportTestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($product);
+    }
+
+    public function testMediaWithEncodedUrl(): void
+    {
+        $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
+        $progress = $this->import(Context::createDefaultContext(), MediaDefinition::ENTITY_NAME, $fixturesPath, 'media_encoded_url.csv', null, false, true);
+
+        static::assertTrue($progress->isFinished());
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
     }
 
     public function testCategory(): void

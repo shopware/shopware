@@ -14,14 +14,17 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Twig\Environment;
 
 #[Package('storefront')]
@@ -192,8 +195,8 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getMainRequest();
         $exists = [];
 
-        if ($request && $request->hasSession() && method_exists($session = $request->getSession(), 'getFlashBag')) {
-            $exists = $session->getFlashBag()->peekAll();
+        if ($request && $request->hasSession() && $request->getSession() instanceof FlashBagAwareSessionInterface) {
+            $exists = $request->getSession()->getFlashBag()->peekAll();
         }
 
         $flat = [];
@@ -226,6 +229,17 @@ abstract class StorefrontController extends AbstractController
                 $this->addFlash($type, $message);
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
+    {
+        $event = new StorefrontRedirectEvent($route, $parameters, $status);
+        $this->container->get('event_dispatcher')->dispatch($event);
+
+        return parent::redirectToRoute($event->getRoute(), $event->getParameters(), $event->getStatus());
     }
 
     /**

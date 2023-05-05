@@ -22,7 +22,7 @@
 </p>
 
 
-Shopware 6 is an open headless commerce platform powered by [Symfony 5.4](https://symfony.com) and [Vue.js 2.6](https://vuejs.org) that is used by thousands of shops and supported by a huge worldwide community of developers, agencies and merchants.
+Shopware 6 is an open headless commerce platform powered by [Symfony 6.2](https://symfony.com) and [Vue.js 2.6](https://vuejs.org) that is used by thousands of shops and supported by a huge worldwide community of developers, agencies and merchants.
 
 If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
 
@@ -49,7 +49,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
 - [Repository structure](#shopware-6-repository-structure)
 - [Installation](#quickstart--installation)
 - [Roadmap](#roadmap)
-- [Community](#community)
+- [Community](#our-community-is-our-strongest-asset)
 - [Ecosystem](#ecosystem)
 - [Contribution](#contribution)
 - [License](#license)
@@ -135,8 +135,8 @@ Adapt fast and test various business models on-time: Digital events, subscriptio
 ## Under the hood
 
 
-The build-in **Shopware 6 Storefront** is based on [Twig](https://twig.symfony.com/doc/2.x/templates.html)
-and [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/).
+The build-in **Shopware 6 Storefront** is based on [Twig](https://twig.symfony.com/doc/3.x/templates.html)
+and [Bootstrap](https://getbootstrap.com/docs/5.2/getting-started/introduction/).
 Two well known and easy to learn frameworks, making the creation of templates a breeze and bringing many advantages for merchants & developers:
 
 * Lightweight and fast storefront

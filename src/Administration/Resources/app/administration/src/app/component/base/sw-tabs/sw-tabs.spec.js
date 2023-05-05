@@ -51,6 +51,10 @@ async function mountSwTabs(routes) {
 }
 
 describe('sw-tabs', () => {
+    beforeEach(() => {
+        jest.spyOn(global, 'requestAnimationFrame').mockImplementation(cb => cb());
+    });
+
     it('renders active tab correctly with sub routes', async () => {
         const routes = [{
             name: 'first.route',
@@ -155,6 +159,34 @@ describe('sw-tabs', () => {
         slider = wrapper.find('.sw-tabs__slider');
         expect(slider.classes()).toContain('has--error');
 
+        wrapper.destroy();
+    });
+
+    it('should register the scrollEventHandler and mutationObserver at mounted', async () => {
+        const routes = [{
+            name: 'first.route',
+            path: '/route/first',
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+        await flushPromises();
+
+        // can't test eventhandler in DOM so we need to access it directly
+        expect(wrapper.vm.$children[0].scrollEventHandler).toBeDefined();
+        expect(wrapper.vm.$children[0].tabContentMutationObserver).toBeDefined();
+
+        wrapper.destroy();
+    });
+
+    it('should call the requestAnimationFrame method on mutation change (directly at start)', async () => {
+        const routes = [{
+            name: 'first.route',
+            path: '/route/first',
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+
+        expect(global.requestAnimationFrame).toHaveBeenCalled();
         wrapper.destroy();
     });
 });

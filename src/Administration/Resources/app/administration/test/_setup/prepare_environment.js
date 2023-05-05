@@ -86,6 +86,7 @@ config.mocks = {
     $sanitize: key => key,
     $device: {
         onResize: jest.fn(),
+        removeResizeListener: jest.fn(),
         getSystemKey: jest.fn(() => 'CTRL'),
         getViewportWidth: jest.fn(() => 1920),
     },

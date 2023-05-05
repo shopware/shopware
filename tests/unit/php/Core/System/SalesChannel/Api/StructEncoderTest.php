@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
@@ -128,6 +130,30 @@ class StructEncoderTest extends TestCase
         static::assertArrayHasKey('score', $encoded['extensions']['search']);
         static::assertArrayHasKey('exposedFk', $encoded['extensions']['foreignKeys']);
         static::assertArrayNotHasKey('notExposedFk', $encoded['extensions']['foreignKeys']);
+    }
+
+    public function testPayloadProtection(): void
+    {
+        $cart = new Cart('test');
+
+        $item = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE, 'test');
+
+        $item->setPayload(['foo' => 'bar', 'bar' => 'foo'], ['foo' => false, 'bar' => true]);
+
+        $cart->add($item);
+
+        $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
+
+        $encoded = (new StructEncoder($this->createMock(DefinitionRegistryChain::class), $serializer))
+            ->encode($cart, new ResponseFields(null));
+
+        static::assertIsArray($encoded);
+        static::assertArrayHasKey('lineItems', $encoded);
+        static::assertArrayHasKey(0, $encoded['lineItems']);
+        static::assertArrayHasKey('payload', $encoded['lineItems'][0]);
+        static::assertIsArray($encoded['lineItems'][0]['payload']);
+        static::assertArrayHasKey('foo', $encoded['lineItems'][0]['payload']);
+        static::assertArrayNotHasKey('bar', $encoded['lineItems'][0]['payload']);
     }
 
     private function getChainRegistry(StaticDefinitionInstanceRegistry $registry): DefinitionRegistryChain

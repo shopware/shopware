@@ -9,10 +9,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @phpstan-ignore-next-line
  */
 #[Package('checkout')]
 class ContainerItem extends LineItem
 {
+    /**
+     * @param array<LineItem> $items
+     */
     public function __construct(array $items = [])
     {
         parent::__construct(Uuid::randomHex(), LineItem::CONTAINER_LINE_ITEM);

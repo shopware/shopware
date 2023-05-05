@@ -358,7 +358,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'stock' => $product->getStock(),
         ];
 
-        $lineItem->replacePayload($payload);
+        $lineItem->replacePayload($payload, ['purchasePrices' => true]);
     }
 
     private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition

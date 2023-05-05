@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @final LineItem class should not be extended because it is serialized into the storage and should not depend on individual implementations.
+ */
 #[Package('checkout')]
 class LineItem extends Struct
 {
@@ -79,6 +82,11 @@ class LineItem extends Struct
     protected array $states = [];
 
     protected bool $modifiedByApp = false;
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $payloadProtection = [];
 
     /**
      * @throws CartException
@@ -225,31 +233,50 @@ class LineItem extends Struct
             throw CartException::payloadKeyNotFound($key, $this->getId());
         }
         unset($this->payload[$key]);
+        unset($this->payloadProtection[$key]);
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protected will be added in v6.6.0
+     *
      * @param mixed|null $value
      *
      * @throws CartException
      */
-    public function setPayloadValue(string $key, $value): self
+    public function setPayloadValue(string $key, $value/*, ?bool $protected = null*/): self
     {
+        $protected = false;
+        if (\func_num_args() === 3) {
+            $protected = func_get_arg(2);
+        }
+
         if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
             throw CartException::invalidPayload($key, $this->getId());
         }
 
         $this->payload[$key] = $value;
 
+        if ($protected !== null) {
+            $this->addPayloadProtection([$key => $protected]);
+        }
+
         return $this;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     *
      * @param array<string, mixed> $payload
      *
      * @throws CartException
      */
-    public function setPayload(array $payload): self
+    public function setPayload(array $payload/*, array $protection = []*/): self
     {
+        $protection = [];
+        if (\func_num_args() === 2) {
+            $protection = func_get_arg(1);
+        }
+
         foreach ($payload as $key => $value) {
             if (\is_string($key)) {
                 $this->setPayloadValue($key, $value);
@@ -260,17 +287,34 @@ class LineItem extends Struct
             throw CartException::invalidPayload((string) $key, $this->getId());
         }
 
+        return $this->addPayloadProtection($protection);
+    }
+
+    /**
+     * @param array<string, bool> $protection
+     */
+    public function addPayloadProtection(array $protection): self
+    {
+        $this->payloadProtection = \array_replace($this->payloadProtection, $protection);
+
         return $this;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     *
      * @param array<string, mixed> $payload
      */
-    public function replacePayload(array $payload): self
+    public function replacePayload(array $payload/*, array $protection = []*/): self
     {
-        $this->payload = array_replace_recursive($this->payload, $payload);
+        $protection = [];
+        if (\func_num_args() === 2) {
+            $protection = func_get_arg(1);
+        }
 
-        return $this;
+        $this->payload = \array_replace_recursive($this->payload, $payload);
+
+        return $this->addPayloadProtection($protection);
     }
 
     public function getPriceDefinition(): ?PriceDefinitionInterface
@@ -517,6 +561,23 @@ class LineItem extends Struct
     public function isModifiedByApp(): bool
     {
         return $this->modifiedByApp;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        $payload = [];
+
+        foreach ($data['payload'] as $key => $value) {
+            if (isset($this->payloadProtection[$key]) && $this->payloadProtection[$key] === true) {
+                continue;
+            }
+            $payload[$key] = $value;
+        }
+        $data['payload'] = $payload;
+
+        return $data;
     }
 
     /**

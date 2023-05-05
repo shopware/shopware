@@ -3,12 +3,16 @@
         {% set redirectTo = 'frontend.checkout.cart.page' %}
     {% endif %}
 
+    {% if formAction is not defined %}
+        {% set formAction = path('frontend.checkout.line-item.delete', { 'id': lineItem.id } ) %}
+    {% endif %}
+
     {% block component_line_item_remove_form %}
         {% set loaderOptions = {
             skipLoadingIndicator: true
         } %}
 
-        <form action="{{ path('frontend.checkout.line-item.delete', { 'id': lineItem.id } ) }}"
+        <form action="{{ formAction }}"
               method="post"
               data-form-submit-loader="true"
               data-form-submit-loader-options="{{ loaderOptions|json_encode }}"
@@ -18,6 +22,9 @@
                 <input type="hidden"
                        name="redirectTo"
                        value="{{ redirectTo }}">
+                <input type="hidden"
+                       name="redirectParameters"
+                       value="{{ redirectParameters }}">
             {% endblock %}
 
             {% block component_line_item_remove_button %}

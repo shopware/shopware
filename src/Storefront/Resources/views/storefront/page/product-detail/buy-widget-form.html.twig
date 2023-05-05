@@ -1,3 +1,5 @@
+{% set formAction = path('frontend.checkout.line-item.add') %}
+
 {% block page_product_detail_buy_form_inner %}
     {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
 
@@ -6,7 +8,7 @@
 
     <form
         id="productDetailPageBuyProductForm"
-        action="{% block page_product_detail_buy_form_action %}{{ path('frontend.checkout.line-item.add') }}{% endblock %}"
+        action="{% block page_product_detail_buy_form_action %}{# @deprecated tag:v6.6.0 - block will be removed, overwrite `formAction` instead #}{{ formAction }}{% endblock %}"
         method="post"
         class="buy-widget"
         data-add-to-cart="true">

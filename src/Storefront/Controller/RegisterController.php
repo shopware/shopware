@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
@@ -72,6 +73,7 @@ class RegisterController extends StorefrontController
         }
 
         $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
+        $errorRoute = $request->attributes->get('_route');
 
         $page = $this->loginPageLoader->load($request, $context);
 
@@ -80,6 +82,7 @@ class RegisterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'errorRoute' => $errorRoute,
             'page' => $page,
             'data' => $data,
         ]);
@@ -120,6 +123,7 @@ class RegisterController extends StorefrontController
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
+        $errorRoute = $request->attributes->get('_route');
 
         if ($context->getCustomer()) {
             return $this->redirectToRoute($redirect);
@@ -135,7 +139,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/checkout/address/index.html.twig',
-            ['redirectTo' => $redirect, 'page' => $page, 'data' => $data]
+            ['redirectTo' => $redirect, 'errorRoute' => $errorRoute, 'page' => $page, 'data' => $data]
         );
     }
 
@@ -302,6 +306,7 @@ class RegisterController extends StorefrontController
         $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
         $criteria->setLimit(1);
 
+        /** @var SalesChannelDomainEntity|null $domain */
         $domain = $this->domainRepository
             ->search($criteria, $context->getContext())
             ->first();

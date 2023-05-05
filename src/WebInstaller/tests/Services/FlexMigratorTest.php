@@ -85,16 +85,78 @@ class FlexMigratorTest extends TestCase
         $fs->remove($tmpDir);
     }
 
-    public function testPatchComposerJson(): void
+    public static function composerCases(): \Generator
+    {
+        yield 'no repos' => [
+            [
+                'require' => [
+                    'shopware/recovery' => '4.4.*',
+                ],
+            ],
+        ];
+
+        yield 'repos empty' => [
+            [
+                'require' => [
+                    'shopware/recovery' => '4.4.*',
+                ],
+                'repositories' => [],
+            ],
+        ];
+
+        yield 'repos only one repo' => [
+            [
+                'require' => [
+                    'shopware/recovery' => '4.4.*',
+                ],
+                'repositories' => [
+                    [
+                        'type' => 'path',
+                        'url' => 'custom/plugins/*',
+                        'options' => [
+                            'symlink' => true,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'repos merged' => [
+            [
+                'require' => [
+                    'shopware/recovery' => '4.4.*',
+                ],
+                'repositories' => [
+                    [
+                        'type' => 'path',
+                        'url' => 'custom/plugins/*',
+                        'options' => [
+                            'symlink' => true,
+                        ],
+                    ],
+                    [
+                        'type' => 'path',
+                        'url' => 'custom/plugins/*/packages/*',
+                        'options' => [
+                            'symlink' => true,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<mixed> $composer
+     *
+     * @dataProvider composerCases
+     */
+    public function testPatchComposerJson(array $composer): void
     {
         $tmpDir = sys_get_temp_dir() . '/flex-migrator-test';
         $fs = new Filesystem();
         $fs->mkdir($tmpDir);
-        $fs->dumpFile($tmpDir . '/composer.json', json_encode([
-            'require' => [
-                'shopware/recovery' => '4.4.*',
-            ],
-        ], \JSON_THROW_ON_ERROR));
+        $fs->dumpFile($tmpDir . '/composer.json', json_encode($composer, \JSON_THROW_ON_ERROR));
 
         $flexMigrator = new FlexMigrator();
 
@@ -102,7 +164,7 @@ class FlexMigratorTest extends TestCase
 
         $composerJson = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true);
 
-        static::assertSame(
+        static::assertEquals(
             [
                 'require' => [
                     'symfony/flex' => '^2',
@@ -135,11 +197,23 @@ class FlexMigratorTest extends TestCase
                     ],
                 ],
                 'require-dev' => [
-                    'fakerphp/faker' => '^1.20',
-                    'maltyxx/images-generator' => '^1.0',
-                    'mbezhanov/faker-provider-collection' => '^2.0',
-                    'symfony/stopwatch' => '^5.0|^6.0',
-                    'symfony/web-profiler-bundle' => '^5.0|^6.0',
+                    'shopware/dev-tools' => '*',
+                ],
+                'repositories' => [
+                    [
+                        'type' => 'path',
+                        'url' => 'custom/plugins/*',
+                        'options' => [
+                            'symlink' => true,
+                        ],
+                    ],
+                    [
+                        'type' => 'path',
+                        'url' => 'custom/plugins/*/packages/*',
+                        'options' => [
+                            'symlink' => true,
+                        ],
+                    ],
                 ],
             ],
             $composerJson

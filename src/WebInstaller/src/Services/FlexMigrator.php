@@ -8,6 +8,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
+ *
+ * @phpstan-type ComposerRepository array{type: string, url: string, options: array{symlink: bool}}
  */
 #[Package('core')]
 class FlexMigrator
@@ -108,7 +110,7 @@ EOT;
     {
         $composerJsonPath = $projectDir . '/composer.json';
 
-        /** @var array{require: array<string, string>, config?: array{platform?: string, "allow-plugins": array<string, bool>}} $composerJson */
+        /** @var array{require: array<string, string>, config?: array{platform?: string, "allow-plugins": array<string, bool>, repositories?: ComposerRepository[]}} $composerJson */
         $composerJson = json_decode((string) file_get_contents($composerJsonPath), true, \JSON_THROW_ON_ERROR);
 
         $composerJson['require']['symfony/flex'] = '^2';
@@ -151,12 +153,14 @@ EOT;
         ];
 
         $composerJson['require-dev'] = [
-            'fakerphp/faker' => '^1.20',
-            'maltyxx/images-generator' => '^1.0',
-            'mbezhanov/faker-provider-collection' => '^2.0',
-            'symfony/stopwatch' => '^5.0|^6.0',
-            'symfony/web-profiler-bundle' => '^5.0|^6.0',
+            'shopware/dev-tools' => '*',
         ];
+
+        if (!isset($composerJson['repositories'])) {
+            $composerJson['repositories'] = [];
+        }
+
+        $composerJson['repositories'] = $this->addSymlinkRepository($composerJson['repositories']);
 
         file_put_contents($composerJsonPath, json_encode($composerJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
     }
@@ -180,5 +184,37 @@ EOT;
 
         rename($envPath, $envPath . '.local');
         file_put_contents($envPath, self::ENV_DEFAULT);
+    }
+
+    /**
+     * @param ComposerRepository[] $repositories
+     *
+     * @return ComposerRepository[]
+     */
+    private function addSymlinkRepository(array $repositories): array
+    {
+        $existingRepos = array_column($repositories, 'url');
+
+        if (!\in_array('custom/plugins/*', $existingRepos, true)) {
+            $repositories[] = [
+                'type' => 'path',
+                'url' => 'custom/plugins/*',
+                'options' => [
+                    'symlink' => true,
+                ],
+            ];
+        }
+
+        if (!\in_array('custom/plugins/*/packages/*', $existingRepos, true)) {
+            $repositories[] = [
+                'type' => 'path',
+                'url' => 'custom/plugins/*/packages/*',
+                'options' => [
+                    'symlink' => true,
+                ],
+            ];
+        }
+
+        return $repositories;
     }
 }

@@ -1559,5 +1559,8 @@
     },
     "and": "and",
     "or": "or"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI responses can be inaccurate or misleading."
   }
 }

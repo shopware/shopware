@@ -1559,5 +1559,8 @@
     },
     "and": "und",
     "or": "oder"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI-Antworten können ungenau oder irreführend sein."
   }
 }

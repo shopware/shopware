@@ -572,7 +572,15 @@ class ApplicationBootstrapper {
             plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         }
 
-        const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
+        // prioritize main swag-commercial plugin because other plugins depend on the license handling
+        if (plugins['swag-commercial']) {
+            await this.injectPlugin(plugins['swag-commercial']);
+        }
+
+        const injectAllPlugins = Object.entries(plugins).filter(([pluginName]) => {
+            // Filter the swag-commercial plugin because it was loaded beforehand
+            return pluginName !== 'swag-commercial';
+        }).map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

@@ -43,9 +43,11 @@ class DiscountPercentageCalculator
         // we dont need to check on the actual item count in there,
         // because our calculation does always go for the original cart items
         // without considering any previously applied discounts.
+        $affectedPrices = $packages->getAffectedPrices();
+
         $calculatedPrice = $this->percentagePriceCalculator->calculate(
             $definedPercentage,
-            $packages->getAffectedPrices(),
+            $affectedPrices,
             $context
         );
 
@@ -60,7 +62,7 @@ class DiscountPercentageCalculator
             if (abs($actualDiscountPrice) > abs($maxValue)) {
                 $calculatedPrice = $this->absolutePriceCalculator->calculate(
                     -abs($maxValue),
-                    $packages->getAffectedPrices(),
+                    $affectedPrices,
                     $context
                 );
 
@@ -68,7 +70,7 @@ class DiscountPercentageCalculator
                 // including their quantities that need to be discounted
                 // based on our discount definition.
                 // the basis might only be from a few items and quantities of the cart
-                $assessmentBasis = $packages->getAffectedPrices()->sum()->getTotalPrice();
+                $assessmentBasis = $affectedPrices->sum()->getTotalPrice();
 
                 // we have to get our new fictional and lower percentage.
                 // we now calculate the percentage with MAX VALUE against our basis

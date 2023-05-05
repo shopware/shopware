@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
@@ -34,23 +35,29 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 
         $discountValue = -abs($definition->getPrice());
 
+        $affectedPrices = $packages->getAffectedPrices();
+
         $price = $this->priceCalculator->calculate(
             $discountValue,
-            $packages->getAffectedPrices(),
+            $affectedPrices,
             $context
         );
 
         $composition = $this->getCompositionItems(
             $discountValue,
-            $packages
+            $packages,
+            $affectedPrices
         );
 
         return new DiscountCalculatorResult($price, $composition);
     }
 
-    private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages): array
+    /**
+     * @return DiscountCompositionItem[]
+     */
+    private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages, PriceCollection $affectedPrices): array
     {
-        $totalOriginalSum = $packages->getAffectedPrices()->sum()->getTotalPrice();
+        $totalOriginalSum = $affectedPrices->sum()->getTotalPrice();
 
         $items = [];
 

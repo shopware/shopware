@@ -54,7 +54,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
 
         $apiType = $this->definitionService->toApiType($apiType);
         if ($apiType === null) {
@@ -113,7 +113,7 @@ class InfoController extends AbstractController
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJson);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
         $response = $this->render(
             '@Framework/swagger.html.twig',
             [

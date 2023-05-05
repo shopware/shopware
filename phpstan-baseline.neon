@@ -11667,21 +11667,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/PromotionControllerTest.php
 
 		-
-			message: "#^Method ErrorResponseFactoryTest\\:\\:invalidUtf8SequencesProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/EventListener/ErrorResponseFactoryTest.php
-
-		-
-			message: "#^Method SimpleShopwareHttpException\\:\\:__construct\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/EventListener/ErrorResponseFactoryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 6
-			path: src/Core/Framework/Test/Api/EventListener/ErrorResponseFactoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\ResponseTypeRegistryTest\\:\\:assertDetailJsonApiStructure\\(\\) has parameter \\$content with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/ResponseTypeRegistryTest.php
@@ -12240,11 +12225,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Framework/Test/DataAbstractionLayer/EntityProtection/EntityProtectionValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\EntityTest\\:\\:apiAliasDefaultsDataProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityTest.php
 
 		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null\\.$#"
@@ -15192,16 +15172,6 @@ parameters:
 			path: src/Core/System/SystemConfig/Util/ConfigReader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader\\:\\:setOptionsToElementData\\(\\) has parameter \\$elementData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Util/ConfigReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader\\:\\:setOptionsToElementData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Util/ConfigReader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Tag\\\\Service\\\\FilterTagIdsService\\:\\:addAssignmentFilter\\(\\) has parameter \\$assignments with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Tag/Service/FilterTagIdsService.php
@@ -16475,11 +16445,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/SeoUrlTemplateRepositoryTest.php
-
-		-
-			message: "#^Method SlugifyExtensionTwigFilterTest\\:\\:sampleAnchorIdProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Twig/Extension/SlugifyExtensionTwigFilterTest.php
 
 		-
 			message: "#^Cannot access property \\$server on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"

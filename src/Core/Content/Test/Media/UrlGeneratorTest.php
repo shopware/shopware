@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media;
+namespace Shopware\Core\Content\Test\Media;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;

@@ -108,7 +108,7 @@ class ElasticsearchIndexer
         }
 
         // all definitions are indexed in current language, start again with next language
-        $offset->setNextLanguage();
+        $offset->selectNextLanguage();
         $offset->resetDefinitions();
         $offset->setLastId(null);
 
@@ -195,7 +195,7 @@ class ElasticsearchIndexer
         }
 
         // increment definition offset
-        $offset->setNextDefinition();
+        $offset->selectNextDefinition();
 
         // reset last id to start iterator at the beginning
         $offset->setLastId(null);

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Bench\Storefront\Cases;
+namespace Shopware\Tests\Bench\Storefront;
 
 use PhpBench\Attributes\AfterMethods;
 use PhpBench\Attributes as Bench;
@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal - only for performance benchmarks
  */
-class StorefrontSearchBench extends BenchCase
+class StorefrontSearchBench extends AbstractBenchCase
 {
     public function setUp(): void
     {

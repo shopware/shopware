@@ -19,10 +19,7 @@ class BreadcrumbIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
     private string $deLanguageId;
 
@@ -36,7 +33,7 @@ class BreadcrumbIndexerTest extends TestCase
 
     public function testBreadcrumbAfterCreate(): void
     {
-        $ids = $this->setUpData();
+        $ids = $this->getSetUpData();
 
         $context = new Context(
             new SystemSource(),
@@ -81,7 +78,7 @@ class BreadcrumbIndexerTest extends TestCase
 
     public function testUpdateTranslation(): void
     {
-        $ids = $this->setUpData();
+        $ids = $this->getSetUpData();
 
         $context = new Context(
             new SystemSource(),
@@ -151,7 +148,7 @@ class BreadcrumbIndexerTest extends TestCase
 
     public function testLanguageInheritance(): void
     {
-        $ids = $this->setUpData();
+        $ids = $this->getSetUpData();
 
         $context = new Context(
             new SystemSource(),
@@ -248,7 +245,7 @@ class BreadcrumbIndexerTest extends TestCase
         static::assertSame(['EN-A', 'DE-B', 'EN-C'], $c3->getBreadcrumb());
     }
 
-    private function setUpData(): SetUpData
+    private function getSetUpData(): SetUpData
     {
         $level1 = Uuid::randomHex();
         $level2 = Uuid::randomHex();

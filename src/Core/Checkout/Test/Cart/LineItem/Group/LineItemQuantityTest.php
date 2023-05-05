@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Exception;
+namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;

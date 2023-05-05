@@ -37,7 +37,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $schema = $generator->generate(
             $this->getContainer()->get(SalesChannelDefinitionInstanceRegistry::class)->getDefinitions(),
             DefinitionService::STORE_API,
-            DefinitionService::TypeJsonApi
+            DefinitionService::TYPE_JSON_API
         );
 
         $schemaRoutes = $schema['paths'];

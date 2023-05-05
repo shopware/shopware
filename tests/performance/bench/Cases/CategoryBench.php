@@ -7,13 +7,13 @@ use PhpBench\Attributes as Bench;
 use PhpBench\Attributes\BeforeMethods;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal - only for performance benchmarks
  */
-class CategoryBench extends BenchCase
+class CategoryBench extends AbstractBenchCase
 {
     #[BeforeMethods(['setup'])]
     #[AfterMethods(['tearDown'])]

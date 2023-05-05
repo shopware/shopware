@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Cart\LineItem\Group\RuleMatcher;
+namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;

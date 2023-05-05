@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Exception\Test;
+namespace Shopware\Tests\Unit\Core\Framework\App\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException
  */
 class AppAlreadyInstalledExceptionTest extends TestCase
 {

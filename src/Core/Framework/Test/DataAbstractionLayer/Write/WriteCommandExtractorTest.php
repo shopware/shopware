@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DataAbstractionLayer\Write;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

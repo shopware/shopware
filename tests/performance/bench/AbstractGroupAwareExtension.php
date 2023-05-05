@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @internal - only for performance benchmarks
  */
-abstract class GroupAwareExtension implements ExtensionInterface
+abstract class AbstractGroupAwareExtension implements ExtensionInterface
 {
     public const TARGET_GROUP = null;
 

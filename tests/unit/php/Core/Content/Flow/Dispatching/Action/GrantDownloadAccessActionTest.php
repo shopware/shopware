@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Flow\Dispatching\Action;
+namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;

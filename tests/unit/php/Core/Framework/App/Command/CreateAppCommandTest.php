@@ -16,7 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class CreateAppCommandTest extends TestCase
 {
-    private const AppName = 'TestApp';
+    private const APP_NAME = 'TestApp';
 
     private RefreshableAppDryRun $appLifecycle;
 
@@ -37,7 +37,7 @@ class CreateAppCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['name' => self::AppName]);
+        $commandTester->execute(['name' => self::APP_NAME]);
 
         static::assertStringContainsString(
             'Creating app structure under TestApp',
@@ -69,7 +69,7 @@ class CreateAppCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['name' => self::AppName, '--theme' => true]);
+        $commandTester->execute(['name' => self::APP_NAME, '--theme' => true]);
 
         static::assertStringContainsString(
             'Creating app structure under TestApp',
@@ -130,7 +130,7 @@ class CreateAppCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
         $commandTester->setInputs(['', '', '', '', '', '', '', 'y']);
-        $commandTester->execute(['name' => self::AppName]);
+        $commandTester->execute(['name' => self::APP_NAME]);
 
         static::assertStringContainsString(
             'Creating app structure under TestApp',
@@ -164,13 +164,13 @@ class CreateAppCommandTest extends TestCase
         );
 
         static::assertCount(1, $this->appLifecycle->getToBeInstalled());
-        static::assertArrayHasKey(self::AppName, $this->appLifecycle->getToBeInstalled());
+        static::assertArrayHasKey(self::APP_NAME, $this->appLifecycle->getToBeInstalled());
     }
 
     public function testAppIsInstalledIfRequestedViaOption(): void
     {
         $commandTester = $this->getCommandTester();
-        $commandTester->execute(['name' => self::AppName, '--install' => true]);
+        $commandTester->execute(['name' => self::APP_NAME, '--install' => true]);
 
         static::assertStringContainsString(
             'Creating app structure under TestApp',
@@ -204,21 +204,21 @@ class CreateAppCommandTest extends TestCase
         );
 
         static::assertCount(1, $this->appLifecycle->getToBeInstalled());
-        static::assertArrayHasKey(self::AppName, $this->appLifecycle->getToBeInstalled());
+        static::assertArrayHasKey(self::APP_NAME, $this->appLifecycle->getToBeInstalled());
     }
 
     public function testCommandFailsOnDuplicate(): void
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['name' => self::AppName]);
+        $commandTester->execute(['name' => self::APP_NAME]);
 
         static::assertStringContainsString(
             'Creating app structure under TestApp',
             (string) preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)))
         );
 
-        $commandTester->execute(['name' => self::AppName]);
+        $commandTester->execute(['name' => self::APP_NAME]);
 
         static::assertStringContainsString(
             'Creating app structure under TestApp',
@@ -325,7 +325,7 @@ class CreateAppCommandTest extends TestCase
 
     private function removeApp(): void
     {
-        $directory = $this->appDir . '/' . self::AppName;
+        $directory = $this->appDir . '/' . self::APP_NAME;
 
         if (!is_dir($directory)) {
             return;

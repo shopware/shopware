@@ -107,7 +107,7 @@ class SetOrderStateActionTest extends TestCase
      * @param array<string, mixed> $config
      * @param array<string, mixed> $expects
      *
-     * @dataProvider setStatusProvider
+     * @dataProvider statusProvider
      */
     public function testSetOrderStatus(array $config, array $expects): void
     {
@@ -144,7 +144,7 @@ class SetOrderStateActionTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public static function setStatusProvider(): array
+    public static function statusProvider(): array
     {
         return [
             'Set three states success' => [

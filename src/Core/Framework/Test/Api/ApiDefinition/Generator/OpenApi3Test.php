@@ -76,7 +76,7 @@ class OpenApi3Test extends TestCase
     {
         $infoController = KernelLifecycleManager::getKernel()->getContainer()->get(InfoController::class);
 
-        $response = $infoController->info(new Request(['type' => DefinitionService::TypeJson]));
+        $response = $infoController->info(new Request(['type' => DefinitionService::TYPE_JSON]));
         $schema = $response->getContent();
         static::assertIsString($schema);
 

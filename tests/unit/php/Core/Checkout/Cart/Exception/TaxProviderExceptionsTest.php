@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Checkout\Cart\Exception;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\TaxProviderExceptions;

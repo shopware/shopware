@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
+namespace Shopware\Tests\Unit\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -8,15 +8,14 @@ use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrateg
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver
  */
-class AbstractStrategyTest extends TestCase
+class ResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private MockObject&AbstractAppUrlChangeStrategy $firstStrategy;
 
     private MockObject&AbstractAppUrlChangeStrategy $secondStrategy;

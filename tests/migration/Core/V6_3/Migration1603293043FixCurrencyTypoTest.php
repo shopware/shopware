@@ -18,9 +18,9 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
 {
     use MigrationTestTrait;
 
-    final public const wrongTranslation = 'Swedish krone';
+    final public const WRONG_TRANSLATION = 'Swedish krone';
 
-    final public const correctTranslation = 'Swedish krona';
+    final public const CORRECT_TRANSLATION = 'Swedish krona';
 
     private Connection $connection;
 

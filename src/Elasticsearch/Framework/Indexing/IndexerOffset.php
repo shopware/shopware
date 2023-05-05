@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
@@ -42,11 +43,26 @@ class IndexerOffset
         $this->allDefinitions = $mapping;
         $this->definitions = $mapping;
 
-        $this->setNextLanguage();
-        $this->setNextDefinition();
+        $this->selectNextLanguage();
+        $this->selectNextDefinition();
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use selectNextDefinition instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
     public function setNextDefinition(): ?string
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0', 'selectNextDefinition')
+        );
+
+        return $this->selectNextDefinition();
+    }
+
+    public function selectNextDefinition(): ?string
     {
         return $this->definition = array_shift($this->definitions);
     }
@@ -62,7 +78,22 @@ class IndexerOffset
         return !empty($this->definitions);
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use selectNextLanguage instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
     public function setNextLanguage(): ?string
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0', 'selectNextLanguage')
+        );
+
+        return $this->selectNextLanguage();
+    }
+
+    public function selectNextLanguage(): ?string
     {
         return $this->languageId = array_shift($this->languages);
     }

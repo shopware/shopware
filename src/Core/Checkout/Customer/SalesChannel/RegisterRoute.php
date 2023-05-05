@@ -131,7 +131,7 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
-        $customer = $this->setDoubleOptInData($customer, $context);
+        $customer = $this->addDoubleOptInData($customer, $context);
 
         $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
 
@@ -232,7 +232,7 @@ class RegisterRoute extends AbstractRegisterRoute
      *
      * @return array<string, mixed>
      */
-    private function setDoubleOptInData(array $customer, SalesChannelContext $context): array
+    private function addDoubleOptInData(array $customer, SalesChannelContext $context): array
     {
         $configKey = $customer['guest']
             ? 'core.loginRegistration.doubleOptInGuestOrder'

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Framework\DependencyInjection\CompilerPass;
+namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;

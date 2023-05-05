@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Framework\App\TaxProvider\Payload;
+namespace Shopware\Tests\Unit\Core\Framework\App\TaxProvider\Payload;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;

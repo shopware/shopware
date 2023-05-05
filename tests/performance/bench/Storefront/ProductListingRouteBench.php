@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Bench\Storefront\Cases;
+namespace Shopware\Tests\Bench\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PhpBench\Attributes as Bench;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 use Shopware\Tests\Bench\Fixtures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * @internal - only for performance benchmarks
  */
 #[Bench\BeforeMethods(['setupWithLogin'])]
-class ProductListingRouteBench extends BenchCase
+class ProductListingRouteBench extends AbstractBenchCase
 {
     use BasicTestDataBehaviour;
     use SalesChannelApiTestBehaviour;

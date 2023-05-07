@@ -53,7 +53,7 @@
 
             {% block page_product_detail_rich_snippets_release_date %}
                 <meta itemprop="releaseDate"
-                      content="{{ page.product.releaseDate|format_date(pattern="Y-MM-dd", locale=app.request.locale) }}"/>
+                      content="{{ page.product.releaseDate|format_date(pattern='Y-MM-dd') }}"/>
             {% endblock %}
         {% endblock %}
 

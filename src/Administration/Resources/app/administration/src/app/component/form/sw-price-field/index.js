@@ -311,7 +311,7 @@ Component.register('sw-price-field', {
         },
 
         convertNetToGross(value) {
-            if (Number.isNaN(value)) {
+            if (Number.isNaN(value) || value === null) {
                 this.priceForCurrency.gross = this.allowEmpty ? null : 0;
                 return false;
             }
@@ -330,7 +330,7 @@ Component.register('sw-price-field', {
         },
 
         convertGrossToNet(value) {
-            if (Number.isNaN(value)) {
+            if (Number.isNaN(value) || value === null) {
                 this.priceForCurrency.net = this.allowEmpty ? null : 0;
                 this.$emit('calculating', false);
                 return false;

@@ -164,6 +164,10 @@ Component.extend('sw-number-field', 'sw-text-field', {
                 }
 
                 this.$emit('input-change', val);
+            } else if (this.allowEmpty === true) {
+                this.$emit('input-change', val);
+            } else {
+                this.$emit('input-change', this.min ?? 0);
             }
         },
 

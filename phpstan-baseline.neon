@@ -8525,57 +8525,12 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/BoolField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\BoolField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/BoolField.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\ColorPickerField\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/ColorPickerField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\ColorPickerField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/ColorPickerField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\CustomFieldType\\:\\:getHelpText\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\CustomFieldType\\:\\:getLabel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\CustomFieldType\\:\\:parse\\(\\) has parameter \\$translatableFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\CustomFieldType\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\CustomFieldType\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\CustomFieldType\\:\\:toEntityPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\DateTimeField\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/DateTimeField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\DateTimeField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/DateTimeField.php
 
@@ -8586,11 +8541,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\FloatField\\:\\:getPlaceholder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/FloatField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\FloatField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/FloatField.php
 
@@ -8610,11 +8560,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/IntField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\IntField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/IntField.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\IntField\\:\\:\\$placeholder type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/IntField.php
@@ -8625,17 +8570,7 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/MediaSelectionField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\MediaSelectionField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/MediaSelectionField.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\PriceField\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/PriceField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\PriceField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/PriceField.php
 
@@ -8670,11 +8605,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleSelectField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\SingleSelectField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleSelectField.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\SingleSelectField\\:\\:\\$options type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleSelectField.php
@@ -8695,11 +8625,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/TextAreaField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\TextAreaField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/TextAreaField.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\TextAreaField\\:\\:\\$placeholder type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/TextAreaField.php
@@ -8711,11 +8636,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\TextField\\:\\:getPlaceholder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/TextField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\TextField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/TextField.php
 
@@ -14290,21 +14210,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomField/Aggregate/CustomFieldSet/CustomFieldSetEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomField\\\\CustomFieldEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomField/CustomFieldEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomField\\\\CustomFieldEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomField/CustomFieldEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomField\\\\CustomFieldEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomField/CustomFieldEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\DeliveryTime\\\\Aggregate\\\\DeliveryTimeTranslation\\\\DeliveryTimeTranslationCollection\\:\\:getDeliveryTimeIds\\(\\) should return list\\<string\\> but returns array\\.$#"

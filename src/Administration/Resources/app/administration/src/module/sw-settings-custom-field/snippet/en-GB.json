@@ -80,7 +80,10 @@
         "tooltipRequired": "Makes this custom field required on detail pages.",
         "infoText": "If a custom field is created, the according snippet for all of your snippet sets will be created as well. The snippet will be named \"customFields.{name}\".",
         "labelAllowCustomerWrite": "Modifiable via Store API",
-        "tooltipAllowCustomerWrite": "When active, the Store API is allowed to modify this field. This can be used to store custom data if adding new fields to the storefront. For example for new fields in the registration form."
+        "tooltipAllowCustomerWrite": "When active, the Store API is allowed to modify this field. This can be used to store custom data if adding new fields to the storefront. For example for new fields in the registration form.",
+        "labelAllowCartExpose": "Available in shopping carts",
+        "tooltipAllowCartExpose": "Activate, to make this custom field available in the payload of shopping cart line items. This is required in order to initially use this custom field in the Rule Builder or custom templates.",
+        "tooltipCartExposeDisabled": "This setting can currently not be changed, because the custom field is in use by one or more conditions in the Rule Builder."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

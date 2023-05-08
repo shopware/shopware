@@ -11,7 +11,7 @@ const { Criteria } = Shopware.Data;
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -108,6 +108,25 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
     },
 
     methods: {
+        getTooltipConfig(item) {
+            if (item.allowCartExpose) {
+                return { message: '', disabled: true };
+            }
+
+            const route = {
+                name: 'sw.settings.custom.field.detail',
+                params: { id: item.customFieldSetId },
+            };
+            const routeData = this.$router.resolve(route);
+
+            return {
+                disabled: false,
+                width: 260,
+                message: this.$t('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.tooltip', {
+                    customFieldSettingsLink: routeData.href,
+                }),
+            };
+        },
 
         /**
          * Clear any further field's values if no custom field has been selected

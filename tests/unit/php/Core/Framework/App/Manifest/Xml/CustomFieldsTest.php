@@ -36,8 +36,10 @@ class CustomFieldsTest extends TestCase
 
         static::assertSame('bla_test', $fields[0]->getName());
         static::assertFalse($fields[0]->isAllowCustomerWrite());
+        static::assertFalse($fields[0]->isAllowCartExpose());
 
         static::assertSame('bla_test2', $fields[1]->getName());
         static::assertTrue($fields[1]->isAllowCustomerWrite());
+        static::assertTrue($fields[1]->isAllowCartExpose());
     }
 }

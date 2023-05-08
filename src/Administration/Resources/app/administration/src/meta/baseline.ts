@@ -78,7 +78,6 @@ const missingTests = [
     'src/app/component/rule/condition-type/sw-condition-goods-price/index.js',
     'src/app/component/rule/condition-type/sw-condition-is-always-valid/index.js',
     'src/app/component/rule/condition-type/sw-condition-line-item/index.js',
-    'src/app/component/rule/condition-type/sw-condition-line-item-custom-field/index.js',
     'src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js',
     'src/app/component/rule/condition-type/sw-condition-line-item-in-category/index.js',
     'src/app/component/rule/condition-type/sw-condition-line-item-property/index.js',

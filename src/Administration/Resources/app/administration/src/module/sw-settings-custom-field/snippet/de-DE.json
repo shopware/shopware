@@ -80,7 +80,10 @@
         "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten.",
         "infoText": "Wenn Du ein Zusatzfeld erstellst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt. Du findest den Textbaustein unter dem Namen \"customFields.{name}\".",
         "labelAllowCustomerWrite": "Modifizierbar über Store API",
-        "tooltipAllowCustomerWrite": "Wenn diese Option aktiviert ist, kann die Store-API dieses Feld ändern. Dies kann verwendet werden, um benutzerdefinierte Daten zu speichern, wenn neue Felder zur Storefront hinzugefügt werden. Zum Beispiel für neue Felder im Registrierungsformular."
+        "tooltipAllowCustomerWrite": "Wenn diese Option aktiviert ist, kann die Store-API dieses Feld ändern. Dies kann verwendet werden, um benutzerdefinierte Daten zu speichern, wenn neue Felder zur Storefront hinzugefügt werden. Zum Beispiel für neue Felder im Registrierungsformular.",
+        "labelAllowCartExpose": "Verfügbar in Warenkörben",
+        "tooltipAllowCartExpose": "Aktivieren, um dieses Zusatzfeld in den Daten von Warenkorb-Positionen verfügbar zu machen. Dies ist Voraussetzung für die initiale Verwendung dieses benutzerdefinierten Feldes im Rule Builder oder in eigenen Templates.",
+        "tooltipCartExposeDisabled": "Diese Einstellung kann zur Zeit nicht geändert werden, da das Zusatzfeld noch von einer oder mehreren Bedingungen im Rule Builder verwendet wird."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

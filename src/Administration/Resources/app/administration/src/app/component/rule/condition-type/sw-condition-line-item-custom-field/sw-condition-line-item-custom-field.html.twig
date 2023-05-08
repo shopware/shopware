@@ -14,17 +14,27 @@
         show-clearable-button
         @change="onFieldChange"
     >
-        <template #selection-label-property="slotProps">
-            {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+        <template #selection-label-property="{ item }">
+            {{ getInlineSnippet(item.config.label) || item.name }}
         </template>
-        <template #result-label-property="slotProps">
-            {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
-        </template>
-        <template #result-description-property="slotProps">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_condition_line_item_custom_field_field_description %}
-            {{ getInlineSnippet(slotProps.item.customFieldSet.config.label) || slotProps.item.customFieldSet.name }}
-            {% endblock %}
+        <template #result-item="{ item, index, isSelected, setValue }">
+            <li
+                is="sw-select-result"
+                v-tooltip="getTooltipConfig(item)"
+                :disabled="!item.allowCartExpose"
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                @item-select="setValue"
+            >
+                {{ getInlineSnippet(item.config.label) || item.name }}
+
+                <template #description>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_condition_line_item_custom_field_field_description %}
+                    {{ getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name }}
+                    {% endblock %}
+                </template>
+            </li>
         </template>
     </sw-entity-single-select>
     {% endblock %}

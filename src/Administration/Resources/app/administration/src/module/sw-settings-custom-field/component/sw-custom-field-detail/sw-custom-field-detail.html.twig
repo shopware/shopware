@@ -84,6 +84,18 @@
         />
         {% endblock %}
 
+        <sw-field
+            v-if="isProductCustomField"
+            v-model="currentCustomField.allowCartExpose"
+            v-tooltip="getCartExposeTooltipConfig()"
+            type="switch"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
+            class="sw-custom-field-detail__allow-cart-expose"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
+            :disabled="!acl.can('custom_field.editor') || disableCartExpose"
+        />
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_snippet_info  %}
         <sw-alert class="sw-custom-field-detail__info">

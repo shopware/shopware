@@ -775,7 +775,8 @@
               "placeholder": "Fieldset wählen ..."
             },
             "customFieldSelect": {
-              "placeholder": "Zusatzfeld wählen ..."
+              "placeholder": "Zusatzfeld wählen ...",
+              "tooltip": "Dieses Zusatzfeld ist aktuell in Warenkörben nicht verfügbar. In den <a href=\"{customFieldSettingsLink}\" target=\"_blank\">Einstellungen</a> dieses Zusatzfeldes kannst du es für Warenkörbe  aktivieren."
             }
           }
         },

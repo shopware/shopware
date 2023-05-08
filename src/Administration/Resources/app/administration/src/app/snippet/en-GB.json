@@ -775,7 +775,8 @@
               "placeholder": "Select fieldset..."
             },
             "customFieldSelect": {
-              "placeholder": "Select custom field..."
+              "placeholder": "Select custom field...",
+              "tooltip": "This custom field is currently not available in shopping carts. You can activate it for shopping carts in its <a href=\"{customFieldSettingsLink}\" target=\"_blank\">settings</a>."
             }
           }
         },

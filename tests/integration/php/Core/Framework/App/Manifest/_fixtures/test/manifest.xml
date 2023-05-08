@@ -92,6 +92,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
                 <bool name="bla_test2">
                     <label>Test</label>
                     <allow-customer-write>true</allow-customer-write>
+                    <allow-cart-expose>true</allow-cart-expose>
                 </bool>
             </fields>
         </custom-field-set>

@@ -336,7 +336,7 @@
         "description": "Wenn Du die Erweiterung deinstallierst, kannst Du sie nicht mehr verwenden.",
         "alert": "Bist Du sicher, dass Du die Erweiterung deinstallieren möchtest?",
         "buttonLabel": "Deinstallieren",
-        "labelRemovePluginData": "Alle App-Daten entgültig entfernen",
+        "labelRemovePluginData": "Alle App-Daten endgültig entfernen",
         "helpTextRemovePluginData": "Warnung: Alle Daten der App werden dauerhaft entfernt. Dieser Vorgang ist nicht umkehrbar."
       },
       "sw-extension-listing-card": {

@@ -133,73 +133,99 @@ Changed E2E:
           --spec "$TEST_SPEC"
           --headless
 
-E2E install NL:
-    extends:
-      - .e2e-base
-    stage: E2E
-    variables:
-        APP_DEBUG: 0
-        E2E_PROJECT: recovery
-        CYPRESS_dbHost: database
-        CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
-        CYPRESS_dbName: root
-        CYPRESS_locale: nl-NL
-        FEATURE_ALL: 'false'
-        ALLOW_FAILURE: 'true'
-        CYPRESS_grepTags: '-quarantined'
-    script:
-        - echo -e "\e[0Ksection_start:$(date +%s):set_version[collapsed=true]\r\e[0Ke2e set shopware version"
-        - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
-        # fake version by using the latest tag if not set
-        - >
-          if [[ "$PLATFORM_VERSION" = "null" ]]; then
-            LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
-            PLATFORM_VERSION="${LATEST_TAG#"v"}"
-            composer config version "$PLATFORM_VERSION"
-            composer update
-          fi
-        - echo -e "\e[0Ksection_end:`date +%s`:set_version\r\e[0K"
-        - echo -e "\e[0Ksection_start:$(date +%s):setup_e2e[collapsed=true]\r\e[0Ke2e setup e2e"
-        - rm .env install.lock || true
-        - mkdir -p config/packages || true
-        - >
-          cat > config/packages/ci.yaml <<EOF
+.e2e-install-nl-base: &e2e-install-nl-base
+    - echo -e "\e[0Ksection_start:$(date +%s):set_version[collapsed=true]\r\e[0Ke2e set shopware version"
+    - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
+    # fake version by using the latest tag if not set
+    - >
+      if [[ "$PLATFORM_VERSION" = "null" ]]; then
+        LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+        PLATFORM_VERSION="${LATEST_TAG#"v"}"
+        composer config version "$PLATFORM_VERSION"
+        composer update
+      fi
+    - echo -e "\e[0Ksection_end:`date +%s`:set_version\r\e[0K"
+    - echo -e "\e[0Ksection_start:$(date +%s):setup_e2e[collapsed=true]\r\e[0Ke2e setup e2e"
+    - rm .env install.lock || true
+    - mkdir -p config/packages || true
+    - >
+      cat > config/packages/ci.yaml <<EOF
 
-          shopware:
-            store:
-              frw: true
-          EOF
-        - composer run init:e2e
-        - mkdir -p var/dumps
-        - touch var/dumps/database_root.sql
-        - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
-        - echo -e "\e[0Ksection_end:`date +%s`:setup_e2e\r\e[0K"
-        - echo -e "\e[0Ksection_start:$(date +%s):install_sw[collapsed=false]\r\e[0Ke2e install shopware"
-        - composer run e2e:cypress -- run
-            --config retries=0
-            --browser chrome
-            --spec "cypress/e2e/installer/install_nl.cy.js"
-            --headless
-        - echo -e "\e[0Ksection_end:`date +%s`:install_sw\r\e[0K"
-        - echo -e "\e[0Ksection_start:$(date +%s):install_language_pack[collapsed=true]\r\e[0Ke2e install language pack"
-        - rm -rf custom/plugins/SwagLanguagePack || true
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
-        - npm --prefix custom/plugins/SwagLanguagePack/src/Resources/app/administration ci
-        - bin/console plugin:refresh
-        - bin/console plugin:install --activate SwagLanguagePack
-        - APP_ENV=e2e bin/console cache:clear
-        - npm --prefix src/Administration/Resources/app/administration ci
-        - composer run e2e:prepare
-        - echo -e "\e[0Ksection_end:`date +%s`:install_language_pack\r\e[0K"
-        - >
-          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
-            export CYPRESS_INTERRUPT_ON_ERROR="true"
-          fi
-        - composer run e2e:cypress-repeat -- run
-            -n 3
-            --browser chrome
-            --spec "cypress/e2e/scenarios/**/*.cy.js"
-            --headless
+      shopware:
+        store:
+          frw: true
+      EOF
+    - composer run init:e2e
+    - mkdir -p var/dumps
+    - touch var/dumps/database_root.sql
+    - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
+    - echo -e "\e[0Ksection_end:`date +%s`:setup_e2e\r\e[0K"
+    - echo -e "\e[0Ksection_start:$(date +%s):install_sw[collapsed=false]\r\e[0Ke2e install shopware"
+    - composer run e2e:cypress -- run
+      --config retries=0
+      --browser chrome
+      --spec "cypress/e2e/installer/install_nl.cy.js"
+      --headless
+    - echo -e "\e[0Ksection_end:`date +%s`:install_sw\r\e[0K"
+    - echo -e "\e[0Ksection_start:$(date +%s):install_language_pack[collapsed=true]\r\e[0Ke2e install language pack"
+    - rm -rf custom/plugins/SwagLanguagePack || true
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
+    - npm --prefix custom/plugins/SwagLanguagePack/src/Resources/app/administration ci
+    - bin/console plugin:refresh
+    - bin/console plugin:install --activate SwagLanguagePack
+    - APP_ENV=e2e bin/console cache:clear
+    - npm --prefix src/Administration/Resources/app/administration ci
+    - composer run e2e:prepare
+    - echo -e "\e[0Ksection_end:`date +%s`:install_language_pack\r\e[0K"
+    - >
+      if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
+        export CYPRESS_INTERRUPT_ON_ERROR="true"
+      fi
+
+E2E install NL scenarios:
+  extends:
+    - .e2e-base
+  variables:
+    APP_DEBUG: 0
+    E2E_PROJECT: recovery
+    CYPRESS_dbHost: database
+    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+    CYPRESS_dbName: root
+    CYPRESS_locale: nl-NL
+    FEATURE_ALL: 'false'
+    ALLOW_FAILURE: 'true'
+    CYPRESS_grepTags: '-quarantined'
+  stage: E2E
+  script:
+    - *e2e-install-nl-base
+    - composer run e2e:cypress-repeat -- run
+      -n 3
+      --browser chrome
+      --spec "cypress/e2e/scenarios/**/*.cy.js"
+      --headless
+
+E2E Changed install NL scenarios:
+  extends:
+    - E2E install NL scenarios
+  stage: E2E
+  rules:
+    - !reference [ .rules, skip ]
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+      changes:
+        - 'tests/e2e/cypress/e2e/scenarios/**/*.cy.js'
+  script:
+    - *e2e-install-nl-base
+    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/scenarios")'
+    - 'echo "Changed files: $CHANGED_FILES"'
+    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
+    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
+    - 'echo "Test spec: $TEST_SPEC"'
+    - composer run e2e:cypress-repeat -- run
+      -n 10
+      --config retries=0
+      --browser chrome
+      --spec "$TEST_SPEC"
+      --headless
 
 .e2e-update-base:
   extends:

@@ -280,11 +280,6 @@
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
             "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
         ],
-        "bc-check-65": [
-            "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "git fetch --depth 1 origin 6.5.0.0:6.5.0.0",
-            "roave-backward-compatibility-check --from=\"6.5.0.0\""
-        ],
         "build:js": [
             "@php bin/console bundle:dump",
             "@php bin/console feature:dump",

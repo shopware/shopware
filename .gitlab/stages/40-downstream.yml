@@ -74,21 +74,6 @@ create downstream branch:
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
         DOWNSTREAM_PARENT_BRANCH: 'trunk'
 
-# TODO: Remove this job after the last 6.4.x version has been released.
-create downstream branch legacy:
-  extends: .downstream-release-branch-creation
-  rules:
-    - !reference [ .rules, skip ]
-    - !reference [ .rule_legacy_release_branch ]
-  parallel:
-    matrix:
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
-        DOWNSTREAM_PARENT_BRANCH: '6.4'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
-        DOWNSTREAM_PARENT_BRANCH: '6.4'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
-        DOWNSTREAM_PARENT_BRANCH: '6.4'
-
 rufus source branch:
   extends: .downstream-job
   rules:

@@ -200,7 +200,6 @@ E2E install NL:
             --browser chrome
             --spec "cypress/e2e/scenarios/**/*.cy.js"
             --headless
-    allow_failure: true # TODO: Remove this line as soon as the extensions involved are compatible with the new trunk branch
 
 .e2e-update-base:
   extends:

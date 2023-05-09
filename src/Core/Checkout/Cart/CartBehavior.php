@@ -13,7 +13,8 @@ class CartBehavior extends Struct
      */
     public function __construct(
         private readonly array $permissions = [],
-        private bool $hookAware = true
+        private bool $hookAware = true,
+        private readonly bool $isRecalculation = false
     ) {
     }
 
@@ -30,6 +31,11 @@ class CartBehavior extends Struct
     public function hookAware(): bool
     {
         return $this->hookAware;
+    }
+
+    public function isRecalculation(): bool
+    {
+        return $this->isRecalculation;
     }
 
     /**

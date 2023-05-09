@@ -66,6 +66,11 @@ class CustomEntityPersister
             $customEntity['flags'] = json_encode($customEntity['flags'], \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION);
             $customEntity['fields'] = json_encode($customEntity['fields'], \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION);
 
+            $customEntity['custom_fields_aware'] = ($customEntity['customFieldsAware'] ?? false) ? 1 : 0;
+            $customEntity['label_property'] = $customEntity['labelProperty'] ?? null;
+            unset($customEntity['customFieldsAware']);
+            unset($customEntity['labelProperty']);
+
             $name = $customEntity['name'];
             $id = isset($existings[$name]) ? $existings[$name]['id'] : Uuid::randomHex();
             $customEntity['id'] = Uuid::fromHexToBytes($id);

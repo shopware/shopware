@@ -3,13 +3,29 @@
  */
 import template from './sw-custom-field-type-entity.html.twig';
 
+const { Criteria } = Shopware.Data;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
+    inject: [
+        'repositoryFactory',
+    ],
+    mounted() {
+        this.customEntityRepository.search(new Criteria(), Shopware.Context.api)
+            .then(result => {
+                this.customEntities = result;
+            });
+    },
+    data() {
+        return {
+            customEntities: [],
+        };
+    },
     computed: {
         entityTypes() {
-            return [
+            const entityTypes = [
                 {
                     label: this.$tc('sw-settings-custom-field.customField.entity.product'),
                     value: 'product',
@@ -54,6 +70,28 @@ export default {
                     value: 'cms_page',
                 },
             ];
+
+            this.customFieldsAwareCustomEntities.forEach(customEntity => {
+                entityTypes.push({
+                    label: this.$tc(`${customEntity.name}.label`),
+                    value: customEntity.name,
+                    config: {
+                        labelProperty: customEntity.labelProperty,
+                    },
+                });
+            });
+
+            return entityTypes;
+        },
+
+        customFieldsAwareCustomEntities() {
+            return this.customEntities.filter(customEntity => customEntity.customFieldsAware);
+        },
+
+        customEntityRepository() {
+            return this.repositoryFactory.create(
+                'custom_entity',
+            );
         },
 
         sortedEntityTypes() {

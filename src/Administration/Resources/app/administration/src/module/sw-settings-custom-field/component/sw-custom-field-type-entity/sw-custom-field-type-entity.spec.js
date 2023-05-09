@@ -10,6 +10,17 @@ Shopware.Component.register('sw-custom-field-type-base', swCustomFieldTypeBase);
 Shopware.Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', swCustomFieldTypeSelect);
 Shopware.Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', swCustomFieldTypeEntity);
 
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/search/custom-entity',
+    status: 200,
+    response: {
+        data: [],
+    },
+});
+
 async function createWrapper(privileges = [], isNew = true) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

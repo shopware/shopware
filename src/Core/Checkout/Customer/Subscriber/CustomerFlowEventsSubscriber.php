@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Checkout\Customer\CustomerEvents;
-use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer;
 use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexingMessage;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -27,7 +27,7 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SalesChannelContextRestorer $restorer,
-        private readonly CustomerIndexer $customerIndexer
+        private readonly EntityIndexer $customerIndexer
     ) {
     }
 

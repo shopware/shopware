@@ -52,7 +52,6 @@ class ProductSortingEntity extends Entity
         $sorting = [];
 
         $fields = $this->fields;
-        $fields[] = $this->getFallbackSortingField();
 
         usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
@@ -144,15 +143,5 @@ class ProductSortingEntity extends Entity
     public function getApiAlias(): string
     {
         return 'product_sorting';
-    }
-    
-    /** This ensures deterministic behaviour with duplicate keys in ORDER BY and OFFSET between queries */
-    private function getFallbackSortingField(): array {
-        return [
-            'field' => 'product.id',
-            'order' => FieldSorting::ASCENDING,
-            'priority' => -1,
-            'naturalSorting' => false,
-        ];
     }
 }

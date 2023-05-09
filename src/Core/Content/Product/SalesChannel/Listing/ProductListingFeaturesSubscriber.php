@@ -264,8 +264,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $currentSorting = $this->getCurrentSorting($sortings, $request);
 
+        $dalSorting = $currentSorting->createDalSorting();
+        $dalSorting[] = $this->createFallbackSorting();
+
         $criteria->addSorting(
-            ...$currentSorting->createDalSorting()
+            ...$dalSorting
         );
 
         $criteria->addExtension('sortings', $sortings);
@@ -641,6 +644,15 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             ],
             new EqualsFilter('product.shippingFree', true),
             $filtered
+        );
+    }
+
+    /** This ensures deterministic behaviour with duplicate keys in ORDER BY and OFFSET between queries */
+    private function createFallbackSorting(): FieldSorting {
+        return new FieldSorting(
+            'product.id',
+            FieldSorting::ASCENDING,
+            false
         );
     }
 }

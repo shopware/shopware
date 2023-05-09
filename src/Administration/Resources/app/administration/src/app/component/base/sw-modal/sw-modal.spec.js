@@ -5,7 +5,7 @@
 import 'src/app/component/base/sw-modal';
 import { shallowMount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(additionalSlots = null) {
     return shallowMount(await Shopware.Component.build('sw-modal'), {
         stubs: {
             'sw-icon': true,
@@ -24,6 +24,7 @@ async function createWrapper() {
                     <input name="test" class="test-input">
                 </div>
             `,
+            ...additionalSlots,
         },
     });
 }
@@ -129,5 +130,13 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         await wrapper.get('.test-input').trigger('keyup.esc');
 
         expect(wrapper.emitted('modal-close')).toBeUndefined();
+    });
+
+    it('should render content from modal title slot', async () => {
+        wrapper = await createWrapper({
+            'modal-title': '<div class="custom-html">Custom HTML title</div>',
+        });
+
+        expect(wrapper.get('.sw-modal__titles').html()).toContain('<div class="custom-html">Custom HTML title</div>');
     });
 });

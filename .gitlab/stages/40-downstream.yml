@@ -15,22 +15,6 @@
   if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
   when: never
 
-.rule_legacy_dev_branch:
-  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.[0-4]$/ || $CI_COMMIT_BRANCH =~ /^6\.[0-4]$/'
-  when: on_success
-
-.rule_exclude_on_legacy_dev_branch:
-  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.[0-4]$/ || $CI_COMMIT_BRANCH =~ /^6\.[0-4]$/'
-  when: never
-
-.rule_legacy_release_branch:
-  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([0-4])\.\d+\.\d+/ || $CI_COMMIT_BRANCH =~ /^6\.([0-4])\.\d+\.\d+/'
-  when: on_success
-
-.rule_exclude_on_legacy_release_branch:
-  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([0-4])\.\d+\.\d+/ || $CI_COMMIT_BRANCH =~ /^6\.([0-4])\.\d+\.\d+/'
-  when: never
-
 .rule_release_branch:
   if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/ || $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/'
   when: on_success
@@ -104,8 +88,6 @@ rufus target branch:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_rufus_match ]
     - !reference [ .rule_release_branch ]
-    - !reference [ .rule_legacy_release_branch ]
-    - !reference [ .rule_legacy_dev_branch ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
   trigger:
@@ -119,8 +101,6 @@ commercial target branch:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
     - !reference [ .rule_release_branch ]
-    - !reference [ .rule_legacy_release_branch ]
-    - !reference [ .rule_legacy_dev_branch ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
   trigger:
@@ -134,8 +114,6 @@ rufus trunk:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_rufus_match ]
     - !reference [ .rule_exclude_on_release_branch ]
-    - !reference [ .rule_exclude_on_legacy_release_branch ]
-    - !reference [ .rule_exclude_on_legacy_dev_branch ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
@@ -152,8 +130,6 @@ commercial trunk:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
     - !reference [ .rule_exclude_on_release_branch ]
-    - !reference [ .rule_exclude_on_legacy_release_branch ]
-    - !reference [ .rule_exclude_on_legacy_dev_branch ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual

@@ -109,6 +109,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $criteria->addAssociation('productSearchConfig');
+        $criteria->addAssociation('locale');
         $apiRequest = new Request();
 
         $event = new LanguageRouteRequestEvent($request, $apiRequest, $context, $criteria);

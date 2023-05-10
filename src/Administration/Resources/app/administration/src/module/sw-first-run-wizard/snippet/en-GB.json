@@ -78,8 +78,8 @@
             "message": "Here is a selection of useful extensions for your shop. Select a region that is relevant for you, first. Then you can browse through different categories.",
             "availableInRegion": "Available in region",
             "category": "Category",
-            "topRecommendations": "Top recommendations",
-            "otherRecommendations": "Other recommendations"
+            "topRecommendations": "Global recommendations",
+            "otherRecommendations": "Regional recommendations"
         },
         "shopwareAccount": {
             "headline": "Shopware Account - Login",

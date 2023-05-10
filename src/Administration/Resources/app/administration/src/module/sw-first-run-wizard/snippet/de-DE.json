@@ -78,8 +78,8 @@
             "message": "Hier findest Du eine Auswahl empfohlener Erweiterungen für Deinen Shop. Wähle zunächst die für Dich relevantesten aus. Du kannst später weiter in unterschiedlichen Erweiterungs-Kategorien stöbern.",
             "availableInRegion": "Verfügbar in Region",
             "category": "Kategorie",
-            "topRecommendations": "Empfehlungen",
-            "otherRecommendations": "Weitere Empfehlungen"
+            "topRecommendations": "Globale Empfehlungen",
+            "otherRecommendations": "Regionale Empfehlungen"
         },
         "shopwareAccount": {
             "headline": "Shopware Account - Anmeldung",

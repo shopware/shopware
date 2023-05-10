@@ -211,3 +211,4 @@ Application
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();
     });
+

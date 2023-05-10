@@ -15547,11 +15547,6 @@ parameters:
 			path: src/Storefront/Controller/ErrorController.php
 
 		-
-			message: "#^Anonymous variable in a `\\$domain\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Storefront/Controller/RegisterController.php
-
-		-
 			message: "#^Anonymous variable in a `\\$product\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Storefront/Controller/SearchController.php
@@ -15575,26 +15570,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$session\\-\\>getFlashBag\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Storefront/Event/CartMergedSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Event/StorefrontRenderEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:getParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Event/StorefrontRenderEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:setParameter\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Event/StorefrontRenderEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Event/StorefrontRenderEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"

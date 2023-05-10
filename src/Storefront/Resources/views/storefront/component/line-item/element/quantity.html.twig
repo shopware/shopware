@@ -3,6 +3,10 @@
         {% set redirectTo = 'frontend.checkout.cart.page' %}
     {% endif %}
 
+    {% if formAction is not defined %}
+        {% set formAction = path('frontend.checkout.line-item.delete', { 'id': lineItem.id } ) %}
+    {% endif %}
+
     {% if showQuantitySelect is not defined %}
         {% set showQuantitySelect = true %}
     {% endif %}
@@ -35,7 +39,7 @@
                             {% set autoSubmitOptions = {
                                 delayChangeEvent: 800,
                             } %}
-                            <form action="{{ path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id }) }}"
+                            <form action="{{ formAction }}"
                                   class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"
                                   method="post"
                                   {% if displayMode == 'default' %}
@@ -48,6 +52,9 @@
                                     <input type="hidden"
                                            name="redirectTo"
                                            value="{{ redirectTo }}">
+                                    <input type="hidden"
+                                           name="redirectParameters"
+                                           value="{{ redirectParameters }}">
                                 {% endblock %}
 
                                 {% set selectQuantityThreshold = 100 %}

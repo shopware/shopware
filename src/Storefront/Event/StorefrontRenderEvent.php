@@ -18,7 +18,7 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
     protected $view;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $parameters;
 
@@ -32,6 +32,9 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
      */
     protected $context;
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(
         string $view,
         array $parameters,
@@ -49,6 +52,11 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
         return $this->context;
     }
 
+    public function setSalesChannelContext(SalesChannelContext $context): void
+    {
+        $this->context = $context;
+    }
+
     public function getContext(): Context
     {
         return $this->context->getContext();
@@ -59,6 +67,9 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
         return $this->view;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;
@@ -69,6 +80,9 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
         return $this->request;
     }
 
+    /**
+     * @param mixed $value
+     */
     public function setParameter(string $key, $value): void
     {
         $this->parameters[$key] = $value;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\Stub;
@@ -22,7 +22,9 @@ use Shopware\Core\Test\StaticTranslator;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
@@ -118,7 +120,7 @@ class StorefrontControllerTest extends TestCase
      * @return array{
      *     0: 'request_stack',
      *     1: ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE,
-     *     2: Stub
+     *     2: Stub&RequestStack
      * }
      */
     private function getRequestStack(): array
@@ -134,7 +136,7 @@ class StorefrontControllerTest extends TestCase
      * @return array{
      *     0: 'router',
      *     1: ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE,
-     *     2: Stub
+     *     2: Stub&RouterInterface
      * }
      */
     private function getRouter(): array
@@ -259,6 +261,14 @@ class TestController extends StorefrontController
     public function testRenderViewInheritance(string $view, array $parameters = []): string
     {
         return $this->renderView($view, $parameters);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function testRedirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
+    {
+        return $this->redirectToRoute($route, $parameters, $status);
     }
 
     public function setTemplateFinder(TemplateFinder $templateFinder): void

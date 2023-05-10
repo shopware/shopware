@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -61,7 +61,7 @@ class CheckoutController extends StorefrontController
         private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
         private readonly SystemConfigService $config,
         private readonly AbstractLogoutRoute $logoutRoute,
-        private readonly CartLoadRoute $cartLoadRoute
+        private readonly AbstractCartLoadRoute $cartLoadRoute
     ) {
     }
 

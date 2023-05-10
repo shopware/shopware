@@ -376,8 +376,8 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public static function subscribeWithDomainProvider(): \Generator
     {
-        yield 'subscribe with invalid first name' => [
-            'Y https://shopware.test',
+        yield 'invalid with first name' => [
+            'Y http:/shopware.test',
             'Tran',
             function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
@@ -389,9 +389,36 @@ class NewsletterSubscribeRouteTest extends TestCase
             },
         ];
 
-        yield 'subscribe with invalid first name and last name' => [
-            'Y https://shopware.test',
-            'Tran http://shopware.test',
+        yield 'invalid with last name' => [
+            'Y',
+            'Tran https:/shopware.test',
+            function (array $response): void {
+                static::assertArrayHasKey('errors', $response);
+                static::assertCount(1, $response['errors']);
+
+                $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+
+                static::assertContains('/lastName', $errors);
+            },
+        ];
+
+        yield 'invalid with domain name *://' => [
+            'Y http://shopware.test',
+            'Tran https://shopware.test',
+            function (array $response): void {
+                static::assertArrayHasKey('errors', $response);
+                static::assertCount(2, $response['errors']);
+
+                $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+
+                static::assertContains('/firstName', $errors);
+                static::assertContains('/lastName', $errors);
+            },
+        ];
+
+        yield 'invalid with domain name *:/' => [
+            'Y http:/shopware.test',
+            'Tran https:/shopware.test',
             function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);

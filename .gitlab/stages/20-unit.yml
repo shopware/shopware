@@ -133,6 +133,8 @@ PHP bench:
         # do not run in merge trains
         - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
           when: never
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run ]
         - changes:
             - '**/*.php'
             - '**/*.xml'

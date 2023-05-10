@@ -145,6 +145,20 @@ require_core_version() {
   fi
 }
 
+# Creates a new branch pointing at the current HEAD in a split repository of a
+# subpackage of platform.
+#
+# [1]: A subpackage. e.g.: "Administration"
+# [2]: The branch name.
+branch() {
+  local package="${1}"
+  local package_lower=$(lowercase "${package}")
+  local name="${2}"
+  local commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
+
+  git -C "${PLATFORM_DIR}/repos/${package_lower}" branch "${name}" "${commit_id}"
+}
+
 # Commits additional files in a split repository of a subpackage of platform.
 #
 # [1]: A subpackage. e.g.: "Administration"
@@ -182,17 +196,16 @@ push() {
   local target_ref="${3}"
 
   local remote_url=$(printf "%s/%s.git" "${remote_base_url}" "${package_lower}")
-  local commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
 
   git -C "${PLATFORM_DIR}/repos/${package_lower}" remote remove upstream > /dev/null 2>&1 || true
   git -C "${PLATFORM_DIR}/repos/${package_lower}" remote add upstream "${remote_url}"
 
-  git -C "${PLATFORM_DIR}/repos/${package_lower}" fetch upstream
+  git -C "${PLATFORM_DIR}/repos/${package_lower}" fetch -q upstream
 
   if git -C "${PLATFORM_DIR}/repos/${package_lower}" show-ref --verify "refs/tags/${target_ref}" > /dev/null 2>&1 ; then
     git -C "${PLATFORM_DIR}/repos/${package_lower}" push upstream "refs/tags/${target_ref}:refs/tags/${target_ref}" -f
   else
-    git -C "${PLATFORM_DIR}/repos/${package_lower}" push upstream "${commit_id}:refs/heads/${target_ref}" -f
+    git -C "${PLATFORM_DIR}/repos/${package_lower}" push upstream "refs/heads/${target_ref}:refs/heads/${target_ref}" -f
   fi
 }
 

@@ -28,7 +28,7 @@ class State {
         return this;
     }
 
-    public _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod: $TSFixMeFunction): this {
+    public _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod?: $TSFixMeFunction): this {
         Object.defineProperty(this, name, {
             get: getMethod,
             set: setMethod,

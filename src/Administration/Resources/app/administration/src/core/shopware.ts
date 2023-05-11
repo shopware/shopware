@@ -244,7 +244,7 @@ class ShopwareClass {
         return this.State.get('context');
     }
 
-    private _private = {
+    public _private = {
         ApiServices: ApiServices,
     };
 }

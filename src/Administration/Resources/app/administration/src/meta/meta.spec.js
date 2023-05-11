@@ -32,7 +32,7 @@ const testAbleFiles = getAllFiles(path.join(adminPath, rootPath)).filter(file =>
 });
 
 describe('Administration meta tests', () => {
-    it.each(testAbleFiles)('should have a spec file for %s', (file) => {
+    it.each(testAbleFiles)('should have a spec file for "%s"', (file) => {
         // Match 0 holds the whole file path
         // Match 1 holds the last folder name e.g. "adapter"
         // Match 2 holds the file name e.g. "view.adapter.ts"
@@ -79,6 +79,10 @@ describe('Administration meta tests', () => {
         ).toBe(false);
 
         expect(fileIsTested).toBeTruthy();
+    });
+
+    it.each(baseline)('should have an corresponding src file for entry in baseline: "%s"', (file) => {
+        expect(testAbleFiles.some(tFile => tFile.includes(file))).toBe(true);
     });
 
     it('should have engine information in package.json', () => {

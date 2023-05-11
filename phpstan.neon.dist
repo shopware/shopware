@@ -95,9 +95,7 @@ parameters:
         -
             message: '#Unsafe usage of new static\(\)#'
             path: src/Core/Framework/Struct/Collection.php
-        -
-            message: '#Access to private property#'
-            path: src/Core/Framework/Api/Controller/CacheController.php
+
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
@@ -203,6 +201,21 @@ parameters:
 
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
+
+        - # Remove with NEXT-24549
+            message: '#Method Shopware\\Tests\\Migration\\Core\\V6_3\\Migration1596441551CustomerGroupRegistrationTest::changeDefaultLanguageToDutch\(\) is unused#'
+            path: tests/migration/Core/V6_3/Migration1596441551CustomerGroupRegistrationTest.php
+
+        - # Google Cloud Storage filesystem closes the stream even though it should not
+            message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
+            paths:
+                - src/Core/Framework/Plugin/Util/AssetService.php
+                - src/Core/Content/Media/File/FileSaver.php
+
+        - # Will be fixed with NEXT-26122
+            message: '#Doing instanceof PHPStan\\Type\\.* is error-prone and deprecated. Use Type::.*\(\) instead#'
+            paths:
+                - src/Core/DevOps/StaticAnalyze/PHPStan/Rules/NoFlowStoreFunctionRule.php
 
         # Tests for Abstract classes should reflect the class naming, but not be abstract itself
         -

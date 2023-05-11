@@ -1,3 +1,4 @@
+---
 
 .rule_branch_rufus_match:
   if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
@@ -15,23 +16,13 @@
   if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
   when: never
 
-.rule_release_branch:
-  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/ || $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/'
+.rule_deployment_branch:
+  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
   when: on_success
 
-.rule_exclude_on_release_branch:
-  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/ || $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/'
+.rule_exclude_on_deployment_branch:
+  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
   when: never
-
-.downstream-release-branch-creation:
-  extends: .base-no-setup
-  stage: downstream
-  image: curlimages/curl:7.72.0
-  needs: [ ]
-  variables:
-    DOWNSTREAM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
-  script:
-    - .gitlab/bin/create_downstream_branch.sh "${DOWNSTREAM_PROJECT_PATH}" "${DOWNSTREAM_BRANCH}" "${DOWNSTREAM_PARENT_BRANCH}"
 
 .downstream-job:
   stage: downstream
@@ -43,20 +34,6 @@
     variables:
       - PLATFORM_BRANCH
   allow_failure: false
-
-create downstream branch:
-  extends: .downstream-release-branch-creation
-  rules:
-    - !reference [ .rules, skip ]
-    - !reference [ .rule_release_branch ]
-  parallel:
-    matrix:
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk'
 
 rufus source branch:
   extends: .downstream-job
@@ -87,7 +64,7 @@ rufus target branch:
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_rufus_match ]
-    - !reference [ .rule_release_branch ]
+    - !reference [ .rule_deployment_branch ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
   trigger:
@@ -100,7 +77,7 @@ commercial target branch:
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
-    - !reference [ .rule_release_branch ]
+    - !reference [ .rule_deployment_branch ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
   trigger:
@@ -113,7 +90,7 @@ rufus trunk:
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_rufus_match ]
-    - !reference [ .rule_exclude_on_release_branch ]
+    - !reference [ .rule_exclude_on_deployment_branch ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
@@ -129,7 +106,7 @@ commercial trunk:
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
-    - !reference [ .rule_exclude_on_release_branch ]
+    - !reference [ .rule_exclude_on_deployment_branch ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual

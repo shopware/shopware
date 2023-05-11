@@ -62,22 +62,6 @@ class AppLoader extends AbstractAppLoader
         return $manifests;
     }
 
-    public function getIcon(Manifest $app): ?string
-    {
-        if (!$app->getMetadata()->getIcon()) {
-            return null;
-        }
-
-        $iconPath = sprintf('%s/%s', $app->getPath(), $app->getMetadata()->getIcon());
-        $icon = @file_get_contents($iconPath);
-
-        if (!$icon) {
-            return null;
-        }
-
-        return $icon;
-    }
-
     /**
      * @return array<mixed>|null
      */
@@ -151,22 +135,6 @@ class AppLoader extends AbstractAppLoader
         return FlowAction::createFromXmlFile($configPath);
     }
 
-    public function getFlowActionIcon(?string $iconName, FlowAction $flowAction): ?string
-    {
-        if (!$iconName) {
-            return null;
-        }
-
-        $iconPath = sprintf('%s/%s', $flowAction->getPath(), $iconName);
-        $icon = @file_get_contents($iconPath);
-
-        if (!$icon) {
-            return null;
-        }
-
-        return $icon;
-    }
-
     /**
      * @return array<string, string>
      */
@@ -190,5 +158,17 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $snippets;
+    }
+
+    public function loadFile(string $rootPath, string $filePath): ?string
+    {
+        $path = sprintf('%s/%s', $rootPath, $filePath);
+        $content = @file_get_contents($path);
+
+        if (!$content) {
+            return null;
+        }
+
+        return $content;
     }
 }

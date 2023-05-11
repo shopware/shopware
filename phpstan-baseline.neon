@@ -8330,11 +8330,6 @@ parameters:
 			path: src/Core/Framework/App/Lifecycle/Persister/CustomFieldPersister.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\Persister\\\\FlowActionPersister\\:\\:deleteOldAppFlowActions\\(\\) has parameter \\$toBeRemoved with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Persister/FlowActionPersister.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\Persister\\\\PermissionPersister\\:\\:addPrivileges\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Lifecycle/Persister/PermissionPersister.php

@@ -22,8 +22,6 @@ abstract class AbstractAppLoader
      */
     abstract public function load(): array;
 
-    abstract public function getIcon(Manifest $app): ?string;
-
     /**
      * @return array<mixed>|null
      */
@@ -39,10 +37,10 @@ abstract class AbstractAppLoader
 
     abstract public function getFlowActions(AppEntity $app): ?FlowAction;
 
-    abstract public function getFlowActionIcon(?string $iconName, FlowAction $flowAction): ?string;
-
     /**
      * @return array<string, string>
      */
     abstract public function getSnippets(AppEntity $app): array;
+
+    abstract public function loadFile(string $rootPath, string $filePath): ?string;
 }

@@ -171,7 +171,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['path'] = str_replace($this->projectDir . '/', '', $manifest->getPath());
         $metadata['id'] = $id;
         $metadata['modules'] = [];
-        $metadata['iconRaw'] = $this->appLoader->getIcon($manifest);
+        $metadata['iconRaw'] = $this->getIcon($manifest);
         $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
         $metadata['baseAppUrl'] = $manifest->getAdmin() !== null ? $manifest->getAdmin()->getBaseAppUrl() : null;
         $metadata['allowedHosts'] = $manifest->getAllHosts();
@@ -539,5 +539,14 @@ class AppLifecycle extends AbstractAppLifecycle
         }, $manifestWebhooks));
 
         return $webhooks;
+    }
+
+    private function getIcon(Manifest $manifest): ?string
+    {
+        if (!$iconPath = $manifest->getMetadata()->getIcon()) {
+            return null;
+        }
+
+        return $this->appLoader->loadFile($manifest->getPath(), $iconPath);
     }
 }

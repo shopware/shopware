@@ -95,6 +95,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">

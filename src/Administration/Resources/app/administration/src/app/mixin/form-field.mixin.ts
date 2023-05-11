@@ -2,15 +2,16 @@
  * @package admin
  */
 
-const { Mixin } = Shopware;
+import type { PropType } from 'vue';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Mixin.register('sw-form-field', {
+Shopware.Mixin.register('sw-form-field', {
     props: {
         mapInheritance: {
-            type: Object,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            type: Object as PropType<any>,
             required: false,
             default: null,
         },
@@ -18,7 +19,11 @@ Mixin.register('sw-form-field', {
 
     computed: {
         boundExpression() {
-            if (this.$vnode.data.model && this.$vnode.data.model.expression) {
+            // @ts-expect-error - we check if model exists on vnode
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (this.$vnode?.data?.model && this.$vnode?.data?.model?.expression) {
+                // @ts-expect-error - we check if model exists on vnode
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
                 return this.$vnode.data.model.expression;
             }
             return null;
@@ -29,12 +34,18 @@ Mixin.register('sw-form-field', {
                 return this.$attrs.name;
             }
 
+            // @ts-expect-error - name exists on main component
             if (this.name) {
+                // @ts-expect-error - name exists on main component
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.name;
             }
 
             if (this.boundExpression) {
-                return `sw-field--${this.$vnode.data.model.expression.replace(/\./g, '-')}`;
+                // @ts-expect-error - we check if the value exists in boundExpression
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
+                return `sw-field--${this.$vnode?.data?.model?.expression.replace(/\./g, '-')}`;
             }
 
             return null;
@@ -48,16 +59,20 @@ Mixin.register('sw-form-field', {
                     return;
                 }
 
-                if (!mapInheritance.isInheritField) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                if (!mapInheritance?.isInheritField) {
                     return;
                 }
 
                 // set event listener and attributes for inheritance
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 Object.keys(mapInheritance).forEach((prop) => {
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                     const propValue = mapInheritance[prop];
 
                     if (typeof propValue === 'function') {
-                        this.setFunctionsForEvents(prop, propValue);
+                        this.setFunctionsForEvents(prop, propValue as () => void);
                     } else if (typeof propValue === 'boolean') {
                         this.setAttributesForProps(prop, propValue);
                     }
@@ -79,7 +94,7 @@ Mixin.register('sw-form-field', {
             this.$off('inheritance-remove');
         },
 
-        setFunctionsForEvents(prop, propValue) {
+        setFunctionsForEvents(prop: string, propValue: () => void) {
             switch (prop) {
                 case 'restoreInheritance': {
                     this.$off('inheritance-restore');
@@ -99,7 +114,7 @@ Mixin.register('sw-form-field', {
             }
         },
 
-        setAttributesForProps(prop, propValue) {
+        setAttributesForProps(prop: string, propValue: boolean) {
             switch (prop) {
                 case 'isInherited': {
                     this.$set(this.$attrs, prop, propValue);
@@ -118,3 +133,6 @@ Mixin.register('sw-form-field', {
         },
     },
 });
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {};

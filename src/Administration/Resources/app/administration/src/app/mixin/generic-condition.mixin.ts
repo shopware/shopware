@@ -1,16 +1,39 @@
 /**
  * @package admin
  */
+import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import createCriteriaFromArray from '../service/criteria-helper.service';
 import convertUnit from '../../module/sw-settings-rule/utils/unit-conversion.utils';
 
 const { Mixin } = Shopware;
 
+interface Field {
+    name: string,
+    type: string,
+    config: {
+        name: string;
+        criteria: Criteria,
+        options: unknown[],
+        placeholder: string,
+    }
+}
+interface Config {
+    operatorSet: null,
+    fields: Field[]
+}
+
+/* Mixin uses many untyped dependencies */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
 Mixin.register('generic-condition', {
-    data() {
+    data(): {
+        visibleValue: null|number,
+        baseUnit: null|unknown,
+        selectedUnit: null|unknown,
+        } {
         return {
             visibleValue: null,
             baseUnit: null,
@@ -19,8 +42,8 @@ Mixin.register('generic-condition', {
     },
 
     computed: {
-        config() {
-            const config = Shopware.State.getters['ruleConditionsConfig/getConfigForType'](this.condition.type);
+        config(): Config {
+            const config = Shopware.State.getters['ruleConditionsConfig/getConfigForType'](this.condition.type) as Config|undefined;
 
             if (!config) {
                 return { operatorSet: null, fields: [] };
@@ -82,14 +105,14 @@ Mixin.register('generic-condition', {
         },
 
         currentError() {
-            let error = null;
+            let error: null|unknown = null;
 
             Object.values(this.config.fields).forEach((config) => {
                 if (error) {
                     return;
                 }
 
-                const errorProperty = Shopware.State.getters['error/getApiError'](this.condition, `value.${config.name}`);
+                const errorProperty = Shopware.State.getters['error/getApiError'](this.condition, `value.${config.name}`) as unknown;
 
                 if (errorProperty) {
                     error = errorProperty;
@@ -115,13 +138,14 @@ Mixin.register('generic-condition', {
         conditionValueClasses() {
             return {
                 'sw-condition__condition-value': !!this.config.operatorSet,
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 [`sw-condition__condition-type-${this.condition.type}`]: true,
             };
         },
     },
 
     methods: {
-        getBind(field) {
+        getBind(field: Field) {
             const fieldClone = Shopware.Utils.object.cloneDeep(field);
             const snippetBasePath = ['global', 'sw-condition-generic', this.condition.type, fieldClone.name];
             const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
@@ -154,7 +178,7 @@ Mixin.register('generic-condition', {
             return fieldClone;
         },
 
-        updateFieldValue(fieldName, value, to = undefined, from = undefined) {
+        updateFieldValue(fieldName: string, value: number, to = undefined, from = undefined) {
             if (!from || !to || from === to) {
                 this.$set(this.values, fieldName, value);
 
@@ -167,19 +191,20 @@ Mixin.register('generic-condition', {
             }));
         },
 
-        updateVisibleValue(value) {
+        updateVisibleValue(value: number) {
             this.visibleValue = value;
         },
 
-        getVisibleValue(fieldName) {
+        getVisibleValue(fieldName: string) {
             if (this.visibleValue === null) {
+                // @ts-expect-error - value exists in main component
                 return this.values[fieldName];
             }
 
             return this.visibleValue;
         },
 
-        handleUnitChange(event) {
+        handleUnitChange(event: { unit: unknown, value: number }) {
             this.selectedUnit = event.unit;
 
             this.updateVisibleValue(event.value);
@@ -188,7 +213,7 @@ Mixin.register('generic-condition', {
         /**
          * @param event represents the base unit
          */
-        setDefaultUnit(event) {
+        setDefaultUnit(event: unknown) {
             this.baseUnit = event;
         },
     },

@@ -2,13 +2,13 @@
  * @package admin
  */
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+/* @private */
+export {};
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Mixin.register('user-settings', {
+Shopware.Mixin.register('user-settings', {
     inject: [
         'acl',
     ],
@@ -31,7 +31,7 @@ Mixin.register('user-settings', {
          * @param {string|null} userId Id of the target user; `null` will use the current user
          * @return {Promise<*>}
          */
-        getUserSettingsEntity(identifier, userId = null) {
+        getUserSettingsEntity(identifier: string, userId: string|null = null) {
             if (!this.acl.can('user_config:read')) {
                 return Promise.reject();
             }
@@ -55,7 +55,7 @@ Mixin.register('user-settings', {
          * @param {string|null} userId Id of the target user; `null` will use the current user
          * @return {Promise<*>}
          */
-        async getUserSettings(identifier, userId = null) {
+        async getUserSettings(identifier: string, userId = null) {
             const entity = await this.getUserSettingsEntity(identifier, userId);
 
             if (!entity) {
@@ -73,7 +73,10 @@ Mixin.register('user-settings', {
          * @param {string|null} userId Id of the target user; `null` will use the current user
          * @return {Promise<*>}
          */
-        async saveUserSettings(identifier, entityValue, userId = null) {
+        async saveUserSettings(identifier: string, entityValue: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            [key: string]: any;
+        }, userId: string|null = null) {
             if (!this.acl.can('user_config:create') || !this.acl.can('user_config:update')) {
                 return Promise.reject();
             }
@@ -92,7 +95,7 @@ Mixin.register('user-settings', {
 
             let userSettings = await this.getUserSettingsEntity(identifier);
             if (!userSettings) {
-                userSettings = await this.userConfigRepository.create(Shopware.Context.api);
+                userSettings = this.userConfigRepository.create(Shopware.Context.api);
             }
 
             const entityData = Object.assign(userSettings, {
@@ -112,14 +115,14 @@ Mixin.register('user-settings', {
          * @param {string|null} userId Id of the target user; `null` will use the current user
          * @return {Criteria}
          */
-        userGridSettingsCriteria(identifier, userId = null) {
+        userGridSettingsCriteria(identifier: string, userId: string|null = null) {
             if (!userId) {
                 userId = this.currentUser?.id;
             }
 
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('key', identifier));
-            criteria.addFilter(Criteria.equals('userId', userId));
+            const criteria = new Shopware.Data.Criteria(1, 25);
+            criteria.addFilter(Shopware.Data.Criteria.equals('key', identifier));
+            criteria.addFilter(Shopware.Data.Criteria.equals('userId', userId));
 
             return criteria;
         },

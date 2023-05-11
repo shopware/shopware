@@ -1,31 +1,32 @@
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @package admin
  *
  * @deprecated tag:v6.6.0 - Will be private
  * Mixin which contains helpers to work with position integers.
  */
-Mixin.register('position', {
+import type Repository from 'src/core/data/repository.data';
+import Criteria from 'src/core/data/criteria.data';
+import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+
+Shopware.Mixin.register('position', {
     methods: {
         /**
          * Returns a new position value using the the current max position + 1
          * starting with 1
-         *
-         * @param {Repository} repository
-         * @param {Criteria} criteria - Criteria for cases when the position isn't unique itself
-         * @param {Context} context
-         * @param {String} field - Name of the property, which is the used position
-         *
-         * @returns {Promise}
          */
-        getNewPosition(repository, criteria, context, field = 'position') {
+        getNewPosition<EntityName extends keyof EntitySchema.Entities>(
+            repository: Repository<EntityName>,
+            criteria: Criteria,
+            context: typeof Shopware.Context.api,
+            field = 'position',
+        ) {
             criteria.addAggregation(Criteria.max('maxPosition', field))
                 .addSorting(Criteria.sort(field, 'DESC'));
 
             return repository.search(criteria, context).then((result) => {
-                const position = parseInt(result.aggregations.maxPosition.max, 10);
+                // @ts-expect-error - maxPosition is defined in addAggregation
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+                const position = parseInt(result?.aggregations?.maxPosition?.max, 10);
 
                 if (Number.isNaN(position)) {
                     return Promise.resolve(1);
@@ -37,14 +38,12 @@ Mixin.register('position', {
 
         /**
          * Lowers the position value bye swapping with the next entity
-         *
-         * @param {EntityCollection} collection
-         * @param {Entity} selectedItem
-         * @param {String} field - Name of the position column
-         *
-         * @returns {EntityCollection}
          */
-        lowerPositionValue(collection, selectedItem, field = 'position') {
+        lowerPositionValue<EntityName extends keyof EntitySchema.Entities>(
+            collection: EntityCollection<EntityName>,
+            selectedItem: EntitySchema.Entities[EntityName],
+            field = 'position',
+        ) {
             return this.changePosition(collection, selectedItem, field, 'ASC');
         },
 
@@ -57,7 +56,11 @@ Mixin.register('position', {
          *
          * @returns {EntityCollection}
          */
-        raisePositionValue(collection, selectedItem, field = 'position') {
+        raisePositionValue<EntityName extends keyof EntitySchema.Entities>(
+            collection: EntityCollection<EntityName>,
+            selectedItem: EntitySchema.Entities[EntityName],
+            field = 'position',
+        ) {
             return this.changePosition(collection, selectedItem, field, 'DESC');
         },
 
@@ -71,12 +74,19 @@ Mixin.register('position', {
          *
          * @returns {EntityCollection}
          */
-        changePosition(collection, selectedItem, field = 'position', direction = 'ASC') {
+        changePosition<EntityName extends keyof EntitySchema.Entities>(
+            collection: EntityCollection<EntityName>,
+            selectedItem: EntitySchema.Entities[EntityName],
+            field = 'position',
+            direction = 'ASC',
+        ) {
             if (collection.length < 2) {
                 return collection;
             }
 
+            // @ts-expect-error
             collection.sort((a, b) => a[field] - b[field]);
+            // @ts-expect-error
             const itemIndex = collection.findIndex(entity => entity[field] === selectedItem[field]);
 
             if (
@@ -88,9 +98,13 @@ Mixin.register('position', {
 
             const siblingAdd = (direction !== 'DESC') ? -1 : 1;
 
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             [collection[itemIndex][field], collection[itemIndex + siblingAdd][field]] =
+                // @ts-expect-error
                 [collection[itemIndex + siblingAdd][field], collection[itemIndex][field]];
 
+            // @ts-expect-error
             collection.sort((a, b) => a[field] - b[field]);
 
             return collection;
@@ -106,12 +120,19 @@ Mixin.register('position', {
          *
          * @returns {int}
          */
-        getSiblingIndex(collection, selectedItem, field = 'position', direction = 'ASC') {
+        getSiblingIndex<EntityName extends keyof EntitySchema.Entities>(
+            collection: EntityCollection<EntityName>,
+            selectedItem: EntitySchema.Entities[EntityName],
+            field = 'position',
+            direction = 'ASC',
+        ) {
             if (collection.length < 2) {
                 return -1;
             }
 
+            // @ts-expect-error
             collection.sort((a, b) => a[field] - b[field]);
+            // @ts-expect-error
             const itemIndex = collection.findIndex(entity => entity[field] === selectedItem[field]);
 
             if (
@@ -136,7 +157,13 @@ Mixin.register('position', {
          *
          * @returns {Entity|null}
          */
-        getSibling(collection, selectedItem, field = 'position', direction = 'ASC') {
+        getSibling<EntityName extends keyof EntitySchema.Entities>(
+            collection: EntityCollection<EntityName>,
+            selectedItem: EntitySchema.Entities[EntityName],
+            field = 'position',
+            direction = 'ASC',
+        ) {
+            // @ts-expect-error
             collection.sort((a, b) => a[field] - b[field]);
 
             const index = this.getSiblingIndex(collection, selectedItem, field, direction);
@@ -157,11 +184,17 @@ Mixin.register('position', {
          *
          * @returns {EntityCollection}
          */
-        renumberPositions(collection, startIndex = 0, field = 'position') {
+        renumberPositions<EntityName extends keyof EntitySchema.Entities>(
+            collection: EntityCollection<EntityName>,
+            startIndex = 0,
+            field = 'position',
+        ) {
+            // @ts-expect-error
             collection.sort((a, b) => a[field] - b[field]);
 
             let i = startIndex;
             collection.forEach((item) => {
+                // @ts-expect-error
                 item[field] = i;
                 i += 1;
             });

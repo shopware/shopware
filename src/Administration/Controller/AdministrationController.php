@@ -46,6 +46,8 @@ class AdministrationController extends AbstractController
 {
     private readonly bool $esAdministrationEnabled;
 
+    private readonly bool $esStorefrontEnabled;
+
     /**
      * @internal
      *
@@ -71,6 +73,9 @@ class AdministrationController extends AbstractController
         $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')
             ? $params->get('elasticsearch.administration.enabled')
             : false;
+        $this->esStorefrontEnabled = $params->has('elasticsearch.enabled')
+            ? $params->get('elasticsearch.enabled')
+            : false;
     }
 
     #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
@@ -93,6 +98,7 @@ class AdministrationController extends AbstractController
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
             'adminEsEnable' => $this->esAdministrationEnabled,
+            'storefrontEsEnable' => $this->esStorefrontEnabled,
         ]);
     }
 

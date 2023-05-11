@@ -672,7 +672,6 @@ const missingTests = [
     'src/module/sw-settings-search/service/livesearch.api.service.js',
     'src/module/sw-settings-search/service/productIndex.api.service.js',
     'src/module/sw-settings-search/view/sw-settings-search-view-general/index.js',
-    'src/module/sw-settings-search/view/sw-settings-search-view-live-search/index.js',
     'src/module/sw-settings-seo/component/sw-seo-url-template-card/index.js',
     'src/module/sw-settings-seo/index.js',
     'src/module/sw-settings-shipping/default-search-configuration.js',

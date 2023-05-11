@@ -24,7 +24,8 @@
                 systemCurrencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                 systemCurrencyISOCode: 'EUR',
                 disableExtensions: false,
-                adminEsEnable: false
+                adminEsEnable: false,
+                storefrontEsEnable: false
             },
             apiContext: {
                 host: 'localhost',

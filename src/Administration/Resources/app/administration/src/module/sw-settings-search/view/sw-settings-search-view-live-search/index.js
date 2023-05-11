@@ -7,8 +7,6 @@ import template from './sw-settings-search-view-live-search.html.twig';
 export default {
     template,
 
-    inject: ['feature'],
-
     props: {
         currentSalesChannelId: {
             type: String,
@@ -34,6 +32,12 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+        },
+    },
+
+    computed: {
+        storefrontEsEnable() {
+            return Shopware.Context.app.storefrontEsEnable ?? false;
         },
     },
 };

@@ -327,15 +327,6 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
-        if ($event instanceof AppFlowActionEvent) {
-            return $event->getWebhookPayload();
-        }
-
-        $data = [
-            'payload' => $event->getWebhookPayload($webhook->getApp()),
-            'event' => $event->getName(),
-        ];
-
         $source = [
             'url' => $this->shopUrl,
             'eventId' => Uuid::randomHex(),
@@ -347,6 +338,19 @@ class WebhookDispatcher implements EventDispatcherInterface
             $source['appVersion'] = $webhook->getApp()->getVersion();
             $source['shopId'] = $shopIdProvider->getShopId();
         }
+
+        if ($event instanceof AppFlowActionEvent) {
+            $source['action'] = $event->getName();
+            $payload = $event->getWebhookPayload();
+            $payload['source'] = $source;
+
+            return $payload;
+        }
+
+        $data = [
+            'payload' => $event->getWebhookPayload($webhook->getApp()),
+            'event' => $event->getName(),
+        ];
 
         return [
             'data' => $data,

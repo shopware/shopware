@@ -13,6 +13,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @package business-ops
@@ -51,43 +52,25 @@ class CustomerRecoveryStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
-
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(true);
-
-        $storable->expects(static::exactly(1))
-            ->method('getStore')
-            ->willReturn('test_id');
-
-        $storable->expects(static::exactly(1))
-            ->method('lazy');
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'test_id']);
 
         $this->storer->restore($storable);
+
+        static::assertArrayHasKey('customerRecovery', $storable->data());
     }
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
-
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(false);
-
-        $storable->expects(static::never())
-            ->method('getStore');
-
-        $storable->expects(static::never())
-            ->method('lazy');
+        $storable = new StorableFlow('name', Context::createDefaultContext());
 
         $this->storer->restore($storable);
+
+        static::assertEmpty($storable->data());
     }
 
     public function testLoadEntity(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $entity = new CustomerRecoveryEntity();
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->willReturn($entity);
@@ -100,6 +83,7 @@ class CustomerRecoveryStorerTest extends TestCase
 
     public function testLoadNullEntity(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->willReturn($entity);
@@ -108,5 +92,42 @@ class CustomerRecoveryStorerTest extends TestCase
         $res = $this->storer->load(['3443', Context::createDefaultContext()]);
 
         static::assertEquals($res, $entity);
+    }
+
+    public function testLazyLoadEntity(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'id']);
+        $this->storer->restore($storable);
+        $entity = new CustomerRecoveryEntity();
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->expects(static::once())->method('get')->willReturn($entity);
+
+        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $res = $storable->getData('customerRecovery');
+
+        static::assertEquals($res, $entity);
+    }
+
+    public function testLazyLoadNullEntity(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'id']);
+        $this->storer->restore($storable);
+        $entity = null;
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->expects(static::once())->method('get')->willReturn($entity);
+
+        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $res = $storable->getData('customerRecovery');
+
+        static::assertEquals($res, $entity);
+    }
+
+    public function testLazyLoadNullId(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => null], []);
+        $this->storer->restore($storable);
+        $customerGroup = $storable->getData('customerRecovery');
+
+        static::assertNull($customerGroup);
     }
 }

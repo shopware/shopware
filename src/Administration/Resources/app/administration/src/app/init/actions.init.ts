@@ -9,7 +9,8 @@ export default function initializeActions(): void {
             .find(key => Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin));
 
         if (!extensionName) {
-            return;
+            // eslint-disable-next-line max-len
+            throw new Error(`Could not find a extension with the given event origin "${additionalInformation._event_.origin}"`);
         }
 
         await Shopware.Service('extensionSdkService').runAction(

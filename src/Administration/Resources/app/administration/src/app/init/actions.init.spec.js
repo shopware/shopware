@@ -59,11 +59,14 @@ describe('src/app/init/actions.init.ts', () => {
         Shopware.Service('extensionSdkService').runAction = mock;
 
         initActions();
-        await actionExecute({
-            entity: 'customer',
-            url: 'https://example.com',
-            entityIds: ['123'],
-        });
+
+        await expect(
+            actionExecute({
+                entity: 'customer',
+                url: 'https://example.com',
+                entityIds: ['123'],
+            }),
+        ).rejects.toThrow('Could not find a extension with the given event origin ""');
 
         expect(mock).toHaveBeenCalledTimes(0);
     });

@@ -16,7 +16,7 @@ use Symfony\Component\Finder\Finder;
     name: 'administration:delete-files-after-build',
     description: 'Deletes all unnecessary files of the administration after the build process.',
 )]
-#[Package('admin')]
+#[Package('administration')]
 class DeleteAdminFilesAfterBuildCommand extends Command
 {
     /**

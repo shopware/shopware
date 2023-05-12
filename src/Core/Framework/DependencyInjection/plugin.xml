@@ -149,6 +149,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\Subscriber\PluginLoadedSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>

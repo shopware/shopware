@@ -382,3 +382,21 @@ PHP Full quarantined:
     script:
       - composer run phpunit -- --group=quarantined --log-junit phpunit.quarantined.junit.xml --colors=never
     after_script: []
+
+PHP unit per area:
+    extends: PHP unit coverage
+    stage: unit
+    script:
+      - composer dump-autoload -o
+      - bin/console coverage:classes-per-area -g
+      - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
+      - php $PHP_OPTIONS vendor/bin/phpunit
+        --configuration phpunit.$PRODUCT_AREA.xml
+        --bootstrap tests/unit/php/Common/UnitTestBootstrap.php
+        --log-junit phpunit.junit.xml
+        --testsuite unit
+        --coverage-text
+        --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
+    parallel:
+      matrix:
+        - PRODUCT_AREA: ["administration", "business-ops", "checkout", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]

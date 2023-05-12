@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -288,5 +289,18 @@ trait BasicTestDataBehaviour
         $connection = $this->getContainer()->get(Connection::class);
 
         return Uuid::fromBytesToHex($connection->fetchOne('SELECT id FROM currency WHERE iso_code = :iso', ['iso' => $iso]));
+    }
+
+    protected function getNonDefaultLanguageId(): ?string
+    {
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('language.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM)])
+        );
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 }

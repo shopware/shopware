@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
@@ -124,10 +125,15 @@ class ElasticsearchIndexer
             return;
         }
 
-        $alias = $this->helper->getIndexName($definition, Defaults::LANGUAGE_SYSTEM);
+        $languages = $this->getLanguages();
+        $missingIndicesLanguages = $languages->filter(
+            fn(LanguageEntity $language): bool => !$this->indexExists($definition, $language)
+        );
 
-        if (!$this->client->indices()->existsAlias(['name' => $alias])) {
-            $this->init();
+        if ($missingIndicesLanguages->count() > 0) {
+            $definitions = array_filter([$this->getElasticSearchDefinition($definition)]);
+
+            $this->init($definitions ?: null, $missingIndicesLanguages);
         }
 
         $messages = $this->generateMessages($definition, $ids);
@@ -136,6 +142,26 @@ class ElasticsearchIndexer
         foreach ($messages as $message) {
             $this->__invoke($message);
         }
+    }
+
+    protected function indexExists(EntityDefinition $definition, LanguageEntity $language): bool
+    {
+        $alias = $this->helper->getIndexName($definition, $language->getId());
+
+        return $this->client->indices()->existsAlias(['name' => $alias]);
+    }
+
+    protected function getElasticSearchDefinition(EntityDefinition $definition): ?AbstractElasticsearchDefinition
+    {
+        $elasticSearchDefinitions = $this->registry->getDefinitions();
+
+        foreach ($elasticSearchDefinitions as $elasticSearchDefinition) {
+            if ($elasticSearchDefinition->getEntityDefinition()->getEntityName() === $definition->getEntityName()) {
+                return $elasticSearchDefinition;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -203,13 +229,18 @@ class ElasticsearchIndexer
         return $this->createIndexingMessage($offset, $context);
     }
 
-    private function init(): IndexerOffset
+    /**
+    * @param iterable<AbstractElasticsearchDefinition>|null $definitions
+    * @param iterable<LanguageEntity>|null $languages
+    */
+    private function init(?iterable $definitions = null, ?iterable $languages = null): IndexerOffset
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
         $this->createScripts();
 
-        $languages = $this->getLanguages();
+        $definitions ??= $this->registry->getDefinitions();
+        $languages = $languages ? new LanguageCollection($languages) : $this->getLanguages();
 
         $timestamp = new \DateTime();
 
@@ -219,7 +250,7 @@ class ElasticsearchIndexer
 
         return new IndexerOffset(
             array_values($languages->getIds()),
-            $this->registry->getDefinitions(),
+            $definitions,
             $timestamp->getTimestamp()
         );
     }

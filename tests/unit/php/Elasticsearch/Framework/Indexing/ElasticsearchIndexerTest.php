@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\CollectingMessageBus;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
@@ -237,6 +238,49 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer = $this->getIndexer();
 
         $indexer->updateIds($this->createMock(EntityDefinition::class), ['1', '2']);
+    }
+
+    public function testUpdateDoesNotCreateIndexIfExists(): void
+    {
+        $definition = $this->createMock(EntityDefinition::class);
+        $this->languageRepository = $this->createMock(EntityRepository::class);
+
+        $languageId = '1';
+        $language = new LanguageEntity();
+        $language->setId($languageId);
+        $language->setUniqueIdentifier($languageId);
+        $languages = new LanguageCollection([$language]);
+        $languageSearchResult = new EntitySearchResult(
+            LanguageDefinition::ENTITY_NAME,
+            0,
+            $languages,
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $this->languageRepository
+            ->method('search')
+            ->willReturn($languageSearchResult);
+
+        $this->helper
+            ->method('getIndexName')
+            ->will(
+                $this->returnCallback(fn(EntityDefinition $definition, string $languageId) => $languageId)
+            );
+        $this->indices
+            ->method('existsAlias')
+            ->will(
+                $this->returnCallback(fn(array $params) => ($params['name'] ?? null) === $languageId)
+            );
+
+        $this->indexCreator
+            ->expects(static::never())
+            ->method('createIndex');
+
+        $indexer = $this->getIndexer();
+
+        $indexer->updateIds($definition, ['1', '2']);
     }
 
     public function testHandleESDisabled(): void

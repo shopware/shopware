@@ -3,12 +3,18 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
@@ -18,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -118,6 +125,99 @@ class ElasticsearchIndexerTest extends TestCase
             static::assertArrayHasKey('alias', $index);
             static::assertStringNotContainsString($languageId, $index['alias']);
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testUpdateSkipsGeneratingIndexIfExists(): void
+    {
+        $container = self::getContainer();
+
+        /** @var ElasticsearchIndexer $indexer */
+        $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
+        /** @var DefinitionInstanceRegistry $definitionRegistry */
+        $definitionRegistry = $container->get(DefinitionInstanceRegistry::class);
+        /** @var Connection $connection */
+        $connection = $container->get(Connection::class);
+        /** @var EntityRepository $channelRepository */
+        $channelRepository = $container->get('sales_channel.repository');
+        /** @var EntityRepository $productRepository */
+        $productRepository = $container->get('product.repository');
+        /** @var Client $elasticsearchClient */
+        $elasticsearchClient = $container->get(Client::class);
+
+        $productDefinition = $definitionRegistry->getByEntityName(ProductDefinition::ENTITY_NAME);
+        $context = Context::createDefaultContext();
+
+        $connection->beginTransaction();
+
+        // Make sure there are only sales channels without the default language
+        $criteria = new Criteria();
+        $existingSalesChannelsIds = $channelRepository->searchIds($criteria, $context)->getIds();
+        $exisingSalesChannelsIdsToRemove = array_map(fn(string $id) => ['id' => $id], $existingSalesChannelsIds);
+        $channelRepository->delete(array_values($exisingSalesChannelsIdsToRemove), $context);
+
+        $languageId = $this->getNonDefaultLanguageId();
+        $shippingMethodId = $this->getValidShippingMethodId();
+        $paymentMethodId = $this->getValidPaymentMethodId();
+        $countryId = $this->getValidCountryId(null);
+        $salesChannel = [
+            'id' => Uuid::randomHex(),
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'languageId' => $languageId,
+            'currencyId' => Defaults::CURRENCY,
+            'active' => true,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $paymentMethodId,
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $shippingMethodId,
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $countryId,
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => $languageId]],
+            'shippingMethods' => [['id' => $shippingMethodId]],
+            'paymentMethods' => [['id' => $paymentMethodId]],
+            'countries' => [['id' => $countryId]],
+            'name' => 'first sales-channel',
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'domains' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'url' => 'https://es-test.domain',
+                    'languageId' => $languageId,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                ]
+            ]
+        ];
+        $channelRepository->create([$salesChannel], $context);
+
+        $productId = Uuid::randomHex();
+        $product = [
+            'id' => $productId,
+            'productNumber' => 'Test',
+            'stock' => 10,
+            'name' => 'Test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
+        ];
+        $productRepository->create([$product], $context);
+
+        $indexer->updateIds($productDefinition, [$productId]);
+        // The index name is based on timestamp, so we have to wait at least 1 second to check if another one is created
+        sleep(1);
+        $indexer->updateIds($productDefinition, [$productId]);
+
+        $connection->rollBack();
+
+        $indicesStats = $elasticsearchClient->indices()->stats()['indices'] ?? [];
+
+        self::assertCount(1, $indicesStats);
     }
 
     public function testIterateDispatchesElasticsearchIndexerLanguageCriteriaEvent(): void

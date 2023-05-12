@@ -11,7 +11,17 @@ Currently, it is hard to publish features in an early state to gather feedback r
 One major reason is that everything we publish (that is not marked as internal) is part of our backward compatibility promise, thus changing foundational parts of features is quite hard after first release.
 That leads to features being developed over quite some time without getting actual feedback from users or being able to release them, as they need to be implemented to a pretty final state in order to confidently release them in a stable manner, where we will keep backwards compatibility.
 
-This at the same time also means that the approach is not beneficial to our ecosystem, whom the whole backwards compatibility promise should benefit, because the features are built behind close curtains they can't chime in with ideas and use cases regarding extendability, etc.
+This at the same time also means that the current approach is not beneficial to our ecosystem, whom the whole backwards compatibility promise should benefit, because the features are built behind close curtains they can't chime in with ideas and use cases regarding extendability, etc.
+
+Examples of features that could benefit from an earlier experimental release:
+* B2B:
+  * We could release the multi account B2B feature with a "simple" employee management system first, and then add the more complex budget management or access control on top of that later.
+* Advanced Search:
+  * We could release a first version of the new advanced search feature, without all configuration options and customizability that we might envision.
+
+In both cases, releasing the first increments of the features without an "experimental"-flag would mean that we would have to keep backwards compatibility for the whole feature, even if we later decide to change the implementation of the feature, thus making the development of the feature harder.
+Also in getting feedback from the customers what additional functionalities are needed after we released the first foundational increment of the feature, we can base our further prioritization on real customer feedback.
+Thus, we can ship business value sooner to our customers and lower the risk of building the wrong thing.
 
 ## Decision
 
@@ -32,24 +42,31 @@ That does not mean that the feature won't be finished and stable earlier (we can
 
 Experimental features don't compromise in terms of quality or any other guidelines we have, that means experimental features are production ready.
 While the UI and processes and functionalities of a single feature may change considerably during the experimental phase, we won't discard any data that was generated when the feature was actively used in a previous stage, meaning that even if there are changes to the underlying data, we will migrate the existing data. 
-This ensures that customers using early version of the feature can continue working with that feature. 
+This ensures that customers using an early version of the feature can continue working with that feature. 
 
 As said earlier experimental features do not hone our backwards compatibility promise, allowing us to react more flexibly to the feedback we gather based on the earlier iterations of the feature.
 
 ### Killing a feature
 
 It may happen that during development of a feature we get the feedback that our feature idea does not provide the value we expected, if that is the case we may kill a feature again.
-If that is the case we will mark the feature as deprecated for the next major version, so even if the feature was marked as experimental and does not fall under the backwards compatible promise we will not remove a experimental feature with a minor version. We will only kill the feature for the next major version, and announce the deprecation as soon as possible.
+If that is the case, we will mark the feature as deprecated for the next major version, so even if the feature was marked as experimental and does not fall under the backwards compatible promise we will not remove a experimental feature with a minor version. We will only kill the feature for the next major version, and announce the deprecation as soon as possible.
 
 This is also important as features can't stay in the experimental state forever, that means either they are further developed to a stable state, or they are killed to the next major version.
 
 ### How does this compare to the "old" feature flag approach?
 
-With the old feature flag approach work in progress code was hidden with a feature flagging mechanism. That meant that code that was not production ready was in the released product, but it was turned off via flag.
+With the old feature flag approach work-in-progress code was hidden with a feature flagging mechanism. That meant that code that was not production ready was in the released product, but it was turned off via flag.
 Experimental features are neither work in progress, nor finished and finalized features. Whatever is included in an experimental feature is production ready and ready to use for customers, but it may mean that not all functionalities we envision for a feature are ready yet, but those that are can be used standalone.
 
-# TBD - Do you have to opt-in to experimental features or are they always there?
-First guess, say are always there because it does not add additional complexity in terms of permutations and testing etc.
+# Do you have to opt-in to experimental features or are they always there?
+
+From a technical perspective, experimental features are always there and they can not be deactivated. This reduces the number of permutations of the system and greatly reduces the overall complexity and thus makes testing, etc. a lot easier.
+From the perspective of an external developer, this makes things also more predictable, as externals can rely on the feature being there in a given version, independent of the specific systems configuration, thus it will help in getting real feedback from the ecosystem.
+
+From a merchants/users perspective, this might not be the case and it might be beneficial for them that some early features are opt-in only.
+But as already detailed in the [UI section](#UI) this ADR does not focus on the UI and merchants perspective and leaves that open for a future ADR.
+However when the decision will be made to make certain features opt-in for the user we should always built it in a way that only the UI of the new feature is hidden, but from the technical perspective the whole feature is always there. 
+The opt-in then only makes the entry point to the new feature visible for the user.
 
 ## Consequences
 ### Core
@@ -89,7 +106,7 @@ Modules, Components, Services, etc. can be marked as experimental, meaning that 
  */
 Component.register('sw-new-component', {
     ...
-}
+});
 ```
 ### Storefront
 
@@ -98,7 +115,7 @@ Blocks, SCSS classes, JS plugins etc. can be marked as experimental, meaning tha
 In twig blocks can be wrapped as being experimental:
 ```twig
 {# @experimental stableVersion:v6.6.0 #}
-{% block awesome-new-feature %}
+{% block awesome_new_feature %}
    ...
 {% endblock %}
 
@@ -112,7 +129,13 @@ In addition to that, we can also mark the whole template as experimental:
 
 ### UI
 
-# TBD - How do we mark experimental features in the UI? So that customers know they are still experimental
+This concept does not deal with how experimental features may be displayed to the merchant on UI level.
+While the concepts are overlapping, we keep them separate, this ADR only answers the technical side and should enable teams developing features to work in a incremental and iterative way,
+without being able to revisit early decisions (because they are covered by our BC promise) and without the need to use a long-lived feature branch.
+
+As far as this ADR is concerned the UI part, there is by default no way for a merchant to distinguish between experimental and stable features.
+If that is needed can be decided individually per feature or in general in a separate ADR.
+Those considerations should not hinder us from starting to use the `@experimental` annotation as explained here.
 
 ### Commercial
 

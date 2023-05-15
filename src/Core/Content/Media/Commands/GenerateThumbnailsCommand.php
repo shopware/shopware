@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -141,6 +142,9 @@ class GenerateThumbnailsCommand extends Command
         return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
     }
 
+    /**
+     * @return array<string, int|array<array<string>>>
+     */
     private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
     {
         $generated = 0;
@@ -209,9 +213,11 @@ class GenerateThumbnailsCommand extends Command
 
         if (is_countable($result['errors']) ? \count($result['errors']) : 0) {
             if ($this->io->isVerbose()) {
+                /** @var array<array<string>> $errors */
+                $errors = $result['errors'];
                 $this->io->table(
                     ['Error messages'],
-                    $result['errors']
+                    $errors
                 );
             } else {
                 $this->io->warning(\sprintf('Thumbnail generation for %d file(s) failed. Use -v to show the files', is_countable($result['errors']) ? \count($result['errors']) : 0));
@@ -227,7 +233,12 @@ class GenerateThumbnailsCommand extends Command
             $msg = new UpdateThumbnailsMessage();
             $msg->setIsStrict($this->isStrict);
             $msg->setMediaIds($result->getEntities()->getIds());
-            $msg->withContext($context);
+
+            if (Feature::isActive('v6.6.0.0')) {
+                $msg->setContext($context);
+            } else {
+                $msg->withContext($context);
+            }
 
             $this->messageBus->dispatch($msg);
             ++$batchCount;

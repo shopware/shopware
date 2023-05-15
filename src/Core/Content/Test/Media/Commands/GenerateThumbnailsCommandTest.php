@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\CollectingMessageBus;
@@ -286,12 +287,24 @@ class GenerateThumbnailsCommandTest extends TestCase
         $affectedMediaIds = [...array_combine($this->initialMediaIds, $this->initialMediaIds), ...$newMedia->getIds()];
 
         $expectedMessageStrict = new UpdateThumbnailsMessage();
-        $expectedMessageStrict->withContext($this->context);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $expectedMessageStrict->setContext($this->context);
+        } else {
+            $expectedMessageStrict->withContext($this->context);
+        }
+
         $expectedMessageStrict->setIsStrict(true);
         $expectedMessageStrict->setMediaIds($affectedMediaIds);
 
         $expectedMessageNonStrict = new UpdateThumbnailsMessage();
-        $expectedMessageNonStrict->withContext($this->context);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $expectedMessageNonStrict->setContext($this->context);
+        } else {
+            $expectedMessageNonStrict->withContext($this->context);
+        }
+
         $expectedMessageNonStrict->setIsStrict(false);
         $expectedMessageNonStrict->setMediaIds($affectedMediaIds);
 

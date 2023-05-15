@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -101,7 +102,12 @@ class FileSaver
 
         $message = new GenerateThumbnailsMessage();
         $message->setMediaIds([$mediaId]);
-        $message->withContext($context);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $message->setContext($context);
+        } else {
+            $message->withContext($context);
+        }
 
         $this->messageBus->dispatch($message);
     }

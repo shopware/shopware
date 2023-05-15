@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\CollectingMessageBus;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -154,7 +155,12 @@ class FileSaverTest extends TestCase
 
         $message = new GenerateThumbnailsMessage();
         $message->setMediaIds([$mediaId]);
-        $message->withContext($context);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $message->setContext($context);
+        } else {
+            $message->withContext($context);
+        }
 
         $this->mediaRepository
             ->expects(static::once())

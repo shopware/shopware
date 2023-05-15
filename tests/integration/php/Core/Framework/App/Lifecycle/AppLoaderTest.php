@@ -51,33 +51,16 @@ class AppLoaderTest extends TestCase
     public function testGetIcon(): void
     {
         $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
-
-        $manifests = $appLoader->load();
-
-        static::assertCount(1, $manifests);
-        $manifest = $manifests['test'];
-
-        $icon = $appLoader->getIcon($manifest);
-        static::assertNotNull($icon);
-
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/icon.png',
-            $icon
+            $appLoader->loadFile(__DIR__ . '/../Manifest/_fixtures/test', 'icon.png') ?? '',
         );
     }
 
-    public function testGetIconReturnsNullOnInvalidIconPath(): void
+    public function testLoadFileReturnsNullOnInvalidPath(): void
     {
         $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
-
-        $manifests = $appLoader->load();
-
-        static::assertCount(1, $manifests);
-        $manifest = $manifests['test'];
-
-        $manifest->getMetadata()->assign(['icon' => 'file/that/dont/exist.png']);
-
-        static::assertNull($appLoader->getIcon($manifest));
+        static::assertNull($appLoader->loadFile(__DIR__ . '/../Manifest/_fixtures/test', 'file/that/dont/exist.png'));
     }
 
     public function testGetConfigurationReturnsNullIfNoConfigIsProvided(): void

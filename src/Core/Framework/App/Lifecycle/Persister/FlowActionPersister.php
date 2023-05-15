@@ -25,6 +25,7 @@ class FlowActionPersister
 
     public function updateActions(FlowAction $flowAction, string $appId, Context $context, string $defaultLocale): void
     {
+        /** @var array<string, string> $existingFlowActions */
         $existingFlowActions = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_action WHERE app_id = :appId', [
             'appId' => Uuid::fromHexToBytes($appId),
         ]);
@@ -33,9 +34,13 @@ class FlowActionPersister
         $upserts = [];
 
         foreach ($flowActions as $action) {
+            if ($icon = $action->getMeta()->getIcon()) {
+                $icon = $this->appLoader->loadFile($flowAction->getPath(), $icon);
+            }
+
             $payload = array_merge([
                 'appId' => $appId,
-                'iconRaw' => $this->appLoader->getFlowActionIcon($action->getMeta()->getIcon(), $flowAction),
+                'iconRaw' => $icon,
             ], $action->toArray($defaultLocale));
 
             $existing = $existingFlowActions[$action->getMeta()->getName()] ?? null;
@@ -51,18 +56,19 @@ class FlowActionPersister
             $this->flowActionsRepository->upsert($upserts, $context);
         }
 
-        $this->deleteOldAppFlowActions($existingFlowActions, $context);
+        $this->deleteOldAppFlowActions(\array_values($existingFlowActions), $context);
     }
 
-    private function deleteOldAppFlowActions(array $toBeRemoved, Context $context): void
+    /**
+     * @param string[] $ids
+     */
+    private function deleteOldAppFlowActions(array $ids, Context $context): void
     {
-        $ids = array_values($toBeRemoved);
-
         if (empty($ids)) {
             return;
         }
 
-        $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
+        $ids = array_map(static fn (string $id): array => ['id' => $id], $ids);
 
         $this->flowActionsRepository->delete($ids, $context);
     }

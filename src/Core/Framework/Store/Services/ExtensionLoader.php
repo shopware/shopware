@@ -218,7 +218,9 @@ class ExtensionLoader
         $language = $this->localeProvider->getLocaleFromContext($context);
 
         foreach ($apps as $name => $app) {
-            $icon = $this->appLoader->getIcon($app);
+            if ($icon = $app->getMetadata()->getIcon()) {
+                $icon = $this->appLoader->loadFile($app->getPath(), $icon);
+            }
 
             $appArray = $app->getMetadata()->toArray($language);
 

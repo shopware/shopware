@@ -29,6 +29,7 @@ final class ImportExportHandler
 
     public function __invoke(ImportExportMessage $message): void
     {
+        $context = $message->getContext();
         $importExport = $this->importExportFactory->create($message->getLogId(), 50, 50);
         $logEntity = $importExport->getLogEntity();
 
@@ -40,20 +41,22 @@ final class ImportExportHandler
             $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT
             || $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN
         ) {
-            $progress = $importExport->import($message->getContext(), $message->getOffset());
+            $progress = $importExport->import($context, $message->getOffset());
         } elseif ($logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT) {
-            $progress = $importExport->export($message->getContext(), new Criteria(), $message->getOffset());
+            $progress = $importExport->export($context, new Criteria(), $message->getOffset());
         } else {
             throw new ProcessingException('Unknown activity');
         }
 
         if (!$progress->isFinished()) {
-            $this->messageBus->dispatch(new ImportExportMessage(
-                $message->getContext(),
+            $nextMessage = new ImportExportMessage(
+                $context,
                 $logEntity->getId(),
                 $logEntity->getActivity(),
                 $progress->getOffset()
-            ));
+            );
+
+            $this->messageBus->dispatch($nextMessage);
         }
     }
 }

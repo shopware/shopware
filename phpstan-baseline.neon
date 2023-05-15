@@ -2646,21 +2646,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Controller\\\\ImportExportActionController\\:\\:getMissingPrivilges\\(\\) has parameter \\$missingPrivileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Controller/ImportExportActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Controller\\\\ImportExportActionController\\:\\:getMissingPrivilges\\(\\) has parameter \\$properties with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Controller/ImportExportActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Controller\\\\ImportExportActionController\\:\\:getMissingPrivilges\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Controller/ImportExportActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\CountrySerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/CountrySerializer.php
@@ -7483,16 +7468,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$stmts of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Command\\\\DumpClassSchemaCommand\\:\\:resolveNames\\(\\) expects array, array\\<PhpParser\\\\Node\\\\Stmt\\>\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Command/DumpClassSchemaCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\AdminApiSource\\:\\:setPermissions\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Context/AdminApiSource.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\AdminApiSource\\:\\:\\$permissions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Context/AdminApiSource.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\AclController\\:\\:getFromRoutes\\(\\) should return list\\<string\\> but returns array\\.$#"

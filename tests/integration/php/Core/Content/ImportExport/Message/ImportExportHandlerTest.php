@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Message;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -44,6 +44,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
         );
 
         $importExportMessage = new ImportExportMessage($context, $logEntity->getId(), ImportExportLogEntity::ACTIVITY_IMPORT);
+
         $importExportHandler->__invoke($importExportMessage);
 
         $messages = $messageBus->getDispatchedMessages();

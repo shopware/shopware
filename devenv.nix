@@ -1,12 +1,23 @@
 { pkgs, lib, config, ... }:
 
-{
+let
+  inherit (lib.attrsets) attrValues genAttrs;
+  pcovExtensions = lib.filter(e: e != "blackfire") (config.languages.php.extensions ++ [ "pcov" ]);
+  pcov = pkgs.php81.buildEnv {
+    extensions = { all, enabled }: with all; enabled ++ attrValues (lib.getAttrs pcovExtensions config.languages.php.package.extensions);
+    extraConfig = config.languages.php.ini;
+  };
+in {
   packages = [
     pkgs.gnupatch
     pkgs.nodePackages_latest.yalc
     pkgs.gnused
     pkgs.symfony-cli
     pkgs.deno
+    ( pkgs.writeShellScriptBin "php-pcov" ''
+      export PHP_INI_SCAN_DIR=''${PHP_INI_SCAN_DIR-'${pcov}/lib'}
+      exec -a "$0" "${pcov}/bin/.php-wrapped"  "$@"
+    '')
   ];
 
   languages.javascript = {
@@ -70,6 +81,7 @@
 
   services.mysql = {
     enable = true;
+    package = pkgs.mysql80;
     initialDatabases = lib.mkDefault [{ name = "shopware"; }];
     ensureUsers = lib.mkDefault [
       {

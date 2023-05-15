@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -48,7 +49,7 @@ class TemplateDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml(false)),
+            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml(false), new AllowEmptyString()),
             (new StringField('path', 'path', 1024))->addFlags(new Required()),
             (new BoolField('active', 'active'))->addFlags(new Required()),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),

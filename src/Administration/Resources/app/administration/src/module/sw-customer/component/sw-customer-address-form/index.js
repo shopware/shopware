@@ -96,7 +96,7 @@ export default {
 
         countryCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('position', 'ASC'))
+            criteria.addSorting(Criteria.sort('position', 'ASC', true))
                 .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
@@ -108,6 +108,7 @@ export default {
 
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('countryId', this.countryId))
+                .addSorting(Criteria.sort('position', 'ASC', true))
                 .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },

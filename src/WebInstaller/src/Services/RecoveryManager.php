@@ -31,7 +31,7 @@ class RecoveryManager
     public function getProjectDir(): string
     {
         /** @var string $fileName */
-        $fileName = $_SERVER['SCRIPT_FILENAME'];
+        $fileName = realpath($_SERVER['SCRIPT_FILENAME']);
 
         return \dirname($fileName);
     }

@@ -8,5 +8,10 @@
         <service id="Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand">
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand">
+            <argument type="service" id="kernel"/>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

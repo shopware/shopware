@@ -31,7 +31,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('customer-order')]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {

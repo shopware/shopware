@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('customer-order')]
 class LoginRoute extends AbstractLoginRoute
 {

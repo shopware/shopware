@@ -62,7 +62,7 @@ export default {
         },
 
         snippetSetCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
 
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 

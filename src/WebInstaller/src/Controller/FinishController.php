@@ -28,10 +28,6 @@ class FinishController extends AbstractController
             // Below this line call only php native functions as we deleted our own files already
             unlink($self);
 
-            if (\function_exists('opcache_reset')) {
-                opcache_reset();
-            }
-
             header('Content-Type: text/html; charset=utf-8');
             echo '<script>window.location.href = "' . $redirectUrl . '" </script>';
             exit;

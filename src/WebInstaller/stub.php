@@ -4,9 +4,14 @@ error_reporting(-1);
 
 ignore_user_abort(true);
 
+if (\function_exists('opcache_reset')) {
+    opcache_reset();
+}
+
 if (function_exists('ini_set')) {
     @ini_set('display_errors', '1');
     @ini_set('display_startup_errors', '1');
+    @ini_set('opcache.enable', '0');
     @ini_set('opcache.enable_cli', '0');
     @ini_set('max_execution_time', '300');
 }

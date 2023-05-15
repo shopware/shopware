@@ -18,6 +18,10 @@
     position: relative;
     color: $color-darkgray-200;
 
+    .sw-ai-copilot-badge {
+        height: 18px;
+    }
+
     &:not(.sw-card--hero) {
         border-radius: $border-radius-lg;
 

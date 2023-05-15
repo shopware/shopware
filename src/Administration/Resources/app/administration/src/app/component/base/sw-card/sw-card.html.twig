@@ -31,6 +31,8 @@
                         class="sw-card__title"
                     >
                         {{ title }}
+
+                        <sw-ai-copilot-badge v-if="aiBadge" />
                     </div>
                 </slot>
                 {% endblock %}

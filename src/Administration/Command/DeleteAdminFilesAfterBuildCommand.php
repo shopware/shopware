@@ -14,7 +14,7 @@ use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
     name: 'administration:delete-files-after-build',
-    description: 'Deletes all uneccessary files of the administration after the build process.',
+    description: 'Deletes all unnecessary files of the administration after the build process.',
 )]
 #[Package('admin')]
 class DeleteAdminFilesAfterBuildCommand extends Command
@@ -30,7 +30,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
     {
         $helper = $this->getHelper('question');
 
-        $question = new ConfirmationQuestion('This will delete all files necessary to build the administration. Do you want to continue? (y/n) ', false);
+        $question = new ConfirmationQuestion('This will delete all files unnecessary to build the administration. Do you want to continue? (y/n)');
 
         if (!$helper->ask($input, $output, $question)) {
             $output->writeln('Command aborted!');
@@ -39,7 +39,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         }
 
         $adminDir = \dirname((string) (new \ReflectionClass(Administration::class))->getFileName());
-        $output->writeln('Deleting uneccessary files of the administration after the build process...');
+        $output->writeln('Deleting unnecessary files of the administration after the build process...');
         $progressBar = new ProgressBar($output, 100);
 
         $finder = new Finder();
@@ -90,7 +90,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $progressBar->finish();
 
         $output->writeln('');
-        $output->writeln('All uneccessary files of the administration after the build process have been deleted.');
+        $output->writeln('All unnecessary files of the administration after the build process have been deleted.');
 
         return 0;
     }

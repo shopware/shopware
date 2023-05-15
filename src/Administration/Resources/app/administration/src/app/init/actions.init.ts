@@ -10,7 +10,7 @@ export default function initializeActions(): void {
 
         if (!extensionName) {
             // eslint-disable-next-line max-len
-            throw new Error(`Could not find a extension with the given event origin "${additionalInformation._event_.origin}"`);
+            throw new Error(`Could not find an extension with the given event origin "${additionalInformation._event_.origin}"`);
         }
 
         await Shopware.Service('extensionSdkService').runAction(

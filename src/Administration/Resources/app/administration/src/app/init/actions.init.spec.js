@@ -66,7 +66,7 @@ describe('src/app/init/actions.init.ts', () => {
                 url: 'https://example.com',
                 entityIds: ['123'],
             }),
-        ).rejects.toThrow('Could not find a extension with the given event origin ""');
+        ).rejects.toThrow('Could not find an extension with the given event origin ""');
 
         expect(mock).toHaveBeenCalledTimes(0);
     });

@@ -20,7 +20,7 @@ function getRepository(
     const extension = Shopware.State.get('extensions')?.[extensionName];
     if (!extension) {
         // eslint-disable-next-line max-len
-        throw new Error(`Could not find a extension with the given name "${extensionName}" in the extension store (Shopware.State.get('extensions'))`);
+        throw new Error(`Could not find an extension with the given name "${extensionName}" in the extension store (Shopware.State.get('extensions'))`);
     }
 
     if (extension.integrationId) {

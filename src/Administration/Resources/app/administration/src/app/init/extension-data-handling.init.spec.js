@@ -258,6 +258,11 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         expect(result.message).toBe('Could not find a extension with the given event origin ""');
     });
 
+    // eslint-disable-next-line jest/expect-expect
+    it('should throw an error if no extension with the given name was found in the store', async () => {
+        // Not testable because the error cannot be reproduced in jest without an iFrame
+    });
+
     it('should handle repositorySearch with integrationId', async () => {
         Shopware.State._store.state.extensions = {};
         Shopware.State.commit('extensions/addExtension', {

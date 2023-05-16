@@ -198,4 +198,16 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
         expect(saveButton.attributes('disabled')).toContain('true');
     });
+
+    it('should return a criteria with no limit', async () => {
+        const wrapper = await createWrapper('snippet.viewer');
+        const criteria = wrapper.vm.snippetSetCriteria;
+
+        expect(criteria).toStrictEqual(
+            expect.objectContaining({
+                limit: null,
+                page: 1,
+            }),
+        );
+    });
 });

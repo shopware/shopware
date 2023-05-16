@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +29,8 @@ class AnnotatePackageHandlerTest extends TestCase
     {
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -59,11 +61,80 @@ class AnnotatePackageHandlerTest extends TestCase
         $handler->handle($record);
     }
 
+    public function testOnlyControllerWithNonClassServiceId(): void
+    {
+        $requestStack = new RequestStack();
+        $inner = $this->createMock(AbstractHandler::class);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+
+        $request = new Request();
+        $request->attributes->set('_controller', 'test.controller::load');
+        $requestStack->push($request);
+        $container->expects(static::once())
+            ->method('get')
+            ->with('test.controller', ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            ->willReturn(new TestController());
+
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message'
+        );
+
+        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'controller',
+        ];
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
+
+        $inner->expects(static::once())
+            ->method('handle')
+            ->with($expected);
+        $handler->handle($record);
+    }
+
+    public function testOnlyControllerWithInvalidServiceId(): void
+    {
+        $requestStack = new RequestStack();
+        $inner = $this->createMock(AbstractHandler::class);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+
+        $request = new Request();
+        $request->attributes->set('_controller', 'test.controller::load');
+        $requestStack->push($request);
+        $container->expects(static::once())
+            ->method('get')
+            ->with('test.controller', ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            ->willReturn(null);
+
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message'
+        );
+
+        $inner->expects(static::once())
+            ->method('handle')
+            ->with($record);
+        $handler->handle($record);
+    }
+
     public function testExceptionInController(): void
     {
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -111,7 +182,8 @@ class AnnotatePackageHandlerTest extends TestCase
     {
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', TestControllerNoPackage::class . '::load');
@@ -165,7 +237,8 @@ class AnnotatePackageHandlerTest extends TestCase
         }
 
         $inner = $this->createMock(AbstractHandler::class);
-        $handler = new AnnotatePackageHandler($inner, $this->createMock(RequestStack::class));
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageHandler($inner, $this->createMock(RequestStack::class), $container);
 
         $context = [
             'exception' => $exception,

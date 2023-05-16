@@ -15,12 +15,30 @@ final class Package
     {
     }
 
-    public static function getPackageName(string $class): ?string
+    public static function getPackageName(string $class, bool $tryParentClass = false): ?string
     {
         if (!class_exists($class)) {
             return null;
         }
 
+        $package = self::evaluateAttributes($class);
+        if ($package || !$tryParentClass) {
+            return $package;
+        }
+
+        $parentClass = get_parent_class($class);
+        if ($parentClass && $package = self::evaluateAttributes($parentClass)) {
+            return $package;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function evaluateAttributes(string $class): ?string
+    {
         $reflection = new \ReflectionClass($class);
 
         $attrs = $reflection->getAttributes(Package::class);

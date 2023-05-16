@@ -46,8 +46,7 @@ class SystemConfigApiService extends ApiService {
             .get('_action/system-config', {
                 params: { domain, salesChannelId, ...additionalParams },
                 headers: this.getBasicHeaders(additionalHeaders),
-            })
-            .then((response) => {
+            }).then((response) => {
                 return ApiService.handleResponse(response);
             }).then((data) => {
                 // If config is empty we will receive an empty array.

@@ -109,10 +109,7 @@
                             <template v-if="isInlineEdit">
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_country_list_columns_active_editor %}
-                                <sw-field
-                                    v-model="item.active"
-                                    type="checkbox"
-                                />
+                                <sw-checkbox-field v-model="item.active"/>
                                 {% endblock %}
                             </template>
                             <template v-else>

@@ -101,7 +101,6 @@
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
                     <sw-checkbox-field
                         :value="cmsPage.id === selectedPageObject?.id"
-                        type="checkbox"
                         class="sw-cms-layout-modal__content-checkbox"
                         @change="selectItem(cmsPage)"
                     />

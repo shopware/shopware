@@ -34,7 +34,7 @@
                                 {% block sw_theme_modal_content_listing_item %}
 
                                     {% block sw_theme_modal_content_listing_item_checkbox %}
-                                        <sw-checkbox-field @change="onSelection(theme.id)" :value="theme.id === selected" type="checkbox"></sw-checkbox-field>
+                                        <sw-checkbox-field @change="onSelection(theme.id)" :value="theme.id === selected"></sw-checkbox-field>
                                     {% endblock %}
 
                                     {% block sw_theme_modal_content_listing_item_inner %}

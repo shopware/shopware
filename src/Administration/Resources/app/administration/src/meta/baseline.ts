@@ -50,7 +50,6 @@ const missingTests = [
     'src/app/component/form/select/base/sw-select-result-list/index.js',
     'src/app/component/form/select/entity/sw-entity-tag-select/index.js',
     'src/app/component/form/sw-boolean-radio-group/index.js',
-    'src/app/component/form/sw-checkbox-field/index.js',
     'src/app/component/form/sw-compact-colorpicker/index.js',
     'src/app/component/form/sw-confirm-field/index.js',
     'src/app/component/form/sw-email-field/index.js',

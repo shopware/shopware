@@ -29,9 +29,8 @@
                         class="sw-grid-column"
                     >
                         <div class="sw-grid__cell-content">
-                            <sw-field
+                            <sw-checkbox-field
                                 v-model="allSelectedChecked"
-                                type="checkbox"
                                 @change="selectAll"
                             />
                         </div>
@@ -130,8 +129,7 @@
                                 class="sw-grid-column"
                             >
                                 <div class="sw-grid__cell-content">
-                                    <sw-field
-                                        type="checkbox"
+                                    <sw-checkbox-field
                                         :value="isSelected(item.id)"
                                         @change="selectItem($event, item)"
                                     />

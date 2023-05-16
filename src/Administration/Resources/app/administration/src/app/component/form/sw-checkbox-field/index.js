@@ -71,6 +71,12 @@ Component.register('sw-checkbox-field', {
             required: false,
             default: false,
         },
+
+        padded: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -87,7 +93,13 @@ Component.register('sw-checkbox-field', {
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
                 'sw-field__checkbox--ghost': this.ghostValue,
+            };
+        },
+
+        swCheckboxFieldContentClasses() {
+            return {
                 'is--bordered': this.bordered,
+                'is--padded': this.padded,
             };
         },
 

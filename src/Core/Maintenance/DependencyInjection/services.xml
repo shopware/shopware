@@ -18,6 +18,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\System\Command\SystemIsInstalledCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>

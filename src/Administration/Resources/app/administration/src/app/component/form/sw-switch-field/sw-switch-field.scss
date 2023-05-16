@@ -42,6 +42,11 @@ $sw-field--switch-color-error: $color-crimson-500;
         padding: 0 16px;
     }
 
+    &.sw-field--switch-padded .sw-field--switch__content {
+        margin-top: 24px;
+        padding: 0 16px;
+    }
+
     .sw-field--switch__input {
         position: relative;
         padding: 15px 0;

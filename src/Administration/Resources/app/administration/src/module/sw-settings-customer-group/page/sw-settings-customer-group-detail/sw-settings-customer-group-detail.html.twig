@@ -89,7 +89,7 @@
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_customer_group_detail_content_card_name %}
-                            <sw-field
+                            <sw-text-field
                                 v-model="customerGroup.name"
                                 class="sw-settings-customer-group-detail__name"
                                 required
@@ -137,7 +137,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
-                    <sw-field
+                    <sw-text-field
                         v-model="customerGroup.registrationTitle"
                         required
                         validation="required"
@@ -171,9 +171,8 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
-                    <sw-field
+                    <sw-textarea-field
                         v-model="customerGroup.registrationSeoMetaDescription"
-                        type="textarea"
                         :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
                         :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
                         :disabled="!acl.can('customer_groups.editor')"

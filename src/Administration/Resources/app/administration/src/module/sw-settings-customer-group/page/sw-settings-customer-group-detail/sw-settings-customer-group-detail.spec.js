@@ -48,9 +48,9 @@ async function createWrapper(privileges = []) {
             'sw-container': {
                 template: '<div><slot></slot></div>',
             },
-            'sw-field': true,
             'sw-boolean-radio-group': true,
             'sw-text-field': true,
+            'sw-textarea-field': true,
             'sw-text-editor': true,
             'sw-language-info': true,
             'sw-button': true,
@@ -153,7 +153,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'form title field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: 'sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
             },
             { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
@@ -162,7 +162,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
+                selector: 'sw-textarea-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
             { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' },
         ].forEach(({ name, selector }) => {
@@ -199,7 +199,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'form title field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]',
+                selector: 'sw-text-field-stub[label="sw-settings-customer-group.registration.title"]',
             },
             { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
@@ -208,7 +208,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             {
                 name: 'seo meta field',
-                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
+                selector: 'sw-textarea-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]',
             },
             { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' },
         ].forEach(({ name, selector }) => {

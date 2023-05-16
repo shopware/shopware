@@ -115,7 +115,7 @@ async function createWrapper(privileges = []) {
             'sw-grid-row': {
                 template: '<div class="sw-grid-row"><slot></slot></div>',
             },
-            'sw-field': {
+            'sw-checkbox-field': {
                 template: '<div></div>',
             },
             'sw-pagination': await Shopware.Component.build('sw-pagination'),

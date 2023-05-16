@@ -116,11 +116,10 @@
     <template #modal-footer>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_save_selection %}
-        <sw-field
+        <sw-checkbox-field
             v-if="!isLoading && hasAdditionalErrors"
             v-model="shouldSaveSelection"
             class="sw-duplicated-media-v2__additional-error-count"
-            type="checkbox"
             :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)"
         />
         {% endblock %}

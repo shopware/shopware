@@ -111,6 +111,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                 'sw-pagination': true,
                 'sw-grid': await Shopware.Component.build('sw-grid'),
                 'sw-field': true,
+                'sw-checkbox-field': true,
                 'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
                 'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
                 'router-link': true,
@@ -137,7 +138,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-field-stub[type="checkbox"]');
+        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-checkbox-field-stub');
 
         expect(gridCheckboxes.exists()).toBe(displayCheckboxes);
     });

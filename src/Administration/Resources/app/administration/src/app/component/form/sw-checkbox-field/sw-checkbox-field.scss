@@ -14,6 +14,18 @@ $sw-field-color-inherited: $color-module-purple-900;
         display: grid;
         grid-template-columns: 16px 1fr;
         align-items: center;
+
+        &.is--padded {
+            margin-top: 24px;
+            padding: 16px;
+        }
+
+        &.is--bordered {
+            margin-top: 24px;
+            border-radius: 4px;
+            border: 1px solid $color-gray-300;
+            padding: 15px;
+        }
     }
 
     .sw-field {
@@ -134,12 +146,6 @@ $sw-field-color-inherited: $color-module-purple-900;
                 background: $sw-field-color-border;
             }
         }
-    }
-
-    &.is--bordered {
-        border-radius: 4px;
-        border: 1px solid $color-gray-300;
-        padding: 16px;
     }
 
     &.is--disabled {

@@ -16,10 +16,9 @@
             <div class="sw-bulk-edit-change-field-renderer__change-field">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
-                <sw-field
+                <sw-checkbox-field
                     v-model="bulkEditData[formField.name].isChanged"
                     class="sw-bulk-edit-change-field__change"
-                    type="checkbox"
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"

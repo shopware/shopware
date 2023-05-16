@@ -22,6 +22,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -33,14 +34,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('merchant-services')]
 class StoreDownloadCommand extends Command
 {
+    private readonly string $relativePluginDir;
+
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly EntityRepository $pluginRepo,
         private readonly PluginManagementService $pluginManagementService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $userRepository,
+        string $pluginDir,
+        string $projectDir,
     ) {
         parent::__construct();
+
+        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     protected function configure(): void
@@ -111,8 +118,8 @@ class StoreDownloadCommand extends Command
             return;
         }
 
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
+        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
         }
     }
 

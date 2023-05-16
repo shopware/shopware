@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -20,11 +21,16 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 #[Package('merchant-services')]
 class ExtensionDownloader
 {
+    private readonly string $relativePluginDir;
+
     public function __construct(
         private readonly EntityRepository $pluginRepository,
         private readonly StoreClient $storeClient,
-        private readonly PluginManagementService $pluginManagementService
+        private readonly PluginManagementService $pluginManagementService,
+        string $pluginDir,
+        string $projectDir
     ) {
+        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     public function download(string $technicalName, Context $context): PluginDownloadDataStruct
@@ -35,8 +41,8 @@ class ExtensionDownloader
         /** @var PluginEntity|null $plugin */
         $plugin = $this->pluginRepository->search($criteria, $context)->first();
 
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
+        if ($plugin !== null && $plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
         }
 
         try {

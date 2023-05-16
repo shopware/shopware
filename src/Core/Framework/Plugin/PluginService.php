@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -64,7 +65,6 @@ class PluginService
 
             $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
             $extra = $info->getExtra();
-            $authors = $this->getAuthors($info);
             $license = $info->getLicense();
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
 
@@ -72,8 +72,8 @@ class PluginService
                 'name' => $pluginFromFileSystem->getName(),
                 'baseClass' => $baseClass,
                 'composerName' => $info->getName(),
-                'path' => str_replace($this->projectDir . '/', '', $pluginPath),
-                'author' => $authors,
+                'path' => (new Filesystem())->makePathRelative($pluginPath, $this->projectDir),
+                'author' => $this->getAuthors($info),
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
@@ -199,29 +199,35 @@ class PluginService
             return null;
         }
 
-        return file_get_contents($pluginIconPath);
-    }
+        $rawContent = file_get_contents($pluginIconPath);
 
-    private function getAuthors(CompletePackageInterface $info): ?string
-    {
-        $authors = null;
-        /** @var array|null $composerAuthors */
-        $composerAuthors = $info->getAuthors();
-
-        if ($composerAuthors !== null) {
-            $manufacturersAuthors = array_filter($composerAuthors, static fn (array $author): bool => ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER);
-
-            if (empty($manufacturersAuthors)) {
-                $manufacturersAuthors = $composerAuthors;
-            }
-
-            $authorNames = array_column($manufacturersAuthors, 'name');
-            $authors = implode(', ', $authorNames);
+        if (!\is_string($rawContent)) {
+            return null;
         }
 
-        return $authors;
+        return $rawContent;
     }
 
+    private function getAuthors(CompletePackageInterface $info): string
+    {
+        $composerAuthors = $info->getAuthors();
+
+        $manufacturerAuthors = array_filter($composerAuthors, static fn (array $author): bool => ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER);
+
+        if (empty($manufacturerAuthors)) {
+            $manufacturerAuthors = $composerAuthors;
+        }
+
+        $authorNames = array_column($manufacturerAuthors, 'name');
+
+        return implode(', ', $authorNames);
+    }
+
+    /**
+     * @param array<string, mixed> $extra
+     *
+     * @return array<string, array<string, string>>
+     */
     private function getTranslations(Context $context, array $extra): array
     {
         $properties = ['label', 'description', 'manufacturerLink', 'supportLink'];

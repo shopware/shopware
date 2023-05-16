@@ -36,12 +36,14 @@ class PluginFinder
         ExceptionCollection $errors,
         IOInterface $composerIO
     ): array {
-        return array_merge(
-            $this->loadLocalPlugins($pluginDir, $composerIO, $errors),
-            $this->loadVendorInstalledPlugins($projectDir, $composerIO, $errors),
-        );
+        $plugins = $this->loadLocalPlugins($pluginDir, $composerIO, $errors);
+
+        return $this->enrichWithVendorPlugins($plugins, $projectDir, $composerIO, $errors);
     }
 
+    /**
+     * @return array<string, PluginFromFileSystemStruct>
+     */
     private function loadLocalPlugins(string $pluginDir, IOInterface $composerIO, ExceptionCollection $errors): array
     {
         $plugins = [];
@@ -103,12 +105,17 @@ class PluginFinder
         return $pluginPackage->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER];
     }
 
-    private function loadVendorInstalledPlugins(
+    /**
+     * @param array<string, PluginFromFileSystemStruct> $plugins
+     *
+     * @return array<string, PluginFromFileSystemStruct>
+     */
+    private function enrichWithVendorPlugins(
+        array $plugins,
         string $projectDir,
         IOInterface $composerIO,
         ExceptionCollection $errors
     ): array {
-        $plugins = [];
         $composer = Factory::createComposer($projectDir, $composerIO);
 
         /** @var CompletePackageInterface[] $composerPackages */
@@ -130,11 +137,17 @@ class PluginFinder
             }
 
             $pluginBaseClass = $this->getPluginNameFromPackage($composerPackage);
+
+            $localPlugin = $plugins[$pluginBaseClass] ?? null;
+
             $plugins[$pluginBaseClass] = (new PluginFromFileSystemStruct())->assign([
                 'baseClass' => $pluginBaseClass,
-                'path' => $pluginPath,
+                // use local path if it is also installed as a local plugin,
+                // to allow updates over the store for composer managed plugins
+                'path' => $localPlugin?->getPath() ?? $pluginPath,
                 'managedByComposer' => true,
-                'composerPackage' => $composerPackage,
+                // use local composer package as composer caches the version info
+                'composerPackage' => $localPlugin?->getComposerPackage(),
             ]);
         }
 

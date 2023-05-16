@@ -66,7 +66,9 @@ async function createWrapper(privileges = []) {
 
                     if (offset === 60) {
                         return Promise.resolve({
-                            finish: true,
+                            data: {
+                                finish: true,
+                            },
                         });
                     }
 
@@ -119,7 +121,6 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(rebuildButton.attributes().disabled).toBeTruthy();
     });
 
-
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {
         let response = {};
         const wrapper = await createWrapper([
@@ -127,6 +128,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
+        wrapper.vm.createNotificationSuccess = jest.fn();
 
         // First time call the update progress
         await wrapper.setData({
@@ -163,7 +165,25 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         await flushPromises();
 
         // To polling should be finished
-        expect(response.finish).toBeTruthy();
-        wrapper.vm.createNotificationInfo.mockRestore();
+        expect(response.data.finish).toBeTruthy();
+        wrapper.vm.createNotificationSuccess.mockRestore();
+    });
+
+    it('should display the notification success when the rebuild button process finish successfully', async () => {
+        const wrapper = await createWrapper([
+            'product_search_config.editor',
+        ]);
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        expect(wrapper.vm.isRebuildSuccess).toBeFalsy();
+
+        await wrapper.setData({
+            offset: 60,
+        });
+        await wrapper.vm.updateProgress();
+
+        expect(wrapper.vm.isRebuildSuccess).toBeTruthy();
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-settings-search.notification.index.success',
+        });
     });
 });

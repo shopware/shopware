@@ -70,6 +70,17 @@
             </a>
             {% endblock %}
 
+            <router-link
+                v-if="!storefrontEsEnable"
+                :to="{ name: 'sw.settings.search.index.liveSearch' }"
+                class="sw-settings-search__searchable-content-rebuild-link"
+            >
+                {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
+                <sw-icon
+                    name="regular-long-arrow-right"
+                    small
+                />
+            </router-link>
         </div>
         {% endblock %}
 
@@ -103,6 +114,14 @@
             </sw-tabs-item>
             {% endblock %}
 
+            <sw-tabs-item
+                v-if="!storefrontEsEnable"
+                class="sw-settings-search__searchable-content-tab-title"
+                name="customfields"
+                @click="onChangeTab(tabNames.customTab)"
+            >
+                {{ $tc('sw-settings-search.generalTab.labelCustomFieldsTab') }}
+            </sw-tabs-item>
         </template>
 
         <template #content="{ active }">
@@ -121,6 +140,18 @@
             />
             {% endblock %}
 
+            <sw-settings-search-searchable-content-customfields
+                v-if="active === tabNames.customTab && !storefrontEsEnable"
+                :is-empty="isListEmpty"
+                :is-loading="isLoading"
+                :columns="getProductSearchFieldColumns"
+                :repository="productSearchFieldRepository"
+                :search-configs="searchConfigFields"
+                @data-load="loadData"
+                @config-add="onAddNewConfig"
+                @config-save="saveConfig"
+                @config-delete="deleteConfig"
+            />
         </template>
     </sw-tabs>
     {% endblock %}

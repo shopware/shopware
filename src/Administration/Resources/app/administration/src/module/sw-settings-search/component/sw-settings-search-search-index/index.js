@@ -127,11 +127,11 @@ export default {
                         this.clearPolling();
                         this.getLatestProductKeywordIndexed();
                         this.progressBarValue = 100;
-                        this.createNotificationInfo({
+                        this.createNotificationSuccess({
                             message: this.$tc('sw-settings-search.notification.index.success'),
                         });
                     } else {
-                        this.progressBarValue = Math.floor(Math.max(this.offset, 1) / (this.totalProduct * 100));
+                        this.progressBarValue = ((this.offset ?? 1) / this.totalProduct) * 100;
                         this.offset = data.offset.offset;
                         this.updateProgress();
                     }

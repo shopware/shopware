@@ -99,4 +99,11 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(resetButton.isVisible()).toBe(true);
         expect(resetButton.attributes().disabled).toBeFalsy();
     });
+
+    it('should return storefrontEsEnable value', async () => {
+        Shopware.Context.app.storefrontEsEnable = true;
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.storefrontEsEnable).toBeTruthy();
+    });
 });

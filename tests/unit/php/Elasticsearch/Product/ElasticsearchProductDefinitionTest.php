@@ -213,7 +213,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'visibilities' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => [
+                        'salesChannelId' => [
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                         ],

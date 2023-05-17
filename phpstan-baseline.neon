@@ -4303,11 +4303,6 @@ parameters:
 			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductChangedEventInterface\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductChangedEventInterface.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductGatewayCriteriaEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductGatewayCriteriaEvent.php
@@ -4331,16 +4326,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductListingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductListingRouteCacheTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductNoLongerAvailableEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductNoLongerAvailableEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductNoLongerAvailableEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductNoLongerAvailableEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Exception\\\\VariantNotFoundException\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
@@ -7187,25 +7172,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidationSubscriber\\:\\:getChangedCategories\\(\\) should return list\\<string\\> but returns non\\-empty\\-array\\<string\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidationSubscriber.php
 
-		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidationSubscriber\\:\\:getProductCategoryIds\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidationSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$tags of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:invalidate\\(\\) expects list\\<string\\>, array\\<string\\> given\\.$#"
-			count: 7
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidationSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$tags of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:invalidate\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<non\\-falsy\\-string\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidationSubscriber.php
 
 		-
 			message: "#^Parameter \\#1 \\$keys of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:purge\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
@@ -17532,21 +17499,6 @@ parameters:
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Core/System/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\CartRestorerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Core/System/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Core/System/SystemConfig/SystemConfigServiceTest.php
 
 		-
 			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

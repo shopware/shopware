@@ -76,7 +76,8 @@ class TranslatorTest extends TestCase
             'prod',
             $connection,
             $localeCodeProvider,
-            $snippetServiceMock
+            $snippetServiceMock,
+            false
         );
 
         if ($injectSalesChannelId) {
@@ -148,6 +149,52 @@ class TranslatorTest extends TestCase
             null,
             sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
             $salesChannelId, // Inject salesChannelId using injectSettings method
+        ];
+    }
+
+    /**
+     * @param array<string> $tags
+     *
+     * @dataProvider provideTracingExamples
+     */
+    public function testTracing(bool $enabled, array $tags): void
+    {
+        $translator = new Translator(
+            $this->createMock(SymfonyTranslator::class),
+            new RequestStack(),
+            $this->createMock(CacheInterface::class),
+            $this->createMock(MessageFormatterInterface::class),
+            'prod',
+            $this->createMock(Connection::class),
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            $this->createMock(SnippetService::class),
+            $enabled
+        );
+
+        $translator->trace('foo', function () use ($translator) {
+            return $translator->trans('foo');
+        });
+
+        static::assertSame(
+            $tags,
+            $translator->getTrace('foo')
+        );
+    }
+
+    public static function provideTracingExamples(): \Generator
+    {
+        yield 'disabled' => [
+            false,
+            [
+                'shopware.translator',
+            ],
+        ];
+
+        yield 'enabled' => [
+            true,
+            [
+                'translator.foo',
+            ],
         ];
     }
 

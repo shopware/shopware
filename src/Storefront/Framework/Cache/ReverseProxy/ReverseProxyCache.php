@@ -60,6 +60,11 @@ class ReverseProxyCache implements StoreInterface
                 return false;
             }
 
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
+                return false;
+            }
+
             return true;
         }));
 

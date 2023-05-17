@@ -4,7 +4,7 @@
     {% endif %}
 
     {% if formAction is not defined %}
-        {% set formAction = path('frontend.checkout.line-item.delete', { 'id': lineItem.id } ) %}
+        {% set formAction = path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id } ) %}
     {% endif %}
 
     {% if showQuantitySelect is not defined %}

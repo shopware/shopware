@@ -157,7 +157,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'visibilities' => [
                     'type' => 'nested',
                     'properties' => [
-                        'id' => self::KEYWORD_FIELD,
+                        'salesChannelId' => self::KEYWORD_FIELD,
                         'visibility' => self::INT_FIELD,
                         '_count' => self::INT_FIELD,
                     ],

@@ -37,7 +37,7 @@ class Migration1648709176CartCompression extends MigrationStep
             return;
         }
 
-        while ($token = $connection->fetchOne('SELECT token FROM cart WHERE `payload` IS NULL AND `cart` IS NOT NULL')) {
+        while ($token = $connection->fetchOne('SELECT token FROM cart WHERE `payload` IS NULL AND `cart` IS NOT NULL LIMIT 1')) {
             RetryableQuery::retryable($connection, static function () use ($connection, $token): void {
                 $connection->executeStatement('UPDATE cart SET `payload` = `cart`, `compressed` = 0 WHERE token = :token', ['token' => $token]);
             });

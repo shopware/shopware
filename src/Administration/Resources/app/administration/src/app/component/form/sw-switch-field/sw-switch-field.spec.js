@@ -11,9 +11,9 @@ const createWrapper = async () => {
     const baseComponent = {
         template: `
             <div>
-                <sw-switch-field v-model="checkOne" label="CheckOne"></sw-switch-field>
-                <sw-switch-field v-model="checkTwo" label="CheckTwo"></sw-switch-field>
-                <sw-switch-field v-model="checkThree" label="CheckThree"></sw-switch-field>
+                <sw-switch-field v-model="checkOne" label="CheckOne" bordered></sw-switch-field>
+                <sw-switch-field v-model="checkTwo" label="CheckTwo" padded></sw-switch-field>
+                <sw-switch-field v-model="checkThree" label="CheckThree" bordered padded></sw-switch-field>
             </div>
         `,
 
@@ -135,5 +135,17 @@ describe('app/component/form/sw-switch-field', () => {
         });
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
+    });
+
+    it('should always have the corresponding css class, when its styling property has been set', async () => {
+        const wrapper = await createWrapper();
+        const checkboxContentWrappers = wrapper.findAll('.sw-field--switch');
+
+        expect(checkboxContentWrappers.at(0).classes()).toContain('sw-field--switch-bordered');
+        expect(checkboxContentWrappers.at(0).classes()).not.toContain('sw-field--switch-padded');
+        expect(checkboxContentWrappers.at(1).classes()).not.toContain('sw-field--switch-bordered');
+        expect(checkboxContentWrappers.at(1).classes()).toContain('sw-field--switch-padded');
+        expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-bordered');
+        expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-padded');
     });
 });

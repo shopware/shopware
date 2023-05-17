@@ -67,7 +67,8 @@ class Translator extends AbstractTranslator
         private readonly string $environment,
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly SnippetService $snippetService
+        private readonly SnippetService $snippetService,
+        private readonly bool $fineGrainedCache
     ) {
     }
 
@@ -146,8 +147,14 @@ class Translator extends AbstractTranslator
             $domain = 'messages';
         }
 
-        foreach (array_keys($this->keys) as $trace) {
-            $this->traces[$trace][self::buildName($id)] = true;
+        if ($this->fineGrainedCache) {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace][self::buildName($id)] = true;
+            }
+        } else {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace]['shopware.translator'] = true;
+            }
         }
 
         return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);

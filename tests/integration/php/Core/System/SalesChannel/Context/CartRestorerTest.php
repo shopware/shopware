@@ -250,7 +250,6 @@ class CartRestorerTest extends TestCase
         $cartMergedEvent = $this->events[CartMergedEvent::class];
         static::assertInstanceOf(CartMergedEvent::class, $cartMergedEvent);
 
-        static::assertNotNull($cartMergedEvent->getPreviousCart());
         static::assertEquals(1, $cartMergedEvent->getPreviousCart()->getLineItems()->count());
         static::assertEquals($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
 
@@ -435,6 +434,9 @@ class CartRestorerTest extends TestCase
 
         $repo->create($data, Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(CustomerEntity::class, $entity);
+
+        return $entity;
     }
 }

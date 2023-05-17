@@ -90,4 +90,25 @@ class CountryStateRouteTest extends TestCase
 
         static::assertCount(2, $response['elements']);
     }
+
+    public function testSortByAlphabetical(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/country-state/' . $this->ids->get('countryId'),
+                [
+                    'limit' => 2,
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($response['elements']);
+        static::assertCount(2, $response['elements']);
+
+        static::assertEquals([
+            'Baden-Württemberg', 'Bavaria',
+        ], array_map(fn (array $state) => $state['name'], $response['elements']));
+    }
 }

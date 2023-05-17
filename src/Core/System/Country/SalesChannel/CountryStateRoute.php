@@ -31,6 +31,7 @@ class CountryStateRoute extends AbstractCountryStateRoute
             new EqualsFilter('active', true)
         );
         $criteria->addSorting(new FieldSorting('position', FieldSorting::ASCENDING, true));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
         $countryStates = $this->countryStateRepository->search($criteria, $context->getContext());
 

@@ -5515,6 +5515,48 @@ parameters:
 			path: src/Core/Framework/Adapter/Asset/FlysystemLastModifiedVersionStrategy.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\AbstractCacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
+
+
+
+		-
+			message: "#^Parameter \\#1 \\$keys of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:purge\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
+
+		-
+			message: "#^Parameter \\#1 \\$logs of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:log\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:add\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:getTrace\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:\\$keys type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:\\$traces type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Adapter/Cache/CacheTracer.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\InvalidateCacheEvent\\:\\:__construct\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/InvalidateCacheEvent.php
@@ -13863,7 +13905,27 @@ parameters:
 		-
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
+			path: tests/integration/php/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
+
+		-
+			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: tests/integration/php/Core/System/User/Api/UserRecoveryControllerTest.php
+
+		-
+			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 18
+			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 2
+			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
+			count: 1
+			path: tests/integration/php/Elasticsearch/Product/ProductSearchQueryBuilderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

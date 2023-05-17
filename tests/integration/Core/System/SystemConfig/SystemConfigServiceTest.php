@@ -317,6 +317,9 @@ class SystemConfigServiceTest extends TestCase
         static::assertEquals(['foo.a' => 'a'], $actual);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteNonExisting(): void
     {
         $this->systemConfigService->delete('not.found');

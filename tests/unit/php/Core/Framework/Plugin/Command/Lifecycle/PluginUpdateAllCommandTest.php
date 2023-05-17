@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Lifecycle;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -80,9 +81,10 @@ class PluginUpdateAllCommandTest extends TestCase
             ->expects(static::once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
-            ->willReturnCallback(function (PluginEntity $plugin) use ($updateMock) {
+            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
                 $plugin->setVersion((string) $plugin->getUpgradeVersion());
                 $plugin->setUpgradeVersion(null);
+                static::assertFalse($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));
 
                 return $updateMock;
             });
@@ -92,6 +94,41 @@ class PluginUpdateAllCommandTest extends TestCase
 
         $tester = new CommandTester($command);
         static::assertSame(Command::SUCCESS, $tester->execute([]));
+
+        static::assertSame('Updated plugin Test2 from version 1.0.0 to version 1.0.1', trim($tester->getDisplay()));
+    }
+
+    public function testUpdatesOnlyAvailablePluginsSkipAssetBuild(): void
+    {
+        $pluginService = $this->createMock(PluginService::class);
+        $pluginService->expects(static::once())->method('refreshPlugins');
+
+        $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
+        $pluginRepository = new StaticEntityRepository([new PluginCollection([
+            $this->createPlugin('Test'),
+            $updateAblePlugin,
+        ])]);
+
+        $updateMock = $this->createMock(UpdateContext::class);
+
+        $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
+        $pluginLifecycleService
+            ->expects(static::once())
+            ->method('updatePlugin')
+            ->with($updateAblePlugin)
+            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
+                $plugin->setVersion((string) $plugin->getUpgradeVersion());
+                $plugin->setUpgradeVersion(null);
+                static::assertTrue($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));
+
+                return $updateMock;
+            });
+
+        $command = new PluginUpdateAllCommand($pluginService, $pluginRepository, $pluginLifecycleService);
+        $command->setHelperSet(new HelperSet());
+
+        $tester = new CommandTester($command);
+        static::assertSame(Command::SUCCESS, $tester->execute(['--skip-asset-build' => true]));
 
         static::assertSame('Updated plugin Test2 from version 1.0.0 to version 1.0.1', trim($tester->getDisplay()));
     }

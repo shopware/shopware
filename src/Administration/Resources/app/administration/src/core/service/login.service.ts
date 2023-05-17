@@ -6,7 +6,8 @@ import { CookieStorage } from 'cookie-storage';
 import html2canvas from 'html2canvas';
 import type VueRouter from 'vue-router';
 
-interface AuthObject {
+/** @private */
+export interface AuthObject {
     access: string,
     refresh: string,
     expiry: number
@@ -26,14 +27,14 @@ export interface LoginService {
     verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>,
     refreshToken: () => Promise<AuthObject['access']>,
     getToken: () => string,
-    getBearerAuthentication: <K extends keyof AuthObject>(section: K) => AuthObject[K],
+    getBearerAuthentication: <K extends keyof AuthObject>(section?: K) => AuthObject[K],
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject,
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean,
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void,
     isLoggedIn: () => boolean,
-    addOnTokenChangedListener: (listener: () => void) => void,
+    addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void,
     addOnLogoutListener: (listener: () => void) => void,
-    addOnLoginListener: (listener: () => void) => void,
+    addOnLoginListener: (listener: () => unknown) => void,
     getStorageKey: () => string,
     notifyOnLoginListener: () => (void[] | null),
     verifyUserToken: (password: string) => Promise<string>,
@@ -172,7 +173,7 @@ export default function createLoginService(
     /**
      * Adds an Listener for the onTokenChangedEvent
      */
-    function addOnTokenChangedListener(listener: () => void): void {
+    function addOnTokenChangedListener(listener: (auth?: AuthObject) => void): void {
         onTokenChangedListener.push(listener);
     }
 
@@ -295,7 +296,7 @@ export default function createLoginService(
      * Returns saved bearer authentication object. Either you're getting the full object or when you're specifying
      * the `section` argument and getting either the token or the expiry date.
      */
-    function getBearerAuthentication<K extends keyof AuthObject>(section: K): AuthObject[K]
+    function getBearerAuthentication<K extends keyof AuthObject>(section?: K): AuthObject[K]
 
     // eslint-disable-next-line max-len
     function getBearerAuthentication<K extends keyof AuthObject>(section: K | null = null): false | AuthObject | AuthObject[K] {

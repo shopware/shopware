@@ -2,6 +2,16 @@ import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import type { ApiContext } from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+import type Vue from 'vue';
+import type { LoginService } from '../../core/service/login.service';
+import type { ContextState } from '../state/context.store';
+import type {
+    NotificationConfig,
+    NotificationService,
+    NotificationWorkerOptions,
+} from '../../core/factory/worker-notification.factory';
+import type WorkerNotificationFactory from '../../core/factory/worker-notification.factory';
 
 let enabled = false;
 let enabledNotification = false;
@@ -15,14 +25,14 @@ let enabledNotification = false;
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
     const context = Shopware.Context.app;
-    const workerNotificationFactory = this.getContainer('factory').workerNotification;
+    const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 
     registerThumbnailMiddleware(workerNotificationFactory);
 
     function getConfig() {
         return configService.getConfig().then((response) => {
-            Object.entries(response).forEach(([key, value]) => {
+            Object.entries(response as { [key: string]: unknown}).forEach(([key, value]) => {
                 Shopware.State.commit('context/addAppConfigValue', { key, value });
             });
 
@@ -37,7 +47,7 @@ export default function initializeWorker() {
                 enableNotificationWorker(loginService);
             }
 
-            if (context.config.adminWorker.enableAdminWorker && !enabled) {
+            if (context.config.adminWorker?.enableAdminWorker && !enabled) {
                 enableAdminWorker(loginService, Shopware.Context.api, context.config.adminWorker);
             }
         });
@@ -50,7 +60,11 @@ export default function initializeWorker() {
     return loginService.addOnLoginListener(getConfig);
 }
 
-function enableAdminWorker(loginService, context, config) {
+function enableAdminWorker(
+    loginService: LoginService,
+    context: ApiContext,
+    config: ContextState['app']['config']['adminWorker'],
+) {
     const getMessage = () => {
         return {
             context: {
@@ -59,7 +73,7 @@ function enableAdminWorker(loginService, context, config) {
             },
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
-            transports: config.transports,
+            transports: config?.transports || [],
         };
     };
 
@@ -85,26 +99,30 @@ function enableAdminWorker(loginService, context, config) {
 }
 
 // singleton instance of worker
-let worker;
-function getWorker() {
+let worker: Worker;
+
+/* istanbul ignore next */
+function getWorker() : Worker {
     if (worker) {
         return worker;
     }
 
-    worker = new AdminWorker();
+    // The webpack worker plugin generates a valid worker file therefore we can use it here
+    // @ts-expect-error
+    worker = new AdminWorker() as Worker;
 
     worker.onmessage = () => {
         const tokenHandler = getRefreshTokenHelper();
 
         if (!tokenHandler.isRefreshing) {
-            tokenHandler.fireRefreshTokenRequest();
+            void tokenHandler.fireRefreshTokenRequest();
         }
     };
 
     return worker;
 }
 
-function enableWorkerNotificationListener(loginService, context) {
+function enableWorkerNotificationListener(loginService: LoginService, context: ContextState['api']) {
     let workerNotificationListener = new WorkerNotificationListener(context);
 
     if (loginService.isLoggedIn()) {
@@ -123,7 +141,7 @@ function enableWorkerNotificationListener(loginService, context) {
     });
 }
 
-function enableNotificationWorker(loginService) {
+function enableNotificationWorker(loginService: LoginService) {
     let notificationWorker = new AdminNotificationWorker();
 
     if (loginService.isLoggedIn()) {
@@ -144,7 +162,7 @@ function enableNotificationWorker(loginService) {
     enabledNotification = true;
 }
 
-function registerThumbnailMiddleware(factory) {
+function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) {
     const ids = {};
     factory.register('DalIndexingMessage', {
         name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
@@ -316,7 +334,16 @@ function registerThumbnailMiddleware(factory) {
     return true;
 }
 
-function messageQueueNotification(key, ids, next, entry, $root, notification, messages, multiplier = 1) {
+function messageQueueNotification(
+    key: string,
+    ids: { [key: string]: { notificationId: string, didSendForegroundMessage: boolean}},
+    next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
+    entry: { size: number },
+    $root: Vue,
+    notification: NotificationService,
+    messages: { title: string, message: string, success: string, foregroundSuccessMessage?: string },
+    multiplier = 1,
+) {
     let notificationId = null;
     let didSendForegroundMessage = false;
 
@@ -329,7 +356,8 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
         entry.size *= multiplier;
     }
 
-    const config = {
+
+    const config: NotificationConfig = {
         title: $root.$tc(messages.title),
         message: $root.$tc(messages.message, entry.size),
         variant: 'info',
@@ -342,7 +370,7 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
 
     // Create new notification
     if (entry.size && notificationId === null) {
-        notification.create(config).then((uuid) => {
+        void notification.create(config).then((uuid) => {
             notificationId = uuid;
 
             ids[key] = {
@@ -359,17 +387,17 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
 
         if (entry.size === 0) {
             config.title = $root.$tc(messages.title);
-            config.message = $root.$t(messages.success);
+            config.message = $root.$t(messages.success) as string;
             config.isLoading = false;
 
             if (messages.foregroundSuccessMessage && !didSendForegroundMessage) {
                 const foreground = { ...config };
-                foreground.message = $root.$t(messages.foregroundSuccessMessage);
+                foreground.message = $root.$t(messages.foregroundSuccessMessage) as string;
                 delete foreground.uuid;
                 delete foreground.isLoading;
                 foreground.growl = true;
                 foreground.variant = 'success';
-                notification.create(foreground);
+                void notification.create(foreground);
 
                 ids[key] = {
                     notificationId,
@@ -379,7 +407,7 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
 
             delete ids[key];
         }
-        notification.update(config);
+        void notification.update(config);
     }
     next();
 }

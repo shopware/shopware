@@ -1,4 +1,6 @@
+import type { AxiosInstance, CancelToken } from 'axios';
 import ApiService from '../api.service';
+import type { LoginService } from '../login.service';
 
 /**
  * Gateway for the API end point "message-queue"
@@ -7,7 +9,7 @@ import ApiService from '../api.service';
  * @package system-settings
  */
 class MessageQueueApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'message-queue') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'message-queue') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'messageQueueService';
     }
@@ -17,7 +19,7 @@ class MessageQueueApiService extends ApiService {
      *
      * @returns {Promise<T>}
      */
-    consume(receiver, cancelToken = null) {
+    consume(receiver: string, cancelToken ?: CancelToken): Promise<{ handledMessages: number}> {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
@@ -27,7 +29,7 @@ class MessageQueueApiService extends ApiService {
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
-            });
+            }) as Promise<{ handledMessages: number}>;
     }
 }
 

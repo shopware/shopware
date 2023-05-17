@@ -21,7 +21,13 @@ let cancelTokenSource = CancelToken.source();
 let consumeTimeoutIds = {};
 
 function onMessage({ data: { context, bearerAuth, host, transports, type } }) {
-    if (type === 'logout') {
+    // This if statement is so ugly, because we cannot use ES6 Syntax in web workers
+    if (type === 'logout' ||
+        !(typeof context === 'object' &&
+            context.hasOwnProperty('apiResourcePath') &&
+            context.apiResourcePath
+        )
+    ) {
         isRunning = false;
         return;
     }

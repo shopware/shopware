@@ -15,6 +15,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[Package('core')]
@@ -32,6 +33,16 @@ class PluginUpdateAllCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addOption(
+            'skip-asset-build',
+            null,
+            InputOption::VALUE_NONE,
+            'Use this option to skip asset building'
+        );
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $composerInput = clone $input;
@@ -40,6 +51,11 @@ class PluginUpdateAllCommand extends Command
         \assert($helperSet instanceof HelperSet);
 
         $context = Context::createDefaultContext();
+
+        if ($input->getOption('skip-asset-build')) {
+            $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        }
+
         $this->pluginService->refreshPlugins($context, new ConsoleIO($composerInput, $output, $helperSet));
 
         /** @var EntityCollection<PluginEntity> $plugins */

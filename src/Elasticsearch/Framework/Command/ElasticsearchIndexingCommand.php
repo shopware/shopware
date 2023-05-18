@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
+use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -25,12 +26,15 @@ class ElasticsearchIndexingCommand extends Command
 
     /**
      * @internal
+     *
+     * @deprecated tag:v6.6.0 - MultilingualEsIndexer will always be available since v6.6.0.0
      */
     public function __construct(
         private readonly ElasticsearchIndexer $indexer,
         private readonly MessageBusInterface $messageBus,
         private readonly CreateAliasTaskHandler $aliasHandler,
-        private readonly bool $enabled
+        private readonly bool $enabled,
+        private readonly ?MultilingualEsIndexer $multilingualEsIndexer = null
     ) {
         parent::__construct();
     }
@@ -56,14 +60,16 @@ class ElasticsearchIndexingCommand extends Command
         $progressBar = new ProgressBar($output);
         $progressBar->start();
 
+        $indexer = $this->multilingualEsIndexer ?? $this->indexer;
+
         $offset = null;
-        while ($message = $this->indexer->iterate($offset)) {
+        while ($message = $indexer->iterate($offset)) {
             $offset = $message->getOffset();
 
             $step = \count($message->getData()->getIds());
 
             if ($input->getOption('no-queue')) {
-                $this->indexer->__invoke($message);
+                $indexer->__invoke($message);
 
                 $progressBar->advance($step);
 
@@ -74,6 +80,7 @@ class ElasticsearchIndexingCommand extends Command
 
             $progressBar->advance($step);
         }
+
         $progressBar->finish();
 
         if ($input->getOption('no-queue')) {

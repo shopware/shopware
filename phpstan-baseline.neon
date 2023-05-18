@@ -14710,21 +14710,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/AbstractElasticsearchSearchHydrator.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:getCheapestPriceAccessors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:getCheapestPriceParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:getRangeParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntityAggregatorHydrator\\:\\:hydrate\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
@@ -16608,11 +16593,6 @@ parameters:
 			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Core/System/User/Api/UserRecoveryControllerTest.php
-
-		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 18
-			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
 
 		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"

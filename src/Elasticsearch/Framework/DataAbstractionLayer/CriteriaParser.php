@@ -60,6 +60,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
@@ -144,26 +145,28 @@ class CriteriaParser
             ]);
         }
 
-        $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
 
-        if ($field instanceof TranslatedField) {
-            $root = $definition->getEntityName();
+            if ($field instanceof TranslatedField) {
+                $root = $definition->getEntityName();
 
-            $parts = explode('.', $sorting->getField());
-            if ($root === $parts[0]) {
-                array_shift($parts);
-            }
+                $parts = explode('.', $sorting->getField());
+                if ($root === $parts[0]) {
+                    array_shift($parts);
+                }
 
-            return new FieldSort('_script', $sorting->getDirection(), null, [
-                'type' => 'string',
-                'script' => [
-                    'id' => 'language_field',
-                    'params' => [
-                        'field' => implode('.', $parts),
-                        'languages' => $context->getLanguageIdChain(),
+                return new FieldSort('_script', $sorting->getDirection(), null, [
+                    'type' => 'string',
+                    'script' => [
+                        'id' => 'language_field',
+                        'params' => [
+                            'field' => implode('.', $parts),
+                            'languages' => $context->getLanguageIdChain(),
+                        ],
                     ],
-                ],
-            ]);
+                ]);
+            }
         }
 
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
@@ -440,6 +443,9 @@ class CriteriaParser
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getCheapestPriceParameters(Context $context): array
     {
         return [
@@ -463,6 +469,9 @@ class CriteriaParser
         return $context->getRounding()->roundForNet();
     }
 
+    /**
+     * @return array<int, array<string, string|float>>
+     */
     private function getCheapestPriceAccessors(Context $context, bool $percentage = false): array
     {
         $accessors = [];
@@ -642,6 +651,9 @@ class CriteriaParser
         return \in_array($field, $haystack, true);
     }
 
+    /**
+     * @return array<string, float>
+     */
     private function getRangeParameters(RangeFilter $filter): array
     {
         $params = [];

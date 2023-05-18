@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 
 /**
@@ -14,6 +15,8 @@ class ElasticsearchIndexingExceptionTest extends TestCase
 {
     public function testException(): void
     {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
         $exception = new ElasticsearchIndexingException([
             'index' => 'shopware',
             'type' => 'product',

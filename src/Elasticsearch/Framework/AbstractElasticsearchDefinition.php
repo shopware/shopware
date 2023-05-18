@@ -9,6 +9,7 @@ use OpenSearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -41,7 +42,6 @@ abstract class AbstractElasticsearchDefinition
 
     /**
      * @param array<string> $ids
-     * @param list<string> $languageIds
      *
      * @return array<mixed>
      */
@@ -55,6 +55,11 @@ abstract class AbstractElasticsearchDefinition
      */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
+        Feature::triggerDeprecationOrThrow(
+            'ES_MULTILINGUAL_INDEX',
+            'Will become abstract, implementation should implement their own `buildTermQuery`'
+        );
+
         $bool = new BoolQuery();
 
         $term = (string) $criteria->getTerm();

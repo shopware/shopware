@@ -5,10 +5,13 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -17,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -136,6 +140,32 @@ class CriteriaParserTest extends TestCase
         $script = $sorting->getParameter('script');
 
         static::assertSame($expectedQuery, $script);
+    }
+
+    /**
+     * @dataProvider providerTranslatedField
+     *
+     * @param array<mixed> $expectedQuery
+     */
+    public function testTranslatedFieldSorting(FieldSorting $sorting, array $expectedQuery, bool $scriptSorting = true): void
+    {
+        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
+
+        $definition = $this->getDefinition();
+
+        $fieldSort = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseSorting($sorting, $definition, Context::createDefaultContext());
+
+        if ($scriptSorting) {
+            static::assertTrue($fieldSort->hasParameter('script'));
+            $script = $fieldSort->getParameter('script');
+            static::assertSame($expectedQuery, $script);
+
+            return;
+        }
+
+        static::assertSame($sorting->getField(), $fieldSort->getField());
+        static::assertSame($sorting->getDirection(), $fieldSort->getOrder());
+        static::assertSame([], $fieldSort->getParameters());
     }
 
     /**
@@ -267,6 +297,82 @@ class CriteriaParserTest extends TestCase
                 ],
             ],
             $context,
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{FieldSorting, array{id: string, params: array{field: string, languages: list<string>}}, bool}>
+     */
+    public static function providerTranslatedField(): iterable
+    {
+        yield 'non translated field' => [
+            new FieldSorting('productNumber', FieldSorting::ASCENDING),
+            [
+                'id' => 'language_field',
+                'params' => [
+                    'field' => 'name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            false,
+        ];
+
+        yield 'non nested translated field' => [
+            new FieldSorting('product.name', FieldSorting::ASCENDING),
+            [
+                'id' => 'language_field',
+                'params' => [
+                    'field' => 'name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+        ];
+
+        yield 'non translated field with root prefix' => [
+            new FieldSorting('product.name', FieldSorting::ASCENDING),
+            [
+                'id' => 'language_field',
+                'params' => [
+                    'field' => 'name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+        ];
+
+        yield 'nested translated field' => [
+            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
+            [
+                'id' => 'language_field',
+                'params' => [
+                    'field' => 'manufacturer.name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+        ];
+
+        yield 'nested translated field with root prefix' => [
+            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
+            [
+                'id' => 'language_field',
+                'params' => [
+                    'field' => 'manufacturer.name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
         ];
     }
 
@@ -453,7 +559,7 @@ class CriteriaParserTest extends TestCase
     public function getDefinition(): EntityDefinition
     {
         $instanceRegistry = new StaticDefinitionInstanceRegistry(
-            [ProductDefinition::class],
+            [ProductDefinition::class, ProductManufacturerDefinition::class],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );

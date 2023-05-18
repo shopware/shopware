@@ -16,10 +16,16 @@ Currently, when using Elasticsearch for searching on storefront, we are creating
 
 ## Decision
 
+### New feature flag
+
+We introduce a new feature flag `ES_MULTILINGUAL_INDEX` to allow people to opt in to the new multilingual ES index immediately.
+
+### New Elasticsearch data mapping structure
+
 We changed the approach to Multilingual fields strategy following these criteria
 
 1. Each searchable entity now have only one index for all languages (e.g sw_product)
-2. Each translated field's mapping will be an `object field`, each language_id will be a key in the object
+2. Each translated field will be mapped as an `object field`, each language_id will be a key in the object
 3. When searching for these fields, use multi-match search with <translated_field>.<context_lang_id>, <translated_field>.<parent_current_lang_id> and <translated_field>.<default_lang_id> as fallback, this way we have a fallback mechanism without needing duplicate data
 4. Same logic applied when sorting with the help of a painless script (see 3.Sorting below)
 5. When a new language is added or a record is update, we do a partial update instead of replacing the whole document, this will reduce the request update payload and thus improve indexing performance overall
@@ -181,5 +187,5 @@ We add a new painless script in `Framework/Indexing/Scripts/language_field.groov
 
 ## Consequences
 
-- Old language based indexes will not be used any longer thus could be removed on es cluster
-- The shop must reindex using command `bin/console es:index` in the next update
+- From the next major version, old language based indexes will not be used any longer thus could be removed on es cluster
+- When the feature is activated, the shop must reindex using command `bin/console es:index` in the next update

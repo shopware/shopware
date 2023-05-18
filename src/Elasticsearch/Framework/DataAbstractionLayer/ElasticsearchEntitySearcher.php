@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -63,7 +64,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition),
+                'index' => $this->helper->getIndexName($definition, Feature::isActive('ES_MULTILINGUAL_INDEX') ? null : $context->getLanguageId()),
                 'track_total_hits' => true,
                 'body' => $search,
             ]);

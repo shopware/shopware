@@ -10,3 +10,8 @@ shopware:
       - name: VUE3
         default: false
         major: true
+      - name: ES_MULTILINGUAL_INDEX
+        default: false
+        major: true
+        description: "Change Elasticsearch mapping data to support multi languages in one index"
+

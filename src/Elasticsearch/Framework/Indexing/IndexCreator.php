@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
@@ -29,8 +28,7 @@ class IndexCreator
         private readonly Client $client,
         array $config,
         private readonly array $mapping,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private Connection $connection
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {

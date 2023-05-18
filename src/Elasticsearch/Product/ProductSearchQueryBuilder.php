@@ -10,20 +10,18 @@ use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\MultiMatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use OpenSearchDSL\Query\TermLevel\WildcardQuery;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @phpstan-type SearchFieldConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
- */
 #[Package('core')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 {
@@ -38,7 +36,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     public function __construct(
         private readonly Connection $connection,
         private readonly EntityDefinitionQueryHelper $helper,
-        private readonly ProductDefinition $productDefinition,
+        private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
         private readonly Tokenizer $tokenizer
     ) {
@@ -59,18 +57,57 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             $tokenBool = new BoolQuery();
 
             foreach ($searchConfig as $item) {
-                $config = new SearchFieldConfig((string) $item['field'], (int) $item['ranking'], (bool) $item['tokenize']);
-                $field = $this->helper->getField($config->getField(), $this->productDefinition, $this->productDefinition->getEntityName(), false);
-                $association = $this->helper::getAssociationPath($config->getField(), $this->productDefinition);
-                $root = $association ? explode('.', $association)[0] : null;
+                if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+                    $config = new SearchFieldConfig((string) $item['field'], (int) $item['ranking'], (bool) $item['tokenize']);
+                    $field = $this->helper->getField($config->getField(), $this->productDefinition, $this->productDefinition->getEntityName(), false);
+                    $association = $this->helper->getAssociationPath($config->getField(), $this->productDefinition);
+                    $root = $association ? explode('.', $association)[0] : null;
 
-                if ($field instanceof TranslatedField) {
-                    $this->buildTranslatedFieldTokenQueries($tokenBool, $token, $config, $context, $root);
+                    if ($field instanceof TranslatedField) {
+                        $this->buildTranslatedFieldTokenQueries($tokenBool, $token, $config, $context, $root);
+
+                        continue;
+                    }
+
+                    $this->buildTokenQuery($tokenBool, $token, $config, $root);
 
                     continue;
                 }
 
-                $this->buildTokenQuery($tokenBool, $token, $config, $root);
+                $ranking = $item['ranking'];
+
+                if (!str_contains($item['field'], 'customFields')) {
+                    $searchField = $item['field'] . '.search';
+                    $ngramField = $item['field'] . '.ngram';
+                } else {
+                    $searchField = $item['field'];
+                    $ngramField = $item['field'];
+                }
+
+                $queries = [];
+
+                $queries[] = new MatchQuery($searchField, $token, ['boost' => 5 * $ranking]);
+                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $ranking, 'slop' => 5]);
+                $queries[] = new WildcardQuery($searchField, '*' . $token . '*');
+
+                if ($item['tokenize']) {
+                    $queries[] = new MatchQuery($searchField, $token, ['fuzziness' => 'auto', 'boost' => 3 * $ranking]);
+                    $queries[] = new MatchQuery($ngramField, $token);
+                }
+
+                if (str_contains($item['field'], '.') && !str_contains($item['field'], 'customFields')) {
+                    $nested = strtok($item['field'], '.');
+
+                    foreach ($queries as $query) {
+                        $tokenBool->add(new NestedQuery($nested, $query), BoolQuery::SHOULD);
+                    }
+
+                    continue;
+                }
+
+                foreach ($queries as $query) {
+                    $tokenBool->add($query, BoolQuery::SHOULD);
+                }
             }
 
             $bool->add($tokenBool, $isAndSearch ? BoolQuery::MUST : BoolQuery::SHOULD);
@@ -85,11 +122,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     }
 
     /**
-     * @return array<int, array{field: string, ranking: int, tokenize: bool, and_logic: string}>
+     * @return array<array{and_logic: string, field: string, tokenize: int, ranking: int}>
      */
     private function fetchConfig(Context $context): array
     {
-        /** @var array<SearchFieldConfig> $config */
+        /** @var array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $config */
         $config = $this->connection->fetchAllAssociative(
             'SELECT
 product_search_config.and_logic,
@@ -145,14 +182,13 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
         $ngramFields = [];
 
         foreach ($context->getLanguageIdChain() as $languageId) {
-            $fieldName = sprintf('%s.%s', $config->getField(), $languageId);
-            $searchField = $config->isCustomField() ? $fieldName : $fieldName . '.search';
+            $searchField = $this->buildTranslatedFieldName($config, $languageId, 'search');
 
             $multiMatchFields[] = $searchField;
             $matchPhraseFields[] = $searchField;
 
             if ($config->tokenize()) {
-                $ngramField = $config->isCustomField() ? $fieldName : $fieldName . '.ngram';
+                $ngramField = $this->buildTranslatedFieldName($config, $languageId, 'ngram');
                 $fuzzyMatchFields[] = $searchField;
                 $ngramFields[] = $ngramField;
             }
@@ -191,5 +227,16 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
 
             $tokenBool->add($query, BoolQuery::SHOULD);
         }
+    }
+
+    private function buildTranslatedFieldName(SearchFieldConfig $fieldConfig, string $languageId, string $suffix = ''): string
+    {
+        if ($fieldConfig->isCustomField()) {
+            $parts = explode('.', $fieldConfig->getField());
+
+            return sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
+        }
+
+        return sprintf('%s.%s.%s', $fieldConfig->getField(), $languageId, $suffix);
     }
 }

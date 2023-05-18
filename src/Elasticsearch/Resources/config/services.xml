@@ -67,7 +67,6 @@
             <argument>%elasticsearch.index.config%</argument>
             <argument>%elasticsearch.index.mapping%</argument>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
@@ -75,6 +74,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler"/>
             <argument>%elasticsearch.indexing_enabled%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer" on-invalid="null" />
             <tag name="console.command"/>
         </service>
 
@@ -101,6 +101,7 @@
         <service id="Shopware\Elasticsearch\Product\ProductUpdater">
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer" on-invalid="null" />
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -181,6 +182,17 @@
             <tag name="shopware.es.definition"/>
         </service>
 
+        <!-- @deprecated tag:v6.6.0.0 - ElasticsearchProductDefinition will be removed, EsProductDefinition will become standalone service with tag `shopware.es.definition` -->
+        <service id="Shopware\Elasticsearch\Product\EsProductDefinition" decorates="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%elasticsearch.product.custom_fields_mapping%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
+
+            <tag name="shopware.feature" flag="ES_MULTILINGUAL_INDEX"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
@@ -245,14 +257,33 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="logger"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
             <tag name="messenger.message_handler"/>
+            <tag name="shopware.feature" flag="ES_MULTILINGUAL_INDEX" />
         </service>
 
         <service id="Shopware\Elasticsearch\Product\LanguageSubscriber">
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
@@ -62,6 +63,7 @@ class IndexerOffsetTest extends TestCase
 
     public function testItConvertsLanguagesToSerilizeableIdsAndCanDoAnLanguageRoudTrip(): void
     {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
         $definitions = [];
 
         $offset = new IndexerOffset(

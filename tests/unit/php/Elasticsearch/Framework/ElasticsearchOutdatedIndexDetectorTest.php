@@ -28,7 +28,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(4))
+            ->expects(static::exactly(2))
             ->method('get')
             ->willReturnCallback(fn () => [
                 Uuid::randomHex() => [
@@ -73,8 +73,8 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
         $arr = $detector->get();
         static::assertNotNull($arr);
-        static::assertCount(2, $arr);
-        static::assertCount(4, $detector->getAllUsedIndices());
+        static::assertCount(1, $arr);
+        static::assertCount(2, $detector->getAllUsedIndices());
     }
 
     public function testDoesNothingWithoutIndices(): void
@@ -89,7 +89,6 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $client->method('indices')->willReturn($indices);
 
         $registry = $this->createMock(ElasticsearchRegistry::class);
-        $repository = $this->createMock(EntityRepository::class);
         $repository = $this->createMock(EntityRepository::class);
         $repository
             ->method('search')

@@ -14,10 +14,12 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[AsMessageHandler(handles: CreateAliasTask::class)]
 #[Package('core')]
-final class CreateAliasTaskHandler extends ScheduledTaskHandler
+class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal

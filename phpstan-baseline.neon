@@ -3846,11 +3846,6 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Commands\\\\GenerateThumbnailsCommand\\:\\:generateThumbnails\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:fetchChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
@@ -4009,16 +4004,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Message\\\\DeleteFileMessage\\:\\:setFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Message/DeleteFileMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Message\\\\GenerateThumbnailsMessage\\:\\:getMediaIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Message/GenerateThumbnailsMessage.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Message\\\\GenerateThumbnailsMessage\\:\\:\\$mediaIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Message/GenerateThumbnailsMessage.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\:\\:loadFromFile\\(\\) return type has no value type specified in iterable type array\\.$#"

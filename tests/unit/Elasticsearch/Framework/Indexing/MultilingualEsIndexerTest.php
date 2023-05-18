@@ -16,10 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
@@ -82,9 +82,7 @@ class MultilingualEsIndexerTest extends TestCase
             ->expects(static::once())
             ->method('createIndex');
 
-        $msg = $indexer->iterate();
-
-        static::assertNull($msg);
+        static::assertNull($indexer->iterate(null));
     }
 
     public function testIterateNullCreatesIndicesAndIndexTaskInDB(): void
@@ -104,9 +102,7 @@ class MultilingualEsIndexerTest extends TestCase
             ->expects(static::once())
             ->method('createIndex');
 
-        $msg = $indexer->iterate();
-
-        static::assertNull($msg);
+        static::assertNull($indexer->iterate(null));
     }
 
     public function testIterateWithMessage(): void
@@ -120,7 +116,7 @@ class MultilingualEsIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $offset = new IndexerOffset([], ['product'], null);
+        $offset = new IndexerOffset([], [$this->createDefinition('product')], null);
 
         $msg = $indexer->iterate($offset);
 
@@ -140,12 +136,12 @@ class MultilingualEsIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $offset = new IndexerOffset([], ['foo'], null);
+        $offset = new IndexerOffset([], [$this->createDefinition('foo')], null);
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition foo not found');
+        static::expectException(ElasticsearchIndexingException::class);
+        static::expectExceptionMessage('Elasticsearch definition of foo not found');
 
-        $indexer->iterate($offset);
+        $msg = $indexer->iterate($offset);
     }
 
     public function testIterateWithMessageMultipleDefinitions(): void
@@ -157,7 +153,7 @@ class MultilingualEsIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $msg = $indexer->iterate();
+        $msg = $indexer->iterate(null);
 
         static::assertNull($msg);
     }
@@ -211,8 +207,8 @@ class MultilingualEsIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition not_existing not found');
+        static::expectException(ElasticsearchIndexingException::class);
+        static::expectExceptionMessage('Elasticsearch definition of not_existing not found');
 
         $indexer($message);
     }
@@ -297,7 +293,7 @@ class MultilingualEsIndexerTest extends TestCase
 
         $indexer = $this->getIndexer($logger);
 
-        static::expectException(ElasticsearchException::class);
+        static::expectException(ElasticsearchIndexingException::class);
 
         $indexer($message);
     }
@@ -314,7 +310,7 @@ class MultilingualEsIndexerTest extends TestCase
             $this->iteratorFactory,
             $this->client,
             $logger,
-            1
+            1,
         );
     }
 

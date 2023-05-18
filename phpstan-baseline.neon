@@ -13972,11 +13972,6 @@ parameters:
 			path: tests/integration/php/Core/System/User/Api/UserRecoveryControllerTest.php
 
 		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 18
-			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
-
-		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
 			count: 2
 			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php

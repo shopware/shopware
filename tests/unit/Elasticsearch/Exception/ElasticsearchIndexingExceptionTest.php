@@ -15,7 +15,7 @@ class ElasticsearchIndexingExceptionTest extends TestCase
 {
     public function testException(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
 
         $exception = new ElasticsearchIndexingException([
             'index' => 'shopware',

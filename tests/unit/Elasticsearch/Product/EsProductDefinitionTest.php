@@ -5,35 +5,22 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
-use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
-use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\EsProductDefinition;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Product\EsProductDefinition
- *
- * @deprecated tag:v6.6.0 - Will be removed, please transfer test cases to \Shopware\Tests\Unit\Elasticsearch\Product\ElasticsearchProductDefinitionTest
  */
 class EsProductDefinitionTest extends TestCase
 {
@@ -45,7 +32,6 @@ class EsProductDefinitionTest extends TestCase
                 'fields' => [
                     'search' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_english_analyzer',
                     ],
                     'ngram' => [
                         'type' => 'text',
@@ -59,7 +45,6 @@ class EsProductDefinitionTest extends TestCase
                 'fields' => [
                     'search' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_german_analyzer',
                     ],
                     'ngram' => [
                         'type' => 'text',
@@ -95,41 +80,17 @@ class EsProductDefinitionTest extends TestCase
 
     public function testMapping(): void
     {
-        $languageLoader = new StaticLanguageLoader([
-            'lang_en' => [
-                'id' => 'lang_en',
-                'parentId' => 'parentId',
-                'code' => 'en-GB',
-            ],
-            'lang_de' => [
-                'id' => 'lang_de',
-                'parentId' => 'parentId',
-                'code' => 'de-DE',
-            ],
-        ]);
-
-        $parameterBag = new ParameterBag([
-            'elasticsearch.product.custom_fields_mapping' => [
-                'bool' => CustomFieldTypes::BOOL,
-                'int' => CustomFieldTypes::INT,
-            ],
-        ]);
-
         $connection = $this->createMock(Connection::class);
-
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
-        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
-            'en' => 'sw_english_analyzer',
-            'de' => 'sw_german_analyzer',
+        $connection->expects(static::exactly(2))->method('fetchFirstColumn')->willReturn([
+            'lang_en', 'lang_de',
         ]);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
 
         $definition = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $fieldBuilder,
-            $fieldMapper
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
         );
 
         $expectedMapping = [
@@ -145,26 +106,6 @@ class EsProductDefinitionTest extends TestCase
                     'normalizer' => 'sw_lowercase_normalizer',
                 ],
                 'parentId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'categoryTree' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'categoryIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'propertyIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'optionIds' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
-                'tagIds' => [
                     'type' => 'keyword',
                     'normalizer' => 'sw_lowercase_normalizer',
                 ],
@@ -400,40 +341,19 @@ class EsProductDefinitionTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $languageLoader = new StaticLanguageLoader([
-            'lang_en' => [
-                'id' => 'lang_en',
-                'parentId' => 'parentId',
-                'code' => 'en-GB',
-            ],
-            'lang_de' => [
-                'id' => 'lang_de',
-                'parentId' => 'parentId',
-                'code' => 'de-DE',
-            ],
+        $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
+            'lang_en', 'lang_de',
         ]);
-
-        $parameterBag = new ParameterBag([
-            'elasticsearch.product.custom_fields_mapping' => [
-                'bool' => CustomFieldTypes::BOOL,
-                'int' => CustomFieldTypes::INT,
-                'test1' => CustomFieldTypes::TEXT,
-                'test2' => 'unknown',
-            ],
-        ]);
-
-        $instanceRegistry = $this->getDefinitionRegistry();
-
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
-        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
 
         $definition = new EsProductDefinition(
-            $instanceRegistry->get(ProductDefinition::class),
+            $this->createMock(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $fieldBuilder,
-            $fieldMapper
+            [
+                'test1' => 'text',
+                'test2' => 'unknown',
+            ],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -477,21 +397,16 @@ class EsProductDefinitionTest extends TestCase
 
     public function testGetDefinition(): void
     {
-        $registry = $this->getDefinitionRegistry();
-
-        $definition = $registry->get(ProductDefinition::class);
-
-        static::assertInstanceOf(ProductDefinition::class, $definition);
-
-        $esDefinition = new EsProductDefinition(
-            $definition,
+        $productDefinition = $this->createMock(ProductDefinition::class);
+        $definition = new EsProductDefinition(
+            $productDefinition,
             $this->createMock(Connection::class),
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class)
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
         );
 
-        static::assertSame($definition, $esDefinition->getEntityDefinition());
+        static::assertSame($productDefinition, $definition->getEntityDefinition());
     }
 
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
@@ -503,20 +418,12 @@ class EsProductDefinitionTest extends TestCase
             ->method('build')
             ->willReturn($boolQuery);
 
-        $registry = $this->getDefinitionRegistry();
-        $definition = $registry->get(ProductDefinition::class);
-        static::assertInstanceOf(ProductDefinition::class, $definition);
-
-        $utils = new ElasticsearchIndexingUtils($this->createMock(Connection::class), new EventDispatcher(), new ParameterBag([]));
-        $fieldBuilder = new ElasticsearchFieldBuilder(new StaticLanguageLoader([]), $utils, []);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
-
         $definition = new EsProductDefinition(
-            $definition,
+            $this->createMock(ProductDefinition::class),
             $this->createMock(Connection::class),
-            $searchQueryBuilder,
-            $fieldBuilder,
-            $fieldMapper
+            [],
+            new EventDispatcher(),
+            $searchQueryBuilder
         );
 
         $criteria = new Criteria();
@@ -536,17 +443,14 @@ class EsProductDefinitionTest extends TestCase
 
     public function testFetching(): void
     {
-        $registry = $this->getDefinitionRegistry();
-        $definition = $registry->get(ProductDefinition::class);
-        static::assertInstanceOf(ProductDefinition::class, $definition);
-
         $connection = $this->getConnection();
+
         $definition = new EsProductDefinition(
-            $definition,
+            $this->createMock(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class)
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -587,34 +491,14 @@ class EsProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 [
-                    '_count' => 1,
-                    'visibility' => 20,
+                    'visibility' => '20',
                     'salesChannelId' => 'sc-2',
+                    '_count' => 1,
                 ],
                 [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 30,
+                    'visibility' => '30',
                     'salesChannelId' => 'sc-1',
-                ],
-                [
                     '_count' => 1,
-                    'visibility' => 30,
-                    'salesChannelId' => 'sc-1',
-                ],
-                [
-                    '_count' => 1,
-                    'visibility' => 20,
-                    'salesChannelId' => 'sc-2',
                 ],
             ],
             $document['visibilities']
@@ -647,32 +531,13 @@ class EsProductDefinitionTest extends TestCase
     {
         $connection = $this->getConnection();
 
-        $languageLoader = new StaticLanguageLoader([
-            Defaults::LANGUAGE_SYSTEM => [
-                'id' => Defaults::LANGUAGE_SYSTEM,
-                'parentId' => 'parentId',
-                'code' => 'en-GB',
-            ],
-        ]);
-
-        $parameterBag = new ParameterBag([
-            'elasticsearch.product.custom_fields_mapping' => ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
-        ]);
-
-        $instanceRegistry = $this->getDefinitionRegistry();
-
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
-        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
-
         $definition = new EsProductDefinition(
-            $instanceRegistry->get(ProductDefinition::class),
+            $this->createMock(ProductDefinition::class),
             $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $fieldBuilder,
-            $fieldMapper
+            ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
         );
-
         $uuid = $this->ids->get('product-1');
         $documents = $definition->fetch([$uuid], Context::createDefaultContext());
 
@@ -686,19 +551,18 @@ class EsProductDefinitionTest extends TestCase
         static::assertArrayNotHasKey('unknown', $documents[$uuid]['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
-    public function getConnection(): MockObject&Connection
+    public function getConnection(): Connection
     {
         $connection = $this->createMock(Connection::class);
 
         $connection
-            ->method('fetchAllAssociativeIndexed')
+            ->method('fetchAllAssociative')
             ->willReturnOnConsecutiveCalls(
                 [
-                    $this->ids->get('product-1') => [
+                    [
                         'id' => $this->ids->get('product-1'),
                         'parentId' => null,
                         'productNumber' => 1,
-                        'autoIncrement' => 1,
                         'ean' => '',
                         'active' => true,
                         'available' => true,
@@ -725,11 +589,16 @@ class EsProductDefinitionTest extends TestCase
                         'coverId' => null,
                         'childCount' => 0,
                         'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
-                        'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
+                        'visibilities' => '20,sc-2|20,sc-2|20,sc-2|30,sc-1|30,sc-1|20,sc-2',
                         'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                         'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     ],
                 ],
+            );
+
+        $connection
+            ->method('fetchAllAssociativeIndexed')
+            ->willReturn(
                 [
                     '809c1844f4734243b6aa04aba860cd45' => [
                         'id' => '809c1844f4734243b6aa04aba860cd45',
@@ -751,21 +620,9 @@ class EsProductDefinitionTest extends TestCase
                             ],
                         ]),
                     ],
-                ],
+                ]
             );
 
         return $connection;
-    }
-
-    private function getDefinitionRegistry(): DefinitionInstanceRegistry
-    {
-        return new StaticDefinitionInstanceRegistry(
-            [
-                ProductDefinition::class,
-                ProductTranslationDefinition::class,
-            ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
     }
 }

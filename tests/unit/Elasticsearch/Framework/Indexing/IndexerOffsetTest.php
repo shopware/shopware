@@ -5,7 +5,10 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -56,6 +59,7 @@ class IndexerOffsetTest extends TestCase
     public function testItConvertsLanguagesToSerializableIdsAndCanDoAnLanguageRoundTrip(): void
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+        $definitions = [];
 
         $offset = new IndexerOffset(
             ['foo', 'bar'],

@@ -84,6 +84,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,16 +129,19 @@ class ElasticsearchProductTest extends TestCase
 
     private AbstractElasticsearchDefinition $definition;
 
-    private ElasticsearchIndexingUtils $utils;
-
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-        $this->utils = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
-
-        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            /** @var AbstractElasticsearchDefinition $definition */
+            $definition = $this->getContainer()->get(EsProductDefinition::class);
+            $this->definition = $definition;
+            ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
+        } else {
+            $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+            ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
+        }
 
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
@@ -219,6 +223,7 @@ class ElasticsearchProductTest extends TestCase
             $context = $this->context;
 
             $this->clearElasticsearch();
+            $this->indexElasticSearch();
 
             $this->resetStopWords();
 
@@ -2717,15 +2722,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $context)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Second language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2738,15 +2737,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Third language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2760,15 +2753,9 @@ class ElasticsearchProductTest extends TestCase
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Second language variant fallback to parent
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2785,15 +2772,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Fallback through parent to variant in other language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2'), Defaults::LANGUAGE_SYSTEM]);
@@ -2810,15 +2791,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Fallback to parent on null-entry
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2835,41 +2810,8 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testCustomFieldsGetsMerged(IdsCollection $ids): void
-    {
-        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
-
-        $context = $this->createIndexingContext();
-
-        // Fetch: Fallback through parent to variant in other language
-        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2'), Defaults::LANGUAGE_SYSTEM]);
-        $languageContext->addExtensions($context->getExtensions());
-        $languageContext->setConsiderInheritance(true);
-
-        $dal3 = $ids->getBytes('dal-3');
-
-        $esProducts = $this->definition->fetch([$dal3], $languageContext);
-
-        $esProduct = $esProducts[$ids->get('dal-3')];
-
-        $criteria = new Criteria([$ids->get('dal-3')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
-
-        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
         static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
     }
 
@@ -3601,17 +3543,17 @@ class ElasticsearchProductTest extends TestCase
             ],
         ], $this->context);
 
-        $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
-
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue(
-            $this->definition,
-            $customMapping
-        );
-
-        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
-            $this->utils,
-            ['product' => $customMapping],
-        );
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            ReflectionHelper::getProperty(EsProductDefinition::class, 'customMapping')->setValue(
+                $this->definition,
+                array_combine(array_column($customFields, 'name'), array_column($customFields, 'type'))
+            );
+        } else {
+            ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
+                $this->definition,
+                \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'))
+            );
+        }
 
         $products = [
             (new ProductBuilder($this->ids, 'product-1'))

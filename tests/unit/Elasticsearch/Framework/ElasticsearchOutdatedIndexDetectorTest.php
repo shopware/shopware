@@ -31,7 +31,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(Feature::isActive('ES_MULTILINGUAL_INDEX') ? 2 : 4))
+            ->expects(static::exactly(2))
             ->method('get')
             ->willReturnCallback(fn () => [
                 Uuid::randomHex() => [
@@ -80,13 +80,8 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper, $this->createMock(ElasticsearchLanguageProvider::class));
         $arr = $detector->get();
         static::assertNotNull($arr);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertCount(1, $arr);
-            static::assertCount(2, $detector->getAllUsedIndices());
-        } else {
-            static::assertCount(2, $arr);
-            static::assertCount(4, $detector->getAllUsedIndices());
-        }
+        static::assertCount(1, $arr);
+        static::assertCount(2, $detector->getAllUsedIndices());
     }
 
     public function testDoesNothingWithoutIndices(): void

@@ -42,7 +42,6 @@ abstract class AbstractElasticsearchDefinition
 
     /**
      * @param array<string> $ids
-     * @param list<string> $languageIds
      *
      * @return array<string, array<string, mixed>>
      */

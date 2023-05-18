@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -62,9 +63,20 @@ class ElasticsearchHelper
      *
      * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $languageId will be removed.
      */
-    public function getIndexName(EntityDefinition $definition): string
+    public function getIndexName(EntityDefinition $definition/*, ?string $languageId = null*/): string
     {
-        return $this->prefix . '_' . $definition->getEntityName();
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->prefix . '_' . $definition->getEntityName();
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            'Second parameter `$languageId` will be removed in method `getIndexName()` in `ElasticsearchHelper` since v6.6.0.0'
+        );
+
+        $languageId = \func_get_args()[1] ?? '';
+
+        return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
     }
 
     public function allowIndexing(): bool

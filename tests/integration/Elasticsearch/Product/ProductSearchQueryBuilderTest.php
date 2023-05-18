@@ -26,10 +26,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
-use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -449,9 +448,12 @@ class ProductSearchQueryBuilderTest extends TestCase
             $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
         });
 
-        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
-            $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
-        });
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            /** @var AbstractElasticsearchDefinition $definition */
+            $definition = $this->getContainer()->get(EsProductDefinition::class);
+        } else {
+            $definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+        }
 
         $definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
         $class = new \ReflectionClass($definition);

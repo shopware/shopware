@@ -8,18 +8,20 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  *
- * @decrecated tag:v6.6.0 - Will be removed, please transfer all public methods method to ElasticsearchIndexer
+ * @final
  */
+#[AsMessageHandler]
 #[Package('core')]
 class MultilingualEsIndexer
 {
@@ -40,6 +42,10 @@ class MultilingualEsIndexer
 
     public function __invoke(ElasticsearchIndexingMessage $message): void
     {
+        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return;
         }
@@ -49,6 +55,10 @@ class MultilingualEsIndexer
 
     public function iterate(?IndexerOffset $offset = null): ?ElasticsearchIndexingMessage
     {
+        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return null;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return null;
         }
@@ -65,6 +75,10 @@ class MultilingualEsIndexer
      */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
+        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return;
         }
@@ -97,7 +111,7 @@ class MultilingualEsIndexer
         $definition = $this->registry->get((string) $offset->getDefinition());
 
         if (!$definition) {
-            throw ElasticsearchException::definitionNotFound((string) $offset->getDefinition());
+            throw ElasticsearchIndexingException::definitionNotFound((string) $offset->getDefinition());
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();
@@ -106,28 +120,29 @@ class MultilingualEsIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
-            if (!$offset->hasNextDefinition()) {
-                return null;
-            }
-            // increment definition offset
-            $offset->selectNextDefinition();
+        if (!empty($ids)) {
+            // increment last id with iterator offset
+            $offset->setLastId($iterator->getOffset());
 
-            // reset last id to start iterator at the beginning
-            $offset->setLastId(null);
+            $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
-            return $this->createIndexingMessage($offset);
+            $index = $alias . '_' . $offset->getTimestamp();
+
+            // return indexing message for current offset
+            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
         }
 
-        // increment last id with iterator offset
-        $offset->setLastId($iterator->getOffset());
+        if (!$offset->hasNextDefinition()) {
+            return null;
+        }
 
-        $alias = $this->helper->getIndexName($definition->getEntityDefinition());
+        // increment definition offset
+        $offset->selectNextDefinition();
 
-        $index = $alias . '_' . $offset->getTimestamp();
+        // reset last id to start iterator at the beginning
+        $offset->setLastId(null);
 
-        // return indexing message for current offset
-        return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
+        return $this->createIndexingMessage($offset);
     }
 
     private function init(): IndexerOffset
@@ -142,7 +157,7 @@ class MultilingualEsIndexer
 
         return new IndexerOffset(
             [],
-            $this->registry->getDefinitionNames(),
+            $this->registry->getDefinitions(),
             $timestamp->getTimestamp()
         );
     }
@@ -249,10 +264,10 @@ class MultilingualEsIndexer
         $context = $message->getContext();
 
         if (!$definition) {
-            throw ElasticsearchException::definitionNotFound($entity);
+            throw ElasticsearchIndexingException::definitionNotFound($entity);
         }
 
-        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
+        $data = $definition->fetch($ids, $context);
 
         $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
 
@@ -277,7 +292,7 @@ class MultilingualEsIndexer
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
-            throw ElasticsearchException::indexingError($errors);
+            throw ElasticsearchIndexingException::indexingError($errors);
         }
     }
 }

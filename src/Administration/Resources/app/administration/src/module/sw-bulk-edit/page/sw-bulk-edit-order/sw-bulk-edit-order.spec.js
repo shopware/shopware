@@ -678,18 +678,24 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(6);
 
-        orderStateCriteria.addFilter(Criteria.equalsAny('orders.id', [selectedOrderId]));
-        orderStateCriteria.addFilter(Criteria.equals('orders.versionId', liveVersionId));
+        orderStateCriteria.addFilter(Criteria.multi('AND', [
+            Criteria.equalsAny('orders.id', [selectedOrderId]),
+            Criteria.equals('orders.versionId', liveVersionId),
+        ]));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(1, orderStateCriteria);
 
         const orderTransactionStateCriteria = new Criteria(1, null);
-        orderTransactionStateCriteria.addFilter(Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
-        orderTransactionStateCriteria.addFilter(Criteria.equals('orderTransactions.orderVersionId', liveVersionId));
+        orderTransactionStateCriteria.addFilter(Criteria.multi('AND', [
+            Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]),
+            Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
+        ]));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(2, orderTransactionStateCriteria);
 
         const orderDeliveryStateCriteria = new Criteria(1, null);
-        orderDeliveryStateCriteria.addFilter(Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
-        orderDeliveryStateCriteria.addFilter(Criteria.equals('orderDeliveries.orderVersionId', liveVersionId));
+        orderDeliveryStateCriteria.addFilter(Criteria.multi('AND', [
+            Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]),
+            Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
+        ]));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(3, orderDeliveryStateCriteria);
 
         wrapper.vm.fetchStatusOptions.mockClear();

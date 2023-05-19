@@ -1,9 +1,9 @@
 ---
-title: Fix ElasticSearch visibility mapping definition
-issue: NEXT-0000
+title: Fix Elasticsearch visibility mapping definition
+issue: NEXT-26896
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999
 ---
-# Elasticsearch
-* Changed ElasticSearch mapping `visibilities.id` to `visibilities.salesChannelId` to match the indexed documents
+# Core
+* Changed Elasticsearch mapping `visibilities.id` to `visibilities.salesChannelId` to match the indexed documents

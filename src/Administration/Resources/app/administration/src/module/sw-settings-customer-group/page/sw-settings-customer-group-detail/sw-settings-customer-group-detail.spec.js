@@ -247,8 +247,8 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             },
             languageId: '1234',
         }]);
-        expect(wrapper.find('sw-text-field-stub[label="Storefront"]').attributes()).toEqual({
-            label: 'Storefront',
+        expect(wrapper.find('sw-text-field-stub[label="sw-settings-customer-group.registration.seoUrlLabel"]').attributes()).toEqual({
+            label: 'sw-settings-customer-group.registration.seoUrlLabel',
             copyable: 'true',
             disabled: 'true',
             value: 'http://shopware.test/Hello-world',

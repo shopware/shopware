@@ -1,7 +1,7 @@
 {
     "name": "swag/test",
     "description": "Test description",
-    "version": "v1.0.1",
+    "version": "v1.0.2",
     "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [

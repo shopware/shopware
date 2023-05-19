@@ -1,16 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\IO\NullIO;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
+use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Plugin\Util\PluginFinder
  */
 class PluginFinderTest extends TestCase
 {
@@ -19,7 +22,7 @@ class PluginFinderTest extends TestCase
         $errors = new ExceptionCollection();
         (new PluginFinder(new PackageProvider()))->findPlugins(
             __DIR__,
-            TEST_PROJECT_DIR,
+            __DIR__ . '/../../../../../../..',
             $errors,
             new NullIO()
         );
@@ -53,6 +56,12 @@ class PluginFinderTest extends TestCase
             new ExceptionCollection(),
             new NullIO()
         );
+
+        static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Works\Works']);
         static::assertTrue($plugins['Works\Works']->getManagedByComposer());
+        // path is still local if it exists
+        static::assertEquals(__DIR__ . '/_fixture/LocallyInstalledPlugins/SwagTest', $plugins['Works\Works']->getPath());
+        // version info is still from local, as that might be more up to date
+        static::assertEquals('v1.0.2', $plugins['Works\Works']->getComposerPackage()->getPrettyVersion());
     }
 }

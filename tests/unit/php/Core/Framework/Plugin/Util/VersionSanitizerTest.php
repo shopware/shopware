@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Plugin\Util\VersionSanitizer
  */
 class VersionSanitizerTest extends TestCase
 {
@@ -20,6 +22,9 @@ class VersionSanitizerTest extends TestCase
         static::assertSame($expectedVersion, $sanitizedVersion);
     }
 
+    /**
+     * @return list<array{string, string}>
+     */
     public static function versionProvider(): array
     {
         return [

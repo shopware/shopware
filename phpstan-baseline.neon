@@ -10852,36 +10852,6 @@ parameters:
 			path: src/Core/Framework/Plugin/PluginExtractor.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getTranslations\\(\\) has parameter \\$extra with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getTranslations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$composerAuthors has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginFinder\\:\\:loadLocalPlugins\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Util/PluginFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginFinder\\:\\:loadVendorInstalledPlugins\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Util/PluginFinder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\VersionSanitizer\\:\\:sanitizePluginVersion\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/VersionSanitizer.php
@@ -12982,11 +12952,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\Util\\\\VersionSanitizerTest\\:\\:versionProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/Util/VersionSanitizerTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\_fixture\\\\bundles\\\\FooBarBundle\\:\\:\\$name has no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/_fixture/bundles/FooBarBundle.php
@@ -13385,11 +13350,6 @@ parameters:
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\EqualsFilterStruct\\|Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\MultiFilterStruct\\:\\:getQueries\\(\\)\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Store/Search/FilterStructClassTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionDownloaderTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$apps\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

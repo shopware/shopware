@@ -38,7 +38,7 @@ class ExtensionDownloaderTest extends TestCase
     {
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
+        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
 
         $context = $this->createAdminStoreContext();
 
@@ -71,6 +71,7 @@ class ExtensionDownloaderTest extends TestCase
                     'name' => 'TestApp',
                     'label' => 'TestApp',
                     'baseClass' => 'TestApp',
+                    'path' => $this->getContainer()->getParameter('kernel.project_dir') . '/vendor/swag/TestApp',
                     'autoload' => [],
                     'version' => '1.0.0',
                     'managedByComposer' => true,
@@ -80,5 +81,38 @@ class ExtensionDownloaderTest extends TestCase
         );
 
         $this->extensionDownloader->download('TestApp', Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
+    }
+
+    public function testDownloadExtensionWhichIsALocalComposerPlugin(): void
+    {
+        $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
+        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
+
+        $pluginPath = $this->getContainer()->getParameter('kernel.plugin_dir') . '/TestApp';
+        $projectPath = $this->getContainer()->getParameter('kernel.project_dir');
+
+        $this->getContainer()->get('plugin.repository')->create(
+            [
+                [
+                    'name' => 'TestApp',
+                    'label' => 'TestApp',
+                    'baseClass' => 'TestApp',
+                    'path' => str_replace($projectPath . '/', '', $pluginPath),
+                    'autoload' => [],
+                    'version' => '1.0.0',
+                    'managedByComposer' => true,
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $context = $this->createAdminStoreContext();
+
+        $this->extensionDownloader->download('TestApp', $context);
+        $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp';
+
+        static::assertFileExists($expectedLocation);
+        (new Filesystem())->remove($expectedLocation);
     }
 }

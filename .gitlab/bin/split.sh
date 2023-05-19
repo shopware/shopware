@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
+if [ -n "${DEBUG:-}" ]; then
+    set -x
+fi
+
 PLATFORM_DIR="${CI_PROJECT_DIR:-$(pwd)}"
 
 # Transforms input into lowercase-only.

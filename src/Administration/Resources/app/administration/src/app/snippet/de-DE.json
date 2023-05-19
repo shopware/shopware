@@ -1562,5 +1562,20 @@
   },
   "sw-ai-copilot-warning": {
     "text": "AI-Antworten können ungenau oder irreführend sein."
+  },
+  "sw-usage-data": {
+    "sw-settings-usage-data-intro": {
+      "title": "Nutzungsdaten",
+      "headline": "Gemeinsam Shopware verbessern",
+      "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
+      "learnMore": "Mehr erfahren",
+      "learnMoreUrl": "https://shopware.com"
+    },
+    "sw-settings-usage-data-modal": {
+      "alertText": "Diese Einstellung gilt für alle Benutzer der Shopware Administration. Du kannst sie jederzeit unter {settings-path} ändern.",
+      "alertTextSettingsPath": "Einstellungen -> System -> Nutzungsdaten",
+      "decline": "Ablehnen",
+      "accept": "Annehmen"
+    }
   }
 }

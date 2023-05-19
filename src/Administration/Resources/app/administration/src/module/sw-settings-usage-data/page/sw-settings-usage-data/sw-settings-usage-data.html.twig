@@ -1,0 +1,59 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_usage_data_index %}
+<sw-page class="sw-settings-usage-data">
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_usage_data_search_bar %}
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_usage_data_smart_bar_header %}
+    <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_usage_data_smart_bar_header_title %}
+        <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_usage_data_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-settings-usage-data.general.textHeadline') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_usage_data_content %}
+    <template #content>
+        <sw-card-view>
+            <sw-card
+                :title="$tc('sw-settings-usage-data.general.textHeadline')"
+                position-identifier="sw-settings-usage-data"
+            >
+                <sw-settings-usage-data-intro />
+
+                <sw-switch-field
+                    v-model="shareUsageData"
+                    :label="$tc('sw-settings-usage-data.general.shareUsageData')"
+                    :disabled="!isAdmin"
+                    @change="saveSystemConfig"
+                />
+
+                <sw-alert
+                    variant="neutral"
+                >
+                    {{ alertText }}
+                </sw-alert>
+            </sw-card>
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

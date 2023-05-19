@@ -1,25 +1,18 @@
 import 'src/app/component/structure/sw-admin';
-import 'src/app/component/utils/sw-notifications';
-import 'src/app/component/utils/sw-duplicated-media-v2';
-import swSettingsCacheModal from 'src/module/sw-settings-cache/component/sw-settings-cache-modal';
-import 'src/app/component/utils/sw-license-violation';
-import 'src/app/component/structure/sw-hidden-iframes';
-import 'src/app/component/structure/sw-modals-renderer';
-import 'src/app/component/app/sw-app-wrong-app-url-modal';
 import { shallowMount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
 
-Shopware.Component.register('sw-settings-cache-modal', swSettingsCacheModal);
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
     return shallowMount(await Shopware.Component.build('sw-admin'), {
         stubs: {
-            'sw-notifications': await Shopware.Component.build('sw-notifications'),
-            'sw-duplicated-media-v2': await Shopware.Component.build('sw-duplicated-media-v2'),
-            'sw-settings-cache-modal': await Shopware.Component.build('sw-settings-cache-modal'),
-            'sw-license-violation': await Shopware.Component.build('sw-license-violation'),
-            'sw-hidden-iframes': await Shopware.Component.build('sw-hidden-iframes'),
-            'sw-modals-renderer': await Shopware.Component.build('sw-modals-renderer'),
-            'sw-app-wrong-app-url-modal': await Shopware.Component.build('sw-app-wrong-app-url-modal'),
+            'sw-notifications': true,
+            'sw-duplicated-media-v2': true,
+            'sw-settings-cache-modal': true,
+            'sw-license-violation': true,
+            'sw-hidden-iframes': true,
+            'sw-modals-renderer': true,
+            'sw-app-wrong-app-url-modal': true,
+            'sw-settings-usage-data-modal': true,
             'router-view': true,
         },
         mocks: {
@@ -142,5 +135,17 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
+    });
+
+    it('should not include the usage data modal if the user is not logged in', async () => {
+        wrapper = await createWrapper(false);
+
+        expect(wrapper.find('sw-settings-usage-data-modal-stub').exists()).toBe(false);
+    });
+
+    it('should include the usage data modal if the user is logged in', async () => {
+        wrapper = await createWrapper(true);
+
+        expect(wrapper.find('sw-settings-usage-data-modal-stub').exists()).toBe(true);
     });
 });

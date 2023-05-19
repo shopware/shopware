@@ -75,7 +75,7 @@ interface SettingsItem {
     group: 'shop' | 'system' | 'plugins',
     to: string,
     icon?: string,
-    iconComponent: unknown,
+    iconComponent?: unknown,
     privilege?: string,
     id?: string,
     name?: string,

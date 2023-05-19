@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+.sw-settings-usage-data-modal {
+    .sw-settings-usage-data-intro {
+        &__headline {
+            font-size: $font-size-l;
+        }
+
+        &__icon-wrapper {
+            width: 64px;
+            height: 64px;
+        }
+    }
+
+    .sw-alert {
+        margin-top: 24px;
+        margin-bottom: 0;
+    }
+}

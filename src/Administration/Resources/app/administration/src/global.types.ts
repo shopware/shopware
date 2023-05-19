@@ -58,6 +58,8 @@ import type AsyncComponentFactory from './core/factory/async-component.factory';
 import type FilterFactory from './core/factory/filter.factory';
 import type StateStyleService from './app/service/state-style.service';
 import type RuleConditionService from './app/service/rule-condition.service';
+import type SystemConfigApiService from './core/service/api/system-config.api.service';
+import type MetricsApiService from './core/service/api/metrics.api.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -172,6 +174,8 @@ declare global {
         customSnippetApiService: CustomSnippetApiService,
         userActivityService: UserActivityService,
         filterFactory: FilterFactoryData,
+        systemConfigApiService: SystemConfigApiService,
+        metricsService: MetricsApiService,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{

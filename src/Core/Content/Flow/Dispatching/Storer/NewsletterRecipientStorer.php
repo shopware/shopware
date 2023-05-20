@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class NewsletterRecipientStorer extends FlowStorer
@@ -18,8 +21,10 @@ class NewsletterRecipientStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $newsletterRecipientRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
@@ -82,6 +87,14 @@ class NewsletterRecipientStorer extends FlowStorer
 
     private function loadNewsletterRecipient(Criteria $criteria, Context $context, string $id): ?NewsletterRecipientEntity
     {
+        $event = new BeforeLoadStorableFlowDataEvent(
+            NewsletterRecipientDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
+
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->get($id);
 
         if ($newsletterRecipient) {

@@ -9,11 +9,13 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Feature;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package business-ops
@@ -28,10 +30,13 @@ class CustomerGroupStorerTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
+    private MockObject&EventDispatcherInterface $dispatcher;
+
     protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->storer = new CustomerGroupStorer($this->repository);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->storer = new CustomerGroupStorer($this->repository, $this->dispatcher);
     }
 
     public function testStoreWithAware(): void
@@ -128,5 +133,20 @@ class CustomerGroupStorerTest extends TestCase
         $customerGroup = $storable->getData('customerGroup');
 
         static::assertNull($customerGroup);
+    }
+
+    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
+    {
+        $this->dispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(
+                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
+                'flow.storer.customer_group.criteria.event'
+            );
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
+        $this->storer->restore($storable);
+        $storable->getData('customerGroup');
     }
 }

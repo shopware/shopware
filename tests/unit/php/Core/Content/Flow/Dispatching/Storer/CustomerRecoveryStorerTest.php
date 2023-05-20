@@ -10,10 +10,12 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package business-ops
@@ -28,10 +30,13 @@ class CustomerRecoveryStorerTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
+    private MockObject&EventDispatcherInterface $dispatcher;
+
     protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->storer = new CustomerRecoveryStorer($this->repository);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->storer = new CustomerRecoveryStorer($this->repository, $this->dispatcher);
     }
 
     public function testStoreWithAware(): void
@@ -129,5 +134,20 @@ class CustomerRecoveryStorerTest extends TestCase
         $customerGroup = $storable->getData('customerRecovery');
 
         static::assertNull($customerGroup);
+    }
+
+    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
+    {
+        $this->dispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(
+                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
+                'flow.storer.customer_recovery.criteria.event'
+            );
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'id'], []);
+        $this->storer->restore($storable);
+        $storable->getData('customerRecovery');
     }
 }

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class CustomerStorer extends FlowStorer
@@ -18,8 +21,10 @@ class CustomerStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
@@ -85,6 +90,15 @@ class CustomerStorer extends FlowStorer
     private function loadCustomer(Criteria $criteria, Context $context, string $id): ?CustomerEntity
     {
         $criteria->addAssociation('salutation');
+
+        $event = new BeforeLoadStorableFlowDataEvent(
+            CustomerDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
+
         $customer = $this->customerRepository->search($criteria, $context)->get($id);
 
         if ($customer) {

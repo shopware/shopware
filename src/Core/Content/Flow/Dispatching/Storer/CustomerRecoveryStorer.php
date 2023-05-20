@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class CustomerRecoveryStorer extends FlowStorer
@@ -18,8 +21,10 @@ class CustomerRecoveryStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRecoveryRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
@@ -83,6 +88,15 @@ class CustomerRecoveryStorer extends FlowStorer
     private function loadCustomerRecovery(Criteria $criteria, Context $context, string $id): ?CustomerRecoveryEntity
     {
         $criteria->addAssociation('customer.salutation');
+
+        $event = new BeforeLoadStorableFlowDataEvent(
+            CustomerRecoveryDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
+
         $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->get($id);
 
         if ($customerRecovery) {

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -63,7 +64,7 @@ class AppFlowActionProviderTest extends TestCase
 
         $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, 'asdsad');
 
-        $orderStorer = new OrderStorer($orderRepo);
+        $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
         $flowFactory = new FlowFactory([$orderStorer]);
 
         $flow = $flowFactory->create($awareEvent);

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class ProductStorer extends FlowStorer
@@ -18,8 +21,10 @@ class ProductStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $productRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $productRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -79,6 +84,14 @@ class ProductStorer extends FlowStorer
     private function loadProduct(Criteria $criteria, Context $context, string $id): ?ProductEntity
     {
         $context->setConsiderInheritance(true);
+
+        $event = new BeforeLoadStorableFlowDataEvent(
+            ProductDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
 
         /** @var ProductEntity|null $product */
         $product = $this->productRepository->search($criteria, $context)->get($id);

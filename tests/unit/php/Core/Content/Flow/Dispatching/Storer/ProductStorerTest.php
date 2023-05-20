@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package business-ops
@@ -30,10 +32,13 @@ class ProductStorerTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
+    private MockObject&EventDispatcherInterface $dispatcher;
+
     protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
-        $this->storer = new ProductStorer($this->repository);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->storer = new ProductStorer($this->repository, $this->dispatcher);
     }
 
     public function testStoreWithAware(): void
@@ -131,5 +136,20 @@ class ProductStorerTest extends TestCase
         $customerGroup = $storable->getData('product');
 
         static::assertNull($customerGroup);
+    }
+
+    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
+    {
+        $this->dispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(
+                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
+                'flow.storer.product.criteria.event'
+            );
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
+        $this->storer->restore($storable);
+        $storable->getData('product');
     }
 }

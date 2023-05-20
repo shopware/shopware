@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package business-ops
@@ -29,7 +30,7 @@ class FlowFactoryTest extends TestCase
         $order->setId($ids->get('orderId'));
 
         $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, TestDefaults::SALES_CHANNEL);
-        $orderStorer = new OrderStorer($this->createMock(EntityRepository::class));
+        $orderStorer = new OrderStorer($this->createMock(EntityRepository::class), $this->createMock(EventDispatcherInterface::class));
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
 
@@ -53,7 +54,7 @@ class FlowFactoryTest extends TestCase
             ->willReturn($entitySearchResult);
 
         $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, TestDefaults::SALES_CHANNEL);
-        $orderStorer = new OrderStorer($orderRepo);
+        $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
         $flowFactory = new FlowFactory([$orderStorer]);
 
         $storedData = [
@@ -62,6 +63,7 @@ class FlowFactoryTest extends TestCase
         ];
         $flow = $flowFactory->restore('checkout.order.placed', $awareEvent->getContext(), $storedData);
 
+        static::assertInstanceOf(OrderEntity::class, $flow->getData('order'));
         static::assertEquals($ids->get('orderId'), $flow->getData('order')->getId());
     }
 }

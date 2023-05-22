@@ -79,6 +79,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 ['handleSearchRequest', 100],
                 ['handleFlags', -100],
             ],
+            // todo Call new service inside this listeners
+            // todo Call new service where event are dispatched
+            // todo Implement new functions inside new service
+            // todo add and consider "handled" flag where it got dispatched and listened
             ProductListingResultEvent::class => [
                 ['handleResult', 100],
                 ['removeScoreSorting', -100],
@@ -92,21 +96,14 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $criteria = $event->getCriteria();
 
-        if ($request->get('no-aggregations')) {
-            $criteria->resetAggregations();
+        // todo use constant
+        if ($criteria->hasState('already-handled')) {
+            return;
         }
 
-        if ($request->get('only-aggregations')) {
-            // set limit to zero to fetch no products.
-            $criteria->setLimit(0);
+        //todo inject service via DI
+        (new ListingFeatures())->handleRequest($request, $criteria);
 
-            // no total count required
-            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
-
-            // sorting and association are only required for the product data
-            $criteria->resetSorting();
-            $criteria->resetAssociations();
-        }
     }
 
     public function handleListingRequest(ProductListingCriteriaEvent $event): void

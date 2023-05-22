@@ -2,7 +2,9 @@
  * @package admin
  */
 
+import type { AxiosInstance } from 'axios';
 import ApiService from '../api.service';
+import type { LoginService } from '../login.service';
 
 /**
  * Gateway for the API end point "scheduled-task"
@@ -10,7 +12,7 @@ import ApiService from '../api.service';
  * @extends ApiService
  */
 class ScheduledTaskApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'scheduled-task') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'scheduled-task') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'scheduledTaskService';
     }
@@ -35,14 +37,14 @@ class ScheduledTaskApiService extends ApiService {
      *
      * @returns {Promise<T>}
      */
-    getMinRunInterval() {
+    getMinRunInterval(): Promise<{ minRunInterval: number }> {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}/min-run-interval`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
-            });
+            }) as Promise<{ minRunInterval: number }>;
     }
 }
 

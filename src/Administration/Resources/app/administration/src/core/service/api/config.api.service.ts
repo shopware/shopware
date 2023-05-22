@@ -2,7 +2,9 @@
  * @package admin
  */
 
+import type { AxiosInstance } from 'axios';
 import ApiService from '../api.service';
+import type { LoginService } from '../login.service';
 
 /**
  * Gateway for the API end point "config"
@@ -11,7 +13,7 @@ import ApiService from '../api.service';
  * @package system-settings
  */
 class ConfigApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'config') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'config') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'configService';
     }
@@ -28,7 +30,7 @@ class ConfigApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return new Promise((resolve) => {
-            this.httpClient
+            void this.httpClient
                 .get('/_info/config', {
                     params,
                     headers,

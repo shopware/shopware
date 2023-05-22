@@ -6,6 +6,24 @@
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
+import type Vue from 'vue';
+
+/** @private */
+export type NotificationConfig = {
+    isLoading?: boolean;
+    metadata: { size: number };
+    variant: string;
+    growl: boolean;
+    title: string;
+    message: string;
+    uuid?: string;
+};
+
+/** @private */
+export type NotificationService = {
+    create: (config: NotificationConfig) => Promise<string>,
+    update: (config: NotificationConfig) => Promise<void>
+;}
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
@@ -45,13 +63,22 @@ function getRegistry() {
     return registry;
 }
 
+/** @private */
+export type NotificationWorkerOptions = {
+    name: string,
+    fn: (
+        next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
+        opts: { entry: { size: number }, $root: Vue, notification: NotificationService }
+    ) => unknown
+};
+
 /**
  * Registers a new worker notification middleware function.
  * @param {String} name
  * @param {Object} opts
  * @return {boolean}
  */
-function register(name, opts) {
+function register(name: string, opts: NotificationWorkerOptions) {
     if (!name || !name.length) {
         return false;
     }
@@ -73,7 +100,7 @@ function register(name, opts) {
  * @param {String} name
  * @return {boolean}
  */
-function remove(name) {
+function remove(name: string) {
     if (!name || !name.length) {
         return false;
     }
@@ -92,7 +119,7 @@ function remove(name) {
  * @param {Object} opts
  * @return {boolean}
  */
-function override(name, opts) {
+function override(name: string, opts: { name: string; fn: () => unknown}) {
     if (!registry.has(name)) {
         return false;
     }
@@ -115,7 +142,7 @@ function initialize() {
     }
 
     initialized = true;
-    getRegistry().forEach(({ fn, name }) => {
+    getRegistry().forEach(({ fn, name }: { name: string, fn: () => unknown }) => {
         helper.use(middlewareFunctionWrapper(name, fn));
     });
     return helper;
@@ -127,8 +154,8 @@ function initialize() {
  * @param {Function} fn
  * @return {Function}
  */
-function middlewareFunctionWrapper(name, fn) {
-    return (next, data) => {
+function middlewareFunctionWrapper(name: string, fn: (next: () => unknown, data: unknown) => unknown) {
+    return (next: () => unknown, data: { queue : Array<{ name: string }>}) => {
         const entry = data.queue.find(
             (q) => q.name === name,
         ) || null;
@@ -147,7 +174,7 @@ function middlewareFunctionWrapper(name, fn) {
  * @param {Object} opts
  * @return {Boolean|boolean}
  */
-function validateOpts(opts) {
+function validateOpts(opts: NotificationWorkerOptions) {
     return (hasOwnProperty(opts, 'name')
         && opts.name.length > 0
         && hasOwnProperty(opts, 'fn')

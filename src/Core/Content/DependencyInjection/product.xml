@@ -234,6 +234,10 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
             <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ListingFeatures"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ListingFeatures">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="property_group_option.repository"/>
             <argument type="service" id="product_sorting.repository"/>

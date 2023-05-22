@@ -113,7 +113,9 @@ class ImportExportService
 
     public function getProgress(string $logId, int $offset): Progress
     {
-        $current = $this->logRepository->search(new Criteria([$logId]), Context::createDefaultContext())->first();
+        $criteria = new Criteria([$logId]);
+        $criteria->addAssociation('file');
+        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
         if (!$current instanceof ImportExportLogEntity) {
             throw new \RuntimeException('ImportExportLog "' . $logId . '" not found');
         }
@@ -161,7 +163,8 @@ class ImportExportService
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
-        $criteria->addAssociation('invalidRecordsLog');
+        $criteria->addAssociation('file');
+        $criteria->addAssociation('invalidRecordsLog.file');
         /** @var ImportExportLogCollection $result */
         $result = $this->logRepository->search($criteria, $context)->getEntities();
 

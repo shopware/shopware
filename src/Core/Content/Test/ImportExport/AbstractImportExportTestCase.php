@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -69,6 +70,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         $this->listener = $this->getContainer()->get(EventDispatcherInterface::class);
     }
 
+    /**
+     * @param array<array<string, mixed>> $invalidLog
+     */
     public static function assertImportExportSucceeded(Progress $progress, array $invalidLog = []): void
     {
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), json_encode($invalidLog, \JSON_THROW_ON_ERROR));
@@ -79,6 +83,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         static::assertSame(Progress::STATE_FAILED, $progress->getState());
     }
 
+    /**
+     * @param array<string, bool> $configOverrides
+     */
     protected function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
     {
         $context = Context::createDefaultContext();
@@ -152,6 +159,11 @@ abstract class AbstractImportExportTestCase extends TestCase
         return $productId;
     }
 
+    /**
+     * @param array<string, string> $promotionOverride
+     *
+     * @return array<string, mixed>
+     */
     protected function createPromotion(array $promotionOverride = []): array
     {
         /** @var EntityRepository $promotionRepository */
@@ -169,6 +181,11 @@ abstract class AbstractImportExportTestCase extends TestCase
         return $promotion;
     }
 
+    /**
+     * @param array<string, string> $promotionCodeOverride
+     *
+     * @return array<string, mixed>
+     */
     protected function createPromotionCode(string $promotionId, array $promotionCodeOverride = []): array
     {
         /** @var EntityRepository $promotionCodeRepository */
@@ -204,7 +221,10 @@ abstract class AbstractImportExportTestCase extends TestCase
         $criteria->addFilter(new EqualsFilter('systemDefault', true));
         $criteria->addFilter(new EqualsFilter('sourceEntity', $entity));
 
-        return $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        /** @var string $id */
+        $id = $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function cloneDefaultProfile(string $entity): ImportExportProfileEntity
@@ -220,6 +240,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         return $profileRepository->search(new Criteria([$newId]), Context::createDefaultContext())->first();
     }
 
+    /**
+     * @param array<array<string, mixed>> $mappings
+     */
     protected function updateProfileMapping(string $profileId, array $mappings): void
     {
         /** @var EntityRepository $profileRepository */
@@ -233,6 +256,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<array<string, string>> $updateBy
+     */
     protected function updateProfileUpdateBy(string $profileId, array $updateBy): void
     {
         /** @var EntityRepository $profileRepository */
@@ -246,6 +272,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     protected function updateProfileConfig(string $profileId, array $config): void
     {
         /** @var EntityRepository $profileRepository */
@@ -259,6 +288,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getTestProduct(string $id): array
     {
         $manufacturerId = Uuid::randomHex();
@@ -289,6 +321,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);
+        static::assertIsInt($fileSize);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -416,7 +449,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         return $data;
     }
 
-    protected function atomDate($str = 'now'): \DateTimeInterface
+    protected function atomDate(string $str = 'now'): \DateTimeInterface
     {
         return new \DateTimeImmutable((new \DateTimeImmutable($str))->format(\DateTime::ATOM));
     }
@@ -482,12 +515,19 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     protected function getLogEntity(string $logId): ImportExportLogEntity
     {
+        $criteria = new Criteria([$logId]);
+        $criteria->addAssociation('profile');
+        $criteria->addAssociation('file');
+
         return $this->getContainer()
             ->get('import_export_log.repository')
-            ->search((new Criteria([$logId]))->addAssociation('profile'), Context::createDefaultContext())
+            ->search($criteria, Context::createDefaultContext())
             ->first();
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     protected function getInvalidLogContent(?string $invalidLogId): array
     {
         if (!$invalidLogId) {
@@ -498,12 +538,18 @@ abstract class AbstractImportExportTestCase extends TestCase
         $config = Config::fromLog($logEntity);
         $reader = new CsvReader();
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
-        $resource = $filesystem->readStream($logEntity->getFile()->getPath());
-        $invalid = iterator_to_array($reader->read($config, $resource, 0));
 
-        return $invalid;
+        /** @var ImportExportFileEntity $file */
+        $file = $logEntity->getFile();
+        $resource = $filesystem->readStream($file->getPath());
+        $log = $reader->read($config, $resource, 0);
+
+        return $log instanceof \Traversable ? iterator_to_array($log) : [];
     }
 
+    /**
+     * @param array<array<string, string>> $customFields
+     */
     protected function createCustomField(array $customFields, string $entityName): void
     {
         $repo = $this->getContainer()->get('custom_field_set.repository');

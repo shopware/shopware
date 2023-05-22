@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ListingFeatures;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -24,7 +26,8 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         private readonly AbstractProductSearchRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly RequestCriteriaBuilder $criteriaBuilder
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly ListingFeatures $listingFeatures
     ) {
     }
 
@@ -42,6 +45,10 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             $this->registry->getByEntityName('product'),
             $context->getContext()
         );
+
+        $this->listingFeatures->handleFlags($request, $criteria);
+        $this->listingFeatures->handleSearchRequest($request, $criteria, $context);
+        $criteria->addState(ProductListingFeaturesSubscriber::ALREADY_HANDLED);
 
         $this->eventDispatcher->dispatch(
             new ProductSearchCriteriaEvent($request, $criteria, $context),

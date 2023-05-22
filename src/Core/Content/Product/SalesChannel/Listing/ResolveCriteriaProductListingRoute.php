@@ -34,7 +34,7 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         $criteria->addState(ProductListingFeaturesSubscriber::ALREADY_HANDLED);
 
         //todo inject service
-        (new ListingFeatures())->handleRequest($request, $criteria);
+        (new ListingFeatures())->handleFlags($request, $criteria);
 
         // with the above state, the listener is "skipped"
         $this->eventDispatcher->dispatch(

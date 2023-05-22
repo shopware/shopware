@@ -52,6 +52,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     final public const DEFAULT_SEARCH_SORT = 'score';
 
     final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
+    final public const ALREADY_HANDLED = 'already-handled';
 
     /**
      * @internal
@@ -96,8 +97,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $criteria = $event->getCriteria();
 
-        // todo use constant
-        if ($criteria->hasState('already-handled')) {
+        if ($criteria->hasState(self::ALREADY_HANDLED)) {
             return;
         }
 

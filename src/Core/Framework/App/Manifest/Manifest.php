@@ -26,6 +26,8 @@ class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
 
+    private bool $managedByComposer = false;
+
     private function __construct(
         private string $path,
         private readonly Metadata $metadata,
@@ -207,5 +209,15 @@ class Manifest
         $urls = \array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
 
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
+    }
+
+    public function isManagedByComposer(): bool
+    {
+        return $this->managedByComposer;
+    }
+
+    public function setManagedByComposer(bool $managedByComposer): void
+    {
+        $this->managedByComposer = $managedByComposer;
     }
 }

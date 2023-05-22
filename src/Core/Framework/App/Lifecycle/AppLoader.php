@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Composer\InstalledVersions;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -21,6 +23,8 @@ use Symfony\Component\Finder\Finder;
 #[Package('core')]
 class AppLoader extends AbstractAppLoader
 {
+    final public const COMPOSER_TYPE = 'shopware-app';
+
     public function __construct(
         private readonly string $appDir,
         private readonly string $projectDir,
@@ -39,27 +43,7 @@ class AppLoader extends AbstractAppLoader
      */
     public function load(): array
     {
-        if (!file_exists($this->appDir)) {
-            return [];
-        }
-
-        $finder = new Finder();
-        $finder->in($this->appDir)
-            ->depth('<= 1') // only use manifest files in app root folders
-            ->name('manifest.xml');
-
-        $manifests = [];
-        foreach ($finder->files() as $xml) {
-            try {
-                $manifest = Manifest::createFromXmlFile($xml->getPathname());
-
-                $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (XmlParsingException) {
-                //nth, if app is already registered it will be deleted
-            }
-        }
-
-        return $manifests;
+        return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
     }
 
     /**
@@ -85,6 +69,10 @@ class AppLoader extends AbstractAppLoader
         }
 
         $manifest = $apps[$technicalName];
+
+        if ($manifest->isManagedByComposer()) {
+            throw AppException::cannotDeleteManaged($technicalName);
+        }
 
         (new Filesystem())->remove($manifest->getPath());
     }
@@ -170,5 +158,58 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $content;
+    }
+
+    /**
+     * @return array<string, Manifest>
+     */
+    public function loadFromAppDir(): array
+    {
+        if (!file_exists($this->appDir)) {
+            return [];
+        }
+
+        $finder = new Finder();
+        $finder->in($this->appDir)
+            ->depth('<= 1') // only use manifest files in app root folders
+            ->name('manifest.xml');
+
+        $manifests = [];
+        foreach ($finder->files() as $xml) {
+            try {
+                $manifest = Manifest::createFromXmlFile($xml->getPathname());
+
+                $manifests[$manifest->getMetadata()->getName()] = $manifest;
+            } catch (XmlParsingException) {
+                //nth, if app is already registered it will be deleted
+            }
+        }
+
+        return $manifests;
+    }
+
+    /**
+     * @return array<string, Manifest>
+     */
+    private function loadFromComposer(): array
+    {
+        $manifests = [];
+
+        foreach (InstalledVersions::getInstalledPackagesByType(self::COMPOSER_TYPE) as $packageName) {
+            $path = InstalledVersions::getInstallPath($packageName);
+
+            if ($path !== null) {
+                try {
+                    $manifest = Manifest::createFromXmlFile($path . '/manifest.xml');
+                    $manifest->setManagedByComposer(true);
+
+                    $manifests[$manifest->getMetadata()->getName()] = $manifest;
+                } catch (XmlParsingException) {
+                    //nth, if app is already registered it will be deleted
+                }
+            }
+        }
+
+        return $manifests;
     }
 }

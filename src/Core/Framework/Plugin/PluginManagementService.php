@@ -105,6 +105,10 @@ class PluginManagementService
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
+        if ($plugin->getManagedByComposer()) {
+            throw PluginException::cannotDeleteManaged($plugin->getName());
+        }
+
         $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
 

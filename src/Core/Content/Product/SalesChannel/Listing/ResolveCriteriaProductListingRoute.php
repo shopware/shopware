@@ -31,10 +31,10 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
     #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
-        $criteria->addState('already-handled');
+        $criteria->addState(ProductListingFeaturesSubscriber::ALREADY_HANDLED);
 
         //todo inject service
-        (new ListingFeatures())->handleRequest($request, $criteria);
+        (new ListingFeatures())->handleFlags($request, $criteria);
 
         // with the above state, the listener is "skipped"
         $this->eventDispatcher->dispatch(

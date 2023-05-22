@@ -52,6 +52,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     final public const DEFAULT_SEARCH_SORT = 'score';
 
     final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
+    final public const ALREADY_HANDLED = 'already-handled';
 
     /**
      * @internal
@@ -61,7 +62,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         private readonly EntityRepository $optionRepository,
         private readonly EntityRepository $sortingRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly ListingFeatures $listingFeatures
     ) {
     }
 
@@ -96,14 +98,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
         $criteria = $event->getCriteria();
 
-        // todo use constant
-        if ($criteria->hasState('already-handled')) {
+        if ($criteria->hasState(self::ALREADY_HANDLED)) {
             return;
         }
 
-        //todo inject service via DI
-        (new ListingFeatures())->handleRequest($request, $criteria);
-
+       $this->listingFeatures->handleFlags($request, $criteria);
     }
 
     public function handleListingRequest(ProductListingCriteriaEvent $event): void
@@ -131,15 +130,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
         $context = $event->getSalesChannelContext();
 
-        if (!$request->get('order')) {
-            $request->request->set('order', self::DEFAULT_SEARCH_SORT);
+        if ($criteria->hasState(self::ALREADY_HANDLED)) {
+            return;
         }
 
-        $this->handlePagination($request, $criteria, $event->getSalesChannelContext());
-
-        $this->handleFilters($request, $criteria, $context);
-
-        $this->handleSorting($request, $criteria, $context);
+        $this->listingFeatures->handleSearchRequest($request, $criteria, $context);
     }
 
     public function handleResult(ProductListingResultEvent $event): void

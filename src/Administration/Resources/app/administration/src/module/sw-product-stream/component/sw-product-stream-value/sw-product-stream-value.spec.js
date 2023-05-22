@@ -90,7 +90,9 @@ async function createWrapper(
             definition: {
                 type: fieldType,
                 entity,
-                getField: () => ({ type: fieldType }),
+                getField: () => {
+                    return fieldType === '' ? null : { type: fieldType };
+                },
                 isJsonField: () => false,
                 filterProperties: () => {
                     return {};
@@ -125,12 +127,50 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         ['uuid', 'equals', 'sw-entity-single-select-stub', 'product'],
         ['uuid', 'equals', 'sw-entity-single-select-stub'],
     ])('should have a disabled input with %s field type', async (fieldType, actualCondition, element, entity = '') => {
-        const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity);
+        const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity, false);
         await wrapper.setProps({ disabled: true });
 
         const targetElement = wrapper.find(element);
 
         expect(targetElement.attributes('disabled')).toBe('true');
+    });
+
+    it('should have a disabled input with json_list field type', async () => {
+        const wrapper = await createWrapper(['product_stream.viewer'], 'json_list', 'equals', '', true);
+        await wrapper.setProps({ disabled: true, fieldName: 'states' });
+
+        const targetElement = wrapper.find('.sw-single-select');
+
+        expect(targetElement.attributes('disabled')).toBe('disabled');
+    });
+
+    it('should render if is a json field', async () => {
+        const wrapper = await createWrapper(['product_stream.viewer'], 'testingType', 'equals', '');
+        await wrapper.setProps({
+            disabled: true,
+            definition: {
+                type: 'testingType',
+                entity: '',
+                getField: () => ({ type: 'testingType' }),
+                isJsonField: () => true,
+                filterProperties: () => {
+                    return {};
+                },
+            },
+        });
+        const targetElement = wrapper.find('sw-single-select-stub');
+
+        expect(targetElement.attributes('disabled')).toBe('true');
+    });
+
+    it('should render placeholder if no definition exists', async () => {
+        const wrapper = await createWrapper(['product_stream.viewer'], '', 'equals', '');
+        await wrapper.setProps({
+            disabled: true,
+            fieldType: 'uuid',
+        });
+
+        expect(wrapper.find('.sw-product-stream-value__placeholder').exists()).toBe(true);
     });
 
     it('should return correct fieldDefinition', async () => {

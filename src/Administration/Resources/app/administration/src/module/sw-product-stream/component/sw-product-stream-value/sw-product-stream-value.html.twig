@@ -59,7 +59,15 @@
         </sw-arrow-field>
         {% endblock %}
 
-        <template v-if="fieldType === 'uuid'">
+        <template v-if="fieldType === 'product_state_list'">
+            <sw-single-select
+                v-model="actualCondition.value"
+                :options="productStateOptions"
+                :disabled="disabled"
+            />
+        </template>
+
+        <template v-else-if="fieldType === 'uuid'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_entity_single_value %}
             <sw-entity-single-select

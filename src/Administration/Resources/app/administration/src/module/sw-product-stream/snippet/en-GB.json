@@ -118,7 +118,12 @@
         "property_group_option": "Property value",
         "product_manufacturer": "Manufacturer",
         "product_visibility": "Product in Sales Channel",
-        "percentage": "Percentage ratio price/list price"
+        "percentage": "Percentage ratio price/list price",
+        "states": "Product state",
+        "productStates": {
+          "physical": "Physical",
+          "digital": "Digital"
+        }
       }
     },
     "detail": {

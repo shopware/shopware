@@ -112,6 +112,7 @@ class RegisterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,
             'data' => $data,

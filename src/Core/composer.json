@@ -161,5 +161,6 @@
         "allow-plugins": {
             "symfony/runtime": true
         }
-    }
+    },
+    "version": "6.5.1.0"
 }

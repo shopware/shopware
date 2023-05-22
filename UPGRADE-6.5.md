@@ -1,3 +1,211 @@
+# 6.5.1.0
+## Changes to data-attribute selector names
+
+We want to change several data-attribute selector names to be more aligned with the JavaScript plugin name which is initialized on the data-attribute selector.
+When you use one of the selectors listed below inside HTML/Twig, JavaScript or CSS, please change the selector to the new selector.
+
+## HTML/Twig example
+
+### Before
+
+```twig
+<div 
+    data-offcanvas-menu="true" {# <<< Did not match options attr #}
+    data-off-canvas-menu-options='{ ... }'
+>
+</div>
+```
+
+### After
+
+```twig
+<div 
+    data-off-canvas-menu="true" {# <<< Now matches options attr #}
+    data-off-canvas-menu-options='{ ... }'
+>
+</div>
+```
+
+_The options attribute is automatically generated using the camelCase JavaScript plugin name._
+
+## Full list of selectors
+
+| old                             | new                              |
+|:--------------------------------|:---------------------------------|
+| `data-search-form`              | `data-search-widget`             |
+| `data-offcanvas-cart`           | `data-off-canvas-cart`           |
+| `data-collapse-footer`          | `data-collapse-footer-columns`   |
+| `data-offcanvas-menu`           | `data-off-canvas-menu`           |
+| `data-offcanvas-account-menu`   | `data-account-menu`              |
+| `data-offcanvas-tabs`           | `data-off-canvas-tabs`           |
+| `data-offcanvas-filter`         | `data-off-canvas-filter`         |
+| `data-offcanvas-filter-content` | `data-off-canvas-filter-content` |
+If you are relying on these associations:
+ `order.stateMachineState`
+ `order_transaction.stateMachineState`
+ `order_delivery.stateMachineState`
+ `order_delivery.shippingOrderAddress`
+ `order_transaction_capture.stateMachineState`
+ `order_transaction_capture_refund.stateMachineState`
+ `tax_rule.type`
+please associate the definitions directly with the criteria because we will remove autoload from version 6.6.0.0.
+## Deprecated diverse flow storer classes and interfaces in favor of the new `ScalarValuesStorer` class 
+We deprecated diverse flow storer interfaces in favor of the new `ScalarValuesAware` class. The new `ScalarValuesAware` class allows to store scalar values much easier for flows without implementing own storer and interface classes. 
+If you implemented one of the deprecated interfaces or implemented an own interface and storer class to store simple values, you should replace it with the new `ScalarValuesAware` class. 
+
+```php
+
+// before
+class MyEvent extends Event implements \Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware
+{
+    private string $url;
+
+    public function __construct(string $url)
+    {
+        $this->url = $url;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+    
+    // ...
+}
+
+// after
+
+class MyEvent extends Event implements \Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware
+{
+    private string $url;
+
+    public function __construct(string $url)
+    {
+        $this->url = $url;
+    }
+
+    public function getScalarValues(): array
+    {
+        return [
+            'url' => $this->url,
+            // ...
+        ];
+    }
+    
+    // ...
+}
+```
+
+The deprecated flow storer interfaces are:
+* `ConfirmUrlAware`
+* `ContactFormDataAware`
+* `ContentsAware`
+* `ContextTokenAware`
+* `DataAware`
+* `EmailAware`
+* `MediaUploadedAware`
+* `NameAware`
+* `RecipientsAware`
+* `ResetUrlAware`
+* `ReviewFormDataAware`
+* `ScalarStoreAware`
+* `ShopNameAware`
+* `SubjectAware`
+* `TemplateDataAware`
+* `UrlAware`
+## Marking media as used 
+If your plugin references media in a way that is not understood by the DAL, for example in JSON blobs, it is now possible for your plugin to inform the system that this media is used and should not be deleted when the `\Shopware\Core\Content\Media\UnusedMediaPurger` service is executed.
+To do this, you need to create a listener for the `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent` event. This event can be called multiple times during the cleanup task with different sets of media ID's scheduled to be deleted. Your listener should check if any of the media ID's passed to the event are used by your plugin and mark them as used by calling the `markMediaAsUsed` method on the event object with an array of the used media ID's.
+You can get the media ID's scheduled for deletion from the event object by calling the `getMediaIds` method.
+
+See the following implementations for an example: 
+* \Shopware\Core\Content\Cms\Subscriber\UnusedMediaSubscriber
+* \Shopware\Storefront\Theme\Subscriber\UnusedMediaSubscriber
+## Fix method signatures to comply with parent class/interface signature
+The following method signatures were changed to comply with the parent class/interface signature:
+**Visibility changes:**
+* Method `configure()` was changed from public to protected in:
+  * `Shopware\Storefront\Theme\Command\ThemeCompileCommand`
+* Method `execute()` was changed from public to protected in:
+  * `Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand`
+  * `Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand`
+  * `Shopware\Core\DevOps\System\Command\SystemRestoreDatabaseCommand`
+  * `Shopware\Core\DevOps\Docs\App\DocsAppEventCommand`
+  * 
+* Method `getExpectedClass()` was changed from public to protected in:
+  * `Shopware\Storefront\Theme\ThemeSalesChannelCollection`
+  * `Shopware\Core\Framework\Store\Struct\PluginRecommendationCollection`
+  * `Shopware\Core\Framework\Store\Struct\PluginCategoryCollection`
+  * `Shopware\Core\Framework\Store\Struct\LicenseDomainCollection`
+  * `Shopware\Core\Framework\Store\Struct\PluginRegionCollection`
+  * `Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection`
+  * `Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection`
+  * `Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection`
+  * `Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection`
+  * `Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection`
+  * `Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection`
+  * `Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection`
+* Method `getParentDefinitionClass()` was changed from public to protected in:
+  * `Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsDefinition`
+  * `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+  * `Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition`
+  * `Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition`
+  * `Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition`
+  * `Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition`
+* Method `getDecorated()` was changed from public to protected in:
+  * `Shopware\Core\System\Country\SalesChannel\CachedCountryRoute`
+  * `Shopware\Core\System\Country\SalesChannel\CachedCountryStateRoute`
+* Method `getSerializerClass()` was changed from public to protected in:
+  * `Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField`
+
+**Parameter type changes:**
+* Changed parameter `$url` to `string` in:
+  * `Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache#purge()`
+* Changed parameter `$data` and `$format` to `string` in:
+  * `Shopware\Core\Framework\Struct\Serializer\StructDecoder#decode()`
+  * `Shopware\Core\Framework\Struct\Serializer\StructDecoder#supportsDecoding()`
+  * `Shopware\Core\Framework\Api\Serializer\JsonApiDecoder#decode()`
+  * `Shopware\Core\Framework\Api\Serializer\JsonApiDecoder#supportsDecoding()`
+* Changed parameter `$storageName` and `$propertyName` to `string` in:
+  * `Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields#__construct()`
+* Changed parameter `$event` to `object` in:
+  * `Shopware\Core\Framework\Event\NestedEventDispatcher#dispatch()`
+* Changed parameter `$listener` to `callable` in:
+  * `Shopware\Core\Framework\Event\NestedEventDispatcher#removeListener()`
+  * `Shopware\Core\Framework\Event\NestedEventDispatcher#getListenerPriority()`
+  * `Shopware\Core\Framework\Webhook\WebhookDispatcher#removeListener()`
+  * `Shopware\Core\Framework\Webhook\WebhookDispatcher#getListenerPriority()`
+* Changed parameter `$constraints` to `Symfony\Component\Validator\Constraint|array|null` in:
+  * `Shopware\Core\Framework\Validation\HappyPathValidator#validate()`
+* Changed parameter `$object` to `object`, `$propertyName` to `string`, `$groups` to `string|Symfony\Component\Validator\Constraints\GroupSequence|array|null` and `$objectOrClass` to `object|string` in:
+  * `Shopware\Core\Framework\Validation\HappyPathValidator#validateProperty()`
+  * `Shopware\Core\Framework\Validation\HappyPathValidator#validatePropertyValue()`
+* Changed parameter `$record` to `iterable` in:
+  * `Shopware\Core\Content\ImportExport\Processing\Pipe\EntityPipe#in()`
+* Changed parameter `$warmupDir` to `string` in:
+  * `Shopware\Core\Kernel#reboot()`
+## Twig cache independent from kernel cache dir
+
+You can now use the `twig.cache` configuration to configure the directory where twig caches are stored as described in the [symfony docs](https://symfony.com/doc/current/reference/configuration/twig.html#cache). This is independent from the `kernel.cache_dir` configuration, but by default it will still fallback to the `%kernel.cache_dir%/twig` directory.
+This is useful when the `kernel.cache_dir` is configured to be a read-only directory.
+## Becomes internal or private
+* Deprecated `AbstractIncrementer::getDecorated`, increment are not designed for decoration pattern
+* Deprecated `MySQLIncrementer`, implementation will be private, use abstract class for type hints
+* Deprecated `RedisIncrementer`, implementation will be private, use abstract class for type hints
+* Deprecated `ImportExport\PriceFieldSerializer::isValidPrice`, function will be private in v6.6
+* Deprecated `CsvReader::loadConfig`, function will be private in v6.6
+* Deprecated `NewsletterSubscribeRoute.php`, function will be private in v6.6
+## App scripts have access to shopware version
+
+App scripts now have access to the shopware version via the `shopware.version` global variable.
+```twig
+{% if version_compare('6.4', shopware.version, '<=') %}
+    {# 6.4 or lower compatible code #}
+{% else %}
+    {# 6.5 or higher compatible code #}    
+{% endif %}
+```
+
 # Administration
 
 ## Node requirements increased

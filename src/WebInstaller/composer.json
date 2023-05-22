@@ -69,5 +69,6 @@
             "bin-links": true,
             "forward-command": true
         }
-    }
+    },
+    "version": "6.5.1.0"
 }

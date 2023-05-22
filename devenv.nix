@@ -14,6 +14,7 @@ in {
     pkgs.gnused
     pkgs.symfony-cli
     pkgs.deno
+    pkgs.jq
     ( pkgs.writeShellScriptBin "php-pcov" ''
       export PHP_INI_SCAN_DIR=''${PHP_INI_SCAN_DIR-'${pcov}/lib'}
       exec -a "$0" "${pcov}/bin/.php-wrapped"  "$@"

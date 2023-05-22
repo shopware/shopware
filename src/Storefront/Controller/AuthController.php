@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMai
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -211,7 +211,7 @@ class AuthController extends StorefrontController
         try {
             $mailData = $data->get('email');
             if (!$mailData instanceof DataBag) {
-                throw new InvalidRequestParameterException('email');
+                throw RoutingException::invalidRequestParameter('email');
             }
             $mailData->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
@@ -272,7 +272,7 @@ class AuthController extends StorefrontController
     {
         $passwordData = $data->get('password');
         if (!$passwordData instanceof DataBag) {
-            throw new InvalidRequestParameterException('password');
+            throw RoutingException::invalidRequestParameter('password');
         }
         $hash = $passwordData->get('hash');
 

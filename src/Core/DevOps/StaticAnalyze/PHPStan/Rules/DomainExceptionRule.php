@@ -84,6 +84,9 @@ class DomainExceptionRule implements Rule
 
         $reflection = $scope->getClassReflection();
         \assert($reflection !== null);
+        if (!\str_starts_with($reflection->getName(), 'Shopware\\Core\\')) {
+            return [];
+        }
         $parts = \explode('\\', $reflection->getName());
 
         $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $parts[2], $parts[3], $parts[3]);

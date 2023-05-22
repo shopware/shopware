@@ -146,8 +146,8 @@ class PluginFinder
                 // to allow updates over the store for composer managed plugins
                 'path' => $localPlugin?->getPath() ?? $pluginPath,
                 'managedByComposer' => true,
-                // use local composer package as composer caches the version info
-                'composerPackage' => $localPlugin?->getComposerPackage(),
+                // use local composer package (if it exists) as composer caches the version info
+                'composerPackage' => $localPlugin?->getComposerPackage() ?? $composerPackage,
             ]);
         }
 

@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
-use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -34,8 +34,10 @@ class AssetServiceTest extends TestCase
             ->with('bundleName')
             ->willThrowException(new \InvalidArgumentException());
 
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
-            new Filesystem(new MemoryFilesystemAdapter()),
+            $filesystem,
+            $filesystem,
             $kernelMock,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
@@ -57,6 +59,7 @@ class AssetServiceTest extends TestCase
 
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
+            $filesystem,
             $filesystem,
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
@@ -107,6 +110,7 @@ class AssetServiceTest extends TestCase
 
         $assetService = new AssetService(
             $filesystem,
+            $filesystem,
             $kernel,
             $pluginLoader,
             $this->createMock(CacheInvalidator::class),
@@ -131,6 +135,7 @@ class AssetServiceTest extends TestCase
 
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
+            $filesystem,
             $filesystem,
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
@@ -160,6 +165,7 @@ class AssetServiceTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $assetService = new AssetService(
             $filesystem,
+            $filesystem,
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
@@ -184,6 +190,7 @@ class AssetServiceTest extends TestCase
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
+            $filesystem,
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
@@ -207,6 +214,7 @@ class AssetServiceTest extends TestCase
             ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
 
         $assetService = new AssetService(
+            $filesystem,
             $filesystem,
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
@@ -297,8 +305,10 @@ class AssetServiceTest extends TestCase
             ->willReturn($bundle);
 
         $filesystem = $this->createMock(FilesystemOperator::class);
+        $privateFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
+            $privateFilesystem,
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
@@ -306,22 +316,7 @@ class AssetServiceTest extends TestCase
             new ParameterBag()
         );
 
-        $adapter = new MemoryFilesystemAdapter();
-        $config = new Config();
-
-        $adapter->write('asset-manifest.json', (string) json_encode(['administration' => $manifest]), $config);
-
-        $filesystem
-            ->expects(static::once())
-            ->method('fileExists')
-            ->with('asset-manifest.json')
-            ->willReturn(true);
-
-        $filesystem
-            ->expects(static::once())
-            ->method('read')
-            ->with('asset-manifest.json')
-            ->willReturn($adapter->read('asset-manifest.json'));
+        $privateFilesystem->write('asset-manifest.json', (string) json_encode(['administration' => $manifest], \JSON_PRETTY_PRINT));
 
         $filesystem
             ->expects(static::exactly(\count($expectedWrites)))
@@ -353,15 +348,12 @@ class AssetServiceTest extends TestCase
         ];
         ksort($expectedManifestFiles);
 
-        $filesystem
-            ->expects(empty($expectedWrites) && empty($expectedDeletes) ? static::never() : static::once())
-            ->method('write')
-            ->with(
-                'asset-manifest.json',
-                json_encode(['administration' => $expectedManifestFiles], \JSON_PRETTY_PRINT)
-            );
-
         $assetService->copyAssetsFromBundle('AdministrationBundle');
+
+        static::assertSame(
+            json_encode(['administration' => $expectedManifestFiles], \JSON_PRETTY_PRINT),
+            $privateFilesystem->read('asset-manifest.json')
+        );
     }
 
     private function getBundle(): ExampleBundle

@@ -38,8 +38,8 @@ class PluginFinderTest extends TestCase
             new ExceptionCollection(),
             new NullIO()
         );
-        static::assertCount(1, $plugins);
-        static::assertSame($plugins['Works\Works']->getBaseClass(), 'Works\Works');
+        static::assertCount(2, $plugins);
+        static::assertSame($plugins['Swag\Test']->getBaseClass(), 'Swag\Test');
     }
 
     /*
@@ -57,11 +57,28 @@ class PluginFinderTest extends TestCase
             new NullIO()
         );
 
-        static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Works\Works']);
-        static::assertTrue($plugins['Works\Works']->getManagedByComposer());
+        static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Swag\Test']);
+        static::assertTrue($plugins['Swag\Test']->getManagedByComposer());
         // path is still local if it exists
-        static::assertEquals(__DIR__ . '/_fixture/LocallyInstalledPlugins/SwagTest', $plugins['Works\Works']->getPath());
+        static::assertEquals(__DIR__ . '/_fixture/LocallyInstalledPlugins/SwagTest', $plugins['Swag\Test']->getPath());
         // version info is still from local, as that might be more up to date
-        static::assertEquals('v1.0.2', $plugins['Works\Works']->getComposerPackage()->getPrettyVersion());
+        static::assertEquals('v1.0.2', $plugins['Swag\Test']->getComposerPackage()->getPrettyVersion());
+    }
+
+    public function testComposerPackageFromPluginIsUsedIfNoLocalInstalledVersionExists(): void
+    {
+        $plugins = (new PluginFinder(new PackageProvider()))->findPlugins(
+            __DIR__ . '/_fixture/LocallyInstalledPlugins',
+            __DIR__ . '/_fixture/ComposerProject',
+            new ExceptionCollection(),
+            new NullIO()
+        );
+
+        static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Swag\Test2']);
+        static::assertTrue($plugins['Swag\Test2']->getManagedByComposer());
+        // path is still local if it exists
+        static::assertEquals(__DIR__ . '/_fixture/ComposerProject/vendor/swag/test2', $plugins['Swag\Test2']->getPath());
+        // version info is still from local, as that might be more up to date
+        static::assertEquals('v2.0.1', $plugins['Swag\Test2']->getComposerPackage()->getPrettyVersion());
     }
 }

@@ -30,6 +30,15 @@ class ProductSortingCollection extends EntityCollection
         return $this->filterByProperty('key', $key)->first();
     }
 
+    public function removeByKey(string $key): void
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getKey() === $key) {
+                $this->remove($element->getId());
+            }
+        }
+    }
+
     public function getApiAlias(): string
     {
         return 'product_sorting_collection';

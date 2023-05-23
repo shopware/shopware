@@ -3,10 +3,14 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +21,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('system-settings')]
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
+    final public const DEFAULT_SEARCH_SORT = 'score';
+    final public const STATE = 'search-route-context';
+
     /**
      * @internal
      */
@@ -24,7 +31,8 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         private readonly AbstractProductSearchRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly RequestCriteriaBuilder $criteriaBuilder
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly CompositeListingProcessor $processor
     ) {
     }
 
@@ -36,6 +44,15 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
+        if (!$request->get('order')) {
+            $request->request->set('order', self::DEFAULT_SEARCH_SORT);
+        }
+
+        $criteria->addState(self::STATE);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $context->getContext()->addState(ProductListingFeaturesSubscriber::HANDLED_STATE);
+        }
+
         $criteria = $this->criteriaBuilder->handleRequest(
             $request,
             $criteria,
@@ -43,11 +60,24 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             $context->getContext()
         );
 
+        $this->processor->prepare($request, $criteria, $context);
+
         $this->eventDispatcher->dispatch(
             new ProductSearchCriteriaEvent($request, $criteria, $context),
             ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
 
-        return $this->getDecorated()->load($request, $context, $criteria);
+        $response = $this->getDecorated()->load($request, $context, $criteria);
+
+        $this->processor->process($request, $response->getListingResult(), $context);
+
+        $this->eventDispatcher->dispatch(
+            new ProductSearchResultEvent($request, $response->getListingResult(), $context),
+            ProductEvents::PRODUCT_SEARCH_RESULT
+        );
+
+        $response->getListingResult()->addCurrentFilter('search', $request->get('search'));
+
+        return $response;
     }
 }

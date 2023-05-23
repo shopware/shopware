@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -39,7 +38,6 @@ class ProductListingRouteTest extends TestCase
 
         $controller = new ProductListingRoute(
             $this->createMock(ProductListingLoader::class),
-            $this->createMock(EventDispatcherInterface::class),
             $categoryRepository,
             $this->createMock(ProductStreamBuilderInterface::class),
         );
@@ -74,7 +72,6 @@ class ProductListingRouteTest extends TestCase
 
         $controller = new ProductListingRoute(
             $this->createMock(ProductListingLoader::class),
-            $this->createMock(EventDispatcherInterface::class),
             $categoryRepository,
             $productStreamBuilder,
         );
@@ -101,7 +98,6 @@ class ProductListingRouteTest extends TestCase
     {
         $controller = new ProductListingRoute(
             $this->createMock(ProductListingLoader::class),
-            $this->createMock(EventDispatcherInterface::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(ProductStreamBuilderInterface::class),
         );

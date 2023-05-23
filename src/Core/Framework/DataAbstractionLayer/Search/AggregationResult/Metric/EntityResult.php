@@ -16,10 +16,8 @@ class EntityResult extends AggregationResult
     /**
      * @param EntityCollection<Entity> $entities
      */
-    public function __construct(
-        string $name,
-        protected EntityCollection $entities
-    ) {
+    public function __construct(string $name, protected EntityCollection $entities)
+    {
         parent::__construct($name);
     }
 

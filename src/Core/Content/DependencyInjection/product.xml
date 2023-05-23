@@ -232,13 +232,55 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeProcessor">
+            <argument type="tagged_iterator" tag="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AggregationProcessor">
+            <argument type="tagged_iterator" tag="shopware.listing.filter.handler" />
+            <argument type="service" id="event_dispatcher" />
+            <tag name="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AssociationLoadingProcessor">
+            <tag name="shopware.listing.processor"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\HeaderProcessor">
+            <tag name="shopware.listing.processor"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingProcessor">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.listing.processor"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerFilterHandler" />
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceFilterHandler" />
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingFilterHandler"/>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeFilterHandler"/>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyFilterHandler">
+            <argument type="service" id="property_group_option.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <instanceof id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractFilterHandler">
+            <tag name="shopware.listing.filter.handler" />
+        </instanceof>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingProcessor">
+            <tag name="shopware.listing.processor"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="product_sorting.repository"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="property_group_option.repository"/>
-            <argument type="service" id="product_sorting.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeProcessor" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -58,6 +59,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         parent::setUp();
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 

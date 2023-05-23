@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -23,6 +24,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('system-settings')]
 class ProductSuggestRoute extends AbstractProductSuggestRoute
 {
+    public const STATE = 'suggest-route-context';
+
     /**
      * @internal
      */
@@ -45,11 +48,16 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
             throw new MissingRequestParameterException('search');
         }
 
+        if (!$request->get('order')) {
+            $request->request->set('order', ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT);
+        }
+
+        $criteria->addState(self::STATE);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
         );
-
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $this->searchBuilder->build($request, $criteria, $context);
 

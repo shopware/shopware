@@ -13,6 +13,7 @@ class ProductException extends HttpException
     public const PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
     public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
+    public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -21,6 +22,16 @@ class ProductException extends HttpException
             self::PRODUCT_INVALID_CHEAPEST_PRICE_FACADE,
             'Cheapest price facade for product {{ id }} is invalid',
             ['id' => $id]
+        );
+    }
+
+    public static function sortingNotFoundException(string $key): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::SORTING_NOT_FOUND,
+            'Sorting with key "{{ key }}" not found.',
+            ['key' => $key]
         );
     }
 

@@ -139,6 +139,76 @@ class SnippetServiceTest extends TestCase
         ], $snippets);
     }
 
+    public function testFindSnippetSetIdWithSalesChannelDomain(): void
+    {
+        $snippetSetIdWithSalesChannelDomain = Uuid::randomHex();
+
+        $this->connection->expects(static::once())->method('fetchOne')->willReturn($snippetSetIdWithSalesChannelDomain);
+
+        $snippetService = new SnippetService(
+            $this->connection,
+            $this->snippetCollection,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(SnippetFilterFactory::class),
+            $this->createMock(ContainerInterface::class),
+        );
+
+        $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
+
+        static::assertSame($snippetSetId, $snippetSetIdWithSalesChannelDomain);
+    }
+
+    /**
+     * @param array<string, string> $locales
+     *
+     * @dataProvider findSnippetSetIdDataProvider
+     */
+    public function testFindSnippetSetIdWithoutSalesChannelDomain(array $locales, string $id): void
+    {
+        $this->connection->expects(static::once())->method('fetchOne')->willReturn(null);
+        $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($locales);
+
+        $snippetService = new SnippetService(
+            $this->connection,
+            $this->snippetCollection,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(SnippetFilterFactory::class),
+            $this->createMock(ContainerInterface::class),
+        );
+
+        $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'vi-VN');
+
+        static::assertSame($snippetSetId, $id);
+    }
+
+    /**
+     * @return iterable<string, array<string|array<string>>>
+     */
+    public static function findSnippetSetIdDataProvider(): iterable
+    {
+        $snippetSetIdWithVI = Uuid::randomHex();
+        $snippetSetIdWithEN = Uuid::randomHex();
+
+        yield 'get snippet set with local vi-VN' => [
+            'sets' => [
+                'vi-VN' => $snippetSetIdWithVI,
+                'en-GB' => $snippetSetIdWithEN,
+            ],
+            'snippetSetId' => $snippetSetIdWithVI,
+        ];
+
+        yield 'get snippet set without local vi-VN' => [
+            'sets' => [
+                'en-GB' => $snippetSetIdWithEN,
+            ],
+            'snippetSetId' => $snippetSetIdWithEN,
+        ];
+    }
+
     /**
      * @return iterable<string, array<mixed>>
      */

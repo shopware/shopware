@@ -296,10 +296,6 @@ class AssetService
      */
     private function writeManifest(array $manifest): void
     {
-        if ($this->areAssetsStoredLocally()) {
-            return;
-        }
-
         $this->privateFilesystem->write(
             'asset-manifest.json',
             json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)

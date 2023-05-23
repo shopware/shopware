@@ -225,7 +225,7 @@ phpstan:
           if [[ -r tests/TestBootstrap.php ]]; then
               php tests/TestBootstrap.php
           fi
-        - php ${PROJECT_ROOT}/src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - php ${PROJECT_ROOT}/src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
         - ${PROJECT_ROOT}/vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
     artifacts:
         when: always

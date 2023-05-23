@@ -77,6 +77,10 @@ class DecorationPatternRule implements Rule
             return $this->validateAbstractClass($node, $class);
         }
 
+        if (!$this->isBaseImplementation($node)) {
+            return [];
+        }
+
         $parent = $class->getParentClass();
 
         // only validate classes that extend from abstract Shopware classes
@@ -176,5 +180,22 @@ class DecorationPatternRule implements Rule
         $doc = $method->getDocComment() ?? '';
 
         return !\str_contains((string) $doc, 'reason:visibility-change');
+    }
+
+    private function isBaseImplementation(InClassNode $node): bool
+    {
+        $method = $node->getOriginalNode()->getMethod('getDecorated');
+
+        if (!$method) {
+            return false;
+        }
+
+        $firstStatement = ($method->getStmts() ?? [])[0];
+
+        if ($firstStatement instanceof Node\Stmt\Throw_) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -2,6 +2,9 @@ includes:
     - phpstan-baseline.neon
     - phpstan-v66-baseline.neon
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon
+    - src/Core/DevOps/StaticAnalyze/PHPStan/rules.neon
+    - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
     phpVersion: 80100
@@ -20,12 +23,12 @@ parameters:
         property_type: 55
 
     bootstrapFiles:
-        - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
-    # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
+        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
+    # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
         containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
-        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
+        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
         - src/WebInstaller/src/Resources/
@@ -218,11 +221,6 @@ parameters:
                 - tests/integration/php/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
 
 services:
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
-        tags:
-            - phpstan.typeSpecifier.methodTypeSpecifyingExtension
-
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 
@@ -243,26 +241,6 @@ services:
 #                - Twig\Compiler
 
 rules:
-    # shopware specific rules
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitDataProviderStaticRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
-
     # rules from https://github.com/symplify/phpstan-rules
     - Symplify\PHPStanRules\Rules\Spotter\IfElseToMatchSpotterRule
     - Symplify\PHPStanRules\Rules\Missing\CheckSprintfMatchingTypesRule

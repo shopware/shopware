@@ -431,7 +431,7 @@
         ],
         "phpbench": "phpbench run --report=compressed",
         "phpstan": [
-            "@php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php",
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
             "phpstan analyze --memory-limit=2G"
         ],
         "phpunit": [

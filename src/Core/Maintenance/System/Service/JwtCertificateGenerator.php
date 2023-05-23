@@ -8,7 +8,10 @@ use Shopware\Core\Maintenance\System\Exception\JwtCertificateGenerationException
 #[Package('core')]
 class JwtCertificateGenerator
 {
-    public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void
+    /**
+     * @return array{0: string, 1: string}
+     */
+    public function generateString(?string $passphrase = null): array
     {
         $key = \openssl_pkey_new([
             'private_key_bits' => 2048,
@@ -22,6 +25,22 @@ class JwtCertificateGenerator
             throw new JwtCertificateGenerationException('Failed to generate key');
         }
 
+        if (!openssl_pkey_export($key, $privateKey, $passphrase)) {
+            throw new JwtCertificateGenerationException('Failed to export private key');
+        }
+
+        $keyData = openssl_pkey_get_details($key);
+        if ($keyData === false) {
+            throw new JwtCertificateGenerationException('Failed to export public key');
+        }
+
+        return [$privateKey, $keyData['key']];
+    }
+
+    public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void
+    {
+        [$private, $public] = $this->generateString($passphrase);
+
         // Ensure that the directories we should generate the public / private key exist.
         $privateKeyDirectory = \dirname($privateKeyPath);
         if (!\is_dir($privateKeyDirectory)) {
@@ -33,21 +52,10 @@ class JwtCertificateGenerator
             \mkdir($publicKeyDirectory, 0755, true);
         }
 
-        // export private key
-        $result = \openssl_pkey_export_to_file($key, $privateKeyPath, $passphrase);
-        if ($result === false) {
-            throw new JwtCertificateGenerationException('Could not export private key to file');
-        }
-
+        \file_put_contents($privateKeyPath, $private);
         \chmod($privateKeyPath, 0660);
 
-        // export public key
-        $keyData = openssl_pkey_get_details($key);
-        if ($keyData === false) {
-            throw new JwtCertificateGenerationException('Failed to export public key');
-        }
-
-        \file_put_contents($publicKeyPath, $keyData['key']);
+        \file_put_contents($publicKeyPath, $public);
         \chmod($publicKeyPath, 0660);
     }
 }

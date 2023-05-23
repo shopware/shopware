@@ -229,11 +229,11 @@
 
         <!-- API -->
         <service class="League\OAuth2\Server\CryptKey" id="shopware.private_key">
-            <argument>file://%kernel.project_dir%/config/jwt/private.pem</argument>
-            <argument>shopware</argument>
+            <argument>%shopware.api.jwt_key.private_key_path%</argument>
+            <argument>%shopware.api.jwt_key.private_key_passphrase%</argument>
         </service>
         <service class="League\OAuth2\Server\CryptKey" id="shopware.public_key">
-            <argument>file://%kernel.project_dir%/config/jwt/public.pem</argument>
+            <argument>%shopware.api.jwt_key.public_key_path%</argument>
         </service>
 
         <service class="League\OAuth2\Server\AuthorizationServer" id="shopware.api.authorization_server">

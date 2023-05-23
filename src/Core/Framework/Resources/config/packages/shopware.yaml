@@ -56,6 +56,10 @@ shopware:
             auth_required: true
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
+        jwt_key:
+            private_key_path: 'file://%kernel.project_dir%/config/jwt/private.pem'
+            private_key_passphrase: 'shopware'
+            public_key_path: 'file://%kernel.project_dir%/config/jwt/public.pem'
         rate_limiter:
             login:
                 enabled: true

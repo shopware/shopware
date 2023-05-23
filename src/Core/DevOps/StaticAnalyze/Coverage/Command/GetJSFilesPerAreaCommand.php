@@ -23,13 +23,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class GetJSFilesPerAreaCommand extends Command
 {
-    public const OPTION_SEPARATED = 'separated';
-    public const OPTION_DELIMITER = 'delimiter';
-    public const OPTION_AREA = 'area';
-    public const OPTION_RELATIVE = 'relative';
-    public const OPTION_PREFIX_RELATIVE = 'prefix-relative';
-    public const OPTION_IGNORE_FILES = 'ignore-files';
     private const ARGUMENT_PATH = 'path';
+    private const OPTION_SEPARATED = 'separated';
+    private const OPTION_DELIMITER = 'delimiter';
+    private const OPTION_AREA = 'area';
+    private const OPTION_RELATIVE = 'relative';
+    private const OPTION_PREFIX_RELATIVE = 'prefix-relative';
+    private const OPTION_IGNORE_FILES = 'ignore-files';
 
     protected function configure(): void
     {
@@ -92,7 +92,7 @@ class GetJSFilesPerAreaCommand extends Command
 
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         /**
-         * @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator> $files
+         * @var \Symfony\Component\Finder\SplFileInfo[] $files
          * @var \Symfony\Component\Finder\SplFileInfo $file
          */
         foreach ($files as $file) {
@@ -111,9 +111,9 @@ class GetJSFilesPerAreaCommand extends Command
                     if (!\array_key_exists($matches[1], $areaToFile) || !\is_array($areaToFile[$matches[1]])) {
                         $areaToFile[$matches[1]] = [];
                     }
-                    $areaToFile[$matches[1]][] = $filePath;
+                    array_push($areaToFile[$matches[1]], $filePath);
                 } else {
-                    $areaToFile['unknown'][] = $filePath;
+                    array_push($areaToFile['unknown'], $filePath);
                 }
             }
         }

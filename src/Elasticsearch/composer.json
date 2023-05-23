@@ -41,6 +41,5 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~9.6"
-    },
-    "version": "6.5.1.0"
+    }
 }

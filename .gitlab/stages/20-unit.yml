@@ -54,6 +54,34 @@ Jest (Storefront):
                 coverage_format: cobertura
                 path: build/artifacts/jest/cobertura-coverage.xml
 
+Jest Coverage per Area (Storefront):
+  extends: Jest (Storefront)
+  stage: unit
+  script:
+    - !reference [ .scripts, init, composer ]
+    - composer dump-autoload -o
+    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+    - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$STOREFRONT_PATH/src" -r -p 'src' -i "$STOREFRONT_PATH/src/main.js")
+    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom="${JS_FILES}" --coverageThreshold={}
+    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+  parallel:
+    matrix:
+      - PRODUCT_AREA: [ "checkout", "content", "inventory", "merchant-services", "storefront", "unknown" ]
+
+Jest Coverage per Area (Administration):
+  extends: Jest (Administration)
+  stage: unit
+  script:
+    - composer dump-autoload -o
+    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+    - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
+    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom=${JS_FILES}
+    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+  parallel:
+    matrix:
+      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "customer-order", "inventory", "merchant-services", "sales-channel", "system-settings", "unknown" ]
+
+
 PHP unit:
     extends: .base-no-setup
     image: shopware/development:8.1-composer-2
@@ -396,7 +424,18 @@ PHP unit per area:
         --log-junit phpunit.junit.xml
         --testsuite unit
         --coverage-text
+        --coverage-html phpunit/
         --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
     parallel:
       matrix:
         - PRODUCT_AREA: ["administration", "business-ops", "checkout", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]
+    artifacts:
+      when: always
+      paths:
+        - phpunit
+        - cobertura.xml
+      reports:
+        junit: phpunit.junit.xml
+        coverage_report:
+          coverage_format: cobertura
+          path: cobertura.xml

@@ -51,5 +51,9 @@
             <argument>%kernel.project_dir%</argument>
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetJSFilesPerAreaCommand">
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

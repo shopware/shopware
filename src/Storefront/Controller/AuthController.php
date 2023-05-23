@@ -15,6 +15,8 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMai
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
@@ -52,7 +54,7 @@ class AuthController extends StorefrontController
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly StorefrontCartFacade $cartFacade,
         private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
-        private readonly SalesChannelContextServiceInterface $salesChannelContext
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService
     ) {
     }
 
@@ -77,6 +79,7 @@ class AuthController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'errorRoute' => $request->attributes->get('_route'),
             'page' => $page,
             'loginError' => (bool) $request->get('loginError'),
             'waitTime' => $request->get('waitTime'),
@@ -151,7 +154,7 @@ class AuthController extends StorefrontController
             $token = $this->loginRoute->login($data, $context)->getToken();
             $cartBeforeNewContext = $this->cartFacade->get($token, $context);
 
-            $newContext = $this->salesChannelContext->get(
+            $newContext = $this->salesChannelContextService->get(
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $token,
@@ -206,11 +209,14 @@ class AuthController extends StorefrontController
     public function generateAccountRecovery(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         try {
-            $data->get('email')
-                ->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
+            $mailData = $data->get('email');
+            if (!$mailData instanceof DataBag) {
+                throw RoutingException::invalidRequestParameter('email');
+            }
+            $mailData->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
             $this->sendPasswordRecoveryMailRoute->sendRecoveryMail(
-                $data->get('email')->toRequestDataBag(),
+                $mailData->toRequestDataBag(),
                 $context,
                 false
             );
@@ -264,12 +270,14 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/recover/password', name: 'frontend.account.recover.password.reset', methods: ['POST'])]
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $hash = $data->get('password')->get('hash');
+        $passwordData = $data->get('password');
+        if (!$passwordData instanceof DataBag) {
+            throw RoutingException::invalidRequestParameter('password');
+        }
+        $hash = $passwordData->get('hash');
 
         try {
-            $pw = $data->get('password');
-
-            $this->resetPasswordRoute->resetPassword($pw->toRequestDataBag(), $context);
+            $this->resetPasswordRoute->resetPassword($passwordData->toRequestDataBag(), $context);
 
             $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {

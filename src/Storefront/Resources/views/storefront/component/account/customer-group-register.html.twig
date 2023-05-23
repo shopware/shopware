@@ -22,15 +22,6 @@
     <input type="hidden" name="requestedGroupId" value="{{ page.group.id }}">
 {% endblock %}
 
-{% block component_account_register_form_action %}
-    <input type="hidden"
-           name="errorRoute"
-           value="frontend.account.customer-group-registration.page"/>
-    <input type="hidden"
-           name="errorParameters"
-           value="{{ errorParameters }}">
-{% endblock %}
-
 {% block component_account_register_personal_address_fields %}
     {% sw_include '@Storefront/storefront/component/account/customer-group-register-address-form.twig' with {
         'showBirthdayField': config('core.loginRegistration.showBirthdayField')

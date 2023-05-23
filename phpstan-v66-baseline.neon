@@ -26,11 +26,6 @@ parameters:
             path: src/Administration/Notification/NotificationService.php
 
         -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Snippet\\\\AppAdministrationSnippetPersister\\\\AppAdministrationSnippetPersisterException, got Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleException$#"
-            count: 1
-            path: src/Administration/Snippet/AppAdministrationSnippetPersister.php
-
-        -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Core/Checkout/Cart/CartRuleLoader.php
@@ -2732,11 +2727,6 @@ parameters:
             path: src/Elasticsearch/Product/ProductSearchBuilder.php
 
         -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Controller\\\\AccountOrderController\\\\AccountOrderControllerException, got Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderException$#"
-            count: 3
-            path: src/Storefront/Controller/AccountOrderController.php
-
-        -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 5
             path: src/Storefront/Controller/AddressController.php
@@ -2745,11 +2735,6 @@ parameters:
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Storefront/Controller/CaptchaController.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Controller\\\\CartLineItemController\\\\CartLineItemControllerException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 2
-            path: src/Storefront/Controller/CartLineItemController.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -2788,7 +2773,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
+            count: 1
             path: src/Storefront/Controller/RegisterController.php
 
         -
@@ -2887,39 +2872,9 @@ parameters:
             path: src/Storefront/Framework/Twig/TwigAppVariable.php
 
         -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Account\\\\AccountException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 2
-            path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Account\\\\AccountException, got Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderException$#"
-            count: 1
-            path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Account\\\\AccountException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Account/Order/AccountOrderDetailPageLoader.php
-
-        -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 2
             path: src/Storefront/Page/Account/Order/AccountOrderDetailPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Account\\\\AccountException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Account\\\\AccountException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Account/PaymentMethod/AccountPaymentMethodPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Account\\\\AccountException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Account/Profile/AccountProfilePageLoader.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -2927,29 +2882,9 @@ parameters:
             path: src/Storefront/Page/Address/Detail/AddressDetailPageLoader.php
 
         -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Checkout\\\\CheckoutException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Checkout\\\\CheckoutException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Checkout\\\\CheckoutException, got Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderException$#"
-            count: 2
-            path: src/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoader.php
-
-        -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoader.php
-
-        -
-            message: "#^Expected domain exception class Shopware\\\\Core\\\\Page\\\\Checkout\\\\CheckoutException, got Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException$#"
-            count: 1
-            path: src/Storefront/Page/Checkout/Register/CheckoutRegisterPageLoader.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"

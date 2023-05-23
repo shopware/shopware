@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -15,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -39,6 +42,8 @@ class RegisterControllerTest extends TestCase
 
     private MockObject&CartService $cartService;
 
+    private MockObject&CustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
+
     protected function setUp(): void
     {
         $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
@@ -48,7 +53,7 @@ class RegisterControllerTest extends TestCase
         $this->checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
         $customerRepository = $this->createMock(EntityRepository::class);
-        $customerGroupRegistrationPageLoader = $this->createMock(CustomerGroupRegistrationPageLoader::class);
+        $this->customerGroupRegistrationPageLoader = $this->createMock(CustomerGroupRegistrationPageLoader::class);
         $domainRepository = $this->createMock(EntityRepository::class);
 
         $this->controller = new RegisterControllerTestClass(
@@ -59,7 +64,7 @@ class RegisterControllerTest extends TestCase
             $this->checkoutRegisterPageLoader,
             $systemConfigServiceMock,
             $customerRepository,
-            $customerGroupRegistrationPageLoader,
+            $this->customerGroupRegistrationPageLoader,
             $domainRepository,
         );
     }
@@ -116,6 +121,32 @@ class RegisterControllerTest extends TestCase
         static::assertSame('frontend.checkout.confirm.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
         static::assertSame('frontend.checkout.register.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
         static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $this->controller->calledHook);
+    }
+
+    public function testCustomerGroupRegistration(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.account.customer-group-registration.page');
+        $dataBag = new RequestDataBag();
+        $page = new CustomerGroupRegistrationPage();
+        $page->setGroup(new CustomerGroupEntity());
+        $customerGroupId = Uuid::randomHex();
+
+        $this->customerGroupRegistrationPageLoader->expects(static::once())
+            ->method('load')
+            ->with($request, $context)
+            ->willReturn($page);
+
+        $this->controller->customerGroupRegistration($customerGroupId, $request, $dataBag, $context);
+
+        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('frontend.account.customer-group-registration.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertSame(json_encode(['customerGroupId' => $customerGroupId]), $this->controller->renderStorefrontParameters['errorParameters'] ?? '');
+        static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $this->controller->calledHook);
     }
 }
 

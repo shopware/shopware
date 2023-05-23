@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -112,6 +112,7 @@ class RegisterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,
             'data' => $data,
@@ -173,7 +174,7 @@ class RegisterController extends StorefrontController
             );
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
-                throw new MissingRequestParameterException('errorRoute');
+                throw RoutingException::missingRequestParameter('errorRoute');
             }
 
             $params = $this->decodeParam($request, 'errorParameters');

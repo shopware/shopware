@@ -1,6 +1,6 @@
 ---
 title: Do not use request locale to format the rich snippet product release date
-issue: NEXT-00000
+issue: NEXT-26890
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

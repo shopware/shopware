@@ -342,6 +342,7 @@
         ],
         "e2e:web-update:start": [
             "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
+            "@putenv SW_RECOVERY_NEXT_BRANCH=dev-main",
             "@putenv CYPRESS_SKIP_INIT=1",
             "symfony local:server:stop --dir=shop",
             "symfony local:server:stop --dir=tests/e2e/update-api-mock",

@@ -334,13 +334,13 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                 }
             }
 
-            $document['name'] = $this->mapTranslatedField('name', true, ...$translations, ...$parentTranslations);
-            $document['description'] = $this->mapTranslatedField('description', true, ...$translations, ...$parentTranslations);
-            $document['metaTitle'] = $this->mapTranslatedField('metaTitle', true, ...$translations, ...$parentTranslations);
-            $document['metaDescription'] = $this->mapTranslatedField('metaDescription', true, ...$translations, ...$parentTranslations);
-            $document['customSearchKeywords'] = $this->mapTranslatedField('customSearchKeywords', false, ...$translations, ...$parentTranslations);
+            $document['name'] = $this->mapTranslatedField('name', true, ...$parentTranslations, ...$translations);
+            $document['description'] = $this->mapTranslatedField('description', true, ...$parentTranslations, ...$translations);
+            $document['metaTitle'] = $this->mapTranslatedField('metaTitle', true, ...$parentTranslations, ...$translations);
+            $document['metaDescription'] = $this->mapTranslatedField('metaDescription', true, ...$parentTranslations, ...$translations);
+            $document['customSearchKeywords'] = $this->mapTranslatedField('customSearchKeywords', false, ...$parentTranslations, ...$translations);
             $document['customFields'] = [];
-            $customFields = $this->mapTranslatedField('customFields', false, ...$translations, ...$parentTranslations);
+            $customFields = $this->mapTranslatedField('customFields', false, ...$parentTranslations, ...$translations);
 
             foreach ($customFields as $languageId => $customField) {
                 if (empty($customField)) {
@@ -666,23 +666,5 @@ SQL;
         $this->customFieldsTypes = $event->getMappings();
 
         return $this->customFieldsTypes;
-    }
-
-    /**
-     * @param array<int, array<string, string>> $items
-     *
-     * @return array<int|string, mixed>
-     */
-    private function mapTranslatedField(string $field, bool $stripText = true, ...$items): array
-    {
-        $value = [];
-
-        foreach ($items as $item) {
-            if (isset($item['languageId'])) {
-                $value[$item['languageId']] = $stripText ? $this->stripText($item[$field] ?? '') : ($item[$field] ?? '');
-            }
-        }
-
-        return $value;
     }
 }

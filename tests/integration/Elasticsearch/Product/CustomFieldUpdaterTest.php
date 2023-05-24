@@ -40,6 +40,8 @@ class CustomFieldUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
         parent::setUp();
 
         $this->client = $this->getContainer()->get(Client::class);

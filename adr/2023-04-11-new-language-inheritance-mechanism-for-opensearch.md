@@ -126,7 +126,7 @@ Assume we're searching products in german
 
 ### 3. Sorting 
 
-We add a new painless script in `Framework/Indexing/Scripts/language_field.groovy`, this script then will be used when sorting
+We add new painless scripts in `Framework/Indexing/Scripts/translated_field_sorting.groovy` and `Framework/Indexing/Scripts/numeric_translated_field_sorting.groovy`, this script then will be used when sorting
 
 **Example: Sort products by name in DESC**
 
@@ -141,7 +141,7 @@ We add a new painless script in `Framework/Indexing/Scripts/language_field.groov
             "_script": {
                 "type": "string",
                 "script": {
-                    "id": "language_field",
+                    "id": "translated_field_sorting",
                     "params": {
                         "field": "name",
                         "languages": [

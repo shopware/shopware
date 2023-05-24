@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
@@ -58,7 +58,7 @@ class InfoController extends AbstractController
 
         $apiType = $this->definitionService->toApiType($apiType);
         if ($apiType === null) {
-            throw new InvalidRequestParameterException('type');
+            throw throw RoutingException::invalidRequestParameter('type');
         }
 
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);

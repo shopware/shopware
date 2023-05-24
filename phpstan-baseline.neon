@@ -9405,16 +9405,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/BlobFieldSerializer.php
 
 		-
-			message: "#^Anonymous variable in a `\\$value\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/DateFieldSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$value\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FieldSerializerInterface\\:\\:normalize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FieldSerializerInterface.php

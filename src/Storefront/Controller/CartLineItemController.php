@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Profiling\Profiler;
@@ -147,7 +147,7 @@ class CartLineItemController extends StorefrontController
             $number = (string) $request->request->get('number');
 
             if (!$number) {
-                throw new MissingRequestParameterException('number');
+                throw RoutingException::missingRequestParameter('number');
             }
 
             $criteria = new Criteria();
@@ -204,7 +204,7 @@ class CartLineItemController extends StorefrontController
             /** @var RequestDataBag|null $lineItems */
             $lineItems = $requestDataBag->get('lineItems');
             if (!$lineItems) {
-                throw new MissingRequestParameterException('lineItems');
+                throw RoutingException::missingRequestParameter('lineItems');
             }
 
             $count = 0;

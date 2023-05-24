@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -56,7 +56,7 @@ class OrderDetailPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
-        $this->expectException(MissingRequestParameterException::class);
+        $this->expectException(RoutingException::class);
         $this->getPageLoader()->load($request, $context);
     }
 

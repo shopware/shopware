@@ -21,8 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -144,14 +143,14 @@ class SeoActionController extends AbstractController
         $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
 
         if ($salesChannelId === null) {
-            throw new MissingRequestParameterException('salesChannelId');
+            throw RoutingException::missingRequestParameter('salesChannelId');
         }
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
 
         if ($salesChannel === null) {
-            throw new InvalidRequestParameterException('salesChannelId');
+            throw RoutingException::invalidRequestParameter('salesChannelId');
         }
 
         $this->seoUrlPersister->updateSeoUrls(
@@ -197,7 +196,7 @@ class SeoActionController extends AbstractController
             $salesChannelEntity = null;
 
             if ($salesChannelId === '') {
-                throw new InvalidRequestParameterException('salesChannelId');
+                throw RoutingException::invalidRequestParameter('salesChannelId');
             }
 
             /** @var SalesChannelEntity $salesChannelEntity */
@@ -287,7 +286,7 @@ class SeoActionController extends AbstractController
         }
 
         if ($salesChannel === null) {
-            throw new InvalidRequestParameterException('salesChannelId');
+            throw RoutingException::invalidRequestParameter('salesChannelId');
         }
 
         $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);

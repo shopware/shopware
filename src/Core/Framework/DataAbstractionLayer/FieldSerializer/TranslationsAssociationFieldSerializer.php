@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -35,7 +35,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof TranslationsAssociationField) {
-            throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TranslationsAssociationField::class, $field);
         }
 
         $key = $field->getPropertyName();
@@ -142,7 +142,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
     /**
      * @throws ExpectedArrayException
-     * @throws InvalidSerializerFieldException
+     * @throws DataAbstractionLayerException
      * @throws MissingSystemTranslationException
      * @throws MissingTranslationLanguageException
      */
@@ -153,7 +153,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof TranslationsAssociationField) {
-            throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TranslationsAssociationField::class, $field);
         }
 
         $value = $data->getValue();

@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -146,7 +146,7 @@ class ImportExportActionController extends AbstractController
         $logId = $request->request->get('logId');
 
         if (!\is_string($logId)) {
-            throw new InvalidRequestParameterException('logId');
+            throw RoutingException::invalidRequestParameter('logId');
         }
 
         $this->importExportService->cancel($context, $logId);
@@ -160,7 +160,7 @@ class ImportExportActionController extends AbstractController
     {
         $profileId = $request->query->get('profileId');
         if (!\is_string($profileId)) {
-            throw new InvalidRequestParameterException('profileId');
+            throw RoutingException::invalidRequestParameter('profileId');
         }
         $profileId = strtolower($profileId);
 
@@ -183,11 +183,11 @@ class ImportExportActionController extends AbstractController
         $enclosure = (string) $request->request->get('enclosure', '"');
 
         if ($file === null || !$file->isValid()) {
-            throw new InvalidRequestParameterException('file');
+            throw RoutingException::invalidRequestParameter('file');
         }
 
         if (!\is_string($sourceEntity)) {
-            throw new InvalidRequestParameterException('sourceEntity');
+            throw RoutingException::invalidRequestParameter('sourceEntity');
         }
 
         $mapping = $this->mappingService->getMappingFromTemplate($context, $file, $sourceEntity, $delimiter, $enclosure);

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -24,7 +24,7 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof VersionDataPayloadField) {
-            throw new InvalidSerializerFieldException(VersionDataPayloadField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(VersionDataPayloadField::class, $field);
         }
 
         yield $field->getStorageName() => $data->getValue();

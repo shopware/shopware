@@ -2,20 +2,26 @@
 
 namespace Shopware\Core\Framework\Routing\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.6.0 - will be removed, use RoutingException::missingRequestParameter instead
+ */
 #[Package('core')]
 class MissingRequestParameterException extends RoutingException
 {
-    /**
-     * @deprecated tag:v6.6.0 - public construct will be removed, use RoutingException::missingRequestParameter instead
-     */
     public function __construct(
         private readonly string $name,
         private readonly string $path = ''
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use RoutingException::missingRequestParameter instead')
+        );
+
         parent::__construct(
             Response::HTTP_BAD_REQUEST,
             self::MISSING_REQUEST_PARAMETER_CODE,
@@ -26,11 +32,21 @@ class MissingRequestParameterException extends RoutingException
 
     public function getName(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use RoutingException::missingRequestParameter instead')
+        );
+
         return $this->name;
     }
 
     public function getPath(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use RoutingException::missingRequestParameter instead')
+        );
+
         return $this->path;
     }
 }

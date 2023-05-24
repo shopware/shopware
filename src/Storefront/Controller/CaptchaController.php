@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
@@ -50,7 +50,7 @@ class CaptchaController extends StorefrontController
         $response = [];
         $formId = $request->get('formId');
         if (!$formId) {
-            throw new MissingRequestParameterException('formId');
+            throw RoutingException::missingRequestParameter('formId');
         }
 
         if ($this->basicCaptcha->isValid($request, [])) {

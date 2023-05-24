@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ProductSearchBuilder;
@@ -93,7 +93,7 @@ class ProductSearchBuilderTest extends TestCase
 
         $request->query->set('search', '');
 
-        $this->expectException(MissingRequestParameterException::class);
+        $this->expectException(RoutingException::class);
 
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
     }

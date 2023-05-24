@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -26,7 +26,7 @@ class StateMachineStateFieldSerializer extends FkFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!($field instanceof StateMachineStateField)) {
-            throw new InvalidSerializerFieldException(StateMachineStateField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(StateMachineStateField::class, $field);
         }
 
         // Always allow any status when creating a new entity. A state transition from one state into another makes no

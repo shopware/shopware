@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundHttpExcept
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +43,7 @@ class AppUrlChangeController extends AbstractController
         $strategy = $request->get('strategy');
 
         if (!$strategy) {
-            throw new MissingRequestParameterException('strategy');
+            throw RoutingException::missingRequestParameter('strategy');
         }
 
         try {

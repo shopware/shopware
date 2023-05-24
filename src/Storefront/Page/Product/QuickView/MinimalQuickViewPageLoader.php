@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,13 +27,13 @@ class MinimalQuickViewPageLoader
     }
 
     /**
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): MinimalQuickViewPage
     {
         $productId = $request->get('productId');
         if (!$productId) {
-            throw new MissingRequestParameterException('productId', '/productId');
+            throw RoutingException::missingRequestParameter('productId', '/productId');
         }
 
         $criteria = (new Criteria())

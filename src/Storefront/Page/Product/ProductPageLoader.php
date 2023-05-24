@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
@@ -43,14 +43,14 @@ class ProductPageLoader
     /**
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws ProductNotFoundException
      */
     public function load(Request $request, SalesChannelContext $context): ProductPage
     {
         $productId = $request->attributes->get('productId');
         if (!$productId) {
-            throw new MissingRequestParameterException('productId', '/productId');
+            throw RoutingException::missingRequestParameter('productId', '/productId');
         }
 
         $criteria = (new Criteria())

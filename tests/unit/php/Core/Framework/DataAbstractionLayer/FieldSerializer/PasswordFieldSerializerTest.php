@@ -6,6 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
@@ -56,7 +58,12 @@ class PasswordFieldSerializerTest extends TestCase
 
     public function testEncodeNotPasswordField(): void
     {
-        static::expectException(InvalidSerializerFieldException::class);
+        if (Feature::isActive('v6.6.0.0')) {
+            static::expectException(DataAbstractionLayerException::class);
+        } else {
+            static::expectException(InvalidSerializerFieldException::class);
+        }
+
         $existence = new EntityExistence('product', [], false, false, false, []);
         $field = new StringField('password', 'password');
 

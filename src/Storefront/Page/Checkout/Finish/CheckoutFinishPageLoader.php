@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,7 +41,7 @@ class CheckoutFinishPageLoader
      * @throws CategoryNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws OrderException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutFinishPage
@@ -80,7 +80,7 @@ class CheckoutFinishPageLoader
     /**
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws OrderException
      */
     private function getOrder(Request $request, SalesChannelContext $salesChannelContext): OrderEntity
@@ -92,7 +92,7 @@ class CheckoutFinishPageLoader
 
         $orderId = $request->get('orderId');
         if (!$orderId) {
-            throw new MissingRequestParameterException('orderId', '/orderId');
+            throw RoutingException::missingRequestParameter('orderId', '/orderId');
         }
 
         $criteria = (new Criteria([$orderId]))

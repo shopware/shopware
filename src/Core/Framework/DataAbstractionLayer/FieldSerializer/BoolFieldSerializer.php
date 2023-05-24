@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -21,7 +21,7 @@ class BoolFieldSerializer extends AbstractFieldSerializer
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof BoolField) {
-            throw new InvalidSerializerFieldException(BoolField::class, $field);
+            throw throw DataAbstractionLayerException::invalidSerializerField(BoolField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

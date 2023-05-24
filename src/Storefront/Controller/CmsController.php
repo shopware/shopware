@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVa
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
@@ -47,7 +47,7 @@ class CmsController extends StorefrontController
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
-            throw new MissingRequestParameterException('id');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
@@ -67,7 +67,7 @@ class CmsController extends StorefrontController
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {
-            throw new MissingRequestParameterException('navigationId');
+            throw RoutingException::missingRequestParameter('navigationId');
         }
 
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();

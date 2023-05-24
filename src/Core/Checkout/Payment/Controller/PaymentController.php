@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,7 +43,7 @@ class PaymentController extends AbstractController
         $paymentToken = $request->get('_sw_payment_token');
 
         if ($paymentToken === null) {
-            throw new MissingRequestParameterException('_sw_payment_token');
+            throw RoutingException::missingRequestParameter('_sw_payment_token');
         }
 
         $salesChannelContext = $this->assembleSalesChannelContext($paymentToken);

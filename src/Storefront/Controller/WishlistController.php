@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractMergeWishlistProductRou
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
@@ -119,7 +119,7 @@ class WishlistController extends StorefrontController
     public function remove(string $id, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         if (!$id) {
-            throw new MissingRequestParameterException('Parameter id missing');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         try {

@@ -20,7 +20,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -65,7 +67,7 @@ class CmsControllerTest extends TestCase
 
     public function testPageNoId(): void
     {
-        $this->expectException(MissingRequestParameterException::class);
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('Parameter "id" is missing.');
 
         $this->controller->page(null, new Request(), $this->createMock(SalesChannelContext::class));
@@ -85,7 +87,11 @@ class CmsControllerTest extends TestCase
 
     public function testCategoryNoId(): void
     {
-        $this->expectException(MissingRequestParameterException::class);
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->expectException(RoutingException::class);
+        } else {
+            $this->expectException(MissingRequestParameterException::class);
+        }
         $this->expectExceptionMessage('Parameter "navigationId" is missing.');
 
         $this->controller->category(null, new Request(), $this->createMock(SalesChannelContext::class));

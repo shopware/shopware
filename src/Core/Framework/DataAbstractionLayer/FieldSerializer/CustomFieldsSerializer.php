@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -34,7 +34,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof CustomFields) {
-            throw new InvalidSerializerFieldException(CustomFields::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(CustomFields::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -76,7 +76,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     public function decode(Field $field, mixed $value): array|object|null
     {
         if (!$field instanceof CustomFields) {
-            throw new InvalidSerializerFieldException(CustomFields::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(CustomFields::class, $field);
         }
 
         if ($value) {

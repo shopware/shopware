@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +57,7 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testLoadThrowsExceptionForMissingSearchParameter(): void
     {
-        static::expectException(MissingRequestParameterException::class);
+        static::expectException(RoutingException::class);
 
         $this->getProductSuggestRoute()->load(
             new Request(),

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -22,7 +22,7 @@ class FloatFieldSerializer extends AbstractFieldSerializer
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof FloatField) {
-            throw new InvalidSerializerFieldException(FloatField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(FloatField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

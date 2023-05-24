@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -24,7 +24,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof FkField) {
-            throw new InvalidSerializerFieldException(FkField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(FkField::class, $field);
         }
 
         $value = $data[$field->getPropertyName()] ?? null;
@@ -45,7 +45,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof FkField) {
-            throw new InvalidSerializerFieldException(FkField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(FkField::class, $field);
         }
 
         $value = $data->getValue();

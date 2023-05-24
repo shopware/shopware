@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\LandingPage;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
@@ -35,7 +35,7 @@ class LandingPageLoader
     {
         $landingPageId = $request->attributes->get('landingPageId');
         if (!$landingPageId) {
-            throw new MissingRequestParameterException('landingPageId', '/landingPageId');
+            throw RoutingException::missingRequestParameter('landingPageId', '/landingPageId');
         }
 
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();

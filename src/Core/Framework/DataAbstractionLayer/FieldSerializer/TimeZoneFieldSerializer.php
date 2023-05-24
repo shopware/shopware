@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
@@ -29,7 +29,7 @@ class TimeZoneFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof TimeZoneField) {
-            throw new InvalidSerializerFieldException(TimeZoneField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TimeZoneField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

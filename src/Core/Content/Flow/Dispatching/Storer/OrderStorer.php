@@ -83,6 +83,7 @@ class OrderStorer extends FlowStorer
     {
         $criteria->addAssociations([
             'orderCustomer',
+            'orderCustomer.salutation',
             'lineItems.downloads.media',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',

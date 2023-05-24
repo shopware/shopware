@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class OrderTransactionStorer extends FlowStorer
@@ -18,8 +21,10 @@ class OrderTransactionStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderTransactionRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $orderTransactionRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
@@ -82,6 +87,14 @@ class OrderTransactionStorer extends FlowStorer
 
     private function loadOrderTransaction(Criteria $criteria, Context $context, string $id): ?OrderTransactionEntity
     {
+        $event = new BeforeLoadStorableFlowDataEvent(
+            OrderTransactionDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
+
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->get($id);
 
         if ($orderTransaction) {

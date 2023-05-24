@@ -17662,11 +17662,6 @@ parameters:
 			path: tests/unit/php/Core/Checkout/Cart/TaxProvider/_fixtures/TestConstantTaxRateProvider.php
 
 		-
-			message: "#^Anonymous variable in a `\\$flow\\-\\>getData\\('order'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/FlowFactoryTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: tests/unit/php/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php

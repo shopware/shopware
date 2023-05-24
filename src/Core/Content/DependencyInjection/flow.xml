@@ -176,18 +176,21 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer">
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer">
             <argument type="service" id="product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer">
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
@@ -200,30 +203,35 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\UserStorer">
             <argument type="service" id="user_recovery.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer">
             <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer">
             <argument type="service" id="customer_recovery.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer">
             <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer">
             <argument type="service" id="newsletter_recipient.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="flow.storer"/>
         </service>

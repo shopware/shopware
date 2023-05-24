@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class OrderStorer extends FlowStorer
@@ -19,8 +22,10 @@ class OrderStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $orderRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -97,6 +102,14 @@ class OrderStorer extends FlowStorer
         ]);
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+
+        $event = new BeforeLoadStorableFlowDataEvent(
+            OrderDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
 
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
 

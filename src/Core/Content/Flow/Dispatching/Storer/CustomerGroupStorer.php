@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('business-ops')]
 class CustomerGroupStorer extends FlowStorer
@@ -18,8 +21,10 @@ class CustomerGroupStorer extends FlowStorer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerGroupRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**
@@ -84,6 +89,14 @@ class CustomerGroupStorer extends FlowStorer
 
     private function loadCustomerGroup(Criteria $criteria, Context $context, string $id): ?CustomerGroupEntity
     {
+        $event = new BeforeLoadStorableFlowDataEvent(
+            CustomerGroupDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
+
         $customerGroup = $this->customerGroupRepository->search($criteria, $context)->get($id);
 
         if ($customerGroup) {

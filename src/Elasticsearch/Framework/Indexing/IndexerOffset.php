@@ -63,8 +63,8 @@ class IndexerOffset
     public function setNextDefinition(): ?string
     {
         Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0', 'selectNextDefinition')
         );
 
         return $this->selectNextDefinition();
@@ -90,71 +90,51 @@ class IndexerOffset
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed.
+     * @deprecated tag:v6.6.0 - reason:remove-getter-setter - will be removed.
      *
      * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
      */
     public function setNextLanguage(): ?string
     {
         Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0', 'selectNextLanguage')
         );
 
         return $this->selectNextLanguage();
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed.
+     * @deprecated tag:v6.6.0 - reason:remove-getter-setter - will be removed.
      */
     public function selectNextLanguage(): ?string
     {
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
-
         return $this->languageId = array_shift($this->languages);
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed.
+     * @deprecated tag:v6.6.0 - reason:remove-getter-setter - will be removed.
      */
     public function hasNextLanguage(): bool
     {
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
-
         return !empty($this->languages);
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed.
+     * @deprecated tag:v6.6.0 - reason:remove-getter-setter - will be removed.
      */
     public function getLanguageId(): ?string
     {
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
-
         return $this->languageId;
     }
 
     /**
      * @return list<string>
      *
-     * @deprecated tag:v6.6.0 - Will be removed.
+     * @deprecated tag:v6.6.0 - reason:remove-getter-setter - will be removed.
      */
     public function getLanguages(): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
-
         return $this->languages;
     }
 

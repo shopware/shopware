@@ -7,7 +7,7 @@ flag: ES_MULTILINGUAL_INDEX
 * Added a new feature flag `ES_MULTILINGUAL_INDEX` in `Core/Framework/Resources/config/packages/feature.yaml`
 ___
 # Elasticsearch
-* Added a new script in `Framework/Indexing/Scripts/language_field.groovy` to allow sorting by multiple language in painless script
+* Added a new script in `Framework/Indexing/Scripts/translated_field_sorting.groovy` to allow sorting by multiple language in painless script
 * Changed `\Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser::parseSorting` to apply script sorting for translated fields
 * Deprecated class `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer` as we will use `\Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer` instead 
 * Deprecated class `\Shopware\Elasticsearch\Product\ElasticsearchProductDefinition` as we will use `\Shopware\Elasticsearch\Product\EsProductDefinition` instead 

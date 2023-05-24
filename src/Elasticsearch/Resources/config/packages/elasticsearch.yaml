@@ -32,7 +32,6 @@ elasticsearch:
                             type: text
     product:
         custom_fields_mapping:
-            select_field_: text
     ssl:
         verify_server_cert: true
     index_settings:

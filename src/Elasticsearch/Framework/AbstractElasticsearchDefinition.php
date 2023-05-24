@@ -93,4 +93,31 @@ abstract class AbstractElasticsearchDefinition
 
         return $text;
     }
+
+    /**
+     * @param array<int, array<string, string>> $items
+     *
+     * @return array<int|string, mixed>
+     */
+    protected function mapTranslatedField(string $field, bool $stripText = true, ...$items): array
+    {
+        $value = [];
+
+        foreach ($items as $item) {
+            if (empty($item['languageId'])) {
+                continue;
+            }
+            $languageId = $item['languageId'];
+            $newValue = $item[$field] ?? null;
+
+            if ($stripText && \is_string($newValue)) {
+                $newValue = $this->stripText($newValue);
+            }
+
+            // if child value is null, it should be inherited from parent
+            $value[$languageId] = $newValue === null ? ($value[$languageId] ?? '') : $newValue;
+        }
+
+        return $value;
+    }
 }

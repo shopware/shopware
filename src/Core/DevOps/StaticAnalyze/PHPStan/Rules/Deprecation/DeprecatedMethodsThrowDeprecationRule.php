@@ -46,6 +46,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:visibility-change',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
+        // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
+        'reason:remove-getter-setter',
     ];
 
     public function getNodeType(): string

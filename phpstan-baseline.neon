@@ -1266,31 +1266,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodeService\\:\\:generateCode\\(\\) has parameter \\$codePattern with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodeService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodeService\\:\\:generateIndividualCodes\\(\\) has parameter \\$codeBlacklist with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodeService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodeService\\:\\:prepareCodeEntities\\(\\) has parameter \\$codes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodeService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodeService\\:\\:prepareCodeEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodeService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodeService\\:\\:splitPattern\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodeService.php
-
-		-
 			message: "#^Parameter \\#1 \\$writeCommands of method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Validator\\\\PromotionValidator\\:\\:collect\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\> given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Validator/PromotionValidator.php
@@ -2064,36 +2039,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$promotion\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$promotion\\-\\>getIndividualCodes\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getIndividualCodes\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:codePreviewDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:generateIndividualCodesDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:generateIndividualCodesWithInsufficientPatternDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
 
 		-
 			message: "#^Cannot call method getPayload\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

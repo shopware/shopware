@@ -65,3 +65,69 @@ framework:
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
             'Symfony\Component\Mailer\Messenger\SendEmailMessage': async
 
+    exceptions:
+        # Symfony exceptions
+        Symfony\Component\HttpKernel\Exception\NotFoundHttpException:
+            log_level: notice
+        Symfony\Component\Routing\Exception\MissingMandatoryParametersException:
+            log_level: notice
+        Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException:
+            log_level: notice
+        Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException:
+            log_level: notice
+        Symfony\Component\HttpKernel\Exception\BadRequestHttpException:
+            log_level: notice
+        Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException:
+            log_level: notice
+        Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException:
+            log_level: notice
+        # Shopware exceptions
+        Shopware\Core\Content\Product\Exception\ProductNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\Category\Exception\CategoryNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\Cms\Exception\PageNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException:
+            log_level: notice
+        Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException:
+            log_level: notice
+        Shopware\Core\System\StateMachine\Exception\IllegalTransitionException:
+            log_level: notice
+        Shopware\Core\Framework\Api\Exception\MissingPrivilegeException:
+            log_level: notice
+        Shopware\Core\Framework\Validation\Exception\ConstraintViolationException:
+            log_level: notice
+        Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
+            log_level: notice
+        Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException:
+            log_level: notice
+        Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException:
+            log_level: notice
+        Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException:
+            log_level: notice
+        Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption:
+            log_level: notice
+        Shopware\Core\Framework\App\Exception\ActionProcessException: #App provides wrong return or does not answer at all
+            log_level: notice
+        Shopware\Core\Content\Product\Exception\DuplicateProductNumberException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException:
+            log_level: notice
+        Shopware\Core\Framework\Api\Exception\ResourceNotFoundException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException:
+            log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException:
+            log_level: notice
+

@@ -69,7 +69,7 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
             ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $frameworkContext]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
-            ->add('accountType', new Choice([...$this->accountTypes, null]));
+            ->add('accountType', new Choice($this->accountTypes));
 
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $salesChannelId)) {

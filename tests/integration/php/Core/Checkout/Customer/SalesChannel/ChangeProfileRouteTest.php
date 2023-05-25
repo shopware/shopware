@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -143,9 +144,7 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->getCustomer();
 
         static::assertEquals(['DE123456789'], $customer->getVatIds());
         static::assertEquals($changeData['company'], $customer->getCompany());
@@ -176,9 +175,7 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->getCustomer();
 
         static::assertNull($customer->getVatIds());
         static::assertEquals($changeData['company'], $customer->getCompany());
@@ -347,9 +344,7 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->getCustomer();
 
         if ($expectedVatIds === null) {
             static::assertNull($customer->getVatIds());
@@ -380,9 +375,7 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->getCustomer();
 
         static::assertNull($customer->getVatIds());
         static::assertEquals('', $customer->getCompany());
@@ -470,13 +463,53 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-
-        /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->getCustomer();
 
         static::assertSame($accountType, $customer->getAccountType());
+    }
+
+    public function testProfileCanBeChangedWithEmptyAccountType(): void
+    {
+        $customer = $this->getCustomer();
+        $currentSalutationId = $customer->getSalutationId();
+        $salutationIds = $this->getValidSalutationIds();
+        static::assertNotEmpty($salutationIds);
+
+        $updateSalutationId = null;
+        foreach ($salutationIds as $salutationId) {
+            if ($currentSalutationId === $salutationId) {
+                continue;
+            }
+
+            $updateSalutationId = $salutationId;
+
+            break;
+        }
+
+        static::assertNotNull($updateSalutationId);
+
+        $changeData = [
+            'accountType' => '',
+            'salutationId' => $updateSalutationId,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            $changeData
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+        static::assertEquals($updateSalutationId, $customer->getSalutationId());
     }
 
     public function testChangeWithWrongAccountType(): void
@@ -542,6 +575,23 @@ class ChangeProfileRouteTest extends TestCase
         static::assertIsArray($customerDefinition->getDefaults());
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $customer->getAccountType());
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getValidSalutationIds(): array
+    {
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('salutation.repository');
+
+        $criteria = (new Criteria())
+            ->addSorting(new FieldSorting('salutationKey'));
+
+        /** @var string[] $ids */
+        $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $ids;
     }
 
     private function createData(): void
@@ -664,5 +714,16 @@ class ChangeProfileRouteTest extends TestCase
                     'id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->create('sales-channel'))),
                 ]
             );
+    }
+
+    private function getCustomer(): CustomerEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+
+        return $customer;
     }
 }

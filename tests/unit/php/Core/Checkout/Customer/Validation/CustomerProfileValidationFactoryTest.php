@@ -230,7 +230,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
         $definition->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context->getContext()]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
-            ->add('accountType', new Choice([...$this->accountTypes, null]));
+            ->add('accountType', new Choice($this->accountTypes));
     }
 
     private function addConstraintsBirthday(DataValidationDefinition $definition): void

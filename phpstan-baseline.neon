@@ -621,11 +621,6 @@ parameters:
 			path: src/Core/Checkout/Customer/SalesChannel/AccountNewsletterRecipientRouteResponse.php
 
 		-
-			message: "#^Anonymous variable in a `\\$vatIds\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ChangeCustomerProfileRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
@@ -654,16 +649,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$customer\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 11
 			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Anonymous variable in a `\\$data\\-\\>get\\('billingAddress'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Anonymous variable in a `\\$data\\-\\>get\\('shippingAddress'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
 
 		-
 			message: "#^Anonymous variable in a `\\$customer\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -16845,11 +16830,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$result\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: tests/integration/php/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$customer\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 17
-			path: tests/integration/php/Core/Checkout/Customer/SalesChannel/ChangeProfileRouteTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$country\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

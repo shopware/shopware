@@ -72,8 +72,6 @@ rufus target branch:
     - !reference [ .rule_deployment_branch ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
-    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
-    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
     PLUGIN_DEPENDENCIES:
       value: >
         [

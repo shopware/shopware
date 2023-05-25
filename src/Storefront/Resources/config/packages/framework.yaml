@@ -1,0 +1,4 @@
+framework:
+    exceptions:
+        Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException:
+            log_level: notice

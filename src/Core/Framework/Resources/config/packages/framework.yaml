@@ -130,4 +130,5 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException:
             log_level: notice
-
+        Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException:
+            log_level: notice

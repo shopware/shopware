@@ -52,6 +52,11 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
+
+        if ($data->has('accountType') && empty($data->get('accountType'))) {
+            $data->remove('accountType');
+        }
+
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $validation->add('company', new NotBlank());
             $billingAddress = $customer->getDefaultBillingAddress();
@@ -63,7 +68,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->set('vatIds', null);
         }
 
-        if ($vatIds = $data->get('vatIds')) {
+        /** @var ?RequestDataBag $vatIds */
+        $vatIds = $data->get('vatIds');
+        if ($vatIds) {
             $vatIds = \array_filter($vatIds->all());
             $data->set('vatIds', empty($vatIds) ? null : $vatIds);
         }

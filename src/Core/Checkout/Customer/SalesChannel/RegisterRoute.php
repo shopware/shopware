@@ -88,8 +88,9 @@ class RegisterRoute extends AbstractRegisterRoute
     {
         $isGuest = $data->getBoolean('guest');
 
-        $accountType = $data->get('accountType') ?: null;
-        $data->set('accountType', $accountType);
+        if ($data->has('accountType') && empty($data->get('accountType'))) {
+            $data->remove('accountType');
+        }
 
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
 
@@ -120,11 +121,11 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['addresses'][] = $shippingAddress;
         }
 
-        if ($accountType) {
-            $customer['accountType'] = $accountType;
+        if ($data->get('accountType')) {
+            $customer['accountType'] = $data->get('accountType');
         }
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
             $customer['company'] = $billingAddress['company'];
             if ($data->get('vatIds')) {
                 $customer['vatIds'] = $data->get('vatIds');
@@ -280,7 +281,9 @@ class RegisterRoute extends AbstractRegisterRoute
         $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, true, $context));
 
         if ($data->has('shippingAddress')) {
-            $shippingAccountType = $data->get('shippingAddress')->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+            /** @var DataBag $shippingAddress */
+            $shippingAddress = $data->get('shippingAddress');
+            $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, true, $context));
         }
 
@@ -424,7 +427,9 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $data->get('billingAddress')->get('countryId')]));
+        /** @var DataBag $billing */
+        $billing = $data->get('billingAddress');
+        $validation->set('zipcode', new CustomerZipCode(['countryId' => $billing->get('countryId')]));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

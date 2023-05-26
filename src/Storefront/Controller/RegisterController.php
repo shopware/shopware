@@ -276,10 +276,15 @@ class RegisterController extends StorefrontController
     private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session): DataBag
     {
         $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
-        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
-        if ($affiliateCode !== null && $campaignCode !== null) {
+        if ($affiliateCode !== null) {
             $data->add([
                 AffiliateTrackingListener::AFFILIATE_CODE_KEY => $affiliateCode,
+            ]);
+        }
+
+        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        if ($campaignCode !== null) {
+            $data->add([
                 AffiliateTrackingListener::CAMPAIGN_CODE_KEY => $campaignCode,
             ]);
         }

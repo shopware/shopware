@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Promotion\Util;
+namespace Shopware\Tests\Integration\Core\Checkout\Promotion\Util;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,10 +23,7 @@ class PromotionCodeServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
-    /**
-     * @var PromotionCodeService
-     */
-    private $codesService;
+    private PromotionCodeService $codesService;
 
     protected function setUp(): void
     {
@@ -49,6 +48,9 @@ class PromotionCodeServiceTest extends TestCase
         static::assertMatchesRegularExpression($expectedRegex, $actualCode);
     }
 
+    /**
+     * @return array<array<string>>
+     */
     public static function codePreviewDataProvider(): array
     {
         return [
@@ -94,6 +96,9 @@ class PromotionCodeServiceTest extends TestCase
         static::assertEquals($expectedCodeLength, $codeLengthList[0]);
     }
 
+    /**
+     * @return array<array<int>>
+     */
     public static function generateIndividualCodesDataProvider(): array
     {
         return [
@@ -116,6 +121,9 @@ class PromotionCodeServiceTest extends TestCase
         $this->codesService->generateIndividualCodes($pattern, $requestedCodeAmount);
     }
 
+    /**
+     * @return array<array<int>>
+     */
     public static function generateIndividualCodesWithInsufficientPatternDataProvider(): array
     {
         return [
@@ -142,6 +150,7 @@ class PromotionCodeServiceTest extends TestCase
         $criteria = (new Criteria([$id]))
             ->addAssociation('individualCodes');
 
+        /** @var PromotionEntity|null $promotion */
         $promotion = $promotionRepository->search($criteria, $context)->get($id);
 
         static::assertNotNull($promotion);
@@ -150,7 +159,9 @@ class PromotionCodeServiceTest extends TestCase
 
         $this->codesService->replaceIndividualCodes($id, 'newPattern_%d%d%s', 10, $context);
 
+        /** @var PromotionEntity $promotion */
         $promotion = $promotionRepository->search($criteria, $context)->first();
+        static::assertNotNull($promotion->getIndividualCodes());
         $individualCodes = $promotion->getIndividualCodes()->getElements();
         static::assertCount(10, $individualCodes);
         static::assertNotContains($codes[0], $individualCodes);
@@ -200,6 +211,13 @@ class PromotionCodeServiceTest extends TestCase
         $this->addCodesAndAssertCount($id, 1, 501);
     }
 
+    public function testSplitPatternWithInvalidCodeThrowsInvalidCodePattern(): void
+    {
+        static::expectException(PromotionException::class);
+
+        $this->codesService->splitPattern('PREFIX_%foo_SUFFIX');
+    }
+
     private function addCodesAndAssertCount(string $id, int $newCodeAmount, int $expectedCodeAmount): void
     {
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -210,6 +228,7 @@ class PromotionCodeServiceTest extends TestCase
 
         $this->codesService->addIndividualCodes($id, $newCodeAmount, $salesChannelContext->getContext());
 
+        /** @var PromotionEntity|null $promotion */
         $promotion = $promotionRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         static::assertNotNull($promotion);

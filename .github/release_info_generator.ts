@@ -1,8 +1,6 @@
 import { marked } from "npm:marked";
 import { baseUrl } from "npm:marked-base-url";
 
-marked.use(baseUrl('https://github.com/shopware/platform/blob/trunk/changelog'));
-
 marked.setOptions({
     gfm: true,
     breaks: true,
@@ -31,6 +29,8 @@ async function generateVersionInfo() {
         if (json.draft) {
             continue;
         }
+
+        marked.use(baseUrl(`https://github.com/shopware/platform/blob/${release.tag_name}/changelog`));
 
         const detail = await (await fetchGithub(release.url)).json();
 

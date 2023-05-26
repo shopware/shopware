@@ -26,8 +26,8 @@ abstract class AbstractFilterHandler
     /**
      * The `process` function allows the developer, to post-process the calculated listing result and further process
      * the determined aggregation values to a more user readable state.
-     *
-     * If you don't have a process use case, you can simply use the `EmptyProcessTrait.php` to fulfill the interface.
      */
-    abstract public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void;
+    public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
+    {
+    }
 }

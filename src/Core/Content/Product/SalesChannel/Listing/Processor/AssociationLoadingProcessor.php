@@ -11,8 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class AssociationLoadingProcessor extends AbstractListingProcessor
 {
-    use EmptyProcessTrait;
-
     public function getDecorated(): AbstractListingProcessor
     {
         throw new DecorationPatternException(self::class);

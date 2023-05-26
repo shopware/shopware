@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
-use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\EmptyProcessTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -15,8 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class RatingFilterHandler extends AbstractFilterHandler
 {
-    use EmptyProcessTrait;
-
     public function getDecorated(): AbstractFilterHandler
     {
         throw new DecorationPatternException(self::class);

@@ -9,10 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('inventory')]
-class HeaderProcessor extends AbstractListingProcessor
+class BehaviorProcessor extends AbstractListingProcessor
 {
-    use EmptyProcessTrait;
-
     public function getDecorated(): AbstractListingProcessor
     {
         throw new DecorationPatternException(self::class);

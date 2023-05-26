@@ -17,9 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -124,15 +125,10 @@ class PropertyFilterHandler extends AbstractFilterHandler
             );
         }
 
+        $aggregations = [$propertyAggregation, $optionAggregation];
+
         if (empty($ids)) {
-            return new Filter(
-                'properties',
-                false,
-                [$propertyAggregation, $optionAggregation],
-                new MultiFilter(MultiFilter::CONNECTION_OR, []),
-                [],
-                false
-            );
+            return new Filter('properties', false, $aggregations, new AndFilter([]), [], false);
         }
 
         $grouped = $this->connection->fetchAllAssociative(
@@ -149,23 +145,13 @@ class PropertyFilterHandler extends AbstractFilterHandler
         foreach ($grouped as $options) {
             $options = array_column($options, 'id');
 
-            $filters[] = new MultiFilter(
-                MultiFilter::CONNECTION_OR,
-                [
-                    new EqualsAnyFilter('product.optionIds', $options),
-                    new EqualsAnyFilter('product.propertyIds', $options),
-                ]
-            );
+            $filters[] = new OrFilter([
+                new EqualsAnyFilter('product.optionIds', $options),
+                new EqualsAnyFilter('product.propertyIds', $options),
+            ]);
         }
 
-        return new Filter(
-            'properties',
-            true,
-            [$propertyAggregation, $optionAggregation],
-            new MultiFilter(MultiFilter::CONNECTION_AND, $filters),
-            $ids,
-            false
-        );
+        return new Filter('properties', true, $aggregations, new AndFilter($filters), $ids, false);
     }
 
     /**

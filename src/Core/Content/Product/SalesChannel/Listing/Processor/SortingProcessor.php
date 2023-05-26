@@ -69,6 +69,10 @@ class SortingProcessor extends AbstractListingProcessor
     {
         $key = $request->get('order');
 
+        if (!\is_string($key)) {
+            throw ProductException::sortingNotFoundException('');
+        }
+
         $sorting = $sortings->getByKey($key);
         if ($sorting !== null) {
             return $sorting;

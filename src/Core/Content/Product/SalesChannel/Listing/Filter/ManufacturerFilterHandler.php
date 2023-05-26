@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
-use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\EmptyProcessTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -14,8 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ManufacturerFilterHandler extends AbstractFilterHandler
 {
-    use EmptyProcessTrait;
-
     public function getDecorated(): AbstractFilterHandler
     {
         throw new DecorationPatternException(self::class);

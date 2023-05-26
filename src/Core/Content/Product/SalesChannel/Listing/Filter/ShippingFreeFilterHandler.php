@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
-use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\EmptyProcessTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,8 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ShippingFreeFilterHandler extends AbstractFilterHandler
 {
-    use EmptyProcessTrait;
-
     public function getDecorated(): AbstractFilterHandler
     {
         throw new DecorationPatternException(self::class);
@@ -32,7 +29,7 @@ class ShippingFreeFilterHandler extends AbstractFilterHandler
 
         return new Filter(
             'shipping-free',
-            $filtered === true,
+            $request->query->has('shipping-free'),
             [
                 new FilterAggregation(
                     'shipping-free-filter',

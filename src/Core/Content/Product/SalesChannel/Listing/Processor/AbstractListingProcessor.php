@@ -35,5 +35,7 @@ abstract class AbstractListingProcessor
      * - 'listing-route-context'
      * - 'search-route-context'
      */
-    abstract public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void;
+    public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
+    {
+    }
 }

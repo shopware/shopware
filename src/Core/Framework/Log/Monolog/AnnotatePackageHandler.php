@@ -7,6 +7,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\LogRecord;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -20,7 +21,8 @@ class AnnotatePackageHandler extends AbstractHandler
      */
     public function __construct(
         private readonly HandlerInterface $handler,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly ContainerInterface $container,
     ) {
         parent::__construct();
     }
@@ -83,9 +85,17 @@ class AnnotatePackageHandler extends AbstractHandler
 
         [$controllerClass, $_] = explode('::', (string) $controller);
 
-        $package = Package::getPackageName($controllerClass);
-        // try parent class if no package attribute was found
-        return $package ?? Package::getPackageName(get_parent_class($controllerClass) ?: '');
+        $package = Package::getPackageName($controllerClass, true);
+        if ($package) {
+            return $package;
+        }
+
+        $controller = $this->container->get($controllerClass, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        if (!$controller) {
+            return null;
+        }
+
+        return Package::getPackageName($controller::class, true);
     }
 
     private function getCommandPackage(\Throwable $exception): ?string

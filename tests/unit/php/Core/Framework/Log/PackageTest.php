@@ -34,6 +34,16 @@ class PackageTest extends TestCase
     {
         static::assertSame('test', Package::getPackageName(WithPackage::class));
     }
+
+    public function testParentPackage(): void
+    {
+        static::assertSame('test', Package::getPackageName(WithParentPackage::class, true));
+    }
+
+    public function testParentPackageWithoutFlag(): void
+    {
+        static::assertNull(Package::getPackageName(WithParentPackage::class));
+    }
 }
 
 /**
@@ -52,5 +62,14 @@ class NoPackage
  */
 #[Package('test')]
 class WithPackage
+{
+}
+
+/**
+ * @internal
+ *
+ * @package core
+ */
+class WithParentPackage extends WithPackage
 {
 }

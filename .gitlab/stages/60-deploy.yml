@@ -80,7 +80,11 @@ github sync:
   script:
     - >
       for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_TAG:-tmp-${CI_COMMIT_SHORT_SHA}}"
+        if [ "${CI_PIPELINE_SOURCE}" = 'schedule' ] && [ "${CI_COMMIT_TAG}" = '' ]; then
+          .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_BRANCH}"
+        else
+          .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_TAG:-tmp-${CI_COMMIT_SHORT_SHA}}"
+        fi
       done
 
 push split repositories (gitlab):

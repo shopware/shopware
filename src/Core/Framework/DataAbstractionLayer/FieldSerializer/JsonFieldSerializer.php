@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -47,7 +47,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof JsonField) {
-            throw new InvalidSerializerFieldException(JsonField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(JsonField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -68,7 +68,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
     public function decode(Field $field, mixed $value): mixed
     {
         if (!$field instanceof JsonField) {
-            throw new InvalidSerializerFieldException(JsonField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(JsonField::class, $field);
         }
 
         if ($value === null) {

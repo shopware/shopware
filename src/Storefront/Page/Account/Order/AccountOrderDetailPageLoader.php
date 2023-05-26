@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -39,7 +39,7 @@ class AccountOrderDetailPageLoader
      * @throws CategoryNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderDetailPage
     {
@@ -50,7 +50,7 @@ class AccountOrderDetailPageLoader
         $orderId = (string) $request->get('id');
 
         if ($orderId === '') {
-            throw new MissingRequestParameterException('id');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         $criteria = new Criteria([$orderId]);

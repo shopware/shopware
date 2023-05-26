@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -47,7 +47,7 @@ class AddressDetailPageLoader
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidUuidException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext, CustomerEntity $customer): AddressDetailPage
     {

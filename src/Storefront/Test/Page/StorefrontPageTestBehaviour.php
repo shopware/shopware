@@ -13,7 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -70,7 +70,7 @@ trait StorefrontPageTestBehaviour
 
     protected function expectParamMissingException(string $paramName): void
     {
-        $this->expectException(MissingRequestParameterException::class);
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('Parameter "' . $paramName . '" is missing');
     }
 

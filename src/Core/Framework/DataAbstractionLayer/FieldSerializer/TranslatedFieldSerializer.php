@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -21,7 +21,7 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof TranslatedField) {
-            throw new InvalidSerializerFieldException(TranslatedField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TranslatedField::class, $field);
         }
         $key = $field->getPropertyName();
         if (!\array_key_exists($key, $data)) {

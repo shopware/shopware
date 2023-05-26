@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -28,7 +28,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof IntField) {
-            throw new InvalidSerializerFieldException(IntField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(IntField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

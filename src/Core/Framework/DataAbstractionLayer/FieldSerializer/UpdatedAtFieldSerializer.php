@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 class UpdatedAtFieldSerializer extends DateTimeFieldSerializer
 {
     /**
-     * @throws InvalidSerializerFieldException
+     * @throws DataAbstractionLayerException
      */
     public function encode(
         Field $field,
@@ -26,7 +26,7 @@ class UpdatedAtFieldSerializer extends DateTimeFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof UpdatedAtField) {
-            throw new InvalidSerializerFieldException(UpdatedAtField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(UpdatedAtField::class, $field);
         }
         if (!$existence->exists()) {
             return;

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -48,7 +48,11 @@ class SearchController extends StorefrontController
                     return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
                 }
             }
-        } catch (MissingRequestParameterException) {
+        } catch (RoutingException $e) {
+            if ($e->getErrorCode() !== RoutingException::MISSING_REQUEST_PARAMETER_CODE) {
+                throw $e;
+            }
+
             return $this->forwardToRoute('frontend.home.page');
         }
 
@@ -93,7 +97,7 @@ class SearchController extends StorefrontController
     {
         $term = $request->get('search');
         if (!$term) {
-            throw new MissingRequestParameterException('search');
+            throw RoutingException::missingRequestParameter('search');
         }
 
         // Allows to fetch only aggregations over the gateway.

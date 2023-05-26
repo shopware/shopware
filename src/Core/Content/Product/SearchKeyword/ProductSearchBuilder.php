@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,7 +36,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
         $term = trim($term);
         if (empty($term)) {
-            throw new MissingRequestParameterException('search');
+            throw RoutingException::missingRequestParameter('search');
         }
 
         $pattern = $this->interpreter->interpret($term, $context->getContext());

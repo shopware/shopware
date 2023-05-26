@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class ListFieldSerializer extends AbstractFieldSerializer
 {
     /**
-     * @throws InvalidSerializerFieldException
+     * @throws DataAbstractionLayerException
      */
     public function encode(
         Field $field,
@@ -30,7 +30,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ListField) {
-            throw new InvalidSerializerFieldException(ListField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ListField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

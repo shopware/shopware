@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer;
@@ -90,8 +90,8 @@ class VariantListingConfigFieldSerializerTest extends TestCase
         try {
             iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
             static::fail('encode with incorrect field');
-        } catch (\Exception $e) {
-            static::assertInstanceOf(InvalidSerializerFieldException::class, $e);
+        } catch (DataAbstractionLayerException $e) {
+            static::assertSame(DataAbstractionLayerException::INVALID_FIELD_SERIALIZER_CODE, $e->getErrorCode());
         }
     }
 

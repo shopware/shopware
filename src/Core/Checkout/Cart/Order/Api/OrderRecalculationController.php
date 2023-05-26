@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -63,11 +63,11 @@ class OrderRecalculationController extends AbstractController
         $priceDefinition = $request->request->all('priceDefinition');
 
         if ($label !== null && !\is_string($label)) {
-            throw new InvalidRequestParameterException('label');
+            throw RoutingException::invalidRequestParameter('label');
         }
 
         if ($description !== null && !\is_string($description)) {
-            throw new InvalidRequestParameterException('description');
+            throw RoutingException::invalidRequestParameter('description');
         }
 
         $lineItem->setLabel($label);
@@ -146,11 +146,11 @@ class OrderRecalculationController extends AbstractController
         $priceDefinition = $request->request->all('priceDefinition');
 
         if ($label !== null && !\is_string($label)) {
-            throw new InvalidRequestParameterException('label');
+            throw RoutingException::invalidRequestParameter('label');
         }
 
         if ($description !== null && !\is_string($description)) {
-            throw new InvalidRequestParameterException('description');
+            throw RoutingException::invalidRequestParameter('description');
         }
 
         $lineItem->setLabel($label);

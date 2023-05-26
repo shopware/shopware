@@ -22,7 +22,7 @@ use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -57,7 +57,7 @@ class LandingPageLoaderTest extends TestCase
         $request = new Request([], [], []);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        static::expectExceptionObject(new MissingRequestParameterException('landingPageId', '/landingPageId'));
+        static::expectExceptionObject(RoutingException::missingRequestParameter('landingPageId', '/landingPageId'));
         $landingPageLoader->load($request, $salesChannelContext);
     }
 

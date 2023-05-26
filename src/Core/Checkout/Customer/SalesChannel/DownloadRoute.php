@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +48,7 @@ class DownloadRoute extends AbstractDownloadRoute
         }
 
         if ($downloadId === false || $orderId === false) {
-            throw new MissingRequestParameterException(!$downloadId ? 'downloadId' : 'orderId');
+            throw RoutingException::missingRequestParameter(!$downloadId ? 'downloadId' : 'orderId');
         }
 
         $criteria = new Criteria([$downloadId]);

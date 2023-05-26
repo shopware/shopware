@@ -13,7 +13,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,7 +64,7 @@ class DownloadRouteTest extends TestCase
     {
         $this->salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
-        static::expectException(MissingRequestParameterException::class);
+        static::expectException(RoutingException::class);
         $this->downloadRoute->load(new Request(), $this->salesChannelContext);
     }
 

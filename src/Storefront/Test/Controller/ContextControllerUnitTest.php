@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeLanguageRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -35,7 +35,7 @@ class ContextControllerUnitTest extends TestCase
             $this->createMock(RouterInterface::class)
         );
 
-        $this->expectException(MissingRequestParameterException::class);
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('Parameter "languageId" is missing.');
 
         $controller->switchLanguage(new Request(), $this->createMock(SalesChannelContext::class));

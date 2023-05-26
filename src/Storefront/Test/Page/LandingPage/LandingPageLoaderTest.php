@@ -9,7 +9,7 @@ use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
@@ -31,7 +31,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoadWithoutId(): void
     {
-        $this->expectExceptionObject(new MissingRequestParameterException('landingPageId', '/landingPageId'));
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('landingPageId', '/landingPageId'));
 
         $context = $this->createSalesChannelContextWithNavigation();
         $this->getPageLoader()->load(new Request(), $context);

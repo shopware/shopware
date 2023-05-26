@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -48,7 +48,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof PasswordField) {
-            throw new InvalidSerializerFieldException(PasswordField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(PasswordField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

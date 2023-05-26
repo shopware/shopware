@@ -7,8 +7,8 @@ use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -86,7 +86,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
 
     public function testFieldArgumentNotInstanceOfFlowTemplateConfigField(): void
     {
-        static::expectException(InvalidSerializerFieldException::class);
+        static::expectException(DataAbstractionLayerException::class);
 
         $this->encode([
             'eventName' => 111,

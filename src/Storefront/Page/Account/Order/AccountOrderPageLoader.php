@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
@@ -45,7 +45,7 @@ class AccountOrderPageLoader
      * @throws CustomerNotLoggedInException
      * @throws GuestNotAuthenticatedException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws WrongGuestCredentialsException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderPage

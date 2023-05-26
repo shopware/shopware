@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -42,7 +42,7 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof VariantListingConfigField) {
-            throw new InvalidSerializerFieldException(VariantListingConfigField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(VariantListingConfigField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -35,7 +35,7 @@ class AccountRecoverPasswordPageLoader
     /**
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws ConstraintViolationException
      */
     public function load(Request $request, SalesChannelContext $context, string $hash): AccountRecoverPasswordPage

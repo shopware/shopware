@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -81,7 +81,7 @@ class DocumentController extends AbstractController
         $documentIds = $request->get('documentIds', []);
 
         if (!\is_array($documentIds) || empty($documentIds)) {
-            throw new InvalidRequestParameterException('documentIds');
+            throw RoutingException::invalidRequestParameter('documentIds');
         }
 
         $download = $request->query->getBoolean('download', true);

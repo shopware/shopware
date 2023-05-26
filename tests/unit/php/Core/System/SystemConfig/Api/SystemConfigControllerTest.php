@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -102,7 +102,7 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        static::expectException(MissingRequestParameterException::class);
+        static::expectException(RoutingException::class);
         static::expectExceptionMessage('Parameter "domain" is missing.');
         $controller->getConfiguration($request, $context);
     }
@@ -118,7 +118,7 @@ class SystemConfigControllerTest extends TestCase
         $request = new Request();
         $request->query->set('domain', '');
 
-        static::expectException(MissingRequestParameterException::class);
+        static::expectException(RoutingException::class);
         static::expectExceptionMessage('Parameter "domain" is missing.');
         $controller->getConfigurationValues($request);
     }

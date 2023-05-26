@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SystemConfig\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
@@ -47,7 +47,7 @@ class SystemConfigController extends AbstractController
         $domain = (string) $request->query->get('domain');
 
         if ($domain === '') {
-            throw new MissingRequestParameterException('domain');
+            throw RoutingException::missingRequestParameter('domain');
         }
 
         return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
@@ -58,7 +58,7 @@ class SystemConfigController extends AbstractController
     {
         $domain = (string) $request->query->get('domain');
         if ($domain === '') {
-            throw new MissingRequestParameterException('domain');
+            throw RoutingException::missingRequestParameter('domain');
         }
 
         $salesChannelId = $request->query->get('salesChannelId');

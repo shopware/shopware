@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -76,7 +76,7 @@ class MaintenanceController extends StorefrontController
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
-            throw new MissingRequestParameterException('Parameter id missing');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         $cmsPage = $this->maintenancePageLoader->load($id, $request, $salesChannelContext);

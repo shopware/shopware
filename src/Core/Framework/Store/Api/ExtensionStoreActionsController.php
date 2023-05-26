@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,7 +47,7 @@ class ExtensionStoreActionsController extends AbstractController
         $file = $request->files->get('file');
 
         if (!$file) {
-            throw new MissingRequestParameterException('file');
+            throw RoutingException::missingRequestParameter('file');
         }
 
         if ($file->getMimeType() !== 'application/zip') {

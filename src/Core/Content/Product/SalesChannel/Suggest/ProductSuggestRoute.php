@@ -13,7 +13,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,7 +42,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
         if (!$request->get('search')) {
-            throw new MissingRequestParameterException('search');
+            throw RoutingException::missingRequestParameter('search');
         }
 
         $criteria->addFilter(

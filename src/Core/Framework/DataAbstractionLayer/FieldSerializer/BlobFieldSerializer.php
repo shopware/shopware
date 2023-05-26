@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -29,7 +29,7 @@ class BlobFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof BlobField) {
-            throw new InvalidSerializerFieldException(BlobField::class, $field);
+            throw throw DataAbstractionLayerException::invalidSerializerField(BlobField::class, $field);
         }
 
         yield $field->getStorageName() => $data->getValue();

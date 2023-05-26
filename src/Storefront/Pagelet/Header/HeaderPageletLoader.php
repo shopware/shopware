@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
@@ -37,7 +37,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     }
 
     /**
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $context): HeaderPagelet
     {
@@ -45,7 +45,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $navigationId = $request->get('navigationId', $salesChannel->getNavigationCategoryId());
 
         if (!$navigationId) {
-            throw new MissingRequestParameterException('navigationId');
+            throw RoutingException::missingRequestParameter('navigationId');
         }
 
         $languages = $this->getLanguages($context, $request);

@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +43,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         $term = trim($term);
 
         if (empty($term)) {
-            throw new MissingRequestParameterException('search');
+            throw RoutingException::missingRequestParameter('search');
         }
 
         // reset queries and set term to criteria.

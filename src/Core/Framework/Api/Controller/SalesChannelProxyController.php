@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -123,13 +123,13 @@ class SalesChannelProxyController extends AbstractController
     public function assignCustomer(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
         }
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
 
         if (!$request->request->has(self::CUSTOMER_ID)) {
-            throw new MissingRequestParameterException(self::CUSTOMER_ID);
+            throw RoutingException::missingRequestParameter(self::CUSTOMER_ID);
         }
 
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -154,7 +154,7 @@ class SalesChannelProxyController extends AbstractController
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
         }
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
@@ -174,7 +174,7 @@ class SalesChannelProxyController extends AbstractController
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
         }
 
         $contextToken = $this->getContextToken($request);
@@ -190,7 +190,7 @@ class SalesChannelProxyController extends AbstractController
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
         }
 
         $contextToken = $this->getContextToken($request);
@@ -380,7 +380,7 @@ class SalesChannelProxyController extends AbstractController
     private function validateShippingCostsParameters(Request $request): void
     {
         if (!$request->request->has('shippingCosts')) {
-            throw new MissingRequestParameterException('shippingCosts');
+            throw RoutingException::missingRequestParameter('shippingCosts');
         }
 
         $validation = new DataValidationDefinition('shipping-cost');

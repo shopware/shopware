@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -41,14 +42,14 @@ class ProductReviewLoader
      * load reviews for one product. The request must contain the productId
      * otherwise MissingRequestParameterException is thrown
      *
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws InconsistentCriteriaIdsException
      */
     public function load(Request $request, SalesChannelContext $context): ReviewLoaderResult
     {
         $productId = $request->get('parentId') ?? $request->get('productId');
         if (!$productId) {
-            throw new MissingRequestParameterException('productId');
+            throw RoutingException::missingRequestParameter('productId');
         }
 
         $criteria = $this->createCriteria($request, $context);

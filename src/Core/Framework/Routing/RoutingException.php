@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
 class RoutingException extends HttpException
@@ -16,11 +18,29 @@ class RoutingException extends HttpException
 
     public static function invalidRequestParameter(string $name): self
     {
-        return new InvalidRequestParameterException($name);
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new InvalidRequestParameterException($name);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER_CODE,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
     }
 
     public static function missingRequestParameter(string $name, string $path = ''): self
     {
-        return new MissingRequestParameterException($name, $path);
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new MissingRequestParameterException($name, $path);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name, 'path' => $path]
+        );
     }
 }

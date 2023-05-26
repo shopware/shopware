@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,13 +29,13 @@ class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
     /**
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
         $navigationId = (string) $request->query->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
         if (!$navigationId) {
-            throw new MissingRequestParameterException('navigationId');
+            throw RoutingException::missingRequestParameter('navigationId');
         }
 
         $navigation = $this->navigationLoader->load($navigationId, $context, $navigationId, 1);

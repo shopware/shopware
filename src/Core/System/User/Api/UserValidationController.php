@@ -4,7 +4,7 @@ namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\User\Service\UserValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,11 +26,11 @@ class UserValidationController extends AbstractController
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('email')) {
-            throw new MissingRequestParameterException('email');
+            throw RoutingException::missingRequestParameter('email');
         }
 
         if (!$request->request->has('id')) {
-            throw new MissingRequestParameterException('id');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         $email = (string) $request->request->get('email');
@@ -45,11 +45,11 @@ class UserValidationController extends AbstractController
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('username')) {
-            throw new MissingRequestParameterException('username');
+            throw RoutingException::missingRequestParameter('username');
         }
 
         if (!$request->request->has('id')) {
-            throw new MissingRequestParameterException('id');
+            throw RoutingException::missingRequestParameter('id');
         }
 
         $username = (string) $request->request->get('username');

@@ -20,8 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -185,7 +185,7 @@ class AdministrationController extends AbstractController
         if ($isCustomerBoundSalesChannel) {
             $boundSalesChannelId = $request->request->get('boundSalesChannelId');
             if ($boundSalesChannelId !== null && !\is_string($boundSalesChannelId)) {
-                throw new InvalidRequestParameterException('boundSalesChannelId');
+                throw RoutingException::invalidRequestParameter('boundSalesChannelId');
             }
         }
 

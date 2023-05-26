@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +34,7 @@ class PromotionController extends AbstractController
     {
         $codePattern = (string) $request->query->get('codePattern');
         if ($codePattern === '') {
-            throw new MissingRequestParameterException('codePattern');
+            throw RoutingException::missingRequestParameter('codePattern');
         }
         $amount = $request->query->getInt('amount');
 
@@ -69,7 +69,7 @@ class PromotionController extends AbstractController
     {
         $codePattern = (string) $request->query->get('codePattern');
         if ($codePattern === '') {
-            throw new MissingRequestParameterException('codePattern');
+            throw RoutingException::missingRequestParameter('codePattern');
         }
 
         return new JsonResponse($this->codeService->getPreview($codePattern));

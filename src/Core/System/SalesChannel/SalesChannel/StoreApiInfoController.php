@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +36,7 @@ class StoreApiInfoController
 
         $apiType = $this->definitionService->toApiType($apiType);
         if ($apiType === null) {
-            throw new InvalidRequestParameterException('type');
+            throw RoutingException::invalidRequestParameter('type');
         }
 
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $apiType);

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -50,7 +50,7 @@ class ContextController extends StorefrontController
     {
         $languageId = $request->request->get('languageId');
         if (!$languageId || !\is_string($languageId)) {
-            throw new MissingRequestParameterException('languageId');
+            throw RoutingException::missingRequestParameter('languageId');
         }
 
         try {

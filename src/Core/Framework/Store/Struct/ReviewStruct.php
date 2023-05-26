@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionRatingValueException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -89,15 +89,15 @@ class ReviewStruct extends StoreStruct
         $version = $request->request->get('version');
 
         if (!\is_string($authorName) || $authorName === '') {
-            throw new InvalidRequestParameterException('authorName');
+            throw RoutingException::invalidRequestParameter('authorName');
         }
 
         if (!\is_string($headline) || $headline === '') {
-            throw new InvalidRequestParameterException('headline');
+            throw RoutingException::invalidRequestParameter('headline');
         }
 
         if (!\is_int($rating) || !$rating) {
-            throw new InvalidRequestParameterException('rating');
+            throw RoutingException::invalidRequestParameter('rating');
         }
 
         if (self::validateRatingValue($rating)) {
@@ -105,7 +105,7 @@ class ReviewStruct extends StoreStruct
         }
 
         if (!\is_string($version) || $version === '') {
-            throw new InvalidRequestParameterException('version');
+            throw RoutingException::invalidRequestParameter('version');
         }
 
         $data = [

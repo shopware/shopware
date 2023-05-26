@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -27,7 +27,7 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof DateTimeField) {
-            throw new InvalidSerializerFieldException(DateTimeField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(DateTimeField::class, $field);
         }
 
         $value = $data->getValue();
@@ -43,7 +43,7 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         $data->setValue($value);
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        if ($value === null) {
+        if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
             yield $field->getStorageName() => null;
 
             return;

@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -69,6 +71,26 @@ class PluginManagementServiceTest extends TestCase
             $this->createPluginDownloadDataStruct('location', 'app'),
             Context::createDefaultContext()
         );
+    }
+
+    public function testDeleteWhenManaged(): void
+    {
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $this->createMock(PluginZipDetector::class),
+            $this->createMock(PluginExtractor::class),
+            $this->createMock(PluginService::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(CacheClearer::class),
+            new Client(['handler' => new MockHandler()])
+        );
+
+        $plugin = new PluginEntity();
+        $plugin->setManagedByComposer(true);
+        $plugin->setName('Test');
+
+        static::expectException(PluginException::class);
+        $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
     }
 
     /**

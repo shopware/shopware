@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
-use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\XmlReader;
 
@@ -66,14 +65,8 @@ class XmlReaderTest extends TestCase
             ['1111,2222,3333,4444,5555', '1111,2222,3333,4444,5555'],
             ['foo', 'foo'],
             [6, '0b0110'],
+            [-511, '-0777'],
+            ['0877', '0877'],
         ];
-
-        if (\version_compare(InstalledVersions::getVersion('symfony/config') ?? '', '5.4.2', '>=')) {
-            // was fixed for 5.4.2: https://github.com/symfony/symfony/pull/44537
-            yield from [
-                [-511, '-0777'],
-                ['0877', '0877'],
-            ];
-        }
     }
 }

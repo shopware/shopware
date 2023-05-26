@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -26,6 +24,7 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\BaseContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\Tax\TaxCollection;
 use function array_unique;
 
@@ -49,6 +48,9 @@ class BaseContextFactory extends AbstractBaseContextFactory
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function create(string $salesChannelId, array $options = []): BaseContext
     {
         $context = $this->getContext($salesChannelId, $options);
@@ -58,17 +60,16 @@ class BaseContextFactory extends AbstractBaseContextFactory
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)
-            ->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 
-        if (!$salesChannel) {
-            throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
+        if (!$salesChannel instanceof SalesChannelEntity) {
+            throw SalesChannelException::salesChannelNotFound($salesChannelId);
         }
 
         //load active currency, fallback to shop currency
         /** @var CurrencyEntity $currency */
         $currency = $salesChannel->getCurrency();
+
         if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
             $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
             \assert(\is_string($currencyId) && Uuid::isValid($currencyId));
@@ -76,11 +77,10 @@ class BaseContextFactory extends AbstractBaseContextFactory
             $criteria = new Criteria([$currencyId]);
             $criteria->setTitle('base-context-factory::currency');
 
-            /** @var CurrencyEntity|null $currency */
             $currency = $this->currencyRepository->search($criteria, $context)->get($currencyId);
 
-            if (!$currency) {
-                throw new \RuntimeException(sprintf('Currency with id %s not found', $currencyId));
+            if (!$currency instanceof CurrencyEntity) {
+                throw SalesChannelException::currencyNotFound($currencyId);
             }
         }
 
@@ -156,13 +156,12 @@ class BaseContextFactory extends AbstractBaseContextFactory
         $criteria = (new Criteria([$id]))->addAssociation('media');
         $criteria->setTitle('base-context-factory::payment-method');
 
-        /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository
             ->search($criteria, $context)
             ->get($id);
 
-        if (!$paymentMethod) {
-            throw new UnknownPaymentMethodException($id);
+        if (!$paymentMethod instanceof PaymentMethodEntity) {
+            throw SalesChannelException::unknownPaymentMethod($id);
         }
 
         return $paymentMethod;
@@ -215,7 +214,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             'id' => Uuid::fromHexToBytes($salesChannelId),
         ]);
         if ($data === false) {
-            throw new \RuntimeException(sprintf('No context data found for SalesChannel "%s"', $salesChannelId));
+            throw SalesChannelException::noContextData($salesChannelId);
         }
 
         if (isset($session[SalesChannelContextService::ORIGINAL_CONTEXT])) {
@@ -251,10 +250,6 @@ class BaseContextFactory extends AbstractBaseContextFactory
 
     private function getParentLanguageId(string $languageId): ?string
     {
-        if (!Uuid::isValid($languageId)) {
-            throw new LanguageNotFoundException($languageId);
-        }
-
         $data = $this->connection->createQueryBuilder()
             ->select(['LOWER(HEX(language.parent_id))'])
             ->from('language')
@@ -264,7 +259,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             ->fetchOne();
 
         if ($data === false) {
-            throw new LanguageNotFoundException($languageId);
+            throw SalesChannelException::languageNotFound($languageId);
         }
 
         return $data;
@@ -285,12 +280,10 @@ class BaseContextFactory extends AbstractBaseContextFactory
 
             $criteria->setTitle('base-context-factory::country');
 
-            /** @var CountryStateEntity|null $state */
-            $state = $this->countryStateRepository->search($criteria, $context)
-                ->get($countryStateId);
+            $state = $this->countryStateRepository->search($criteria, $context)->get($countryStateId);
 
-            if (!$state) {
-                throw new \RuntimeException(sprintf('Country state with id "%s" not found', $countryStateId));
+            if (!$state instanceof CountryStateEntity) {
+                throw SalesChannelException::countryStateNotFound($countryStateId);
             }
 
             /** @var CountryEntity $country */
@@ -305,10 +298,10 @@ class BaseContextFactory extends AbstractBaseContextFactory
         $criteria = new Criteria([$countryId]);
         $criteria->setTitle('base-context-factory::country');
 
-        /** @var CountryEntity|null $country */
         $country = $this->countryRepository->search($criteria, $context)->get($countryId);
-        if (!$country) {
-            throw new \RuntimeException(sprintf('Country with id "%s" not found', $countryId));
+
+        if (!$country instanceof CountryEntity) {
+            throw SalesChannelException::countryNotFound($countryId);
         }
 
         return ShippingLocation::createFromCountry($country);
@@ -323,13 +316,14 @@ class BaseContextFactory extends AbstractBaseContextFactory
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {
         $current = $sessionOptions[SalesChannelContextService::LANGUAGE_ID] ?? $defaultLanguageId;
-        \assert(\is_string($current) && Uuid::isValid($current));
+
+        if (!\is_string($current) || !Uuid::isValid($current)) {
+            throw SalesChannelException::invalidLanguageId();
+        }
 
         //check provided language is part of the available languages
         if (!\in_array($current, $availableLanguageIds, true)) {
-            throw new \RuntimeException(
-                sprintf('Provided language %s is not in list of available languages: %s', $current, implode(', ', $availableLanguageIds))
-            );
+            throw SalesChannelException::providedLanguageNotAvailable($current, $availableLanguageIds);
         }
 
         if ($current === Defaults::LANGUAGE_SYSTEM) {
@@ -351,10 +345,9 @@ class BaseContextFactory extends AbstractBaseContextFactory
         $criteria->addFilter(new EqualsFilter('currencyId', $currency->getId()));
         $criteria->addFilter(new EqualsFilter('countryId', $shippingLocation->getCountry()->getId()));
 
-        /** @var CurrencyCountryRoundingEntity|null $countryConfig */
         $countryConfig = $this->currencyCountryRepository->search($criteria, $context)->first();
 
-        if ($countryConfig) {
+        if ($countryConfig instanceof CurrencyCountryRoundingEntity) {
             return [$countryConfig->getItemRounding(), $countryConfig->getTotalRounding()];
         }
 

@@ -60,6 +60,10 @@ Application.addServiceProvider('extensionErrorService', () => {
                 },
             ],
         },
+        FRAMEWORK__APP_NOT_COMPATIBLE: {
+            title: 'global.default.error',
+            message: 'sw-extension.errors.appIsNotCompatible',
+        },
     }, {
         title: 'global.default.error',
         message: 'global.notification.unspecifiedSaveErrorMessage',

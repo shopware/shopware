@@ -59,4 +59,18 @@ class ManifestTest extends TestCase
             'tax-provider-2.app',
         ], $manifest->getAllHosts());
     }
+
+    public function testGetEmptyConstraint(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
+
+        static::assertEquals('>=6.4.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
+    }
+
+    public function testFilledConstraint(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/compatibility/manifest.xml');
+
+        static::assertEquals('~6.5.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
+    }
 }

@@ -221,6 +221,7 @@
             <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
+            <argument>%kernel.shopware_version%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

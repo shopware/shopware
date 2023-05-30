@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\ConnectionException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -41,6 +42,7 @@ class SyncController extends AbstractController
     #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse
     {
+        /** @var list<string> $indexingSkips */
         $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         $behavior = new SyncBehavior(
@@ -55,7 +57,18 @@ class SyncController extends AbstractController
             if (isset($operation['key'])) {
                 $key = $operation['key'];
             }
-            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
+            $key = (string) $key;
+            $operations[] = new SyncOperation(
+                $key,
+                $operation['entity'],
+                $operation['action'],
+                $operation['payload'] ?? [],
+                $operation['criteria'] ?? []
+            );
+
+            if (empty($operation['entity'])) {
+                throw ApiException::invalidSyncOperationException(sprintf('Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.', (string) $key));
+            }
         }
 
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));

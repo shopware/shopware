@@ -7445,11 +7445,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 
 		-
-			message: "#^Parameter \\#2 \\$skipIndexers of class Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncBehavior constructor expects list\\<string\\>, array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/SyncController.php
-
-		-
 			message: "#^Anonymous variable in a `\\$event\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Core/Framework/Api/Controller/UserController.php

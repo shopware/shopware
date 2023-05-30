@@ -508,5 +508,10 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
+
+        <service id="Shopware\Core\Content\Product\Api\ProductNumberFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

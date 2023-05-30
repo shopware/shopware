@@ -13,12 +13,14 @@ class SyncOperation extends Struct
 
     /**
      * @param array<int, mixed> $payload
+     * @param array<int, mixed> $criteria
      */
     public function __construct(
         protected string $key,
         protected string $entity,
         protected string $action,
-        protected array $payload
+        protected array $payload,
+        protected array $criteria = []
     ) {
     }
 
@@ -88,5 +90,28 @@ class SyncOperation extends Struct
         }
 
         return $errors;
+    }
+
+    /**
+     * @internal used to replace payload in case of api shorthands (e.g. delete mappings with wild cards, etc)
+     *
+     * @param array<int, mixed> $payload
+     */
+    public function replacePayload(array $payload): void
+    {
+        $this->payload = $payload;
+    }
+
+    /**
+     * @return array<int, mixed> $criteria
+     */
+    public function getCriteria(): array
+    {
+        return $this->criteria;
+    }
+
+    public function hasCriteria(): bool
+    {
+        return !empty($this->criteria);
     }
 }

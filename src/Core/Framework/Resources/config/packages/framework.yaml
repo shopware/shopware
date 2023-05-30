@@ -235,58 +235,7 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
             log_level: notice
+        Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
+            log_level: notice
         Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException:
-            log_level: notice
-        Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
-            log_level: notice
-        Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
-            log_level: notice
-        Shopware\Core\Framework\App\Exception\AppRegistrationException:
-            log_level: notice
-        Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException:
-            log_level: notice
-        Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\Content\Media\Exception\MissingFileException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\Content\ProductExport\Exception\RenderHeaderException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\Content\ProductExport\Exception\RenderFooterException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\Content\ProductExport\Exception\RenderProductException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\Content\ProductExport\Exception\EmptyExportException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\Content\Media\Exception\UploadException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\System\Country\Exception\CountryStateNotFoundException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception will be removed
-        Shopware\Core\System\Country\Exception\CountryNotFoundException:
-            log_level: notice
-        Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
-            log_level: notice
-        # deprecated tag:v6.6.0 - Exception become internal
-        Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidDocumentException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\DocumentGenerationException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException:
-            log_level: notice
-        Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException:
-            log_level: notice
-        Shopware\Core\Content\Product\Exception\VariantNotFoundException:
-            log_level: notice
-        Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException:
             log_level: notice

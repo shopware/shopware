@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -70,10 +69,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
 
         $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
         if (!$accessKey) {
-            throw ApiException::unauthorized(
-                'header',
-                sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY)
-            );
+            throw ApiException::unauthorized('header', sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
         }
 
         $origin = AccessKeyHelper::getOrigin($accessKey);
@@ -113,7 +109,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             ->executeQuery()
             ->fetchAssociative();
 
-        if (!\is_array($salesChannelData)) {
+        if (!$salesChannelId) {
             throw ApiException::salesChannelNotFound();
         }
 

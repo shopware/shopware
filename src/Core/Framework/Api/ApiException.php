@@ -29,7 +29,7 @@ class ApiException extends HttpException
     public const API_INVALID_SYNC_CRITERIA_EXCEPTION = 'API_INVALID_SYNC_CRITERIA_EXCEPTION';
     public const API_RESOLVER_NOT_FOUND_EXCEPTION = 'API_RESOLVER_NOT_FOUND_EXCEPTION';
 
-    public const API_UNSUPPORTED_ASSOCIATION_FIELD = 'FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION';
+    public const API_UNSUPPORTED_ASSOCIATION_FIELD = 'API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION';
     public const API_INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__INVALID_SYNC_OPERATION';
     public const API_INVALID_SCHEMA_DEFINITION_EXCEPTION = 'FRAMEWORK__INVALID_SCHEMA_DEFINITION';
 
@@ -47,6 +47,17 @@ class ApiException extends HttpException
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
 
     public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
+
+    public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
+
+    public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
+    public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
+    public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
+    public const API_APP_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__APP_ID_PARAMETER_IS_MISSING';
+    public const API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING';
+    public const API_CUSTOMER_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING';
+    public const API_SHIPPING_COSTS_PARAMETER_IS_MISSING = 'FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING';
+    public const API_UNABLE_GENERATE_BUNDLE = 'FRAMEWORK__API_UNABLE_GENERATE_BUNDLE';
 
     public static function invalidSyncCriteriaException(string $operationKey): self
     {
@@ -259,42 +270,6 @@ class ApiException extends HttpException
             self::API_UNABLE_GENERATE_BUNDLE,
             'Unable to generate bundle directory for bundle "{{ bundleName }}".',
             ['bundleName' => $bundleName]
-        );
-    }
-
-    public static function invalidSchemaDefinitions(string $filename, \JsonException $exception): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
-            \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
-        );
-    }
-
-    public static function invalidAccessKey(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_INVALID_ACCESS_KEY_EXCEPTION,
-            'Access key is invalid and could not be identified.',
-        );
-    }
-
-    public static function invalidAccessKeyIdentifier(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION,
-            'Given identifier for access key is invalid.',
-        );
-    }
-
-    public static function salesChannelInMaintenanceMode(): self
-    {
-        return new self(
-            Response::HTTP_SERVICE_UNAVAILABLE,
-            self::API_SALES_CHANNEL_MAINTENANCE_MODE,
-            'The sales channel is in maintenance mode.',
         );
     }
 }

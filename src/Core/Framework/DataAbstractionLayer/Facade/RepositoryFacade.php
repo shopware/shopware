@@ -37,7 +37,7 @@ class RepositoryFacade
      * The `search()` method allows you to search for Entities that match a given criteria.
      *
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
-     * @param array<string, mixed> $criteria The criteria used for your search.
+     * @param array<mixed> $criteria The criteria used for your search.
      *
      * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
      *
@@ -56,7 +56,7 @@ class RepositoryFacade
      * The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
      *
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
-     * @param array<string, mixed> $criteria The criteria used for your search.
+     * @param array<mixed> $criteria The criteria used for your search.
      *
      * @return IdSearchResult A `IdSearchResult` including all entity-ids that matched your criteria.
      *
@@ -73,7 +73,7 @@ class RepositoryFacade
      * The `aggregate()` method allows you to execute aggregations specified in the given criteria.
      *
      * @param string $entityName The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
-     * @param array<string, mixed> $criteria The criteria that define your aggregations.
+     * @param array<mixed> $criteria The criteria that define your aggregations.
      *
      * @return AggregationResultCollection A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
      *
@@ -87,7 +87,7 @@ class RepositoryFacade
     }
 
     /**
-     * @param array<string, mixed> $criteria
+     * @param array<mixed> $criteria
      */
     private function prepareCriteria(string $entityName, array $criteria): Criteria
     {

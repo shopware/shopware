@@ -158,7 +158,7 @@ class ApiController extends AbstractController
     #[Route(path: '/api/_action/version/{versionId}/{entity}/{entityId}', name: 'api.deleteVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
-        if (!Uuid::isValid($versionId)) {
+        if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw ApiException::invalidVersionId($versionId);
         }
 
@@ -166,7 +166,7 @@ class ApiController extends AbstractController
             throw ApiException::deleteLiveVersion();
         }
 
-        if (!Uuid::isValid($entityId)) {
+        if ($entityId !== null && !Uuid::isValid($entityId)) {
             throw ApiException::invalidVersionId($versionId);
         }
 
@@ -244,6 +244,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
+        /** @var IdSearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): IdSearchResult => $repository->searchIds($criteria, $context));
 
         return new JsonResponse([
@@ -927,7 +928,7 @@ class ApiController extends AbstractController
                 case 'application/json':
                     return $request->request->all();
             }
-        } catch (InvalidArgumentException|UnexpectedValueException $exception) {
+        } catch (InvalidArgumentException | UnexpectedValueException $exception) {
             throw ApiException::badRequest($exception->getMessage());
         }
 

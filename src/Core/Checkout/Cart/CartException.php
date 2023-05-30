@@ -373,9 +373,4 @@ class CartException extends HttpException
             'Parameter "prices" is missing.',
         );
     }
-
-    public static function addressNotFound(string $id): ShopwareHttpException
-    {
-        return new AddressNotFoundException($id);
-    }
 }

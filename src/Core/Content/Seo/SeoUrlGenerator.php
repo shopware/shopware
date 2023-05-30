@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\LandingPage\LandingPageCollection;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;

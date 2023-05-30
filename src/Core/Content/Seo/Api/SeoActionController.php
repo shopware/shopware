@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Seo\Api;
 
-use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -155,12 +154,6 @@ class SeoActionController extends AbstractController
 
         if ($salesChannel === null) {
             throw SeoException::salesChannelNotFound($salesChannelId);
-        }
-
-        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
-            if (Feature::isActive('v6.6.0.0')) {
-                return new Response('', Response::HTTP_NO_CONTENT);
-            }
         }
 
         $this->seoUrlPersister->updateSeoUrls(

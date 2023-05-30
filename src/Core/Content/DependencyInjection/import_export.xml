@@ -10,7 +10,6 @@
         </parameter>
         <parameter key="import_export.supported_file_types" type="collection">
             <parameter>text/csv</parameter>
-<!--            <parameter>text/xml</parameter>-->
         </parameter>
         <parameter key="import_export.read_buffer_size">100</parameter>
         <parameter key="import_export.write_buffer_size">100</parameter>
@@ -19,19 +18,19 @@
 
     <services>
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_profile"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_log"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_file"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition">
-            <tag name="shopware.entity.definition"  entity="import_export_profile_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator">

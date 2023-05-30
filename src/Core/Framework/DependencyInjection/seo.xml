@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition">
@@ -14,11 +14,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url_template" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition">
-            <tag name="shopware.entity.definition" entity="main_category" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\MainCategory\SalesChannel\SalesChannelMainCategoryDefinition">

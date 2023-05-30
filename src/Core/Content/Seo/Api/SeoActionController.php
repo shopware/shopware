@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Content\Seo\Api;
 
-use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
-use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
@@ -13,7 +12,6 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
 use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,13 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -101,7 +99,7 @@ class SeoActionController extends AbstractController
         $fk = $data->get('foreignKey');
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
         if (!$seoUrlRoute) {
-            throw new SeoUrlRouteNotFoundException($routeName);
+            throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         $config = $seoUrlRoute->getConfig();
@@ -129,9 +127,13 @@ class SeoActionController extends AbstractController
     #[Route(path: '/api/_action/seo-url/canonical', name: 'api.seo-url.canonical', methods: ['PATCH'])]
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
     {
+        if (!$seoUrl->has('routeName')) {
+            throw SeoException::routeNameParameterIsMissing();
+        }
+
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrl->get('routeName') ?? '');
         if (!$seoUrlRoute) {
-            throw new SeoUrlRouteNotFoundException($seoUrl->get('routeName') ?? '');
+            throw SeoException::seoUrlRouteNotFound($seoUrl->get('routeName'));
         }
 
         $validation = $this->seoUrlValidator->buildValidation($context, $seoUrlRoute->getConfig());
@@ -143,14 +145,14 @@ class SeoActionController extends AbstractController
         $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
 
         if ($salesChannelId === null) {
-            throw RoutingException::missingRequestParameter('salesChannelId');
+            throw SeoException::salesChannelIdParameterIsMissing();
         }
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
 
         if ($salesChannel === null) {
-            throw RoutingException::invalidRequestParameter('salesChannelId');
+            throw SeoException::salesChannelNotFound($salesChannelId);
         }
 
         $this->seoUrlPersister->updateSeoUrls(
@@ -167,7 +169,9 @@ class SeoActionController extends AbstractController
     #[Route(path: '/api/_action/seo-url/create-custom-url', name: 'api.seo-url.create', methods: ['POST'])]
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
-        $urls = $dataBag->get('urls')->all();
+        /** @var ParameterBag $dataBag */
+        $dataBag = $dataBag->get('urls');
+        $urls = $dataBag->all();
 
         /** @var SeoUrlValidationFactory $validatorBuilder */
         $validatorBuilder = $this->seoUrlValidator;
@@ -196,7 +200,7 @@ class SeoActionController extends AbstractController
             $salesChannelEntity = null;
 
             if ($salesChannelId === '') {
-                throw RoutingException::invalidRequestParameter('salesChannelId');
+                throw SeoException::salesChannelIdParameterIsMissing();
             }
 
             /** @var SalesChannelEntity $salesChannelEntity */
@@ -220,7 +224,7 @@ class SeoActionController extends AbstractController
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
         if (!$seoUrlRoute) {
-            throw new SeoUrlRouteNotFoundException($routeName);
+            throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
@@ -228,25 +232,34 @@ class SeoActionController extends AbstractController
 
     private function validateSeoUrlTemplate(Request $request): void
     {
-        $keys = ['template', 'salesChannelId', 'routeName', 'entityName'];
-        foreach ($keys as $key) {
-            if (!$request->request->has($key)) {
-                throw new InvalidTemplateException($key . ' is required');
-            }
+        if (!$request->request->has('template')) {
+            throw SeoException::templateParameterIsMissing();
+        }
+
+        if (!$request->request->has('salesChannelId')) {
+            throw SeoException::salesChannelIdParameterIsMissing();
+        }
+
+        if (!$request->request->has('routeName')) {
+            throw SeoException::routeNameParameterIsMissing();
+        }
+
+        if (!$request->request->has('entityName')) {
+            throw SeoException::entityNameParameterIsMissing();
         }
     }
 
     /**
      * @param array<string, mixed> $seoUrlTemplate
      *
-     * @return list<SeoUrlEntity>
+     * @return array<SeoUrlEntity>
      */
     private function getPreview(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria = null): array
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);
 
         if (!$seoUrlRoute) {
-            throw new SeoUrlRouteNotFoundException($seoUrlTemplate['routeName']);
+            throw SeoException::seoUrlRouteNotFound($seoUrlTemplate['routeName']);
         }
 
         $config = $seoUrlRoute->getConfig();
@@ -262,18 +275,18 @@ class SeoActionController extends AbstractController
         $ids = $repository->searchIds($criteria, $context)->getIds();
 
         if (empty($ids)) {
-            throw new NoEntitiesForPreviewException($repository->getDefinition()->getEntityName(), $seoUrlTemplate['routeName']);
+            throw SeoException::noEntitiesForPreview($repository->getDefinition()->getEntityName(), $seoUrlTemplate['routeName']);
         }
 
         $salesChannelId = $seoUrlTemplate['salesChannelId'] ?? null;
         $template = $seoUrlTemplate['template'] ?? '';
 
-        if ($salesChannelId) {
+        if (\is_string($salesChannelId)) {
             /** @var SalesChannelEntity|null $salesChannel */
             $salesChannel = $this->salesChannelRepository->search((new Criteria([$salesChannelId]))->setLimit(1), $context)->get($salesChannelId);
 
             if ($salesChannel === null) {
-                throw new InvalidSalesChannelIdException((string) $salesChannelId);
+                throw SeoException::invalidSalesChannelId($salesChannelId);
             }
         } else {
             /** @var SalesChannelEntity|null $salesChannel */
@@ -286,7 +299,7 @@ class SeoActionController extends AbstractController
         }
 
         if ($salesChannel === null) {
-            throw RoutingException::invalidRequestParameter('salesChannelId');
+            throw SeoException::salesChannelIdParameterIsMissing();
         }
 
         $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);

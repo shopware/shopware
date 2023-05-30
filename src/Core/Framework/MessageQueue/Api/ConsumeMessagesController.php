@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
@@ -45,7 +46,7 @@ class ConsumeMessagesController extends AbstractController
         $receiverName = $request->get('receiver');
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
-            throw new \RuntimeException('No receiver name provided.');
+            throw MessageQueueException::validReceiverNameNotProvided();
         }
 
         $receiver = $this->receiverLocator->get($receiverName);

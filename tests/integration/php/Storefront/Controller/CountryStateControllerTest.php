@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -62,8 +63,8 @@ class CountryStateControllerTest extends TestCase
 
     public function testEmptyCountryId(): void
     {
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Parameter countryId is empty');
+        static::expectException(RoutingException::class);
+        static::expectExceptionMessage('Parameter "countryId" is missing.');
         $this->countryStateController->getCountryData(new Request([], ['countryId' => null]), $this->salesChannelContext);
     }
 

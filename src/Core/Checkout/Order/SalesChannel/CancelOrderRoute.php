@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -57,14 +56,14 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     private function verify(string $orderId, SalesChannelContext $context): void
     {
         if ($context->getCustomer() === null) {
-            throw CartException::customerNotLoggedIn();
+            throw OrderException::customerNotLoggedIn();
         }
 
         $criteria = new Criteria([$orderId]);
         $criteria->addFilter(new EqualsFilter('orderCustomer.customerId', $context->getCustomer()->getId()));
 
         if ($this->orderRepository->searchIds($criteria, $context->getContext())->firstId() === null) {
-            throw new EntityNotFoundException('order', $orderId);
+            throw OrderException::orderNotFound($orderId);
         }
     }
 }

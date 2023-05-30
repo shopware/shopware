@@ -175,7 +175,7 @@ class AdministrationController extends AbstractController
     {
         $params = [];
         if (!$request->request->has('email')) {
-            throw new \InvalidArgumentException('Parameter "email" is missing.');
+            throw RoutingException::missingRequestParameter('email');
         }
 
         $email = (string) $request->request->get('email');
@@ -222,7 +222,7 @@ class AdministrationController extends AbstractController
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('html')) {
-            throw new \InvalidArgumentException('Parameter "html" is missing.');
+            throw RoutingException::missingRequestParameter('html');
         }
 
         $html = (string) $request->request->get('html');
@@ -238,7 +238,7 @@ class AdministrationController extends AbstractController
         $property = $this->definitionInstanceRegistry->getByEntityName($entityName)->getField($propertyName);
 
         if ($property === null) {
-            throw new \InvalidArgumentException('Invalid field property provided.');
+            throw RoutingException::invalidRequestParameter($field);
         }
 
         $flag = $property->getFlag(AllowHtml::class);

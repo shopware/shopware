@@ -73,7 +73,7 @@ class AdminSearchControllerTest extends TestCase
         $request->attributes->set('term', '   ');
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Search term is empty');
+        $this->expectExceptionMessage('Parameter "term" is missing.');
 
         $controller->elastic($request, Context::createDefaultContext());
     }

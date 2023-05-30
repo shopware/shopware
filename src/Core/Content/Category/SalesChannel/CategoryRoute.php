@@ -4,7 +4,8 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
@@ -55,7 +56,7 @@ class CategoryRoute extends AbstractCategoryRoute
                 || $category->getType() === CategoryDefinition::TYPE_LINK)
             && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
         ) {
-            throw new CategoryNotFoundException($navigationId);
+            throw CategoryException::categoryNotFound($navigationId);
         }
 
         $pageId = $category->getCmsPageId();
@@ -85,7 +86,9 @@ class CategoryRoute extends AbstractCategoryRoute
             throw new PageNotFoundException($pageId);
         }
 
-        $category->setCmsPage($pages->get($pageId));
+        /** @var CmsPageEntity $page */
+        $page = $pages->get($pageId);
+        $category->setCmsPage($page);
         $category->setCmsPageId($pageId);
 
         return new CategoryRouteResponse($category);
@@ -102,8 +105,8 @@ class CategoryRoute extends AbstractCategoryRoute
             ->search($criteria, $context)
             ->get($categoryId);
 
-        if (!$category) {
-            throw new CategoryNotFoundException($categoryId);
+        if (!$category instanceof CategoryEntity) {
+            throw CategoryException::categoryNotFound($categoryId);
         }
 
         return $category;

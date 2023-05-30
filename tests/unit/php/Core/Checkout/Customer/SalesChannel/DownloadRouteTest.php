@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -55,7 +54,8 @@ class DownloadRouteTest extends TestCase
 
     public function testCustomerNotLoggedInException(): void
     {
-        static::expectException(CustomerNotLoggedInException::class);
+        static::expectException(CustomerException::class);
+        static::expectExceptionMessage('Customer is not logged in.');
 
         $this->downloadRoute->load(new Request(), $this->salesChannelContext);
     }
@@ -81,7 +81,8 @@ class DownloadRouteTest extends TestCase
         $request->request->set('downloadId', 'foo');
         $request->request->set('orderId', 'bar');
 
-        static::expectException(FileNotFoundException::class);
+        static::expectException(CustomerException::class);
+        static::expectExceptionMessage('Line item download file with id "foo" not found.');
         $this->downloadRoute->load($request, $this->salesChannelContext);
     }
 

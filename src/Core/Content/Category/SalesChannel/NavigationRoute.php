@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -134,7 +134,7 @@ class NavigationRoute extends AbstractNavigationRoute
         ', ['activeId' => Uuid::fromHexToBytes($activeId), 'rootId' => Uuid::fromHexToBytes($rootId)]);
 
         if (!$result) {
-            throw new CategoryNotFoundException($activeId);
+            throw CategoryException::categoryNotFound($activeId);
         }
 
         return FetchModeHelper::groupUnique($result);
@@ -148,7 +148,7 @@ class NavigationRoute extends AbstractNavigationRoute
     private function getMetaInfoById(string $id, array $metaInfo): array
     {
         if (!\array_key_exists($id, $metaInfo)) {
-            throw new CategoryNotFoundException($id);
+            throw CategoryException::categoryNotFound($id);
         }
 
         return $metaInfo[$id];
@@ -208,7 +208,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
         }
 
-        throw new CategoryNotFoundException($activeId);
+        throw CategoryException::categoryNotFound($activeId);
     }
 
     private function isChildCategory(string $activeId, ?string $path, string $rootId): bool

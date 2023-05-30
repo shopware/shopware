@@ -8,9 +8,12 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\TemplateDataStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Feature;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\TemplateDataStorer
@@ -19,8 +22,9 @@ class TemplateDataStorerTest extends TestCase
 {
     private TemplateDataStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $this->storer = new TemplateDataStorer();
     }
 
@@ -34,7 +38,7 @@ class TemplateDataStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(TemplateDataAware::TEMPLATE_DATA, $stored);
@@ -44,7 +48,7 @@ class TemplateDataStorerTest extends TestCase
     {
         $templateData = ['data' => 'test'];
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -64,7 +68,7 @@ class TemplateDataStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

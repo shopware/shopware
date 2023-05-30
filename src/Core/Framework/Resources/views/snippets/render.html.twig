@@ -1,0 +1,41 @@
+{# @internal #}
+{% apply spaceless %}
+    {% set concatSymbol = ['-', '~'] %}
+    {% set spacelessSymbol = [',', '.'] %}
+
+    {% for line in format %}{% apply spaceless %}
+        {% set lineSnippets = [] %}
+        {% for snippetPath in line %}
+            {% set snippetRendered %}
+                {% sw_include '@Framework/snippets/' ~ snippetPath ~ '.html.twig' %}
+            {% endset %}
+
+            {% set snippetRendered = snippetRendered|trim %}
+
+            {# if the rendered snippet is not blank and the last snippet in line should not be a concat symbol as declared as concatSymbol #}
+            {% if snippetRendered|length > 0 and not (loop.last and snippetRendered in concatSymbol) %}
+                {% set previousSnippet = lineSnippets|last %}
+
+                {% if previousSnippet is not empty%}
+                    {# if the rendered snippet is a comma or dot snippet, remove the space before it and add a space after it #}
+                    {% if snippetRendered in spacelessSymbol %}
+                        {% set lastChar = previousSnippet|slice(-1) %}
+                        {% if not (lastChar in spacelessSymbol) %}
+                            {% set snippetRendered = snippetRendered|trim ~ ' ' %}
+                        {% endif %}
+                    {% else %}
+                        {% set snippetRendered = ' ' ~ snippetRendered|trim %}
+                    {% endif %}
+                {% endif %}
+
+                {% set lineSnippets = lineSnippets|merge([snippetRendered]) %}
+            {% endif %}
+
+            {# if the rendered snippet is blank and the previous snippet is a concat symbol, we can remove the that symbol too #}
+            {% if snippetRendered|length == 0 %}
+                {% set lineSnippets = lineSnippets|slice(0, -1) %}
+            {% endif %}
+        {% endfor %}
+        {% if lineSnippets|length > 0 %}{{ lineSnippets|join('')|trim|raw }}{% if not loop.last %}<br/>{% endif %}{% endif %}
+    {% endapply %}{% endfor %}
+{% endapply %}

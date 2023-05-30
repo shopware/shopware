@@ -2,21 +2,20 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class PrefixFilter extends SingleFieldFilter
 {
-    protected string $field;
+    protected readonly string $value;
 
-    protected string $value;
-
-    /**
-     * @param string|float|int|null $value
-     */
-    public function __construct(string $field, $value)
-    {
-        $this->field = $field;
+    public function __construct(
+        protected readonly string $field,
+        string|bool|float|int|null $value
+    ) {
         $this->value = (string) $value;
     }
 

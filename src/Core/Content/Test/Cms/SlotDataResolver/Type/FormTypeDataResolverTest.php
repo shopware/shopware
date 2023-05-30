@@ -66,9 +66,7 @@ class FormTypeDataResolverTest extends TestCase
         /** @var SalutationCollection $enrichedCollection */
         $enrichedCollection = $formElement->getData();
 
-        $sortedKeys = array_values($enrichedCollection->map(static function (SalutationEntity $salutation) {
-            return $salutation->getSalutationKey();
-        }));
+        $sortedKeys = array_values($enrichedCollection->map(static fn (SalutationEntity $salutation) => $salutation->getSalutationKey()));
 
         static::assertEquals(['d', 'c', 'b', 'a'], $sortedKeys);
     }

@@ -1,12 +1,15 @@
+/**
+ * @package system-settings
+ */
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-snippet-detail', {
+export default {
     template,
 
     inject: [
@@ -59,7 +62,7 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         snippetSetCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
 
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
@@ -352,4 +355,4 @@ Component.register('sw-settings-snippet-detail', {
             };
         },
     },
-});
+};

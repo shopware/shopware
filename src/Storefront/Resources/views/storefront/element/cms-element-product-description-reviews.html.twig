@@ -1,4 +1,4 @@
-{% block element_product_desciption_reviews %}
+{% block element_product_description_reviews %}
     {% set config = element.fieldConfig.elements %}
     {% set product = element.data.product %}
     {% set descriptionTabId = "description-tab-" ~ product.id %}
@@ -9,23 +9,28 @@
     {% set reviewTabContent = "review-tab-" ~ product.id ~ "-pane" %}
 
     {% if element.data.product %}
-        <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
+        <div class="product-detail-tabs cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
             {% if config.alignment.value %}
                 <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
                 <div class="card card-tabs">
-                    {% block element_product_desciption_reviews_tabs_navigation %}
+                    {% block element_product_description_reviews_tabs_navigation %}
                         <div class="cms-card-header card-header product-detail-tab-navigation product-description-reviews-tab-navigation">
-                            {% block element_product_desciption_reviews_tabs_navigation_container %}
+                            {% block element_product_description_reviews_tabs_navigation_container %}
                                 <ul class="nav nav-tabs product-detail-tab-navigation-list"
                                     id="product-detail-tabs"
                                     role="tablist">
-                                    {% block element_product_desciption_reviews_tabs_navigation_description %}
+                                    {% block element_product_description_reviews_tabs_navigation_description %}
                                         <li class="nav-item">
                                             <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link description-tab"
                                                id="{{ descriptionTabId }}"
-                                               {{ dataBsToggleAttr }}="tab"
-                                               data-offcanvas-tabs="true"
+                                               data-bs-toggle="tab"
+                                                {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                                {% if feature('v6.6.0.0') %}
+                                                    data-off-canvas-tabs="true"
+                                                {% else %}
+                                                    data-offcanvas-tabs="true"
+                                                {% endif %}
                                                href="{{ descriptionTabHref }}"
                                                role="tab"
                                                aria-controls="{{ descriptionTabContent }}"
@@ -51,13 +56,18 @@
                                         </li>
                                     {% endblock %}
 
-                                    {% block element_product_desciption_reviews_tabs_navigation_review %}
+                                    {% block element_product_description_reviews_tabs_navigation_review %}
                                         {% if config('core.listing.showReview') %}
                                             <li class="nav-item">
                                                 <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link review-tab"
                                                    id="{{ reviewTabId }}"
-                                                   {{ dataBsToggleAttr }}="tab"
-                                                   data-offcanvas-tabs="true"
+                                                   data-bs-toggle="tab"
+                                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                                    {% if feature('v6.6.0.0') %}
+                                                        data-off-canvas-tabs="true"
+                                                    {% else %}
+                                                        data-offcanvas-tabs="true"
+                                                    {% endif %}
                                                    href="{{ reviewTabHref }}"
                                                    role="tab"
                                                    aria-controls="{{ reviewTabContent }}"
@@ -75,11 +85,11 @@
                         </div>
                     {% endblock %}
 
-                    {% block element_product_desciption_reviews_tabs_content %}
+                    {% block element_product_description_reviews_tabs_content %}
                         <div class="product-detail-tabs-content card-body">
-                            {% block element_product_desciption_reviews_tabs_content_container %}
+                            {% block element_product_description_reviews_tabs_content_container %}
                                 <div class="tab-content">
-                                    {% block element_product_desciption_reviews_tabs_content_description %}
+                                    {% block element_product_description_reviews_tabs_content_description %}
                                         <div class="tab-pane fade show {% if (element.data.ratingSuccess != 1) and (element.data.ratingSuccess != -1) %}active{% endif %}"
                                              id="{{ descriptionTabContent }}"
                                              role="tabpanel"
@@ -90,7 +100,7 @@
                                         </div>
                                     {% endblock %}
 
-                                    {% block element_product_desciption_reviews_tabs_content_review %}
+                                    {% block element_product_description_reviews_tabs_content_review %}
                                         {% if config('core.listing.showReview') %}
                                             <div class="tab-pane fade show {% if (element.data.ratingSuccess == 1) or (element.data.ratingSuccess == -1) %}active{% endif %}"
                                                  id="{{ reviewTabContent }}"

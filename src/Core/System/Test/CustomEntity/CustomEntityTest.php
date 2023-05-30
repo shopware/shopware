@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\System\Test\CustomEntity;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
@@ -36,7 +36,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -61,6 +60,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -103,7 +103,7 @@ class CustomEntityTest extends TestCase
             $definition = $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity);
 
             foreach ($definition->getFields() as $field) {
-                if (\str_starts_with($field->getPropertyName(), 'customEntity')) {
+                if (\str_starts_with((string) $field->getPropertyName(), 'customEntity')) {
                     $definition->getFields()->remove($field->getPropertyName());
                 }
             }
@@ -119,6 +119,8 @@ class CustomEntityTest extends TestCase
 
         $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
         static::assertCount(0, $categories);
+
+        $container->get(Connection::class)->executeStatement('DROP TABLE IF EXISTS `test_with_enum_column`');
     }
 
     /**
@@ -167,7 +169,7 @@ class CustomEntityTest extends TestCase
 
         $this->getContainer()
             ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage(), null);
+            ->update($entities->toStorage());
 
         $this->getContainer()
             ->get(CustomEntitySchemaUpdater::class)
@@ -182,7 +184,7 @@ class CustomEntityTest extends TestCase
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/update.xml');
         $this->getContainer()
             ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage(), null);
+            ->update($entities->toStorage());
 
         $this->getContainer()
             ->get(CustomEntitySchemaUpdater::class)
@@ -225,12 +227,36 @@ class CustomEntityTest extends TestCase
         self::cleanUp($this->getContainer());
     }
 
+    public function testPersistsCustomEntitiesIfSchemaContainsEnumColumns(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->executeStatement('
+            CREATE TABLE test_with_enum_column (
+                id BINARY(16) NOT NULL PRIMARY KEY,
+                enum_column ENUM(\'foo\', \'bar\') DEFAULT NULL
+            )
+        ');
+
+        $columns = $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative();
+
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/custom-entity-test', false);
+
+        $schema = $this->getSchema();
+        static::assertTrue($schema->hasTable('test_with_enum_column'));
+        static::assertTrue($schema->hasTable('custom_entity_blog'));
+        static::assertTrue($schema->hasTable('ce_blog_comment'));
+        static::assertEquals($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
+
+        self::cleanUp($this->getContainer());
+    }
+
     private function testStorage(ContainerInterface $container): void
     {
         $schema = $container
             ->get(Connection::class)
-            ->getSchemaManager()
-            ->createSchema();
+            ->createSchemaManager()
+            ->introspectSchema();
 
         self::assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_restrict_id', 'top_seller_restrict_version_id', 'top_seller_cascade_id', 'top_seller_cascade_version_id', 'top_seller_set_null_id', 'top_seller_set_null_version_id', 'link_product_restrict_id', 'link_product_restrict_version_id', 'link_product_cascade_id', 'link_product_cascade_version_id', 'link_product_set_null_id', 'link_product_set_null_version_id', 'inherited_top_seller_id', 'inherited_top_seller_version_id', 'created_at', 'updated_at', 'position', 'rating', 'payload', 'email']);
         self::assertColumns($schema, 'custom_entity_blog_translation', ['custom_entity_blog_id', 'language_id', 'created_at', 'updated_at', 'title', 'content', 'display']);
@@ -243,14 +269,14 @@ class CustomEntityTest extends TestCase
 
     private function testEventSystem(IdsCollection $ids, ContainerInterface $container): void
     {
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
 
         $blogRepository->create([self::blog('blog-4', $ids)], Context::createDefaultContext());
 
         $event = $blogRepository->delete([['id' => $ids->get('blog-4')]], Context::createDefaultContext());
 
-        static::assertSame(EntityWrittenContainerEvent::class, \get_class($event));
+        static::assertSame(EntityWrittenContainerEvent::class, $event::class);
         static::assertCount(1, $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('blog-4'), $event->getPrimaryKeys('custom_entity_blog'));
 
@@ -330,8 +356,8 @@ class CustomEntityTest extends TestCase
 
     private function testManyToManyInheritance(IdsCollection $ids, ContainerInterface $container): void
     {
-        $blog1 = \array_merge(self::$defaults, ['id' => $ids->get('inh.blog.1')]);
-        $blog2 = \array_merge(self::$defaults, ['id' => $ids->get('inh.blog.2')]);
+        $blog1 = [...self::$defaults, ...['id' => $ids->get('inh.blog.1')]];
+        $blog2 = [...self::$defaults, ...['id' => $ids->get('inh.blog.2')]];
 
         $product = (new ProductBuilder($ids, 'inheritance'))
             ->price(100)
@@ -389,7 +415,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ArrayEntity::class, $blog);
         static::assertEquals($blog2['id'], $blog->getId());
 
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->delete([['id' => $ids->get('inh.blog.2')]], $context);
 
@@ -410,8 +436,8 @@ class CustomEntityTest extends TestCase
 
     private function testOneToOneInheritance(IdsCollection $ids, ContainerInterface $container): void
     {
-        $blog1 = \array_merge(self::$defaults, ['id' => $ids->get('inh.one-to-one.1')]);
-        $blog2 = \array_merge(self::$defaults, ['id' => $ids->get('inh.one-to-one.2')]);
+        $blog1 = [...self::$defaults, ...['id' => $ids->get('inh.one-to-one.1')]];
+        $blog2 = [...self::$defaults, ...['id' => $ids->get('inh.one-to-one.2')]];
 
         $product = (new ProductBuilder($ids, 'inheritance'))
             ->price(100)
@@ -459,7 +485,7 @@ class CustomEntityTest extends TestCase
         static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
 
         $context->addState('debug');
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->delete([['id' => $ids->get('inh.one-to-one.2')]], $context);
 
@@ -476,8 +502,8 @@ class CustomEntityTest extends TestCase
 
     private function testManyToOneInheritance(IdsCollection $ids, ContainerInterface $container): void
     {
-        $blog1 = \array_merge(self::$defaults, ['id' => $ids->get('inh.many-to-one.1')]);
-        $blog2 = \array_merge(self::$defaults, ['id' => $ids->get('inh.many-to-one.2')]);
+        $blog1 = [...self::$defaults, ...['id' => $ids->get('inh.many-to-one.1')]];
+        $blog2 = [...self::$defaults, ...['id' => $ids->get('inh.many-to-one.2')]];
 
         $product = (new ProductBuilder($ids, 'inheritance'))
             ->price(100)
@@ -530,7 +556,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedTopSeller')->first());
         static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
 
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->delete([['id' => $ids->get('inh.many-to-one.2')]], $context);
 
@@ -646,7 +672,7 @@ class CustomEntityTest extends TestCase
         ];
 
         static::assertEquals('custom_entity_blog', $storage[0]['name']);
-        static::assertEquals($fields, json_decode($storage[0]['fields'], true));
+        static::assertEquals($fields, json_decode((string) $storage[0]['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
         $fields = [
             ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true],
@@ -655,7 +681,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'recommendation', 'type' => 'many-to-one', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'inherited' => false, 'onDelete' => 'set-null'],
         ];
         static::assertEquals('ce_blog_comment', $storage[1]['name']);
-        static::assertEquals($fields, json_decode($storage[1]['fields'], true));
+        static::assertEquals($fields, json_decode((string) $storage[1]['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
         static::assertNotNull($storage[0]['created_at']);
         static::assertNotNull($storage[1]['created_at']);
@@ -664,7 +690,7 @@ class CustomEntityTest extends TestCase
 
         $this->getContainer()
             ->get(CustomEntityPersister::class)
-            ->update($entities->toStorage(), null);
+            ->update($entities->toStorage());
 
         $storage = $this->getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM custom_entity ORDER BY name');
@@ -688,7 +714,7 @@ class CustomEntityTest extends TestCase
 
         try {
             $manyToManyRepo->search(new Criteria(), Context::createDefaultContext());
-        } catch (MappingEntityClassesException $exception) {
+        } catch (MappingEntityClassesException) {
             $exceptionWasThrown = true;
         } finally {
             static::assertTrue($exceptionWasThrown, 'Excepted exception to be thrown.');
@@ -739,9 +765,7 @@ class CustomEntityTest extends TestCase
         // create
         $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode(self::blog('blog-1', $ids), \JSON_THROW_ON_ERROR));
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
-        static::assertNull($body);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r((string) $response->getContent(), true));
 
         // update
         $client->request(
@@ -753,14 +777,12 @@ class CustomEntityTest extends TestCase
             \json_encode(['id' => $ids->get('blog-1'), 'title' => 'update'], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
-        static::assertNull($body);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
 
         // list
         $client->request('GET', '/api/custom-entity-blog', ['ids' => [$ids->get('blog-1')]], [], ['HTTP_ACCEPT' => 'application/json']);
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
@@ -782,7 +804,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
         static::assertArrayHasKey('data', $body);
         static::assertEquals('update', $body['data']['title']);
@@ -800,7 +822,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
@@ -822,7 +844,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
@@ -839,14 +861,12 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
-        static::assertNull($body);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
     }
 
     private function testStoreApiAware(IdsCollection $ids, ContainerInterface $container): void
     {
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->create([self::blog('blog-3', $ids)], Context::createDefaultContext());
 
@@ -866,9 +886,9 @@ class CustomEntityTest extends TestCase
         ];
 
         $browser = $this->getSalesChannelBrowser();
-        $browser->request('POST', '/store-api/script/repository-test', $criteria);
+        $browser->request('POST', '/store-api/script/blog', $criteria);
 
-        $response = \json_decode((string) $browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $salesChannelId = $browser->getServerParameter('test-sales-channel-id');
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel WHERE id = :id', ['id' => Uuid::fromHexToBytes($salesChannelId)]);
@@ -876,12 +896,12 @@ class CustomEntityTest extends TestCase
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-repository-test::response', $traces);
-        static::assertCount(1, $traces['store-api-repository-test::response']);
-        static::assertSame('some debug information', $traces['store-api-repository-test::response'][0]['output'][0]);
+        static::assertArrayHasKey('store-api-blog::response', $traces);
+        static::assertCount(1, $traces['store-api-blog::response']);
+        static::assertSame('some debug information', $traces['store-api-blog::response'][0]['output'][0]);
 
         $expected = [
-            'apiAlias' => 'store_api_repository_test_response',
+            'apiAlias' => 'store_api_blog_response',
             'blogs' => [
                 'apiAlias' => 'dal_entity_search_result',
                 'elements' => [
@@ -977,8 +997,8 @@ class CustomEntityTest extends TestCase
     {
         return $this->getContainer()
             ->get(Connection::class)
-            ->getSchemaManager()
-            ->createSchema();
+            ->createSchemaManager()
+            ->introspectSchema();
     }
 
     private static function cleanUp(ContainerInterface $container): void
@@ -987,7 +1007,7 @@ class CustomEntityTest extends TestCase
 
         try {
             $container->get(Connection::class)->executeStatement('DELETE FROM custom_entity_blog');
-        } catch (Exception\TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
         }
 
         $container->get(Connection::class)->executeStatement('DELETE FROM product');
@@ -997,7 +1017,7 @@ class CustomEntityTest extends TestCase
         $container->get(Connection::class)->executeStatement(
             'DELETE FROM app WHERE name IN (:name)',
             ['name' => ['custom-entity-test', 'store-api-custom-entity-test']],
-            ['name' => Connection::PARAM_STR_ARRAY]
+            ['name' => ArrayParameterType::STRING]
         );
 
         $container->get(CustomEntitySchemaUpdater::class)->update();
@@ -1096,14 +1116,14 @@ class CustomEntityTest extends TestCase
 
                 $actual = $definition->getFields()->get($name);
                 static::assertInstanceOf(DAL\Field::class, $actual);
-                static::assertInstanceOf(\get_class($field), $actual, $message . ' - wrong class');
+                static::assertInstanceOf($field::class, $actual, $message . ' - wrong class');
 
                 foreach ($field->getFlags() as $flag) {
-                    static::assertTrue($actual->is(\get_class($flag)), $message . ' - actual is not : ' . \get_class($flag));
+                    static::assertTrue($actual->is($flag::class), $message . ' - actual is not : ' . $flag::class);
                 }
 
                 foreach ($actual->getFlags() as $flag) {
-                    static::assertTrue($field->is(\get_class($flag)), $message . ' - flag not expected: ' . \get_class($flag));
+                    static::assertTrue($field->is($flag::class), $message . ' - flag not expected: ' . $flag::class);
                 }
 
                 if ($field instanceof StorageAware) {

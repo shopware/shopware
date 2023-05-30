@@ -3,26 +3,24 @@
 namespace Shopware\Core\System\StateMachine\Loader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[Package('checkout')]
 class InitialStateIdLoader implements ResetInterface
 {
-    public const CACHE_KEY = 'state-machine-initial-state-ids';
-
-    private Connection $connection;
-
-    private CacheInterface $cache;
+    final public const CACHE_KEY = 'state-machine-initial-state-ids';
 
     private array $ids = [];
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection, CacheInterface $cache)
-    {
-        $this->connection = $connection;
-        $this->cache = $cache;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function reset(): void
@@ -43,10 +41,8 @@ class InitialStateIdLoader implements ResetInterface
 
     private function load(): array
     {
-        return $this->cache->get(self::CACHE_KEY, function () {
-            return $this->connection->fetchAllKeyValue(
-                'SELECT technical_name, LOWER(HEX(`initial_state_id`)) as initial_state_id FROM state_machine'
-            );
-        });
+        return $this->cache->get(self::CACHE_KEY, fn () => $this->connection->fetchAllKeyValue(
+            'SELECT technical_name, LOWER(HEX(`initial_state_id`)) as initial_state_id FROM state_machine'
+        ));
     }
 }

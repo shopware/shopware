@@ -24,9 +24,8 @@
                 v-if="page.type === 'product_list'"
                 class="sw-cms-list-item__is-default"
             >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductList') }}</span>
-            <!-- @deprecated tag:v6.5.0 default layouts for products will be enabled -->
             <span
-                v-else-if="page.type === 'product_detail' && feature.isActive('v6.5.0.0')"
+                v-else-if="page.type === 'product_detail'"
                 class="sw-cms-list-item__is-default"
             >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductDetail') }}</span>
         </div>
@@ -58,7 +57,7 @@
         <sw-icon
             v-if="page && page.locked"
             class="sw-cms-list-item__locked"
-            name="small-lock-closed"
+            name="solid-lock"
             small
         />
     </div>

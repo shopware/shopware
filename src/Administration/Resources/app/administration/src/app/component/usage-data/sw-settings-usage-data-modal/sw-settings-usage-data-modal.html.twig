@@ -1,0 +1,41 @@
+<sw-modal
+    v-if="isVisible"
+    class="sw-settings-usage-data-modal"
+    :title="$tc('sw-usage-data.sw-settings-usage-data-modal.title')"
+    :closable="false"
+    :show-header="false"
+>
+    <sw-settings-usage-data-intro />
+
+    <sw-alert
+        variant="neutral"
+    >
+        <i18n
+            tag="span"
+            path="sw-usage-data.sw-settings-usage-data-modal.alertText"
+        >
+            <template #settings-path>
+                <b>{{ $tc('sw-usage-data.sw-settings-usage-data-modal.alertTextSettingsPath') }}</b>
+            </template>
+        </i18n>
+    </sw-alert>
+
+    <template #modal-footer>
+        <sw-button
+            class="sw-settings-data-usage-modal__decline-button"
+            size="small"
+            @click="saveSystemConfig(false)"
+        >
+            {{ $tc('sw-usage-data.sw-settings-usage-data-modal.decline') }}
+        </sw-button>
+
+        <sw-button
+            class="sw-settings-data-usage-modal__accept-button"
+            variant="primary"
+            size="small"
+            @click="saveSystemConfig(true)"
+        >
+            {{ $tc('sw-usage-data.sw-settings-usage-data-modal.accept') }}
+        </sw-button>
+    </template>
+</sw-modal>

@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1634735841AddedNewsletterSalesChannelIds
  */
 class Migration1634735841AddedNewsletterSalesChannelIdsTest extends TestCase
@@ -53,10 +54,8 @@ class Migration1634735841AddedNewsletterSalesChannelIdsTest extends TestCase
     private function hasColumn(string $table, string $columnName): bool
     {
         return \count(array_filter(
-            $this->connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column) use ($columnName): bool {
-                return $column->getName() === $columnName;
-            }
+            $this->connection->createSchemaManager()->listTableColumns($table),
+            static fn (Column $column): bool => $column->getName() === $columnName
         )) > 0;
     }
 }

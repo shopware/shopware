@@ -2,7 +2,7 @@ variables:
     MYSQL_ROOT_PASSWORD: app
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
     GIT_STRATEGY: clone
-    GIT_DEPTH: 10
+    GIT_DEPTH: 0
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_CMD: mysqld
     PROJECT_ROOT: $CI_PROJECT_DIR
@@ -12,36 +12,57 @@ variables:
     DD_ENV: ci
     DATADOG_SITE: datadoghq.eu
     MYSQL_INITDB_SKIP_TZINFO: 1
-    RUNNER_INSTANCE_TYPE: t3.medium
     DATABASE_URL: mysql://root:app@database:3306/root
     APP_URL: http://localhost:8000
     APP_SECRET: devsecret
-    SHOPWARE_ES_HOSTS: elasticsearch:9200
+    OPENSEARCH_URL: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
-    NODE_VERSION: 16
+    NODE_VERSION: '18.15'
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
 # for jobs which should run on each MR/Pipeline
 .base:
-    image: shopware/development:7.4-composer-2
+    image:
+      name: shopware/development:8.1-composer-2
+      pull_policy: if-not-present
     # we want our base pipeline to finish fast
     timeout: 30m
     interruptible: true
     # do not download assets from previous stages by default
     dependencies: []
-    tags:
-        - $RUNNER_INSTANCE_TYPE
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
         - when: always
+    tags:
+      - shopware
     before_script:
         - !reference [.scripts, install-node, script]
         - cp public/.htaccess.dist public/.htaccess
-        - composer run setup
+        - !reference [ .scripts, init, composer ]
+        - >
+          if [[ -r var/database.sql ]]; then
+              mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
+              mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
+              bin/console system:generate-jwt || true
+              touch install.lock
+              bin/console assets:install
+          else
+              composer run setup
+              composer run e2e:sdk-plugin:fixture-to-plugin
+          fi
         - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     after_script:
         - !reference [.upload-junit-xml, after_script]
+
+.base-with-db:
+  extends: .base
+  services:
+    - name: mariadb:10.4
+      alias: database
+      entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+  dependencies: [ Build ]
 
 # sames as .base just without initializing shopware and starting a web server
 .base-no-setup:
@@ -68,3 +89,17 @@ variables:
 .long-running-no-setup:
     extends: .long-running
     before_script: []
+
+.deploy-job:
+  extends: .long-running
+  tags:
+    -
+  before_script: []
+  rules:
+    # only sync on protected branches
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+
+.deploy-tagged-job:
+  extends: .deploy-job
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'

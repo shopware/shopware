@@ -12,10 +12,7 @@
             {{ selectedValueLabel }}
         </span>
 
-        <sw-icon
-            name="regular-chevron-down-xxs"
-            size="16px"
-        />
+        <sw-icon name="regular-chevron-down-xxs" />
     </div>
 
     <div class="sw-meteor-single-select__result-list">
@@ -31,7 +28,10 @@
             @outside-click="closeResultList"
         >
 
-            <template #before-item-list>
+            <template
+                v-if="searchable"
+                #before-item-list
+            >
                 <slot name="before-item-list">
                     <sw-simple-search-field
                         ref="searchField"

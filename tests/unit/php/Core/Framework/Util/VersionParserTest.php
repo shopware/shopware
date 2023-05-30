@@ -8,6 +8,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\VersionParser
  */
 class VersionParserTest extends TestCase
@@ -26,7 +27,7 @@ class VersionParserTest extends TestCase
     /**
      * @return string[][]
      */
-    public function provideVersions(): array
+    public static function provideVersions(): array
     {
         return [
             [

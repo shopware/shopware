@@ -20,6 +20,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ExtensionDataProviderTest extends TestCase
@@ -32,7 +33,7 @@ class ExtensionDataProviderTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionDataProvider = $this->getContainer()->get(AbstractExtensionDataProvider::class);
         $this->context = $this->createAdminStoreContext();
@@ -95,9 +96,7 @@ class ExtensionDataProviderTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
-            return $extension->getName() !== 'SwagCommercial';
-        });
+        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
         static::assertCount(7, $installedExtensions);
     }
 
@@ -116,9 +115,7 @@ class ExtensionDataProviderTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
-            return $extension->getName() !== 'SwagCommercial';
-        });
+        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
         static::assertCount(1, $installedExtensions);
     }
 
@@ -132,9 +129,7 @@ class ExtensionDataProviderTest extends TestCase
         );
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
-            return $extension->getName() !== 'SwagCommercial';
-        });
+        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
 
         static::assertCount(1, $installedExtensions);
 

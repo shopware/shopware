@@ -3,7 +3,7 @@
 namespace Shopware\Core\Installer\Controller;
 
 use Doctrine\DBAL\Exception\DriverException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -19,40 +19,23 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
+#[Package('core')]
 class DatabaseConfigurationController extends InstallerController
 {
-    private TranslatorInterface $translator;
-
-    private BlueGreenDeploymentService $blueGreenDeploymentService;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    private SetupDatabaseAdapter $setupDatabaseAdapter;
-
-    private DatabaseConnectionFactory $connectionFactory;
-
-    private string $jwtDir;
+    private readonly string $jwtDir;
 
     public function __construct(
-        TranslatorInterface $translator,
-        BlueGreenDeploymentService $blueGreenDeploymentService,
-        JwtCertificateGenerator $jwtCertificateGenerator,
-        SetupDatabaseAdapter $setupDatabaseAdapter,
-        DatabaseConnectionFactory $connectionFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly BlueGreenDeploymentService $blueGreenDeploymentService,
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
+        private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
+        private readonly DatabaseConnectionFactory $connectionFactory,
         string $projectDir
     ) {
-        $this->translator = $translator;
-        $this->blueGreenDeploymentService = $blueGreenDeploymentService;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
-        $this->setupDatabaseAdapter = $setupDatabaseAdapter;
-        $this->connectionFactory = $connectionFactory;
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 
-    /**
-     * @Since("6.4.15.0")
-     * @Route("/installer/database-configuration", name="installer.database-configuration", methods={"POST", "GET"})
-     */
+    #[Route(path: '/installer/database-configuration', name: 'installer.database-configuration', methods: ['POST', 'GET'])]
     public function databaseConfiguration(Request $request): Response
     {
         $session = $request->getSession();
@@ -73,7 +56,7 @@ class DatabaseConfigurationController extends InstallerController
                 $connection = $this->connectionFactory->getConnection($connectionInfo);
             } catch (DriverException $e) {
                 // Unknown database https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html#error_er_bad_db_error
-                if ($e->getErrorCode() !== 1049) {
+                if ($e->getCode() !== 1049) {
                     throw $e;
                 }
 
@@ -116,17 +99,14 @@ class DatabaseConfigurationController extends InstallerController
         return $this->redirectToRoute('installer.database-import');
     }
 
-    /**
-     * @Since("6.4.15.0")
-     * @Route("/installer/database-information", name="installer.database-information", methods={"POST"})
-     */
+    #[Route(path: '/installer/database-information', name: 'installer.database-information', methods: ['POST'])]
     public function databaseInformation(Request $request): JsonResponse
     {
         $connectionInfo = (new DatabaseConnectionInformation())->assign($request->request->all());
 
         try {
             $connection = $this->connectionFactory->getConnection($connectionInfo, true);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return new JsonResponse();
         }
 

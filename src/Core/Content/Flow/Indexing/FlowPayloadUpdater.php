@@ -2,30 +2,27 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('business-ops')]
 class FlowPayloadUpdater
 {
-    private Connection $connection;
-
-    private FlowBuilder $flowBuilder;
-
-    private CacheInvalidator $cacheInvalidator;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, FlowBuilder $flowBuilder, CacheInvalidator $cacheInvalidator)
-    {
-        $this->connection = $connection;
-        $this->flowBuilder = $flowBuilder;
-        $this->cacheInvalidator = $cacheInvalidator;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly FlowBuilder $flowBuilder,
+        private readonly CacheInvalidator $cacheInvalidator
+    ) {
     }
 
     public function update(array $ids): array
@@ -48,7 +45,7 @@ class FlowPayloadUpdater
                 AND (`flow_sequence`.`id` IS NULL OR (`flow_sequence`.`rule_id` IS NOT NULL OR `flow_sequence`.`action_name` IS NOT NULL))
                 AND `flow`.`id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $listFlowSequence = FetchModeHelper::group($listFlowSequence);
@@ -60,17 +57,15 @@ class FlowPayloadUpdater
 
         $updated = [];
         foreach ($listFlowSequence as $flowId => $flowSequences) {
-            usort($flowSequences, function (array $first, array $second) {
-                return [$first['display_group'], $first['parent_id'], $first['true_case'], $first['position']]
-                    <=> [$second['display_group'], $second['parent_id'], $second['true_case'], $second['position']];
-            });
+            usort($flowSequences, fn (array $first, array $second) => [$first['display_group'], $first['parent_id'], $first['true_case'], $first['position']]
+                <=> [$second['display_group'], $second['parent_id'], $second['true_case'], $second['position']]);
 
             $invalid = false;
             $serialized = null;
 
             try {
                 $serialized = serialize($this->flowBuilder->build($flowId, $flowSequences));
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 $invalid = true;
             } finally {
                 $update->execute([

@@ -17,12 +17,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\DatabaseConfigurationController
  * @covers \Shopware\Core\Installer\Controller\InstallerController
  */
@@ -30,44 +32,23 @@ class DatabaseConfigurationControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
 
-    /**
-     * @var Environment&MockObject
-     */
-    private $twig;
+    private MockObject&Environment $twig;
 
-    /**
-     * @var TranslatorInterface&MockObject
-     */
-    private $translator;
+    private MockObject&TranslatorInterface $translator;
 
-    /**
-     * @var BlueGreenDeploymentService&MockObject
-     */
-    private $blueGreenDeploymentService;
+    private MockObject&BlueGreenDeploymentService $blueGreenDeploymentService;
 
-    /**
-     * @var JwtCertificateGenerator&MockObject
-     */
-    private $jwtCertificateGenerator;
+    private MockObject&JwtCertificateGenerator $jwtCertificateGenerator;
 
-    /**
-     * @var SetupDatabaseAdapter&MockObject
-     */
-    private $setupDatabaseAdapter;
+    private MockObject&SetupDatabaseAdapter $setupDatabaseAdapter;
 
-    /**
-     * @var DatabaseConnectionFactory&MockObject
-     */
-    private $connectionFactory;
+    private MockObject&DatabaseConnectionFactory $connectionFactory;
 
-    /**
-     * @var RouterInterface&MockObject
-     */
-    private $router;
+    private MockObject&RouterInterface $router;
 
     private DatabaseConfigurationController $controller;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->twig = $this->createMock(Environment::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
@@ -136,7 +117,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects(static::never())->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-import', [], RouterInterface::ABSOLUTE_PATH)
+            ->with('installer.database-import', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-import');
 
         $request = Request::create('/installer/database-configuration', 'POST', ['databaseName' => 'test']);
@@ -202,11 +183,6 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->connectionFactory->expects(static::exactly(3))
             ->method('getConnection')
-            ->withConsecutive(
-                [static::isInstanceOf(DatabaseConnectionInformation::class)],
-                [static::isInstanceOf(DatabaseConnectionInformation::class), true],
-                [static::isInstanceOf(DatabaseConnectionInformation::class)],
-            )
             ->willReturnOnConsecutiveCalls(
                 static::throwException(new DummyDoctrineException(1049)),
                 $connectionWithoutDb,
@@ -233,7 +209,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects(static::never())->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-import', [], RouterInterface::ABSOLUTE_PATH)
+            ->with('installer.database-import', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-import');
 
         $request = Request::create('/installer/database-configuration', 'POST', ['databaseName' => 'test']);
@@ -355,10 +331,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->setupDatabaseAdapter->expects(static::exactly(2))
             ->method('getTableCount')
-            ->withConsecutive(
-                [$connection, 'empty-db'],
-                [$connection, 'used-db']
-            )->willReturnOnConsecutiveCalls(0, 4);
+            ->willReturnOnConsecutiveCalls(0, 4);
 
         $response = $this->controller->databaseInformation($request);
         static::assertIsString($response->getContent());

@@ -7,142 +7,140 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_address_modal_content %}
-    <template @new-item-active="onNewActiveItem">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_order_create_address_form_modal %}
+    <sw-modal
+        v-if="showAddressFormModal"
+        :title="getAddressFormModalTitle()"
+        @modal-close="onCloseAddressModal"
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_create_address_form_modal %}
-        <sw-modal
-            v-if="showAddressFormModal"
-            :title="getAddressFormModalTitle()"
-            @modal-close="onCloseAddressModal"
+        {% block sw_order_create_address_form_modal_content %}
+        <sw-customer-address-form
+            :address="currentAddress"
+            :customer="activeCustomer"
+            :disabled="isLoading"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_create_address_form_modal_content %}
-            <sw-customer-address-form
+            <sw-customer-address-form-options
                 :address="currentAddress"
                 :customer="activeCustomer"
-                :disabled="isLoading"
-            >
-                <sw-customer-address-form-options
-                    :address="currentAddress"
-                    :customer="activeCustomer"
-                    :custom-field-sets="[]"
-                    @default-address-change="onChangeDefaultAddress"
-                />
-            </sw-customer-address-form>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_create_address_form_modal_footer %}
-            <template #modal-footer>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_create_address_form_modal_cancel_button %}
-                <sw-button
-                    size="small"
-                    @click="onCloseAddressModal"
-                >
-                    {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
-                </sw-button>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_create_address_form_modal_apply_button %}
-                <sw-button
-                    :is-loading="isLoading"
-                    variant="primary"
-                    size="small"
-                    @click="onSubmitAddressForm"
-                >
-                    {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
-                </sw-button>
-                {% endblock %}
-            </template>
-            {% endblock %}
-        </sw-modal>
+                :custom-field-sets="[]"
+                @default-address-change="onChangeDefaultAddress"
+            />
+        </sw-customer-address-form>
         {% endblock %}
-        <sw-card
-            :is-loading="isLoading"
-            :large="true"
-            position-identifier="sw-order-create-address-modal"
-            class="sw-order-create-address-modal__card-filter"
-        >
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_order_create_address_form_modal_footer %}
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_create_address_modal_toolbar %}
-            <template #toolbar>
-                <sw-card-filter
-                    :placeholder="$tc('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
-                    @sw-card-filter-term-change="onSearchAddress"
+            {% block sw_order_create_address_form_modal_cancel_button %}
+            <sw-button
+                size="small"
+                @click="onCloseAddressModal"
+            >
+                {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_create_address_form_modal_apply_button %}
+            <sw-button
+                :is-loading="isLoading"
+                variant="primary"
+                size="small"
+                @click="onSubmitAddressForm"
+            >
+                {{ $tc('sw-customer.detailAddresses.buttonSaveAndSelect') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+    <sw-card
+        :is-loading="isLoading"
+        :large="true"
+        position-identifier="sw-order-create-address-modal"
+        class="sw-order-create-address-modal__card-filter"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_order_create_address_modal_toolbar %}
+        <template #toolbar>
+            <sw-card-filter
+                :placeholder="$tc('sw-order.addressSelection.searchAddressToolbarPlaceholder')"
+                @sw-card-filter-term-change="onSearchAddress"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_create_address_modal_add_button %}
+                <template #filter>
+                    <sw-button
+                        class="sw-order-create-address-modal__add-btn"
+                        size="small"
+                        @click="onAddNewAddress"
+                    >
+                        <sw-icon
+                            name="regular-plus-circle-s"
+                            small
+                        />
+                        {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
+                    </sw-button>
+                </template>
+                {% endblock %}
+            </sw-card-filter>
+        </template>
+        {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_order_create_address_modal_empty_state %}
+        <template #grid>
+            <div
+                v-if="!isLoading && !addresses.length"
+                class="sw-order-create-address-modal__card is--empty"
+            >
+                <sw-empty-state
+                    :title="$tc('sw-order.addressSelection.emptySearchResults')"
+                    :icon="'regular-book-user'"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_create_address_modal_add_button %}
-                    <template #filter>
-                        <sw-button
-                            class="sw-order-create-address-modal__add-btn"
-                            size="small"
-                            @click="onAddNewAddress"
-                        >
-                            <sw-icon
-                                name="regular-plus-circle-s"
-                                small
-                            />
-                            {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
-                        </sw-button>
-                    </template>
+                    {% block sw_order_create_address_modal_empty_state_content %}
+                    <span></span>
                     {% endblock %}
-                </sw-card-filter>
-            </template>
-            {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_create_address_modal_empty_state %}
-            <template #grid>
-                <div
-                    v-if="!isLoading && !addresses.length"
-                    class="sw-order-create-address-modal__card is--empty"
-                >
-                    <sw-empty-state
-                        :title="$tc('sw-order.addressSelection.emptySearchResults')"
-                        :icon="'regular-book-user'"
+                </sw-empty-state>
+            </div>
+            <div
+                v-for="(address, index) in addresses"
+                :key="address.id"
+                :class="{ 'is--selected': isCurrentSelected(address.id)}"
+                class="sw-order-create-address-modal__card"
+            >
+                <div class="sw-order-create-address-modal__card-body">
+                    <span
+                        v-if="isCurrentSelected(address.id)"
+                        class="sw-order-create-address-modal__card-label"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_create_address_modal_empty_state_content %}
-                        <span></span>
-                        {% endblock %}
-                    </sw-empty-state>
+                        {{ $tc('sw-order.addressSelection.currentlySelected') }}<br><br>
+                    </span>
+                    <sw-address :address="address" />
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <a
+                        class="sw-order-create-address-modal__edit-btn"
+                        @click="onEditAddress(address)"
+                    >
+                        {{ $tc('sw-customer.detailBase.buttonTitleEditAddress') }}
+                    </a>
                 </div>
-                <div
-                    v-for="(address, index) in addresses"
-                    :key="address.id"
-                    :class="{ 'is--selected': isCurrentSelected(address.id)}"
-                    class="sw-order-create-address-modal__card"
-                >
-                    <div class="sw-order-create-address-modal__card-body">
-                        <span
-                            v-if="isCurrentSelected(address.id)"
-                            class="sw-order-create-address-modal__card-label"
-                        >
-                            {{ $tc('sw-order.addressSelection.currentlySelected') }}<br><br>
-                        </span>
-                        <sw-address :address="address" />
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                        <a
-                            class="sw-order-create-address-modal__edit-btn"
-                            @click="onEditAddress(address)"
-                        >
-                            {{ $tc('sw-customer.detailBase.buttonTitleEditAddress') }}
-                        </a>
-                    </div>
-                    <div class="sw-order-create-address-modal__select-btn">
-                        <sw-button
-                            v-if="!isCurrentSelected(address.id)"
-                            @click="onSelectExistingAddress(address)"
-                        >
-                            {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
-                        </sw-button>
-                    </div>
+                <div class="sw-order-create-address-modal__select-btn">
+                    <sw-button
+                        v-if="!isCurrentSelected(address.id)"
+                        @click="onSelectExistingAddress(address)"
+                    >
+                        {{ $tc('sw-customer.detailAddresses.buttonSelect') }}
+                    </sw-button>
                 </div>
-            </template>
-            {% endblock %}
-        </sw-card>
-    </template>
+            </div>
+        </template>
+        {% endblock %}
+    </sw-card>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

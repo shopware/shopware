@@ -1,7 +1,8 @@
 {
   "sw-customer": {
     "error": {
-      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist Firma ein Pflichtfeld"
+      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
+      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
     },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."
@@ -56,6 +57,7 @@
       "columnGroup": "Kundengruppe",
       "columnGroupRequested": "Angefragt:",
       "columnNameGuestLabel": "Gastbesteller",
+      "labelCreatedByAdmin": "Erstellt von Admin",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
       "columnStreet": "Straße",
@@ -124,6 +126,8 @@
       "labelActive": "Kontostatus",
       "labelAffiliateCode": "Affiliate-Code",
       "labelCampaignCode": "Kampagnen-Code",
+      "labelCompany": "Unternehmen",
+      "labelVatId": "USt-IdNr.",
       "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "Noch keine Anmeldung",
       "emptyTextBirthday": "keine Angabe",
@@ -231,8 +235,8 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationPasswordLengthErrorMessage": "Das Passwort erfüllt nicht die Mindestlänge von acht Zeichen.",
-      "notificationLoginAsCustomerErrorMessage": "Es ist ein Fehler aufgetreten beim Anmelden als Kunden."
+      "notificationLoginAsCustomerErrorMessage": "Es ist ein Fehler aufgetreten beim Anmelden als Kunden.",
+      "labelCreatedByAdmin": "Erstellt von Admin"
     },
     "filter": {
       "salutation": {

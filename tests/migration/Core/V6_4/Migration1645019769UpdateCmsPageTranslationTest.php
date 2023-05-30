@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1645019769UpdateCmsPageTranslation
  */
 class Migration1645019769UpdateCmsPageTranslationTest extends TestCase
@@ -18,7 +19,7 @@ class Migration1645019769UpdateCmsPageTranslationTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->connection = KernelLifecycleManager::getConnection();

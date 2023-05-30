@@ -3,25 +3,24 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @internal
+ */
+#[Package('storefront')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
-    private TranslatorInterface $translator;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
     public function __construct(
-        TranslatorInterface $translator,
-        RequestStack $requestStack
+        private readonly TranslatorInterface $translator,
+        private readonly RequestStack $requestStack
     ) {
-        $this->translator = $translator;
-        $this->requestStack = $requestStack;
     }
 
     public static function getSubscribedEvents(): array
@@ -33,13 +32,6 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
     public function addCartMergedNoticeFlash(CartMergedEvent $event): void
     {
-        /*
-        * @feature-depretacted tag:6.5.0.0 (flag:FEATURE_NEXT_16824) - Remove this check on 6.5.0.0
-        */
-        if ($event->getPreviousCart() === null) {
-            return;
-        }
-
         $mainRequest = $this->requestStack->getMainRequest();
 
         if ($mainRequest === null) {

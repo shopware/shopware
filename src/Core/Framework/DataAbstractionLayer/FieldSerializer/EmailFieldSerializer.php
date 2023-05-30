@@ -2,19 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class EmailFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
@@ -24,7 +26,7 @@ class EmailFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof EmailField) {
-            throw new InvalidSerializerFieldException(EmailField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(EmailField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -32,12 +34,7 @@ class EmailFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue();
     }
 
-    /**
-     * @return string|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?string*/
+    public function decode(Field $field, mixed $value): ?string
     {
         return $value;
     }

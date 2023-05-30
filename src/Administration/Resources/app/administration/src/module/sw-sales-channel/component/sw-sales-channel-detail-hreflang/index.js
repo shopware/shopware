@@ -1,10 +1,13 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-detail-hreflang.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-detail-hreflang', {
+export default {
     template,
 
     props: {
@@ -29,4 +32,4 @@ Component.register('sw-sales-channel-detail-hreflang', {
             return criteria;
         },
     },
-});
+};

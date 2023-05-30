@@ -3,32 +3,11 @@ Pagination
 ==============================================
 Custom styling for bootstrap pagination component.
 
-https://getbootstrap.com/docs/4.3/components/pagination/
+https://getbootstrap.com/docs/5.2/components/pagination
 */
 
 .pagination {
     margin-bottom: 0;
-
-    .page-item {
-        &.disabled {
-            .page-link {
-                cursor: default;
-                opacity: 1;
-                background: $gray-200;
-                color: $gray-300;
-            }
-
-            a {
-                color: $gray-300;
-            }
-        }
-
-        &.active {
-            a {
-                color: $white;
-            }
-        }
-    }
 
     .page-link {
         cursor: pointer;

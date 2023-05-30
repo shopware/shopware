@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Password\LegacyEncoder;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 interface LegacyEncoderInterface
 {
     public function getName(): string;

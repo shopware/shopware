@@ -2,9 +2,13 @@ import template from './sw-media-folder-info.html.twig';
 import './sw-media-folder-info.scss';
 
 const { Component, Mixin, Context } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-folder-info', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -37,6 +41,14 @@ Component.register('sw-media-folder-info', {
         createdAt() {
             return Shopware.Utils.format.date(this.mediaFolder.createdAt);
         },
+
+        ...mapPropertyErrors('mediaFolder', ['name']),
+
+        nameItemClasses() {
+            return {
+                'has--error': !!this.mediaFolderNameError,
+            };
+        },
     },
 
     methods: {
@@ -52,4 +64,4 @@ Component.register('sw-media-folder-info', {
             }];
         },
     },
-});
+};

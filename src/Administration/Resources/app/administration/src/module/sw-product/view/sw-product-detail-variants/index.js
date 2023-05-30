@@ -1,20 +1,21 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-variants', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
-            // @deprecated tag:v6.5.0 - will be removed completely. Please use Vuex binding `contextLanguageId` instead.
-            languageId: null,
             variantListHasContent: false,
             activeModal: '',
             isLoading: true,
@@ -24,12 +25,15 @@ Component.register('sw-product-detail-variants', {
             productEntityLoaded: false,
             propertiesAvailable: true,
             showAddPropertiesModal: false,
+            defaultTab: 'all',
+            activeTab: 'all',
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'variants',
         ]),
 
         ...mapState('context', {
@@ -59,6 +63,10 @@ Component.register('sw-product-detail-variants', {
         },
 
         selectedGroups() {
+            if (!this.productEntity.configuratorSettings) {
+                return [];
+            }
+
             // get groups for selected options
             const groupIds = this.productEntity.configuratorSettings.reduce((result, element) => {
                 if (result.indexOf(element.option.groupId) < 0) {
@@ -71,6 +79,10 @@ Component.register('sw-product-detail-variants', {
             return this.groups.filter((group) => {
                 return groupIds.indexOf(group.id) >= 0;
             });
+        },
+
+        currentProductStates() {
+            return this.activeTab.split(',');
         },
     },
 
@@ -107,6 +119,10 @@ Component.register('sw-product-detail-variants', {
             this.loadData();
         },
 
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         loadData() {
             if (!this.isStoreLoading) {
                 this.loadOptions()
@@ -126,6 +142,7 @@ Component.register('sw-product-detail-variants', {
                 this.productRepository.get(this.product.id, Shopware.Context.api, criteria).then((product) => {
                     this.productEntity = product;
                     this.productEntityLoaded = true;
+
                     resolve();
                 });
             });
@@ -210,19 +227,6 @@ Component.register('sw-product-detail-variants', {
             );
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-         */
-        updateNewPropertiesItem({ index, selected }) {
-            this.newProperties[index].selected = selected;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-         */
-        addNewPropertiesItem({ property, selected }) {
-            this.newProperties.push({ property, selected });
-        },
 
         onCancelAddPropertiesModal() {
             this.closeAddPropertiesModal();
@@ -237,6 +241,5 @@ Component.register('sw-product-detail-variants', {
 
             this.productProperties.splice(0, this.productProperties.length, ...newProperties);
         },
-
     },
-});
+};

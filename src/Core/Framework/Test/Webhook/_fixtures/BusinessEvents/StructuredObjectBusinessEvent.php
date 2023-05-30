@@ -3,20 +3,17 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
  */
-class StructuredObjectBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
+class StructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var ScalarBusinessEvent
-     */
-    private $inner;
+    private readonly ScalarBusinessEvent $inner;
 
     public function __construct()
     {

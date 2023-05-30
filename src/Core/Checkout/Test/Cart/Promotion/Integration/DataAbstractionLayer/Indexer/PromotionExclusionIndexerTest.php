@@ -5,8 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\DataAbstraction
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -14,19 +15,17 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionExclusionIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $promotionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var EventDispatcherInterface
@@ -38,7 +37,7 @@ class PromotionExclusionIndexerTest extends TestCase
      */
     private $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->context = Context::createDefaultContext();
@@ -49,7 +48,6 @@ class PromotionExclusionIndexerTest extends TestCase
     /**
      * tests that a update of promotion exclusions is written in excluded promotions too
      *
-     * @test
      * @group promotions
      */
     public function testUpsertPromotionIndexerLogic(): void
@@ -81,7 +79,6 @@ class PromotionExclusionIndexerTest extends TestCase
      * has been deleted. No reference on the deleted entity may be in any exclusions of
      * other promotions
      *
-     * @test
      * @group promotions
      */
     public function testDeletePromotionIndexerLogic(): void

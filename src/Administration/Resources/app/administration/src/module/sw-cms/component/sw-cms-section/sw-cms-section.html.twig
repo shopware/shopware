@@ -17,10 +17,17 @@
         class="sw-cms-section__wrapper"
         :style="sectionStyles"
     >
+        <sw-cms-visibility-toggle
+            v-if="isVisible"
+            :text="toggleButtonText"
+            :is-collapsed="isCollapsed"
+            :class="expandedClass"
+            @toggle="toggleVisibility"
+        />
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_sidebar %}
         <div
-            v-if="isSideBarType"
+            v-if="isSideBarType && (!isCollapsed || !isVisible)"
             class="sw-cms-section__sidebar"
             :class="sectionSidebarClasses"
         >
@@ -74,14 +81,17 @@
                         <component :is="`sw-cms-block-${block.type}`">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_section_content_block_slot %}
-                            <sw-cms-slot
+                            <template
                                 v-for="el in block.slots"
-                                :slot="el.slot"
-                                :key="el.id"
-                                :element="el"
-                                :disabled="disabled"
-                                :active="selectedBlock !== null && selectedBlock.id === block.id"
-                            />
+                                #[el.slot]
+                            >
+                                <sw-cms-slot
+                                    :key="el.id"
+                                    :element="el"
+                                    :disabled="disabled"
+                                    :active="selectedBlock !== null && selectedBlock.id === block.id"
+                                />
+                            </template>
                             {% endblock %}
                         </component>
                         {% endblock %}
@@ -105,8 +115,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_content %}
         <div
+            v-if="!isCollapsed || !isVisible"
             class="sw-cms-section__content"
-            :class="{ 'is--empty': mainContentEmpty }"
+            :class="sectionContentClasses"
         >
             <template v-if="mainContentEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -157,14 +168,17 @@
                         <component :is="`sw-cms-block-${block.type}`">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_section_content_block_component_slot %}
-                            <sw-cms-slot
+                            <template
                                 v-for="el in block.slots"
-                                :slot="el.slot"
-                                :key="el.id"
-                                :element="el"
-                                :disabled="disabled"
-                                :active="selectedBlock !== null && selectedBlock.id === block.id"
-                            />
+                                #[el.slot]
+                            >
+                                <sw-cms-slot
+                                    :key="el.id"
+                                    :element="el"
+                                    :disabled="disabled"
+                                    :active="selectedBlock !== null && selectedBlock.id === block.id"
+                                />
+                            </template>
                             {% endblock %}
                         </component>
                         {% endblock %}

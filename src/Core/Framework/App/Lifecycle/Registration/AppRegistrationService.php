@@ -13,40 +13,24 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class AppRegistrationService
 {
-    private HandshakeFactory $handshakeFactory;
-
-    private Client $httpClient;
-
-    private EntityRepositoryInterface $appRepository;
-
-    private string $shopUrl;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private string $shopwareVersion;
-
     public function __construct(
-        HandshakeFactory $handshakeFactory,
-        Client $httpClient,
-        EntityRepositoryInterface $appRepository,
-        string $shopUrl,
-        ShopIdProvider $shopIdProvider,
-        string $shopwareVersion
+        private readonly HandshakeFactory $handshakeFactory,
+        private readonly Client $httpClient,
+        private readonly EntityRepository $appRepository,
+        private readonly string $shopUrl,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly string $shopwareVersion
     ) {
-        $this->handshakeFactory = $handshakeFactory;
-        $this->httpClient = $httpClient;
-        $this->appRepository = $appRepository;
-        $this->shopUrl = $shopUrl;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
@@ -83,7 +67,7 @@ class AppRegistrationService
     /**
      * @throws GuzzleException
      *
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function registerWithApp(Manifest $manifest, Context $context): array
     {
@@ -126,11 +110,11 @@ class AppRegistrationService
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function parseResponse(AppHandshakeInterface $handshake, ResponseInterface $response): array
     {
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (isset($data['error']) && \is_string($data['error'])) {
             throw new AppRegistrationException($data['error']);
@@ -150,7 +134,7 @@ class AppRegistrationService
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
     {
@@ -158,7 +142,7 @@ class AppRegistrationService
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             throw new AppRegistrationException(
                 'The app url changed. Please resolve how the apps should handle this change.'
             );
@@ -174,11 +158,11 @@ class AppRegistrationService
     }
 
     /**
-     * @param array<string,string> $body
+     * @param array<string, string> $body
      */
     private function signPayload(array $body, string $secret): string
     {
-        return hash_hmac('sha256', (string) json_encode($body), $secret);
+        return hash_hmac('sha256', (string) json_encode($body, \JSON_THROW_ON_ERROR), $secret);
     }
 
     private function getApp(string $id, Context $context): AppEntity

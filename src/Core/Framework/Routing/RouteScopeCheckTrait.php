@@ -2,22 +2,19 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('core')]
 trait RouteScopeCheckTrait
 {
     abstract protected function getScopeRegistry(): RouteScopeRegistry;
 
     private function isRequestScoped(Request $request, string $scopeClass): bool
     {
-        /** @var RouteScope|array $scopes */
+        /** @var list<string> $scopes */
         $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if ($scopes instanceof RouteScope) {
-            $scopes = $scopes->getScopes();
-        }
 
         if ($scopes === []) {
             return false;

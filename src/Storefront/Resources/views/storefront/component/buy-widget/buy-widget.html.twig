@@ -53,15 +53,9 @@
 
             {% block buy_widget_rich_snippets_release_date %}
                 <meta itemprop="releaseDate"
-                      content="{{ product.releaseDate|format_date(pattern="Y-MM-dd", locale=app.request.locale) }}"/>
+                      content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}"/>
             {% endblock %}
         {% endblock %}
-
-        {% if not feature('FEATURE_NEXT_16992') %}
-            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
-            {% block buy_widget_not_available %}
-            {% endblock %}
-        {% endif %}
 
         {% block buy_widget_buy_container %}
             <div itemprop="offers"
@@ -117,7 +111,7 @@
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       {{ dataBsToggleAttr }}="modal"
+                                       data-bs-toggle="modal"
                                        data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
@@ -125,15 +119,6 @@
                             </p>
                         </div>
                     {% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - Will be removed - The variable will be moved into block `buy_widget_reviews` #}
-                    {% set remoteClickOptions = {
-                        selector: "#review-tab-" ~ product.id,
-                        scrollToElement: true
-                    } %}
-
-                    {# @deprecated tag:v6.5.0 - Will be removed - The variable will be moved into block `buy_widget_reviews` #}
-                    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
 
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}
@@ -155,13 +140,20 @@
                                     points: product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a {{ dataBsToggleAttr }}="tab"
-                                   class="product-detail-reviews-link"
-                                   data-offcanvas-tabs="true"
-                                   data-remote-click="true"
-                                   data-remote-click-options='{{ remoteClickOptions|json_encode }}'
-                                   href="{{ reviewTabHref }}"
-                                   aria-controls="review-tab-pane">
+                                <a
+                                    data-bs-toggle="tab"
+                                    class="product-detail-reviews-link"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-tabs="true"
+                                    {% else %}
+                                        data-offcanvas-tabs="true"
+                                    {% endif %}
+                                    data-remote-click="true"
+                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    href="{{ reviewTabHref }}"
+                                    aria-controls="review-tab-pane"
+                                >
                                     {{ totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': totalReviews})|sw_sanitize }}
                                 </a>

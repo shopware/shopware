@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class CashRoundingConfig extends Struct
 {
     /**
@@ -21,8 +23,11 @@ class CashRoundingConfig extends Struct
      */
     protected $roundForNet;
 
-    public function __construct(int $decimals, float $interval, bool $roundForNet)
-    {
+    public function __construct(
+        int $decimals,
+        float $interval,
+        bool $roundForNet
+    ) {
         $this->decimals = $decimals;
         $this->interval = $interval;
         $this->roundForNet = $roundForNet;

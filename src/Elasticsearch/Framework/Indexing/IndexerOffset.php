@@ -2,42 +2,38 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
+#[Package('core')]
 class IndexerOffset
 {
     /**
-     * @var array<string>
-     */
-    protected array $languages;
-
-    /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $definitions;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $allDefinitions;
 
-    protected ?int $timestamp;
+    protected ?string $languageId = null;
 
-    protected ?array $lastId;
+    protected ?string $definition = null;
 
-    protected ?string $languageId;
-
-    protected ?string $definition;
-
+    /**
+     * @param list<string> $languages
+     * @param iterable<AbstractElasticsearchDefinition> $definitions
+     * @param array{offset: int|null}|null $lastId
+     */
     public function __construct(
-        LanguageCollection $languages,
+        protected array $languages,
         iterable $definitions,
-        ?int $timestamp,
-        ?array $lastId = null
+        protected ?int $timestamp,
+        protected ?array $lastId = null
     ) {
-        $this->languages = array_values($languages->getIds());
-
         $mapping = [];
         /** @var AbstractElasticsearchDefinition $definition */
         foreach ($definitions as $definition) {
@@ -47,14 +43,26 @@ class IndexerOffset
         $this->allDefinitions = $mapping;
         $this->definitions = $mapping;
 
-        $this->timestamp = $timestamp;
-        $this->lastId = $lastId;
-
-        $this->setNextLanguage();
-        $this->setNextDefinition();
+        $this->selectNextLanguage();
+        $this->selectNextDefinition();
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use selectNextDefinition instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
     public function setNextDefinition(): ?string
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0', 'selectNextDefinition')
+        );
+
+        return $this->selectNextDefinition();
+    }
+
+    public function selectNextDefinition(): ?string
     {
         return $this->definition = array_shift($this->definitions);
     }
@@ -70,7 +78,22 @@ class IndexerOffset
         return !empty($this->definitions);
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use selectNextLanguage instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
     public function setNextLanguage(): ?string
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0', 'selectNextLanguage')
+        );
+
+        return $this->selectNextLanguage();
+    }
+
+    public function selectNextLanguage(): ?string
     {
         return $this->languageId = array_shift($this->languages);
     }
@@ -85,11 +108,17 @@ class IndexerOffset
         return $this->languageId;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguages(): array
     {
         return $this->languages;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDefinitions(): array
     {
         return $this->definitions;
@@ -100,6 +129,9 @@ class IndexerOffset
         return $this->timestamp;
     }
 
+    /**
+     * @return array{offset: int|null}|null
+     */
     public function getLastId(): ?array
     {
         return $this->lastId;
@@ -110,6 +142,9 @@ class IndexerOffset
         return $this->definition;
     }
 
+    /**
+     * @param array{offset: int|null}|null $lastId
+     */
     public function setLastId(?array $lastId): void
     {
         $this->lastId = $lastId;

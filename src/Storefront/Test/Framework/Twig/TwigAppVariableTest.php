@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Framework\Twig;
+namespace Shopware\Storefront\Test\Framework\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;

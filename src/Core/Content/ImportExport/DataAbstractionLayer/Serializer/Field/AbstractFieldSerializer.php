@@ -6,13 +6,12 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Ab
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 abstract class AbstractFieldSerializer
 {
-    /**
-     * @var SerializerRegistry
-     */
-    protected $serializerRegistry;
+    protected SerializerRegistry $serializerRegistry;
 
     abstract public function serialize(Config $config, Field $field, $value): iterable;
 

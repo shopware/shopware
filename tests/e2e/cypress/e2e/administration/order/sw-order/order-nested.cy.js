@@ -38,7 +38,7 @@ function getLineItem(id, children = [], position = 0) {
             quantity: 2,
             taxRules: [{
                 taxRate: 20.0,
-                percentage: 100.0
+                percentage: 100.0,
             }],
             listPrice: null,
             unitPrice: mockNumber * 0.008,
@@ -48,43 +48,43 @@ function getLineItem(id, children = [], position = 0) {
                 tax: mockNumber * 0.002,
                 price: mockNumber * 0.01,
                 taxRate: 20.0,
-            }]
-        }
-    }
+            }],
+        },
+    };
 }
 
 describe('Order: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture({
-                id: ids['1'],
-                name: 'Awesome product product',
-                label: 'Awesome product product',
-                productNumber: 'NEST-1',
-                description: 'l33t'
-            });
+        cy.createProductFixture({
+            id: ids['1'],
+            name: 'Awesome product product',
+            label: 'Awesome product product',
+            productNumber: 'NEST-1',
+            description: 'l33t',
         }).then(() => {
             return cy.createAdminOrder({
+                itemRounding: {"decimals": 2, "interval": 0.01, "roundForNet": true},
+                totalRounding: {"decimals": 2, "interval": 0.01, "roundForNet": true},
                 lineItems: [
                     getLineItem('1', [
                         getLineItem('1.1', [
                             getLineItem('1.1.1', [
                                 getLineItem('1.1.1.1', [
-                                    getLineItem('1.1.1.1.1')
-                                ])
+                                    getLineItem('1.1.1.1.1'),
+                                ]),
                             ]),
                             getLineItem('1.1.2'),
                             getLineItem('1.1.3'),
-                        ])
+                        ]),
                     ], 1),
                     getLineItem('2', [
                         getLineItem('2.1'),
                         getLineItem('2.2', [
-                            getLineItem('2.2.1')
-                        ])
+                            getLineItem('2.2.1'),
+                        ]),
                     ], 2),
-                    getLineItem('3', [], 3)
-                ]
+                    getLineItem('3', [], 3),
+                ],
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
@@ -100,7 +100,7 @@ describe('Order: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(`${page.elements.dataGridRow}--0`).scrollIntoView();
 

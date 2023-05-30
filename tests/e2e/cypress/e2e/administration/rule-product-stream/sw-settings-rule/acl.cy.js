@@ -4,13 +4,9 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                return cy.createDefaultFixture('promotion');
-            })
+        cy.createDefaultFixture('rule').then(() => {
+            return cy.createDefaultFixture('promotion');
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -20,10 +16,15 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
+            {
+                key: 'flow',
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -55,14 +56,19 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
+            },
+            {
+                key: 'flow',
+                role: 'viewer',
             },
             {
                 key: 'rule',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -72,7 +78,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -97,7 +103,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
             .should('to.have.prop', 'disabled', false);
 
-        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click()
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click();
         cy.get('.sw-settings-rule-detail__save-duplicate-action').should('to.have.class', 'is--disabled', true);
 
         // Verify rule
@@ -117,32 +123,29 @@ describe('Rule builder: Test crud operations', () => {
             .should('have.not.class', 'sw-button--disabled');
         cy.get('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .sw-settings-rule-detail-assignments__add-button')
             .should('have.not.class', 'sw-button--disabled');
-
-        /**
-         * @deprecated tag:v6.5.0 - assertion can be removed as business events will be removed
-         */
-        if (!cy.featureIsActive('v6.5.0.0')) {
-            cy.get('.sw-settings-rule-detail-assignments__card-event_action .sw-settings-rule-detail-assignments__add-button')
-                .should('have.not.class', 'sw-button--disabled');
-        }
     });
 
     it('@base @rule: create and read rule', { tags: ['pa-business-ops'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
+            },
+            {
+                key: 'flow',
+                role: 'viewer',
             },
             {
                 key: 'rule',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'rule',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -152,20 +155,25 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-rule-list-grid').should('be.visible');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
+        cy.get('.sw-settings-rule-detail-base').should('exist');
         // save with empty data
-        cy.get('button.sw-button').contains('Save').click();
+        cy.contains('button.sw-button--primary', 'Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
         cy.get('.sw-alert--error .sw-alert__message')
             .should('be.visible')
-            .contains('An error occurred while saving rule "".');
+            .contains('An error occurred while saving rule');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
@@ -204,6 +212,10 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.get(page.elements.smartBarBack).click();
+
+        cy.get('.sw-skeleton').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');
         cy.get(page.elements.loader).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Rule 1st');
@@ -215,7 +227,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
             .should('to.have.prop', 'disabled', false);
 
-        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click()
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click();
         cy.get('.sw-settings-rule-detail__save-duplicate-action').should('not.to.have.class', 'is--disabled');
     });
 
@@ -223,14 +235,19 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer'
+                role: 'viewer',
+            },
+            {
+                key: 'flow',
+                role: 'viewer',
             },
             {
                 key: 'rule',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-rule-list-grid').should('exist');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -240,7 +257,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete rule
@@ -251,7 +268,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-listing__confirm-delete-text')
             .contains('Are you sure you want to delete this item?');

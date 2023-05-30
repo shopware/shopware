@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -47,17 +47,17 @@ trait AdminApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM user WHERE username IN (:usernames)',
                 ['usernames' => $this->apiUsernames],
-                ['usernames' => Connection::PARAM_STR_ARRAY]
+                ['usernames' => ArrayParameterType::STRING]
             );
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM integration WHERE id IN (:ids)',
                 ['ids' => $this->apiIntegrations],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
-        } catch (\Exception $ex) {
+        } catch (\Exception) {
             //nth
         }
 
@@ -122,8 +122,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $aclPermissions
+     * @param string[] $scopes
+     * @param string[]|null $aclPermissions
      */
     public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
@@ -151,7 +151,7 @@ trait AdminApiTestBehaviour
             $aclRole = [
                 'id' => $aclRoleId,
                 'name' => 'testPermissions',
-                'privileges' => json_encode($aclPermissions),
+                'privileges' => json_encode($aclPermissions, \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
             $connection->insert('acl_role', $aclRole);
@@ -185,7 +185,7 @@ trait AdminApiTestBehaviour
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -199,14 +199,15 @@ trait AdminApiTestBehaviour
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        \assert(\is_string($accessToken));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($userId)));
     }
 
     /**
      * @throws InvalidUuidException
      * @throws \RuntimeException
-     * @throws DBALException
      */
     public function authorizeBrowserWithIntegration(TestBrowser $browser, ?string $id = null): void
     {
@@ -224,13 +225,12 @@ trait AdminApiTestBehaviour
         try {
             $connection->insert('integration', [
                 'id' => $id,
-                'write_access' => true,
                 'access_key' => $accessKey,
                 'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
                 'label' => 'test integration',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             // update the access keys in case the integration already existed
             $connection->update('integration', [
                 'access_key' => $accessKey,
@@ -252,7 +252,7 @@ trait AdminApiTestBehaviour
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -260,15 +260,17 @@ trait AdminApiTestBehaviour
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        \assert(\is_string($accessToken));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter('_integration_id', $id);
     }
 
-    abstract protected function getKernel(): KernelInterface;
+    abstract protected static function getKernel(): KernelInterface;
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $permissions
+     * @param string[] $scopes
+     * @param string[]|null $permissions
      */
     protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): TestBrowser
     {
@@ -318,7 +320,7 @@ trait AdminApiTestBehaviour
             ->innerJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
     }
 }

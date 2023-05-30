@@ -3,6 +3,9 @@ import './sw-image-preview-modal.scss';
 
 const { Component } = Shopware;
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @private
  * @status ready
  * @example-type static
@@ -50,6 +53,7 @@ Component.register('sw-image-preview-modal', {
             isDisabledReset: true,
             isDisabledZoomIn: true,
             isDisabledZoomOut: true,
+            imageSliderMounted: false,
         };
     },
 
@@ -82,10 +86,6 @@ Component.register('sw-image-preview-modal', {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     updated() {
         this.updatedComponent();
     },
@@ -101,7 +101,12 @@ Component.register('sw-image-preview-modal', {
             }
         },
 
-        mountedComponent() {
+        afterComponentsMounted() {
+            if (this.imageSliderMounted) {
+                return;
+            }
+            this.imageSliderMounted = true;
+
             document.querySelector('body').appendChild(this.$el);
 
             this.$el.addEventListener('wheel', this.onMouseWheel);

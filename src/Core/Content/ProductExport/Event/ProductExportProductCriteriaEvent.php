@@ -8,24 +8,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('sales-channel')]
 class ProductExportProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Criteria $criteria;
-
-    protected ProductExportEntity $productExport;
-
-    protected ExportBehavior $exportBehaviour;
-
-    protected SalesChannelContext $salesChannelContext;
-
-    public function __construct(Criteria $criteria, ProductExportEntity $productExport, ExportBehavior $exportBehavior, SalesChannelContext $salesChannelContext)
-    {
-        $this->criteria = $criteria;
-        $this->productExport = $productExport;
-        $this->exportBehaviour = $exportBehavior;
-        $this->salesChannelContext = $salesChannelContext;
+    public function __construct(
+        protected Criteria $criteria,
+        protected ProductExportEntity $productExport,
+        protected ExportBehavior $exportBehaviour,
+        protected SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function getCriteria(): Criteria

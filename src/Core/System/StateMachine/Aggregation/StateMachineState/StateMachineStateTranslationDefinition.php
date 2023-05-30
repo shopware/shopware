@@ -7,10 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'state_machine_state_translation';
+    final public const ENTITY_NAME = 'state_machine_state_translation';
 
     public function getEntityName(): string
     {

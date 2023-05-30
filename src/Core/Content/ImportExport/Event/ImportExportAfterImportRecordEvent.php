@@ -5,47 +5,19 @@ namespace Shopware\Core\Content\ImportExport\Event;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('system-settings')]
 class ImportExportAfterImportRecordEvent extends Event
 {
-    /**
-     * @var EntityWrittenContainerEvent
-     */
-    private $result;
-
-    /**
-     * @var array
-     */
-    private $record;
-
-    /**
-     * @var array
-     */
-    private $row;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
     public function __construct(
-        EntityWrittenContainerEvent $result,
-        array $record,
-        array $row,
-        Config $config,
-        Context $context
+        private readonly EntityWrittenContainerEvent $result,
+        private readonly array $record,
+        private readonly array $row,
+        private readonly Config $config,
+        private readonly Context $context
     ) {
-        $this->result = $result;
-        $this->record = $record;
-        $this->row = $row;
-        $this->config = $config;
-        $this->context = $context;
     }
 
     public function getResult(): EntityWrittenContainerEvent

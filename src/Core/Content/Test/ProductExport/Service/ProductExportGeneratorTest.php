@@ -22,9 +22,9 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -41,7 +41,7 @@ class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 
@@ -125,9 +125,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -190,14 +191,15 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         try {
             $exportGenerator->generate($productExport, $exportBehavior);
-        } catch (EmptyExportException $emptyExportException) {
+        } catch (EmptyExportException) {
         }
 
         static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
@@ -259,7 +261,7 @@ class ProductExportGeneratorTest extends TestCase
         static::assertStringContainsString($code, $result->getContent());
     }
 
-    public function isoCodeProvider(): \Generator
+    public static function isoCodeProvider(): \Generator
     {
         yield 'Polish zloty iso code' => ['PLN'];
         yield 'Euro iso code' => ['EUR'];
@@ -280,7 +282,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -288,7 +290,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();

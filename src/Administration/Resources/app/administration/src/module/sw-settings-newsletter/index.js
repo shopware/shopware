@@ -1,4 +1,10 @@
-import './page/sw-settings-newsletter';
+/**
+ * @package customer-order
+ */
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-newsletter', () => import('./page/sw-settings-newsletter'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -11,7 +17,7 @@ Module.register('sw-settings-newsletter', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'regular-inbox',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {

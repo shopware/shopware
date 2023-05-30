@@ -7,7 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**
@@ -30,8 +32,11 @@ class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericE
      */
     protected $context;
 
-    public function __construct(EntityDefinition $definition, AggregationResultCollection $result, Context $context)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        AggregationResultCollection $result,
+        Context $context
+    ) {
         $this->result = $result;
         $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.aggregation.result.loaded';

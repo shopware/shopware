@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 import type { Module } from 'vuex';
 
@@ -26,7 +30,9 @@ const SdkLocationStore: Module<SdkLocationState, VuexRootState> = {
     },
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default SdkLocationStore;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

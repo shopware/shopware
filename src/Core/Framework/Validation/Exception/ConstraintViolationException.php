@@ -2,29 +2,24 @@
 
 namespace Shopware\Core\Framework\Validation\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+#[Package('core')]
 class ConstraintViolationException extends ShopwareHttpException
 {
-    /**
-     * @var ConstraintViolationList
-     */
-    private $violations;
+    private readonly ConstraintViolationList $violations;
 
-    /**
-     * @var array
-     */
-    private $inputData;
-
-    public function __construct(ConstraintViolationList $violations, array $inputData)
-    {
+    public function __construct(
+        ConstraintViolationList $violations,
+        private readonly array $inputData
+    ) {
         $this->mapErrorCodes($violations);
 
         $this->violations = $violations;
-        $this->inputData = $inputData;
 
         parent::__construct('Caught {{ count }} violation errors.', ['count' => $violations->count()]);
     }
@@ -111,7 +106,7 @@ class ConstraintViolationException extends ShopwareHttpException
                     $violation->getPropertyPath(),
                     $violation->getInvalidValue(),
                     $violation->getPlural(),
-                    'VIOLATION::' . $constraint::getErrorName($violation->getCode()),
+                    'VIOLATION::' . $constraint->getErrorName($violation->getCode() ?? ''),
                     $constraint
                 ));
             }

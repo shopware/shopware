@@ -4,12 +4,14 @@ import './sw-select-base.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Base component for creating new select components. Uses sw-field base components as basic structure.
  * @example-type code-only
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-base', {
     template,
     inheritAttrs: false,

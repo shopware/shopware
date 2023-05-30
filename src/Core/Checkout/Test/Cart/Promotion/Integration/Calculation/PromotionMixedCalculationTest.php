@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -10,7 +11,8 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +22,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionMixedCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -27,11 +30,11 @@ class PromotionMixedCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionSetGroupTestFixtureBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {
@@ -47,13 +50,9 @@ class PromotionMixedCalculationTest extends TestCase
      * This test verifies that we get a correct 0,00 final price if we
      * add an absolute promotion of -10 and an additional 100% discount.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testMixedAbsoluteAndPercentageDiscount(): void
     {
@@ -87,13 +86,9 @@ class PromotionMixedCalculationTest extends TestCase
      * This test verifies that we can successfully remove an added
      * promotion by code and get the original price again.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testRemoveDiscountByCode(): void
     {
@@ -137,9 +132,7 @@ class PromotionMixedCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testProportionalTaxDistribution(): void
     {
@@ -251,7 +244,8 @@ class PromotionMixedCalculationTest extends TestCase
      * the percent rate
      * and the type of picking (vertical or horizontal)
      *
-     * @dataProvider setGroupPackageAndPickerTestData
+     * @dataProvider groupPackageAndPickerProvider
+     *
      * @group promotions
      */
     public function testSetGroupPackageAndPickerCombinations(
@@ -313,7 +307,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array
+     * @return array<string, array<mixed>>
      *
      * expectedDiscount,
      * applyTo,
@@ -324,7 +318,7 @@ class PromotionMixedCalculationTest extends TestCase
      * groupCount,
      * groupSorting
      */
-    public function setGroupPackageAndPickerTestData(): array
+    public static function groupPackageAndPickerProvider(): array
     {
         return [
             /*
@@ -622,6 +616,7 @@ class PromotionMixedCalculationTest extends TestCase
      * buy 3 t-shirts get first one free. Test vertical and horizontal picking
      *
      * @group promotions
+     *
      * @dataProvider getBuyThreeTshirtsGetFirstOneFreeTestData
      */
     public function testBuy3TshirtsGetFirstOneFree(float $expectedDiscount, string $pickingType): void
@@ -692,7 +687,10 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
-    public function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
+    /**
+     * @return array<string, array<mixed>>
+     */
+    public static function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
     {
         return [
             'Buy 3 t-shirts, get one free, horizontal picking' => [-(5.0 + 10.0 + 15.0), 'HORIZONTAL'],
@@ -704,6 +702,7 @@ class PromotionMixedCalculationTest extends TestCase
      * buy 3 t-shirts get second one free. Test vertical and horizontal picking
      *
      * @group promotions
+     *
      * @dataProvider getBuyThreeTshirtsGetSecondOneFreeTestData
      */
     public function testBuy3TshirtsGetSecondOneFree(float $expectedDiscount, string $pickingType): void
@@ -774,7 +773,10 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
-    public function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
+    /**
+     * @return array<string, array<mixed>>
+     */
+    public static function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
     {
         return [
             'Buy 3 t-shirts, get one free, horizontal picking' => [-(10.0 + 25.0 + 40.0), 'HORIZONTAL'],

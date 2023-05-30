@@ -9,12 +9,17 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer;
+use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
+use Shopware\Core\Framework\Feature;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer
@@ -23,15 +28,15 @@ class CustomerGroupStorerTest extends TestCase
 {
     private CustomerGroupStorer $storer;
 
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
-    public function setUp(): void
+    private MockObject&EventDispatcherInterface $dispatcher;
+
+    protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
-        $this->storer = new CustomerGroupStorer($this->repository);
+        $this->repository = $this->createMock(EntityRepository::class);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->storer = new CustomerGroupStorer($this->repository, $this->dispatcher);
     }
 
     public function testStoreWithAware(): void
@@ -52,43 +57,23 @@ class CustomerGroupStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
-
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(true);
-
-        $storable->expects(static::exactly(1))
-            ->method('getStore')
-            ->willReturn('test_id');
-
-        $storable->expects(static::exactly(1))
-            ->method('lazy');
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'test_id']);
 
         $this->storer->restore($storable);
+        static::assertArrayHasKey('customerGroup', $storable->data());
     }
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
-
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(false);
-
-        $storable->expects(static::never())
-            ->method('getStore');
-
-        $storable->expects(static::never())
-            ->method('setData');
+        $storable = new StorableFlow('name', Context::createDefaultContext());
 
         $this->storer->restore($storable);
+        static::assertEmpty($storable->data());
     }
 
     public function testLoadEntity(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $entity = new CustomerGroupEntity();
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->willReturn($entity);
@@ -101,6 +86,7 @@ class CustomerGroupStorerTest extends TestCase
 
     public function testLoadNullEntity(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->willReturn($entity);
@@ -109,5 +95,58 @@ class CustomerGroupStorerTest extends TestCase
         $customerGroup = $this->storer->load(['3443', Context::createDefaultContext()]);
 
         static::assertEquals($customerGroup, $entity);
+    }
+
+    public function testLazyLoadEntity(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
+
+        $this->storer->restore($storable);
+        $entity = new CustomerGroupEntity();
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->expects(static::once())->method('get')->willReturn($entity);
+
+        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $customerGroup = $storable->getData('customerGroup');
+
+        static::assertEquals($customerGroup, $entity);
+    }
+
+    public function testLazyLoadNullEntity(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
+        $this->storer->restore($storable);
+        $entity = null;
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->expects(static::once())->method('get')->willReturn($entity);
+
+        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $customerGroup = $storable->getData('customerGroup');
+
+        static::assertEquals($customerGroup, $entity);
+    }
+
+    public function testLazyLoadNullId(): void
+    {
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => null], []);
+        $this->storer->restore($storable);
+        $customerGroup = $storable->getData('customerGroup');
+
+        static::assertNull($customerGroup);
+    }
+
+    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
+    {
+        $this->dispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(
+                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
+                'flow.storer.customer_group.criteria.event'
+            );
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
+        $this->storer->restore($storable);
+        $storable->getData('customerGroup');
     }
 }

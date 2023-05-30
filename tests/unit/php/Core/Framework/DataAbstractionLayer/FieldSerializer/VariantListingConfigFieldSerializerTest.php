@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer;
@@ -22,13 +22,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer
  */
 class VariantListingConfigFieldSerializerTest extends TestCase
 {
     protected VariantListingConfigFieldSerializer $serializer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $validator = $this->createMock(ValidatorInterface::class);
@@ -45,10 +46,12 @@ class VariantListingConfigFieldSerializerTest extends TestCase
         ];
 
         $result = $this->encode($data);
+        static::assertArrayHasKey('variant_listing_config', $result);
+        $result = json_decode($result['variant_listing_config'], true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame($data['displayParent'], $result['display_parent']);
-        static::assertSame(Uuid::fromHexToBytes($data['mainVariantId']), $result['main_variant_id']);
-        static::assertSame('[]', $result['configurator_group_config']);
+        static::assertSame($data['displayParent'], $result['displayParent']);
+        static::assertSame($data['mainVariantId'], $result['mainVariantId']);
+        static::assertSame($data['configuratorGroupConfig'], $result['configuratorGroupConfig']);
     }
 
     public function testExpandedList(): void
@@ -64,10 +67,12 @@ class VariantListingConfigFieldSerializerTest extends TestCase
         ];
 
         $result = $this->encode($data);
+        static::assertArrayHasKey('variant_listing_config', $result);
+        $result = json_decode($result['variant_listing_config'], true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNull($result['display_parent']);
-        static::assertNull($result['main_variant_id']);
-        static::assertSame(json_encode($data['configuratorGroupConfig']), $result['configurator_group_config']);
+        static::assertSame($data['displayParent'], $result['displayParent']);
+        static::assertSame($data['mainVariantId'], $result['mainVariantId']);
+        static::assertSame($data['configuratorGroupConfig'], $result['configuratorGroupConfig']);
     }
 
     public function testEncodeThrowExceptionOnWrongField(): void
@@ -85,8 +90,8 @@ class VariantListingConfigFieldSerializerTest extends TestCase
         try {
             iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
             static::fail('encode with incorrect field');
-        } catch (\Exception $e) {
-            static::assertInstanceOf(InvalidSerializerFieldException::class, $e);
+        } catch (DataAbstractionLayerException $e) {
+            static::assertSame(DataAbstractionLayerException::INVALID_FIELD_SERIALIZER_CODE, $e->getErrorCode());
         }
     }
 
@@ -124,7 +129,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
      *
      * @throws \JsonException
      *
-     * @return array<string, int|string|array<string, bool|string>|null>
+     * @return array<string>
      */
     private function encode(array $data): array
     {
@@ -138,6 +143,6 @@ class VariantListingConfigFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        return iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
+        return iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag));
     }
 }

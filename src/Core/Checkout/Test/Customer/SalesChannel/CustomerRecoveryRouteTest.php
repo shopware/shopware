@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -19,8 +20,10 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group store-api
  */
+#[Package('customer-order')]
 class CustomerRecoveryRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

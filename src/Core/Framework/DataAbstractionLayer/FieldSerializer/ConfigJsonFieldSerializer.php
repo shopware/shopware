@@ -2,22 +2,24 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class ConfigJsonFieldSerializer extends JsonFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof ConfigJsonField) {
-            throw new InvalidSerializerFieldException(ConfigJsonField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ConfigJsonField::class, $field);
         }
 
         $wrapped = [ConfigJsonField::STORAGE_KEY => $data->getValue()];
@@ -26,15 +28,10 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
         return parent::encode($field, $existence, $data, $parameters);
     }
 
-    /**
-     * @return array|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?array*/
+    public function decode(Field $field, mixed $value): mixed
     {
         if (!$field instanceof ConfigJsonField) {
-            throw new InvalidSerializerFieldException(ConfigJsonField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ConfigJsonField::class, $field);
         }
 
         $wrapped = parent::decode($field, $value);

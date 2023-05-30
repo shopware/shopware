@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\MemorySizeCalculator
  */
 class MemorySizeCalculatorTest extends TestCase
@@ -28,7 +29,7 @@ class MemorySizeCalculatorTest extends TestCase
      *
      * @return array{0: string, 1: int}[]
      */
-    public function memorySizeDataProvider(): array
+    public static function memorySizeDataProvider(): array
     {
         return [
             ['2k', 2048],
@@ -45,6 +46,31 @@ class MemorySizeCalculatorTest extends TestCase
             ['-1', -1],
             ['0', 0],
             ['2mk', 2048], // the unit must be the last char, so in this case 'k', not 'm'
+        ];
+    }
+
+    /**
+     * @dataProvider bytesProvider
+     */
+    public function testFormatBytes(int $bytes, string $formatted): void
+    {
+        static::assertEquals($formatted, MemorySizeCalculator::formatToBytes($bytes));
+    }
+
+    /**
+     * @return array<array{0: int, 1: string}>
+     */
+    public static function bytesProvider(): array
+    {
+        return [
+            [0, '0 B'],
+            [100, '100 B'],
+            [1024, '1 KB'],
+            [2024, '1.98 KB'],
+            [20240, '19.77 KB'],
+            [15768749, '15.04 MB'],
+            [7415768749, '6.91 GB'],
+            [7369137415768749, '6702.19 TB'],
         ];
     }
 }

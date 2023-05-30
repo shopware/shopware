@@ -35,7 +35,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
     public function testDecoration(): void
     {
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', '', 'http://localhost');
 
         static::expectException(DecorationPatternException::class);
         $gateway->getDecorated();
@@ -43,10 +43,11 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
     public function testTagDeprecated(): void
     {
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Parameter $response is required for FastlyReverseProxyGateway');
+        static::expectException(\ArgumentCountError::class);
+        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway::tag()');
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', '', 'http://localhost');
+        /** @phpstan-ignore-next-line  */
         $gateway->tag(['foo', 'bla'], '');
     }
 
@@ -54,7 +55,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     {
         $resp = new Response();
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', '', 'http://localhost');
         $gateway->tag(['foo', 'bla'], '', $resp);
 
         static::assertSame('foo bla', $resp->headers->get('surrogate-key'));
@@ -64,7 +65,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     {
         $resp = new Response();
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', 'sw-1234');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', 'sw-1234', 'http://localhost');
         $gateway->tag(['foo', 'bla'], '', $resp);
 
         static::assertSame('foo bla sw-1234', $resp->headers->get('surrogate-key'));
@@ -79,7 +80,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, $prefix);
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, $prefix, '', 'http://localhost');
         $gateway->invalidate($tags);
         $gateway->flush();
 
@@ -97,7 +98,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
         $this->mockHandler->append(new GuzzleResponse(200, []));
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', '', 'http://localhost');
         $tags = array_map('strval', range(1, 500));
         $gateway->invalidate($tags);
 
@@ -113,7 +114,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     /**
      * @return array<string, array<int, string|string[]>>
      */
-    public function providerTags(): iterable
+    public static function providerTags(): iterable
     {
         yield 'normal' => [['foo']];
         yield 'duplicate gets merged' => [['foo', 'foo']];
@@ -124,13 +125,13 @@ class FastlyReverseProxyGatewayTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '');
-        $gateway->ban(['/']);
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', '', 'http://localhost');
+        $gateway->ban(['/foo']);
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
-        static::assertSame('/', $lastRequest->getRequestTarget());
-        static::assertSame('PURGE', $lastRequest->getMethod());
+        static::assertSame('/purge/localhost/foo', $lastRequest->getRequestTarget());
+        static::assertSame('POST', $lastRequest->getMethod());
         static::assertFalse($lastRequest->hasHeader('surrogate-key'));
         static::assertSame(['key'], $lastRequest->getHeader('Fastly-Key'));
     }
@@ -139,7 +140,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', '', 'http://localhost');
         $gateway->banAll();
 
         $lastRequest = $this->mockHandler->getLastRequest();
@@ -154,7 +155,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', 'sw-1234');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', 'sw-1234', 'http://localhost');
         $gateway->banAll();
         $gateway->flush();
 
@@ -178,14 +179,14 @@ class FastlyReverseProxyGatewayTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage($message);
 
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '');
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', '', 'http://localhost');
         $gateway->ban(['/']);
     }
 
     /**
      * @return array<string, array<\Throwable|string>>
      */
-    public function providerExceptions(): iterable
+    public static function providerExceptions(): iterable
     {
         yield 'timed out' => [
             new ServerException('request timed out', new Request('GET', '/'), new GuzzleResponse(500)),

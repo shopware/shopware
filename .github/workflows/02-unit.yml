@@ -1,147 +1,141 @@
 name: Unit
 
 on:
-    push:
-        branches:
-            - trunk
-    pull_request:
+  push:
+    branches:
+      - trunk
+  pull_request:
 
 jobs:
   php:
     name: "PHPUnit with PHP ${{ matrix.php-version }}"
     runs-on: ubuntu-latest
-    container: "shopware/development:${{ matrix.php-version }}-composer-2"
     strategy:
+      fail-fast: false
       matrix:
-        php-version: ["7.4", "8.0", "8.1"]
+        php-version: ["8.1", "8.2"]
     env:
-      TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs unit integration migration-tests'
+      TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch unit integration migration-tests'
       APP_ENV: test
-      DATABASE_URL: mysql://root:root@database:3306/root
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
     services:
       database:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: root
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: root
+        options: '--mount="type=tmpfs,destination=/var/lib/mysql" --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=2s --health-retries=3'
+        ports:
+          - "3306:3306"
       elasticsearch:
         image: elastic/elasticsearch:7.8.0
         env:
           discovery.type: single-node
+        ports:
+          - "9200:9200"
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
           fetch-depth: 0
 
-    - name: Install Shopware
-      run: |
-        composer run setup
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
 
-    - name: Run PHPUnit
-      if: matrix.php-version != '8.0'
-      run: |
-        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
+      - name: Configure for PHP 8.2
+        run: composer config platform.php 8.1.99
+        if: matrix.php-version == '8.2'
 
-    - name: Run PHPUnit with Pcov
-      if: matrix.php-version == '8.0'
-      run: |
-        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~' vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined"  --testsuite "$TEST_SUITE" --coverage-cobertura "phpunit.coverage.$TEST_SUITE.xml"; done
+      - name: Setup Composer
+        run: |
+          composer install
 
-    - uses: codecov/codecov-action@v2
-      if: matrix.php-version == '8.0'
-      with:
-        files: ./phpunit.coverage.administration.xml,./phpunit.coverage.storefront.xml,./phpunit.coverage.checkout.xml,./phpunit.coverage.content.xml,./phpunit.framework.administration.xml,./phpunit.coverage.profiling.xml,./phpunit.coverage.migration.xml,./phpunit.coverage.system.xml,./phpunit.coverage.elasticsearch.xml,./phpunit.coverage.docs.xml,./phpunit.coverage.unit.xml,./phpunit.coverage.integration.xml
+      - name: Run PHPUnit
+        run: |
+          for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"
-    container: shopware/development:7.4-composer-2
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
-    services:
-      database:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: root
-      elasticsearch:
-        image: elasticsearch:7.8.0
-        env:
-          discovery.type: single-node
 
     steps:
-      - name: Install node 16
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-          export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install 16
-          nvm use 16
-          nvm alias default 16
-
-      - name: Replace node binary
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          rm /usr/bin/npm
-          rm /usr/bin/node
-          ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/node /usr/bin/node
-          ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/npm /usr/bin/npm
-          npm config set --global user 0
-          npm config set --global unsafe-perm true
-
       - name: Clone platform
         uses: actions/checkout@v2
 
-      - name: Install Shopware
-        run: |
-          composer run setup
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Retrieve the cached "node_modules" directory (if present)
+        uses: actions/cache@v2
+        id: node-cache
+        with:
+          path: src/Administration/Resources/app/administration/node_modules
+          key: admin-node-modules-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json') }}
+
+      - name: Install dependencies (if the cached directory was not found)
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm --prefix src/Administration/Resources/app/administration ci --no-audit --prefer-offline
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Setup Composer
+        run: composer install
+
+      - name: Generate Schema
+        run: bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
 
       - name: Run Jest Admin
-        run: |
-          bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
-          npm --prefix src/Administration/Resources/app/administration run unit -- --silent
+        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 
   storefront:
     name: "Jest Storefront"
     runs-on: ubuntu-latest
-    container: shopware/development:7.4-composer-2
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
-    services:
-      database:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: root
-      elasticsearch:
-        image: elasticsearch:7.8.0
-        env:
-          discovery.type: single-node
 
     steps:
       - name: Clone platform
         uses: actions/checkout@v2
 
-      - name: Install Shopware
-        run: |
-          composer run setup
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Retrieve the cached "node_modules" directory (if present)
+        uses: actions/cache@v2
+        id: node-cache
+        with:
+          path: src/Storefront/Resources/app/storefront/node_modules
+          key: storefront-node-modules-${{ runner.os }}-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
+
+      - name: Install dependencies (if the cached directory was not found)
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm --prefix src/Storefront/Resources/app/storefront ci --no-audit --prefer-offline
 
       - name: Run Jest Storefront
-        run: |
-          npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent
+        run: npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent

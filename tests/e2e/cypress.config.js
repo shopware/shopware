@@ -31,14 +31,11 @@ module.exports = defineConfig({
     dbPassword: 'root',
     dbHost: 'mysql',
     dbName: 'shopware_e2e',
-    expectedVersion: '6.4.',
+    expectedVersion: '6.5.',
     grepOmitFiltered: true,
     grepFilterSpecs: true,
   },
-  retries: {
-    runMode: 2,
-    openMode: 0,
-  },
+  retries: 0,
   reporter: 'cypress-multi-reporters',
   reporterOptions: {
     reporterEnabled: 'mochawesome, mocha-junit-reporter',
@@ -58,8 +55,10 @@ module.exports = defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
+      require('@cypress/grep/src/plugin')(config);
+
       return require('./cypress/plugins/index.js')(on, config)
     },
-    baseUrl: 'http://localhost:8000',
+    baseUrl: process.env.APP_URL ?? 'http://localhost:8000',
   },
 })

@@ -2,9 +2,15 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -58,8 +64,8 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
             ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
             ->where('loc.code = :germanLocale')
             ->setParameter('germanLocale', 'de-DE')
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if (!$germanLanguageId) {
             return;
@@ -75,9 +81,9 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
                 'state.id = state_translation.country_state_id AND state_translation.language_id = :germanLanguageId'
             )->where('state.short_code IN (:shortCodes)')
             ->setParameter('germanLanguageId', $germanLanguageId)
-            ->setParameter('shortCodes', array_keys($default), Connection::PARAM_STR_ARRAY)
-            ->execute()
-            ->fetchAll();
+            ->setParameter('shortCodes', array_keys($default), ArrayParameterType::STRING)
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($translations as $translation) {
             $shortCode = $translation['short_code'];

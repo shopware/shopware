@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
+use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -18,7 +20,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
+ *
  * @group skip-paratest
+ *
+ * @package system-settings
  */
 class CustomFieldUpdaterTest extends TestCase
 {
@@ -29,7 +34,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     private ElasticsearchOutdatedIndexDetector $indexDetector;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -45,9 +50,14 @@ class CustomFieldUpdaterTest extends TestCase
 
         $connection->executeStatement('DELETE FROM custom_field');
 
-        $this->getContainer()
-            ->get(ElasticsearchIndexingCommand::class)
-            ->run(new ArrayInput([]), new NullOutput());
+        $command = new ElasticsearchIndexingCommand(
+            $this->getContainer()->get(ElasticsearchIndexer::class),
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get(CreateAliasTaskHandler::class),
+            true
+        );
+
+        $command->run(new ArrayInput([]), new NullOutput());
 
         static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
     }

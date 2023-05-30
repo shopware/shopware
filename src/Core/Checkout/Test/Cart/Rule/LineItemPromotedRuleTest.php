@@ -10,13 +10,16 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemPromotedRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -55,7 +58,7 @@ class LineItemPromotedRuleTest extends TestCase
         static::assertEquals($expectedType, $ruleConstraints['isPromoted'][0]);
     }
 
-    public function matchTestData(): array
+    public static function matchTestData(): array
     {
         return [
             [true, true, true],
@@ -168,6 +171,6 @@ class LineItemPromotedRuleTest extends TestCase
 
     private function createLineItemWithTopsellerMarker(bool $markAsTopseller): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
+        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
     }
 }

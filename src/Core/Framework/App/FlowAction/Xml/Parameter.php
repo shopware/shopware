@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
+#[Package('core')]
 class Parameter extends XmlElement
 {
     protected string $type;
@@ -48,6 +50,7 @@ class Parameter extends XmlElement
         $values = [];
 
         foreach ($element->attributes as $item) {
+            \assert($item instanceof \DOMAttr);
             $values[$item->name] = XmlUtils::phpize($item->value);
         }
 

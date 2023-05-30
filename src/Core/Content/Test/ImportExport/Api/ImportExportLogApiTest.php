@@ -5,7 +5,8 @@ namespace Shopware\Core\Content\Test\ImportExport\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,39 +15,22 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $logRepository;
+    private EntityRepository $logRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $profileRepository;
+    private EntityRepository $profileRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $fileRepository;
+    private EntityRepository $fileRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
+    private EntityRepository $userRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -85,24 +69,24 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             $expectData = [];
             foreach (array_values($data) as $entry) {
                 $expectData[$entry['id']] = $entry;
             }
 
-            static::assertEquals($num, $content->total);
+            static::assertEquals($num, $content['total']);
             for ($i = 0; $i < $num; ++$i) {
-                $importExportLog = $content->data[$i];
-                $expect = $expectData[$importExportLog->_uniqueIdentifier];
-                static::assertEquals($expect['activity'], $importExportLog->activity);
-                static::assertEquals($expect['state'], $importExportLog->state);
-                static::assertEquals($expect['userId'], $importExportLog->userId);
-                static::assertEquals($expect['profileId'], $importExportLog->profileId);
-                static::assertEquals($expect['fileId'], $importExportLog->fileId);
-                static::assertEquals($expect['username'], $importExportLog->username);
-                static::assertEquals($expect['profileName'], $importExportLog->profileName);
+                $importExportLog = $content['data'][$i];
+                $expect = $expectData[$importExportLog['_uniqueIdentifier']];
+                static::assertEquals($expect['activity'], $importExportLog['activity']);
+                static::assertEquals($expect['state'], $importExportLog['state']);
+                static::assertEquals($expect['userId'], $importExportLog['userId']);
+                static::assertEquals($expect['profileId'], $importExportLog['profileId']);
+                static::assertEquals($expect['fileId'], $importExportLog['fileId']);
+                static::assertEquals($expect['username'], $importExportLog['username']);
+                static::assertEquals($expect['profileName'], $importExportLog['profileName']);
             }
         }
     }
@@ -134,19 +118,19 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($num, $content->total);
+        static::assertEquals($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
-            $importExportLog = $content->data[$i];
-            $expect = $expectData[$importExportLog->_uniqueIdentifier];
-            static::assertEquals($expect['activity'], $importExportLog->activity);
-            static::assertEquals($expect['state'], $importExportLog->state);
-            static::assertEquals($expect['userId'], $importExportLog->userId);
-            static::assertEquals($expect['profileId'], $importExportLog->profileId);
-            static::assertEquals($expect['fileId'], $importExportLog->fileId);
-            static::assertEquals($expect['username'], $importExportLog->username);
-            static::assertEquals($expect['profileName'], $importExportLog->profileName);
+            $importExportLog = $content['data'][$i];
+            $expect = $expectData[$importExportLog['_uniqueIdentifier']];
+            static::assertEquals($expect['activity'], $importExportLog['activity']);
+            static::assertEquals($expect['state'], $importExportLog['state']);
+            static::assertEquals($expect['userId'], $importExportLog['userId']);
+            static::assertEquals($expect['profileId'], $importExportLog['profileId']);
+            static::assertEquals($expect['fileId'], $importExportLog['fileId']);
+            static::assertEquals($expect['username'], $importExportLog['username']);
+            static::assertEquals($expect['profileName'], $importExportLog['profileName']);
         }
     }
 
@@ -163,14 +147,14 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
-            static::assertEquals($expect['activity'], $content->data->activity);
-            static::assertEquals($expect['state'], $content->data->state);
-            static::assertEquals($expect['userId'], $content->data->userId);
-            static::assertEquals($expect['profileId'], $content->data->profileId);
-            static::assertEquals($expect['fileId'], $content->data->fileId);
-            static::assertEquals($expect['username'], $content->data->username);
-            static::assertEquals($expect['profileName'], $content->data->profileName);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertEquals($expect['activity'], $content['data']['activity']);
+            static::assertEquals($expect['state'], $content['data']['state']);
+            static::assertEquals($expect['userId'], $content['data']['userId']);
+            static::assertEquals($expect['profileId'], $content['data']['profileId']);
+            static::assertEquals($expect['fileId'], $content['data']['fileId']);
+            static::assertEquals($expect['username'], $content['data']['username']);
+            static::assertEquals($expect['profileName'], $content['data']['profileName']);
         }
     }
 
@@ -194,6 +178,8 @@ class ImportExportLogApiTest extends TestCase
         unset($searchData['config']);
 
         $filter = [];
+        static::assertNotNull($invalidData);
+        static::assertNotNull($searchData);
         foreach ($searchData as $key => $value) {
             $filter['filter'][$key] = $invalidData[$key];
             $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
@@ -201,8 +187,8 @@ class ImportExportLogApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
-            static ::assertEquals(0, $content->total);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static ::assertEquals(0, $content['total']);
 
             $filter['filter'][$key] = $value;
             $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
@@ -210,8 +196,8 @@ class ImportExportLogApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
-            static ::assertEquals(1, $content->total);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static ::assertEquals(1, $content['total']);
         }
     }
 
@@ -229,7 +215,7 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
         static::assertCount($num, $records);
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
@@ -238,7 +224,7 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
         static::assertCount($num, $records);
     }
 
@@ -254,10 +240,18 @@ class ImportExportLogApiTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function prepareImportExportLogTestData(int $num = 1): array
     {
         $data = [];
+        $users = [];
+        $userIds = [];
+        $fileIds = [];
+        $profiles = [];
+        $profileIds = [];
+        $activities = [];
 
         if ($num > 0) {
             // Dependencies
@@ -267,7 +261,7 @@ class ImportExportLogApiTest extends TestCase
             $fileIds = array_column($files, 'id');
             $profiles = $this->prepareProfiles(2);
             $profileIds = array_column($profiles, 'id');
-            $activities = ['import', 'export'];
+            $activities = [0 => 'import', 1 => 'export'];
         }
 
         for ($i = 1; $i <= $num; ++$i) {
@@ -276,8 +270,8 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[$i % 2],
-                'state' => sprintf('state %s', $i),
+                'activity' => $activities[$i % 2] ?? null,
+                'state' => sprintf('state %d', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
                 'fileId' => $fileIds[$i % 2],
@@ -291,6 +285,9 @@ class ImportExportLogApiTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareUsers(int $num = 1): array
     {
         $data = [];
@@ -300,11 +297,11 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => sprintf('foobar%s', $i),
-                'password' => sprintf('pw%s', $i),
-                'firstName' => sprintf('Foo%s', $i),
-                'lastName' => sprintf('Bar%s', $i),
-                'email' => sprintf('fo%s@ob.ar', $i),
+                'username' => sprintf('foobar%d', $i),
+                'password' => sprintf('shopwarepw%d', $i),
+                'firstName' => sprintf('Foo%d', $i),
+                'lastName' => sprintf('Bar%d', $i),
+                'email' => sprintf('fo%d@ob.ar', $i),
             ];
         }
         $this->userRepository->create(array_values($data), $this->context);
@@ -312,6 +309,9 @@ class ImportExportLogApiTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareFiles(int $num = 1): array
     {
         $data = [];
@@ -320,8 +320,8 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%s.xml', $i),
-                'path' => sprintf('/test/test%s', $i),
+                'originalName' => sprintf('file%d.xml', $i),
+                'path' => sprintf('/test/test%d', $i),
                 'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
                 'accessToken' => Random::getBase64UrlString(32),
             ];
@@ -331,6 +331,9 @@ class ImportExportLogApiTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareProfiles(int $num = 1): array
     {
         $data = [];
@@ -354,6 +357,11 @@ class ImportExportLogApiTest extends TestCase
         return $data;
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $data
+     *
+     * @return array<int, mixed>
+     */
     protected function rotateTestdata(array $data): array
     {
         array_push($data, array_shift($data));

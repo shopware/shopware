@@ -7,7 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -38,7 +38,7 @@ class SeoUrlRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url.repository');
         $events = $repo->create([$url], $context);
         static::assertCount(1, $events->getEvents());
@@ -66,7 +66,7 @@ class SeoUrlRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url.repository');
         $repo->create([$url], $context);
 
@@ -103,7 +103,7 @@ class SeoUrlRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url.repository');
         $repo->create([$url], $context);
 

@@ -1,6 +1,8 @@
-const { Component } = Shopware;
-
-Component.extend('sw-custom-field-type-checkbox', 'sw-custom-field-type-base', {
+/**
+ * @package system-settings
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     data() {
         return {
             propertyNames: {
@@ -9,4 +11,4 @@ Component.extend('sw-custom-field-type-checkbox', 'sw-custom-field-type-base', {
             },
         };
     },
-});
+};

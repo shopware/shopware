@@ -4,8 +4,8 @@ describe('Login: Visual tests', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
         cy.clearCookies();
-        cy.clearCookie('bearerAuth')
-        cy.clearCookie('refreshBearerAuth')
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
         cy.setLocaleToEnGb()
             .then(() => {
                 cy.visit(Cypress.env('admin'));
@@ -19,7 +19,7 @@ describe('Login: Visual tests', () => {
             // Change background image of the element to ensure consistent snapshots
             cy.changeElementStyling(
                 '.sw-login__image',
-                `background-image: url("${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png")`
+                `background-image: url("${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png")`,
             );
 
             // Take snapshot for visual testing

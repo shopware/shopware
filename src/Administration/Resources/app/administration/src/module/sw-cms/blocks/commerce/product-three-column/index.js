@@ -1,8 +1,17 @@
-import './component';
-import './preview';
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-preview-product-three-column', () => import('./preview'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-block-product-three-column', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-three-column',

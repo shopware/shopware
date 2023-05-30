@@ -13,10 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('customer-order')]
 class CustomerWishlistProductDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'customer_wishlist_product';
+    final public const ENTITY_NAME = 'customer_wishlist_product';
 
     public function getEntityName(): string
     {
@@ -36,6 +38,11 @@ class CustomerWishlistProductDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.3.4.0';
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return CustomerWishlistDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

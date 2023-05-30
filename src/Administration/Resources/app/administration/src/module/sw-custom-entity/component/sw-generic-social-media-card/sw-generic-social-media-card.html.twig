@@ -1,0 +1,108 @@
+<sw-card
+    class="sw-generic-social-media-card"
+    position-identifier="sw-generic-social-media-card"
+    :title="$tc('sw-landing-page.base.seo.titleSocialMedia')"
+>
+    <sw-text-field
+        class="sw-generic-social-media-card__og-title-input"
+        maxlength="255"
+        :value="ogTitle"
+        :label="$tc('sw-landing-page.base.seo.labelSocialMediaTitle')"
+        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
+        :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaTitle')"
+        @input="emitOgTitle"
+    />
+
+    <sw-textarea-field
+        class="sw-generic-social-media-card__og-description-input"
+        :value="ogDescription"
+        maxlength="255"
+        :label="$tc('sw-landing-page.base.seo.labelSocialMediaDescription')"
+        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
+        :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaDescription')"
+        @input="emitOgDescription"
+    />
+
+    <sw-media-upload-v2
+        class="sw-generic-social-media-card__og-image-upload"
+        variant="regular"
+        :upload-tag="uploadTag"
+        :source="ogImageEntity"
+        :allow-multi-select="false"
+        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+        @media-upload-sidebar-open="onOpenMediaModal"
+        @media-upload-remove-image="removeOgImage"
+    />
+
+    <sw-upload-listener
+        class="sw-generic-social-media-card__og-image-upload-listener"
+        :upload-tag="uploadTag"
+        auto-upload
+        @media-upload-finish="onImageUpload"
+    />
+
+    <div class="sw-generic-social-media-card__media-preview">
+        <div class="sw-generic-social-media-card__media-preview-title">
+            {{ $tc('sw-landing-page.base.seo.socialMediaPreview') }} &lt;= 600px
+        </div>
+
+        <div
+            class="sw-generic-social-media-card__media-preview-container media-preview--sm"
+        >
+            <img
+                v-if="ogImageEntity?.url"
+                class="sw-generic-social-media-card__media-preview-image"
+                :src="ogImageEntity?.url"
+                :alt="ogImageEntity?.alt"
+            >
+            <div class="sw-generic-social-media-card__media-preview-content">
+                <a
+                    class="sw-generic-social-media-card__media-preview-content-link"
+                    href="#"
+                >example.com</a>
+                <h3 class="sw-generic-social-media-card__media-preview-content-title">
+                    {{ ogTitle }}
+                </h3>
+                <p class="sw-generic-social-media-card__media-preview-content-description">
+                    {{ ogDescription }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="sw-generic-social-media-card__media-preview">
+        <div class="sw-generic-social-media-card__media-preview-title">
+            {{ $tc('sw-landing-page.base.seo.socialMediaPreview') }} &gt; 600px
+        </div>
+
+        <div class="sw-generic-social-media-card__media-preview-container media-preview--lg">
+            <img
+                v-if="ogImageEntity?.url"
+                class="sw-generic-social-media-card__media-preview-image"
+                :src="ogImageEntity?.url"
+                :alt="ogImageEntity?.alt"
+            >
+            <div class="sw-generic-social-media-card__media-preview-content">
+                <a
+                    class="sw-generic-social-media-card__media-preview-content-link"
+                    href="#"
+                >
+                    example.com
+                </a>
+                <h3 class="sw-generic-social-media-card__media-preview-content-title">
+                    {{ ogTitle }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <sw-media-modal-v2
+        v-if="mediaModalIsOpen"
+        class="sw-generic-social-media-card__media-modal"
+        variant="regular"
+        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+        :allow-multi-select="false"
+        @media-modal-selection-change="onSelectionChanges"
+        @modal-close="onCloseMediaModal"
+    />
+</sw-card>

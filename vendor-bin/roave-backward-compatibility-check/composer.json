@@ -1,7 +1,7 @@
 {
     "require-dev": {
-        "roave/backward-compatibility-check": "^5.0",
-        "phpunit/phpunit": "^9.5"
+        "roave/backward-compatibility-check": "^8.0",
+        "symplify/vendor-patches": "^11.1"
     },
     "bin": [
         "bin/bc-check"
@@ -18,25 +18,27 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.26"
+            "ext-bcmath": "8.0.12",
+            "composer-runtime-api": "2.2.0"
         },
         "allow-plugins": {
             "ocramius/package-versions": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "bamarni/composer-bin-plugin": true,
+            "phpstan/extension-installer": true
         }
     },
     "require": {
         "cweagans/composer-patches": "^1.7",
         "doctrine/annotations": "^1.13",
-        "phpdocumentor/type-resolver": "1.x-dev#370845d924dfd2610c67c502efeb0963c0556038"
+        "phpdocumentor/reflection-docblock": "^5.3.0"
     },
     "extra": {
         "patches": {
             "roave/backward-compatibility-check": {
                 "Add exclude errors": "patches/add-exclude-errors.patch",
                 "Add exclude files": "patches/add-exclude-files.patch",
-                "Add Composer 2": "patches/add-composer-2.patch",
-                "Add Annotation check": "patches/add-annotation-check.patch"
+                "Add Composer 2": "patches/add-composer-2.patch"
             }
         }
     }

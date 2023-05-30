@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class SyncPayPayload implements PaymentPayloadInterface
 {
     use CloneTrait;
@@ -20,12 +22,11 @@ class SyncPayPayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
-    protected OrderEntity $order;
-
-    public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order)
-    {
+    public function __construct(
+        OrderTransactionEntity $orderTransaction,
+        protected OrderEntity $order
+    ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
-        $this->order = $order;
     }
 
     public function setSource(Source $source): void

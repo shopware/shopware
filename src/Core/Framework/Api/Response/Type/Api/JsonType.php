@@ -11,31 +11,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class JsonType extends JsonFactoryBase
 {
     /**
-     * @var JsonEntityEncoder
-     */
-    private $encoder;
-
-    /**
-     * @var StructEncoder
-     */
-    private $structEncoder;
-
-    /**
      * @internal
      */
-    public function __construct(JsonEntityEncoder $encoder, StructEncoder $structEncoder)
-    {
-        $this->encoder = $encoder;
-        $this->structEncoder = $structEncoder;
+    public function __construct(
+        private readonly JsonEntityEncoder $encoder,
+        private readonly StructEncoder $structEncoder
+    ) {
     }
 
     public function supports(string $contentType, ContextSource $origin): bool

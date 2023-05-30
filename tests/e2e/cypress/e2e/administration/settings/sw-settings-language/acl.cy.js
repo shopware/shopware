@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Language: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createLanguageFixture();
-            })
+        cy.createLanguageFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -19,16 +16,16 @@ describe('Language: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'language',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'language',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'language',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/language/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -38,7 +35,7 @@ describe('Language: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
@@ -48,11 +45,11 @@ describe('Language: Test acl privileges', () => {
         cy.get('input[name=sw-field--language-name]').typeAndCheck('Japanese');
         cy.get('.sw-settings-language-detail__select-iso-code').typeSingleSelectAndCheck(
             'ja-JP',
-            '.sw-settings-language-detail__select-iso-code'
+            '.sw-settings-language-detail__select-iso-code',
         );
         cy.get('.sw-settings-language-detail__select-locale').typeSingleSelectAndCheck(
             'Japanese, Japan',
-            '.sw-settings-language-detail__select-locale'
+            '.sw-settings-language-detail__select-locale',
         );
         cy.get(page.elements.languageSaveAction).click();
 
@@ -69,12 +66,12 @@ describe('Language: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'language',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'language',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/language/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -84,14 +81,14 @@ describe('Language: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--2`
+            `${page.elements.dataGridRow}--2`,
         );
         cy.get('input[name=sw-field--language-name]').clearTypeAndCheck('Kyoto Japanese');
         cy.get(page.elements.languageSaveAction).click();
@@ -109,12 +106,12 @@ describe('Language: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'language',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'language',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/language/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -124,14 +121,14 @@ describe('Language: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

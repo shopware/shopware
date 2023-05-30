@@ -8,17 +8,18 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackag
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNetPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemGroupServiceRegistryTest extends TestCase
 {
     /**
      * This test verifies that our packagers are
      * correctly registered in our registry.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPackagersAreRegistered(): void
@@ -38,7 +39,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that our sorters are
      * correctly registered in our registry.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortersAreRegistered(): void
@@ -57,7 +57,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that we can retrieve
      * our packager by its key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGetPackagerByKey(): void
@@ -79,7 +78,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that we can retrieve
      * our sorter by its key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGetSorterByKey(): void

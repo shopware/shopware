@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class FetchModeHelper
 {
     /**
@@ -14,7 +17,7 @@ class FetchModeHelper
             return $result;
         }
 
-        list($keyName, $valueName) = array_keys($firstRow);
+        [$keyName, $valueName] = array_keys($firstRow);
 
         return array_combine(
             array_column($result, $keyName),

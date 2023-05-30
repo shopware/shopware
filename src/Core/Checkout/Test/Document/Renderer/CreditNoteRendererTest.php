@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Test\Document\Renderer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
@@ -22,11 +24,11 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -41,6 +43,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -49,7 +52,7 @@ class CreditNoteRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private CreditNoteRenderer $creditNoteRenderer;
 
@@ -107,7 +110,6 @@ class CreditNoteRendererTest extends TestCase
         $invoiceConfig->setDocumentNumber('1001');
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
-
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($result);
         $invoiceId = $result->getId();
@@ -144,6 +146,8 @@ class CreditNoteRendererTest extends TestCase
         );
 
         static::assertInstanceOf(CreditNoteOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
@@ -191,7 +195,7 @@ class CreditNoteRendererTest extends TestCase
         );
     }
 
-    public function creditNoteRendererDataProvider(): \Generator
+    public static function creditNoteRendererDataProvider(): \Generator
     {
         yield 'render credit_note successfully' => [
             [7, 19, 22],
@@ -314,7 +318,7 @@ class CreditNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationInvoice->getOrderVersionId(), $operationCreditNote->getOrderVersionId());
+        static::assertEquals($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
     }
 
@@ -389,7 +393,7 @@ class CreditNoteRendererTest extends TestCase
         $successCallback($order);
     }
 
-    public function creditNoteRendererCustomerGroupDataProvider(): \Generator
+    public static function creditNoteRendererCustomerGroupDataProvider(): \Generator
     {
         yield 'render credit_note with customer group gross' => [
             false,
@@ -420,13 +424,13 @@ class CreditNoteRendererTest extends TestCase
      */
     private function generateDemoCart(array $taxes): Cart
     {
-        $cart = $this->cartService->createNew('a-b-c', 'A');
+        $cart = $this->cartService->createNew('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
         $products = [];
 
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         $ids = new IdsCollection();
 
@@ -450,7 +454,7 @@ class CreditNoteRendererTest extends TestCase
 
             $products[] = $product;
 
-            $lineItems[] = $factory->create($ids->get($number));
+            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
             $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
         }
 

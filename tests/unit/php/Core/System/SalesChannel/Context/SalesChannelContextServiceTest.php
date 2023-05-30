@@ -11,11 +11,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\SalesChannel\Context\SalesChannelContextService
  */
 class SalesChannelContextServiceTest extends TestCase
@@ -29,7 +32,8 @@ class SalesChannelContextServiceTest extends TestCase
             $factory,
             $this->createMock(CartRuleLoader::class),
             $persister,
-            $this->createMock(CartService::class)
+            $this->createMock(CartService::class),
+            $this->createMock(EventDispatcherInterface::class),
         );
 
         $persister->method('load')->willReturn(['expired' => true]);
@@ -60,7 +64,8 @@ class SalesChannelContextServiceTest extends TestCase
             $factory,
             $this->createMock(CartRuleLoader::class),
             $persister,
-            $this->createMock(CartService::class)
+            $this->createMock(CartService::class),
+            $this->createMock(EventDispatcherInterface::class)
         );
 
         $customerId = Uuid::randomHex();
@@ -81,5 +86,38 @@ class SalesChannelContextServiceTest extends TestCase
             ->willReturn($this->createMock(SalesChannelContext::class));
 
         $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
+    }
+
+    public function testDispatchesSalesChannelContextCreatedEvent(): void
+    {
+        $token = 'test-token';
+        $context = $this->createMock(SalesChannelContext::class);
+        $session = [
+            'foo' => 'bar',
+        ];
+
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn($session);
+
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects(static::once())
+            ->method('create')
+            ->with($token, TestDefaults::SALES_CHANNEL, $session)
+            ->willReturn($context);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(static::once())
+            ->method('dispatch')
+            ->with(new SalesChannelContextCreatedEvent($context, $token));
+
+        $service = new SalesChannelContextService(
+            $factory,
+            $this->createMock(CartRuleLoader::class),
+            $persister,
+            $this->createMock(CartService::class),
+            $dispatcher,
+        );
+
+        $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 }

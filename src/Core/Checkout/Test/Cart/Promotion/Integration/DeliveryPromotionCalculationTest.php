@@ -3,15 +3,19 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\ShippingMethodPricesTestBehaviour;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -19,8 +23,10 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  */
+#[Package('checkout')]
 class DeliveryPromotionCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +34,7 @@ class DeliveryPromotionCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use ShippingMethodPricesTestBehaviour;
 
-    private EntityRepositoryInterface $promotionRepository;
+    private EntityRepository $promotionRepository;
 
     private CartService $cartService;
 
@@ -46,7 +52,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($this->token, TestDefaults::SALES_CHANNEL);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->restorePrices($this->connection);
         $this->deletePromotions();
@@ -58,13 +64,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We add a product and also an absolute promotion.
      * Our final delivery price should then be as expected.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAbsoluteDeliveryDiscount(): void
     {
@@ -101,13 +103,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We add a product and also an percentage promotion.
      * Our final delivery price should then be as expected.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageDeliveryDiscount(): void
     {
@@ -144,13 +142,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We only add a product and got a auto promotion.
      * Our final delivery price should then be as expected.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageAutoDeliveryDiscount(): void
     {
@@ -181,10 +175,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageAbsoluteDeliveryDiscountCombination(): void
     {
@@ -223,13 +214,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an absolute discount may not reduce shipping costs beneath 0
      *
-     * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testAbsoluteDeliveryDiscountHigherThanShippingCosts(): void
     {
@@ -262,13 +250,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an fixed price discount may not increase shipping costs
      *
-     * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testFixedDeliveryDiscountHigherThanShippingCosts(): void
     {
@@ -301,13 +286,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an fixed price discount sets shipping costs to the defined price
      *
-     * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testFixedDeliveryDiscount(): void
     {
@@ -341,13 +323,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount that has currency advanced
      * prices, sets shipping costs to the defined advanced currency price
      *
-     * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testFixedDeliveryDiscountWithCurrency(): void
     {
@@ -386,13 +365,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount sets shipping costs to the defined price
      * all other discounts are ignored when fixed price discount is present
      *
-     * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testMultipleDeliveryDiscountsWithFixed(): void
     {
@@ -434,16 +410,13 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount sets shipping costs to the defined price
      * all other discount are ignored when fixed price discount is present
      *
-     * @test
      * @group promotions
      *
      * NEXT-21735 - Sometimes has a $reduceValue of 0
      * @group not-deterministic
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
@@ -483,13 +456,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that if several fixed price discount are collected
      * only one and the best customer discount will be selected
      *
-     * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws Exception
+     * @throws CartException
      */
     public function testMultipleFixedPriceDeliveryDiscounts(): void
     {
@@ -537,7 +507,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * Our test needs to verify that we use 40 EUR, and end with a shipping cost
      * sum of 60 EUR in the end.
      *
-     * @test
      * @group promotions
      */
     public function test50PercentageDeliveryDiscountWithMaximumValue(): void
@@ -584,7 +553,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * But for your currency, we use 30 EUR instead.
      * Our test needs to verify that we use 30 EUR, and end with a product sum of 70 EUR in the end.
      *
-     * @test
      * @group promotions
      */
     public function test50PercentageDeliveryDiscountWithMaximumValueAndCurrencies(): void
@@ -627,7 +595,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * This test verifies that we use the same tax calculation for our discounts
      * as the delivery costs have (they take them from products)
      *
-     * @test
      * @group promotions
      */
     public function testMultipleDiscountsWithMultipleTaxProducts(): void
@@ -668,7 +635,7 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * helper function for deleting our created promotions
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     private function deletePromotions(): void
     {

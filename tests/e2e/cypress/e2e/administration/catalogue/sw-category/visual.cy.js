@@ -1,11 +1,11 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 describe('Category: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -14,18 +14,12 @@ describe('Category: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic category workflow', { tags: ['pa-content-management'] }, () => {
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
-        }).as('getData');
-
         cy.clickMainMenuItem({
             targetPath: '#/sw/category/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-category'
+            subMenuId: 'sw-category',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-tree').should('be.visible');
@@ -37,8 +31,6 @@ describe('Category: Visual tests', () => {
 
         cy.contains('.tree-link', 'Home').click();
 
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-media-upload-v2__switch-mode').should('exist');
@@ -46,7 +38,7 @@ describe('Category: Visual tests', () => {
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry',
-            'color: #fff'
+            'color: #fff',
         );
         cy.get('.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry')
             .should('have.css', 'color', 'rgb(255, 255, 255)');

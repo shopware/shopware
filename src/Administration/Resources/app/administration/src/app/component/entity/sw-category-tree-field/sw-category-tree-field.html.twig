@@ -41,7 +41,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree_field_input_labels_dismiss_icon %}
-                <template slot="dismiss-icon">
+                <template #dismiss-icon>
                     <sw-icon name="regular-times-s" />
                 </template>
                 {% endblock %}
@@ -174,8 +174,7 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_category_tree_field_input_results_search_results_item_checkbox %}
-                        <sw-field
-                            type="checkbox"
+                        <sw-checkbox-field
                             :value="isSearchItemChecked(item.id)"
                             class="sw-category-tree-field__search-results-checkbox"
                         />
@@ -190,7 +189,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_category_tree_field_input_results_search_results_item_folder_icon %}
                             <sw-icon
-                                name="multicolor-folder-tree"
+                                name="regular-folder"
                                 multicolor
                                 small
                             />

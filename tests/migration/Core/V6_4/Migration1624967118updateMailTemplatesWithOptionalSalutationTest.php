@@ -8,6 +8,7 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1624967118updateMailTemplatesWithOptionalSalutation
  */
 class Migration1624967118updateMailTemplatesWithOptionalSalutationTest extends TestCase
@@ -28,11 +29,9 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutationTest extends T
             $templatesToConsider[] = \str_replace(self::TEMPLATE_DIR, '', $file->getPath());
         }
 
-        $notConsidered = ['password_change'];
+        $notConsidered = ['password_change', 'downloads_delivery'];
 
-        $templatesToConsider = array_filter(\array_unique($templatesToConsider), function ($template) use ($notConsidered) {
-            return !\in_array($template, $notConsidered, true);
-        });
+        $templatesToConsider = array_filter(\array_unique($templatesToConsider), fn ($template) => !\in_array($template, $notConsidered, true));
 
         static::assertEqualsCanonicalizing(MigrationTested::MAIL_TYPE_DIRS, $templatesToConsider);
     }

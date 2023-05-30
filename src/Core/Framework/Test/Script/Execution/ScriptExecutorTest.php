@@ -10,9 +10,10 @@ use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -26,12 +27,15 @@ class ScriptExecutorTest extends TestCase
 
     private ScriptExecutor $executor;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->executor = $this->getContainer()->get(ScriptExecutor::class);
     }
 
     /**
+     * @param array<string> $hooks
+     * @param array<string, mixed> $expected
+     *
      * @dataProvider executeProvider
      */
     public function testExecute(array $hooks, array $expected): void
@@ -78,7 +82,7 @@ class ScriptExecutorTest extends TestCase
     public function testTranslation(): void
     {
         $translator = $this->getContainer()->get(Translator::class);
-        $translator->resetInMemoryCache();
+        $translator->reset();
         $translator->warmUp('');
 
         $context = Context::createDefaultContext();
@@ -182,7 +186,10 @@ class ScriptExecutorTest extends TestCase
         ], $traces['simple-function-case::test'][0]['deprecations']);
     }
 
-    public function executeProvider()
+    /**
+     * @return array<string, array{0: array<string>, 1: array<string, mixed>}>
+     */
+    public static function executeProvider(): iterable
     {
         yield 'Test simple function call' => [
             ['simple-function-case'],
@@ -195,6 +202,13 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
+        ];
+        yield 'Test get shopware version' => [
+            ['shopware-version-case'],
+            [
+                'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+                'version_compare' => true,
+            ],
         ];
     }
 }

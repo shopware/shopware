@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -23,21 +25,22 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class OrderTransactionStateHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $orderTransactionRepository;
+    private EntityRepository $orderTransactionRepository;
 
     private StateMachineRegistry $stateMachineRegistry;
 
     private OrderTransactionStateHandler $orderTransactionStateHelper;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderRepository = $this->getContainer()->get('order.repository');
@@ -46,7 +49,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         $this->orderTransactionStateHelper = $this->getContainer()->get(OrderTransactionStateHandler::class);
     }
 
-    public function dataProviderActions(): array
+    public static function dataProviderActions(): array
     {
         return [
             'Cancel' => [[
@@ -107,7 +110,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
         foreach ($path as $action => $destinationState) {
-            $this->orderTransactionStateHelper->$action($transactionId, $context);
+            $this->orderTransactionStateHelper->$action($transactionId, $context); /* @phpstan-ignore-line */
 
             $criteria = new Criteria([$transactionId]);
             $criteria->addAssociation('stateMachineState');
@@ -125,6 +128,8 @@ class OrderTransactionStateHandlerTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderNumber' => Uuid::randomHex(),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),

@@ -1,4 +1,7 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @package merchant-services
+ * @private
+ */
 export default class ExtensionErrorService {
     static get name() {
         return 'extensionErrorService';

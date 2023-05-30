@@ -7,26 +7,23 @@
     }
 
     .sw-extension-card-bought__info-price {
-        margin-top: 2px;
+        margin-top: 4px;
         color: $color-darkgray-200;
+    }
+
+    .sw-loader {
+        background-color: rgba($color-gray-50, 0.8);
     }
 
     .sw-extension-card-bought__info-subscription-expiry {
         display: inline-flex;
         align-items: center;
+        margin-top: 2px;
+        font-weight: $font-weight-medium;
 
         .sw-icon {
-            margin-right: 6px;
-        }
-
-        &.is--expired-rent {
-            font-weight: $font-weight-semi-bold;
-            color: $color-crimson-500;
-        }
-
-        &.is--expired-test-phase {
-            font-weight: $font-weight-semi-bold;
-            color: $color-pumpkin-spice-900;
+            margin-right: 4px;
+            color: $color-pumpkin-spice-500;
         }
     }
 }

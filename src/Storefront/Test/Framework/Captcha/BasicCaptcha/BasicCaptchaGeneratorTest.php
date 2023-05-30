@@ -13,12 +13,9 @@ class BasicCaptchaGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var BasicCaptchaGenerator
-     */
-    private $captcha;
+    private BasicCaptchaGenerator $captcha;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(BasicCaptchaGenerator::class);
     }
@@ -30,9 +27,13 @@ class BasicCaptchaGeneratorTest extends TestCase
         static::assertIsString($basicCaptchaImage->getCode());
     }
 
-    private function isValid64base($string): bool
+    private function isValid64base(string $string): bool
     {
         $decoded = base64_decode($string, true);
+
+        if (!$decoded) {
+            return false;
+        }
 
         return base64_encode($decoded) === $string;
     }

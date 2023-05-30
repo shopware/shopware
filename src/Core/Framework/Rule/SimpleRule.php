@@ -2,23 +2,19 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class SimpleRule extends Rule
 {
-    protected bool $match = false;
+    final public const RULE_NAME = 'simple';
 
     /**
      * @internal
      */
-    public function __construct(bool $match = true)
+    public function __construct(protected bool $match = true)
     {
         parent::__construct();
-
-        $this->match = $match;
-    }
-
-    public function getName(): string
-    {
-        return 'simple';
     }
 
     public function match(RuleScope $scope): bool

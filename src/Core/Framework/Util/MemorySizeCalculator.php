@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MemorySizeCalculator
 {
     /**
@@ -25,14 +28,27 @@ class MemorySizeCalculator
 
         switch (substr(rtrim($memoryLimit, 'b'), -1)) {
             case 't': $max *= 1024;
-            // no break
+                // no break
             case 'g': $max *= 1024;
-            // no break
+                // no break
             case 'm': $max *= 1024;
-            // no break
+                // no break
             case 'k': $max *= 1024;
         }
 
         return $max;
+    }
+
+    public static function formatToBytes(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, \count($units) - 1);
+
+        $bytes /= (1 << (10 * $pow));
+
+        return round($bytes, 2) . ' ' . $units[$pow];
     }
 }

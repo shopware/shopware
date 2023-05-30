@@ -28,14 +28,14 @@
     }
 
     &__title {
-        font-size: 18px;
+        font-size: $font-size-m;
         margin-bottom: 4px;
         color: $color-darkgray-200;
     }
 
     &__description {
         color: $color-darkgray-200;
-        font-size: 14px;
+        font-size: $font-size-xs;
     }
 
     &__description-link {

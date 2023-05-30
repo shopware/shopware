@@ -3,10 +3,12 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<OrderTransactionCaptureRefundPositionEntity>
  */
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -8,10 +8,10 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -24,14 +24,15 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
+#[Package('business-ops')]
 class BillingZipCodeRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -334,7 +335,10 @@ class BillingZipCodeRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function getMatchValuesNumeric(): array
+    /**
+     * @return array<string, array<string|bool>>
+     */
+    public static function getMatchValuesNumeric(): array
     {
         return [
             'operator_lt / match / zip code' => [Rule::OPERATOR_LT, true, '56000'],
@@ -348,7 +352,10 @@ class BillingZipCodeRuleTest extends TestCase
         ];
     }
 
-    public function getMatchValuesAlphanumeric(): \Traversable
+    /**
+     * @return \Traversable<string, array<string|bool|null>>
+     */
+    public static function getMatchValuesAlphanumeric(): \Traversable
     {
         yield 'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'];
         yield 'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9e21l'];
@@ -361,19 +368,6 @@ class BillingZipCodeRuleTest extends TestCase
         yield 'operator_empty / not match / zip code' => [Rule::OPERATOR_EMPTY, false, '56GG0'];
         yield 'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' ', ' '];
         yield 'operator_empty / match null / zip code' => [Rule::OPERATOR_EMPTY, true, null, ' '];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', '', true];
-            yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', '', false, true];
-
-            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, '', '', true];
-            yield 'operator_empty / no match / no address' => [Rule::OPERATOR_EMPTY, false, '', '', false, true];
-
-            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_EMPTY, false, '', '', true];
-            yield 'operator_neq / no match / no address' => [Rule::OPERATOR_EMPTY, false, '', '', false, true];
-
-            return;
-        }
 
         yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', '', true];
         yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', '', false, true];

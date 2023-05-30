@@ -293,7 +293,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_preview_modal_footer %}
-                    <template slot="modal-footer">
+                    <template #modal-footer>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_detail_preview_modal_footer_cancel %}
                         <sw-button
@@ -385,7 +385,7 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_available_variables_tree_headline %}
-                        <template slot="headline">
+                        <template #headline>
                             <span></span>
                         </template>
                         {% endblock %}
@@ -393,8 +393,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_available_variables_tree_items %}
                         <template
-                            slot="items"
-                            slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
+                            #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_available_variables_tree_items_item %}
@@ -409,7 +408,7 @@
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_mail_template_available_variables_tree_items_item_grip %}
-                                <template slot="grip">
+                                <template #grip>
                                     <span></span>
                                 </template>
                                 {% endblock %}
@@ -454,8 +453,7 @@
             {% block sw_mail_template_detail_sidebar_inner_media %}
             <sw-sidebar-media-item ref="mediaSidebarItem">
                 <template
-                    slot="context-menu-items"
-                    slot-scope="media"
+                    #context-menu-items="media"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_detail_sidebar_add_attachment %}

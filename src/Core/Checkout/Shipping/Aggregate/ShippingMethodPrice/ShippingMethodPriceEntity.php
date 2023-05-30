@@ -8,8 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class ShippingMethodPriceEntity extends Entity
 {
     use EntityIdTrait;
@@ -49,11 +50,6 @@ class ShippingMethodPriceEntity extends Entity
      * @var RuleEntity|null
      */
     protected $rule;
-
-    /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
 
     /**
      * @var string|null

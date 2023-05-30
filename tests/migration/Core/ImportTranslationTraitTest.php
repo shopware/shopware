@@ -14,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\Traits\ImportTranslationsTrait
  */
 class ImportTranslationTraitTest extends TestCase

@@ -22,7 +22,7 @@ class FeatureCallSilentTokenTest extends TestCase
 
         $compiler = new Compiler(new Environment(new ArrayLoader()));
 
-        $token->compile($compiler);
+        $compiler->compile($token);
 
         $code = <<<'PHP'
 // line 1

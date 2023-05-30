@@ -11,9 +11,11 @@ use OpenApi\Annotations\Post;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Tag;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class OpenApiPathBuilder
 {
     /**
@@ -21,6 +23,7 @@ class OpenApiPathBuilder
      */
     public function getPathActions(EntityDefinition $definition, string $path): array
     {
+        $paths = [];
         $paths[$path] = new PathItem([
             'path' => $path,
         ]);

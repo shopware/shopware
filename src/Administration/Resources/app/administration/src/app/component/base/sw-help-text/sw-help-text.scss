@@ -13,10 +13,11 @@
     pointer-events: auto;
 
     .sw-icon {
-        width: 14px;
-        height: 14px;
-
-        // @deprecated tag:v6.5.0 - The !important attribute can be removed
-        padding: 3px 4px !important;
+        width: 16px;
+        height: 16px;
+        padding-top: 4px;
+        padding-right: 5px;
+        padding-bottom: 3px;
+        padding-left: 5px;
     }
 }

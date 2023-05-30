@@ -4,32 +4,24 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
-    private ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
-        EventDispatcherInterface $eventDispatcher,
-        Connection $connection
+        private readonly ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Connection $connection
     ) {
-        $this->valueGeneratorPatternRegistry = $valueGeneratorPatternRegistry;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string
@@ -38,7 +30,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
         $parsedPattern = $this->parsePattern($config['pattern']);
 
-        $generatedValue = $this->generate($parsedPattern, $config, $preview);
+        $generatedValue = \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, $preview) : '';
 
         return $this->endEvent($generatedValue, $type, $context, $salesChannelId, $preview);
     }
@@ -54,48 +46,27 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
         $parsedPattern = $this->parsePattern($pattern);
 
-        return $this->generate($parsedPattern, $config, true);
+        return \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, true) : '';
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
+     * @return array<string>|null
      */
-    protected function parsePattern(?string $pattern): ?array
+    private function parsePattern(?string $pattern): ?array
     {
+        if (!$pattern) {
+            return null;
+        }
+
         return preg_split(
             '/([}{])/',
             $pattern,
             -1,
             \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY
-        );
+        ) ?: null;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 will be removed
-     */
-    protected function createPreviewConfiguration(string $definition, ?string $pattern, int $start): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed
-     */
-    protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
-     */
-    protected function endEvent(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview): string
+    private function endEvent(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview): string
     {
         /** @var NumberRangeGeneratedEvent $generatedEvent */
         $generatedEvent = $this->eventDispatcher->dispatch(
@@ -147,11 +118,13 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
     /**
      * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array<string> $parsedPattern
      */
-    private function generate(?array $parsedPattern, array $config, ?bool $preview = false): string
+    private function generate(array $parsedPattern, array $config, ?bool $preview = false): string
     {
         $generated = '';
         $startPattern = false;
+
         foreach ($parsedPattern as $patternPart) {
             if ($patternPart === '}') {
                 $startPattern = false;

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,13 +19,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal Only to be used by the Storefront
  */
+#[Package('checkout')]
 class BlockedPaymentMethodSwitcher
 {
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    public function __construct(AbstractPaymentMethodRoute $paymentMethodRoute)
+    public function __construct(private readonly AbstractPaymentMethodRoute $paymentMethodRoute)
     {
-        $this->paymentMethodRoute = $paymentMethodRoute;
     }
 
     public function switch(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
@@ -57,9 +56,7 @@ class BlockedPaymentMethodSwitcher
 
     private function getPaymentMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?PaymentMethodEntity
     {
-        $blockedPaymentMethodNames = $errors->fmap(static function (Error $error) {
-            return $error instanceof PaymentMethodBlockedError ? $error->getName() : null;
-        });
+        $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
 
         $request = new Request(['onlyAvailable' => true]);
         $defaultPaymentMethod = $this->paymentMethodRoute->load(
@@ -88,7 +85,7 @@ class BlockedPaymentMethodSwitcher
 
     private function addNoticeToCart(ErrorCollection $cartErrors, PaymentMethodEntity $paymentMethod): void
     {
-        $newPaymentMethodName = $paymentMethod->getName();
+        $newPaymentMethodName = $paymentMethod->getTranslation('name');
         if ($newPaymentMethodName === null) {
             return;
         }

@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Page\Suggest;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
+#[Package('system-settings')]
 class SuggestPage extends Page
 {
     /**

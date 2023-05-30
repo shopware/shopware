@@ -4,6 +4,8 @@ import template from './form-submit-loader.plugin.template.html';
 import outerFormTemplate from './form-submit-loader-outer-form-submit-button.plugin.template.html';
 import multipleButtonFormTemplate from './form-submit-loader-multiple-submit-buttons.plugin.template.html';
 import editedSelectorTemplate from './form-submit-loader-edited-form-selector.plugin.template.html';
+import skipLoadingIndicatorTemplate from './form-submit-loader-without-loading-spinner.plugin.template.html';
+import dontSkipLoadingIndicatorTemplate from './form-submit-loader-with-loading-spinner.plugin.template.html';
 import FormSubmitLoader from "../../../src/plugin/forms/form-submit-loader.plugin";
 
 function setUpFormLoader(formSelector) {
@@ -15,6 +17,9 @@ function setUpFormLoader(formSelector) {
     return { form, plugin };
 }
 
+/**
+ * @package content
+ */
 describe('Form submit loader tests', () => {
     let formSubmitLoaderPlugin;
     let form;
@@ -156,3 +161,54 @@ describe('form submit loader loads button if selector is edited', () => {
         }).toThrow('There is no valid element given.');
     });
 });
+
+
+describe('form submit loader', () => {
+    let form, plugin;
+
+    test('does not add a loading spinner but disables the button', () => {
+        document.body.innerHTML = skipLoadingIndicatorTemplate;
+
+        const setup = setUpFormLoader('#test');
+
+        plugin = setup.plugin;
+        form = setup.form;
+
+        expect(plugin.options.skipLoadingIndicator).toBeTruthy();
+
+        const event = new Event('submit');
+        plugin._onFormSubmit(event);
+
+        const submitButtons = document.querySelectorAll('#formBtn');
+
+        submitButtons.forEach((button) => {
+            expect(button.disabled).toBeTruthy();
+            expect(button.innerHTML).toBe('Submit');
+        });
+    });
+
+    test('add a loading spinner and disables the button', () => {
+        document.body.innerHTML = dontSkipLoadingIndicatorTemplate;
+
+        const setup = setUpFormLoader('#test');
+
+        plugin = setup.plugin;
+        form = setup.form;
+
+        expect(plugin.options.skipLoadingIndicator).toBeFalsy();
+
+        const event = new Event('submit');
+        plugin._onFormSubmit(event);
+
+        const submitButtons = document.querySelectorAll('#formBtn');
+
+        submitButtons.forEach((button) => {
+            expect(button.disabled).toBeTruthy();
+            expect(button.querySelector('div').classList.contains('loader')).toBeTruthy();
+            expect(button.innerHTML).toContain('Submit');
+        });
+    });
+
+});
+
+

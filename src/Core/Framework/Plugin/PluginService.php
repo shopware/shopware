@@ -6,9 +6,10 @@ use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
@@ -18,65 +19,25 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('core')]
 class PluginService
 {
-    public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
-
-    /**
-     * @var string
-     */
-    private $pluginDir;
-
-    /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepo;
-
-    /**
-     * @var ChangelogService
-     */
-    private $changelogService;
-
-    /**
-     * @var PluginFinder
-     */
-    private $pluginFinder;
-
-    /**
-     * @var VersionSanitizer
-     */
-    private $versionSanitizer;
+    final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
     public function __construct(
-        string $pluginDir,
-        string $projectDir,
-        EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $languageRepo,
-        ChangelogService $changelogService,
-        PluginFinder $pluginFinder,
-        VersionSanitizer $versionSanitizer
+        private readonly string $pluginDir,
+        private readonly string $projectDir,
+        private readonly EntityRepository $pluginRepo,
+        private readonly EntityRepository $languageRepo,
+        private readonly ChangelogService $changelogService,
+        private readonly PluginFinder $pluginFinder,
+        private readonly VersionSanitizer $versionSanitizer
     ) {
-        $this->pluginDir = $pluginDir;
-        $this->projectDir = $projectDir;
-        $this->pluginRepo = $pluginRepo;
-        $this->languageRepo = $languageRepo;
-        $this->changelogService = $changelogService;
-        $this->pluginFinder = $pluginFinder;
-        $this->versionSanitizer = $versionSanitizer;
     }
 
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
@@ -104,7 +65,6 @@ class PluginService
 
             $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
             $extra = $info->getExtra();
-            $authors = $this->getAuthors($info);
             $license = $info->getLicense();
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
 
@@ -112,8 +72,8 @@ class PluginService
                 'name' => $pluginFromFileSystem->getName(),
                 'baseClass' => $baseClass,
                 'composerName' => $info->getName(),
-                'path' => str_replace($this->projectDir . '/', '', $pluginPath),
-                'author' => $authors,
+                'path' => (new Filesystem())->makePathRelative($pluginPath, $this->projectDir),
+                'author' => $this->getAuthors($info),
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
@@ -239,31 +199,35 @@ class PluginService
             return null;
         }
 
-        return file_get_contents($pluginIconPath);
-    }
+        $rawContent = file_get_contents($pluginIconPath);
 
-    private function getAuthors(CompletePackageInterface $info): ?string
-    {
-        $authors = null;
-        /** @var array|null $composerAuthors */
-        $composerAuthors = $info->getAuthors();
-
-        if ($composerAuthors !== null) {
-            $manufacturersAuthors = array_filter($composerAuthors, static function (array $author): bool {
-                return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
-            });
-
-            if (empty($manufacturersAuthors)) {
-                $manufacturersAuthors = $composerAuthors;
-            }
-
-            $authorNames = array_column($manufacturersAuthors, 'name');
-            $authors = implode(', ', $authorNames);
+        if (!\is_string($rawContent)) {
+            return null;
         }
 
-        return $authors;
+        return $rawContent;
     }
 
+    private function getAuthors(CompletePackageInterface $info): string
+    {
+        $composerAuthors = $info->getAuthors();
+
+        $manufacturerAuthors = array_filter($composerAuthors, static fn (array $author): bool => ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER);
+
+        if (empty($manufacturerAuthors)) {
+            $manufacturerAuthors = $composerAuthors;
+        }
+
+        $authorNames = array_column($manufacturerAuthors, 'name');
+
+        return implode(', ', $authorNames);
+    }
+
+    /**
+     * @param array<string, mixed> $extra
+     *
+     * @return array<string, array<string, string>>
+     */
     private function getTranslations(Context $context, array $extra): array
     {
         $properties = ['label', 'description', 'manufacturerLink', 'supportLink'];

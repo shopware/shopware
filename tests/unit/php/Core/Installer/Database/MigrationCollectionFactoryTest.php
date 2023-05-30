@@ -9,6 +9,7 @@ use Shopware\Core\TestBootstrapper;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Database\MigrationCollectionFactory
  */
 class MigrationCollectionFactoryTest extends TestCase

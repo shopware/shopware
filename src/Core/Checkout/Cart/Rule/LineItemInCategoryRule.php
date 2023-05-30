@@ -2,39 +2,30 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LineItemInCategoryRule extends Rule
 {
-    /**
-     * @var array<string>
-     */
-    protected array $categoryIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemInCategory';
 
     /**
      * @internal
      *
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $categoryIds = []
+    ) {
         parent::__construct();
-
-        $this->categoryIds = $categoryIds;
-        $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemInCategory';
     }
 
     public function match(RuleScope $scope): bool
@@ -47,7 +38,7 @@ class LineItemInCategoryRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }
@@ -73,7 +64,7 @@ class LineItemInCategoryRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesOneOfCategory(LineItem $lineItem): bool
     {

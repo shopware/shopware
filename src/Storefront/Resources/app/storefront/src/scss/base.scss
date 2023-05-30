@@ -30,8 +30,6 @@ https://sass-guidelin.es/#the-7-1-pattern
  * ---------- */
 @import 'base/base';
 @import 'base/reboot';
-// @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. _ie11-fixes.scss will be removed.
-@import 'base/ie11-fixes';
 
 /*
  * Components
@@ -74,9 +72,11 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/product-feature';
 @import 'component/notification-dot';
 @import 'component/product-wishlist';
+@import 'component/quantity-selector';
 @import 'component/fading-plugin';
 @import 'component/basic-captcha';
 @import 'component/line-item';
+@import 'component/visibility';
 
 /*
  * Layout-related sections
@@ -120,10 +120,6 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/checkout/aside';
 @import 'page/checkout/aside-children';
 @import 'page/checkout/cart';
-// @deprecated tag:v6.5.0 - `scss/page/checkout/_cart-item` is deprecated. Use `scss/component/_line-item.scss` instead.
-@import 'page/checkout/cart-item';
-// @deprecated tag:v6.5.0 - `scss/page/checkout/_cart-item-children` is deprecated. Use `scss/component/_line-item.scss` instead.
-@import 'page/checkout/cart-item-children';
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';

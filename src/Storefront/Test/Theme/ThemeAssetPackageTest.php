@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Theme;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
@@ -58,22 +57,5 @@ class ThemeAssetPackageTest extends TestCase
         $asset = new ThemeAssetPackage(['http://localhost'], new EmptyVersionStrategy(), $stack, new MD5ThemePathBuilder());
 
         static::assertSame('http://localhost/theme/440ac85892ca43ad26d44c7ad9d47d3e/all.js', $asset->getUrl('/all.js'));
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - can be removed if we remove the covered code
-     */
-    public function testStorefrontAllConditionsMatchingFallback(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'abc');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'abc');
-        $stack = new RequestStack();
-        $stack->push($request);
-
-        $asset = new ThemeAssetPackage(['http://localhost'], new EmptyVersionStrategy(), $stack, new MD5ThemePathBuilder());
-
-        static::assertSame('http://localhost/bundles/foo/test.js', $asset->getUrl('/bundles/foo/test.js'));
     }
 }

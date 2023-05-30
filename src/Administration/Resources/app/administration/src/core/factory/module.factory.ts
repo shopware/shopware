@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/module
  */
 import { warn } from 'src/core/service/utils/debug.utils';
@@ -14,7 +16,8 @@ import type {
     RedirectOption,
     RoutePropsFunction,
 } from 'vue-router/types/router';
-import type { ComponentConfig } from './component.factory';
+import type { ComponentConfig } from './async-component.factory';
+import type { Snippets } from './locale.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -40,7 +43,7 @@ interface SwRouteConfig {
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    meta?: any;
+    meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
     // eslint-disable-next-line @typescript-eslint/ban-types
     props?: boolean | Object | RoutePropsFunction;
@@ -69,17 +72,20 @@ interface Navigation {
 }
 
 interface SettingsItem {
-    group: 'shop' | 'system' | 'plugin',
+    group: 'shop' | 'system' | 'plugins',
     to: string,
     icon?: string,
-    iconComponent: unknown,
+    iconComponent?: unknown,
     privilege?: string,
     id?: string,
     name?: string,
     label?: string,
 }
 
-interface ModuleManifest {
+/**
+ * @private
+ */
+export interface ModuleManifest {
     flag?: string,
     type: ModuleTypes,
     routeMiddleware?: (next: () => void, currentRoute: Route) => void,
@@ -415,11 +421,7 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.keys(routeComponents).forEach((componentKey) => {
-        // @ts-expect-error - we know that the key exists
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const component = routeComponents[componentKey];
-
+    Object.entries(routeComponents).forEach(([componentKey, component]) => {
         // Don't register a component without a name
         if (!component) {
             warn(
@@ -430,11 +432,11 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
             return;
         }
 
+        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         componentList[componentKey] = component;
     });
 
-    // @ts-expect-error
     route.components = componentList;
 
     return route;
@@ -476,8 +478,8 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 /**
  * Returns a list of all module specific snippets
  */
-function getModuleSnippets(): { [lang:string]: unknown } {
-    return Array.from(modules.values()).reduce<{ [lang:string] : unknown }>((accumulator, module) => {
+function getModuleSnippets(): { [lang:string]: Snippets | undefined } {
+    return Array.from(modules.values()).reduce<{ [lang:string] : Snippets | undefined }>((accumulator, module) => {
         const manifest = module.manifest;
 
         if (!hasOwnProperty(manifest, 'snippets')) {

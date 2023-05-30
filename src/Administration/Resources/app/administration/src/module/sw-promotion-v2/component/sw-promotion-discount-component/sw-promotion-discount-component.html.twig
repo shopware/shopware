@@ -1,0 +1,367 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_promotion_discount_component %}
+<sw-card
+    class="sw-promotion-discount-component"
+    position-identifier="sw-promotion-discount-component"
+    :title="$tc('sw-promotion.detail.main.discounts.card')"
+>
+    <sw-context-button class="sw-promotion-discount-component__context-button">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_detail_discounts_item_context_button_delete %}
+        <sw-context-menu-item
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('promotion.editor'),
+                showOnDisabledElements: true
+            }"
+            variant="danger"
+            class="sw-promotion-context-item__delete-action"
+            :disabled="isEditingDisabled"
+            @click="onShowDeleteModal"
+        >
+            {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
+        </sw-context-menu-item>
+        {% endblock %}
+    </sw-context-button>
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0px 30px"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_discount_component_scope %}
+        <sw-select-field
+            ref="selectFieldScope"
+            v-model="discount.scope"
+            required
+            validation="required"
+            :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
+            :disabled="isEditingDisabled"
+            @change="onDiscountScopeChanged"
+        >
+            <option
+                v-for="scope in scopes"
+                :key="scope.key"
+                :value="scope.key"
+            >
+                {{ scope.name }}
+            </option>
+        </sw-select-field>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_discount_condition_consider_product_rules_field %}
+        <template v-if="displayAdvancedRuleOption">
+            <sw-field
+                v-model="discount.considerAdvancedRules"
+                type="switch"
+                bordered
+                :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
+                :disabled="isEditingDisabled"
+            />
+        </template>
+        {% endblock %}
+    </sw-container>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_promotion_discount_condition_rules_form %}
+    <template v-if="!shippingScope && discount.considerAdvancedRules === true">
+        <div v-if="!isSetGroup">
+            <sw-promotion-v2-rule-select
+                v-model="discount.discountRules"
+                class="sw-promotion-discount-component__select-discount-rules"
+                :local-mode="discount.isNew()"
+                :criteria="ruleFilter"
+                :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
+                :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
+                :disabled="isEditingDisabled"
+                :restricted-rules="restrictedRules"
+                :restriction-snippet="promotionDiscountSnippet"
+                rule-aware-group-key="promotionDiscounts"
+            />
+        </div>
+
+        <sw-container
+            columns="1fr 1fr"
+            gap="0px 30px"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
+            <sw-select-field
+                v-if="!isSet"
+                v-model="discount.applierKey"
+                :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
+                :disabled="isEditingDisabled"
+            >
+                <option
+                    v-for="applier in graduationAppliers"
+                    :key="applier.key"
+                    :value="applier.key"
+                >
+                    {{ applier.name }}
+                </option>
+            </sw-select-field>
+            {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
+            <sw-select-field
+                v-if="isMaxUsageVisible"
+                v-model="discount.usageKey"
+                :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
+                :disabled="isEditingDisabled"
+            >
+                <option
+                    v-for="count in graduationCounts"
+                    :key="count.key"
+                    :value="count.key"
+                >
+                    {{ count.name }}
+                </option>
+            </sw-select-field>
+            {% endblock %}
+
+        </sw-container>
+
+        <template v-if="discount.applierKey!=='ALL'">
+            <sw-container
+                columns="1fr 1fr"
+                gap="0px 30px"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
+                <sw-select-field
+                    v-model="discount.sorterKey"
+                    :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
+                    :disabled="isEditingDisabled"
+                >
+                    <option
+                        v-for="sorter in graduationSorters"
+                        :key="sorter.key"
+                        :value="sorter.key"
+                    >
+                        {{ sorter.name }}
+                    </option>
+                </sw-select-field>
+                {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_promotion_cart_condition_setgroup_filter_picker_field %}
+                <sw-select-field
+                    v-if="isPickingModeVisible"
+                    v-model="discount.pickerKey"
+                    :label="$tc('sw-promotion.detail.main.discounts.labelPicking')"
+                    :disabled="isEditingDisabled"
+                >
+                    <option
+                        v-for="picker in graduationPickers"
+                        :key="picker.key"
+                        :value="picker.key"
+                    >
+                        {{ picker.name }}
+                    </option>
+                </sw-select-field>
+                {% endblock %}
+            </sw-container>
+        </template>
+
+    </template>
+    {% endblock %}
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0px 30px"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_discount_component_type %}
+        <sw-select-field
+            v-model="discount.type"
+            :label="$tc('sw-promotion.detail.main.discounts.labelType')"
+            :disabled="isEditingDisabled"
+            @change="onDiscountTypeChanged"
+        >
+            <option
+                v-for="type in types"
+                :key="type.key"
+                :value="type.key"
+            >
+                {{ type.name }}
+            </option>
+        </sw-select-field>
+        {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_discount_component_value %}
+        <sw-field
+            type="number"
+            class="sw-promotion-discount-component__discount-value"
+            validation="required"
+            required
+            :digits="50"
+            :value="discount.value"
+            :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
+            :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
+            :disabled="isEditingDisabled"
+            @change="onDiscountValueChanged"
+        >
+            <template #suffix>
+                {{ valueSuffix }}
+            </template>
+        </sw-field>
+        {% endblock %}
+    </sw-container>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_promotion_discount_max_value %}
+    <sw-container
+        v-if="showMaxValueSettings"
+        :key="1"
+        columns="1fr 1fr"
+        justify="end"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_discount_max_value_field %}
+        <sw-field
+            v-model="discount.maxValue"
+            type="number"
+            :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
+            :help-text="maxValueAdvancedPricesTooltip"
+            :disabled="isEditingDisabled"
+            @change="onMaxValueChanged"
+        >
+            <template #suffix>
+                {{ maxValueSuffix }}
+            </template>
+        </sw-field>
+        {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_discount_max_value_advanced_prices %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <a
+            v-if="showMaxValueAdvancedPrices"
+            class="sw-card__quick-link advanced-prices"
+            @click="onClickAdvancedPrices"
+        >
+            {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+            <sw-icon
+                name="regular-long-arrow-right"
+                small
+            />
+        </a>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_promotion_discount_advanced_prices_link %}
+    <sw-container
+        v-if="showAbsoluteAdvancedPricesSettings"
+        :key="2"
+        columns="1fr"
+        justify="end"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <a
+            class="sw-card__quick-link advanced-prices"
+            @click="onClickAdvancedPrices"
+        >
+            {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+            <sw-icon
+                name="regular-long-arrow-right"
+                small
+            />
+        </a>
+    </sw-container>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_promotion_discount_advanced_prices_modal %}
+    <sw-modal
+        v-if="displayAdvancedPrices"
+        :title="$tc('sw-promotion.detail.main.discounts.pricesModal.advancedPricesHeader')"
+        class="sw-promotion-discount-form__advanced-prices-modal"
+        @modal-close="onCloseAdvancedPricesModal"
+    >
+
+        <sw-one-to-many-grid
+            :collection="discount.promotionDiscountPrices"
+            :local-mode="true"
+            :columns="currencyPriceColumns"
+            :show-selection="false"
+            :is-loading="isLoading"
+            :show-actions="!isEditingDisabled"
+        >
+
+            <template #column-currency.translated.name="{ item }">
+                <p>{{ item.currency.translated.name }}</p>
+            </template>
+
+            <template #column-price="{ item }">
+                <sw-number-field
+                    v-model="item.price"
+                    type="text"
+                    size="small"
+                    :disabled="isEditingDisabled"
+                >
+                    <template #suffix>
+                        {{ item.currency.symbol }}
+                    </template>
+                </sw-number-field>
+            </template>
+        </sw-one-to-many-grid>
+
+        <template #modal-footer>
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="onCloseAdvancedPricesModal"
+            >
+                {{ $tc('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_promotion_detail_discounts_modal_delete %}
+    <sw-modal
+        v-if="showDeleteModal"
+        variant="small"
+        :title="$tc('sw-promotion.detail.main.discounts.delete.confirmTitle')"
+        class="sw-promotion-detail-discounts-modal"
+        @modal-close="onCloseDeleteModal"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_detail_discounts_modal_delete_text %}
+        <p>
+            {{ $tc('sw-promotion.detail.main.discounts.delete.confirmText') }}
+        </p>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_promotion_detail_discounts_modal_delete_footer %}
+        <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('sw-promotion.detail.main.discounts.delete.buttonCancel') }}
+            </sw-button>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
+            <sw-button
+                size="small"
+                variant="danger"
+                class="sw-promotion-discount-delete-button"
+                @click="onConfirmDelete"
+            >
+                {{ $tc('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</sw-card>
+{% endblock %}

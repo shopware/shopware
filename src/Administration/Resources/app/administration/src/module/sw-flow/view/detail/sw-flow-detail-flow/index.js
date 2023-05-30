@@ -6,11 +6,19 @@ const utils = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-detail-flow', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'flowActionService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'flowActionService',
+        'ruleConditionDataProviderService',
+    ],
 
     props: {
         isLoading: {
@@ -19,6 +27,11 @@ Component.register('sw-flow-detail-flow', {
             default: false,
         },
         isNewFlow: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isTemplate: {
             type: Boolean,
             required: false,
             default: false,
@@ -42,6 +55,22 @@ Component.register('sw-flow-detail-flow', {
 
         rootSequences() {
             return this.sequences.filter(sequence => !sequence.parentId);
+        },
+
+        showActionWarning() {
+            if (!this.triggerActions.length || !this.sequences.length) {
+                return false;
+            }
+
+            let showWarning = false;
+            this.sequences.filter(action => action.actionName).forEach(sequence => {
+                const actionInvalid = this.triggerActions.find(item => item.name === sequence.actionName);
+                if (!actionInvalid) {
+                    showWarning = true;
+                }
+            });
+
+            return showWarning;
         },
 
         ...mapState('swFlowState', ['flow', 'triggerActions']),
@@ -221,4 +250,4 @@ Component.register('sw-flow-detail-flow', {
             return Object.values(sequence)[0].displayGroup;
         },
     },
-});
+};

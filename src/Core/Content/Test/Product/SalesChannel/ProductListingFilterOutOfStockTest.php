@@ -10,7 +10,7 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,21 +27,15 @@ class ProductListingFilterOutOfStockTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var ListingTestData
-     */
-    private $testData;
+    private ListingTestData $testData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
@@ -179,6 +173,10 @@ class ProductListingFilterOutOfStockTest extends TestCase
         );
     }
 
+    /**
+     * @param array<array{combination: array<string>, stock: int}> $options
+     * @param array<string> $listingGroups
+     */
     private function createProduct(string $key, array $options, array $listingGroups): void
     {
         $config = [];
@@ -201,7 +199,9 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $data = [
             [
                 'id' => $id,
-                'configuratorGroupConfig' => $config,
+                'variantListingConfig' => [
+                    'configuratorGroupConfig' => $config,
+                ],
                 'productNumber' => $id,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
@@ -239,9 +239,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static function ($id) {
-                        return ['id' => $id];
-                    }, $combination),
+                    'options' => array_map(static fn ($id) => ['id' => $id], $combination),
                 ];
             }
         }
@@ -265,7 +263,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('property_group.repository');
         $repo->create($data, Context::createDefaultContext());
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Event\Hooks;
 
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 
 /**
@@ -11,12 +12,15 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  * @hook-use-case app_lifecycle
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
+#[Package('core')]
 class AppInstalledHook extends AppLifecycleHook implements AppSpecificHook
 {
-    public const HOOK_NAME = 'app-installed';
+    final public const HOOK_NAME = 'app-installed';
 
-    private AppInstalledEvent $event;
+    private readonly AppInstalledEvent $event;
 
     public function __construct(AppInstalledEvent $event)
     {

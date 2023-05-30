@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1612184092AddUrlLandingPage;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1612184092AddUrlLandingPage
  */
 class Migration1612184092AddUrlLandingPageTest extends TestCase
@@ -40,7 +41,7 @@ class Migration1612184092AddUrlLandingPageTest extends TestCase
         $migration = new Migration1612184092AddUrlLandingPage();
         $migration->update($this->connection);
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns(LandingPageTranslationDefinition::ENTITY_NAME);
 
         static::assertArrayHasKey('url', $columns);
@@ -57,7 +58,7 @@ class Migration1612184092AddUrlLandingPageTest extends TestCase
 
     private function rollback(): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns(LandingPageTranslationDefinition::ENTITY_NAME);
 
         if (isset($columns['url'])) {

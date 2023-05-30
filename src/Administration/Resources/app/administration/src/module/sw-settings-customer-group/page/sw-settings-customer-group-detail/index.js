@@ -1,7 +1,11 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
@@ -9,7 +13,7 @@ const types = Shopware.Utils.types;
 const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-customer-group-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -266,4 +270,4 @@ Component.register('sw-settings-customer-group-detail', {
             }
         },
     },
-});
+};

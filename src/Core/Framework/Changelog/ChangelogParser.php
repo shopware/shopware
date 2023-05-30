@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
+#[Package('core')]
 class ChangelogParser
 {
     public function parse(string $content): ChangelogDefinition
@@ -18,12 +21,12 @@ class ChangelogParser
             ->setAuthor($this->parseMetadata($content, 'author'))
             ->setAuthorEmail($this->parseMetadata($content, 'author_email'))
             ->setAuthorGitHub($this->parseMetadata($content, 'author_github'))
-            ->setCore($this->parseSection($content, 'Core'))
-            ->setAdministration($this->parseSection($content, 'Administration'))
-            ->setStorefront($this->parseSection($content, 'Storefront'))
-            ->setApi($this->parseSection($content, 'API'))
-            ->setUpgradeInformation($this->parseSection($content, 'Upgrade Information'))
-            ->setNextMajorVersionChanges($this->parseSection($content, 'Next Major Version Changes'));
+            ->setCore($this->parseSection($content, ChangelogSection::core->value))
+            ->setAdministration($this->parseSection($content, ChangelogSection::administration->value))
+            ->setStorefront($this->parseSection($content, ChangelogSection::storefront->value))
+            ->setApi($this->parseSection($content, ChangelogSection::api->value))
+            ->setUpgradeInformation($this->parseSection($content, ChangelogSection::upgrade->value))
+            ->setNextMajorVersionChanges($this->parseSection($content, ChangelogSection::major->value));
     }
 
     /**

@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-country-state.html.twig';
 import './sw-settings-country-state.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-country-state', {
+export default {
     template,
 
     inject: [
@@ -39,6 +42,7 @@ Component.register('sw-settings-country-state', {
             term: null,
             currentCountryState: null,
             countryStateLoading: false,
+            showEmptyState: false,
         };
     },
 
@@ -46,12 +50,30 @@ Component.register('sw-settings-country-state', {
         stateColumns() {
             return this.getStateColumns();
         },
+
+        countryStates() {
+            return this.country.states;
+        },
+    },
+
+    watch: {
+        countryStates() {
+            this.checkEmptyState();
+        },
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            this.checkEmptyState();
+        },
+
         getStateColumns() {
             return [{
-                property: 'translated.name',
+                property: 'name',
                 label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
                 primary: true,
@@ -73,17 +95,29 @@ Component.register('sw-settings-country-state', {
 
         onDeleteCountryStates() {
             const selection = this.$refs.countryStateGrid.selection;
-
             const countryStateIds = Object.keys(selection);
+
             if (!countryStateIds.length) {
+                return Promise.resolve();
+            }
+
+            if (this.country.isNew()) {
+                countryStateIds.forEach(countryStateId => {
+                    this.country.states.remove(countryStateId);
+                });
+
+                this.$refs.countryStateGrid.resetSelection();
                 return Promise.resolve();
             }
 
             this.countryStateLoading = true;
 
             return this.countryStateRepository.syncDeleted(countryStateIds, Shopware.Context.api)
-                .finally(() => {
+                .then(() => {
+                    this.$refs.countryStateGrid.resetSelection();
                     this.refreshCountryStateList();
+                }).finally(() => {
+                    this.countryStateLoading = false;
                 });
         },
 
@@ -91,17 +125,18 @@ Component.register('sw-settings-country-state', {
             this.currentCountryState = this.countryStateRepository.create(Shopware.Context.api);
         },
 
-        onSaveCountryState() {
-            // dont send requests if we are on local mode(creating a new country)
+        onSaveCountryState(countryState) {
+            // do not send requests if we are on local mode(creating a new country)
             if (this.country.isNew()) {
-                this.country.states.add(this.currentCountryState);
-                this.currentCountryState = null;
-                return Promise.resolve();
+                this.country.states.add(countryState);
+
+                return Promise.resolve().then(() => {
+                    this.currentCountryState = null;
+                });
             }
 
             return this.countryStateRepository.save(this.currentCountryState).then(() => {
                 this.refreshCountryStateList();
-                this.currentCountryState = null;
             }).catch(errors => {
                 if (errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
                     this.createNotificationError({
@@ -128,7 +163,21 @@ Component.register('sw-settings-country-state', {
 
             this.$refs.countryStateGrid.load().then(() => {
                 this.countryStateLoading = false;
+                this.currentCountryState = null;
             });
         },
+
+        getCountryStateName(item) {
+            return item?.translated?.name || item?.name;
+        },
+
+        checkEmptyState() {
+            if (this.country.isNew()) {
+                this.showEmptyState = this.country.states.length === 0;
+                return;
+            }
+
+            this.showEmptyState = this.$refs.countryStateGrid.total === 0;
+        },
     },
-});
+};

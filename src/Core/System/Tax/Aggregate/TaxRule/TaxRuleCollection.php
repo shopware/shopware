@@ -3,17 +3,17 @@
 namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<TaxRuleEntity>
  */
+#[Package('customer-order')]
 class TaxRuleCollection extends EntityCollection
 {
     public function sortByTypePosition(): void
     {
-        $this->sort(function (TaxRuleEntity $entityA, TaxRuleEntity $entityB) {
-            return $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition();
-        });
+        $this->sort(fn (TaxRuleEntity $entityA, TaxRuleEntity $entityB) => $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition());
     }
 
     public function getApiAlias(): string

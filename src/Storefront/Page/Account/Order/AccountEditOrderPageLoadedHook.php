@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -12,20 +13,22 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0
+ *
+ * @final
  */
+#[Package('customer-order')]
 class AccountEditOrderPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'account-edit-order-page-loaded';
+    final public const HOOK_NAME = 'account-edit-order-page-loaded';
 
-    private AccountEditOrderPage $page;
-
-    public function __construct(AccountEditOrderPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AccountEditOrderPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

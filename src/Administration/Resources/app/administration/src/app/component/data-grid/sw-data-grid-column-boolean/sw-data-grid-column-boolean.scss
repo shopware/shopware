@@ -3,9 +3,24 @@
 .sw-data-grid-column-boolean {
     .is--active {
         color: $color-emerald-500;
+
+        &.sw-icon {
+            width: 16px;
+            height: 16px;
+            padding-top: 4px;
+            padding-right: 2px;
+            padding-bottom: 3px;
+            padding-left: 2px;
+        }
     }
 
     .is--inactive {
         color: $color-crimson-500;
+
+        &.sw-icon {
+            width: 16px;
+            height: 16px;
+            padding: 3px;
+        }
     }
 }

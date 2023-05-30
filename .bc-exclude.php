@@ -2,63 +2,61 @@
 
 return [
     'filePatterns' => [
-        '**/src/Docs/**', // Deprecated
         '**/Test/**', // Testing
+        '**/src/Recovery/**', // Testing
+        '**/src/Recovery/**', // Recovery
+        '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
         '**/src/Core/DevOps/StaticAnalyze/**', // dev dependency
+        '**/src/Core/Profiling/Doctrine/BacktraceDebugDataHolder.php', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
-        '**/src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php', // Why?
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
-        // temporary to make Bundles internal
-        '**/src/Administration/Administration.php',
-        '**/src/Storefront/Storefront.php',
-        '**/src/Core/Framework/Framework.php',
-        '**/src/Core/Checkout/Checkout.php',
-        '**/src/Core/Maintenance/Maintenance.php',
-        '**/src/Core/DevOps/DevOps.php',
-        '**/src/Core/Profiling/Profiling.php',
-        '**/src/Core/System/System.php',
-        '**/src/Core/Content/Content.php',
-        '**/src/Elasticsearch/Elasticsearch.php',
-        '**/src/Core/Content/Product/Aggregate/ProductPrice/ProductPriceCollection.php', // temporary to fix wrong inheritance
+        '**/src/Core/DevOps/System/Command/SyncComposerVersionCommand.php', // symfony configure
+
+        // Symfony validators, should be removed with NEXT-26264
+        '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php',
+        '**/src/Core/Framework/DataAbstractionLayer/Validation/EntityExists.php',
+        '**/src/Core/Checkout/Customer/Validation/Constraint/CustomerVatIdentification.php',
+        '**/src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php',
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
         'Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\UnknownMigrationSourceExceptionBase', // Can not be inspected through reflection if() {class Foo {} }
-        'Type.+documentation.+for.+property', // Doc type to native type conversions seems to not correctly be detected by the BC checker
-        'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableTransaction::retryable()', // This is a static method so extending this class is not necessary
-        'The annotation "LoginRequired" parameter "allowGuest" has been changed on.+from "" to "true"',
-        '.+#__construct().+', // Todo make service constructors @internal
+        'Unable to compile initializer in method', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
+        'Could not locate constant .* while trying to evaluate constant expression', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
+        'Value.+of.+constant', // Changing const values in not a BC per se
+        'Property Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity#\\$shippingMethodPrices was removed',
+        'Method Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity#getShippingMethodPrices\\(\\) was removed',
+        'Method Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity#setShippingMethodPrices\\(\\) was removed',
+        'Property Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceEntity#\\$currency was removed',
+        'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\SchemaIndexListener',
+        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LoggerFactory#createRotating\\(\\)',
+        'Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\Event\\\\MailErrorEvent#__construct\\(\\)',
 
-        'The return type of Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\Changelog(Check|Change|Create)Command#execute\(\) changed from no type to int',
-        'Symfony\\\\Component\\\\HttpFoundation\\\\Response::\\$statusTexts',
-        'Symfony\\\\Component\\\\HttpKernel\\\\Kernel#\\$bundles',
+        // internal typos -> should be removed with 6.5.1.0 release
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\AppPayloadServiceHelper was marked "@internal"',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Command\\\\CreateAppCommand was marked "@internal"',
+        'Shopware\\\\Core\\\\Framework\\\\Log\\\\Package was marked "@internal"',
+        'Shopware\\\\Core\\\\Content\\\\Mail\\\\MailerConfigurationCompilerPass was marked "@internal"',
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\TaxProvider\\\\Struct\\\\TaxProviderResult was marked "@internal"',
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CachedRuleLoader was marked "@internal"',
 
-        // OpenAPI library update
-        'The return type of Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\DeactivateValidationAnalysis#validate',
-        'OpenApi\\\\Analysis',
+        // Fixes to comply with parent method signature to fix LSP -> should be removed with 6.5.1.0 release
+        'The parameter .* of .*(ReverseProxyCache|StructDecoder|InvalidLimitQueryException|InvalidPageQueryException|QueryLimitExceededException|CustomFields|NestedEventDispatcher|LanguageNotFoundException|WebhookDispatcher|HappyPathValidator|JsonApiDecoder|EntityPipe|Kernel|CountSort).*\(\) changed from',
+        'Method .*\(\) of class .*(ThemeCompileCommand|ThemeSalesChannelCollection|CachedCountryRoute|CachedCountryStateRoute|SalesChannelAnalyticsDefinition|PluginRecommendationCollection|PluginCategoryCollection|LicenseDomainCollection|PluginRegionCollection|StateMachineStateField|AssetInstallCommand|JsonApiResponse|SystemDumpDatabaseCommand|SystemRestoreDatabaseCommand|DocsAppEventCommand|ImportExportProfileTranslationDefinition|UpdateByCollection|MappingCollection|ProductCrossSellingAssignedProductsCollection|ProductCrossSellingAssignedProductsDefinition|ProductCrossSellingCollection|ProductCrossSellingDefinition|ProductFeatureSetTranslationDefinition|CrossSellingElementCollection|SalesChannelProductCollection|PromotionTranslationDefinition|PromotionDiscountPriceCollection) visibility reduced from',
+        'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem', // not used and deprecated bundle class
 
-        // Conditional feature flag class loading
-        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\ProductVariationBuilder#build()',
-        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractProductMaxPurchaseCalculator#calculate()',
-        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractIsNewDetector#isNew()',
-        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractProductVariationBuilder#build()',
-        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\ProductMaxPurchaseCalculator#calculate()',
-        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\IsNewDetector#isNew()',
-        'The parameter \\$definition of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IteratorFactory#createIterator()',
-        'The return type of Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteEventSubscriber',
-        'The return type of Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure()',
-        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook have been removed',
+        // base hook class was marked as internal -> now as final
+        'Hook::getDeprecatedServices\\(\\)',
+        'Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook#__construct\\(\\) (was removed|was marked "@internal")',
+        'Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook#getName\\(\\) (was removed|was marked "@internal")',
 
-        'The annotation "RouteScope" has been removed',
-        'The annotation "LoginRequired" has been removed',
-        'The annotation "ContextTokenRequired" has been removed',
-        'The annotation "Acl" has been removed',
-
-        // temporary to fix types in final methods
-        'Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader',
-        // Should be safe
-        'Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\#\\_\\_destruct\\(\\) was removed'
+        // internal visibility fixes based on parent classes
+        'Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Field\\\\.* was marked "@internal"',
+        'Shopware\\\\Storefront\\\\Page\\\\PageLoadedHook was marked "@internal"',
+        'Shopware\\\\Storefront\\\\Framework\\\\App\\\\Template\\\\IconTemplateLoader was marked "@internal"',
+        'Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiRequestHook was marked "@internal"',
+        'Shopware\\\\Core\\\\Content\\\\Seo\\\\Entity\\\\Dbal\\\\SeoUrlAssociationFieldResolver was marked "@internal"',
     ],
 ];

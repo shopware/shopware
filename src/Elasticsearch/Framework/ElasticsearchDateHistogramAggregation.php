@@ -2,12 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Type\BucketingTrait;
+use OpenSearchDSL\Aggregation\AbstractAggregation;
+use OpenSearchDSL\Aggregation\Type\BucketingTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class ElasticsearchDateHistogramAggregation extends AbstractAggregation
 {
     use BucketingTrait;
@@ -16,8 +18,12 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
 
     protected ?string $format = null;
 
-    public function __construct(string $name, string $field, string $interval, ?string $format = null)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        string $interval,
+        ?string $format = null
+    ) {
         parent::__construct($name);
 
         $this->setField($field);
@@ -52,7 +58,7 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
     /**
      * {@inheritdoc}
      */
-    public function getArray(): array
+    protected function getArray(): array
     {
         $out = [
             'field' => $this->getField(),

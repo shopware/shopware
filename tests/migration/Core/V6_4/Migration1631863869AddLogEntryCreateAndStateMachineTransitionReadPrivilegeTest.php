@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1631863869AddLogEntryCreateAndStateMachineTransitionReadPrivilege
  */
 class Migration1631863869AddLogEntryCreateAndStateMachineTransitionReadPrivilegeTest extends TestCase
@@ -33,7 +34,7 @@ class Migration1631863869AddLogEntryCreateAndStateMachineTransitionReadPrivilege
         $migration->update($connection);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $id]);
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertContains('state_machine_transition:read', $privileges);
         static::assertContains('log_entry:create', $privileges);

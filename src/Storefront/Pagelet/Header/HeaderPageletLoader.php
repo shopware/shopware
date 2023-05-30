@@ -8,8 +8,8 @@ use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
@@ -20,35 +20,24 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Decoratable()
+ * Do not use direct or indirect repository calls in a PageletLoader. Always use a store-api route to get or put data.
  */
+#[Package('storefront')]
 class HeaderPageletLoader implements HeaderPageletLoaderInterface
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractCurrencyRoute $currencyRoute;
-
-    private AbstractLanguageRoute $languageRoute;
-
-    private NavigationLoaderInterface $navigationLoader;
-
     /**
      * @internal
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCurrencyRoute $currencyRoute,
-        AbstractLanguageRoute $languageRoute,
-        NavigationLoaderInterface $navigationLoader
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCurrencyRoute $currencyRoute,
+        private readonly AbstractLanguageRoute $languageRoute,
+        private readonly NavigationLoaderInterface $navigationLoader
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->currencyRoute = $currencyRoute;
-        $this->languageRoute = $languageRoute;
-        $this->navigationLoader = $navigationLoader;
     }
 
     /**
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $context): HeaderPagelet
     {
@@ -56,7 +45,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $navigationId = $request->get('navigationId', $salesChannel->getNavigationCategoryId());
 
         if (!$navigationId) {
-            throw new MissingRequestParameterException('navigationId');
+            throw RoutingException::missingRequestParameter('navigationId');
         }
 
         $languages = $this->getLanguages($context, $request);
@@ -106,9 +95,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $navigation = $this->navigationLoader->load($serviceId, $context, $serviceId, 1);
 
-        return new CategoryCollection(array_map(static function (TreeItem $treeItem) {
-            return $treeItem->getCategory();
-        }, $navigation->getTree()));
+        return new CategoryCollection(array_map(static fn (TreeItem $treeItem) => $treeItem->getCategory(), $navigation->getTree()));
     }
 
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection

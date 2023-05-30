@@ -3,6 +3,7 @@
 describe('Minimal install', () => {
     before(() => {
         Cypress.env('SKIP_INIT', 'true');
+        Cypress.env('SKIP_AUTH', 'true');
     });
 
     /**
@@ -13,8 +14,8 @@ describe('Minimal install', () => {
     it('@install: en-GB and GBP', { tags: ['pa-system-settings'] }, () => {
         cy.visit('/installer', {
             headers: {
-                'Accept-Language': Cypress.env('acceptLanguage')
-            }
+                'Accept-Language': Cypress.env('acceptLanguage'),
+            },
         });
 
         cy.get('.content--main').should('be.visible');
@@ -129,7 +130,7 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
-        // See if return to Admin was successful
+        // See if redirect to Admin was successful
         cy.get('.sw-desktop').should('be.visible');
 
         // @frw in Administration: welcome
@@ -214,7 +215,7 @@ describe('Minimal install', () => {
 
         cy.intercept({
             url: '/api/_action/store/frw/finish',
-            method: 'post'
+            method: 'post',
         }).as('finishCall');
 
         cy.get('.sw-button span').contains('Finish').click();

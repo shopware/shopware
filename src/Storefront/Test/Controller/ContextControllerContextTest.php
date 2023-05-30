@@ -11,7 +11,6 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Routing\RequestContext;
 
 /**
  * @internal
@@ -28,17 +27,11 @@ class ContextControllerContextTest extends TestCase
 
     private string $languageId;
 
-    /**
-     * @var Router
-     */
-    private $router;
+    private Router $router;
 
     protected function setUp(): void
     {
         $this->router = $this->getContainer()->get('router');
-
-        /** @var RequestContext $context */
-        $context = $this->router->getContext();
 
         $this->languageId = Uuid::randomHex();
         $localeId = Uuid::randomHex();
@@ -46,7 +39,7 @@ class ContextControllerContextTest extends TestCase
         $this->defaultBaseUrl = $_SERVER['APP_URL'];
         $this->testBaseUrl = $_SERVER['APP_URL'] . '/tst-TST';
 
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM sales_channel');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel');
 
         $domains = [
             [
@@ -77,12 +70,6 @@ class ContextControllerContextTest extends TestCase
             'domains' => $domains,
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $this->languageId]],
         ]);
-
-        // HACK to deactivate csrf protection. The check is only done once per request
-        $this->browser->request(
-            'POST',
-            $this->defaultBaseUrl . '/checkout/language'
-        );
     }
 
     protected function tearDown(): void
@@ -98,8 +85,7 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->defaultBaseUrl . '/checkout/language',
-            ['languageId' => $this->languageId],
-            []
+            ['languageId' => $this->languageId]
         );
 
         $response = $this->browser->getResponse();
@@ -115,8 +101,7 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->testBaseUrl . '/checkout/language',
-            ['languageId' => Defaults::LANGUAGE_SYSTEM],
-            []
+            ['languageId' => Defaults::LANGUAGE_SYSTEM]
         );
 
         $response = $this->browser->getResponse();
@@ -136,8 +121,7 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->testBaseUrl . '/checkout/configure',
-            ['languageId' => $this->languageId],
-            []
+            ['languageId' => $this->languageId]
         );
 
         $response = $this->browser->getResponse();
@@ -145,7 +129,7 @@ class ContextControllerContextTest extends TestCase
         $dispatcher->removeSubscriber($contextSubscriber);
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
-        static::assertSame($this->languageId, $contextSubscriber::$switchEvent->getRequestDataBag()->get('languageId'));
+        static::assertSame($this->languageId, $contextSubscriber->switchEvent->getRequestDataBag()->get('languageId'));
     }
 }
 
@@ -154,7 +138,7 @@ class ContextControllerContextTest extends TestCase
  */
 class ContextControllerTestSubscriber implements EventSubscriberInterface
 {
-    public static SalesChannelContextSwitchEvent $switchEvent;
+    public SalesChannelContextSwitchEvent $switchEvent;
 
     public static function getSubscribedEvents(): array
     {
@@ -165,6 +149,6 @@ class ContextControllerTestSubscriber implements EventSubscriberInterface
 
     public function onSwitch(SalesChannelContextSwitchEvent $event): void
     {
-        self::$switchEvent = $event;
+        $this->switchEvent = $event;
     }
 }

@@ -17,7 +17,12 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @package business-ops
+ *
  * @internal
+ *
+ * @package checkout
+ *
  * @covers \Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule
  */
 class PromotionLineItemRuleTest extends TestCase
@@ -69,10 +74,10 @@ class PromotionLineItemRuleTest extends TestCase
 
     public function testMatchesInCheckoutRuleScope(): void
     {
-        $equalsRule = new PromotionLineItemRule(PromotionLineItemRule::OPERATOR_EQ, ['id']);
+        $equalsRule = new PromotionLineItemRule(Rule::OPERATOR_EQ, ['id']);
         static::assertFalse($equalsRule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class))));
 
-        $notEqualsRule = new PromotionLineItemRule(PromotionLineItemRule::OPERATOR_NEQ, ['id']);
+        $notEqualsRule = new PromotionLineItemRule(Rule::OPERATOR_NEQ, ['id']);
         static::assertFalse($notEqualsRule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class))));
     }
 
@@ -92,7 +97,7 @@ class PromotionLineItemRuleTest extends TestCase
         static::assertSame(!$expected, $notEqualsRule->match($scope));
     }
 
-    public function lineItemScopeCases(): \Generator
+    public static function lineItemScopeCases(): \Generator
     {
         yield 'Line item id in configured ids' => [
             ['matchedId', 'notMatchedId'],
@@ -142,14 +147,14 @@ class PromotionLineItemRuleTest extends TestCase
      * @param list<string>|null $ids
      * @param list<LineItem>|LineItem $lineItems
      */
-    public function testMatchesInCartScope(?array $ids, $lineItems, bool $expected): void
+    public function testMatchesInCartScope(?array $ids, array|LineItem $lineItems, bool $expected): void
     {
         if ($lineItems instanceof LineItem) {
             $lineItems = [$lineItems];
         }
 
         $scope = new CartRuleScope(
-            (new Cart('test', 'test'))->assign([
+            (new Cart('test'))->assign([
                 'lineItems' => new LineItemCollection($lineItems),
             ]),
             $this->createMock(SalesChannelContext::class)
@@ -162,7 +167,7 @@ class PromotionLineItemRuleTest extends TestCase
         static::assertSame(!$expected, $notEqualsRule->match($scope));
     }
 
-    public function cartScopeCases(): \Generator
+    public static function cartScopeCases(): \Generator
     {
         yield 'multiple matches' => [
             ['matchedId', 'alsoMatchedId'],

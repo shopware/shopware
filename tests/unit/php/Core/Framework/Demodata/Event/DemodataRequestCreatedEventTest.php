@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent
  */
 class DemodataRequestCreatedEventTest extends TestCase

@@ -12,25 +12,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class ShippingMethodValidatorTest extends TestCase
 {
-    /**
-     * @var WriteContext
-     */
-    private $context;
+    private WriteContext $context;
 
-    /**
-     * @var ShippingMethodDefinition
-     */
-    private $shippingMethodDefinition;
+    private ShippingMethodDefinition $shippingMethodDefinition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 
@@ -42,6 +38,7 @@ class ShippingMethodValidatorTest extends TestCase
      */
     public function testShippingMethodValidator(?string $taxType, ?string $taxId, bool $success): void
     {
+        $commands = [];
         $commands[] = new InsertCommand(
             $this->shippingMethodDefinition,
             [
@@ -75,13 +72,13 @@ class ShippingMethodValidatorTest extends TestCase
 
         if (!$success) {
             static::assertNotNull($exception);
-            static::assertEquals(WriteConstraintViolationException::class, \get_class($exception->getExceptions()[0]));
+            static::assertEquals(WriteConstraintViolationException::class, $exception->getExceptions()[0]::class);
         } else {
             static::assertNull($exception);
         }
     }
 
-    public function shippingMethodTaxProvider(): iterable
+    public static function shippingMethodTaxProvider(): iterable
     {
         yield 'Test tax type is null' => [null, null, true];
         yield 'Test tax type is invalid' => ['invalid', null, false];

@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('sales-channel')]
 interface ProductExportFileHandlerInterface
 {
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string;

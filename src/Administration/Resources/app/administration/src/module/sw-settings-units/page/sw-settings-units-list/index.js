@@ -1,13 +1,13 @@
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-settings-units-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -170,4 +170,4 @@ Component.register('sw-settings-units-list', {
             this.$router.push({ name: 'sw.settings.units.detail', params: { id: unit.id } });
         },
     },
-});
+};

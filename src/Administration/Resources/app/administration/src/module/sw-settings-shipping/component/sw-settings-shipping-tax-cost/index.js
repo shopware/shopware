@@ -1,11 +1,14 @@
 import template from './sw-settings-shipping-tax-cost.html.twig';
 
 const { Criteria } = Shopware.Data;
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-shipping-tax-cost', {
+export default {
     template,
 
     mixins: [
@@ -92,4 +95,4 @@ Component.register('sw-settings-shipping-tax-cost', {
             return tax.name;
         },
     },
-});
+};

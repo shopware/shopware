@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Script\Api;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
@@ -20,37 +22,41 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
+#[Package('core')]
 class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAware, StoppableHook
 {
     use ScriptResponseAwareTrait;
     use StoppableHookTrait;
 
-    public const FUNCTION_NAME = 'response';
+    final public const FUNCTION_NAME = 'response';
 
-    private array $request;
-
-    private array $query;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $name;
-
-    public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
-    {
-        $this->request = $request;
-        $this->query = $query;
-        $this->salesChannelContext = $salesChannelContext;
-
+    /**
+     * @param array<mixed> $request
+     * @param array<mixed> $query
+     */
+    public function __construct(
+        private readonly string $name,
+        private readonly array $request,
+        private readonly array $query,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
         parent::__construct($salesChannelContext->getContext());
-        $this->name = $name;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getRequest(): array
     {
         return $this->request;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getQuery(): array
     {
         return $this->query;
@@ -79,6 +85,7 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
             SalesChannelRepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
             ScriptResponseFactoryFacadeHookFactory::class,
+            RequestFacadeFactory::class,
         ];
     }
 }

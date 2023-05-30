@@ -3,31 +3,19 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('business-ops')]
 class BusinessEventCollector
 {
-    /**
-     * @var BusinessEventRegistry
-     */
-    private $registry;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     /**
      * @internal
      */
     public function __construct(
-        BusinessEventRegistry $registry,
-        EventDispatcherInterface $eventDispatcher
+        private readonly BusinessEventRegistry $registry,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->registry = $registry;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function collect(Context $context): BusinessEventCollectorResponse
@@ -50,9 +38,7 @@ class BusinessEventCollector
 
         $result = $event->getCollection();
 
-        $result->sort(function (BusinessEventDefinition $a, BusinessEventDefinition $b) {
-            return $a->getName() <=> $b->getName();
-        });
+        $result->sort(fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
 
         return $result;
     }
@@ -62,37 +48,25 @@ class BusinessEventCollector
      */
     public function define(string $class, ?string $name = null): ?BusinessEventDefinition
     {
-        if ($class === BusinessEvent::class) {
-            return null;
-        }
-
         $instance = (new \ReflectionClass($class))
             ->newInstanceWithoutConstructor();
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            if (!$instance instanceof FlowEventAware) {
-                throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
-            }
-        } else {
-            if (!$instance instanceof BusinessEventInterface) {
-                throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
-            }
+        if (!$instance instanceof FlowEventAware) {
+            throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
         }
 
-        $name = $name ?? $instance->getName();
+        $name ??= $instance->getName();
         if (!$name) {
             return null;
         }
 
-        /** @var array $interfaces */
+        /** @var array<class-string<object>> $interfaces */
         $interfaces = class_implements($instance);
 
         $aware = [];
         foreach ($interfaces as $interface) {
             if (is_subclass_of($interface, FlowEventAware::class)
-                && $interface !== FlowEventAware::class
-                && $interface !== MailActionInterface::class
-                && $interface !== BusinessEventInterface::class) {
+                && $interface !== FlowEventAware::class) {
                 $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }
@@ -101,10 +75,7 @@ class BusinessEventCollector
         return new BusinessEventDefinition(
             $name,
             $class,
-            $instance instanceof MailAware,
-            $instance instanceof LogAware,
-            $instance instanceof SalesChannelAware,
-            $instance::getAvailableData()->toArray(),
+            $instance->getAvailableData()->toArray(),
             $aware
         );
     }

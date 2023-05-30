@@ -1,8 +1,14 @@
+/**
+ * @package admin
+ */
+
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import type VueRouter from 'vue-router';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function initializeWindow(): void {
     // Handle incoming window requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('windowReload', () => {
@@ -29,7 +35,7 @@ export default function initializeWindow(): void {
             return;
         }
 
-        $router.push({
+        void $router.push({
             name: name && name.length > 0 ? name : undefined,
             params,
             path: path && path.length > 0 ? path : undefined,

@@ -2,26 +2,25 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class CheapestPriceUpdater
 {
-    private Connection $connection;
-
-    private AbstractCheapestPriceQuantitySelector $quantitySelector;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, AbstractCheapestPriceQuantitySelector $quantitySelector)
-    {
-        $this->connection = $connection;
-        $this->quantitySelector = $quantitySelector;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector
+    ) {
     }
 
     /**
@@ -70,7 +69,7 @@ class CheapestPriceUpdater
             );
 
             foreach ($container->getVariantIds() as $variantId) {
-                $accessor = JsonFieldSerializer::encodeJson($this->buildAccessor($container, $variantId));
+                $accessor = Json::encode($this->buildAccessor($container, $variantId));
 
                 if (($existingAccessors[Uuid::fromHexToBytes($variantId)] ?? null) === $accessor) {
                     continue;
@@ -189,15 +188,15 @@ class CheapestPriceUpdater
 
         $ids = Uuid::fromHexToBytesList($ids);
 
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $data = $query->execute()->fetchAllAssociative();
+        $data = $query->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         /** @var array<string, mixed> $row */
         foreach ($data as $row) {
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
         }
 
@@ -221,10 +220,10 @@ class CheapestPriceUpdater
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
 
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $defaults = $query->execute()->fetchAllAssociative();
+        $defaults = $query->executeQuery()->fetchAllAssociative();
 
         /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {
@@ -234,7 +233,7 @@ class CheapestPriceUpdater
                 continue;
             }
 
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
             if ($row['child_count'] > 0) {
                 $grouped[$row['parent_id']]['default'] = $row;

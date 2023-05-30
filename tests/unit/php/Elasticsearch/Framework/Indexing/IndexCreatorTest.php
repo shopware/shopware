@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\Client;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
@@ -239,7 +239,7 @@ class IndexCreatorTest extends TestCase
     /**
      * @return iterable<array<mixed>>
      */
-    public function providerCreateIndices(): iterable
+    public static function providerCreateIndices(): iterable
     {
         yield 'with given number of shards' => [
             [

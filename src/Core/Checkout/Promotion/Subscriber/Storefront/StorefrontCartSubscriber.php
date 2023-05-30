@@ -3,36 +3,35 @@
 namespace Shopware\Core\Checkout\Promotion\Subscriber\Storefront;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @internal
+ */
+#[Package('checkout')]
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {
-    public const SESSION_KEY_PROMOTION_CODES = 'cart-promotion-codes';
-
-    private CartService $cartService;
-
-    private RequestStack $requestStack;
+    final public const SESSION_KEY_PROMOTION_CODES = 'cart-promotion-codes';
 
     /**
      * @internal
      */
-    public function __construct(CartService $cartService, RequestStack $requestStack)
-    {
-        $this->cartService = $cartService;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly RequestStack $requestStack
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -113,9 +112,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function checkFixedDiscountItems(Cart $cart, LineItem $lineItem): void
     {
@@ -138,9 +135,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
         $discountId = $lineItem->getPayloadValue('discountId');
 
-        $removeThisDiscounts = $lineItems->filter(static function (LineItem $lineItem) use ($discountId) {
-            return $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId;
-        });
+        $removeThisDiscounts = $lineItems->filter(static fn (LineItem $lineItem) => $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId);
 
         foreach ($removeThisDiscounts as $discountItem) {
             $cart->remove($discountItem->getId());
@@ -156,9 +151,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         }
 
         //filter them by the promotion which discounts should be deleted
-        $lineItems = $lineItems->filter(function (LineItem $promotionLineItem) use ($lineItem) {
-            return $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId');
-        });
+        $lineItems = $lineItems->filter(fn (LineItem $promotionLineItem) => $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId'));
 
         if ($lineItems->count() < 1) {
             return;

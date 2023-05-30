@@ -23,7 +23,11 @@ Please create a second pull request at https://github.com/shopware/docs
 
 - [ ] I have rebased my changes to remove merge conflicts
 - [ ] I have written tests and verified that they fail without my change
-- [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/workflow/2020-08-03-implement-New-Changelog.md) with all necessary information about my changes
+- [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/2020-08-03-implement-new-changelog.md) with all necessary information about my changes
 - [ ] I have written or adjusted the documentation according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
 - [ ] I have read the contribution requirements and fulfil them.
+
+copilot:summary
+
+copilot:walkthrough

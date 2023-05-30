@@ -40,8 +40,9 @@
 .sw-cms-create-wizard__step-1 {
     .sw-cms-create-wizard__page-type-selection {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
-        margin: 40px 0 20px;
+        margin: 40px 200px 20px;
     }
 
     .sw-cms-create-wizard__page-type {
@@ -79,7 +80,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
     }
 
@@ -117,5 +118,6 @@
     .sw-cms-create-wizard__page-completion-buttons {
         display: grid;
         align-items: center;
+        width: 280px;
     }
 }

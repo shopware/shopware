@@ -1,7 +1,8 @@
 {
   "sw-customer": {
     "error": {
-      "COMPANY_IS_REQUIRED": "Company is required for commercial customer type"
+      "COMPANY_IS_REQUIRED": "The field company is required for commercial customers.",
+      "passwordDoNotMatch": "Your inputs for the new password and password confirmation do not match."
     },
     "notification": {
       "requiredFields": "Please fill in all required fields."
@@ -56,6 +57,7 @@
       "columnGroup": "Customer group",
       "columnGroupRequested": "Request",
       "columnNameGuestLabel": "Guest account",
+      "labelCreatedByAdmin": "Created by admin",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
       "columnStreet": "Street",
@@ -124,6 +126,8 @@
       "labelActive": "Account status",
       "labelAffiliateCode": "Affiliate code",
       "labelCampaignCode": "Campaign code",
+      "labelCompany": "Company",
+      "labelVatId": "VAT Reg.No.",
       "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
       "emptyTextBirthday": "No information",
@@ -231,8 +235,8 @@
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
-      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of eight characters.",
-      "notificationLoginAsCustomerErrorMessage": "There was an error logging in as a customer."
+      "notificationLoginAsCustomerErrorMessage": "There was an error logging in as a customer.",
+      "labelCreatedByAdmin": "Created by admin"
     },
     "filter": {
       "salutation": {

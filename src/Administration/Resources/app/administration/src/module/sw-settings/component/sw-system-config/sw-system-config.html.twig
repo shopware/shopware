@@ -19,6 +19,7 @@
         :class="`sw-system-config__card--${index}`"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
+        :ai-badge="card.aiBadge"
     >
         <slot
             name="beforeElements"
@@ -63,6 +64,7 @@
                                 :key="props.isInheritField + props.isInherited"
                                 :disabled="props.isInherited"
                                 :value="props.currentValue"
+                                :error="getFieldError(element.name)"
                                 @input="props.updateCurrentValue"
                                 @change="props.updateCurrentValue"
                             />
@@ -76,7 +78,8 @@
         <slot
             name="afterElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
-        ></slot>
+        >
+        </slot>
     </sw-card>
     {% endblock %}
 </div>

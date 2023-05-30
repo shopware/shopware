@@ -69,7 +69,7 @@
                                     :disabled="isLoading || !acl.can('theme.editor')"
                                 >
                                     <sw-icon
-                                            name="small-arrow-medium-down"
+                                            name="regular-chevron-down-xs"
                                             size="16"
                                     />
                                 </sw-button>
@@ -108,7 +108,11 @@
                 </div>
 
                 <div v-else class="sw-theme-manager-detail__content">
-                    <sw-tabs defaultItem="default" @new-item-active="onChangeTab">
+                    <sw-tabs
+                        defaultItem="default"
+                        positionIdentifier="theme-manager-detail-tabs"
+                        @new-item-active="onChangeTab"
+                    >
                         <template #default="{ active }">
                             <sw-tabs-item v-if="hasMoreThanOneTab"
                                           v-for="(tab, tabName) in structuredThemeFields.tabs"
@@ -126,7 +130,7 @@
                                     {% block sw_theme_manager_detail_content_inheritance %}
                                         <div class="sw-theme-manager-detail__inheritance">
                                             {% block sw_theme_manager_detail_content_inheritance_icon %}
-                                                <sw-icon :multicolor="true" size="20" name="custom-inherited"></sw-icon>
+                                                <sw-icon :multicolor="true" size="20" name="regular-link-horizontal"></sw-icon>
                                             {% endblock %}
 
                                             {% block sw_theme_manager_detail_content_inheritance_text %}
@@ -142,7 +146,10 @@
                                 </template>
 
                                 {% block sw_theme_manager_detail_content_info %}
-                                    <sw-card class="sw-theme-manager-detail__info-card">
+                                    <sw-card
+                                        class="sw-theme-manager-detail__info-card"
+                                        positionIdentifier="theme-manager-detail-info"
+                                    >
                                         <div class="sw-theme-manager-detail__info">
 
                                             {% block sw_theme_manager_detail_content_info_image %}
@@ -166,6 +173,7 @@
                                                         :label="$tc('sw-theme-manager.detail.salesChannel')"
                                                         :disabled="!acl.can('theme.editor')"
                                                         :helpText="isDefaultTheme ? $tc('sw-theme-manager.detail.salesChannelHelpText') : null"
+                                                        :placeholder="$tc('sw-theme-manager.detail.placeholder.selectSalesChannel')"
                                                         :selectionDisablingMethod="selectionDisablingMethod">
                                                         <template #result-item="{ item, index }">
                                                             <span v-if="!isThemeCompatible(item)"></span>
@@ -232,6 +240,7 @@
                                         <sw-card v-for="(block, blockName) in tab.blocks"
                                                  :key="blockName"
                                                  class="sw-theme-manager-detail__area"
+                                                 positionIdentifier="theme-manager-detail-content"
                                                  :title="block.label">
 
                                             {% block sw_theme_manager_detail_content_sections %}

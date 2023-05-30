@@ -1,6 +1,9 @@
 /* eslint-disable */
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 
+/**
+ * @package checkout
+ */
 describe('BaseWishlistStoragePlugin tests', () => {
     let wishlistStoragePlugin = undefined;
     let spyInitializePlugins = jest.fn();

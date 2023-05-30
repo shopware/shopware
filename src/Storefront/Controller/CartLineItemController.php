@@ -5,20 +5,19 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Profiling\Profiler;
@@ -28,53 +27,33 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class CartLineItemController extends StorefrontController
 {
-    private CartService $cartService;
-
-    private PromotionItemBuilder $promotionItemBuilder;
-
-    private ProductLineItemFactory $productLineItemFactory;
-
-    private HtmlSanitizer $htmlSanitizer;
-
-    private AbstractProductListRoute $productListRoute;
-
     /**
      * @internal
      */
     public function __construct(
-        CartService $cartService,
-        PromotionItemBuilder $promotionItemBuilder,
-        ProductLineItemFactory $productLineItemFactory,
-        HtmlSanitizer $htmlSanitizer,
-        AbstractProductListRoute $productListRoute
+        private readonly CartService $cartService,
+        private readonly PromotionItemBuilder $promotionItemBuilder,
+        private readonly ProductLineItemFactory $productLineItemFactory,
+        private readonly HtmlSanitizer $htmlSanitizer,
+        private readonly AbstractProductListRoute $productListRoute,
+        private readonly LineItemFactoryRegistry $lineItemFactoryRegistry
     ) {
-        $this->cartService = $cartService;
-        $this->promotionItemBuilder = $promotionItemBuilder;
-        $this->productLineItemFactory = $productLineItemFactory;
-        $this->htmlSanitizer = $htmlSanitizer;
-        $this->productListRoute = $productListRoute;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
-     */
+    #[Route(path: '/checkout/line-item/delete/{id}', name: 'frontend.checkout.line-item.delete', defaults: ['XmlHttpRequest' => true], methods: ['POST', 'DELETE'])]
     public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
         return Profiler::trace('cart::delete-line-item', function () use ($cart, $id, $request, $context) {
             try {
                 if (!$cart->has($id)) {
-                    if (Feature::isActive('v6.5.0.0')) {
-                        throw CartException::lineItemNotFound($id);
-                    }
-
-                    throw new LineItemNotFoundException($id);
+                    throw CartException::lineItemNotFound($id);
                 }
 
                 $cart = $this->cartService->remove($cart, $id, $context);
@@ -82,7 +61,7 @@ class CartLineItemController extends StorefrontController
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
                 }
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
 
@@ -91,13 +70,10 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0.0")
-     * This is the storefront controller action for adding a promotion.
      * It has some individual code for the storefront layouts, like visual
      * error and success messages.
-     *
-     * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
+    #[Route(path: '/checkout/promotion/add', name: 'frontend.checkout.promotion.add', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function addPromotion(Cart $cart, Request $request, SalesChannelContext $context): Response
     {
         return Profiler::trace('cart::add-promotion', function () use ($cart, $request, $context) {
@@ -128,7 +104,7 @@ class CartLineItemController extends StorefrontController
                 // then simply continue with the default display
                 // of the cart errors and notices
                 $this->traceErrors($cart);
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
 
@@ -136,10 +112,7 @@ class CartLineItemController extends StorefrontController
         });
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
-     */
+    #[Route(path: '/checkout/line-item/change-quantity/{id}', name: 'frontend.checkout.line-item.change-quantity', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
         return Profiler::trace('cart::change-quantity', function () use ($cart, $id, $request, $context) {
@@ -151,11 +124,7 @@ class CartLineItemController extends StorefrontController
                 }
 
                 if (!$cart->has($id)) {
-                    if (Feature::isActive('v6.5.0.0')) {
-                        throw CartException::lineItemNotFound($id);
-                    }
-
-                    throw new LineItemNotFoundException($id);
+                    throw CartException::lineItemNotFound($id);
                 }
 
                 $cart = $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
@@ -163,7 +132,7 @@ class CartLineItemController extends StorefrontController
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
                 }
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
 
@@ -171,17 +140,14 @@ class CartLineItemController extends StorefrontController
         });
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
-     */
+    #[Route(path: '/checkout/product/add-by-number', name: 'frontend.checkout.product.add-by-number', methods: ['POST'])]
     public function addProductByNumber(Request $request, SalesChannelContext $context): Response
     {
         return Profiler::trace('cart::add-product-by-number', function () use ($request, $context) {
             $number = (string) $request->request->get('number');
 
             if (!$number) {
-                throw new MissingRequestParameterException('number');
+                throw RoutingException::missingRequestParameter('number');
             }
 
             $criteria = new Criteria();
@@ -202,7 +168,7 @@ class CartLineItemController extends StorefrontController
             /** @var string $productId */
             $productId = array_shift($data);
 
-            $product = $this->productLineItemFactory->create($productId);
+            $product = $this->productLineItemFactory->create(['id' => $productId, 'referencedId' => $productId], $context);
 
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -217,9 +183,6 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/line-item/add", name="frontend.checkout.line-item.add", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     *
      * requires the provided items in the following form
      * 'lineItems' => [
      *     'anyKey' => [
@@ -234,13 +197,14 @@ class CartLineItemController extends StorefrontController
      *     ]
      * ]
      */
+    #[Route(path: '/checkout/line-item/add', name: 'frontend.checkout.line-item.add', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
     {
         return Profiler::trace('cart::add-line-item', function () use ($cart, $requestDataBag, $request, $context) {
             /** @var RequestDataBag|null $lineItems */
             $lineItems = $requestDataBag->get('lineItems');
             if (!$lineItems) {
-                throw new MissingRequestParameterException('lineItems');
+                throw RoutingException::missingRequestParameter('lineItems');
             }
 
             $count = 0;
@@ -249,19 +213,38 @@ class CartLineItemController extends StorefrontController
                 $items = [];
                 /** @var RequestDataBag $lineItemData */
                 foreach ($lineItems as $lineItemData) {
-                    $lineItem = new LineItem(
-                        $lineItemData->getAlnum('id'),
-                        $lineItemData->getAlnum('type'),
-                        $lineItemData->get('referencedId'),
-                        $lineItemData->getInt('quantity', 1)
-                    );
+                    try {
+                        $item = $this->lineItemFactoryRegistry->create($this->getLineItemArray($lineItemData), $context);
+                        $count += $item->getQuantity();
 
-                    $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
-                    $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
+                        $items[] = $item;
+                    } catch (CartException $e) {
+                        if ($e->getErrorCode() !== CartException::CART_LINE_ITEM_TYPE_NOT_SUPPORTED_CODE) {
+                            throw $e;
+                        }
 
-                    $count += $lineItem->getQuantity();
+                        /**
+                         * @deprecated tag:v6.6.0 - remove complete try/catch and just leave the try content
+                         */
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.6.0.0',
+                            'With Shopware 6.6.0.0, you will only be able to create line items only with registered LineItemFactories',
+                        );
 
-                    $items[] = $lineItem;
+                        $lineItem = new LineItem(
+                            $lineItemData->getAlnum('id'),
+                            $lineItemData->getAlnum('type'),
+                            $lineItemData->get('referencedId'),
+                            $lineItemData->getInt('quantity', 1)
+                        );
+
+                        $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
+                        $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
+
+                        $count += $lineItem->getQuantity();
+
+                        $items[] = $lineItem;
+                    }
                 }
 
                 $cart = $this->cartService->add($cart, $items, $context);
@@ -269,7 +252,7 @@ class CartLineItemController extends StorefrontController
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
                 }
-            } catch (ProductNotFoundException $exception) {
+            } catch (ProductNotFoundException) {
                 $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
             }
 
@@ -283,10 +266,29 @@ class CartLineItemController extends StorefrontController
             return false;
         }
 
-        $this->addCartErrors($cart, function (Error $error) {
-            return $error->isPersistent();
-        });
+        $this->addCartErrors($cart, fn (Error $error) => $error->isPersistent());
 
         return true;
+    }
+
+    /**
+     * @return array<string|int, mixed>
+     */
+    private function getLineItemArray(RequestDataBag $lineItemData): array
+    {
+        $lineItemArray = $lineItemData->all();
+        $lineItemArray['quantity'] = $lineItemData->getInt('quantity', 1);
+        $lineItemArray['stackable'] = $lineItemData->getBoolean('stackable', true);
+        $lineItemArray['removable'] = $lineItemData->getBoolean('removable', true);
+
+        if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['quantity'])) {
+            $lineItemArray['priceDefinition']['quantity'] = (int) $lineItemArray['priceDefinition']['quantity'];
+        }
+
+        if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['isCalculated'])) {
+            $lineItemArray['priceDefinition']['isCalculated'] = (int) $lineItemArray['priceDefinition']['isCalculated'];
+        }
+
+        return $lineItemArray;
     }
 }

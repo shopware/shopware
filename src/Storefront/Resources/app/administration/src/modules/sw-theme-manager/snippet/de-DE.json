@@ -103,6 +103,15 @@
         "socialMediaLinks": "Social Media Links",
         "favicon": "Favicon",
         "shopLogo": "Shop Logo"
+      },
+      "placeholder": {
+        "selectSalesChannel": "Verkaufskanal auswählen ..."
+      },
+      "error": {
+        "themeCompile": {
+          "title": "Das Theme konnte nicht kompiliert werden",
+          "message": "Das Theme konnte nicht kompiliert werden. Bitte prüfen Sie die vollständige Fehlermeldung, um dieses Problem zu beheben."
+        }
       }
     },
     "themeModal": {

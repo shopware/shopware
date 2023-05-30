@@ -2,28 +2,21 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
+#[Package('core')]
 class IndexCreator
 {
-    private Client $client;
-
     /**
      * @var array<mixed>
      */
-    private array $config;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $mapping;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly array $config;
 
     /**
      * @internal
@@ -31,11 +24,12 @@ class IndexCreator
      * @param array<mixed> $config
      * @param array<mixed> $mapping
      */
-    public function __construct(Client $client, array $config, array $mapping, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->client = $client;
-        $this->mapping = $mapping;
-
+    public function __construct(
+        private readonly Client $client,
+        array $config,
+        private readonly array $mapping,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
                 unset($config['settings']['index']['number_of_shards']);
@@ -47,14 +41,13 @@ class IndexCreator
         }
 
         $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
     {
         // NEXT-21735 - does not execute if there's no index yet
         // @codeCoverageIgnoreStart
-        if ($this->indexExists($index)) {
+        if ($this->client->indices()->exists(['index' => $index])) {
             $this->client->indices()->delete(['index' => $index]);
         }
         // @codeCoverageIgnoreEnd
@@ -86,11 +79,6 @@ class IndexCreator
     public function aliasExists(string $alias): bool
     {
         return $this->client->indices()->existsAlias(['name' => $alias]);
-    }
-
-    private function indexExists(string $index): bool
-    {
-        return $this->client->indices()->exists(['index' => $index]);
     }
 
     /**

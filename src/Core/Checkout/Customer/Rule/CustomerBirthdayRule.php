@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -10,25 +11,19 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class CustomerBirthdayRule extends Rule
 {
-    protected ?string $birthday;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerBirthday';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $birthday = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $birthday = null
+    ) {
         parent::__construct();
-        $this->operator = $operator;
-        $this->birthday = $birthday;
-    }
-
-    public function getName(): string
-    {
-        return 'customerBirthday';
     }
 
     public function getConstraints(): array

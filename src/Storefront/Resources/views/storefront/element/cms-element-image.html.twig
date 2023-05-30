@@ -16,7 +16,8 @@
                                         {% set attributes = {
                                             'class': 'cms-image',
                                             'alt': (element.data.media.translated.alt ?: ''),
-                                            'title': (element.data.media.translated.title ?: '')
+                                            'title': (element.data.media.translated.title ?: ''),
+                                            'loading': 'lazy'
                                         } %}
 
                                         {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}

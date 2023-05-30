@@ -12,6 +12,9 @@ use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
  * @internal
+ *
+ * @package content
+ *
  * @covers \Shopware\Core\System\CustomEntity\Schema\SchemaUpdater
  */
 class SchemaUpdaterTest extends TestCase
@@ -101,7 +104,7 @@ class SchemaUpdaterTest extends TestCase
      * @dataProvider associationPairsProvider
      *
      * @param list<array{name: string, fields: string}> $entities
-     * @param array<string,list<string>> $expectedSchema
+     * @param array<string, list<string>> $expectedSchema
      */
     public function testAssociations(array $entities, array $expectedSchema): void
     {
@@ -115,7 +118,7 @@ class SchemaUpdaterTest extends TestCase
         }
     }
 
-    public function associationPairsProvider(): \Generator
+    public static function associationPairsProvider(): \Generator
     {
         $oneToOnePair = [
             [

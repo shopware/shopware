@@ -18,7 +18,6 @@
             <directory suffix=".php">src/Core/Checkout</directory>
             <directory suffix=".php">src/Core/DevOps</directory>
             <directory suffix=".php">src/Core/Maintenance</directory>
-            <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Core/Installer</directory>
 
@@ -62,7 +61,6 @@
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
-            <directory suffix=".php">src/Core/Profiling/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
 
             <directory suffix=".php">src/Elasticsearch/Test</directory>
@@ -82,12 +80,12 @@
         <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0" />
 
         <env name="SHELL_VERBOSITY" value="-1" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
         <server name="MAILER_URL" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <!--<env name="SYMFONY_DEPRECATIONS_HELPER" value="/A tree builder without a root node is deprecated since Symfony 4\.2 and will not be supported anymore in 5\.0\./" />-->
+<!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
+         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
     </php>
     <testsuites>
         <testsuite name="administration">
@@ -109,19 +107,12 @@
         <testsuite name="migration">
             <directory>src/Core/Migration/Test</directory>
         </testsuite>
-        <testsuite name="profiling">
-            <directory>src/Core/Profiling/Test</directory>
-        </testsuite>
         <testsuite name="maintenance">
             <directory>src/Core/Maintenance/Test</directory>
         </testsuite>
         <testsuite name="system">
             <directory>src/Core/System/Test</directory>
         </testsuite>
-        <testsuite name="elasticsearch">
-            <directory>src/Elasticsearch/Test</directory>
-        </testsuite>
-
         <testsuite name="unit">
             <directory>tests/unit/php</directory>
         </testsuite>
@@ -134,16 +125,10 @@
             <directory>tests/migration</directory>
         </testsuite>
 
-        <testsuite name="docs">
-            <directory>src/Docs/Test</directory>
-            <directory suffix="example.php">src/Docs/Resources/current/</directory>
-        </testsuite>
-
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit/php</directory>
-            <exclude>src/Recovery/Test</exclude>
             <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
@@ -154,6 +139,7 @@
                 <array>
                     <!-- set this option to 0 to disable the DebugClassLoader integration -->
                     <element key="debug-class-loader"><integer>0</integer></element>
+                    <element key="time-sensitive"><string>Symfony\Bridge\Doctrine\Middleware\Debug</string></element>
                 </array>
             </arguments>
         </listener>

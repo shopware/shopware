@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,14 +22,11 @@ class TreeIndexerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var Connection
@@ -246,7 +244,7 @@ class TreeIndexerTest extends TestCase
         $categoryC = $this->createCategory($categoryA);
         $categoryD = $this->createCategory($categoryC);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE category SET path = NULL, level = 0 WHERE HEX(id) IN (:ids)',
             [
                 'ids' => [
@@ -256,7 +254,7 @@ class TreeIndexerTest extends TestCase
                     $categoryD,
                 ],
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);

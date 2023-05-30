@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -16,8 +17,10 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Package('storefront')]
 class ErrorController extends StorefrontController
 {
     /**
@@ -25,29 +28,17 @@ class ErrorController extends StorefrontController
      */
     protected $errorTemplateResolver;
 
-    private HeaderPageletLoaderInterface $headerPageletLoader;
-
-    private ErrorPageLoaderInterface $errorPageLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private FooterPageletLoaderInterface $footerPageletLoader;
-
     /**
      * @internal
      */
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
-        HeaderPageletLoaderInterface $headerPageletLoader,
-        SystemConfigService $systemConfigService,
-        ErrorPageLoaderInterface $errorPageLoader,
-        FooterPageletLoaderInterface $footerPageletLoader
+        private readonly HeaderPageletLoaderInterface $headerPageletLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ErrorPageLoaderInterface $errorPageLoader,
+        private readonly FooterPageletLoaderInterface $footerPageletLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
-        $this->headerPageletLoader = $headerPageletLoader;
-        $this->errorPageLoader = $errorPageLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->footerPageletLoader = $footerPageletLoader;
     }
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response

@@ -81,6 +81,7 @@
                 showOnDisabledElements: true
             }"
             @selection-change="countryStateSelectionChanged"
+            @load-finish="checkEmptyState"
         >
 
             <template #column-name="{ item }">
@@ -92,7 +93,7 @@
                     class="sw-settings-country-state__link"
                     @click="onClickCountryState(item)"
                 >
-                    {{ item.name }}
+                    {{ getCountryStateName(item) }}
                 </a>
                 {% endblock %}
 
@@ -120,7 +121,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_state_list_empty %}
         <sw-empty-state
-            v-if="country.states.length == 0"
+            v-if="showEmptyState"
             :absolute="false"
             :title="$tc('sw-country-state-detail.emptyTitle')"
             :subline="$tc('sw-country-state-detail.emptySubline')"

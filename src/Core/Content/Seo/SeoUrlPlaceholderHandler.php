@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -10,27 +12,19 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use function preg_replace_callback;
 
+#[Package('sales-channel')]
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
-    public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
-
-    private RouterInterface $router;
-
-    private RequestStack $requestStack;
-
-    private Connection $connection;
+    final public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
 
     /**
      * @internal
      */
     public function __construct(
-        RequestStack $requestStack,
-        RouterInterface $router,
-        Connection $connection
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly Connection $connection
     ) {
-        $this->router = $router;
-        $this->requestStack = $requestStack;
-        $this->connection = $connection;
     }
 
     /**
@@ -59,9 +53,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                     $seoMapping[$key] = $host . '/' . ltrim($value, '/');
                 }
 
-                return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static function (array $match) use ($seoMapping) {
-                    return $seoMapping[$match[0]];
-                }, $content);
+                return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
             }
 
             return $content;
@@ -71,8 +63,11 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     private function createDefaultMapping(array $matches): array
     {
         $mapping = [];
+        $placeholder = \strlen(self::DOMAIN_PLACEHOLDER);
         foreach ($matches as $match) {
-            $mapping[$match] = str_replace(self::DOMAIN_PLACEHOLDER, '', rtrim($match, '#'));
+            // remove self::DOMAIN_PLACEHOLDER from start
+            // remove # from end
+            $mapping[$match] = substr((string) $match, $placeholder, -1);
         }
 
         return $mapping;
@@ -93,14 +88,14 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId OR seo_url.sales_channel_id IS NULL');
         $query->andWhere('is_deleted = 0');
-        $query->setParameter('pathInfo', $mapping, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('pathInfo', $mapping, ArrayParameterType::STRING);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
         $query->addOrderBy('seo_url.sales_channel_id');
 
-        $seoUrls = $query->execute()->fetchAll();
+        $seoUrls = $query->executeQuery()->fetchAllAssociative();
         foreach ($seoUrls as $seoUrl) {
-            $seoPathInfo = trim($seoUrl['seo_path_info']);
+            $seoPathInfo = trim((string) $seoUrl['seo_path_info']);
             if ($seoPathInfo === '') {
                 continue;
             }

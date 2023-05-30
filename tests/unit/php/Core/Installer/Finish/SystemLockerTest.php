@@ -7,6 +7,7 @@ use Shopware\Core\Installer\Finish\SystemLocker;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Finish\SystemLocker
  */
 class SystemLockerTest extends TestCase

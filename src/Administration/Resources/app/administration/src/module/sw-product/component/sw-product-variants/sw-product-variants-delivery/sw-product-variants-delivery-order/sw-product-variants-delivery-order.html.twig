@@ -16,8 +16,7 @@
         >
 
             <template
-                slot="items"
-                slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
+                #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
             >
                 <sw-tree-item
                     v-for="item in treeItems"

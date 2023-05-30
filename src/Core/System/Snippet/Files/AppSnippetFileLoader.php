@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[Package('system-settings')]
 class AppSnippetFileLoader
 {
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @internal
      */
-    public function __construct(
-        string $projectDir
-    ) {
-        $this->projectDir = $projectDir;
+    public function __construct(private readonly string $projectDir)
+    {
     }
 
     /**
@@ -66,14 +61,11 @@ class AppSnippetFileLoader
      */
     private function createSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): ?GenericSnippetFile
     {
-        switch (\count($nameParts)) {
-            case 2:
-                return $this->getSnippetFile($nameParts, $fileInfo, $author);
-            case 3:
-                return $this->getBaseSnippetFile($nameParts, $fileInfo, $author);
-        }
-
-        return null;
+        return match (\count($nameParts)) {
+            2 => $this->getSnippetFile($nameParts, $fileInfo, $author),
+            3 => $this->getBaseSnippetFile($nameParts, $fileInfo, $author),
+            default => null,
+        };
     }
 
     /**
@@ -86,7 +78,8 @@ class AppSnippetFileLoader
             $fileInfo->getPathname(),
             $nameParts[1],
             $author,
-            false
+            false,
+            ''
         );
     }
 
@@ -100,7 +93,8 @@ class AppSnippetFileLoader
             $fileInfo->getPathname(),
             $nameParts[1],
             $author,
-            $nameParts[2] === 'base'
+            $nameParts[2] === 'base',
+            ''
         );
     }
 

@@ -24,7 +24,16 @@ interface DragConfig {
     disabled: boolean,
 }
 
+interface ScrollOnDragConf {
+    speed: number,
+    margin: number,
+    accelerationMargin: number,
+}
+
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -44,7 +53,7 @@ Component.register('sw-sortable-list', {
 
     props: {
         items: {
-            type: Array as PropType<Array<Entity>>,
+            type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,
             required: true,
         },
         sortable: {
@@ -62,11 +71,29 @@ Component.register('sw-sortable-list', {
                 return this.defaultConfig;
             },
         },
+        scrollOnDrag: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default(): boolean {
+                return false;
+            },
+        },
+        scrollOnDragConf: {
+            type: Object as PropType<ScrollOnDragConf>,
+            required: false,
+            default(): ScrollOnDragConf {
+                return this.defaultScrollOnDragConf;
+            },
+        },
     },
 
     data(): {
+        dragElement: Element|null,
         defaultConfig: DragConfig,
-        sortedItems: Array<Entity>,
+        defaultScrollOnDragConf: ScrollOnDragConf,
+        sortedItems: Array<Entity<keyof EntitySchema.Entities>>,
+        scrollEventTicking: boolean,
         } {
         return {
             defaultConfig: {
@@ -76,7 +103,14 @@ Component.register('sw-sortable-list', {
                 preventEvent: true,
                 disabled: false,
             } as DragConfig,
+            defaultScrollOnDragConf: {
+                speed: 50,
+                margin: 100,
+                accelerationMargin: 0,
+            } as ScrollOnDragConf,
             sortedItems: [...this.items],
+            dragElement: null,
+            scrollEventTicking: false,
         };
     },
 
@@ -91,20 +125,45 @@ Component.register('sw-sortable-list', {
 
         mergedDragConfig(): DragConfig {
             // eslint-disable-next-line @typescript-eslint/unbound-method
+            this.defaultConfig.onDragStart = this.onDragStart;
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             this.defaultConfig.onDragEnter = this.onDragEnter;
             // eslint-disable-next-line @typescript-eslint/unbound-method
             this.defaultConfig.onDrop = this.onDrop;
 
             return { ...this.defaultConfig, ...this.dragConf } as DragConfig;
         },
+
+        mergedScrollOnDragConfig(): ScrollOnDragConf {
+            return { ...this.defaultScrollOnDragConf, ...this.scrollOnDragConf } as ScrollOnDragConf;
+        },
+
+        scrollableParent(): Element|null {
+            return this.findScrollableParent(this.$el);
+        },
     },
 
     methods: {
+        findScrollableParent(node: Element|null): Element|null {
+            if (node === null) {
+                return null;
+            }
+
+            if (node.scrollHeight > node.clientHeight) {
+                return node;
+            }
+
+            return this.findScrollableParent(node.parentElement);
+        },
+
         hasOrderChanged(): boolean {
             return JSON.stringify(this.sortedItems) === JSON.stringify(this.items);
         },
 
-        onDragEnter(draggedComponent: Entity, droppedComponent: Entity): void {
+        onDragEnter(
+            draggedComponent: Entity<keyof EntitySchema.Entities>,
+            droppedComponent: Entity<keyof EntitySchema.Entities>,
+        ): void {
             if (!this.isSortable) {
                 return;
             }
@@ -117,6 +176,10 @@ Component.register('sw-sortable-list', {
                 return;
             }
 
+            if (this.scrollOnDrag) {
+                this.scroll();
+            }
+
             const draggedIndex = this.sortedItems.findIndex(c => c.id === draggedComponent.id);
             const droppedIndex = this.sortedItems.findIndex(c => c.id === droppedComponent.id);
 
@@ -127,7 +190,74 @@ Component.register('sw-sortable-list', {
             this.sortedItems.splice(droppedIndex, 0, this.sortedItems.splice(draggedIndex, 1)[0]);
         },
 
+        onDragStart(dragConfig: DragConfig, draggedElement: Element, dragElement: Element): void {
+            this.dragElement = dragElement;
+
+            if (this.scrollOnDrag && this.scrollableParent !== null) {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                this.scrollableParent.addEventListener('scroll', this.onScroll);
+            }
+        },
+
+        onScroll(): void {
+            if (!this.scrollEventTicking) {
+                window.requestAnimationFrame(() => {
+                    this.scroll();
+                    this.scrollEventTicking = false;
+                });
+
+                this.scrollEventTicking = true;
+            }
+        },
+
+        scroll(): void {
+            if (!this.scrollableParent || !this.dragElement) {
+                return;
+            }
+
+            const scrollableRect = this.scrollableParent.getBoundingClientRect();
+            const dragRect = this.dragElement.getBoundingClientRect();
+            const topDistance = dragRect.top - scrollableRect.top;
+            const bottomDistance = scrollableRect.bottom - dragRect.bottom;
+            const scrollDistance = Math.round(
+                (this.scrollableParent.scrollHeight - this.scrollableParent.clientHeight) / this.scrollableParent.scrollTop,
+            );
+
+            let speed = this.mergedScrollOnDragConfig.speed;
+
+            if (topDistance < this.mergedScrollOnDragConfig.margin && scrollDistance !== 0) {
+                if (topDistance < this.mergedScrollOnDragConfig.accelerationMargin) {
+                    speed *= 1 + Math.abs(topDistance / 20);
+                }
+
+                this.scrollableParent.scrollBy({
+                    top: -speed,
+                    left: 0,
+                    behavior: 'smooth',
+                });
+            }
+
+            if (bottomDistance < this.mergedScrollOnDragConfig.margin && scrollDistance !== 100) {
+                if (bottomDistance < this.mergedScrollOnDragConfig.accelerationMargin) {
+                    speed *= 1 + Math.abs(bottomDistance / 20);
+                }
+
+                this.scrollableParent.scrollBy({
+                    top: speed,
+                    left: 0,
+                    behavior: 'smooth',
+                });
+            }
+        },
+
         onDrop(): void {
+            this.dragElement = null;
+
+            if (this.scrollOnDrag && this.scrollableParent !== null) {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                this.scrollableParent.removeEventListener('scroll', this.onScroll);
+            }
+
             if (!this.isSortable) {
                 return;
             }

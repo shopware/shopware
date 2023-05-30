@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Event\Hooks;
 
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 
 /**
@@ -11,12 +12,15 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
  * @hook-use-case app_lifecycle
  *
  * @since 6.4.9.0
+ *
+ * @final
  */
+#[Package('core')]
 class AppDeactivatedHook extends AppLifecycleHook implements AppSpecificHook
 {
-    public const HOOK_NAME = 'app-deactivated';
+    final public const HOOK_NAME = 'app-deactivated';
 
-    private AppDeactivatedEvent $event;
+    private readonly AppDeactivatedEvent $event;
 
     public function __construct(AppDeactivatedEvent $event)
     {

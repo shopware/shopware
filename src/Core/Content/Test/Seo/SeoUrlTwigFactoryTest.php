@@ -27,9 +27,9 @@ class SeoUrlTwigFactoryTest extends TestCase
         //extension loaded via custom tag in src/Core/Framework/DependencyInjection/seo_test.xml
         static::assertIsObject($this->environment->getExtension(LastLetterBigTwigFilter::class));
 
-        $template = "{% autoescape '"
+        $template = '{% autoescape \''
             . SeoUrlGenerator::ESCAPE_SLUGIFY
-            . "' %}{{ product.name|lastBigLetter }}{% endautoescape %}";
+            . '\' %}{{ product.name|lastBigLetter }}{% endautoescape %}';
 
         $twig = $this->environment->createTemplate($template);
         $rendered = $twig->render(['product' => ['name' => 'hello world']]);

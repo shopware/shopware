@@ -2,129 +2,51 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-if (class_exists('Shopware\Storefront\Page\Product\Review\MatrixElement')) {
-    /**
-     * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't extend the storefront class anymore
-     */
-    class MatrixElement extends \Shopware\Storefront\Page\Product\Review\MatrixElement
-    {
-        /**
-         * @var int
-         */
-        protected $points;
+use Shopware\Core\Framework\Log\Package;
 
-        /**
-         * @var int
-         */
-        protected $count;
-
-        /**
-         * @var float
-         */
-        protected $percent;
-
-        public function __construct(int $points, int $count, float $percent = 0.0)
-        {
-            $this->points = $points;
-            $this->count = $count;
-            $this->percent = $percent;
-        }
-
-        public function getPoints(): int
-        {
-            return $this->points;
-        }
-
-        public function setPoints(int $points): MatrixElement
-        {
-            $this->points = $points;
-
-            return $this;
-        }
-
-        public function getCount(): int
-        {
-            return $this->count;
-        }
-
-        public function setCount(int $count): MatrixElement
-        {
-            $this->count = $count;
-
-            return $this;
-        }
-
-        public function getPercent(): float
-        {
-            return $this->percent;
-        }
-
-        public function setPercent(float $percent): MatrixElement
-        {
-            $this->percent = $percent;
-
-            return $this;
-        }
+#[Package('inventory')]
+class MatrixElement
+{
+    public function __construct(
+        protected int $points,
+        protected int $count,
+        protected float $percent = 0.0
+    ) {
     }
-} else {
-    class MatrixElement
+
+    public function getPoints(): int
     {
-        /**
-         * @var int
-         */
-        protected $points;
+        return $this->points;
+    }
 
-        /**
-         * @var int
-         */
-        protected $count;
+    public function setPoints(int $points): MatrixElement
+    {
+        $this->points = $points;
 
-        /**
-         * @var float
-         */
-        protected $percent;
+        return $this;
+    }
 
-        public function __construct(int $points, int $count, float $percent = 0.0)
-        {
-            $this->points = $points;
-            $this->count = $count;
-            $this->percent = $percent;
-        }
+    public function getCount(): int
+    {
+        return $this->count;
+    }
 
-        public function getPoints(): int
-        {
-            return $this->points;
-        }
+    public function setCount(int $count): MatrixElement
+    {
+        $this->count = $count;
 
-        public function setPoints(int $points): MatrixElement
-        {
-            $this->points = $points;
+        return $this;
+    }
 
-            return $this;
-        }
+    public function getPercent(): float
+    {
+        return $this->percent;
+    }
 
-        public function getCount(): int
-        {
-            return $this->count;
-        }
+    public function setPercent(float $percent): MatrixElement
+    {
+        $this->percent = $percent;
 
-        public function setCount(int $count): MatrixElement
-        {
-            $this->count = $count;
-
-            return $this;
-        }
-
-        public function getPercent(): float
-        {
-            return $this->percent;
-        }
-
-        public function setPercent(float $percent): MatrixElement
-        {
-            $this->percent = $percent;
-
-            return $this;
-        }
+        return $this;
     }
 }

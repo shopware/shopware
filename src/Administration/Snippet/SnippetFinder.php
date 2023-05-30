@@ -3,25 +3,21 @@
 namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
+#[Package('administration')]
 class SnippetFinder implements SnippetFinderInterface
 {
-    private Kernel $kernel;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        Kernel $kernel,
-        Connection $connection
+        private readonly Kernel $kernel,
+        private readonly Connection $connection
     ) {
-        $this->kernel = $kernel;
-        $this->connection = $connection;
     }
 
     /**
@@ -32,7 +28,7 @@ class SnippetFinder implements SnippetFinderInterface
         $snippetFiles = $this->findSnippetFiles($locale);
         $snippets = $this->parseFiles($snippetFiles);
 
-        $snippets = array_merge($snippets, $this->getAppAdministrationSnippets($locale, $snippets));
+        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
 
         if (!\count($snippets)) {
             return [];
@@ -124,7 +120,7 @@ class SnippetFinder implements SnippetFinderInterface
 
             $content = file_get_contents($file);
             if ($content !== false) {
-                $snippets[] = json_decode($content, true) ?? [];
+                $snippets[] = json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
             }
         }
 
@@ -153,11 +149,11 @@ class SnippetFinder implements SnippetFinderInterface
 
         $snippets = [];
         foreach ($result as $data) {
-            $decodedSnippet = json_decode($data['value'], true);
+            $decodedSnippet = json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR);
             $this->validateAppSnippets($existingSnippets, $decodedSnippet);
             $decodedSnippet = $this->sanitizeAppSnippets($decodedSnippet);
 
-            $snippets = array_merge($snippets, $decodedSnippet);
+            $snippets = [...$snippets, ...$decodedSnippet];
         }
 
         return $snippets;

@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\Test\Adapter\Cache\Script;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,6 +20,8 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
     /**
      * @dataProvider invalidationCasesProvider
+     *
+     * @param callable(ContainerInterface): void $closure
      */
     public function testCacheInvalidation(string $tagName, callable $closure, bool $shouldBeInvalidated, IdsCollection $ids): void
     {
@@ -38,7 +40,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
         static::assertEquals(!$shouldBeInvalidated, $cache->hasItem($tagName));
     }
 
-    public function invalidationCasesProvider(): \Generator
+    public static function invalidationCasesProvider(): \Generator
     {
         $ids = new IdsCollection();
 

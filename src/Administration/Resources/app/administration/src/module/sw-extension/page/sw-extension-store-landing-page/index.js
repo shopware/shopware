@@ -2,9 +2,10 @@ import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
 
 /**
+ * @package merchant-services
  * @private
  */
-Shopware.Component.register('sw-extension-store-landing-page', {
+export default {
     template,
 
     inject: ['extensionHelperService'],
@@ -51,4 +52,4 @@ Shopware.Component.register('sw-extension-store-landing-page', {
                 });
         },
     },
-});
+};

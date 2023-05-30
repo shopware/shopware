@@ -4,17 +4,18 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemGroupTest extends TestCase
 {
     /**
      * This test verifies that we have an empty
      * list on new instances and not null.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testItemsAreEmptyOnNewGroup(): void
@@ -28,7 +29,6 @@ class LineItemGroupTest extends TestCase
      * This test verifies that our hasItems
      * function works correctly for empty entries.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItemsOnEmptyList(): void
@@ -42,7 +42,6 @@ class LineItemGroupTest extends TestCase
      * This test verifies that our hasItems
      * function works correctly for existing entries.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItempsOnExistingList(): void
@@ -59,7 +58,6 @@ class LineItemGroupTest extends TestCase
      * are correctly added if no entry exists
      * for the item id.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testAddInitialItem(): void
@@ -77,7 +75,6 @@ class LineItemGroupTest extends TestCase
      * is correctly increased if we already have
      * an entry for the provided item id.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testAddQuantityToExisting(): void

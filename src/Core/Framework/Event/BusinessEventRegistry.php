@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class BusinessEventRegistry
 {
     /**

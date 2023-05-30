@@ -13,7 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute
+ *
  * @group store-api
  */
 class ProductDetailRouteTest extends TestCase
@@ -21,15 +23,9 @@ class ProductDetailRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -46,7 +42,7 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->browser->request('POST', $this->getUrl($this->ids->get('product')));
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -64,7 +60,7 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -94,7 +90,7 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -119,13 +115,13 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $expected = (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json');
 
-        $expected = json_decode($expected, true);
+        $expected = json_decode($expected, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertArray($expected, $response);
     }
@@ -137,7 +133,7 @@ class ProductDetailRouteTest extends TestCase
     private function assertArray(array $expected, array $actual, string $pointer = ''): void
     {
         foreach ($expected as $key => $value) {
-            $current = empty($pointer) ? $pointer . '.' . $key : (string) $key;
+            $current = \implode('.', \array_filter([$pointer, (string) $key]));
 
             static::assertArrayHasKey($key, $actual, sprintf('Missing key %s', $current));
 

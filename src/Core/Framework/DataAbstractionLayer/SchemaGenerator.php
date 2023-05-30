@@ -40,10 +40,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class SchemaGenerator
 {
     private string $tableTemplate = <<<EOL
@@ -177,7 +179,7 @@ EOL;
 
             case $field instanceof BoolField:
                 $type = 'TINYINT(1)';
-                $default = "DEFAULT '0'";
+                $default = 'DEFAULT \'0\'';
 
                 break;
 
@@ -187,7 +189,7 @@ EOL;
                 break;
 
             default:
-                throw new \RuntimeException(sprintf('Unknown field %s', \get_class($field)));
+                throw new \RuntimeException(sprintf('Unknown field %s', $field::class));
         }
 
         $template = str_replace(

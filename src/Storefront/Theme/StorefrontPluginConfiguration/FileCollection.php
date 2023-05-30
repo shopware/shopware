@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<File>
  */
+#[Package('storefront')]
 class FileCollection extends Collection
 {
     public static function createFromArray(array $files)
@@ -21,9 +23,7 @@ class FileCollection extends Collection
 
     public function getFilepaths(): array
     {
-        return $this->map(function (File $element) {
-            return $element->getFilepath();
-        });
+        return $this->map(fn (File $element) => $element->getFilepath());
     }
 
     public function getResolveMappings(): array

@@ -2,26 +2,32 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
+/**
+ * @internal
+ *
+ * @phpstan-import-type LanguageData from LanguageLoaderInterface
+ */
+#[Package('core')]
 class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberInterface
 {
     private const CACHE_KEY = 'shopware.languages';
 
-    private CacheInterface $cache;
-
-    private LanguageLoaderInterface $loader;
-
     /**
      * @internal
      */
-    public function __construct(LanguageLoaderInterface $loader, CacheInterface $cache)
-    {
-        $this->cache = $cache;
-        $this->loader = $loader;
+    public function __construct(
+        private readonly LanguageLoaderInterface $loader,
+        private readonly CacheInterface $cache
+    ) {
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -30,11 +36,12 @@ class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberIn
         ];
     }
 
+    /**
+     * @return LanguageData
+     */
     public function loadLanguages(): array
     {
-        return $this->cache->get(self::CACHE_KEY, function () {
-            return $this->loader->loadLanguages();
-        });
+        return $this->cache->get(self::CACHE_KEY, fn () => $this->loader->loadLanguages());
     }
 
     public function invalidateCache(): void

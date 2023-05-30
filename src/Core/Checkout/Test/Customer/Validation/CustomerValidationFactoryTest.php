@@ -6,6 +6,7 @@ use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
@@ -15,6 +16,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class CustomerValidationFactoryTest extends TestCase
 {
     /**
@@ -44,14 +46,14 @@ class CustomerValidationFactoryTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    public function getCreateTestData(): iterable
+    public static function getCreateTestData(): iterable
     {
         $faker = Factory::create();
 
         // test with no constraints added
         $profileDefinition = new DataValidationDefinition();
         $expected = new DataValidationDefinition('customer.create');
-        $this->addConstraints($expected);
+        self::addConstraints($expected);
 
         yield [$profileDefinition, $expected];
 
@@ -65,10 +67,10 @@ class CustomerValidationFactoryTest extends TestCase
         for ($i = 0; $i < 10; ++$i) {
             $profileDefinition = new DataValidationDefinition();
 
-            $notBlankName = $faker->name;
+            $notBlankName = $faker->name();
             $profileDefinition->add($notBlankName, new NotBlank());
 
-            $emailName = $faker->name;
+            $emailName = $faker->name();
             $profileDefinition->add($emailName, new Email());
 
             $expected = new DataValidationDefinition('customer.create');
@@ -76,7 +78,7 @@ class CustomerValidationFactoryTest extends TestCase
             $expected->add($notBlankName, new NotBlank());
             $expected->add($emailName, new Email());
 
-            $this->addConstraints($expected);
+            self::addConstraints($expected);
 
             yield [$profileDefinition, $expected];
         }
@@ -85,7 +87,7 @@ class CustomerValidationFactoryTest extends TestCase
     /**
      * @see CustomerValidationFactory::addConstraints
      */
-    private function addConstraints(DataValidationDefinition $definition): void
+    private static function addConstraints(DataValidationDefinition $definition): void
     {
         $definition->add('email', new NotBlank(), new Email());
         $definition->add('active', new Type('boolean'));

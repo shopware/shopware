@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1656928097AddNewsletterRecipientEmailI
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1656928097AddNewsletterRecipientEmailIndex
  */
 class Migration1656928097AddNewsletterRecipientEmailIndexTest extends TestCase
@@ -23,7 +24,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndexTest extends TestCase
 
         try {
             $this->connection->executeStatement('DROP INDEX `idx.newsletter_recipient.email` ON `newsletter_recipient`');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -46,7 +47,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndexTest extends TestCase
 
     public function assertIndexExists(): void
     {
-        $indices = $this->connection->getSchemaManager()->listTableIndexes('newsletter_recipient');
+        $indices = $this->connection->createSchemaManager()->listTableIndexes('newsletter_recipient');
         static::assertArrayHasKey('idx.newsletter_recipient.email', $indices);
     }
 }

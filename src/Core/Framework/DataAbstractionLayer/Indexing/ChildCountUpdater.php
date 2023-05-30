@@ -2,27 +2,26 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class ChildCountUpdater
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
-    {
-        $this->registry = $registry;
-        $this->connection = $connection;
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly Connection $connection
+    ) {
     }
 
     /**
@@ -77,6 +76,6 @@ class ChildCountUpdater
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
-        $this->connection->executeStatement($sql, $params, ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->connection->executeStatement($sql, $params, ['ids' => ArrayParameterType::STRING]);
     }
 }

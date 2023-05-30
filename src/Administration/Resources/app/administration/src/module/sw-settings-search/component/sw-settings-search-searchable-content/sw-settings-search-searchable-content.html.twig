@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_searchable_content %}
 <sw-card
+    class="sw-settings-search-searchable-content"
     position-identifier="sw-settings-search-searchable-content"
     :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
 >
@@ -69,12 +70,10 @@
             </a>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_search_searchable_rebuild_link %}
             <router-link
-                v-if="!feature.isActive('FEATURE_NEXT_22900')"
-                class="sw-settings-search__searchable-content-rebuild-link"
+                v-if="!storefrontEsEnable"
                 :to="{ name: 'sw.settings.search.index.liveSearch' }"
+                class="sw-settings-search__searchable-content-rebuild-link"
             >
                 {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
                 <sw-icon
@@ -82,8 +81,6 @@
                     small
                 />
             </router-link>
-            {% endblock %}
-
         </div>
         {% endblock %}
 
@@ -117,17 +114,14 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_search_searchable_content_customfields_tab_title %}
             <sw-tabs-item
-                v-if="!feature.isActive('FEATURE_NEXT_22900')"
+                v-if="!storefrontEsEnable"
                 class="sw-settings-search__searchable-content-tab-title"
                 name="customfields"
                 @click="onChangeTab(tabNames.customTab)"
             >
                 {{ $tc('sw-settings-search.generalTab.labelCustomFieldsTab') }}
             </sw-tabs-item>
-            {% endblock %}
         </template>
 
         <template #content="{ active }">
@@ -146,10 +140,8 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_search_searchable_content_customfields_tab_item %}
             <sw-settings-search-searchable-content-customfields
-                v-if="active === tabNames.customTab && !feature.isActive('FEATURE_NEXT_22900')"
+                v-if="active === tabNames.customTab && !storefrontEsEnable"
                 :is-empty="isListEmpty"
                 :is-loading="isLoading"
                 :columns="getProductSearchFieldColumns"
@@ -160,7 +152,6 @@
                 @config-save="saveConfig"
                 @config-delete="deleteConfig"
             />
-            {% endblock %}
         </template>
     </sw-tabs>
     {% endblock %}

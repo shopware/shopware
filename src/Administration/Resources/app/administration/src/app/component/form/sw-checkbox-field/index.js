@@ -5,6 +5,9 @@ const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Boolean input field based on checkbox.
  * @status ready
@@ -12,7 +15,6 @@ const utils = Shopware.Utils;
  * @component-example
  * <sw-checkbox-field v-model="aBooleanProperty" label="Name"></sw-checkbox-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
@@ -69,6 +71,12 @@ Component.register('sw-checkbox-field', {
             required: false,
             default: false,
         },
+
+        padded: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -85,7 +93,13 @@ Component.register('sw-checkbox-field', {
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
                 'sw-field__checkbox--ghost': this.ghostValue,
+            };
+        },
+
+        swCheckboxFieldContentClasses() {
+            return {
                 'is--bordered': this.bordered,
+                'is--padded': this.padded,
             };
         },
 

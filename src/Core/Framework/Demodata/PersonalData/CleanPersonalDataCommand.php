@@ -5,16 +5,26 @@ namespace Shopware\Core\Framework\Demodata\PersonalData;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @internal
+ */
+#[AsCommand(
+    name: 'database:clean-personal-data',
+    description: 'Cleans personal data from the database',
+)]
+#[Package('core')]
 class CleanPersonalDataCommand extends Command
 {
     protected const VALID_TYPES = [
@@ -25,28 +35,14 @@ class CleanPersonalDataCommand extends Command
     protected const TYPE_GUESTS = 'guests';
     protected const TYPE_CARTS = 'carts';
 
-    protected static $defaultName = 'database:clean-personal-data';
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        EntityRepositoryInterface $customerRepository
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerRepository
     ) {
         parent::__construct();
-        $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
     }
 
     protected function configure(): void
@@ -98,16 +94,14 @@ class CleanPersonalDataCommand extends Command
                 ->getIds();
 
             if ($ids) {
-                $ids = array_map(function ($id) {
-                    return ['id' => $id];
-                }, $ids);
+                $ids = array_map(fn ($id) => ['id' => $id], $ids);
 
                 $this->customerRepository->delete($ids, Context::createDefaultContext());
             }
         }
 
         if ($all || $type === self::TYPE_CARTS) {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM cart
                 WHERE DATE(created_at) <= (DATE_SUB(CURDATE(), INTERVAL :days DAY))',
                 ['days' => $days]

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-edit-profile-modal-identifiers.html.twig';
 import './sw-import-export-edit-profile-modal-identifiers.scss';
 
@@ -6,7 +9,7 @@ const Criteria = Shopware.Data.Criteria;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-edit-profile-modal-identifiers', {
+export default {
     template,
 
     inject: [
@@ -142,4 +145,4 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-identifiers', {
             this.importExportUpdateByMapping.updateMapping(this.profile, mappedKey, entityName);
         },
     },
-});
+};

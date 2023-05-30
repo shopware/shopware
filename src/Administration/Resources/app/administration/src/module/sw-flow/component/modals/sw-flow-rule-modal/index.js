@@ -1,3 +1,4 @@
+import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
@@ -5,8 +6,11 @@ const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-rule-modal', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -89,6 +93,17 @@ Component.register('sw-flow-rule-modal', {
             },
         },
 
+        scopesOfRuleAwarenessKey() {
+            const ruleAwarenessKey = `flowTrigger.${this.flow.eventName}`;
+            const awarenessConfig = this.ruleConditionDataProviderService
+                .getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
+
+
+            return awarenessConfig?.scopes ?? undefined;
+        },
+
+        ...mapState('swFlowState', ['flow']),
+
         ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
@@ -119,10 +134,6 @@ Component.register('sw-flow-rule-modal', {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
 
-            if (!this.feature.isActive('v6.5.0.0')) {
-                return this.appScriptConditionRepository.search(criteria, context);
-            }
-
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
                 this.ruleConditionsConfigApiService.load(),
@@ -132,8 +143,11 @@ Component.register('sw-flow-rule-modal', {
         },
 
         createRule() {
-            this.rule = this.ruleRepository.create(Context.api);
+            this.rule = this.ruleRepository.create();
             this.conditions = this.rule?.conditions;
+            this.conditionTree = this.conditions;
+            this.rule.flowSequences = [];
+            this.rule.flowSequences.push({ flow: { eventName: this.flow.eventName } });
         },
 
         loadRule(ruleId) {
@@ -217,6 +231,7 @@ Component.register('sw-flow-rule-modal', {
             this.isSaveLoading = true;
 
             if (this.rule.isNew()) {
+                this.rule.flowSequences = [];
                 this.rule.conditions = this.conditionTree;
 
                 this.saveRule()
@@ -264,4 +279,4 @@ Component.register('sw-flow-rule-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

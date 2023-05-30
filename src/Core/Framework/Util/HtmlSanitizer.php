@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class HtmlSanitizer
 {
     /**
@@ -11,36 +14,36 @@ class HtmlSanitizer
      */
     private array $purifiers = [];
 
-    private string $cacheDir;
+    private readonly string $cacheDir;
 
-    private bool $cacheEnabled;
-
-    private array $sets;
-
-    private array $fieldSets;
-
+    /**
+     * @var array<string, string>
+     */
     private array $cache = [];
 
     /**
      * @internal
+     *
+     * @param array<string, array{name?: string, tags?: list<string>, attributes?: list<string>, options?: array<string, mixed>, custom_attributes?: array<string, array<string, list<string>>>}> $sets
+     * @param array<string, array{sets?: list<string>|null}> $fieldSets
      */
     public function __construct(
         ?string $cacheDir = null,
-        bool $cacheEnabled = true,
-        array $sets = [],
-        array $fieldSets = []
+        private readonly bool $cacheEnabled = true,
+        private array $sets = [],
+        private readonly array $fieldSets = []
     ) {
         $this->cacheDir = (string) $cacheDir;
-        $this->cacheEnabled = $cacheEnabled;
-        $this->sets = $sets;
-        $this->fieldSets = $fieldSets;
     }
 
+    /**
+     * @param array<string, array<string>>|null $options
+     */
     public function sanitize(string $text, ?array $options = [], bool $override = false, ?string $field = null): string
     {
-        $options = $options ?? [];
+        $options ??= [];
 
-        $hash = md5(sprintf('%s%s', (string) json_encode($options), (string) $field));
+        $hash = md5(sprintf('%s%s', json_encode($options, \JSON_THROW_ON_ERROR), $field));
 
         if ($override) {
             $hash .= '-override';
@@ -78,12 +81,16 @@ class HtmlSanitizer
         return $config;
     }
 
+    /**
+     * @param array<string, array<string>> $options
+     */
     private function getConfig(array $options, bool $override, ?string $field): \HTMLPurifier_Config
     {
         $config = $this->getBaseConfig();
 
         $allowedElements = [];
         $allowedAttributes = [];
+        $customAttributes = [];
 
         foreach ($options as $element => $attributes) {
             if ($element !== '*') {
@@ -105,8 +112,19 @@ class HtmlSanitizer
                 if (isset($this->sets[$set]['attributes'])) {
                     $allowedAttributes = array_merge($allowedAttributes, $this->sets[$set]['attributes']);
                 }
+                if (isset($this->sets[$set]['custom_attributes'])) {
+                    foreach ($this->sets[$set]['custom_attributes'] as $customAttribute) {
+                        foreach ($customAttribute['tags'] as $tag) {
+                            $customAttributes[$tag] = array_merge($customAttribute['attributes'], $customAttributes[$tag] ?? []);
+                        }
+                    }
+                }
                 if (isset($this->sets[$set]['options'])) {
                     foreach ($this->sets[$set]['options'] as $key => $value) {
+                        if (\is_array($value) && \array_key_exists('values', $value)) {
+                            $value = $value['values'];
+                        }
+
                         $config->set($key, $value);
                     }
                 }
@@ -115,6 +133,18 @@ class HtmlSanitizer
 
         $config->set('HTML.AllowedElements', $allowedElements);
         $config->set('HTML.AllowedAttributes', $allowedAttributes);
+
+        $definition = $config->getHTMLDefinition(true);
+
+        if ($definition === null) {
+            return $config;
+        }
+
+        foreach ($customAttributes as $tag => $attributes) {
+            foreach ($attributes as $attribute) {
+                $definition->addAttribute($tag, $attribute, 'Text');
+            }
+        }
 
         return $config;
     }

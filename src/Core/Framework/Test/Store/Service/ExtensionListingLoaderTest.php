@@ -38,40 +38,52 @@ class ExtensionListingLoaderTest extends TestCase
         $collection->set('myPlugin', (new ExtensionStruct())->assign(['name' => 'myPlugin', 'label' => 'Label', 'version' => '1.0.0']));
         $collection = $this->extensionListingLoader->load($collection, $this->createAdminStoreContext());
 
-        static::assertSame(1, $collection->count());
+        static::assertCount(1, $collection);
     }
 
     public function testExternalAreAdded(): void
     {
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getRequestHandler()->append(new Response(200, [], $this->getLicencesJson()));
 
         $collection = new ExtensionCollection();
         $collection->set('myPlugin', (new ExtensionStruct())->assign(['name' => 'myPlugin', 'label' => 'Label', 'version' => '1.0.0', 'active' => true]));
         $collection->set('myPlugin2', (new ExtensionStruct())->assign(['name' => 'myPlugin2', 'label' => 'Label', 'version' => '1.0.0', 'installedAt' => new \DateTime()]));
         $collection = $this->extensionListingLoader->load($collection, $this->createAdminStoreContext());
 
-        static::assertSame('app', $collection->get('SwagApp')->getType());
-        static::assertSame('store', $collection->get('SwagApp')->getSource());
-        static::assertSame(8, $collection->count());
+        /** @var ExtensionStruct $extension */
+        $extension = $collection->get('SwagApp');
+        static::assertSame('app', $extension->getType());
+        static::assertSame('store', $extension->getSource());
+        static::assertCount(8, $collection);
     }
 
     public function testExternalAreMerged(): void
     {
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getRequestHandler()->append(new Response(200, [], $this->getLicencesJson()));
 
         $collection = new ExtensionCollection();
         $collection->set('SwagApp', (new ExtensionStruct())->assign(['name' => 'SwagApp', 'label' => 'Label', 'version' => '1.0.0', 'active' => true, 'type' => 'app']));
         $collection = $this->extensionListingLoader->load($collection, $this->createAdminStoreContext());
 
-        static::assertSame('app', $collection->get('SwagApp')->getType());
-        static::assertSame('local', $collection->get('SwagApp')->getSource());
-        static::assertSame('Description', $collection->get('SwagApp')->getDescription());
-        static::assertSame('Short Description', $collection->get('SwagApp')->getShortDescription());
-        static::assertSame('2.0.0', $collection->get('SwagApp')->getLatestVersion());
-        static::assertSame(6, $collection->count());
+        /** @var ExtensionStruct $extension */
+        $extension = $collection->get('SwagApp');
+        static::assertSame('app', $extension->getType());
+        static::assertSame('local', $extension->getSource());
+        static::assertSame('Description', $extension->getDescription());
+        static::assertSame('Short Description', $extension->getShortDescription());
+        static::assertSame('2.0.0', $extension->getLatestVersion());
+        static::assertCount(6, $collection);
+    }
+
+    private function getLicencesJson(): string
+    {
+        $json = file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json');
+        static::assertIsString($json, 'Could not read my-licenses.json file');
+
+        return $json;
     }
 }

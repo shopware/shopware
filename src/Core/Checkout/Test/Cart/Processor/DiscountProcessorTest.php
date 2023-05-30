@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Processor\DiscountCartProcessor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\AbsoluteItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\CalculatedItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\CalculatedTaxes;
@@ -21,22 +22,25 @@ use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\HighTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\LowTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\PercentageItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class DiscountProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const DISCOUNT_ID = 'discount-id';
+    final public const DISCOUNT_ID = 'discount-id';
 
     /**
+     * @param array<LineItem> $items
+     *
      * @dataProvider processorProvider
      */
     public function testProcessor(array $items, ?CalculatedPrice $expected): void
@@ -46,14 +50,12 @@ class DiscountProcessorTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
-        $new = new Cart('after', 'after');
+        $new = new Cart('after');
         $new->setLineItems(
-            (new LineItemCollection($items))->filter(function (LineItem $item) {
-                return $item->getType() !== LineItem::DISCOUNT_LINE_ITEM;
-            })
+            (new LineItemCollection($items))->filter(fn (LineItem $item) => $item->getType() !== LineItem::DISCOUNT_LINE_ITEM)
         );
 
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());
@@ -82,7 +84,7 @@ class DiscountProcessorTest extends TestCase
         foreach ($taxes as $tax) {
             $actual = $price->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
 
@@ -91,17 +93,16 @@ class DiscountProcessorTest extends TestCase
         foreach ($price->getCalculatedTaxes() as $tax) {
             $actual = $taxes->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
     }
 
-    public function processorProvider(): \Generator
+    public static function processorProvider(): \Generator
     {
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
-        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context = Generator::createSalesChannelContext();
+        $context->setTaxState(CartPrice::TAX_STATE_GROSS);
+        $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 
         yield 'Remove discounts when cart is empty' => [
             [new PercentageItem(10, self::DISCOUNT_ID)],

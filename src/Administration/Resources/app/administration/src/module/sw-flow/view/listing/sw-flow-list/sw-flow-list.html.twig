@@ -1,0 +1,185 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_flow_list %}
+<div class="sw-flow-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_list_search_bar %}{% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_list_smart_bar_header %}{% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_list_smart_bar_actions %}{% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_list_content %}
+    <sw-card
+        class="sw-flow-list-card"
+        position-identifier="sw-flow-list-card"
+    >
+        <sw-entity-listing
+            class="sw-flow-list__grid"
+            show-selection
+            :show-settings="false"
+            :allow-column-edit="false"
+            :allow-view="acl.can('flow.viewer')"
+            :allow-edit="acl.can('flow.editor')"
+            :allow-delete="acl.can('flow.deleter')"
+            :columns="flowColumns"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            :repository="flowRepository"
+            :items="flows"
+            :is-loading="isLoading"
+            :full-page="false"
+            :plain-appearance="true"
+            @column-sort="onSortColumn"
+            @page-change="onPageChange"
+            @update-records="updateRecords"
+            @selection-change="selectionChange"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_grid_columns %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_grid_columns_active %}
+            <template #column-active="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_columns_active_label %}
+                <sw-icon
+                    size="12px"
+                    :color="item.active ? `#37d046` : `#de294c`"
+                    :name="item.active ? `regular-checkmark-xs` : `regular-times-s`"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_grid_columns_event_name %}
+            <template #column-eventName="{ item }">
+                <strong>
+                    {{ $tc('global.businessEvents.' + getTranslatedEventName(item.eventName)) }}
+                </strong>
+                <p>{{ item.eventName }}</p>
+            </template>
+            {% endblock %}
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_grid_actions %}
+            <template #actions="{ item }">
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_grid_actions_duplicate %}
+                <sw-context-menu-item
+                    class="sw-flow-list__item-duplicate"
+                    :disabled="!acl.can('flow.creator')"
+                    @click="onDuplicateFlow(item)"
+                >
+                    {{ $tc('global.default.duplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_grid_actions_edit %}
+                <sw-context-menu-item
+                    class="sw-flow-list__item-edit"
+                    :disabled="!acl.can('flow.editor') && !acl.can('flow.viewer')"
+                    @click="onEditFlow(item)"
+                >
+                    {{ detailPageLinkText }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_grid_actions_custom %}
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_list_grid_actions_delete %}
+                <sw-context-menu-item
+                    class="sw-context-menu-item--danger sw-flow-list__item-delete"
+                    :disabled="!acl.can('flow.deleter')"
+                    @click="onDeleteFlow(item)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_grid_action_modal %}
+            <template #action-modals="{ item }">
+                <sw-modal
+                    v-if="currentFlow.id === item.id && isDeleting"
+                    variant="small"
+                    :title="$tc('global.default.warning')"
+                    @modal-close="onCloseDeleteModal"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
+                    <sw-alert variant="warning">
+                        {{ deleteWarningMessage() }}
+                    </sw-alert>
+                    {% endblock %}
+
+                    <template #modal-footer>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_flow_list_grid_action_modal_buttons %}
+                        <sw-button
+                            size="small"
+                            @click="onCloseDeleteModal"
+                        >
+                            {{ $tc('global.default.cancel') }}
+                        </sw-button>
+                        <sw-button
+                            size="small"
+                            variant="danger"
+                            @click="onConfirmDelete(item)"
+                        >
+                            {{ $tc('global.default.delete') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                </sw-modal>
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
+            <template #bulk-modal-delete-confirm-text="{ selectionCount }">
+                <sw-alert variant="warning">
+                    {{ bulkDeleteWarningMessage(selectionCount) }}
+                </sw-alert>
+            </template>
+            {% endblock %}
+        </sw-entity-listing>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_list_empty_state %}
+        <sw-empty-state
+            v-if="!total && !isLoading"
+            class="sw-flow-list__empty-state"
+            :title="$tc('sw-flow.list.emptyStateTitle')"
+            :subline="$tc('sw-flow.list.emptyStateSubTitle')"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_list_empty_state_icon %}
+            <template #icon>
+                <img
+                    :alt="$tc('sw-flow.list.emptyStateTitle')"
+                    :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                >
+            </template>
+            {% endblock %}
+        </sw-empty-state>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_list_modal_content_custom %}
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

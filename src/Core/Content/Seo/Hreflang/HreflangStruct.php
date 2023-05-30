@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Seo\Hreflang;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('sales-channel')]
 class HreflangStruct extends Struct
 {
     /**

@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-role-listing.html.twig';
 import './sw-users-permissions-role-listing.scss';
 
-const { Component, Data, Mixin, Feature } = Shopware;
+const { Data, Mixin } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-role-listing', {
+export default {
     template,
 
     inject: [
@@ -92,9 +95,8 @@ Component.register('sw-users-permissions-role-listing', {
         },
 
         onSearch(searchTerm) {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.term = searchTerm;
-            }
+            this.term = searchTerm;
+
             this.$emit('get-list');
         },
 
@@ -128,17 +130,21 @@ Component.register('sw-users-permissions-role-listing', {
 
             this.roleRepository.delete(role.id, context).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
+                    message: this.$tc(
+                        'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
                         0,
-                        { name: role.name }),
+                        { name: role.name },
+                    ),
                 });
 
                 this.$emit('get-list');
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message',
+                    message: this.$tc(
+                        'sw-users-permissions.roles.role-grid.notification.deleteError.message',
                         0,
-                        { name: role.name }),
+                        { name: role.name },
+                    ),
                 });
             });
         },
@@ -147,4 +153,4 @@ Component.register('sw-users-permissions-role-listing', {
             this.confirmPasswordModal = false;
         },
     },
-});
+};

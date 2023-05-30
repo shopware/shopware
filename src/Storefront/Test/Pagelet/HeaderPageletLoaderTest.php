@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Test\Pagelet;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -20,9 +20,9 @@ class HeaderPageletLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->languageRepository = $this->getContainer()->get('language.repository');
     }
@@ -55,7 +55,7 @@ class HeaderPageletLoaderTest extends TestCase
      * Some characters like A and Ä share one position since Ä is being seen as A with decorations.
      * Adding a test case with e.g. Alang and Älang with an expected order will introduce flakynes.
      */
-    public function sortingTestDataProvider(): array
+    public static function sortingTestDataProvider(): array
     {
         return [
             [

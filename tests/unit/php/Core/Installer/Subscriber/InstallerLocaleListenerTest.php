@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Subscriber\InstallerLocaleListener
  */
 class InstallerLocaleListenerTest extends TestCase
@@ -44,7 +45,7 @@ class InstallerLocaleListenerTest extends TestCase
         static::assertSame($expectedLocale, $request->getLocale());
     }
 
-    public function installerLocaleProvider(): \Generator
+    public static function installerLocaleProvider(): \Generator
     {
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));

@@ -5,33 +5,35 @@ namespace Shopware\Core\System\SalesChannel\Api;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Serializer\Serializer;
+use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+#[Package('core')]
 class StructEncoder
 {
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private Serializer $serializer;
-
+    /**
+     * @var array<string, bool>
+     */
     private array $protections = [];
 
     /**
      * @internal
      */
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        Serializer $serializer
+        private readonly DefinitionRegistryChain $registry,
+        private readonly NormalizerInterface $serializer
     ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->serializer = $serializer;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function encode(Struct $struct, ResponseFields $fields): array
     {
         $array = $this->serializer->normalize($struct);
@@ -43,15 +45,24 @@ class StructEncoder
         return $this->loop($struct, $fields, $array);
     }
 
+    /**
+     * @param array<mixed> $array
+     *
+     * @return array<mixed>
+     */
     private function loop(Struct $struct, ResponseFields $fields, array $array): array
     {
         $data = $array;
 
         if ($struct instanceof AggregationResultCollection) {
             $mapped = [];
+            /**
+             * @var int $index
+             * @var string $key
+             */
             foreach (\array_keys($struct->getElements()) as $index => $key) {
                 if (!isset($data[$index]) || !\is_array($data[$index])) {
-                    throw new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %s', $key, $index));
+                    throw new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %d', $key, $index));
                 }
 
                 $entity = $struct->get($key);
@@ -71,10 +82,13 @@ class StructEncoder
             if (isset($data['elements'])) {
                 $entities = [];
 
+                /**
+                 * @var int $index
+                 */
                 foreach (\array_values($data['elements']) as $index => $value) {
                     $entity = $struct->getAt($index);
                     if (!$entity instanceof Struct) {
-                        throw new \RuntimeException(\sprintf('Entity %s is not an struct', $index));
+                        throw new \RuntimeException(\sprintf('Entity at index %d is not an struct', $index));
                     }
 
                     $entities[] = $this->encodeStruct($entity, $fields, $value);
@@ -86,9 +100,7 @@ class StructEncoder
         }
 
         if ($struct instanceof ErrorCollection) {
-            return array_map(static function (Error $error) {
-                return $error->jsonSerialize();
-            }, $struct->getElements());
+            return array_map(static fn (Error $error) => $error->jsonSerialize(), $struct->getElements());
         }
 
         if ($struct instanceof Collection) {
@@ -103,9 +115,14 @@ class StructEncoder
         return $this->encodeStruct($struct, $fields, $data);
     }
 
-    private function encodeStruct(Struct $struct, ResponseFields $fields, array $data): array
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<mixed>
+     */
+    private function encodeStruct(Struct $struct, ResponseFields $fields, array $data, ?string $alias = null): array
     {
-        $alias = $struct->getApiAlias();
+        $alias = $alias ?? $struct->getApiAlias();
 
         foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {
@@ -163,6 +180,11 @@ class StructEncoder
         return $data;
     }
 
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<mixed>
+     */
     private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
     {
         if ($prefix !== 'translated' && !$fields->hasNested($alias, $prefix)) {
@@ -213,15 +235,20 @@ class StructEncoder
             return $this->protections[$key];
         }
 
-        if (!$this->definitionRegistry->has($type)) {
+        if (!$this->registry->has($type)) {
             return $this->protections[$key] = false;
         }
 
-        $definition = $this->definitionRegistry->getByEntityName($type);
+        $definition = $this->registry->getByEntityName($type);
 
         $field = $definition->getField($property);
-        if (!$field) {
+
+        if ($property === 'translated') {
             return $this->protections[$key] = false;
+        }
+
+        if (!$field) {
+            return $this->protections[$key] = true;
         }
 
         /** @var ApiAware|null $flag */
@@ -238,6 +265,11 @@ class StructEncoder
         return $this->protections[$key] = false;
     }
 
+    /**
+     * @param array<string, mixed> $value
+     *
+     * @return array<string, mixed>
+     */
     private function encodeExtensions(Struct $struct, ResponseFields $fields, array $value): array
     {
         $alias = $struct->getApiAlias();
@@ -245,6 +277,37 @@ class StructEncoder
         $extensions = array_keys($value);
 
         foreach ($extensions as $name) {
+            if ($name === 'search') {
+                if (!$fields->isAllowed($alias, $name)) {
+                    unset($value[$name]);
+
+                    continue;
+                }
+
+                $value[$name] = $this->encodeNestedArray($alias, 'search', $value[$name], $fields);
+
+                continue;
+            }
+            if ($name === 'foreignKeys') {
+                // loop the foreign keys array with the api alias of the original struct to scope the values within the same entity definition
+                $extension = $struct->getExtension('foreignKeys');
+
+                if (!$extension instanceof Struct) {
+                    unset($value[$name]);
+
+                    continue;
+                }
+
+                $value[$name] = $this->encodeStruct($extension, $fields, $value['foreignKeys'], $alias);
+
+                // only api alias inside, remove it
+                if (\count($value[$name]) === 1) {
+                    unset($value[$name]);
+                }
+
+                continue;
+            }
+
             if (!$this->isAllowed($alias, $name, $fields)) {
                 unset($value[$name]);
 
@@ -262,6 +325,9 @@ class StructEncoder
         return $value;
     }
 
+    /**
+     * @param array|mixed $object
+     */
     private function isStructArray($object): bool
     {
         if (!\is_array($object)) {

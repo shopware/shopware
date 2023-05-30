@@ -3,15 +3,18 @@
 namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator;
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be removed with \Shopware\Core\Content\Media\DeleteNotUsedMediaService
+ *
  * @internal
  */
 class DeleteNotUsedMediaServiceTest extends TestCase
@@ -22,23 +25,16 @@ class DeleteNotUsedMediaServiceTest extends TestCase
 
     private const FIXTURE_FILE = __DIR__ . '/fixtures/shopware-logo.png';
 
-    /**
-     * @var DeleteNotUsedMediaService
-     */
-    private $deleteMediaService;
+    private DeleteNotUsedMediaService $deleteMediaService;
 
-    /**
-     * @var MediaRepositoryDecorator
-     */
-    private $mediaRepo;
+    private EntityRepository $mediaRepo;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $this->mediaRepo = $this->getContainer()->get('media.repository');
 
         $this->context = Context::createDefaultContext();
@@ -76,10 +72,10 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->deleteMediaService->deleteNotUsedMedia($this->context);
         $this->runWorker();

@@ -10,7 +10,7 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
         line-height: 22px;
         padding: 15px;
         border: none;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         display: flex;
 
         &:hover {
@@ -38,8 +38,8 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
 
     &__card-label {
         color: $color-darkgray-300;
-        font-weight: 600;
-        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-s;
     }
 
     &__card-body {
@@ -50,7 +50,7 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
         display: inline-block;
         position: relative;
         margin: 0;
-        line-height: $font-size-large;
+        line-height: $font-size-m;
         color: $color-shopware-brand-500;
         cursor: pointer;
 

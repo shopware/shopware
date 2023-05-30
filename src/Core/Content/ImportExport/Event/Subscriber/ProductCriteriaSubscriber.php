@@ -3,18 +3,24 @@
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class ProductCriteriaSubscriber implements EventSubscriberInterface
 {
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             EnrichExportCriteriaEvent::class => 'enrich',
@@ -23,7 +29,9 @@ class ProductCriteriaSubscriber implements EventSubscriberInterface
 
     public function enrich(EnrichExportCriteriaEvent $event): void
     {
-        if ($event->getLogEntity()->getProfile()->getSourceEntity() !== ProductDefinition::ENTITY_NAME) {
+        /** @var ImportExportProfileEntity $profile */
+        $profile = $event->getLogEntity()->getProfile();
+        if ($profile->getSourceEntity() !== ProductDefinition::ENTITY_NAME) {
             return;
         }
 

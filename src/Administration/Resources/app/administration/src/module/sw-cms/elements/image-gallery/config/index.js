@@ -1,14 +1,15 @@
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
-const { Component, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { Mixin } = Shopware;
+const { moveItem, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-config-image-gallery', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -247,6 +248,14 @@ Component.register('sw-cms-el-config-image-gallery', {
             }
         },
 
+        onItemSort(dragData, dropData) {
+            moveItem(this.mediaItems, dragData.position, dropData.position);
+            moveItem(this.element.config.sliderItems.value, dragData.position, dropData.position);
+
+            this.updateMediaDataValue();
+            this.emitUpdateEl();
+        },
+
         onChangeMinHeight(value) {
             this.element.config.minHeight.value = value === null ? '' : value;
 
@@ -265,4 +274,4 @@ Component.register('sw-cms-el-config-image-gallery', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

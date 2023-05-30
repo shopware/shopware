@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -20,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartTaxTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,22 +38,22 @@ class CartTaxTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $countryRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $currencyRepository;
 
@@ -138,7 +141,7 @@ class CartTaxTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
             static::assertEquals((500 * $quantity) + 10, $response['price']['totalPrice']);
@@ -222,7 +225,7 @@ class CartTaxTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
             static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
@@ -288,7 +291,7 @@ class CartTaxTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
             static::assertEquals(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
@@ -305,9 +308,9 @@ class CartTaxTest extends TestCase
      * float $countryCompanyTaxFreeFrom
      * int $quantity
      *
-     * @return array[]
+     * @return array<mixed>
      */
-    public function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
+    public static function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
     {
         return [
             'case 1 tax-free' => ['tax-free', true, false, 100, 100, 1],
@@ -335,9 +338,9 @@ class CartTaxTest extends TestCase
      * ?array vatIds
      * ?bool checkVatIdPattern
      *
-     * @return array[]
+     * @return array<array<mixed>>
      */
-    public function dataTestHandlingTaxFreeInStorefront(): array
+    public static function dataTestHandlingTaxFreeInStorefront(): array
     {
         return [
             'case 1 tax-free' => ['tax-free', 500, false, false, 0, 0, 1],
@@ -388,8 +391,8 @@ class CartTaxTest extends TestCase
 
     private function createCustomerAndLogin(string $countryId, ?string $email = null, ?string $password = null): void
     {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
+        $email ??= Uuid::randomHex() . '@example.com';
+        $password ??= 'shopware';
         $this->createCustomer($countryId, $password, $email);
 
         $this->login($email, $password);
@@ -407,14 +410,16 @@ class CartTaxTest extends TestCase
                 (string) json_encode([
                     'email' => $email,
                     'password' => $password,
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     private function createCustomer(string $countryId, string $password, ?string $email = null): void

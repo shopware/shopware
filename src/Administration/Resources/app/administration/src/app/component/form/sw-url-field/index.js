@@ -1,7 +1,7 @@
 import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
-const { Component, Utils } = Shopware;
+const { Component } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 
 const URL_REGEX = {
@@ -12,6 +12,9 @@ const URL_REGEX = {
 };
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description URL field component which supports a switch for https and http.
  * @status ready
@@ -97,31 +100,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
         onBlur(event) {
             this.checkInput(event.target.value);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use onBlur() instead
-         */
-        onInput(event) {
-            /**
-             * @deprecated tag:v6.5.0 - Use "input" event instead
-             */
-            this.$emit('beforeDebounce', this.url);
-            this.onDebounceInput(event);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use checkInput() instead
-         */
-        onDebounceInput: Utils.debounce(function debouncedHandleInput(event) {
-            this.handleInput(event);
-        }, 2000),
-
-        /**
-         * @deprecated tag:v6.5.0 - Use checkInput() instead
-         */
-        handleInput() {
-
         },
 
         checkInput(inputValue) {

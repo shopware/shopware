@@ -1,0 +1,12 @@
+{
+  "sw-settings-usage-data": {
+    "general": {
+      "mainMenuItemGeneral": "Nutzungsdaten",
+      "textHeadline": "Nutzungsdaten",
+      "description": "Lege fest Nutzungsdaten mit uns zu teilen, um Shopware zu verbessern.",
+      "alertText": "Diese Einstellung gilt für alle Benutzer der Shopware Administration.",
+      "alertTextOnlyAdmins": "Nur Administratoren können sie ändern.",
+      "shareUsageData": "Nutzungsdaten teilen"
+    }
+  }
+}

@@ -6,29 +6,24 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -44,8 +39,10 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
+ *
  * @group not-deterministic
  */
+#[Package('core')]
 class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
 {
     use BasicTestDataBehaviour;
@@ -54,20 +51,11 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
     use KernelTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -106,22 +94,11 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-            $operation = new DocumentGenerateOperation($orderId);
-            $result = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess();
+        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $operation = new DocumentGenerateOperation($orderId);
+        $result = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess();
 
-            $documentStruct = $result->first();
-        } else {
-            $documentService = $this->getContainer()->get(DocumentService::class);
-            $documentStruct = $documentService->create(
-                $orderId,
-                DeliveryNoteGenerator::DELIVERY_NOTE,
-                FileTypes::PDF,
-                new DocumentConfiguration(),
-                $this->context
-            );
-        }
+        $documentStruct = $result->first();
 
         static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
@@ -146,52 +123,22 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentStruct->getId()]), $this->context)->first();
 
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-
-            return;
-        }
-        static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-
-        $documentRepository
-            ->update(
-                [
-                    [
-                        'id' => $documentStruct->getId(),
-                        'orderVersionId' => Defaults::LIVE_VERSION,
-                    ],
-                ],
-                $this->context
-            );
-
-        // Merge Version to Live version
-        $orderRepository = $this->getContainer()->get('order.repository');
-        $orderRepository->merge($document->getOrderVersionId(), $this->context);
-
-        $migration = new Migration1612442786ChangeVersionOfDocuments();
-        $migration->update($this->connection);
-
-        /** @var DocumentEntity $document */
-        $document = $documentRepository->search(new Criteria([$documentStruct->getId()]), $this->context)->first();
-
         static::assertEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws \Exception
      */
     private function generateDemoCart(int $lineItemCount): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
         $products = [];
 
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $id = Uuid::randomHex();
@@ -217,7 +164,7 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
                 ],
             ];
 
-            $cart->add($factory->create($id));
+            $cart->add($factory->create(['id' => $id, 'referencedId' => $id], $this->salesChannelContext));
             $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 

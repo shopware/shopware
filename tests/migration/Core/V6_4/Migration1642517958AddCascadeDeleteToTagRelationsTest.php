@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1642517958AddCascadeDeleteToTagRelatio
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1642517958AddCascadeDeleteToTagRelations
  */
 class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
@@ -28,16 +30,19 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var AbstractSchemaManager<MySQLPlatform>
+     */
     private AbstractSchemaManager $schemaManager;
 
     private Migration1642517958AddCascadeDeleteToTagRelations $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->schemaManager = KernelLifecycleManager::getConnection()->getSchemaManager();
+        $this->schemaManager = KernelLifecycleManager::getConnection()->createSchemaManager();
         $this->migration = new Migration1642517958AddCascadeDeleteToTagRelations();
     }
 
@@ -63,7 +68,7 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
                 continue;
             }
 
-            if ($foreignKey->getForeignTableName() === 'tag' && $foreignKey->getColumns() === ['tag_id']) {
+            if ($foreignKey->getForeignTableName() === 'tag' && $foreignKey->getLocalColumns() === ['tag_id']) {
                 return $foreignKey;
             }
         }

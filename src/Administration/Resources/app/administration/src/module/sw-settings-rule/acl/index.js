@@ -1,3 +1,6 @@
+/**
+ * @package business-ops
+ */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
@@ -11,6 +14,7 @@ Shopware.Service('privileges')
                     'customer_group:read',
                     'sales_channel:read',
                     'tax:read',
+                    'tax_provider:read',
                     'payment_method:read',
                     'shipping_method:read',
                     'shipping_method_price:read',
@@ -29,7 +33,6 @@ Shopware.Service('privileges')
                     'promotion:read',
                     'promotion_discount:read',
                     'promotion_setgroup:read',
-                    'event_action:read',
                     'app_script_condition:read',
                     'flow_sequence:read',
                     'user_config:read',
@@ -52,8 +55,6 @@ Shopware.Service('privileges')
                     'promotion_persona_rule:delete',
                     'promotion_cart_rule:create',
                     'promotion_cart_rule:delete',
-                    'event_action_rule:create',
-                    'event_action_rule:delete',
                 ],
                 dependencies: [
                     'rule.viewer',

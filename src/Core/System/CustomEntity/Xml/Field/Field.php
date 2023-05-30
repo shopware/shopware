@@ -3,12 +3,14 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
-class Field extends XmlElement
+#[Package('core')]
+abstract class Field extends XmlElement
 {
     protected string $name;
 
@@ -39,12 +41,15 @@ class Field extends XmlElement
         return $this->storeApiAware;
     }
 
+    abstract public static function fromXml(\DOMElement $element): Field;
+
     protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
         if (is_iterable($element->attributes)) {
             foreach ($element->attributes as $attribute) {
+                \assert($attribute instanceof \DOMAttr);
                 $name = self::kebabCaseToCamelCase($attribute->name);
 
                 $values[$name] = XmlUtils::phpize($attribute->value);
@@ -52,7 +57,7 @@ class Field extends XmlElement
         }
 
         foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
+            if (!$child instanceof \DOMElement || $child->nodeValue === null) {
                 continue;
             }
 

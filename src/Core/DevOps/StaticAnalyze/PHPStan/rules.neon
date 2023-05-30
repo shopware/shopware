@@ -1,0 +1,10 @@
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitDataProviderStaticRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload

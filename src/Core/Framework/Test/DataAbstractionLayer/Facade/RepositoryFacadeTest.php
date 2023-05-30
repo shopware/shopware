@@ -19,10 +19,10 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -36,12 +36,15 @@ class RepositoryFacadeTest extends TestCase
 
     private RepositoryFacadeHookFactory $factory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(RepositoryFacadeHookFactory::class);
     }
 
     /**
+     * @param array<string, array<int, mixed>> $criteria
+     * @param callable(EntitySearchResult): void $expectation
+     *
      * @dataProvider withoutAppTestCases
      */
     public function testWithoutApp(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
@@ -54,12 +57,15 @@ class RepositoryFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $result = $facade->$method('product', $criteria);
+        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
 
         $expectation($result);
     }
 
-    public function withoutAppTestCases(): array
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function withoutAppTestCases(): array
     {
         $ids = new IdsCollection();
 
@@ -218,10 +224,13 @@ class RepositoryFacadeTest extends TestCase
         );
 
         static::expectException(MissingPrivilegeException::class);
-        $facade->$method('product', []);
+        $facade->$method('product', []); /* @phpstan-ignore-line */
     }
 
-    public function withoutPermissionProvider(): array
+    /**
+     * @return array<array<string>>
+     */
+    public static function withoutPermissionProvider(): array
     {
         return [
             ['search'],

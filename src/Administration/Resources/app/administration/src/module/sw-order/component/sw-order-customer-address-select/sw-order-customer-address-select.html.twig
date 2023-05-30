@@ -1,0 +1,35 @@
+<sw-single-select
+    v-model="addressId"
+    v-bind="$attrs"
+    class="sw-order-customer-address-select"
+    value-property="id"
+    required
+    disable-search-function
+    :is-loading="isLoading"
+    :options="customerAddresses"
+    :disabled="disabled"
+    @search="searchAddress"
+>
+    <template #selection-label-property="{ item }">
+        {{ getSelectionLabel(item) }}
+    </template>
+
+    <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+        <li
+            is="sw-select-result"
+            :selected="isSelected(item)"
+            v-bind="{ item, index }"
+            @item-select="setValue"
+        >
+            <sw-highlight-text
+                v-if="highlightSearchTerm && !isSelected(item)"
+                :text="getCustomerAddress(item)"
+                :search-term="searchTerm"
+            />
+
+            <template v-else>
+                {{ getCustomerAddress(item) }}
+            </template>
+        </li>
+    </template>
+</sw-single-select>

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\System\StateMachine\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
+#[Package('checkout')]
 class StateMachineGraphvizDumper
 {
     protected static array $defaultOptions = [
@@ -80,7 +82,7 @@ class StateMachineGraphvizDumper
 
     private function dotize($id): string
     {
-        return hash('sha1', $id);
+        return hash('sha1', (string) $id);
     }
 
     private function escape(string $string): string
@@ -129,6 +131,8 @@ class StateMachineGraphvizDumper
     {
         $code = [];
         foreach ($options as $k => $v) {
+            \assert(\is_string($k));
+            \assert(\is_string($v));
             $code[] = sprintf('%s="%s"', $k, $v);
         }
 

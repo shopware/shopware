@@ -4,98 +4,41 @@ namespace Shopware\Core\Content\Flow\Indexing;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
-use Shopware\Core\Framework\App\Event\AppActivatedEvent;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
-use Shopware\Core\Framework\App\Event\AppDeletedEvent;
-use Shopware\Core\Framework\App\Event\AppInstalledEvent;
-use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
+/**
+ * @final
+ */
+#[Package('business-ops')]
+class FlowIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepositoryInterface $repository;
-
-    private FlowPayloadUpdater $payloadUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private MessageBusInterface $messageBus;
+    public const NAME = 'flow.indexer';
 
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        FlowPayloadUpdater $payloadUpdater,
-        EventDispatcherInterface $eventDispatcher,
-        MessageBusInterface $messageBus
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly FlowPayloadUpdater $payloadUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->payloadUpdater = $payloadUpdater;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->messageBus = $messageBus;
     }
 
     public function getName(): string
     {
-        return 'flow.indexer';
+        return self::NAME;
     }
 
-    public static function getSubscribedEvents(): array
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        return [
-            PluginPostInstallEvent::class => 'refreshPlugin',
-            PluginPostActivateEvent::class => 'refreshPlugin',
-            PluginPostUpdateEvent::class => 'refreshPlugin',
-            PluginPostDeactivateEvent::class => 'refreshPlugin',
-            PluginPostUninstallEvent::class => 'refreshPlugin',
-            AppInstalledEvent::class => 'refreshPlugin',
-            AppUpdatedEvent::class => 'refreshPlugin',
-            AppActivatedEvent::class => 'refreshPlugin',
-            AppDeletedEvent::class => 'refreshPlugin',
-            AppDeactivatedEvent::class => 'refreshPlugin',
-        ];
-    }
-
-    public function refreshPlugin(): void
-    {
-        // Schedule indexer to update flows
-        $this->messageBus->dispatch(new IterateEntityIndexerMessage($this->getName(), null));
-    }
-
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
-    {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "FlowIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();

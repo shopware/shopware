@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -39,11 +39,11 @@ class EntityWriteGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private IdsCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->productRepository = $this->getContainer()->get('product.repository');
@@ -428,7 +428,7 @@ class EntityWriteGatewayTest extends TestCase
         $delete = [['id' => Uuid::randomHex()]];
 
         $errorCalled = false;
-        $sucessCalled = false;
+        $successCalled = false;
         $beforeDeleteEvent = null;
 
         $connection = $this->getContainer()->get(Connection::class);
@@ -444,21 +444,20 @@ class EntityWriteGatewayTest extends TestCase
                 ),
                 $connection->getDriver(),
                 $connection->getConfiguration(),
-                $connection->getEventManager(),
             ])
             ->onlyMethods(['delete'])
             ->getMock();
 
         $connection->method('delete')->willThrowException(new Exception('test'));
 
-        $listenerClosure = function (BeforeDeleteEvent $event) use (&$errorCalled, &$beforeDeleteEvent, &$sucessCalled): void {
+        $listenerClosure = function (BeforeDeleteEvent $event) use (&$errorCalled, &$beforeDeleteEvent, &$successCalled): void {
             $beforeDeleteEvent = $event;
             $event->addError(function () use (&$errorCalled): void {
                 $errorCalled = true;
             });
 
-            $event->addSuccess(function () use (&$sucessCalled): void {
-                $sucessCalled = true;
+            $event->addSuccess(function () use (&$successCalled): void {
+                $successCalled = true;
             });
         };
 
@@ -497,14 +496,14 @@ class EntityWriteGatewayTest extends TestCase
         static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent);
         static::assertEquals($exceptionThrown, $beforeDeleteEvent->getWriteContext()->getExceptions()->getExceptions()[0]);
         static::assertTrue($errorCalled);
-        static::assertFalse($sucessCalled);
+        static::assertFalse($successCalled);
 
         $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure);
     }
 
     private function createProduct(?string $id = null): string
     {
-        $id = $id ?? Uuid::randomHex();
+        $id ??= Uuid::randomHex();
 
         $data = [
             'id' => $id,

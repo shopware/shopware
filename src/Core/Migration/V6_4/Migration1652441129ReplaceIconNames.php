@@ -3,8 +3,13 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1652441129ReplaceIconNames extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -30,7 +35,7 @@ class Migration1652441129ReplaceIconNames extends MigrationStep
             ->from('sales_channel_type')
             ->where('icon_name = :iconName')
             ->setParameter('iconName', $oldIconName)
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
 
         foreach ($oldIconSalesChannelTypes as $id) {

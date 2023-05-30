@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Newsletter\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -11,49 +13,28 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - UrlAware is deprecated and will be removed in v6.6.0
+ */
+#[Package('customer-order')]
+class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'newsletter.register';
+    final public const EVENT_NAME = 'newsletter.register';
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var NewsletterRecipientEntity
-     */
-    private $newsletterRecipient;
-
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        Context $context,
-        NewsletterRecipientEntity $newsletterRecipient,
-        string $url,
-        string $salesChannelId
+        private readonly Context $context,
+        private readonly NewsletterRecipientEntity $newsletterRecipient,
+        private readonly string $url,
+        private readonly string $salesChannelId
     ) {
-        $this->context = $context;
-        $this->newsletterRecipient = $newsletterRecipient;
-        $this->url = $url;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -61,6 +42,14 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
         return (new EventDataCollection())
             ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class))
             ->add('url', new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return [FlowMailVariables::URL => $this->url];
     }
 
     public function getName(): string

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<PriceDefinitionInterface>
  */
+#[Package('checkout')]
 class PriceDefinitionCollection extends Collection
 {
     public function get($key): ?PriceDefinitionInterface

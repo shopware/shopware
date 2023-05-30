@@ -3,7 +3,7 @@
 <sw-page class="sw-settings-custom-field-set-list">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="custom_field"
             :placeholder="$tc('sw-settings-custom-field.general.placeholderSearchBar')"
@@ -15,7 +15,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -36,7 +36,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_custom_field_set_list_actions_add %}
         <sw-button
@@ -58,162 +58,165 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_list_content %}
-    <sw-card-view slot="content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_settings_custom_field_set_list_content_inner %}
-        <sw-card
-            class="sw-settings-custom-field-set-list__card"
-            position-identifier="sw-settings-custom-field-set-list"
-        >
+    <template #content>
+        <sw-card-view>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_custom_field_set_list_grid %}
-            <sw-grid
-                v-show="items.length > 0"
-                slot="grid"
-                class="sw-settings-custom-field-set-list-grid"
-                :selectable="false"
-                :items="items"
-                table
+            {% block sw_settings_custom_field_set_list_content_inner %}
+            <sw-card
+                class="sw-settings-custom-field-set-list__card"
+                position-identifier="sw-settings-custom-field-set-list"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_custom_field_set_list_grid_columns %}
-                <template
-                    slot="columns"
-                    slot-scope="{ item }"
-                >
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_custom_field_set_list_grid_column_label %}
-                    <sw-grid-column
-                        flex="minmax(180px, 2fr)"
-                        :label="$tc('sw-settings-custom-field.set.list.columnName')"
+                {% block sw_settings_custom_field_set_list_grid %}
+                <template #grid>
+                    <sw-grid
+                        v-show="items.length > 0"
+                        class="sw-settings-custom-field-set-list-grid"
+                        :selectable="false"
+                        :items="items"
+                        table
                     >
-                        <template v-if="item.global">
-                            {{ getInlineSnippet(item.config.label) || item.name }}
-                            <sw-help-text
-                                class="sw-settings-custom-field-set-list__help-text-global-set"
-                                :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')"
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_custom_field_set_list_grid_columns %}
+                        <template
+                            #columns="{ item }"
+                        >
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_custom_field_set_list_grid_column_label %}
+                            <sw-grid-column
+                                flex="minmax(180px, 2fr)"
+                                :label="$tc('sw-settings-custom-field.set.list.columnName')"
+                            >
+                                <template v-if="item.global">
+                                    {{ getInlineSnippet(item.config.label) || item.name }}
+                                    <sw-help-text
+                                        class="sw-settings-custom-field-set-list__help-text-global-set"
+                                        :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <router-link
+                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
+                                        class="sw-custom-field-set-list__column-name"
+                                        :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
+                                    >
+                                        {{ getInlineSnippet(item.config.label) || item.name }}
+                                    </router-link>
+                                </template>
+                            </sw-grid-column>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_custom_field_set_list_grid_column_actions %}
+                            <sw-grid-column
+                                flex="minmax(70px, 70px)"
+                                align="center"
+                                label=""
+                            >
+                                <sw-context-button>
+                                    <sw-context-menu-item
+                                        v-tooltip="{
+                                            message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
+                                            showOnDisabledElements: true,
+                                            disabled: !item.global
+                                        }"
+                                        :disabled="item.global || !acl.can('custom_field.editor')"
+                                        class="sw-custom-field-set-list__edit-action"
+                                        :router-link="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
+                                    >
+                                        {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
+                                    </sw-context-menu-item>
+
+                                    <template v-if="!item.global">
+                                        <sw-context-menu-item
+                                            class="sw-settings-custom-field-set-list__delete-action"
+                                            :disabled="!acl.can('custom_field.deleter')"
+                                            variant="danger"
+                                            @click="onDelete(item.id)"
+                                        >
+                                            {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                        </sw-context-menu-item>
+                                    </template>
+                                </sw-context-button>
+                            </sw-grid-column>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_custom_field_set_list_grid_delete_modal %}
+                            <sw-modal
+                                v-if="showDeleteModal === item.id"
+                                :title="$tc('global.default.warning')"
+                                variant="small"
+                                @modal-close="onCloseDeleteModal"
+                            >
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
+                                <p>
+                                    {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
+                                           { name: getInlineSnippet(item.config.label) || item.name }) }}
+                                </p>
+                                {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
+                                <template #modal-footer>
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
+                                    <sw-button
+                                        size="small"
+                                        @click="onCloseDeleteModal"
+                                    >
+                                        {{ $tc('sw-settings-custom-field.set.list.buttonCancel') }}
+                                    </sw-button>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
+                                    <sw-button
+                                        variant="danger"
+                                        size="small"
+                                        @click="onConfirmDelete(item.id)"
+                                    >
+                                        {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                    </sw-button>
+                                    {% endblock %}
+                                </template>
+                                {% endblock %}
+                            </sw-modal>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_custom_field_set_list_content_columns_pagination %}
+                        <template #pagination>
+                            <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :total-visible="7"
+                                @page-change="onPageChange"
                             />
                         </template>
-                        <template v-else>
-                            <router-link
-                                :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
-                                class="sw-custom-field-set-list__column-name"
-                                :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
-                            >
-                                {{ getInlineSnippet(item.config.label) || item.name }}
-                            </router-link>
-                        </template>
-                    </sw-grid-column>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_custom_field_set_list_grid_column_actions %}
-                    <sw-grid-column
-                        flex="minmax(70px, 70px)"
-                        align="center"
-                        label=""
-                    >
-                        <sw-context-button>
-                            <sw-context-menu-item
-                                v-tooltip="{
-                                    message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
-                                    showOnDisabledElements: true,
-                                    disabled: !item.global
-                                }"
-                                :disabled="item.global || !acl.can('custom_field.editor')"
-                                class="sw-custom-field-set-list__edit-action"
-                                :router-link="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
-                            >
-                                {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
-                            </sw-context-menu-item>
-
-                            <template v-if="!item.global">
-                                <sw-context-menu-item
-                                    class="sw-settings-custom-field-set-list__delete-action"
-                                    :disabled="!acl.can('custom_field.deleter')"
-                                    variant="danger"
-                                    @click="onDelete(item.id)"
-                                >
-                                    {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                </sw-context-menu-item>
-                            </template>
-                        </sw-context-button>
-                    </sw-grid-column>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_custom_field_set_list_grid_delete_modal %}
-                    <sw-modal
-                        v-if="showDeleteModal === item.id"
-                        :title="$tc('global.default.warning')"
-                        variant="small"
-                        @modal-close="onCloseDeleteModal"
-                    >
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
-                        <p>
-                            {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
-                                   { name: getInlineSnippet(item.config.label) || item.name }) }}
-                        </p>
                         {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
-                        <template slot="modal-footer">
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
-                            <sw-button
-                                size="small"
-                                @click="onCloseDeleteModal"
-                            >
-                                {{ $tc('sw-settings-custom-field.set.list.buttonCancel') }}
-                            </sw-button>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
-                            <sw-button
-                                variant="danger"
-                                size="small"
-                                @click="onConfirmDelete(item.id)"
-                            >
-                                {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                            </sw-button>
-                            {% endblock %}
-                        </template>
-                        {% endblock %}
-                    </sw-modal>
-                    {% endblock %}
+                    </sw-grid>
                 </template>
                 {% endblock %}
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_custom_field_set_list_content_columns_pagination %}
-                <sw-pagination
-                    slot="pagination"
-                    :page="page"
-                    :limit="limit"
-                    :total="total"
-                    :total-visible="7"
-                    @page-change="onPageChange"
+                {% block sw_settings_custom_fields_set_list_empty_message %}
+                <sw-empty-state
+                    v-if="!isLoading && items.length <= 0"
+                    :absolute="false"
+                    :title="$tc('sw-settings-custom-field.set.list.messageEmpty')"
                 />
                 {% endblock %}
-            </sw-grid>
+            </sw-card>
             {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_custom_fields_set_list_empty_message %}
-            <sw-empty-state
-                v-if="!isLoading && items.length <= 0"
-                :absolute="false"
-                :title="$tc('sw-settings-custom-field.set.list.messageEmpty')"
-            />
-            {% endblock %}
-        </sw-card>
-        {% endblock %}
-    </sw-card-view>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

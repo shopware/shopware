@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -11,6 +12,7 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Maintenance\System\Service\ShopConfigurator
  */
 class ShopConfiguratorTest extends TestCase
@@ -18,11 +20,11 @@ class ShopConfiguratorTest extends TestCase
     private ShopConfigurator $shopConfigurator;
 
     /**
-     * @var Connection&\PHPUnit\Framework\MockObject\MockObject
+     * @var Connection&MockObject
      */
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->shopConfigurator = new ShopConfigurator($this->connection);
@@ -155,6 +157,8 @@ class ShopConfiguratorTest extends TestCase
     /**
      * @param array<string, string> $expectedStateTranslations
      * @param array<string, string> $expectedMissingTranslations
+     * @param callable(string, array<string, string>): void $insertCallback
+     *
      * @dataProvider countryStateTranslationsProvider
      */
     public function testSetDefaultLanguageShouldAddMissingCountryStatesTranslations(
@@ -184,9 +188,7 @@ class ShopConfiguratorTest extends TestCase
 
         $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
 
-        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], function (array $item) {
-            return !empty($item);
-        }));
+        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], fn (array $item) => !empty($item)));
 
         $methodCalls = \count($methodReturns);
 
@@ -199,7 +201,7 @@ class ShopConfiguratorTest extends TestCase
     /**
      * @return iterable<string, array<string, mixed>>
      */
-    public function countryStateTranslationsProvider(): iterable
+    public static function countryStateTranslationsProvider(): iterable
     {
         /**
          * @param array<string, string> $parameters

@@ -5,9 +5,10 @@ const { Component, Mixin, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-section', {
+export default {
     template,
 
     inject: [
@@ -41,6 +42,12 @@ Component.register('sw-cms-section', {
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            isCollapsed: true,
+        };
     },
 
     computed: {
@@ -89,6 +96,7 @@ Component.register('sw-cms-section', {
             return {
                 'is--empty': this.sideBarEmpty,
                 'is--hidden': this.sectionMobileAndHidden,
+                'is--expanded': this.expandedClass,
             };
         },
 
@@ -131,6 +139,31 @@ Component.register('sw-cms-section', {
 
         blockTypes() {
             return Object.keys(this.cmsService.getCmsBlockRegistry());
+        },
+
+        isVisible() {
+            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
+
+            return (view === 'desktop' && !this.section.visibility.desktop) ||
+                (view === 'tablet-landscape' && !this.section.visibility.tablet) ||
+                (view === 'mobile' && !this.section.visibility.mobile);
+        },
+
+        toggleButtonText() {
+            return this.$tc('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', !this.isCollapsed);
+        },
+
+        expandedClass() {
+            return {
+                'is--expanded': this.isVisible && !this.isCollapsed,
+            };
+        },
+
+        sectionContentClasses() {
+            return {
+                'is--empty': this.mainContentEmpty,
+                'is--expanded': this.isVisible && !this.isCollapsed,
+            };
         },
 
         ...mapPropertyErrors('page', [
@@ -221,5 +254,9 @@ Component.register('sw-cms-section', {
 
             return errorElements.some(missingConfig => missingConfig.blockId === block.id);
         },
+
+        toggleVisibility() {
+            this.isCollapsed = !this.isCollapsed;
+        },
     },
-});
+};

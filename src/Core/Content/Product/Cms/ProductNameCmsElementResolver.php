@@ -7,7 +7,9 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductNameCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     public function getType(): string

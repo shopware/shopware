@@ -15,11 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
+#[Package('inventory')]
 class UnitDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'unit';
+    final public const ENTITY_NAME = 'unit';
 
     public function getEntityName(): string
     {

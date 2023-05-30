@@ -6,26 +6,22 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
+#[Package('core')]
 class TranslationsSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $languageRepository)
+    public function __construct(private readonly EntityRepository $languageRepository)
     {
-        $this->languageRepository = $languageRepository;
     }
 
     public function serialize(Config $config, Field $associationField, $translations): iterable

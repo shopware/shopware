@@ -3,25 +3,22 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
+#[Package('core')]
 class OpenApiFileLoader
 {
     /**
-     * @var string[]
-     */
-    private array $paths;
-
-    /**
      * @param string[] $paths
      */
-    public function __construct(array $paths)
+    public function __construct(private readonly array $paths)
     {
-        $this->paths = $paths;
     }
 
     /**
@@ -44,7 +41,7 @@ class OpenApiFileLoader
         $finder->in($this->paths)->name('*.json');
 
         foreach ($finder as $entry) {
-            $data = json_decode((string) file_get_contents($entry->getPathname()), true, \JSON_THROW_ON_ERROR);
+            $data = json_decode((string) file_get_contents($entry->getPathname()), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
 
             $spec['paths'] = \array_replace_recursive($spec['paths'], $data['paths'] ?? []);
             $spec['components']['schemas'] = array_merge(

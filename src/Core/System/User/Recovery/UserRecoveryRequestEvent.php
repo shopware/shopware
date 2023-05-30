@@ -2,49 +2,38 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\UserAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, UserAware, MailAware, ResetUrlAware
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware is deprecated and will be removed in v6.6.0
+ */
+#[Package('system-settings')]
+class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'user.recovery.request';
+    final public const EVENT_NAME = 'user.recovery.request';
 
-    /**
-     * @var UserRecoveryEntity
-     */
-    private $userRecovery;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $resetUrl;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $mailRecipientStruct;
-
-    public function __construct(UserRecoveryEntity $userRecovery, string $resetUrl, Context $context)
-    {
-        $this->userRecovery = $userRecovery;
-        $this->context = $context;
-        $this->resetUrl = $resetUrl;
+    public function __construct(
+        private readonly UserRecoveryEntity $userRecovery,
+        private readonly string $resetUrl,
+        private readonly Context $context
+    ) {
     }
 
     public function getName(): string
@@ -68,6 +57,16 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
             ->add('userRecovery', new EntityType(UserRecoveryDefinition::class))
             ->add('resetUrl', new ScalarValueType('string'))
         ;
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return [
+            FlowMailVariables::RESET_URL => $this->resetUrl,
+        ];
     }
 
     public function getMailStruct(): MailRecipientStruct

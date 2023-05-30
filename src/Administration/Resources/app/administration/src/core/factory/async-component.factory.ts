@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
@@ -34,6 +38,9 @@ export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V
     functional?: boolean,
     extends?: ComponentConfig<V> | string,
     _isOverride?: boolean,
+    component?: Promise<ComponentConfig|boolean>,
+    loading?: ComponentConfig,
+    delay?: number,
 }
 
 /**

@@ -13,12 +13,14 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class EntityPipeTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -52,7 +54,7 @@ class EntityPipeTest extends TestCase
         ]);
         $product->setUniqueIdentifier($id);
 
-        $result = iterator_to_array($entityPipe->in($config, $product));
+        $result = iterator_to_array($entityPipe->in($config, $product->jsonSerialize()));
 
         static::assertSame($product->getId(), $result['id']);
         static::assertSame($product->getTranslations()->first()->getName(), $result['translations']['DEFAULT']['name']);

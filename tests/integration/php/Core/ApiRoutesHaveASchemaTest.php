@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
+use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -24,7 +25,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     private RouteCollection $routes;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $router = $this->getContainer()->get(RouterInterface::class);
         $this->routes = $router->getRouteCollection();
@@ -36,7 +37,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $schema = $generator->generate(
             $this->getContainer()->get(SalesChannelDefinitionInstanceRegistry::class)->getDefinitions(),
             DefinitionService::STORE_API,
-            DefinitionService::TypeJsonApi
+            DefinitionService::TYPE_JSON_API
         );
 
         $schemaRoutes = $schema['paths'];
@@ -134,25 +135,25 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     private function isStoreApi(string $path): bool
     {
-        return strpos($path, '/store-api') === 0;
+        return str_starts_with($path, '/store-api');
     }
 
     private function isAdminApi(string $path): bool
     {
-        return strpos($path, '/api') === 0;
+        return str_starts_with($path, '/api');
     }
 
     private function isRepositoryCrudRoute(Route $route): bool
     {
         $controllerClass = strtok($route->getDefault('_controller'), ':');
 
-        return $controllerClass === 'Shopware\Core\Framework\Api\Controller\ApiController';
+        return $controllerClass === ApiController::class;
     }
 
     private function isCoreRoute(Route $route): bool
     {
         $controllerClass = (string) strtok((string) $route->getDefault('_controller'), ':');
 
-        return strpos($controllerClass, 'Shopware\Core') === 0;
+        return str_starts_with($controllerClass, 'Shopware\Core');
     }
 }

@@ -1,13 +1,4 @@
 {% block component_product_box_price_info %}
-    {# @deprecated tag:v6.5.0 - purchaseUnit will be removed, use product.purchaseUnit if needed #}
-    {% set purchaseUnit = product.purchaseUnit %}
-
-    {# @deprecated tag:v6.5.0 - listingPrice will be removed without replacement, since it was removed from the product struct #}
-    {% set listingPrice = product.calculatedListingPrice %}
-
-    {# @deprecated tag:v6.5.0 - fromPrice will be removed without replacement #}
-    {% set fromPrice = listingPrice.from %}
-
     {% set cheapest = product.calculatedCheapestPrice %}
 
     {% set real = product.calculatedPrice %}
@@ -58,7 +49,7 @@
                 {% set isRegulationPrice = price.regulationPrice != null %}
 
                 <div class="product-cheapest-price{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
-                    {% if cheapest.unitPrice != real.unitPrice %}
+                    {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
                         <div>{{ "listing.cheapestPriceLabel"|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</span></div>
                     {% endif %}
                 </div>

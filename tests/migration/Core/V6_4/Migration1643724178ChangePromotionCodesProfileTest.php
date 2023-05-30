@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1643724178ChangePromotionCodesProfile
  */
 class Migration1643724178ChangePromotionCodesProfileTest extends TestCase
@@ -53,6 +54,6 @@ class Migration1643724178ChangePromotionCodesProfileTest extends TestCase
      */
     private function getPromotionCodesProfileMapping(): array
     {
-        return json_decode($this->connection->fetchOne('SELECT `mapping` FROM `import_export_profile` WHERE `source_entity` = "promotion_individual_code"'), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode((string) $this->connection->fetchOne('SELECT `mapping` FROM `import_export_profile` WHERE `source_entity` = "promotion_individual_code"'), true, 512, \JSON_THROW_ON_ERROR);
     }
 }

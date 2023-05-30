@@ -2,46 +2,38 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Filesystem\Adapter;
 
+use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
 class GoogleStorageFactoryTest extends TestCase
 {
-    use KernelTestBehaviour;
-
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testCreateGoogleStorageFromConfigString(): void
     {
-        /** @var GoogleStorageFactory $googleStorageFactory */
-        $googleStorageFactory = $this->getContainer()->get('Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.google_storage');
+        $googleStorageFactory = new GoogleStorageFactory();
+        static::assertSame('google-storage', $googleStorageFactory->getType());
 
         $config = [
             'projectId' => 'TestGoogleStorage',
-            'keyFile' => json_decode(file_get_contents(__DIR__ . '/fixtures/keyfile.json'), true),
+            'keyFile' => json_decode(file_get_contents(__DIR__ . '/fixtures/keyfile.json'), true, 512, \JSON_THROW_ON_ERROR),
             'bucket' => 'TestBucket',
             'root' => '/',
         ];
 
         try {
-            $googleStorageFactory->create($config);
+            static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
         } catch (\Exception $e) {
             static::fail($e->getMessage());
         }
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testCreateGoogleStorageFromConfigFile(): void
     {
         /** @var GoogleStorageFactory $googleStorageFactory */
-        $googleStorageFactory = $this->getContainer()->get('Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.google_storage');
+        $googleStorageFactory = new GoogleStorageFactory();
 
         $config = [
             'projectId' => 'TestGoogleStorage',
@@ -51,7 +43,7 @@ class GoogleStorageFactoryTest extends TestCase
         ];
 
         try {
-            $googleStorageFactory->create($config);
+            static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
         } catch (\Exception $e) {
             static::fail($e->getMessage());
         }

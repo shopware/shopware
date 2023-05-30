@@ -3,15 +3,17 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class DeprecationTagTesterTest extends TestCase
 {
     private DeprecationTagTester $deprecationTagTester;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->deprecationTagTester = new DeprecationTagTester('6.4.0.0', '1.0');
     }

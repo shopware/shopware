@@ -3,34 +3,24 @@
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class CreditLineItemFactory implements LineItemFactoryInterface
 {
     /**
-     * @var PriceDefinitionFactory
-     */
-    private $priceDefinitionFactory;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory, EntityRepositoryInterface $mediaRepository)
-    {
-        $this->priceDefinitionFactory = $priceDefinitionFactory;
-        $this->mediaRepository = $mediaRepository;
+    public function __construct(
+        private readonly PriceDefinitionFactory $priceDefinitionFactory,
+        private readonly EntityRepository $mediaRepository
+    ) {
     }
 
     public function supports(string $type): bool
@@ -38,14 +28,13 @@ class CreditLineItemFactory implements LineItemFactoryInterface
         return $type === LineItem::CREDIT_LINE_ITEM_TYPE;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
         if (!$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::insufficientPermission();
-            }
-
-            throw new InsufficientPermissionException();
+            throw CartException::insufficientPermission();
         }
 
         $lineItem = new LineItem($data['id'], $data['type'], $data['referencedId'] ?? null, $data['quantity'] ?? 1);
@@ -56,14 +45,13 @@ class CreditLineItemFactory implements LineItemFactoryInterface
         return $lineItem;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
         if (!$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::insufficientPermission();
-            }
-
-            throw new InsufficientPermissionException();
+            throw CartException::insufficientPermission();
         }
 
         if (isset($data['removable'])) {

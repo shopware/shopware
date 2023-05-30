@@ -3,8 +3,8 @@
 describe('Login: Test login', () => {
     beforeEach(() => {
         cy.clearCookies();
-        cy.clearCookie('bearerAuth')
-        cy.clearCookie('refreshBearerAuth')
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
         cy.setLocaleToEnGb()
             .then(() => {
                 cy.visit(Cypress.env('admin'));

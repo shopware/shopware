@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import chalk from 'chalk';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
@@ -69,9 +73,15 @@ class ResponseRegistry {
         });
     }
 
+    filterResponses(filterMethod) {
+        this.registry = this.registry.filter(filterMethod);
+    }
+
     getResponse({ url, method }) {
         return this.registry.find(response => {
-            return url.match(response.url) && response.method.toUpperCase() === method.toUpperCase();
+            const isUrlValid = (response.url instanceof RegExp && response.url.match) ? response.url.match(url) : response.url === url;
+
+            return isUrlValid && response.method.toUpperCase() === method.toUpperCase();
         });
     }
 }

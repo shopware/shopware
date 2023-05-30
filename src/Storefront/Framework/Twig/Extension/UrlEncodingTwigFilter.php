@@ -3,19 +3,21 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+#[Package('storefront')]
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**
-     * @return TwigFilter[]
+     * @return list<TwigFilter>
      */
     public function getFilters()
     {
         return [
-            new TwigFilter('sw_encode_url', [$this, 'encodeUrl']),
-            new TwigFilter('sw_encode_media_url', [$this, 'encodeMediaUrl']),
+            new TwigFilter('sw_encode_url', $this->encodeUrl(...)),
+            new TwigFilter('sw_encode_media_url', $this->encodeMediaUrl(...)),
         ];
     }
 
@@ -26,7 +28,11 @@ class UrlEncodingTwigFilter extends AbstractExtension
         }
 
         $urlInfo = parse_url($mediaUrl);
-        $segments = explode('/', $urlInfo['path']);
+        if (!\is_array($urlInfo)) {
+            return null;
+        }
+
+        $segments = explode('/', $urlInfo['path'] ?? '');
 
         foreach ($segments as $index => $segment) {
             $segments[$index] = rawurlencode($segment);

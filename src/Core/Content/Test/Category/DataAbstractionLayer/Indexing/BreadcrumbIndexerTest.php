@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,15 +19,9 @@ class BreadcrumbIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private string $deLanguageId;
 
     protected function setUp(): void
     {
@@ -39,7 +33,7 @@ class BreadcrumbIndexerTest extends TestCase
 
     public function testBreadcrumbAfterCreate(): void
     {
-        $ids = $this->setUpData();
+        $ids = $this->getSetUpData();
 
         $context = new Context(
             new SystemSource(),
@@ -84,7 +78,7 @@ class BreadcrumbIndexerTest extends TestCase
 
     public function testUpdateTranslation(): void
     {
-        $ids = $this->setUpData();
+        $ids = $this->getSetUpData();
 
         $context = new Context(
             new SystemSource(),
@@ -154,7 +148,7 @@ class BreadcrumbIndexerTest extends TestCase
 
     public function testLanguageInheritance(): void
     {
-        $ids = $this->setUpData();
+        $ids = $this->getSetUpData();
 
         $context = new Context(
             new SystemSource(),
@@ -251,7 +245,7 @@ class BreadcrumbIndexerTest extends TestCase
         static::assertSame(['EN-A', 'DE-B', 'EN-C'], $c3->getBreadcrumb());
     }
 
-    private function setUpData(): SetUpData
+    private function getSetUpData(): SetUpData
     {
         $level1 = Uuid::randomHex();
         $level2 = Uuid::randomHex();
@@ -319,8 +313,11 @@ class SetUpData
      */
     public $level3;
 
-    public function __construct(string $level1, string $level2, string $level3)
-    {
+    public function __construct(
+        string $level1,
+        string $level2,
+        string $level3
+    ) {
         $this->level1 = $level1;
         $this->level2 = $level2;
         $this->level3 = $level3;

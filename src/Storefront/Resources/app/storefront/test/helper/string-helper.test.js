@@ -1,5 +1,8 @@
 import StringHelper from 'src/helper/string.helper';
 
+/**
+ * @package storefront
+ */
 describe('string-helper', () => {
     test('ucFirst changes first char to upper case', () => {
         expect(StringHelper.ucFirst('i once was little')).toBe('I once was little');

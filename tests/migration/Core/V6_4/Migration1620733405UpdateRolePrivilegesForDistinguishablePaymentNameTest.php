@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentName
  */
 class Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentNameTest extends TestCase
@@ -33,7 +34,7 @@ class Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentNameTest e
         $migration->update($connection);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $id]);
-        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertContains('app:read', $privileges);
         static::assertContains('app_payment_method:read', $privileges);

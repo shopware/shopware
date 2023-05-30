@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
@@ -23,16 +22,12 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\App\GuzzleHistoryCollector;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -40,7 +35,9 @@ use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -53,7 +50,7 @@ class WebhookDispatcherTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    private EntityRepositoryInterface $webhookRepository;
+    private EntityRepository $webhookRepository;
 
     private string $shopUrl;
 
@@ -63,7 +60,7 @@ class WebhookDispatcherTest extends TestCase
 
     private GuzzleHistoryCollector $guzzleHistory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_SERVER['APP_URL'];
@@ -115,7 +112,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $payload = json_decode($body, true);
+        $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
         unset($payload['timestamp'], $payload['source']['eventId']);
@@ -181,7 +178,7 @@ class WebhookDispatcherTest extends TestCase
             /** @var Request $request */
             $request = $historyEntry['request'];
 
-            $payload = json_decode($request->getBody()->getContents(), true);
+            $payload = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('timestamp', $payload);
             static::assertArrayHasKey('eventId', $payload['source']);
             unset($payload['timestamp'], $payload['source']['eventId']);
@@ -279,7 +276,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $payload = json_decode($body, true);
+        $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
         static::assertArrayHasKey('timestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
@@ -352,22 +349,12 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            $factory = $this->getContainer()->get(FlowFactory::class);
-            $event = $factory->create(new CustomerBeforeLoginEvent(
-                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                'test@example.com'
-            ));
-            $event->setFlowState(new FlowState());
-        } else {
-            $event = new BusinessEvent(
-                MailSendSubscriber::ACTION_NAME,
-                new CustomerBeforeLoginEvent(
-                    $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                    'test@example.com'
-                )
-            );
-        }
+        $factory = $this->getContainer()->get(FlowFactory::class);
+        $event = $factory->create(new CustomerBeforeLoginEvent(
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        ));
+        $event->setFlowState(new FlowState());
 
         $client = new Client([
             'handler' => new MockHandler([]),
@@ -445,7 +432,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -489,7 +475,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -534,7 +520,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -599,7 +584,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -663,7 +647,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -721,7 +704,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('Max', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
@@ -766,7 +749,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -840,7 +822,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -896,7 +877,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -946,7 +926,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -990,7 +970,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -1048,7 +1027,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -1090,7 +1068,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -1134,7 +1112,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -1179,7 +1156,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -1223,7 +1200,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -1265,7 +1241,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['source']['eventId']);
@@ -1305,7 +1281,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -1407,7 +1382,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -1575,7 +1549,7 @@ class WebhookDispatcherTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@gmail.com',
-                'password' => '123123',
+                'password' => '123123123',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -26,7 +26,7 @@ class SqlQueryParserTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $manufacturerRepository;
 
@@ -48,13 +48,13 @@ class SqlQueryParserTest extends TestCase
 
         $has = false;
         foreach ($parsed->getWheres() as $where) {
-            $has = $has || strpos($where, '<=>') !== false;
+            $has = $has || str_contains((string) $where, '<=>');
         }
 
         static::assertEquals($expected, $has);
     }
 
-    public function whenToUseNullSafeOperatorProvider()
+    public static function whenToUseNullSafeOperatorProvider()
     {
         yield 'Dont used for simple equals' => [new EqualsFilter('product.id', Uuid::randomHex()), false];
         yield 'Used for negated comparison' => [new NandFilter([new EqualsFilter('product.id', Uuid::randomHex())]), true];

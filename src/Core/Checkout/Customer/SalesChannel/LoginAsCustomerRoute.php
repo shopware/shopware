@@ -9,11 +9,10 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -21,9 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=false})
- */
+#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => false])]
 class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
 {
     public const CUSTOMER_ID = 'customerId';
@@ -32,27 +29,15 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
 
     public const TOKEN = 'token';
 
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepositoryInterface $customerRepository;
-
-    private CartRestorer $restorer;
-
-    private LoginAsCustomerTokenGenerator $tokenGenerator;
-
     /**
      * @internal
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $customerRepository,
-        CartRestorer $restorer,
-        LoginAsCustomerTokenGenerator $tokenGenerator
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $customerRepository,
+        private readonly CartRestorer $restorer,
+        private readonly LoginAsCustomerTokenGenerator $tokenGenerator
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->customerRepository = $customerRepository;
-        $this->restorer = $restorer;
-        $this->tokenGenerator = $tokenGenerator;
     }
 
     public function getDecorated(): AbstractLoginRoute
@@ -60,10 +45,7 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/login/customer", name="store-api.account.login-as-customer", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/login/customer', name: 'store-api.account.login-as-customer', methods: ['POST'])]
     public function loginAsCustomer(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $salesChannelIdFromContext = $context->getSalesChannelId();

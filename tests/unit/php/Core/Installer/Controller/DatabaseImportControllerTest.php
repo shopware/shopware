@@ -16,40 +16,30 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\DatabaseImportController
  */
 class DatabaseImportControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
 
-    /**
-     * @var DatabaseConnectionFactory&MockObject
-     */
-    private $connectionFactory;
+    private MockObject&DatabaseConnectionFactory $connectionFactory;
 
-    /**
-     * @var DatabaseMigrator&MockObject
-     */
-    private $databaseMigrator;
+    private MockObject&DatabaseMigrator $databaseMigrator;
 
     private DatabaseImportController $controller;
 
-    /**
-     * @var Environment&MockObject
-     */
-    private $twig;
+    private MockObject&Environment $twig;
 
-    /**
-     * @var RouterInterface&MockObject
-     */
-    private $router;
+    private MockObject&RouterInterface $router;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
         $this->databaseMigrator = $this->createMock(DatabaseMigrator::class);
@@ -82,7 +72,7 @@ class DatabaseImportControllerTest extends TestCase
             ->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-configuration', [], RouterInterface::ABSOLUTE_PATH)
+            ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 
         $session = new Session(new MockArraySessionStorage());
@@ -128,7 +118,7 @@ class DatabaseImportControllerTest extends TestCase
         static::assertIsString($response->getContent());
         static::assertSame([
             'error' => 'Session expired, please go back to database configuration.',
-        ], json_decode($response->getContent(), true));
+        ], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testDatabaseMigrateWithoutOffset(): void
@@ -157,7 +147,7 @@ class DatabaseImportControllerTest extends TestCase
         $response = $this->controller->databaseMigrate($request);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($response->getContent());
-        static::assertSame($result, json_decode($response->getContent(), true));
+        static::assertSame($result, json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testDatabaseMigrateWillReportException(): void
@@ -182,6 +172,6 @@ class DatabaseImportControllerTest extends TestCase
         static::assertIsString($response->getContent());
         static::assertSame([
             'error' => 'Test exception',
-        ], json_decode($response->getContent(), true));
+        ], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 }

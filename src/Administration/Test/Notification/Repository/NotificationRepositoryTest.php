@@ -5,7 +5,7 @@ namespace Shopware\Administration\Test\Notification\Repository;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,7 +18,7 @@ class NotificationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $notificationRepository;
+    private EntityRepository $notificationRepository;
 
     private Context $context;
 
@@ -46,7 +46,7 @@ class NotificationRepositoryTest extends TestCase
                 $this->context->scope($scope, function (Context $context) use ($data): void {
                     $this->notificationRepository->create([$data], $context);
                 });
-                static::fail(sprintf("Create within wrong scope '%s'", $scope));
+                static::fail(sprintf('Create within wrong scope \'%s\'', $scope));
             } catch (\Exception $e) {
                 static::assertInstanceOf(AccessDeniedHttpException::class, $e);
             }
@@ -61,7 +61,7 @@ class NotificationRepositoryTest extends TestCase
                 $this->context->scope($scope, function (Context $context) use ($id): void {
                     $this->notificationRepository->search(new Criteria([$id]), $context);
                 });
-                static::fail(sprintf("Read within wrong scope '%s'", $scope));
+                static::fail(sprintf('Read within wrong scope \'%s\'', $scope));
             } catch (\Exception $e) {
                 static::assertInstanceOf(AccessDeniedHttpException::class, $e);
             }
@@ -78,7 +78,7 @@ class NotificationRepositoryTest extends TestCase
         static::assertSame($data['message'], $notification->getMessage());
     }
 
-    public function notificationProvider(): array
+    public static function notificationProvider(): array
     {
         return [
             [Context::USER_SCOPE, 'write'],

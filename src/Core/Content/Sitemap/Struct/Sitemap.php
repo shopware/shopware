@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Sitemap\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('sales-channel')]
 class Sitemap extends Struct
 {
     /**
@@ -17,18 +19,15 @@ class Sitemap extends Struct
     protected $created;
 
     /**
-     * @var int
-     */
-    private $urlCount;
-
-    /**
      * @throws \Exception
      */
-    public function __construct(string $filename, int $urlCount, ?\DateTimeInterface $created = null)
-    {
+    public function __construct(
+        string $filename,
+        private int $urlCount,
+        ?\DateTimeInterface $created = null
+    ) {
         $this->filename = $filename;
         $this->created = $created ?: new \DateTime('NOW', new \DateTimeZone('UTC'));
-        $this->urlCount = $urlCount;
     }
 
     public function getFilename(): string

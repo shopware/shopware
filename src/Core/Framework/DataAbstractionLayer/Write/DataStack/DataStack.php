@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  *
  * Start with original raw result
  *  -> each step removes one from the raw set and possibly adds one to the result set
@@ -29,13 +31,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
  *
  *      $resultSet = $stack->getResultAsArray();
  */
+#[Package('core')]
 class DataStack
 {
     /**
      * @var KeyValuePair[]
      */
-    private $data = [];
+    private array $data = [];
 
+    /**
+     * @param array<string, mixed> $originalData
+     */
     public function __construct(array $originalData)
     {
         if (\array_key_exists('extensions', $originalData)) {
@@ -65,7 +71,7 @@ class DataStack
         return $pair;
     }
 
-    public function update(string $key, $value): void
+    public function update(string $key, mixed $value): void
     {
         if (!$this->has($key)) {
             $this->data[$key] = new KeyValuePair($key, $value, false);
@@ -88,6 +94,9 @@ class DataStack
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getResultAsArray(): array
     {
         $resultPairs = [];
@@ -98,5 +107,10 @@ class DataStack
         }
 
         return $resultPairs;
+    }
+
+    public function add(string $key, mixed $value, bool $isDefault): void
+    {
+        $this->data[$key] = new KeyValuePair($key, $value, true, $isDefault);
     }
 }

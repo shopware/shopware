@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class ObjectType implements EventDataType
 {
-    public const TYPE = 'object';
+    final public const TYPE = 'object';
 
-    /**
-     * @var array
-     */
-    private $data;
+    private ?array $data = null;
 
     public function add(string $name, EventDataType $type): self
     {

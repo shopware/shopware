@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
+#[Package('storefront')]
 abstract class AbstractConfigLoader
 {
     abstract public function getDecorated(): AbstractConfigLoader;

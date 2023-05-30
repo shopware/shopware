@@ -34,12 +34,9 @@
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__parent-folder"
         @click="onBreadcrumbsItemClicked(parentFolder.id)"
     >
-
-        {# @deprecated tag:v6.5.0 - Size can be removed #}
         <sw-icon
             class="sw-media-breadcrumbs__arrow-separator"
             name="regular-chevron-right-xxs"
-            size="22"
         />
         {{ parentFolder.name }}
     </a>
@@ -51,11 +48,9 @@
         v-if="currentFolder"
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder"
     >
-        {# @deprecated tag:v6.5.0 - Size can be removed #}
         <sw-icon
             class="sw-media-breadcrumbs__arrow-separator"
             name="regular-chevron-right-xxs"
-            size="22"
         />
         {{ currentFolder.name }}
     </span>

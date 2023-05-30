@@ -2,20 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 trait ChangeSetAwareTrait
 {
-    /**
-     * @var bool
-     */
-    protected $requireChangeSet = false;
+    protected bool $requireChangeSet = false;
 
-    /**
-     * @var ChangeSet|null
-     */
-    protected $changeSet;
+    protected ?ChangeSet $changeSet = null;
 
     public function requiresChangeSet(): bool
     {

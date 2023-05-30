@@ -4,6 +4,9 @@ import './sw-select-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description select input field.
  * @status ready
@@ -17,7 +20,6 @@ const { Component, Mixin } = Shopware;
  *     <option value="value5">Label #5</option>
  * </sw-select-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-field', {
     template,
 

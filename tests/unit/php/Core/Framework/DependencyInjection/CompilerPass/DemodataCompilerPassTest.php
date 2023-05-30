@@ -11,13 +11,14 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass
  */
 class DemodataCompilerPassTest extends TestCase
 {
     private ContainerBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->builder = new ContainerBuilder();
         $this->builder->setDefinition(DemodataCommand::class, (new Definition(DemodataCommand::class))->setPublic(true));
@@ -63,7 +64,7 @@ class DemodataCompilerPassTest extends TestCase
     /**
      * @return array{0: ?string, 1: ?int, 2: ?string}[]
      */
-    public function definitionProvider(): iterable
+    public static function definitionProvider(): iterable
     {
         yield ['foo', null, 'example foo'];
         yield ['foo', 0, 'example foo'];

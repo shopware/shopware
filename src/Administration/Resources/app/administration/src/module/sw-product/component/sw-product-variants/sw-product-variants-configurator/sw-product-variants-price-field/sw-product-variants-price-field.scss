@@ -3,7 +3,7 @@
 $sw-product-variants-price-field-lock-color-default: $color-darkgray-200;
 $sw-product-variants-field-lock-color-locked: $color-shopware-brand-500;
 $sw-product-variants-field-suffix-font-size: 20px;
-$sw-product-variants-field-suffix-font-weight: 400;
+$sw-product-variants-field-suffix-font-weight: $font-weight-regular;
 
 .sw-product-variants-price-field {
     display: grid;

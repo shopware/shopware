@@ -2,18 +2,18 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Struct\File;
 use Danger\Platform\Github\Github;
 use Danger\Platform\Gitlab\Gitlab;
 use Danger\Rule\CommitRegex;
 use Danger\Rule\Condition;
 use Danger\Rule\DisallowRepeatedCommits;
+use Danger\Struct\File;
 use Danger\Struct\Gitlab\File as GitlabFile;
 
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
-    ->useRule(new DisallowRepeatedCommits)
-    ->useRule(function (Context $context) {
+    ->useRule(new DisallowRepeatedCommits())
+    ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('changelog/_unreleased/*.md')->count() === 0) {
@@ -21,27 +21,27 @@ return (new Config())
         }
     })
     ->useRule(new Condition(
-        function(Context $context) {
+        function (Context $context) {
             return $context->platform instanceof Gitlab;
         },
         [
-            function (Context $context) {
+            function (Context $context): void {
                 $labels = array_map('strtolower', $context->platform->pullRequest->labels);
 
                 if ($context->platform->raw['squash'] === true && in_array('github', $labels, true)) {
                     $context->failure('GitHub PRs are not allowed to be squashed');
                 }
-             }
+            },
         ]
     ))
     ->useRule(new Condition(
-        function(Context $context) {
+        function (Context $context) {
             $labels = array_map('strtolower', $context->platform->pullRequest->labels);
 
             return $context->platform instanceof Gitlab && !\in_array('github', $labels, true);
         },
         [
-            function (Context $context) {
+            function (Context $context): void {
                 $files = $context->platform->pullRequest->getFiles();
 
                 /** @var Gitlab $gitlab */
@@ -70,7 +70,7 @@ return (new Config())
                     );
                 }
             },
-            function (Context $context) {
+            function (Context $context): void {
                 $files = $context->platform->pullRequest->getFiles();
 
                 $newRepoUseInFrontend = array_merge(
@@ -98,15 +98,15 @@ return (new Config())
                     }
 
                     $context->failure(
-                        'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).' .
-                        ' Use Store-Api Routes instead.<br/>' .
-                        print_r($errorFiles, true)
+                        'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
+                        . ' Use Store-Api Routes instead.<br/>'
+                        . print_r($errorFiles, true)
                     );
                 }
-            }
+            },
         ]
     ))
-    ->useRule(function (Context $context) {
+    ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('*/shopware.yaml')->count() > 0) {
@@ -114,20 +114,16 @@ return (new Config())
         }
     })
     ->useRule(new Condition(
-        function(Context $context) {
+        function (Context $context) {
             return $context->platform instanceof Gitlab;
         },
         [
-            function(Context $context) {
+            function (Context $context): void {
                 $files = $context->platform->pullRequest->getFiles();
 
-                $relevant = (
-                    $files->matches('src/Core/*.php')->count() > 0
-                    ||
-                    $files->matches('src/Elasticsearch/*.php')->count() > 0
-                    ||
-                    $files->matches('src/Storefront/Migration/')->count() > 0
-                );
+                $relevant = $files->matches('src/Core/*.php')->count() > 0
+                    || $files->matches('src/Elasticsearch/*.php')->count() > 0
+                    || $files->matches('src/Storefront/Migration/')->count() > 0;
 
                 if (!$relevant) {
                     return;
@@ -157,14 +153,14 @@ return (new Config())
                 }
 
                 $context->platform->addLabels(...$labels);
-            }
+            },
         ]
     ))->useRule(new Condition(
-        function(Context $context) {
+        function (Context $context) {
             return $context->platform instanceof Gitlab;
         },
         [
-            function(Context $context) {
+            function (Context $context): void {
                 $files = $context->platform->pullRequest->getFiles();
 
                 $bcChange = $files->matches('.bc-exclude.php')->count() > 0;
@@ -174,16 +170,16 @@ return (new Config())
                 }
 
                 $context->platform->addLabels('bc_exclude_php');
-            }
+            },
         ]
     ))
-    ->useRule(function (Context $context) {
+    ->useRule(function (Context $context): void {
         // The title is not important here as we import the pull requests and prefix them
         if ($context->platform->pullRequest->projectIdentifier === 'shopware/platform') {
             return;
         }
 
-        if (!preg_match('/(?m)^(WIP:\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
+        if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
             $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
         }
     })
@@ -192,14 +188,14 @@ return (new Config())
             return $context->platform instanceof Gitlab;
         },
         [
-            function (Context $context) {
+            function (Context $context): void {
                 $labels = $context->platform->pullRequest->labels;
 
                 if (in_array('E2E:skip', $labels, true) || in_array('unit:skip', $labels, true)) {
                     $context->notice('You skipped some tests. Reviewers be carefully with this');
                 }
             },
-            function (Context $context) {
+            function (Context $context): void {
                 $files = $context->platform->pullRequest->getFiles();
                 $hasStoreApiModified = false;
 
@@ -214,7 +210,7 @@ return (new Config())
                     $context->warning('Store-API Route has been modified. @Reviewers please review carefully!');
                     $context->platform->addLabels('Security-Audit Required');
                 }
-            }
+            },
         ]
     ))
     ->useRule(new Condition(
@@ -224,11 +220,11 @@ return (new Config())
         [
             new CommitRegex(
                 '/(?m)(?mi)^NEXT-\d*\s-\s[A-Z].*,\s*fixes\s*shopwareBoostday\/platform#\d*$/m',
-                "The commit title `###MESSAGE###` does not match our requirements. Example: \"NEXT-00000 - My Title, fixes shopwareBoostday/platform#1234\""
-            )
+                'The commit title `###MESSAGE###` does not match our requirements. Example: "NEXT-00000 - My Title, fixes shopwareBoostday/platform#1234"'
+            ),
         ]
     ))
-    ->useRule(function (Context $context) {
+    ->useRule(function (Context $context): void {
         function checkMigrationForBundle(string $bundle, Context $context): void
         {
             $files = $context->platform->pullRequest->getFiles();
@@ -245,7 +241,7 @@ return (new Config())
         checkMigrationForBundle('Administration', $context);
         checkMigrationForBundle('Storefront', $context);
     })
-    ->useRule(function (Context $context) {
+    ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
         $newSqlHeredocs = $files->filterStatus(File::STATUS_MODIFIED)->matchesContent('/<<<SQL/');
@@ -263,13 +259,13 @@ return (new Config())
             }
 
             $context->failure(
-                'Please use [Nowdoc](https://www.php.net/manual/de/language.types.string.php#language.types.string.syntax.nowdoc)' .
-                ' for SQL (&lt;&lt;&lt;\'SQL\') instead of Heredoc (&lt;&lt;&lt;SQL)<br/>' .
-                print_r($errorFiles, true)
+                'Please use [Nowdoc](https://www.php.net/manual/de/language.types.string.php#language.types.string.syntax.nowdoc)'
+                . ' for SQL (&lt;&lt;&lt;\'SQL\') instead of Heredoc (&lt;&lt;&lt;SQL)<br/>'
+                . print_r($errorFiles, true)
             );
         }
     })
-    ->useRule(function (Context $context) {
+    ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
         $changedTemplates = $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Resources/views/*.twig')
@@ -299,15 +295,61 @@ return (new Config())
             }
 
             $context->warning(
-                'You probably moved or deleted a twig block. This is likely a hard break. Please check your template' .
-                ' changes and make sure that deleted blocks are already deprecated. <br/>' .
-                'If you are sure everything is fine with your changes, you can resolve this warning.<br/>' .
-                'Moved or deleted block: <br/>' .
-                print_r($patched, true)
+                'You probably moved or deleted a twig block. This is likely a hard break. Please check your template'
+                . ' changes and make sure that deleted blocks are already deprecated. <br/>'
+                . 'If you are sure everything is fine with your changes, you can resolve this warning.<br/>'
+                . 'Moved or deleted block: <br/>'
+                . print_r($patched, true)
             );
         }
     })
-    ->after(function (Context $context) {
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $invalidFiles = [];
+
+        foreach ($files as $file) {
+            if (str_starts_with($file->name, '.run/')) {
+                continue;
+            }
+
+            if ($file->status !== File::STATUS_REMOVED && preg_match('/^([-+\.\w\/]+)$/', $file->name) === 0) {
+                $invalidFiles[] = $file->name;
+            }
+        }
+
+        if (count($invalidFiles) > 0) {
+            $context->failure(
+                'The following filenames contain invalid special characters, please use only alphanumeric characters, dots, dashes and underscores: <br/>'
+                . print_r($invalidFiles, true)
+            );
+        }
+    })
+    ->useRule(function (Context $context): void {
+        $addedFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED);
+
+        $addedLegacyTests = [];
+
+        foreach ($addedFiles->matches('src/**/*Test.php') as $file) {
+            if (str_contains($file->name, 'src/WebInstaller/')) {
+                continue;
+            }
+
+            $content = $file->getContent();
+
+            if (str_contains($content, 'extends TestCase')) {
+                $addedLegacyTests[] = $file->name;
+            }
+        }
+
+        if (count($addedLegacyTests) > 0) {
+            $context->failure(
+                'Don\'t add new testcases in the `/src` folder, for new tests write "real" unit tests under `tests/unit` and if needed a few meaningful integration tests under `tests/integration`: <br/>'
+                . print_r($addedLegacyTests, true)
+            );
+        }
+    })
+    ->after(function (Context $context): void {
         if ($context->platform instanceof Github && $context->hasFailures()) {
             $context->platform->addLabels('Incomplete');
         }

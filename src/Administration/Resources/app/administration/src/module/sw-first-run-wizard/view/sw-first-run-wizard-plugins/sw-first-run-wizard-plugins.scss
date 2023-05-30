@@ -5,8 +5,8 @@
     position: relative;
 
     .recommended-plugins__headline {
-        font-size: $font-size-large;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         line-height: 25px;
         margin-top: 20px;
 
@@ -31,7 +31,7 @@
     .sw-label-category {
         &.sw-label {
             text-align: center;
-            font-weight: 600;
+            font-weight: $font-weight-semi-bold;
 
             &:hover {
                 cursor: pointer;
@@ -55,10 +55,6 @@
         margin: 20px 0;
     }
 
-    .sw-container {
-        grid-template-columns: 168px 1fr;
-    }
-
     .plugins-category-lead {
         .sw-plugin-card {
             margin-bottom: 24px;
@@ -75,10 +71,6 @@
             display: flex;
             flex: 1;
             align-items: flex-end;
-        }
-
-        .sw-container {
-            grid-template-columns: 136px 1fr;
         }
     }
 

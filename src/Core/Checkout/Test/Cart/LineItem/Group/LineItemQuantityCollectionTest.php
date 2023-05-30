@@ -5,10 +5,12 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemQuantityCollectionTest extends TestCase
 {
     /**
@@ -16,7 +18,6 @@ class LineItemQuantityCollectionTest extends TestCase
      * test if our collection has an entry
      * for the provided item id.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItem(): void
@@ -34,7 +35,6 @@ class LineItemQuantityCollectionTest extends TestCase
      * compress our list of entries and combine them
      * into single entries with aggregated quantities.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testCompress(): void

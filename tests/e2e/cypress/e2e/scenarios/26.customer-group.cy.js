@@ -2,17 +2,15 @@
 
 describe('Admin & Storefront: test customer group registration', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@package: should register with new customer group', { tags: ['pa-customers-orders'] }, () => {
+    it('@package: should register with new customer group', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Create new customer group
@@ -24,7 +22,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.get('.sw-card-view__content .sw-card').eq(1).should('be.visible');
         cy.get('#sw-field--customerGroup-registrationTitle').typeAndCheck('VIP');
         cy.get('.sw-select-selection-list').click();
-        cy.get('.sw-select-result-list__content').contains('E2E install test').click();
+        cy.get('.sw-select-result-list__content').contains(Cypress.env('storefrontName')).click();
         cy.contains('.sw-button__content','Opslaan').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -56,7 +54,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             '.sw-context-button__button',
-            `.sw-data-grid__row--0`
+            `.sw-data-grid__row--0`,
         );
         cy.contains('.sw-alert__message', 'VIP Customers').should('be.visible');
         cy.get('.sw-button__content').contains('Akkoord').click();
@@ -68,25 +66,10 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.visit('/account');
         cy.get('.alert-content').should('not.exist');
     });
-    it('@package: should register with new commercial customer group', { tags: ['pa-customers-orders'] }, () => {
-        cy.authenticate().then((result) => {
-            const requestConfig = {
-                headers: {
-                    Authorization: `Bearer ${result.access}`
-                },
-                method: 'POST',
-                url: `api/_action/system-config/batch`,
-                body: {
-                    null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
-                    }
-                }
-            };
-            return cy.request(requestConfig);
-        });
+    it('@package: should register with new commercial customer group', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Create new commercial customer group
@@ -97,7 +80,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.get('#sw-field--customerGroup-registrationTitle').typeAndCheck('VIP-Commercial');
         cy.get('[name="sw-field--customerGroup-registrationOnlyCompanyRegistration"]').check();
         cy.get('.sw-select-selection-list').click();
-        cy.get('.sw-select-result-list__content').contains('E2E install test').click();
+        cy.get('.sw-select-result-list__content').contains(Cypress.env('storefrontName')).click();
         cy.contains('.sw-button__content','Opslaan').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -131,7 +114,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             '.sw-context-button__button',
-            `.sw-data-grid__row--0`
+            `.sw-data-grid__row--0`,
         );
         cy.contains('.sw-alert__message', 'VIP Commercial').should('be.visible');
         cy.get('.sw-button__content').contains('Akkoord').click();

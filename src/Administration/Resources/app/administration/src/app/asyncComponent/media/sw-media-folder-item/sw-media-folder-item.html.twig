@@ -1,0 +1,220 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_folder_item %}
+<sw-media-base-item
+    class="sw-media-folder-item"
+    v-bind="$attrs"
+    :truncate-right="true"
+    :allow-multi-select="!isParent"
+    v-on="$listeners"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_folder_item_preview %}
+    <template #preview="{ item }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_parent_icon%}
+        <img
+            v-if="isParent"
+            :src="'/administration/static/img/media/folder--back.svg' | asset"
+            key="sw-media-folder-preview"
+            class="sw-media-folder-item__folder-thumbnails"
+            alt="Folder back"
+        >
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_default_icon%}
+        <span
+            v-else-if="!!item.defaultFolderId"
+            key="sw-media-folder-preview"
+        >
+            <img
+                :src="'/administration/static/img/media/' + iconName + '.svg' | asset"
+                class="sw-media-folder-item__folder-thumbnails"
+                :alt="iconName"
+            >
+            <sw-icon
+                v-if="iconConfig.name"
+                class="sw-media-folder-item__folder-thumbnails is--inner"
+                v-bind="iconConfig"
+            />
+        </span>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_folder_icon%}
+        <img
+            v-else
+            key="sw-media-folder-preview"
+            :src="'/administration/static/img/media/folder-thumbnail--large.svg' | asset"
+            class="sw-media-folder-item__folder-thumbnails"
+            alt="Folder thumbnail"
+        >
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_folder_name %}
+    <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_base_item_name %}
+        <sw-field
+            v-if="!isParent && (isInlineEdit || item.isNew())"
+            v-autofocus
+            class="sw-media-base-item__name-field"
+            :value="item.name"
+            name="media-item-name"
+            @change="onChangeName($event, item, endInlineEdit)"
+            @blur="onBlur($event, item, endInlineEdit)"
+            @click.stop
+            @keyup.esc="endInlineEdit"
+        />
+        <div
+            v-else
+            ref="itemName"
+            class="sw-media-base-item__name"
+            :title="item.name"
+        >
+            {{ item.name }}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_folder_meta_data %}
+    <template #metadata="{ item }">
+        <div class="sw-media-folder-item__metadata">
+            {{ item.createdAt| date() }}
+        </div>
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_folder_item_context_menu %}
+    <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_item_context_item_show_media %}
+        <sw-context-menu-item
+            class="sw-media-context-item__show-media-action"
+            @click="navigateToFolder(item.id)"
+        >
+            {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        <slot>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_item_additional_context_menu_slot %}{% endblock %}
+        </slot>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_item_context_group_quick_actions %}
+        <div class="sw-context-menu__group">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_item_context_item_show_settings %}
+            <sw-context-menu-item
+                class="sw-media-context-item__open-settings-action"
+                @click="openSettings"
+            >
+                {{ $tc('global.sw-media-folder-item.labelContextMenuShowSettings') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_item_context_item_move %}
+            <sw-context-menu-item
+                :disabled="!allowEdit"
+                class="sw-media-context-item__move-folder-action"
+                @click="openMoveModal"
+            >
+                {{ $tc('global.sw-media-folder-item.labelContextMenuMove') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_item_context_item_dissolve %}
+            <sw-context-menu-item
+                :disabled="!allowEdit"
+                class="sw-media-context-item__dissolve-folder-action"
+                @click="openDissolveModal"
+            >
+                {{ $tc('global.sw-media-folder-item.labelContextMenuDissolve') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_item_context_item_rename_item %}
+            <sw-context-menu-item
+                :disabled="!allowEdit"
+                class="sw-media-context-item__rename-folder-action"
+                @click="startInlineEdit"
+            >
+                {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_item_context_item_delete %}
+            <sw-context-menu-item
+                :disabled="!allowDelete"
+                class="sw-media-context-item__delete-folder-action"
+                variant="danger"
+                @click="openDeleteModal"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_folder_modal_windows %}
+    <template #modal-windows="{ item, allowEdit, allowDelete }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_settings_modal %}
+        <sw-media-modal-folder-settings
+            v-if="showSettings"
+            :disabled="!allowEdit"
+            :media-folder-id="item.id"
+            @media-settings-modal-save="refreshIconConfig"
+            @media-settings-modal-close="closeSettings"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_dissolve_modal %}
+        <sw-media-modal-folder-dissolve
+            v-if="showDissolveModal"
+            :items-to-dissolve="[item]"
+            @media-folder-dissolve-modal-dissolve="onFolderDissolved"
+            @media-folder-dissolve-modal-close="closeDissolveModal"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_move_modal %}
+        <sw-media-modal-move
+            v-if="showMoveModal"
+            :items-to-move="[item]"
+            @media-move-modal-close="closeMoveModal"
+            @media-move-modal-items-move="onFolderMoved"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_delete_modal %}
+        <sw-media-modal-delete
+            v-if="showDeleteModal"
+            :items-to-delete="[item]"
+            @media-delete-modal-items-delete="emitItemDeleted"
+            @media-delete-modal-close="closeDeleteModal"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-media-base-item>
+{% endblock %}

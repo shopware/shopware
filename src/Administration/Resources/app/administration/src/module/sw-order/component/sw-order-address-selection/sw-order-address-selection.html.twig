@@ -55,7 +55,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_address_selection_entity_single_select %}
     <sw-single-select
-        v-model="orderAddressId"
+        :value="addressId"
         class="sw-order-address-selection"
         :options="addressOptions"
         value-property="id"

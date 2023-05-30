@@ -6,10 +6,10 @@
 
         {% block component_privacy_dpi %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
-                <div class="{{ formCheckboxWrapperClass }} data-protection-information">
+                <div class="form-check data-protection-information">
                     {% block component_privacy_dpi_checkbox %}
                         <input type="checkbox"
-                               class="{{ formCheckInputClass }} {% if formViolations.getViolations('/acceptedDataProtection') is not empty %} is-invalid{% endif %}"
+                               class="form-check-input {% if formViolations.getViolations('/acceptedDataProtection') is not empty %} is-invalid{% endif %}"
                                name="acceptedDataProtection"
                                required="required"
                                value="1"
@@ -20,9 +20,7 @@
                     {% block component_privacy_dpi_label %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
-                            {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
-                            {{ "general.privacyNotice"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
+                            {{ "general.privacyNoticeText"|trans({
                                 '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                             })|raw }}
@@ -35,9 +33,7 @@
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
                         <label>
-                            {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
-                            {{ "general.privacyNotice"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
+                            {{ "general.privacyNoticeText"|trans({
                                 '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                             })|raw }}

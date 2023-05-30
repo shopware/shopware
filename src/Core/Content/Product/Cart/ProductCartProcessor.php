@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -10,7 +11,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
-use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -21,56 +21,41 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('inventory')]
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
-    public const CUSTOM_PRICE = 'customPrice';
+    final public const CUSTOM_PRICE = 'customPrice';
 
-    public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
 
-    public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
+    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
 
-    public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
+    final public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
-    public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+    final public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
 
-    public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
-
-    private ProductGatewayInterface $productGateway;
-
-    private QuantityPriceCalculator $calculator;
-
-    private ProductFeatureBuilder $featureBuilder;
-
-    private AbstractProductPriceCalculator $priceCalculator;
-
-    private EntityCacheKeyGenerator $generator;
-
-    private Connection $connection;
+    final public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
 
     /**
      * @internal
      */
     public function __construct(
-        ProductGatewayInterface $productGateway,
-        QuantityPriceCalculator $calculator,
-        ProductFeatureBuilder $featureBuilder,
-        AbstractProductPriceCalculator $priceCalculator,
-        EntityCacheKeyGenerator $generator,
-        Connection $connection
+        private readonly ProductGatewayInterface $productGateway,
+        private readonly QuantityPriceCalculator $calculator,
+        private readonly ProductFeatureBuilder $featureBuilder,
+        private readonly AbstractProductPriceCalculator $priceCalculator,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly Connection $connection
     ) {
-        $this->productGateway = $productGateway;
-        $this->calculator = $calculator;
-        $this->featureBuilder = $featureBuilder;
-        $this->priceCalculator = $priceCalculator;
-        $this->generator = $generator;
-        $this->connection = $connection;
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
@@ -92,7 +77,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
 
-                $hash = $this->generator->getSalesChannelContextHash($context);
+                $hash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
 
                 // refresh data timestamp to prevent unnecessary gateway calls
                 foreach ($items as $lineItem) {
@@ -125,7 +110,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     }
 
     /**
-     * @throws MissingLineItemPriceException
+     * @throws CartException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
@@ -138,11 +123,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition = $item->getPriceDefinition();
 
                 if (!$definition instanceof QuantityPriceDefinition) {
-                    if (Feature::isActive('v6.5.0.0')) {
-                        throw CartException::missingLineItemPrice($item->getId());
-                    }
-
-                    throw new MissingLineItemPriceException($item->getId());
+                    throw CartException::missingLineItemPrice($item->getId());
                 }
                 $definition->setQuantity($item->getQuantity());
 
@@ -294,8 +275,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $label = trim($lineItem->getLabel() ?? '');
 
-        $name = $product->getTranslation('name');
-
         // set the label if its empty or the context does not have the permission to overwrite it
         if ($label === '' || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
             $lineItem->setLabel($product->getTranslation('name'));
@@ -311,22 +290,23 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         $weight = $product->getWeight();
-        if (!Feature::isActive('v6.5.0.0')) {
-            $weight = (float) $weight;
-        }
 
-        $lineItem->setDeliveryInformation(
-            new DeliveryInformation(
-                (int) $product->getAvailableStock(),
-                $weight,
-                $product->getShippingFree() === true,
-                $product->getRestockTime(),
-                $deliveryTime,
-                $product->getHeight(),
-                $product->getWidth(),
-                $product->getLength()
-            )
-        );
+        $lineItem->setStates($product->getStates());
+
+        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+            $lineItem->setDeliveryInformation(
+                new DeliveryInformation(
+                    (int) $product->getAvailableStock(),
+                    $weight,
+                    $product->getShippingFree() === true,
+                    $product->getRestockTime(),
+                    $deliveryTime,
+                    $product->getHeight(),
+                    $product->getWidth(),
+                    $product->getLength()
+                )
+            );
+        }
 
         //Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
@@ -364,7 +344,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
+            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices, \JSON_THROW_ON_ERROR) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
@@ -378,7 +358,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'stock' => $product->getStock(),
         ];
 
-        $lineItem->replacePayload($payload);
+        $lineItem->replacePayload($payload, ['purchasePrices' => true]);
     }
 
     private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
@@ -420,6 +400,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return $definition;
     }
 
+    /**
+     * @param LineItem[] $lineItems
+     *
+     * @return mixed[]
+     */
     private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context): array
     {
         $ids = [];
@@ -428,7 +413,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $hash = $this->generator->getSalesChannelContextHash($context);
 
-        /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
 
@@ -465,19 +449,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            // @internal (flag:FEATURE_NEXT_13250) - The IF must be removed so that $changes is filled
-            if (!Feature::isActive('FEATURE_NEXT_13250')) {
-                $ids[] = $id;
-
-                continue;
-            }
-
             $changes[$id] = $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        }
-
-        // @internal (flag:FEATURE_NEXT_13250) - The IF can be removed completely so that $changes is taken into account.
-        if (!Feature::isActive('FEATURE_NEXT_13250')) {
-            return $ids;
         }
 
         if (empty($changes)) {
@@ -491,7 +463,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
 
@@ -530,6 +502,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         if ($lineItem->getPriceDefinition() !== null
             && $behavior->hasPermission(self::SKIP_PRODUCT_RECALCULATION)) {
+            return false;
+        }
+
+        if ($lineItem->getPriceDefinition() !== null && $lineItem->isModifiedByApp()) {
             return false;
         }
 

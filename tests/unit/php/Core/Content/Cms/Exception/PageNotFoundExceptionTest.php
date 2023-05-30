@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
+ * @package content
+ *
  * @covers \Shopware\Core\Content\Cms\Exception\PageNotFoundException
  */
 class PageNotFoundExceptionTest extends TestCase
@@ -36,7 +38,7 @@ class PageNotFoundExceptionTest extends TestCase
     /**
      * @return array<string, array{exception: PageNotFoundException, statusCode: int, errorCode: string, message: string}>
      */
-    public function exceptionDataProvider(): iterable
+    public static function exceptionDataProvider(): iterable
     {
         yield PageNotFoundException::ERROR_CODE => [
             'exception' => new PageNotFoundException('cmsPageId'),

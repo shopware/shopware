@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('core')]
 class UnsupportedEncoderInputException extends ShopwareHttpException
 {
     /**

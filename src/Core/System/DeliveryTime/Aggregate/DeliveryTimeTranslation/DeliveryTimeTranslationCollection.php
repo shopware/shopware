@@ -3,10 +3,12 @@
 namespace Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<DeliveryTimeTranslationEntity>
  */
+#[Package('customer-order')]
 class DeliveryTimeTranslationCollection extends EntityCollection
 {
     /**
@@ -14,16 +16,12 @@ class DeliveryTimeTranslationCollection extends EntityCollection
      */
     public function getDeliveryTimeIds(): array
     {
-        return $this->fmap(function (DeliveryTimeTranslationEntity $deliveryTimeTranslation) {
-            return $deliveryTimeTranslation->getDeliveryTimeId();
-        });
+        return $this->fmap(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getDeliveryTimeId());
     }
 
     public function filterByDeliveryTimeId(string $id): self
     {
-        return $this->filter(function (DeliveryTimeTranslationEntity $deliveryTimeTranslation) use ($id) {
-            return $deliveryTimeTranslation->getDeliveryTimeId() === $id;
-        });
+        return $this->filter(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getDeliveryTimeId() === $id);
     }
 
     /**
@@ -31,16 +29,12 @@ class DeliveryTimeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (DeliveryTimeTranslationEntity $deliveryTimeTranslation) {
-            return $deliveryTimeTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (DeliveryTimeTranslationEntity $deliveryTimeTranslation) use ($id) {
-            return $deliveryTimeTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (DeliveryTimeTranslationEntity $deliveryTimeTranslation) => $deliveryTimeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

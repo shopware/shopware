@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,8 +29,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
+#[Package('business-ops')]
 class CartVolumeRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -84,7 +87,7 @@ class CartVolumeRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getMatchingRuleTestData(): array
+    public static function getMatchingRuleTestData(): array
     {
         return [
             // OPERATOR_EQ

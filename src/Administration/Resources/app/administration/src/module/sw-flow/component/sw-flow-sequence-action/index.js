@@ -2,7 +2,7 @@ import orderBy from 'lodash/orderBy';
 import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
-import { ACTION, ACTION_GROUP, GENERAL_GROUP } from '../../constant/flow.constant';
+import { ACTION } from '../../constant/flow.constant';
 
 const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -12,8 +12,11 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-sequence-action', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
@@ -36,7 +39,6 @@ Component.register('sw-flow-sequence-action', {
 
     data() {
         return {
-            showAddButton: true,
             fieldError: null,
             selectedAction: '',
             currentSequence: {},
@@ -54,6 +56,9 @@ Component.register('sw-flow-sequence-action', {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use appFlowActionRepository in `sw-flow-detail` instead
+         */
         appFlowActionRepository() {
             return this.repositoryFactory.create('app_flow_action');
         },
@@ -74,12 +79,12 @@ Component.register('sw-flow-sequence-action', {
                 };
             });
 
-            if (this.appFlowActions.length) {
-                const action = this.appFlowActions[0];
+            if (this.appActions.length) {
+                const action = this.appActions[0];
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
-                        id: action?.app?.name[0].toLowerCase() + action?.app?.name.slice(1),
+                        id: `${action?.app?.name[0].toLowerCase()}${action?.app?.name.slice(1)}`,
                         label: action?.app?.label,
                     });
                 }
@@ -108,19 +113,28 @@ Component.register('sw-flow-sequence-action', {
 
         showAddAction() {
             return !(
-                this.sequence.actionName === ACTION.STOP_FLOW ||
-                this.sequenceData.some(sequence => sequence.actionName === ACTION.STOP_FLOW)
+                this.sequence.actionName === this.stopFlowActionName ||
+                this.sequenceData.some(sequence => sequence.actionName === this.stopFlowActionName)
             );
+        },
+
+        stopFlowActionName() {
+            return this.flowBuilderService.getActionName('STOP_FLOW');
         },
 
         actionClasses() {
             return {
                 'is--stop-flow': !this.showAddAction,
+                'has--arrow': this.errorArrow,
             };
         },
 
+        errorArrow() {
+            return !this.isValidAction(this.sequence) && this.sequence.actionName && this.sequence.trueBlock;
+        },
+
         modalName() {
-            if (this.getSelectedAppFlowAction(this.selectedAction)) {
+            if (this.getSelectedAppAction(this.selectedAction)) {
                 return 'sw-flow-app-action-modal';
             }
 
@@ -131,6 +145,9 @@ Component.register('sw-flow-sequence-action', {
             return Shopware.State.get('session').currentLocale;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getActionDescriptions in `flow-builder.service` instead
+         */
         actionDescription() {
             return {
                 [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
@@ -151,7 +168,8 @@ Component.register('sw-flow-sequence-action', {
             };
         },
 
-        ...mapState('swFlowState',
+        ...mapState(
+            'swFlowState',
             [
                 'invalidSequences',
                 'stateMachineState',
@@ -161,8 +179,19 @@ Component.register('sw-flow-sequence-action', {
                 'customFieldSets',
                 'customFields',
                 'triggerEvent',
-            ]),
-        ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
+                'triggerActions',
+            ],
+        ),
+        ...mapGetters(
+            'swFlowState',
+            [
+                'availableActions',
+                'actionGroups',
+                'sequences',
+                'appActions',
+                'getSelectedAppAction',
+            ],
+        ),
     },
 
     watch: {
@@ -178,21 +207,21 @@ Component.register('sw-flow-sequence-action', {
     },
 
     methods: {
-        createdComponent() {
-            this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
-            this.getAppFlowAction();
-        },
+        /**
+         * @deprecated tag:v6.6.0 - will be removed
+         */
+        createdComponent() {},
 
         openDynamicModal(value) {
-            const appAction = this.getSelectedAppFlowAction(value);
+            const appAction = this.getSelectedAppAction(value);
             if (appAction) {
                 this.isAppAction = true;
                 this.currentSequence.propsAppFlowAction = appAction;
             }
 
-            if (value === ACTION.STOP_FLOW) {
+            if (value === this.stopFlowActionName) {
                 this.addAction({
-                    name: ACTION.STOP_FLOW,
+                    name: this.stopFlowActionName,
                     config: null,
                 });
                 return;
@@ -200,6 +229,9 @@ Component.register('sw-flow-sequence-action', {
             this.selectedAction = value;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getSelectedAppFlowAction in `flow-builder.service` instead
+         */
         getSelectedAppFlowAction(actionName) {
             return this.appFlowActions.find((item) => item.name === actionName);
         },
@@ -242,7 +274,7 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
 
-            const appAction = this.getSelectedAppFlowAction(action.name);
+            const appAction = this.getSelectedAppAction(action.name);
 
             if (!this.sequence.actionName && this.sequence.id) {
                 const data = {
@@ -281,7 +313,6 @@ Component.register('sw-flow-sequence-action', {
             }
 
             this.removeFieldError();
-            this.toggleAddButton();
         },
 
         editAction(action) {
@@ -311,7 +342,7 @@ Component.register('sw-flow-sequence-action', {
                 });
             }
 
-            if (this.isAppDisabled(this.getSelectedAppFlowAction(this.sequence[id]?.actionName))) return;
+            if (this.isAppDisabled(this.getSelectedAppAction(this.sequence[id]?.actionName))) return;
 
             State.commit('swFlowState/removeSequences', [id]);
         },
@@ -325,7 +356,7 @@ Component.register('sw-flow-sequence-action', {
             }
 
             const sequences = Object.values(this.sequence);
-            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== ACTION.STOP_FLOW));
+            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== this.stopFlowActionName));
         },
 
         showMoveOption(action, type) {
@@ -334,11 +365,11 @@ Component.register('sw-flow-sequence-action', {
             if (type === 'up' && actions[0].position === action.position) return false;
             if (type === 'down' && actions[actions.length - 1].position === action.position) return false;
 
-            return action.actionName !== ACTION.STOP_FLOW;
+            return action.actionName !== this.stopFlowActionName;
         },
 
-        moveAction(action, type) {
-            if (this.isAppDisabled(this.getSelectedAppFlowAction(action.actionName))) return;
+        moveAction(action, type, key) {
+            if (this.isAppDisabled(this.getSelectedAppAction(action.actionName))) return;
 
             const actions = this.actionsWithoutStopFlow();
             const currentIndex = actions.findIndex(item => item.position === action.position);
@@ -347,16 +378,32 @@ Component.register('sw-flow-sequence-action', {
 
             State.commit('swFlowState/updateSequence', { id: moveAction.id, position: action.position });
             State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
+
+            const index = type === 'up' ? key - 1 : key + 1;
+            const contextButtons = this.$refs.contextButton;
+            [contextButtons[key], contextButtons[index]] = [contextButtons[index], contextButtons[key]];
         },
 
-        onEditAction(sequence) {
-            if (!sequence?.actionName) {
+        onEditAction(sequence, target, key) {
+            if (sequence.actionName && sequence.actionName === this.stopFlowActionName) {
                 return;
             }
 
-            if (this.isAppDisabled(this.getSelectedAppFlowAction(sequence.actionName))) return;
+            if (!this.$refs.contextButton[key]) {
+                return;
+            }
 
-            sequence.propsAppFlowAction = this.getSelectedAppFlowAction(sequence.actionName);
+            if (!sequence?.actionName || !target) {
+                return;
+            }
+
+            if (this.$refs.contextButton[key].$el.contains(target)) {
+                return;
+            }
+
+            if (this.isAppDisabled(this.getSelectedAppAction(sequence.actionName))) return;
+
+            sequence.propsAppFlowAction = this.getSelectedAppAction(sequence.actionName);
             this.currentSequence = sequence;
             this.selectedAction = sequence.actionName;
         },
@@ -372,7 +419,7 @@ Component.register('sw-flow-sequence-action', {
                 return null;
             }
 
-            const appAction = this.getSelectedAppFlowAction(actionName);
+            const appAction = this.getSelectedAppAction(actionName);
             if (appAction) {
                 return {
                     label: appAction.label || appAction.translated?.label,
@@ -380,7 +427,7 @@ Component.register('sw-flow-sequence-action', {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
-                    group: appAction.app?.name[0].toLowerCase() + appAction.app?.name.slice(1),
+                    group: `${appAction.app?.name[0].toLowerCase()}${appAction.app?.name.slice(1)}`,
                 };
             }
 
@@ -388,20 +435,19 @@ Component.register('sw-flow-sequence-action', {
             return {
                 ...actionTitle,
                 label: this.$tc(actionTitle.label),
-                group: ACTION_GROUP[actionName] || GENERAL_GROUP,
+                group: this.flowBuilderService.getActionGroupMapping(actionName),
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getAppFlowAction in `sw-flow-detail` instead
+         */
         getAppFlowAction() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('app');
             return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;
             });
-        },
-
-        toggleAddButton() {
-            this.showAddButton = !this.showAddButton;
         },
 
         sortByPosition(sequences) {
@@ -412,14 +458,20 @@ Component.register('sw-flow-sequence-action', {
 
         stopFlowStyle(value) {
             return {
-                'is--stop-flow': value === ACTION.STOP_FLOW,
+                'is--stop-flow': value === this.stopFlowActionName,
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use convertTagString in `flow-builder.service` instead
+         */
         convertTagString(tagsString) {
             return tagsString.toString().replace(/,/g, ', ');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use method `getActionDescriptions` of `flowBuilderService ` instead
+         */
         getActionDescription(sequence) {
             const { actionName, config } = sequence;
 
@@ -445,6 +497,22 @@ Component.register('sw-flow-sequence-action', {
             return this.actionDescription[actionName](config);
         },
 
+        getActionDescriptions(sequence) {
+            if (!sequence.actionName) return '';
+
+            const data = {
+                appActions: this.appActions,
+                customerGroups: this.customerGroups,
+                customFieldSets: this.customFieldSets,
+                customFields: this.customFields,
+                stateMachineState: this.stateMachineState,
+                documentTypes: this.documentTypes,
+                mailTemplates: this.mailTemplates,
+            };
+
+            return this.flowBuilderService.getActionDescriptions(data, sequence, this);
+        },
+
         setFieldError() {
             if (!this.invalidSequences?.includes(this.sequence.id)) {
                 this.fieldError = null;
@@ -467,9 +535,12 @@ Component.register('sw-flow-sequence-action', {
         },
 
         isNotStopFlow(item) {
-            return item.actionName !== ACTION.STOP_FLOW;
+            return item.actionName !== this.stopFlowActionName;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getSetOrderStateDescription in `flow-builder.service` instead
+         */
         getSetOrderStateDescription(config) {
             const description = [];
             if (config.order) {
@@ -502,6 +573,9 @@ Component.register('sw-flow-sequence-action', {
             return description.join('<br>');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getGenerateDocumentDescription in `flow-builder.service` instead
+         */
         getGenerateDocumentDescription(config) {
             if (config.documentType) {
                 config = {
@@ -516,17 +590,26 @@ Component.register('sw-flow-sequence-action', {
             return this.convertTagString(documentType);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getCustomerGroupDescription in `flow-builder.service` instead
+         */
         getCustomerGroupDescription(config) {
             const customerGroup = this.customerGroups.find(item => item.id === config.customerGroupId);
             return customerGroup?.translated?.name;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getCustomerStatusDescription in `flow-builder.service` instead
+         */
         getCustomerStatusDescription(config) {
             return config.active
                 ? this.$tc('sw-flow.modals.customerStatus.active')
                 : this.$tc('sw-flow.modals.customerStatus.inactive');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getMailSendDescription in `flow-builder.service` instead
+         */
         getMailSendDescription(config) {
             const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
 
@@ -550,6 +633,9 @@ Component.register('sw-flow-sequence-action', {
             return mailSendDescription;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getCustomFieldDescription in `flow-builder.service` instead
+         */
         getCustomFieldDescription(config) {
             const customFieldSet = this.customFieldSets.find(item => item.id === config.customFieldSetId);
             const customField = this.customFields.find(item => item.id === config.customFieldId);
@@ -566,6 +652,9 @@ Component.register('sw-flow-sequence-action', {
             })}`;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getAffiliateAndCampaignCodeDescription in `flow-builder.service` instead
+         */
         getAffiliateAndCampaignCodeDescription(config) {
             let description = this.$tc('sw-flow.actions.labelTo', 0, {
                 entity: this.capitalize(config.entity),
@@ -590,6 +679,9 @@ Component.register('sw-flow-sequence-action', {
             return `${msg.slice(0, 1).toUpperCase()}${msg.slice(1)}`;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getAppFlowActionDescription in `flow-builder.service` instead
+         */
         getAppFlowActionDescription(config, actionName) {
             const cloneConfig = { ...config };
             let descriptions = '';
@@ -614,6 +706,9 @@ Component.register('sw-flow-sequence-action', {
             return descriptions;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use formatValuePreview in `flow-builder.service` instead
+         */
         formatValuePreview(fieldName, actionName, val) {
             const appAction = this.getSelectedAppFlowAction(actionName);
             if (appAction === undefined) {
@@ -650,6 +745,9 @@ Component.register('sw-flow-sequence-action', {
             return val;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use convertLabelPreview in `flow-builder.service` instead
+         */
         convertLabelPreview(fieldName, actionName) {
             const appAction = this.getSelectedAppFlowAction(actionName);
             if (appAction === undefined) {
@@ -671,7 +769,7 @@ Component.register('sw-flow-sequence-action', {
 
         getStopFlowIndex(actions) {
             const indexes = actions.map((item, index) => {
-                if (item.group === GENERAL_GROUP) {
+                if (item.group === this.flowBuilderService.getGroup('GENERAL')) {
                     return index;
                 }
 
@@ -686,11 +784,12 @@ Component.register('sw-flow-sequence-action', {
             actions = orderBy(actions, ['group', 'label']);
 
             actions.forEach((action) => {
-                if (action.group && action.group !== GENERAL_GROUP) return;
+                if (action.group && action.group !== this.flowBuilderService.getGroup('GENERAL')) return;
 
-                action.group = action.group || GENERAL_GROUP;
+                action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
-                actions.push(actions.splice(actions.findIndex(el => el.group === GENERAL_GROUP), 1)[0]);
+                // eslint-disable-next-line max-len
+                actions.push(actions.splice(actions.findIndex(el => el.group === this.flowBuilderService.getGroup('GENERAL')), 1)[0]);
             });
 
             actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);
@@ -699,5 +798,13 @@ Component.register('sw-flow-sequence-action', {
 
             return actions;
         },
+
+        isValidAction(action) {
+            if (!this.triggerActions.length || !action.actionName) {
+                return true;
+            }
+
+            return this.triggerActions.find(item => item.name === action.actionName);
+        },
     },
-});
+};

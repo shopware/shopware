@@ -5,37 +5,26 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class PaymentMethodIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepositoryInterface $paymentMethodRepository;
-
-    private PaymentDistinguishableNameGenerator $distinguishableNameGenerator;
-
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $paymentMethodRepository,
-        PaymentDistinguishableNameGenerator $distinguishableNameGenerator
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly PaymentDistinguishableNameGenerator $distinguishableNameGenerator
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->distinguishableNameGenerator = $distinguishableNameGenerator;
     }
 
     public function getName(): string
@@ -44,19 +33,10 @@ class PaymentMethodIndexer extends EntityIndexer
     }
 
     /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     * @param array<mixed>|null $offset
      */
-    public function iterate(/*?array*/ $offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "PaymentMethodIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->paymentMethodRepository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();

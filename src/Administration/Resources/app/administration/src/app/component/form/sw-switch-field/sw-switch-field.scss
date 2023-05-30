@@ -42,6 +42,11 @@ $sw-field--switch-color-error: $color-crimson-500;
         padding: 0 16px;
     }
 
+    &.sw-field--switch-padded .sw-field--switch__content {
+        margin-top: 24px;
+        padding: 0 16px;
+    }
+
     .sw-field--switch__input {
         position: relative;
         padding: 15px 0;
@@ -63,7 +68,7 @@ $sw-field--switch-color-error: $color-crimson-500;
             cursor: pointer;
 
             &:disabled {
-                cursor: auto;
+                cursor: not-allowed;
             }
 
             &:disabled ~ .sw-field__switch-state {
@@ -166,6 +171,14 @@ $sw-field--switch-color-error: $color-crimson-500;
 
             &:checked:disabled ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-error;
+            }
+        }
+    }
+
+    &.is--disabled {
+        .sw-field__label {
+            label {
+                cursor: not-allowed;
             }
         }
     }

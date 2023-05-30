@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -12,27 +12,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
-    protected WriteCommandExtractor $writeExtractor;
-
     /**
      * @internal
      */
-    public function __construct(WriteCommandExtractor $writeExtractor)
+    public function __construct(private readonly WriteCommandExtractor $writeExtractor)
     {
-        $this->writeExtractor = $writeExtractor;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof ManyToOneAssociationField) {
-            throw new InvalidSerializerFieldException(ManyToOneAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ManyToOneAssociationField::class, $field);
         }
 
         $referenceField = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
@@ -41,7 +40,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find reference field "%s" from definition "%s"',
                     $field->getReferenceField(),
-                    \get_class($field->getReferenceDefinition())
+                    $field->getReferenceDefinition()::class
                 )
             );
         }
@@ -61,7 +60,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find FK field "%s" from field "%s"',
                     $field->getStorageName(),
-                    \get_class($parameters->getDefinition())
+                    $parameters->getDefinition()::class
                 )
             );
         }
@@ -72,7 +71,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             $id = $value[$referenceField->getPropertyName()];
 
         // plugins can add a ManyToOne where they define that the local/storage column is the primary and the reference is the foreign key
-            // in this case we have a reversed many to one association configuration
+        // in this case we have a reversed many to one association configuration
         } elseif ($isPrimary) {
             $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $fkField->getPropertyName());
         } else {
@@ -104,7 +103,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ManyToOneAssociationField) {
-            throw new InvalidSerializerFieldException(ManyToOneAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ManyToOneAssociationField::class, $field);
         }
 
         if (!\is_array($data->getValue())) {
@@ -122,10 +121,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @never
-     */
-    public function decode(Field $field, $value): void
+    public function decode(Field $field, mixed $value): never
     {
         throw new DecodeByHydratorException($field);
     }

@@ -3,10 +3,16 @@
 
 .sw-extension-card-base {
     &.is--deactivated {
-        background: $color-gray-50;
+        background: $color-gray-100;
+        box-shadow: none;
+        border: 1px solid $color-gray-300;
 
         .sw-extension-card-base__extension-activation-switch {
             background: $color-gray-50;
+        }
+
+        .sw-loader {
+            background-color: rgba($color-gray-100, 0.8);
         }
     }
 
@@ -19,6 +25,12 @@
                 background: $color-white;
             }
         }
+    }
+
+    &.is--not-installed {
+        background-color: $color-gray-50;
+        box-shadow: none;
+        border: 1px solid $color-gray-300;
     }
 
     .sw-loader {
@@ -41,41 +53,28 @@
 
     .sw-meteor-card__content .sw-meteor-card__content-wrapper {
         display: grid;
-        grid-column-gap: 32px;
-        grid-template-columns: 26px 60px 4fr 2fr minmax(min-content, 1fr) auto;
+        grid-column-gap: 24px;
+        grid-template-columns: 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
         align-items: center;
-        padding: 10px 32px;
+        padding: 16px 32px;
         border: none;
-        border-radius: 8px;
-        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 10%);
-    }
-
-    .sw-extension-card-base__icon {
-        width: 40px;
-        height: 40px;
     }
 
     .sw-extension-card-base__info {
-        margin-left: -16px;
+        margin-left: -8px;
         overflow: hidden;
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
 
         .sw-extension-card-base__info-name {
             @include truncate;
 
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             color: $color-darkgray-200;
             font-weight: $font-weight-semi-bold;
         }
 
         .sw-extension-card-base__info-inactive {
-            color: $color-gray-500;
-        }
-
-        .sw-extension-card-base__info-description {
-            @include truncate;
-
-            color: $color-gray-500;
+            font-size: $font-size-xs;
         }
     }
 
@@ -85,12 +84,16 @@
     }
 
     .sw-extension-card-base__meta-info {
-        color: $color-gray-500;
+        font-size: $font-size-xxs;
         text-align: right;
 
         a {
             color: $color-shopware-brand-500;
             margin-left: 4px;
+        }
+
+        &-version {
+            font-weight: $font-weight-semi-bold;
         }
     }
 
@@ -98,6 +101,12 @@
         cursor: pointer;
         text-decoration: underline;
         color: $color-shopware-brand-500;
+        transition: color 0.1s ease;
+        font-weight: $font-weight-medium;
+
+        &:hover {
+            color: $color-shopware-brand-800;
+        }
     }
 }
 

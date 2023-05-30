@@ -5,8 +5,10 @@ namespace Shopware\Core\System\CustomField;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
+#[Package('system-settings')]
 class CustomFieldEntity extends Entity
 {
     use EntityIdTrait;
@@ -22,7 +24,7 @@ class CustomFieldEntity extends Entity
     protected $type;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $config;
 
@@ -51,6 +53,8 @@ class CustomFieldEntity extends Entity
      */
     protected $allowCustomerWrite = false;
 
+    protected bool $allowCartExpose = false;
+
     public function getName(): string
     {
         return $this->name;
@@ -71,11 +75,17 @@ class CustomFieldEntity extends Entity
         $this->type = $type;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed>|null $config
+     */
     public function setConfig(?array $config): void
     {
         $this->config = $config;
@@ -129,5 +139,15 @@ class CustomFieldEntity extends Entity
     public function setAllowCustomerWrite(bool $allowCustomerWrite): void
     {
         $this->allowCustomerWrite = $allowCustomerWrite;
+    }
+
+    public function isAllowCartExpose(): bool
+    {
+        return $this->allowCartExpose;
+    }
+
+    public function setAllowCartExpose(bool $allowCartExpose): void
+    {
+        $this->allowCartExpose = $allowCartExpose;
     }
 }

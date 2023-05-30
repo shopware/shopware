@@ -2,10 +2,16 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class InvalidRefundTransitionException extends RefundProcessException
 {
-    public function __construct(string $refundId, string $stateName, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $refundId,
+        string $stateName,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $refundId,
             'The Refund process failed with following exception: Can not process refund with id {{ refundId }} as refund has state {{ stateName }}.',

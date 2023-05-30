@@ -1,11 +1,15 @@
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-document-settings-modal', {
+export default {
     template,
 
     inject: ['numberRangeService', 'feature', 'repositoryFactory'],
@@ -47,8 +51,6 @@ Component.register('sw-order-document-settings-modal', {
             documentNumberPreview: false,
             features: {
                 uploadFileSizeLimit: 52428800,
-                // @feature-deprecated (flag:FEATURE_NEXT_7530) tag:v6.5.0 - Will be removed, use fileAcceptTypes
-                fileTypes: ['application/pdf'],
                 fileAcceptTypes: 'application/pdf',
             },
             showMediaModal: false,
@@ -62,7 +64,7 @@ Component.register('sw-order-document-settings-modal', {
         },
 
         modalTitle() {
-            if (this.feature.isActive('FEATURE_NEXT_7530') && this.currentDocumentType) {
+            if (this.currentDocumentType) {
                 const documentTypeName = this.currentDocumentType?.translated?.name || this.currentDocumentType?.name;
                 return `${this.$tc('sw-order.documentModal.modalTitle')} - ${documentTypeName}`;
             }
@@ -180,4 +182,4 @@ Component.register('sw-order-document-settings-modal', {
             this.selectedDocumentFile = data[0];
         },
     },
-});
+};

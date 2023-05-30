@@ -7,10 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
 {
     public function encode(
@@ -29,18 +31,13 @@ class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    /**
-     * @return CashRoundingConfig|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?CashRoundingConfig*/
+    public function decode(Field $field, mixed $value): ?CashRoundingConfig
     {
         if ($value === null) {
             return null;
         }
 
-        $raw = json_decode($value, true);
+        $raw = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
 
         return new CashRoundingConfig(
             (int) $raw['decimals'],

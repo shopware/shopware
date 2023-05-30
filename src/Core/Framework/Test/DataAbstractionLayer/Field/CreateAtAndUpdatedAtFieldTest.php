@@ -31,10 +31,7 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repo;
+    private EntityRepository $repo;
 
     protected function setUp(): void
     {
@@ -60,14 +57,14 @@ CREATE TABLE IF NOT EXISTS `date_time_test` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `date_time_test`');
+        $this->connection->executeStatement('DROP TABLE `date_time_test`');
     }
 
     public function testCreatedAtDefinedAutomatically(): void

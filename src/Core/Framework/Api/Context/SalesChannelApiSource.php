@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-class SalesChannelApiSource implements ContextSource
-{
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-    public function __construct(string $salesChannelId)
+#[Package('core')]
+class SalesChannelApiSource implements ContextSource, \JsonSerializable
+{
+    use JsonSerializableTrait;
+
+    public string $type = 'sales-channel';
+
+    public function __construct(private readonly string $salesChannelId)
     {
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getSalesChannelId(): string

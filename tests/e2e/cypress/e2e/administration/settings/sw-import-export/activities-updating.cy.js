@@ -5,10 +5,8 @@ describe('Import/Export - Check activities in progress are updating', () => {
     let logId = null;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('import-export-profile', {
-                'id': '534dd6561cea480f95660f2960f441d4'
-            });
+        cy.createDefaultFixture('import-export-profile', {
+            'id': '534dd6561cea480f95660f2960f441d4',
         }).then(() => {
             return cy.createProductFixture();
         }).then(() => {
@@ -17,17 +15,17 @@ describe('Import/Export - Check activities in progress are updating', () => {
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: '/api/_action/import-export/prepare',
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'profileId': '534dd6561cea480f95660f2960f441d4',
-                        'expireDate': '2099-01-01'
-                    }
+                        'expireDate': '2099-01-01',
+                    },
                 }).then((response) => {
                     logId = response.body.log.id;
                 });
@@ -49,7 +47,7 @@ describe('Import/Export - Check activities in progress are updating', () => {
     it('@base @settings: Wait for in progress export to be updated', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         // There should be one log in progress
@@ -62,18 +60,18 @@ describe('Import/Export - Check activities in progress are updating', () => {
             .should('contain', 'Processing');
 
         // Start the actual export in background
-        cy.authenticate().then((auth) => {
+        cy.getBearerAuth().then((auth) => {
             cy.request({
                 headers: {
                     Accept: 'application/vnd.api+json',
                     Authorization: `Bearer ${auth.access}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 method: 'POST',
                 url: '/api/_action/import-export/process',
                 body: {
-                    'logId': logId
-                }
+                    'logId': logId,
+                },
             });
         });
 

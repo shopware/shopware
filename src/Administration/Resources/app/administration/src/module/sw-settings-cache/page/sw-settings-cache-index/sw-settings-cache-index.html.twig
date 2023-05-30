@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cache_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_cache_smart_bar_header_title %}
         <h2>
@@ -24,7 +24,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cache_content %}
-    <template slot="content">
+    <template #content>
         <sw-card-view>
             <template v-if="isLoading">
                 <sw-skeleton />
@@ -40,71 +40,70 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_cache_content_toolbar %}
-                <sw-card-section
-                    slot="toolbar"
-                    :secondary="true"
-                >
-                    <sw-container
-                        class="sw-settings-cache__card-toolbar"
-                        columns="1fr 1fr"
-                        rows="repeat(2, 40px)"
-                    >
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_toolbar_environment %}
-                        <div>
+                <template #toolbar>
+                    <sw-card-section secondary>
+                        <sw-container
+                            class="sw-settings-cache__card-toolbar"
+                            columns="1fr 1fr"
+                            rows="repeat(2, 40px)"
+                        >
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_environment_heading %}
-                            <p class="sw-settings-cache__card-toolbar-heading">
-                                {{ $tc('sw-settings-cache.toolbar.environment') }}
-                            </p>
+                            {% block sw_settings_cache_content_toolbar_environment %}
+                            <div>
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_cache_content_toolbar_environment_heading %}
+                                <p class="sw-settings-cache__card-toolbar-heading">
+                                    {{ $tc('sw-settings-cache.toolbar.environment') }}
+                                </p>
+                                {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_cache_content_toolbar_environment_text %}
+                                <p>{{ environmentValue }}</p>
+                                {% endblock %}
+                            </div>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_environment_text %}
-                            <p>{{ environmentValue }}</p>
-                            {% endblock %}
-                        </div>
-                        {% endblock %}
+                            {% block sw_settings_cache_content_toolbar_http_cache %}
+                            <div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_toolbar_http_cache %}
-                        <div>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_cache_content_toolbar_http_cache_heading %}
+                                <p class="sw-settings-cache__card-toolbar-heading">
+                                    {{ $tc('sw-settings-cache.toolbar.httpCache') }}
+                                </p>
+                                {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_http_cache_heading %}
-                            <p class="sw-settings-cache__card-toolbar-heading">
-                                {{ $tc('sw-settings-cache.toolbar.httpCache') }}
-                            </p>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_http_cache_text %}
-                            <p>{{ httpCacheValue }}</p>
-                            {% endblock %}
-                        </div>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_toolbar_cache_adapter %}
-                        <div>
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_cache_adapter_heading %}
-                            <p class="sw-settings-cache__card-toolbar-heading">
-                                {{ $tc('sw-settings-cache.toolbar.cacheAdapter') }}
-                            </p>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_cache_content_toolbar_http_cache_text %}
+                                <p>{{ httpCacheValue }}</p>
+                                {% endblock %}
+                            </div>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_cache_adapter_text %}
-                            <p>{{ cacheAdapterValue }}</p>
+                            {% block sw_settings_cache_content_toolbar_cache_adapter %}
+                            <div>
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_cache_content_toolbar_cache_adapter_heading %}
+                                <p class="sw-settings-cache__card-toolbar-heading">
+                                    {{ $tc('sw-settings-cache.toolbar.cacheAdapter') }}
+                                </p>
+                                {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_cache_content_toolbar_cache_adapter_text %}
+                                <p>{{ cacheAdapterValue }}</p>
+                                {% endblock %}
+                            </div>
                             {% endblock %}
-                        </div>
-                        {% endblock %}
-                    </sw-container>
-                </sw-card-section>
+                        </sw-container>
+                    </sw-card-section>
+                </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

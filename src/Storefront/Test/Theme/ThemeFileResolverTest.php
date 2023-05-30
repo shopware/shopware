@@ -142,7 +142,7 @@ class ThemeFileResolverTest extends TestCase
         $pluginScriptIncluded = false;
 
         foreach ($scriptFiles->getFilepaths() as $path) {
-            if (mb_stripos($path, $pluginScriptFile) !== false) {
+            if (mb_stripos((string) $path, $pluginScriptFile) !== false) {
                 $pluginScriptIncluded = true;
 
                 break;
@@ -157,7 +157,7 @@ class ThemeFileResolverTest extends TestCase
         $pluginStyleIncluded = false;
 
         foreach ($styleFiles->getFilepaths() as $path) {
-            if (mb_stripos($path, $pluginEntryStyleFile) !== false) {
+            if (mb_stripos((string) $path, $pluginEntryStyleFile) !== false) {
                 $pluginStyleIncluded = true;
 
                 break;

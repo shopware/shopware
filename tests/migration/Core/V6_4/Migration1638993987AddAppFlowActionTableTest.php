@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1638993987AddAppFlowActionTable
  */
 class Migration1638993987AddAppFlowActionTableTest extends TestCase
@@ -18,7 +19,7 @@ class Migration1638993987AddAppFlowActionTableTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 

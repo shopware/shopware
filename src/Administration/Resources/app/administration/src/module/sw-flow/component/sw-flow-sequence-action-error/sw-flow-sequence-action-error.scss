@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-flow-sequence-action-error {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 9px;
+
+    &__context-button {
+        position: absolute;
+        right: 0;
+    }
+}

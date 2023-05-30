@@ -1,14 +1,15 @@
 import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
-const { Component, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { Mixin } = Shopware;
+const { moveItem, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-config-image-slider', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -150,6 +151,14 @@ Component.register('sw-cms-el-config-image-slider', {
             this.emitUpdateEl();
         },
 
+        onItemSort(dragData, dropData) {
+            moveItem(this.mediaItems, dragData.position, dropData.position);
+            moveItem(this.element.config.sliderItems.value, dragData.position, dropData.position);
+
+            this.updateMediaDataValue();
+            this.emitUpdateEl();
+        },
+
         updateMediaDataValue() {
             if (this.element.config.sliderItems.value) {
                 const sliderItems = cloneDeep(this.element.config.sliderItems.value);
@@ -201,4 +210,4 @@ Component.register('sw-cms-el-config-image-slider', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

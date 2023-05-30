@@ -1,21 +1,21 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { array } = Shopware.Utils;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-detail-details', {
+export default {
     template,
 
     inject: [
         'repositoryFactory',
-        'orderService',
-        'stateStyleDataProviderService',
         'acl',
-        'feature',
     ],
 
     props: {
@@ -32,11 +32,6 @@ Component.register('sw-order-detail-details', {
 
     data() {
         return {
-            nextRoute: null,
-            isDisplayingLeavePageWarning: false,
-            transactionOptions: [],
-            orderOptions: [],
-            deliveryOptions: [],
             customFieldSets: [],
             showStateHistoryModal: false,
         };
@@ -50,14 +45,11 @@ Component.register('sw-order-detail-details', {
         ...mapState('swOrderDetail', [
             'order',
             'versionContext',
+            'orderAddressIds',
         ]),
 
         delivery() {
             return this.order.deliveries.length > 0 && this.order.deliveries[0];
-        },
-
-        deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
         },
 
         transaction() {
@@ -67,58 +59,6 @@ Component.register('sw-order-detail-details', {
                 }
             }
             return this.order.transactions.last();
-        },
-
-        transactionOptionPlaceholder() {
-            if (this.isLoading) return null;
-
-            return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
-            ${this.transaction.stateMachineState.translated.name}`;
-        },
-
-        transactionOptionsBackground() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return this.stateStyleDataProviderService.getStyle('order_transaction.state',
-                this.transaction.stateMachineState.technicalName).selectBackgroundStyle;
-        },
-
-        orderOptionPlaceholder() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
-            ${this.order.stateMachineState.translated.name}`;
-        },
-
-        orderOptionsBackground() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return this.stateStyleDataProviderService.getStyle('order.state',
-                this.order.stateMachineState.technicalName).selectBackgroundStyle;
-        },
-
-        deliveryOptionPlaceholder() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return `${this.$tc('sw-order.stateCard.headlineDeliveryState')}: \
-            ${this.delivery.stateMachineState.translated.name}`;
-        },
-
-        deliveryOptionsBackground() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return this.stateStyleDataProviderService.getStyle('order_delivery.state',
-                this.delivery.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         customFieldSetRepository() {
@@ -149,30 +89,11 @@ Component.register('sw-order-detail-details', {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
             }
 
-            criteria.addFilter(Criteria.equals('afterOrderEnabled', 1));
-
             return criteria;
         },
 
         taxStatus() {
             return this.order.price.taxStatus;
-        },
-
-        displayRounded() {
-            return this.order.totalRounding.interval !== 0.01
-                || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
-        },
-
-        orderTotal() {
-            if (this.displayRounded) {
-                return this.order.price.rawTotal;
-            }
-
-            return this.order.price.totalPrice;
-        },
-
-        hasLineItem() {
-            return this.order.lineItems.filter(item => item.hasOwnProperty('id')).length > 0;
         },
 
         currency() {
@@ -183,6 +104,29 @@ Component.register('sw-order-detail-details', {
             return this.order.addresses.find((address) => {
                 return address.id === this.order.billingAddressId;
             });
+        },
+
+        shippingAddress() {
+            return this.delivery.shippingOrderAddress;
+        },
+
+        selectedBillingAddressId() {
+            const currentAddress = this.orderAddressIds.find(item => item.type === 'billing');
+            return currentAddress?.customerAddressId || this.billingAddress.id;
+        },
+
+        selectedShippingAddressId() {
+            const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
+            return currentAddress?.customerAddressId || this.shippingAddress.id;
+        },
+
+        shippingCosts: {
+            get() {
+                return this.delivery?.shippingCosts.totalPrice || 0.0;
+            },
+            set(value) {
+                this.onShippingChargeEdited(value);
+            },
         },
     },
 
@@ -205,34 +149,6 @@ Component.register('sw-order-detail-details', {
             this.delivery.shippingCosts.totalPrice = amount;
 
             this.saveAndRecalculate();
-        },
-
-        sortByTaxRate(price) {
-            return price.sort((prev, current) => {
-                return prev.taxRate - current.taxRate;
-            });
-        },
-
-        onStateTransitionOptionsChanged(stateMachineName, options) {
-            if (stateMachineName === 'order.states') {
-                this.orderOptions = options;
-            } else if (stateMachineName === 'order_transaction.states') {
-                this.transactionOptions = options;
-            } else if (stateMachineName === 'order_delivery.states') {
-                this.deliveryOptions = options;
-            }
-        },
-
-        onQuickOrderStatusChange(actionName) {
-            this.$refs['state-card'].onOrderStateSelected(actionName);
-        },
-
-        onQuickTransactionStatusChange(actionName) {
-            this.$refs['state-card'].onTransactionStateSelected(actionName);
-        },
-
-        onQuickDeliveryStatusChange(actionName) {
-            this.$refs['state-card'].onDeliveryStateSelected(actionName);
         },
 
         saveAndRecalculate() {
@@ -260,21 +176,18 @@ Component.register('sw-order-detail-details', {
         },
 
         validateTrackingCode(searchTerm) {
-            if (searchTerm.length < 0) {
+            const trackingCode = searchTerm.trim();
+
+            if (trackingCode.length <= 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === searchTerm);
-
-            if (isExist) {
-                return false;
-            }
-
-            return searchTerm;
+            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            return !isExist;
         },
 
         onChangeOrderAddress(value) {
             State.commit('swOrderDetail/setOrderAddressIds', value);
         },
     },
-});
+};

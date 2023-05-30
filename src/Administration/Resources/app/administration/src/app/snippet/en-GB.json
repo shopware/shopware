@@ -1,8 +1,8 @@
 {
   "global": {
     "error-codes": {
-      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions",
-      "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed",
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
+      "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This field must not be empty.",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
@@ -11,7 +11,9 @@
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
-      "DUPLICATED_URL": "This URL is already in use. Please choose another URL."
+      "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
+      "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator."
     },
     "default": {
       "add": "Add",
@@ -49,7 +51,8 @@
       "messageDeleteSuccess": "\"{name}\" deleted.",
       "messageDeleteFailed": "The entity \"{entityName}\" is still in use by the following modules: ",
       "noTitle": "Title is not defined",
-      "noMessage": "Message is not defined"
+      "noMessage": "Message is not defined",
+      "notificationLoadingDataErrorMessage": "Error loading data"
     },
     "notification-center": {
       "title": "Notifications",
@@ -244,7 +247,9 @@
     },
     "sw-time-ago": {
       "justNow": "Just now",
-      "minutesAgo": "One minute ago | {minutesAgo} minutes ago"
+      "minutesAgo": "One minute ago | {minutesAgo} minutes ago",
+      "aboutNow": "About now",
+      "minutesFromNow": "One minute from now | {minutesFromNow} minutes from now"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Search media...",
@@ -360,10 +365,12 @@
       "description": "A file with the name \"{fileName}\" already exists.",
       "buttonReplace": "Replace file",
       "buttonRename": "Rename file",
+      "buttonKeep": "Use file",
       "buttonSkip": "Skip file",
       "labelSaveSelection": "Save selection and apply to {count} more.",
       "labelOptionReplace": "Upload and replace",
       "labelOptionRename": "Upload and rename",
+      "labelOptionKeep": "Use existing file",
       "labelOptionSkip": "Skip file",
       "labelOldFile": "Existing file",
       "labelNewFile": "Uploaded file"
@@ -411,6 +418,9 @@
       "notification": {
         "success": {
           "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
+        },
+        "assigned": {
+          "message": "Media file has been assigned."
         },
         "failure": {
           "message": "Error while uploading file."
@@ -556,6 +566,7 @@
       "placeholderTypeSearchField": "Search \"{entity}\"...",
       "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
       "placeholderSearchShortcutInfo": "<strong>Tip:</strong> Press <span>f</span> to open the search from anywhere.",
+      "placeholderESSearchShortcutInfo": "<strong>Tip:</strong> You can use Elasticsearch's <a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax\" target=\"_blank\">simple query string</a> to get a more precise result.",
       "moduleFiltersHeadline": "Module filters",
       "placeholderFilterShortcutInfo": "Type <span>#products</span> in the search to set the module filter.",
       "searchTypeAll": "All",
@@ -597,7 +608,7 @@
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Show results in module({count})",
-      "labelShowResultsInModuleV2": "Show all matching results in {entityName}..."
+      "labelShowResultsInModuleV2": "Show all matching results in {entityNameLower}..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Press the enter key to add values."
@@ -629,8 +640,11 @@
         "salesChannelRule": "Sales Channel",
         "currencyRule": "Currency",
         "languageRule": "Language",
+        "customerIsActiveRule": "Customer is active",
         "billingCountryRule": "Billing address: Country",
+        "billingCityRule": "Billing address: City",
         "billingStreetRule": "Billing address: Street",
+        "billingStateRule": "Billing address: State",
         "billingZipCodeRule": "Billing address: Postal code",
         "customerGroupRule": "Customer group",
         "customerTagRule": "Customer with tag",
@@ -652,25 +666,39 @@
         "isNewsletterRecipient": "Customer is newsletter recipient",
         "daysSinceLastOrderRule": "Days since last order",
         "shippingCountryRule": "Shipping address: Country",
+        "shippingCityRule": "Shipping address: City",
         "shippingStreetRule": "Shipping address: Street",
+        "shippingStateRule": "Shipping address: State",
         "shippingZipCodeRule": "Shipping address: Postal code",
         "customerLoggedInRule": "Customer logged in",
+        "customerAgeRule": "Customer age",
+        "customerDaysSinceLastLogin": "Days since last login",
+        "customerDaysSinceFirstLogin": "Days since first login",
+        "customerAffiliateCodeRule": "Affiliate code",
+        "customerCampaignCodeRule": "Campaign code",
         "cartAmountRule": "Grand total",
         "cartPositionPrice": "Total",
         "goodsCountRule": "Total quantity of distinct products",
         "goodsPriceRule": "Subtotal of all items",
+        "cartTotalPurchasePrice": "Total of all purchase prices",
         "lineItemOfTypeRule": {
           "label": "Item of type",
           "product": "Product",
           "discount_surcharge": "Discount / surcharge"
         },
-        "lineItemRule": "Item",
-        "lineItemsInCartRule": "Line items in cart",
+        "lineItemRule": "Items in cart",
         "lineItemsInCartCountRule": "Quantity of distinct items",
         "promotionsInCartCountRule": "Quantity of discounts",
         "lineItemUnitPriceRule": "Item unit price",
         "lineItemTotalPriceRule": "Item subtotal",
         "lineItemWithQuantityRule": "Item quantity",
+        "orderTagRule": "Order with tag",
+        "orderTrackingCodeRule": "Tracking code",
+        "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by admin",
+        "orderTransactionStatusRule": "Payment status",
+        "orderStatusRule": "Order status",
+        "orderCustomFieldRule": "Order with custom field",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -689,19 +717,22 @@
           "any": "At least one",
           "all": "All"
         },
-        "subCondition": "Subcondition",
+        "AddAndCondition": "Add AND condition",
+        "AddOrCondition": "Add OR condition",
+        "AddSubCondition": "Add subconditions",
         "deleteConditions": "Delete container",
-        "deleteAllConditions": "Delete all",
+        "deleteAllConditions": "Delete all conditions",
         "createBefore": "Create before",
         "createAfter": "Create after",
         "hasDeliveryFreeItemRule": "Item with free shipping",
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Total weight of all products",
         "volumeOfCartRule": "Total volume of all products",
+        "cartShippingCost": "Shipping costs",
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Item with tag",
         "alwaysValidRule": "Always valid",
-        "lineItemPropertyRule": "Item with property",
+        "lineItemPropertyRule": "Item with variant or property value",
         "lineItemNoveltyRule": "Novelties",
         "lineItemCustomFieldRule": "Item with custom field",
         "lineItemIsNewRule": "Item marked as \"new\"",
@@ -724,6 +755,8 @@
         "lineItemListPriceRatioRule": "Item with price/list price percentage ratio",
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
+        "lineItemProductStates": "Item with product state",
+        "numberOfReviews": "Number of submitted reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total quantity of all products",
@@ -742,13 +775,19 @@
               "placeholder": "Select fieldset..."
             },
             "customFieldSelect": {
-              "placeholder": "Select custom field..."
+              "placeholder": "Select custom field...",
+              "tooltip": "This custom field is currently not available in shopping carts. You can activate it for shopping carts in its <a href=\"{customFieldSettingsLink}\" target=\"_blank\">settings</a>."
             }
           }
         },
         "customerCustomFieldRule": "Customer with custom field",
         "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character...",
-        "customerBirthdayRule": "Customer date of birth"
+        "customerBirthdayRule": "Customer date of birth",
+        "customerCreatedByAdminRule": "Customer created by admin",
+        "customerSalutationRule": "Customer salutation",
+        "customerDefaultPaymentMethodRule": "Customer with default payment method",
+        "lineItemPropertyValueRule": "Item with property value",
+        "lineItemVariantValueRule": "Item with variant value"
       }
     },
     "sw-condition-generic": {
@@ -810,10 +849,97 @@
           }
         }
       },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-physical": "Physical",
+            "is-download": "Digital"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          },
+          "placeholder": "Select operator..."
+        }
+      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
-        "volume": "mm³"
+        "volume": "mm³",
+        "age": "Years",
+        "kg": "Kilograms",
+        "g": "Grams",
+        "mg": "Milligrams",
+        "oz": "Ounces",
+        "lb": "Pounds",
+        "m": "Meters",
+        "cm": "Centimeters",
+        "mm": "Millimeters",
+        "km": "Kilometers",
+        "in": "Inches",
+        "ft": "Feet",
+        "mi": "Miles",
+        "hr": "Hours",
+        "yr": "Years",
+        "mth": "Months",
+        "wk": "Weeks",
+        "d": "Days",
+        "min": "Minutes",
+        "m3": "Cubic meters",
+        "cm3": "Cubic centimeters",
+        "mm3": "Cubic millimeters",
+        "in3": "Cubic inches",
+        "ft3": "Cubic feet",
+        "short": {
+          "min": "min",
+          "d": "d",
+          "wk": "wk",
+          "mth": "mth",
+          "yr": "yr",
+          "hr": "h",
+          "lb": "lb",
+          "oz": "oz",
+          "mg": "mg",
+          "g": "g",
+          "kg": "kg",
+          "m": "m",
+          "cm": "cm",
+          "mm": "mm",
+          "km": "km",
+          "in": "in",
+          "mi": "mi",
+          "ft": "ft",
+          "m3": "m³",
+          "cm3": "cm³",
+          "mm3": "mm³",
+          "in3": "in³",
+          "ft3": "ft³"
+        }
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Select condition ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "Select state ..."
+        },
+        "operator": {
+          "placeholder": "Select operator ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "Select state ..."
+        },
+        "operator": {
+          "placeholder": "Select operator ..."
+        }
       }
     },
     "sw-product-image": {
@@ -827,7 +953,8 @@
       "defaultPlaceholder": "Search..."
     },
     "sw-tabs-item": {
-      "tooltipTabHasErrors": "This page contains errors."
+      "tooltipTabHasErrors": "This page contains errors.",
+      "tooltipTabHasWarnings": "This page contains warnings."
     },
     "entities": {
       "all": "All",
@@ -893,7 +1020,6 @@
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/export profile | Import/export profiles",
       "feature_set": "Template | Templates",
-      "event_action": "Business events",
       "property_group": "Property group | Property groups",
       "document_base_config": "Document base config | Document base configs",
       "product_feature_set": "New template | New templates",
@@ -926,6 +1052,7 @@
       "checkout_order_placed": "Order placed",
       "checkout_order_payment_method_changed": "Order payment method changed",
       "contact_form_send": "Contact form sent",
+      "review_form_send": "Review form sent",
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
@@ -1157,15 +1284,44 @@
   },
   "locale": {
     "de-DE": "German",
-    "en-GB": "English"
+    "en-GB": "English (GB)",
+    "bg-BG": "Bulgarian",
+    "bs-BA": "Bosnian",
+    "cs-CZ": "Czech",
+    "da-DK": "Danish",
+    "el-GR": "Greek",
+    "en-US": "English (US)",
+    "es-ES": "Spanish",
+    "fi-FI": "Finnish",
+    "fr-FR": "French",
+    "hi-IN": "Hindi",
+    "hr-HR": "Croatian",
+    "hu-HU": "Hungarian",
+    "id-ID": "Indonesian",
+    "it-IT": "Italian",
+    "ko-KR": "Korean",
+    "lv-LV": "Latvian",
+    "nl-NL": "Dutch",
+    "nn-NO": "Norwegian",
+    "pl-PL": "Polish",
+    "pt-PT": "Portuguese",
+    "ro-RO": "Romanian",
+    "ru-RU": "Russian",
+    "sk-SK": "Slovak",
+    "sl-SI": "Slovene",
+    "sr-RS": "Serbian",
+    "sv-SE": "Swedish",
+    "tr-TR": "Turkish",
+    "uk-UA": "Ukrainian",
+    "vi-VN": "Vietnamese"
   },
   "sw-image-slider": {
     "imageAlt": "Image {index} / {total}"
   },
   "sw-confirm-modal": {
-        "defaultText": "Are you sure you want to proceed?"
-    },
-    "sw-rule-modal": {
+    "defaultText": "Are you sure you want to proceed?"
+  },
+  "sw-rule-modal": {
     "modalTitleNew": "Create new global rule",
     "modalTitleModify": "Modify global rule",
     "labelDescription": "Description",
@@ -1175,7 +1331,7 @@
     "labelPriority": "Priority",
     "placeholderPriority": "Prioritise this rule...",
     "messageSaveSuccess": "Rule \"{name}\" saved.",
-    "messageSaveError": "An error occurred while saving rule \"{name}\".",
+    "messageSaveError": "An error occurred while saving rule",
     "ruleCard": "Conditions"
   },
   "sw-select-rule-create": {
@@ -1323,6 +1479,15 @@
         "cancellation": "Cancel",
         "success": "Domain changed.",
         "error": "Error while changing domain for apps"
+      },
+      "sw-app-wrong-app-url-modal": {
+        "title": "Wrongly configured APP_URL",
+        "explanationHeader": "Error with the connection to your extensions.",
+        "explanation": "Extensions are not able to establish a connection to your shop, due to a wrong configuration in your system.",
+        "textGetSupport": "Try contacting your hoster to get support.",
+        "textDetails": "Technical details: Wrong APP_URL configuration.",
+        "labelLearnMoreButton": "Learn more",
+        "linkToDocsArticle": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/notes-to-the-APP-URL"
       }
     }
   },
@@ -1366,12 +1531,12 @@
   },
   "sw-restricted-rules": {
     "restrictedAssignment": {
-      "general": "This rule uses condition types that are not allowed for assignment to {relation}.",
+      "general": "This rule uses conditions that are not allowed for assignment to {relation}.",
       "productPrices": "pricing rules",
       "shippingMethodPrices": "pricing rules",
       "shippingMethodPriceCalculations": "shipping cost calculation rules",
-      "shippingMethods": "shipping method rules",
-      "paymentMethods": "payment method rules",
+      "shippingMethods": "shipping method availability rules",
+      "paymentMethods": "payment method availability rules",
       "flowSequences": "Flow Builder rules",
       "personaPromotions": "customer rule|customer rules",
       "orderPromotions": "order rule|order rules",
@@ -1382,9 +1547,35 @@
       "equalsAnyViolationTooltip": "This rule must use at least one of the following conditions to be able to assign it to {entityLabel}: {conditions}."
     },
     "restrictedConditions": {
-      "restrictedPromotionConditionTooltip": "The current rule is assigned to a promotion as {assignments}. The use of this condition is therefore not allowed in this context."
+      "restrictedConditionTooltip": "This rule is assigned to:<br/><br/>{assignments}</br></br>The use of this condition is not allowed in this context.",
+      "relation": {
+        "flowTrigger": "Flows with trigger: {assignments}",
+        "promotion": "Promotions as {assignments}",
+        "productPrices": "Products as {assignments}",
+        "shippingMethods": "Shipping methods as {assignments}",
+        "shippingMethodPrices": "Shipping methods as {assignments}",
+        "paymentMethods": "Payment methods as {assignments}"
+      }
     },
     "and": "and",
     "or": "or"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI responses can be inaccurate or misleading."
+  },
+  "sw-usage-data": {
+    "sw-settings-usage-data-intro": {
+      "title": "Usage data",
+      "headline": "Improving Shopware collectively",
+      "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
+      "learnMore": "Learn more",
+      "learnMoreUrl": "https://shopware.com"
+    },
+    "sw-settings-usage-data-modal": {
+      "alertText": "This setting will affect all Shopware Administration users. You can change it at any time in {settings-path}",
+      "alertTextSettingsPath": "Settings -> System -> Usage data",
+      "decline": "Decline",
+      "accept": "Accept"
+    }
   }
 }

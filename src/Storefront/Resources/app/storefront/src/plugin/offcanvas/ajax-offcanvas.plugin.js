@@ -5,6 +5,9 @@ import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.ut
 // xhr call storage
 let xhr = null;
 
+/**
+ * @package storefront
+ */
 export default class AjaxOffCanvas extends OffCanvas {
 
     /**
@@ -26,7 +29,7 @@ export default class AjaxOffCanvas extends OffCanvas {
         // avoid multiple backdrops
         OffCanvasInstance._removeExistingOffCanvas();
 
-        const offCanvas = OffCanvasInstance._createOffCanvas(position, fullwidth, cssClass);
+        const offCanvas = OffCanvasInstance._createOffCanvas(position, fullwidth, cssClass, closable);
         this.setContent(url, data, callback, closable, delay);
         OffCanvasInstance._openOffcanvas(offCanvas);
     }

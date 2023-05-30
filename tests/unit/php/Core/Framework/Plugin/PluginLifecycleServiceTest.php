@@ -36,12 +36,16 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -55,59 +59,35 @@ class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var MockObject&EntityRepository
-     */
-    private $pluginRepoMock;
+    private MockObject&EntityRepository $pluginRepoMock;
 
-    /**
-     * @var MockObject&KernelPluginCollection
-     */
-    private $kernelPluginCollectionMock;
+    private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
 
-    /**
-     * @var MockObject&Container
-     */
-    private $containerMock;
+    private MockObject&Container $containerMock;
 
-    /**
-     * @var MockObject&MigrationCollectionLoader
-     */
-    private $migrationLoaderMock;
+    private MockObject&MigrationCollectionLoader $migrationLoaderMock;
 
-    /**
-     * @var MockObject&RequirementsValidator
-     */
-    private $requirementsValidatorMock;
+    private MockObject&RequirementsValidator $requirementsValidatorMock;
 
-    /**
-     * @var MockObject&CacheItemPoolInterface
-     */
-    private $cacheItemPoolInterfaceMock;
+    private MockObject&CacheItemPoolInterface $cacheItemPoolInterfaceMock;
 
-    /**
-     * @var MockObject&Plugin
-     */
-    private $pluginMock;
+    private MockObject&Plugin $pluginMock;
 
-    /**
-     * @var MockObject&EventDispatcher
-     */
-    private $eventDispatcherMock;
+    private MockObject&EventDispatcher $eventDispatcherMock;
 
-    public function setUp(): void
+    private MockObject&PluginService $pluginServiceMock;
+
+    protected function setUp(): void
     {
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $this->kernelPluginCollectionMock = $this->createMock(KernelPluginCollection::class);
         $this->containerMock = $this->createMock(Container::class);
         $this->migrationLoaderMock = $this->createMock(MigrationCollectionLoader::class);
-        $assetServiceMock = $this->createMock(AssetService::class);
-        $commandExecutorMock = $this->createMock(CommandExecutor::class);
         $this->requirementsValidatorMock = $this->createMock(RequirementsValidator::class);
         $this->cacheItemPoolInterfaceMock = $this->createMock(CacheItemPoolInterface::class);
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
-        $shopwareVersionString = Kernel::SHOPWARE_FALLBACK_VERSION;
+        $this->pluginServiceMock = $this->createMock(PluginService::class);
+
         $this->pluginMock = $this->createMock(Plugin::class);
 
         $this->pluginMock->method('getNamespace')->willReturn('MockPlugin');
@@ -119,12 +99,17 @@ class PluginLifecycleServiceTest extends TestCase
             $this->kernelPluginCollectionMock,
             $this->containerMock,
             $this->migrationLoaderMock,
-            $assetServiceMock,
-            $commandExecutorMock,
+            $this->createMock(AssetService::class),
+            $this->createMock(CommandExecutor::class),
             $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,
-            $shopwareVersionString,
-            $systemConfigServiceMock
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(CustomEntityPersister::class),
+            $this->createMock(CustomEntitySchemaUpdater::class),
+            $this->createMock(CustomEntityLifecycleService::class),
+            $this->pluginServiceMock,
+            $this->createMock(VersionSanitizer::class),
         );
     }
 
@@ -173,9 +158,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testInstallPluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -184,14 +166,13 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects(static::once())->method('executeComposerCommands')->willReturn(true);
         $pluginEntityMock->expects(static::once())->method('getComposerName')->willReturn('MockPlugin');
 
+        $this->pluginServiceMock->expects(static::once())->method('refreshPlugins');
+
         $installContext = $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
 
         static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testInstallPluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -218,7 +199,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $installContext = $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
 
-        static::assertInstanceOf(Plugin\Context\InstallContext::class, $installContext);
+        static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
     // ------ InstallPlugin -----
@@ -260,9 +241,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(PluginPostUninstallEvent::class, $returnedEvents[3]);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUninstallPluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -272,14 +250,13 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects(static::once())->method('executeComposerCommands')->willReturn(true);
         $pluginEntityMock->expects(static::once())->method('getComposerName')->willReturn('MockPlugin');
 
+        $this->pluginServiceMock->expects(static::once())->method('refreshPlugins');
+
         $installContext = $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
 
         static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUninstallPluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -336,9 +313,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(PluginPostUpdateEvent::class, $returnedEvents[1]);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUpdatePluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -348,14 +322,13 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects(static::once())->method('executeComposerCommands')->willReturn(true);
         $pluginEntityMock->expects(static::once())->method('getComposerName')->willReturn('MockPlugin');
 
+        $this->pluginServiceMock->expects(static::once())->method('refreshPlugins');
+
         $updateContext = $this->pluginLifecycleService->updatePlugin($pluginEntityMock, $context);
 
         static::assertInstanceOf(UpdateContext::class, $updateContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUpdatePluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -522,10 +495,14 @@ class PluginLifecycleServiceTest extends TestCase
         $containerMock = $this->createMock(Container::class);
         $containerMock->method('getParameter')->with('kernel.plugin_dir')->willReturn('tmp');
         $containerMock->method('get')->willReturn($this->eventDispatcherMock);
-        $kernelMock->method('getContainer')->willReturnOnConsecutiveCalls(
-            $containerMock,
-            false
-        );
+        $matcher = static::exactly(2);
+        $kernelMock->expects($matcher)->method('getContainer')->willReturnCallback(function () use ($matcher, $containerMock): Container {
+            if ($matcher->getInvocationCount() === 1) {
+                return $containerMock;
+            }
+
+            throw new \LogicException();
+        });
         $this->containerMock->method('get')->willReturnOnConsecutiveCalls(
             $kernelMock,
             new FakeKernelPluginLoader(
@@ -784,16 +761,10 @@ class PluginLifecycleServiceTest extends TestCase
 class FakeKernelPluginLoader extends Bundle
 {
     /**
-     * @var array<int, array<string, string|false>>
-     */
-    private array $pluginInfos;
-
-    /**
      * @param array<int, array<string, string|false>> $pluginInfos
      */
-    public function __construct(array $pluginInfos)
+    public function __construct(private readonly array $pluginInfos)
     {
-        $this->pluginInfos = $pluginInfos;
     }
 
     /**

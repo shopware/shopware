@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<entities
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../../../../../../../../../src/Core/System/CustomEntity/Xml/entity-1.0.xsd">
+    <!-- @todo NEXT-22697 - Re-implement, when re-enabling cms-aware -->
+    <!-- <entity name="custom_entity_test" cms-aware="true"> -->
+    <entity name="custom_entity_test">
+        <fields>
+            <string name="custom_entity_string_field" required="true" translatable="false" store-api-aware="false" />
+            <int name="custom_entity_int_field" required="true" translatable="false" store-api-aware="false" />
+        </fields>
+    </entity>
+</entities>

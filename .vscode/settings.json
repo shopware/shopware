@@ -1,5 +1,8 @@
 {
   "eslint.validate": [
     "twig"
-  ]
+  ],
+  "eslint.workingDirectories": [
+    {"mode": "auto"}
+  ],
 }

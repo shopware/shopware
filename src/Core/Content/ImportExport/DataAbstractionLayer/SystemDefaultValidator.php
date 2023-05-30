@@ -2,24 +2,23 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class SystemDefaultValidator implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -62,9 +61,9 @@ class SystemDefaultValidator implements EventSubscriberInterface
         $result = $this->connection->executeQuery(
             'SELECT id FROM import_export_profile WHERE id IN (:idList) AND system_default = 1',
             ['idList' => $ids],
-            ['idList' => Connection::PARAM_STR_ARRAY]
+            ['idList' => ArrayParameterType::STRING]
         );
 
-        return $result->fetchAll(FetchMode::COLUMN);
+        return $result->fetchFirstColumn();
     }
 }

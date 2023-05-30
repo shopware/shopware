@@ -1,0 +1,79 @@
+<sw-container class="product-deliverability-downloadable-form">
+
+    <sw-inherit-wrapper
+        v-model="product.isCloseout"
+        :has-parent="!!parentProduct.id"
+        :inherited-value="parentProduct.isCloseout"
+        @input="onSwitchInput"
+    >
+        <template #content="props">
+
+            <sw-field
+                class="product-deliverability-downloadable-form__manage-stock-switch"
+                type="switch"
+                name="sw-field--product-is-closeout"
+                :error="productIsCloseoutError"
+                :map-inheritance="props"
+                :label="$tc('sw-product.detailBase.manageStockLabel')"
+                :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
+                :disabled="props.isInherited || disabled"
+                :value="props.currentValue"
+                @change="props.updateCurrentValue"
+            />
+
+        </template>
+    </sw-inherit-wrapper>
+
+    <sw-container
+        v-show="product.isCloseout"
+        columns="1fr 1fr"
+        gap="0px 30px"
+    >
+
+        <sw-field
+            v-model="product.stock"
+            type="number"
+            name="sw-field--product-stock"
+            number-type="int"
+            :min="0"
+            :disabled="disabled"
+            :label="$tc('sw-product.settingsForm.labelStock')"
+            :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+            :error="productStockError"
+        />
+
+        <sw-field
+            v-model="product.availableStock"
+            type="number"
+            name="sw-field--product-available-stock"
+            number-type="int"
+            :disabled="true"
+            :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+        />
+
+    </sw-container>
+
+    <sw-inherit-wrapper
+        v-if="showModeSetting"
+        v-model="product.deliveryTimeId"
+        :inherited-value="parentProduct.deliveryTimeId"
+        :has-parent="!!parentProduct.id"
+        :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+    >
+        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+            <sw-entity-single-select
+                id="deliveryTimeId"
+                :key="isInherited"
+                :value="currentValue"
+                entity="delivery_time"
+                :disabled="isInherited || disabled"
+                class="product-deliverability-downloadable-form__delivery-time"
+                :error="productDeliveryTimeIdError"
+                :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
+                show-clearable-button
+                @change="updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+</sw-container>

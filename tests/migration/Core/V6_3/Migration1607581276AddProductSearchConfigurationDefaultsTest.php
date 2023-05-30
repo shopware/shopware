@@ -12,6 +12,7 @@ use Shopware\Core\Migration\V6_3\Migration1607581276AddProductSearchConfiguratio
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1607581276AddProductSearchConfigurationDefaults
  */
 class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestCase
@@ -113,13 +114,13 @@ class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestC
         $langName = strtolower(self::ENGLISH_LANGUAGE_NAME);
         if (\array_key_exists($langName, $excludedTerms)) {
             $enStopwords = require __DIR__ . '/../../../../src/Core/Migration/Fixtures/stopwords/en.php';
-            static::assertEquals($enStopwords, json_decode($excludedTerms[$langName]['terms']));
+            static::assertEquals($enStopwords, json_decode((string) $excludedTerms[$langName]['terms'], null, 512, \JSON_THROW_ON_ERROR));
         }
 
         $langName = strtolower(self::GERMAN_LANGUAGE_NAME);
         if (\array_key_exists($langName, $excludedTerms)) {
             $deStopwords = require __DIR__ . '/../../../../src/Core/Migration/Fixtures/stopwords/de.php';
-            static::assertEquals($deStopwords, json_decode($excludedTerms[$langName]['terms']));
+            static::assertEquals($deStopwords, json_decode((string) $excludedTerms[$langName]['terms'], null, 512, \JSON_THROW_ON_ERROR));
         }
     }
 
@@ -434,7 +435,7 @@ class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestC
         );
 
         $deStopwords = require __DIR__ . '/../../../../src/Core/Migration/Fixtures/stopwords/de.php';
-        static::assertEquals($deStopwords, json_decode($fields));
+        static::assertEquals($deStopwords, json_decode((string) $fields, null, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**

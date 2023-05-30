@@ -3,14 +3,15 @@ import template from './sw-extension-my-extensions-account.html.twig';
 import './sw-extension-my-extensions-account.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 import type { MappedError } from '../../service/extension-error-handler.service';
+import type { UserInfo } from '../../../../core/service/api/store.api.service';
 
 const { State, Mixin } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-extension-my-extensions-account', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -42,31 +43,12 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
     },
 
     computed: {
-        userInfo() {
+        userInfo(): UserInfo|null {
             return State.get('shopwareExtensions').userInfo;
         },
 
-        isLoggedIn() {
+        isLoggedIn(): boolean {
             return State.get('shopwareExtensions').userInfo !== null;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed. Use shopwareExtensions.userInfo.email instead
-         */
-        shopwareId: {
-            get() {
-                return State.get('shopwareExtensions').userInfo?.email ?? null;
-            },
-
-            /**
-             * @deprecated tag:v6.5.0 - computed shopwareId will be readonly in future versions
-             */
-            set() {
-                Shopware.Utils.debug.warn(
-                    'sw-extension-my-extensions-account',
-                    'Setting the shopwareId is deprecated and has no effect',
-                );
-            },
         },
     },
 
@@ -108,20 +90,10 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
         },
 
         async login() {
-            await this.loginShopwareUser({
-                shopwareId: this.form.shopwareId,
-                password: this.form.password,
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Logic will be moved to login instead
-         */
-        async loginShopwareUser({ shopwareId, password }: { shopwareId: string, password: string}) {
             this.isLoading = true;
 
             try {
-                await this.storeService.login(shopwareId, password);
+                await this.storeService.login(this.form.shopwareId, this.form.password);
 
                 this.$emit('login-success');
 

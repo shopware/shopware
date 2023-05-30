@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class OpenNewTabResponse extends ActionButtonResponse
 {
-    public const ACTION_TYPE = 'openNewTab';
+    final public const ACTION_TYPE = 'openNewTab';
 
     /**
      * This is the URL the user is redirected to after the action has been taken.

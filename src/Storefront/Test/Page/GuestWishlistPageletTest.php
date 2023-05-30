@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Test\Page;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,28 +31,31 @@ class GuestWishlistPageletTest extends TestCase
     use EventDispatcherBehaviour;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|ProductListRoute
+     * @var MockObject|ProductListRoute
      */
-    private $productListRouteMock;
+    private ProductListRoute $productListRouteMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SystemConfigService
+     * @var MockObject|SystemConfigService
      */
-    private $systemConfigServiceMock;
+    private SystemConfigService $systemConfigServiceMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|SalesChannelContext
+     * @var MockObject|SalesChannelContext
      */
-    private $salesChannelContextMock;
+    private SalesChannelContext $salesChannelContextMock;
 
     private EventDispatcher $eventDispatcher;
 
-    public function setUp(): void
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
+
+    protected function setUp(): void
     {
         $this->productListRouteMock = $this->createMock(ProductListRoute::class);
         $this->systemConfigServiceMock = $this->createMock(SystemConfigService::class);
         $this->salesChannelContextMock = $this->createMock(SalesChannelContext::class);
         $this->eventDispatcher = new EventDispatcher();
+        $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
     }
 
     public function testItThrowsExceptionWithInvalidProductIds(): void
@@ -133,7 +138,8 @@ class GuestWishlistPageletTest extends TestCase
         $listenerClosure = function (GuestWishListPageletProductCriteriaEvent $event) use (
             &$eventDidRun,
             $phpunit,
-            $productId
+            $productId,
+            $context
         ): void {
             $eventDidRun = true;
             $expectedCriteria = new Criteria();
@@ -142,7 +148,9 @@ class GuestWishlistPageletTest extends TestCase
             $expectedCriteria->addAssociation('manufacturer')
                 ->addAssociation('options.group')
                 ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-            $expectedCriteria->addFilter(new ProductCloseoutFilter());
+
+            $filter = $this->productCloseoutFilterFactory->create($context);
+            $expectedCriteria->addFilter($filter);
 
             $phpunit->assertEquals($expectedCriteria, $event->getCriteria());
         };
@@ -178,7 +186,8 @@ class GuestWishlistPageletTest extends TestCase
         return new GuestWishlistPageletLoader(
             $this->productListRouteMock,
             $this->systemConfigServiceMock,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->productCloseoutFilterFactory
         );
     }
 }

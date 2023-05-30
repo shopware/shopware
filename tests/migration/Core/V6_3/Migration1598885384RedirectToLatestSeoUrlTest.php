@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1598885384RedirectToLatestSeoUrl
  */
 class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase
@@ -99,6 +100,7 @@ class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase
             'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :config_key LIMIT 1;',
             ['config_key' => Migration1598885384RedirectToLatestSeoUrl::CONFIG_KEY]
         );
+        static::assertIsString($val);
 
         if ($val === '{"_value": true}') {
             return true;

@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\HighTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\LowTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\PercentageItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\QuantityItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -26,6 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class ContainerCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -40,10 +42,10 @@ class ContainerCartProcessorTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection([$item]));
 
-        $new = new Cart('after', 'after');
+        $new = new Cart('after');
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());
 
         if ($expected === null) {
@@ -62,19 +64,19 @@ class ContainerCartProcessorTest extends TestCase
         foreach ($expected->getCalculatedTaxes() as $tax) {
             $actual = $item->getPrice()->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
 
         foreach ($item->getPrice()->getCalculatedTaxes() as $tax) {
             $actual = $expected->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
     }
 
-    public function calculationProvider(): \Generator
+    public static function calculationProvider(): \Generator
     {
         yield 'Test empty container will be removed' => [
             new ContainerItem(),

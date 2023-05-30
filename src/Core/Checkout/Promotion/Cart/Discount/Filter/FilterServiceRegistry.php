@@ -4,26 +4,18 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class FilterServiceRegistry
 {
     /**
-     * @var iterable
-     */
-    private $sorters;
-
-    /**
-     * @var iterable
-     */
-    private $pickers;
-
-    /**
      * @internal
      */
-    public function __construct(iterable $sorters, iterable $pickers)
-    {
-        $this->sorters = $sorters;
-        $this->pickers = $pickers;
+    public function __construct(
+        private readonly iterable $sorters,
+        private readonly iterable $pickers
+    ) {
     }
 
     /**
@@ -71,7 +63,7 @@ class FilterServiceRegistry
     public function getPicker(string $key): FilterPickerInterface
     {
         foreach ($this->pickers as $picker) {
-            if (mb_strtolower($picker->getKey()) === mb_strtolower($key)) {
+            if (mb_strtolower((string) $picker->getKey()) === mb_strtolower($key)) {
                 return $picker;
             }
         }

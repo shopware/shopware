@@ -2,11 +2,11 @@ import template from './sw-customer-login-as-customer-modal.html.twig';
 import './sw-customer-login-as-customer-modal.scss';
 import ApiService from '../../../../core/service/api.service';
 
-const { Component, Service, Mixin } = Shopware;
+const { Service, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-login-as-customer-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -97,4 +97,4 @@ Component.register('sw-customer-login-as-customer-modal', {
             return `${salesChannelDomainUrl}/account/login/customer/${token}/${salesChannelId}/${customerId}`;
         },
     },
-});
+};

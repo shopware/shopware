@@ -4,7 +4,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-listing-option-general-info', {
+export default {
     template,
 
     model: {
@@ -29,4 +29,4 @@ Component.register('sw-settings-listing-option-general-info', {
             'label',
         ]),
     },
-});
+};

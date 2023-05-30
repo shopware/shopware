@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,6 +10,10 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class CorsListener implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

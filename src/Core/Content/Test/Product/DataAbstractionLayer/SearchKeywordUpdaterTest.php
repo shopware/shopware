@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,13 +24,13 @@ class SearchKeywordUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
-    private EntityRepositoryInterface $searchKeywordRepository;
+    private EntityRepository $searchKeywordRepository;
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->searchKeywordRepository = $this->getContainer()->get('product_search_keyword.repository');
@@ -136,7 +136,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
     }
 
-    public function productKeywordProvider(): array
+    public static function productKeywordProvider(): array
     {
         $idsCollection = new IdsCollection();
 
@@ -145,7 +145,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 (new ProductBuilder($idsCollection, '1000'))
                     ->price(10)
                     ->name('Test product')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Test produkt')
+                    ->translation('de-DE', 'name', 'Test produkt')
                     ->build(),
                 $idsCollection,
                 [
@@ -180,7 +180,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 (new ProductBuilder($idsCollection, '1000'))
                     ->price(10)
                     ->name('Test product')
-                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
                     ->build(),
                 $idsCollection,
                 [
@@ -199,7 +199,7 @@ class SearchKeywordUpdaterTest extends TestCase
             'test it uses correct translation from parent' => [
                 (new ProductBuilder($idsCollection, '1001'))
                     ->name('Test product')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Test produkt')
+                    ->translation('de-DE', 'name', 'Test produkt')
                     ->price(5)
                     ->variant(
                         (new ProductBuilder($idsCollection, '1000'))
@@ -224,7 +224,7 @@ class SearchKeywordUpdaterTest extends TestCase
             'test it uses correct translation from parent association' => [
                 (new ProductBuilder($idsCollection, '1001'))
                     ->name('Test product')
-                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
                     ->price(5)
                     ->variant(
                         (new ProductBuilder($idsCollection, '1000'))

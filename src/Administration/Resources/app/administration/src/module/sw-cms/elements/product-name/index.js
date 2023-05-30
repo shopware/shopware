@@ -1,8 +1,9 @@
-import './component';
-import './config';
+Shopware.Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', () => import('./component'));
+Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', () => import('./config'));
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-name',
@@ -12,7 +13,7 @@ Shopware.Service('cmsService').registerCmsElement({
     defaultConfig: {
         content: {
             source: 'static',
-            value: '<h2>Lorem ipsum dolor sit amet.</h2>'.trim(),
+            value: '<h2>Lorem ipsum dolor sit amet.</h2>',
         },
         verticalAlign: {
             source: 'static',

@@ -3,7 +3,12 @@
 namespace Shopware\Core\Framework\Demodata\Faker;
 
 use Bezhanov\Faker\Provider\Commerce as FakerCommerce;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Commerce extends FakerCommerce
 {
     /**
@@ -37,4 +42,9 @@ class Commerce extends FakerCommerce
             'Water Whole', 'Waterbaby', 'Watersprout', 'We Monsieur', 'Wear Wolf', 'Weatherwear', 'Webalot', 'Webphonics', 'Website of Mass Deconstruction', 'WebTex', 'Week-A-Drink', 'Weight and Sea', 'WenchSip', 'Wheat Toaist', 'Wheeze Ease', 'Wheeze Whiz', 'Wheezebox', 'Whim-Wham-Wash', 'Whipped Words', 'Whiskey and Bits', 'Whispering Stone', 'White Worm Cigarettes', 'Whole Suite Software', 'Why Fi', 'Wicked Cute', 'Wicker Script', 'WideBody Printer', 'WideColor', 'Widespeed', 'WideVision', 'Wig It!', 'Wildfelt', 'Winky Stick', 'Wire House', 'Wirehopper', 'Wirelass', 'WiseGuide', 'WiseWeave', 'Wish Kiss', 'Withstand and Deliver', 'Wolf Wear', 'Wonderwear', 'Woolicream', 'Word Borg', 'Word Salad', 'Word Village', 'WordBlab', 'WordFrame', 'Wordlab Exclusivo', 'Wordlobster', 'Wordly Wise', 'WordQuizzers', 'Words to the Wise', 'World Processor', 'World Sage', 'Wrapture', 'Write Light', 'WriteOnce', 'WriteTech', 'X Flip', 'Xbones', 'Xedenex', 'Xeno Logics', 'XENO Sphere', 'Xinware', 'Xleen', 'Xoggle', 'XORCat', 'XORCat 5000', 'Xorette', 'XORtrak', 'XORts', 'Xplor', 'Xth', 'Xurban', 'Xymonk', 'Y2Canine', 'Y2Kocktail', 'Y2OK!', 'Yada Yada Prada', 'Yak Candy', 'Yakima Burger', 'Yangtze Doodle', 'Yankee Ass', 'Yardvark', 'Yeasty Pete', 'Yo Phat!', 'Yo Yorkshire', 'Yogurt Hygene', 'YOU TURN – Leadership Program for Youth', 'YouthZest', 'Zaggle', 'Zaggles', 'Zaj', 'Zamox', 'Zanilla', 'Zanthral', 'Zanymax', 'Zaphire', 'Zappix', 'Zaya', 'Zazz', 'Zazz!', 'Zboo', 'Zeam', 'Zeam Seam', 'Zedalis', 'Zelluloid', 'Zelpo', 'Zen BBQ', 'Zen Coin', 'Zen Collar', 'Zen Kola', 'Zenchiladas', 'Zendo', 'Zenka', 'Zenlighten', 'Zenod', 'Zenodium', 'Zenolux', 'Zensor', 'Zensure', 'Zensus', 'Zenthall', 'Zentia', 'Zentime', 'Zentix', 'Zentrapore', 'Zentric Pure', 'Zentricity', 'Zentry', 'Zentury', 'Zepitope', 'Zerbina', 'Zero Logic', 'Zestea', 'Zialactic', 'Zidant', 'Zidox', 'Ziggles', 'Ziggy Endust', 'Zilch', 'Zilencio', 'Zilidium', 'Zilla', 'Zilla Drop', 'Zilla Nation', 'Zillabells', 'Zillaberry', 'Zillaboard', 'Zillabug', 'Zillacom', 'Zillactic', 'Zilladyne', 'Zillagod', 'Zillagoogle', 'Zillamatic', 'Zillan', 'Zillanet', 'Zillanoid', 'Zillidium', 'Zinch', 'Zing!', 'Ziore', 'Zipadipoolda', 'Zipak', 'Zip-Lock Body Bags', 'ZippyNet', 'Zitgone', 'Zizzle', 'Zizzy', 'Z-lestial', 'Z-licious', 'Zog', 'Zoinage', 'Zolar', 'Zolarex', 'Zolarity', 'Zoom Zoom Shipping', 'ZoomZoom', 'Zork', 'Zorromop', 'Zounds', 'Zwebby', 'Zyple', 'Zytrac', 'Zytrax', 'Zytrek', 'Zytrexaline',
         ],
     ];
+
+    public function customFieldSet(): string
+    {
+        return static::randomElement(static::$productName['adjective']) . ' ' . static::randomElement(static::$department) . ' ' . static::randomNumber(5);
+    }
 }

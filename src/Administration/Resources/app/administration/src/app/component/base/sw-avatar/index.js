@@ -20,6 +20,9 @@ const colors = [
 ];
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description The component helps adding a custom user image or initials to the administration.
  * @status ready
  * @example-type static
@@ -40,7 +43,6 @@ const colors = [
  *            :sourceContext="user"></sw-avatar>
  * </div>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-avatar', {
     template,
 

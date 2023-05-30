@@ -3,35 +3,24 @@
 namespace Shopware\Storefront\Pagelet\Footer;
 
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Decoratable()
+ * Do not use direct or indirect repository calls in a PageletLoader. Always use a store-api route to get or put data.
  */
+#[Package('storefront')]
 class FooterPageletLoader implements FooterPageletLoaderInterface
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var NavigationLoaderInterface
-     */
-    private $navigationLoader;
-
     /**
      * @internal
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        NavigationLoaderInterface $navigationLoader
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly NavigationLoaderInterface $navigationLoader
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->navigationLoader = $navigationLoader;
     }
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): FooterPagelet

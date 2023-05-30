@@ -63,7 +63,7 @@ class TaxCalculationTypeTest extends TestCase
         static::assertEquals($vertical, $amount->getCalculatedTaxes());
     }
 
-    public function calculationProvider()
+    public static function calculationProvider()
     {
         return [
             [
@@ -196,8 +196,11 @@ class ItemBlueprint
      */
     public $taxRate;
 
-    public function __construct(float $price, int $quantity, int $taxRate)
-    {
+    public function __construct(
+        float $price,
+        int $quantity,
+        int $taxRate
+    ) {
         $this->quantity = $quantity;
         $this->price = $price;
         $this->taxRate = $taxRate;

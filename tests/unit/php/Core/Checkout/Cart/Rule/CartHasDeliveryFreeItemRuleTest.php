@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @covers \Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule
  *
  * @internal
@@ -40,7 +42,7 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
      */
     public function testMatchInCartScope(?bool $lineItemWithFreeDelivery): void
     {
-        $scope = new CartRuleScope(new Cart(Uuid::randomHex(), Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope(new Cart(Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
         $scope->getCart()->addLineItems(new LineItemCollection([$this->getLineItem($lineItemWithFreeDelivery)]));
 
         $rule = new CartHasDeliveryFreeItemRule(true);
@@ -51,7 +53,7 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
 
     public function testMatchInCartScopeWithEmptyCart(): void
     {
-        $scope = new CartRuleScope(new Cart(Uuid::randomHex(), Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope(new Cart(Uuid::randomHex()), $this->createMock(SalesChannelContext::class));
 
         $rule = new CartHasDeliveryFreeItemRule(true);
         static::assertFalse($rule->match($scope));
@@ -103,9 +105,9 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
     }
 
     /**
-     * @return array<string,array<bool|null>>
+     * @return array<string, array<bool|null>>
      */
-    public function inputProvider(): array
+    public static function inputProvider(): array
     {
         return [
             'free item' => [true],

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -24,7 +23,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -81,6 +80,7 @@ class CheckoutControllerTest extends TestCase
 
     /**
      * @dataProvider customerComments
+     *
      * @group slow
      *
      * @param string|float|int|bool|null $customerComment
@@ -94,7 +94,7 @@ class CheckoutControllerTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function customerComments(): array
+    public static function customerComments(): array
     {
         return [
             ["  Hello, \nthis is a customer comment!  ", "Hello, \nthis is a customer comment!"],
@@ -305,9 +305,7 @@ class CheckoutControllerTest extends TestCase
 
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
-        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static function ($node) {
-            return $node->text();
-        }));
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn ($node) => $node->text()));
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }
@@ -329,7 +327,7 @@ class CheckoutControllerTest extends TestCase
     /**
      * @return array<array<mixed>>
      */
-    public function errorDataProvider(): array
+    public static function errorDataProvider(): array
     {
         return [
             // One shipping method blocked is expected to be switched
@@ -463,6 +461,43 @@ class CheckoutControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(CheckoutConfirmPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testJsonCart(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        // Always add a product to the cart
+        $browser->request(
+            'POST',
+            '/checkout/product/add-by-number',
+            [
+                'number' => 'test.123',
+            ]
+        );
+
+        $browser->request('GET', '/checkout/cart.json');
+
+        $response = $browser->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode((string) $response->getContent(), true);
+
+        static::assertArrayHasKey('price', $content);
+        static::assertArrayHasKey('lineItems', $content);
+        static::assertArrayHasKey('deliveries', $content);
+        static::assertArrayHasKey('errors', $content);
+        static::assertArrayHasKey('transactions', $content);
+        static::assertCount(1, $content['lineItems']);
+        static::assertArrayHasKey('id', $content['lineItems'][0]);
+        static::assertArrayHasKey('type', $content['lineItems'][0]);
+        static::assertArrayHasKey('label', $content['lineItems'][0]);
+        static::assertArrayHasKey('quantity', $content['lineItems'][0]);
     }
 
     public function testCheckoutFinishPageLoadedHookScriptsAreExecuted(): void
@@ -635,7 +670,7 @@ class CheckoutControllerTest extends TestCase
 
         $orderId = mb_substr($response->getTargetUrl(), -self::UUID_LENGTH);
 
-        /** @var EntityRepositoryInterface $orderRepo */
+        /** @var EntityRepository $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
 
         /** @var OrderEntity|null $order */
@@ -674,7 +709,7 @@ class CheckoutControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
+                'password' => 'not12345',
                 'firstName' => 'Test',
                 'lastName' => self::CUSTOMER_NAME,
                 'salutationId' => $salutationId,
@@ -956,7 +991,7 @@ class CheckoutControllerTest extends TestCase
             return;
         }
 
-        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', \get_class($error)));
+        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', $error::class));
     }
 
     private function createAvailabilityRule(string $salesChannelId): string

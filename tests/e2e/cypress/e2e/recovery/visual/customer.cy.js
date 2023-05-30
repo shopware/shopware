@@ -4,26 +4,12 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
-};
-const newAddress = {
-    salutation: 'Mr.',
-    firstName: 'Harry',
-    lastName: 'Potter',
-    addresses: [{
-        street: 'Ligusterweg 4',
-        zipcode: '333333',
-        city: 'Little Whinging'
-    }],
-    country: 'United Kingdom'
+    country: 'Germany',
 };
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
-            .then(() => {
-                cy.loginViaApi();
-            })
             .then(() => {
                 return cy.fixture('customer');
             })
@@ -47,7 +33,7 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.intercept({
             url: 'api/customer',
-            method: 'post'
+            method: 'post',
         }).as('saveData');
 
         // Take snapshot for visual testing
@@ -103,5 +89,14 @@ describe('Customer:  Visual test', () => {
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer detail`, '.sw-customer-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
+
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--firstName .sw-data-grid__cell-content')
+            .should('contain',`${customer.lastName}, ${customer.firstName}`);
+
+        // Take snapshot for visual testing
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer listing after the customer created`, null, null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

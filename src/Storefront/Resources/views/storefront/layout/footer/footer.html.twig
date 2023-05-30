@@ -2,16 +2,23 @@
     <div class="container">
 
         {% block layout_footer_navigation %}
-            <div id="footerColumns"
-                 class="row footer-columns"
-                 data-collapse-footer="true"
-                 role="list">
+            <div
+                id="footerColumns"
+                class="row footer-columns"
+                {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-collapse-footer" is deprecated. Use "data-collapse-footer-columns" instead #}
+                {% if feature('v6.6.0.0') %}
+                    data-collapse-footer-columns="true"
+                {% else %}
+                    data-collapse-footer="true"
+                {% endif %}
+                role="list"
+            >
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
                             <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
                                  id="collapseFooterHotlineTitle"
-                                 {{ dataBsTargetAttr }}="#collapseFooterHotline"
+                                 data-bs-target="#collapseFooterHotline"
                                  aria-expanded="true"
                                  aria-controls="collapseFooterHotline"
                                  role="listitem">
@@ -39,7 +46,7 @@
                                     </p>
                                 </div>
                                 <div class="footer-contact-form">
-                                    {{ 'footer.serviceContactLink'|trans({
+                                    {{ 'footer.serviceContactText'|trans({
                                         '%url%': path('frontend.cms.page', { id: config('core.basicInformation.contactPage') })
                                     })|raw }}
                                 </div>
@@ -54,7 +61,7 @@
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
                                     <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                         {{ dataBsTargetAttr }}="#collapseFooterTitle{{ loop.index }}"
+                                         data-bs-target="#collapseFooterTitle{{ loop.index }}"
                                          aria-expanded="true"
                                          aria-controls="collapseFooter{{ loop.index }}">
 
@@ -90,9 +97,6 @@
                                                     {% for treeItem in root.children %}
                                                         {% set category = treeItem.category %}
                                                         {% set name = category.translated.name %}
-
-                                                        {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
-                                                        {% set externalLink = category.translated.externalLink %}
 
                                                         {% block layout_footer_navigation_information_link_item %}
                                                             <li class="footer-link-item">
@@ -202,13 +206,13 @@
                 <div class="footer-vat">
                     {% if context.taxState == "gross" %}
                         <p>
-                            {{ "footer.includeVat"|trans({
+                            {{ "footer.includeVatText"|trans({
                                 '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
                             })|raw }}
                         </p>
                     {% else %}
                         <p>
-                            {{ "footer.excludeVat"|trans({
+                            {{ "footer.excludeVatText"|trans({
                                 '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
                             })|raw }}
                         </p>

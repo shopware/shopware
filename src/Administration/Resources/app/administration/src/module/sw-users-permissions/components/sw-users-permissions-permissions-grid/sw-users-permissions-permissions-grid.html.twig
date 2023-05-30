@@ -79,7 +79,6 @@
                         :value="areAllChildrenRolesSelected(permission.value, role)"
                         :ghost-value="areSomeChildrenRolesSelected(permission.value, role)"
                         :disabled="isParentRoleDisabled(permission.value, role) || disabled"
-                        type="checkbox"
                         @change="toggleAllChildrenWithRole(permission.value, role)"
                     />
                     {% endblock %}
@@ -95,7 +94,6 @@
                         :value="areAllChildrenWithAllRolesSelected(permission.value)"
                         :ghost-value="areSomeChildrenWithAllRolesSelected(permission.value)"
                         :disabled="disabled"
-                        type="checkbox"
                         @change="toggleAllChildrenWithAllRoles(permission.value)"
                     />
                     {% endblock %}
@@ -138,7 +136,6 @@
                         }"
                         :value="isPermissionSelected(permission.key, role)"
                         :disabled="isPermissionDisabled(permission.key, role) || disabled"
-                        type="checkbox"
                         @change="changePermission(permission.key, role)"
                     />
                     {% endblock %}
@@ -154,7 +151,6 @@
                         v-if="Object.keys(permission.roles).length > 0"
                         :value="allPermissionsForKeySelected(permission.key)"
                         :disabled="disabled"
-                        type="checkbox"
                         @change="changeAllPermissionsForKey(permission.key)"
                     />
                     {% endblock %}

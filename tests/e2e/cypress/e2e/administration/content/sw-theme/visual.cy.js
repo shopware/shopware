@@ -1,34 +1,29 @@
 // / <reference types="Cypress" />
 
+/**
+ * @package sales-channel
+ */
+
 describe('Theme: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.viewport(1920, 1080);
+        cy.openInitialPage(Cypress.env('admin'));
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@visual: check appearance of basic theme workflow', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/theme`,
-            method: 'POST'
-        }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/theme/manager/index',
             mainMenuId: 'sw-content',
-            subMenuId: 'sw-theme-manager'
+            subMenuId: 'sw-theme-manager',
         });
 
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-theme-list__list').should('be.visible');

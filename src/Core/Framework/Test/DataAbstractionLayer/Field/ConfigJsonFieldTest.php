@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -33,7 +34,7 @@ class ConfigJsonFieldTest extends TestCase
     /**
      * @var ConfigJsonDefinition
      */
-    private $configJsonDefinition;
+    private EntityDefinition $configJsonDefinition;
 
     protected function setUp(): void
     {
@@ -49,7 +50,7 @@ CREATE TABLE `_test_nullable` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
         $this->configJsonDefinition = $this->registerDefinition(ConfigJsonDefinition::class);
     }
@@ -57,7 +58,7 @@ EOF;
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }
 
     public function testFilter(): void

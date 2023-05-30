@@ -7,11 +7,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Common\Stubs\Flow\DummyEvent;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer
@@ -20,7 +25,7 @@ class MailStorerTest extends TestCase
 {
     private MailStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storer = new MailStorer();
     }
@@ -36,7 +41,7 @@ class MailStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(MailAware::MAIL_STRUCT, $stored);
@@ -45,32 +50,23 @@ class MailStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        $mailStructData = [
+        $store = [
             'recipients' => ['firstName' => 'test'],
             'bcc' => 'bcc',
             'cc' => 'cc',
         ];
 
-        $mailStruct = new MailRecipientStruct(['firstName' => 'test']);
-        $mailStruct->setBcc('bcc');
-        $mailStruct->setCc('cc');
+        $flow = new StorableFlow('test', Context::createDefaultContext(), [MailAware::MAIL_STRUCT => $store]);
 
-        /** @var MockObject|StorableFlow $storable */
-        $storable = $this->createMock(StorableFlow::class);
+        $this->storer->restore($flow);
 
-        $storable->expects(static::exactly(1))
-            ->method('hasStore')
-            ->willReturn(true);
+        static::assertTrue($flow->hasData(MailAware::MAIL_STRUCT));
 
-        $storable->expects(static::exactly(1))
-            ->method('getStore')
-            ->willReturn($mailStructData);
+        static::assertInstanceOf(MailRecipientStruct::class, $flow->getData(MailAware::MAIL_STRUCT));
 
-        $storable->expects(static::exactly(1))
-            ->method('setData')
-            ->with(MailAware::MAIL_STRUCT, $mailStruct);
-
-        $this->storer->restore($storable);
+        static::assertEquals('test', $flow->getData(MailAware::MAIL_STRUCT)->getRecipients()['firstName']);
+        static::assertEquals('bcc', $flow->getData(MailAware::MAIL_STRUCT)->getBcc());
+        static::assertEquals('cc', $flow->getData(MailAware::MAIL_STRUCT)->getCc());
     }
 
     public function testRestoreEmptyStored(): void
@@ -79,7 +75,7 @@ class MailStorerTest extends TestCase
         $mailStruct->setBcc('bcc');
         $mailStruct->setCc('cc');
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -93,5 +89,25 @@ class MailStorerTest extends TestCase
             ->method('setData');
 
         $this->storer->restore($storable);
+    }
+}
+
+/**
+ * @internal
+ */
+class MailEvent extends DummyEvent implements MailAware
+{
+    public function __construct(private readonly MailRecipientStruct $recipients)
+    {
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        return $this->recipients;
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        return TestDefaults::SALES_CHANNEL;
     }
 }

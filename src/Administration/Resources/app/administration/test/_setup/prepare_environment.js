@@ -1,17 +1,24 @@
-import { config } from '@vue/test-utils';
+/**
+ * @package admin
+ */
+
+import { config, enableAutoDestroy } from '@vue/test-utils';
 import Vue from 'vue';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import failOnConsole from 'jest-fail-on-console';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
+import flushPromises from '../_helper_/flushPromises';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
+
+// enable autoDestroy for wrapper after each test
+enableAutoDestroy(afterEach);
 
 // Make common utils available globally as well
 global.Vue = Vue;
@@ -79,6 +86,7 @@ config.mocks = {
     $sanitize: key => key,
     $device: {
         onResize: jest.fn(),
+        removeResizeListener: jest.fn(),
         getSystemKey: jest.fn(() => 'CTRL'),
         getViewportWidth: jest.fn(() => 1920),
     },
@@ -86,7 +94,13 @@ config.mocks = {
         replace: jest.fn(),
         push: jest.fn(),
         go: jest.fn(),
-        resolve: jest.fn(),
+        resolve: jest.fn(() => {
+            return {
+                resolved: {
+                    matched: [],
+                },
+            };
+        }),
     },
     $route: {
         params: {},
@@ -96,21 +110,69 @@ config.mocks = {
 
 global.allowedErrors = [];
 
-process.on('unhandledRejection', (err) => {
-    // eslint-disable-next-line no-undef
-    console.error(err);
-});
+global.flushPromises = flushPromises;
 
-failOnConsole({
-    silenceMessage: (errorMessage, method) => global.allowedErrors.some(allowedError => {
-        if (allowedError.method !== method) {
-            return false;
+let consoleHasErrorOrWarning = false;
+const { error, warn } = console;
+
+global.console.error = (...args) => {
+    let silenceError = false;
+    // eslint-disable-next-line array-callback-return
+    global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== 'error') {
+            return;
         }
 
         if (typeof allowedError.msg === 'string') {
-            return errorMessage.includes(allowedError.msg);
+            if (typeof args[0] === 'string') {
+                silenceError = args[0].includes(allowedError.msg);
+            }
+
+            return;
         }
 
-        return allowedError.msg.test(errorMessage);
-    }),
+        silenceError = allowedError.msg.test(args[0]);
+    });
+
+    if (!silenceError) {
+        consoleHasErrorOrWarning = true;
+        error(...args);
+    }
+};
+
+global.console.warn = (...args) => {
+    let silenceWarn = false;
+    // eslint-disable-next-line array-callback-return
+    global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== 'warn') {
+            return;
+        }
+
+        if (typeof allowedError.msg === 'string') {
+            silenceWarn = args[0].includes(allowedError.msg);
+
+            return;
+        }
+
+        silenceWarn = allowedError.msg.test(args[0]);
+    });
+
+    if (!silenceWarn) {
+        consoleHasErrorOrWarning = true;
+        warn(...args);
+    }
+};
+
+// eslint-disable-next-line jest/require-top-level-describe
+afterEach(() => {
+    if (consoleHasErrorOrWarning) {
+        // reset variable for next test
+        consoleHasErrorOrWarning = false;
+
+        throw new Error('console.error and console.warn are not allowed');
+    }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

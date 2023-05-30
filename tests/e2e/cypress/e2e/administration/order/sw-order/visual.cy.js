@@ -11,46 +11,27 @@ describe('Order: Visual tests', () => {
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         })
-        .then((result) => {
-            return cy.createGuestOrder(result.id);
-        }).then(() => {
-            cy.loginViaApi()
-        }).then(() => {
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            }).then(() => {
             // freezes the system time to Jan 1, 2018
-            const now = new Date(2018, 1, 1);
-            cy.clock(now, ['Date']);
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+                const now = new Date(2018, 1, 1);
+                cy.clock(now, ['Date']);
+            }).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
-        }).as('getData');
-
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
-        cy.get('.navigation-list-item__type-plugin').should('exist');
-        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index'
-        });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
@@ -75,51 +56,16 @@ describe('Order: Visual tests', () => {
 
         cy.get('.sw-order-list__order-view-action').click();
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-general-info__summary-sub-description', 'on 01/01/2018, 00:01 with Cash on delivery and Standard');
+        cy.changeElementText('.sw-order-general-info__summary-sub-last-changed-time', 'Last changed: 01/01/2018, 00:01');
 
-            // Change text of the element to ensure consistent snapshots
-            cy.changeElementText('.sw-order-user-card__metadata-item', '01 Jan 2018, 00:00');
-
-            // Change text of the element to ensure consistent snapshots
-            cy.changeElementText('.sw-order-state-history-card__payment-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
-
-            // Change text of the element to ensure consistent snapshots
-            cy.changeElementText('.sw-order-state-history-card__delivery-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
-
-            // Change text of the element to ensure consistent snapshots
-            cy.changeElementText('.sw-order-state-history-card__order-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
-
-            // Change text of the element to ensure consistent snapshots
-            cy.changeElementText('div.sw-card.sw-card--grid.has--header.has--title.sw-order-user-card > div.sw-card__content > div > div.sw-card-section.sw-card-section--secondary.sw-card-section--slim > div > dl:nth-child(2) > dd:nth-child(4)', '01 Jan 2018, 00:00');
-
-            // Change text of the element to ensure consistent snapshots
-            cy.changeElementText('div.sw-card.has--header.has--title.sw-order-delivery-metadata > div.sw-card__content > div > dl:nth-child(1) > dd:nth-child(4)', '01 Jan 2018, 00:00');
-
-        });
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Detail', '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders'] }, () => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
-        }).as('getData');
-
-        cy.get('.navigation-list-item__type-plugin').should('exist');
-        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index'
-        });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-list').should('be.visible');
-
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');

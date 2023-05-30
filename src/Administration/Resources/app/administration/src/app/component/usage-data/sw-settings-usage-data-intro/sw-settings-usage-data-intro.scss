@@ -1,0 +1,26 @@
+@import "~scss/variables";
+
+.sw-settings-usage-data-intro {
+    line-height: $line-height-md;
+
+    &__headline {
+        color: $color-darkgray-300;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-m;
+        margin-bottom: 8px;
+    }
+
+    &__icon-wrapper {
+        display: grid;
+        place-content: center;
+        width: 48px;
+        height: 48px;
+        background-color: $color-emerald-50;
+        border-radius: $border-radius-default;
+        margin-bottom: 24px;
+
+        .sw-icon {
+            color: $color-emerald-600;
+        }
+    }
+}

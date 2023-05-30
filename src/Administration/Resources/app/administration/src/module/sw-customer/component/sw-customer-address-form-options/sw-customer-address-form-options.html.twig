@@ -3,9 +3,8 @@
 <div class="sw-customer-address-form__options">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_default_shipping_address %}
-    <sw-field
+    <sw-checkbox-field
         v-model="isDefaultShippingAddressId"
-        type="checkbox"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
         @change="onChangeDefaultShippingAddress"
     />
@@ -13,10 +12,9 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_default_billing_address %}
-    <sw-field
+    <sw-checkbox-field
         v-model="isDefaultBillingAddressId"
         class="sw-customer-address-form__set-default-billing-address-action"
-        type="checkbox"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
         @change="onChangeDefaultBillingAddress"
     />

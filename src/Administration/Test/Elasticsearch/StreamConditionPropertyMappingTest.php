@@ -22,7 +22,7 @@ class StreamConditionPropertyMappingTest extends TestCase
 
     private ElasticsearchProductDefinition $elasticDefinition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productDefinition = $this->getContainer()->get(SalesChannelProductDefinition::class);
         $this->elasticDefinition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
@@ -43,8 +43,8 @@ class StreamConditionPropertyMappingTest extends TestCase
             static::fail('could not find product properties in product-stream-condition.service.js');
         }
 
-        $json = sprintf('[%s]', rtrim(trim(str_replace(["'", \PHP_EOL], ['"', ''], $matches[2])), ','));
-        $properties = json_decode($json, true);
+        $json = sprintf('[%s]', rtrim(trim(str_replace(['\'', \PHP_EOL], ['"', ''], $matches[2])), ','));
+        $properties = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($properties)) {
             static::fail('could not extract product properties from product-stream-condition.service.js');

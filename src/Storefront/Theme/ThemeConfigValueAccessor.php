@@ -2,25 +2,32 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('storefront')]
 class ThemeConfigValueAccessor
 {
-    private AbstractResolvedConfigLoader $themeConfigLoader;
-
+    /**
+     * @var array<string, mixed>
+     */
     private array $themeConfig = [];
 
+    /**
+     * @var array<string, bool>
+     */
     private array $keys = ['all' => true];
 
+    /**
+     * @var array<string, array<string, bool>>
+     */
     private array $traces = [];
 
     /**
      * @internal
      */
-    public function __construct(AbstractResolvedConfigLoader $themeConfigLoader)
+    public function __construct(private readonly AbstractResolvedConfigLoader $themeConfigLoader)
     {
-        $this->themeConfigLoader = $themeConfigLoader;
     }
 
     public static function buildName(string $key): string
@@ -29,7 +36,7 @@ class ThemeConfigValueAccessor
     }
 
     /**
-     * @return string|bool|array|float|int|null
+     * @return string|bool|array<string, mixed>|float|int|null
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
@@ -61,6 +68,9 @@ class ThemeConfigValueAccessor
         return $result;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
@@ -69,6 +79,9 @@ class ThemeConfigValueAccessor
         return $trace;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getThemeConfig(SalesChannelContext $context, ?string $themeId): array
     {
         $key = $context->getSalesChannelId() . $context->getDomainId() . $themeId;
@@ -84,17 +97,9 @@ class ThemeConfigValueAccessor
                 'md' => 768,
                 'lg' => 992,
                 'xl' => 1200,
+                'xxl' => 1400,
             ],
         ];
-
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-        if (Feature::isActive('v6.5.0.0')) {
-            $themeConfig = array_merge_recursive($themeConfig, [
-                'breakpoint' => [
-                    'xxl' => 1400,
-                ],
-            ]);
-        }
 
         if (!$themeId) {
             return $this->themeConfig[$key] = $this->flatten($themeConfig, null);
@@ -118,6 +123,11 @@ class ThemeConfigValueAccessor
         return $this->themeConfig[$key] = $this->flatten($themeConfig, null);
     }
 
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
     private function flatten(array $values, ?string $prefix): array
     {
         $prefix = $prefix ? $prefix . '.' : '';

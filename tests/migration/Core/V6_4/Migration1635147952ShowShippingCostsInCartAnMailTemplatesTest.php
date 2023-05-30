@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1635147952ShowShippingCostsInCartAnMai
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1635147952ShowShippingCostsInCartAnMailTemplates
  */
 class Migration1635147952ShowShippingCostsInCartAnMailTemplatesTest extends TestCase
@@ -65,7 +66,7 @@ class Migration1635147952ShowShippingCostsInCartAnMailTemplatesTest extends Test
     /**
      * @return string[][]
      */
-    public function providerTestMailTemplateMigration(): array
+    public static function providerTestMailTemplateMigration(): array
     {
         return [
             [

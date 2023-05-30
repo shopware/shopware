@@ -8,6 +8,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Requirements\Struct\RequirementCheck
  * @covers \Shopware\Core\Installer\Requirements\Struct\SystemCheck
  */

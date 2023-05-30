@@ -11,12 +11,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -28,6 +22,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
@@ -38,10 +33,10 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -50,17 +45,20 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class OrderConverter
 {
-    public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';
+    final public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';
 
-    public const CART_TYPE = 'recalculation';
+    final public const CART_TYPE = 'recalculation';
 
-    public const ORIGINAL_ID = 'originalId';
+    final public const ORIGINAL_ID = 'originalId';
 
-    public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
+    final public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
 
-    public const ADMIN_EDIT_ORDER_PERMISSIONS = [
+    final public const ORIGINAL_DOWNLOADS = 'originalDownloads';
+
+    final public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
@@ -70,39 +68,19 @@ class OrderConverter
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
     ];
 
-    protected EntityRepositoryInterface $customerRepository;
-
-    protected AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    protected EventDispatcherInterface $eventDispatcher;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private OrderDefinition $orderDefinition;
-
-    private EntityRepositoryInterface $orderAddressRepository;
-
-    private InitialStateIdLoader $initialStateIdLoader;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EventDispatcherInterface $eventDispatcher,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        OrderDefinition $orderDefinition,
-        EntityRepositoryInterface $orderAddressRepository,
-        InitialStateIdLoader $initialStateIdLoader
+        protected EntityRepository $customerRepository,
+        protected AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        protected EventDispatcherInterface $eventDispatcher,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly OrderDefinition $orderDefinition,
+        private readonly EntityRepository $orderAddressRepository,
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly LineItemDownloadLoader $downloadLoader
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->orderDefinition = $orderDefinition;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->initialStateIdLoader = $initialStateIdLoader;
     }
 
     /**
@@ -183,6 +161,14 @@ class OrderConverter
 
         $data['lineItems'] = array_values($convertedLineItems);
 
+        foreach ($this->downloadLoader->load($data['lineItems'], $context->getContext()) as $key => $downloads) {
+            if (!\array_key_exists($key, $data['lineItems'])) {
+                continue;
+            }
+
+            $data['lineItems'][$key]['downloads'] = $downloads;
+        }
+
         /** @var IdStruct|null $idStruct */
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
         $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
@@ -208,31 +194,19 @@ class OrderConverter
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws MissingOrderRelationException
+     * @throws CartException
      */
     public function convertToCart(OrderEntity $order, Context $context): Cart
     {
         if ($order->getLineItems() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('lineItems');
-            }
-
-            throw new MissingOrderRelationException('lineItems');
+            throw OrderException::missingAssociation('lineItems');
         }
 
         if ($order->getDeliveries() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('deliveries');
-            }
-
-            throw new MissingOrderRelationException('deliveries');
+            throw OrderException::missingAssociation('deliveries');
         }
 
-        $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->setCustomerComment($order->getCustomerComment());
         $cart->setAffiliateCode($order->getAffiliateCode());
@@ -240,11 +214,7 @@ class OrderConverter
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         $orderNumber = $order->getOrderNumber();
         if ($orderNumber === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingOrderNumber($order->getId());
-            }
-
-            throw new OrderInconsistentException($order->getId(), 'orderNumber is required');
+            throw OrderException::missingOrderNumber($order->getId());
         }
 
         $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
@@ -273,18 +243,10 @@ class OrderConverter
     public function assembleSalesChannelContext(OrderEntity $order, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         if ($order->getTransactions() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('transactions');
-            }
-
-            throw new MissingOrderRelationException('transactions');
+            throw OrderException::missingAssociation('transactions');
         }
         if ($order->getOrderCustomer() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('orderCustomer');
-            }
-
-            throw new MissingOrderRelationException('orderCustomer');
+            throw OrderException::missingAssociation('orderCustomer');
         }
 
         $customerId = $order->getOrderCustomer()->getCustomerId();
@@ -315,18 +277,20 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
+        /** @var OrderDeliveryEntity|null $delivery */
+        $delivery = $order->getDeliveries()?->first();
         if ($delivery !== null) {
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
         }
 
-        //get the first not paid transaction or, if all paid, the last transaction
         if ($order->getTransactions() !== null) {
             foreach ($order->getTransactions() as $transaction) {
                 $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
                 if (
                     $transaction->getStateMachineState() !== null
                     && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
+                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
+                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_FAILED
                 ) {
                     break;
                 }

@@ -3,6 +3,9 @@ import template from './sw-text-field.html.twig';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @protected
  * @description Simple text field.
  * @status ready
@@ -10,7 +13,6 @@ const { Component, Mixin } = Shopware;
  * @component-example
  * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-field', {
     template,
     inheritAttrs: false,
@@ -71,7 +73,7 @@ Component.register('sw-text-field', {
         },
 
         additionalListeners() {
-            const additionalListeners = Object.assign({}, this.$listeners);
+            const additionalListeners = { ...this.$listeners };
 
             delete additionalListeners.input;
             delete additionalListeners.change;

@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition">
@@ -14,11 +14,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url_template" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition">
-            <tag name="shopware.entity.definition" entity="main_category" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\MainCategory\SalesChannel\SalesChannelMainCategoryDefinition">
@@ -42,7 +42,7 @@
             <argument type="service" id="router.default"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="shopware.seo_url.twig"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParser"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlPersister">
@@ -122,7 +122,6 @@
 
         <service id="Shopware\Core\Content\Seo\HreflangLoaderInterface" class="Shopware\Core\Content\Seo\HreflangLoader">
             <argument type="service" id="router.default"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

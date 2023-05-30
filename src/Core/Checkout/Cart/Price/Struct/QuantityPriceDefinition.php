@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -14,10 +15,11 @@ use Symfony\Component\Validator\Constraints\Type;
  * based on a item quantity. These Definitions are used for LineItems created from Products. They do not depend on
  * other PriceDefinitions in a calculation process.
  */
+#[Package('checkout')]
 class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
-    public const TYPE = 'quantity';
-    public const SORTING_PRIORITY = 100;
+    final public const TYPE = 'quantity';
+    final public const SORTING_PRIORITY = 100;
 
     /**
      * @var float
@@ -54,8 +56,11 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $regulationPrice;
 
-    public function __construct(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
-    {
+    public function __construct(
+        float $price,
+        TaxRuleCollection $taxRules,
+        int $quantity = 1
+    ) {
         $this->price = FloatComparator::cast($price);
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
@@ -89,12 +94,10 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public static function fromArray(array $data): self
     {
         $taxRules = array_map(
-            function (array $tax) {
-                return new TaxRule(
-                    (float) $tax['taxRate'],
-                    (float) $tax['percentage']
-                );
-            },
+            fn (array $tax) => new TaxRule(
+                (float) $tax['taxRate'],
+                (float) $tax['percentage']
+            ),
             $data['taxRules']
         );
 

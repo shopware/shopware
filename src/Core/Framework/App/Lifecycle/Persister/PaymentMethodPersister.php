@@ -2,39 +2,36 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class PaymentMethodPersister
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private FinfoMimeTypeDetector $mimeDetector;
 
-    /**
-     * @var MediaService
-     */
-    private $mediaService;
-
-    public function __construct(EntityRepositoryInterface $paymentMethodRepository, MediaService $mediaService)
-    {
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->mediaService = $mediaService;
+    public function __construct(
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly MediaService $mediaService,
+        private readonly AbstractAppLoader $appLoader,
+    ) {
+        $this->mimeDetector = new FinfoMimeTypeDetector();
     }
 
     public function updatePaymentMethods(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
@@ -137,24 +134,28 @@ class PaymentMethodPersister
 
     private function getMediaId(Manifest $manifest, PaymentMethod $paymentMethod, Context $context, ?AppPaymentMethodEntity $existing): ?string
     {
-        $icon = $paymentMethod->getIcon();
-        if ($icon === null) {
+        if (!$iconPath = $paymentMethod->getIcon()) {
             return null;
         }
 
-        $iconPath = sprintf('%s/%s', $manifest->getPath(), $paymentMethod->getIcon() ?: '');
+        $icon = $this->appLoader->loadFile($manifest->getPath(), $iconPath);
+        if (!$icon) {
+            return null;
+        }
+
+        $fileName = sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+        $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
+        $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
         $mediaId = $existing !== null ? $existing->getOriginalMediaId() : null;
 
-        $mediaFile = new MediaFile(
-            $iconPath,
-            mime_content_type($iconPath) ?: '',
-            pathinfo($iconPath, \PATHINFO_EXTENSION),
-            filesize($iconPath) ?: 0
-        );
-        $fileName = sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+        if (!$mimeType) {
+            return null;
+        }
 
-        return $this->mediaService->saveMediaFile(
-            $mediaFile,
+        return $this->mediaService->saveFile(
+            $icon,
+            $extension,
+            $mimeType,
             $fileName,
             $context,
             PaymentMethodDefinition::ENTITY_NAME,

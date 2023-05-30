@@ -1,9 +1,8 @@
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', {
+export default {
     computed: {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
@@ -26,4 +25,4 @@ Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', {
             this.element.config.content.value = 'product.name';
         },
     },
-});
+};

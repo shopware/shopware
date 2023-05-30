@@ -46,7 +46,7 @@
         />
         {% endblock %}
 
-        <sw-card-view>
+        <sw-card-view :class="{'sw-flow-detail__template': isTemplate }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_tabs_header %}
             <sw-tabs position-identifier="sw-flow-detail">
@@ -54,7 +54,7 @@
                 {% block sw_flow_tabs_header_general %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-general"
-                    :route="{ name: routeDetailTab('general') }"
+                    :route="routeDetailTab('general')"
                 >
                     {{ $tc('sw-flow.page.tabGeneral') }}
                 </sw-tabs-item>
@@ -64,7 +64,7 @@
                 {% block sw_flow_tabs_header_builder %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-flow"
-                    :route="{ name: routeDetailTab('flow') }"
+                    :route="routeDetailTab('flow')"
                 >
                     {{ $tc('sw-flow.page.tabFlow') }}
                 </sw-tabs-item>
@@ -74,7 +74,13 @@
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
-
+            <sw-alert
+                v-if="isTemplate"
+                variant="warning"
+                class="sw-flow-detail__warning"
+            >
+                {{ $tc('sw-flow.flowNotification.messageWarningSave') }}
+            </sw-alert>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_tabs_content %}
             <template v-if="isLoading">
@@ -86,6 +92,7 @@
                 v-else
                 :is-loading="isLoading"
                 :is-new-flow="isNewFlow"
+                :is-template="isTemplate"
             />
             {% endblock %}
         </sw-card-view>

@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
+use OpenSearch\Client;
+use OpenSearch\Common\Exceptions\NoNodesAvailableException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -79,7 +80,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $client,
             $this->createMock(EntitySearcherInterface::class),
             $helper,
-            new CriteriaParser(new EntityDefinitionQueryHelper()),
+            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
         );

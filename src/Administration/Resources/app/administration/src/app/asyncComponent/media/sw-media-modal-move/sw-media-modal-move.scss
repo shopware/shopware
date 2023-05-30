@@ -1,0 +1,54 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-media-modal-move-breadcrumbs-hover-background-color: $color-shopware-brand-50;
+$sw-media-modal-move-breadcrumbs-right-arrow-color: $color-darkgray-200;
+$sw-media-modal-move-breadcrumbs-default-color: $color-darkgray-200;
+$sw-media-modal-move-breadcrumbs-target-color: $color-shopware-brand-500;
+$sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
+
+.sw-media-modal-move {
+    .sw-media-modal-move-folder-breadcrumbs {
+        display: flex;
+        font-size: $font-size-xs;
+        line-height: 22px;
+        margin-bottom: 20px;
+    }
+
+    .sw-media-modal-move__breadcrumb-btn {
+        background: none;
+        border: none;
+        outline: none;
+        padding: 8px 6px 8px 0;
+        color: $sw-media-modal-move-breadcrumbs-default-color;
+        max-width: 400px;
+
+        @include truncate;
+
+        &:hover {
+            background-color: $sw-media-modal-move-breadcrumbs-hover-background-color;
+        }
+
+        &.--target {
+            color: $sw-media-modal-move-breadcrumbs-target-color;
+
+            .sw-icon {
+                color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
+            }
+        }
+
+        &.--parent {
+            color: $sw-media-modal-move-breadcrumbs-parent-color;
+
+            .sw-icon {
+                color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
+            }
+        }
+    }
+
+    .sw-media-modal-move__folder-icon {
+        width: 16px;
+        margin-right: 10px;
+        margin-top: 2px;
+    }
+}

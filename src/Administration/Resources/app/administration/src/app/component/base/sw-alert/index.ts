@@ -9,6 +9,9 @@ type CssClassesObject = { [key: string]: boolean };
 type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description
  * The <u>sw-alert</u> component is used to convey important information to the user. It comes in 4 variations,
  * <strong>success</strong>, <strong>info</strong>, <strong>warning</strong> and <strong>error</strong>. These have
@@ -20,7 +23,6 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
  *    Sample text
  * </sw-alert>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-alert', {
     template,
 
@@ -29,9 +31,9 @@ Component.register('sw-alert', {
             type: String as PropType<NotificationType>,
             required: false,
             default: 'info',
-            validValues: ['info', 'warning', 'error', 'success'],
+            validValues: ['info', 'warning', 'error', 'success', 'neutral'],
             validator(value: string): boolean {
-                return ['info', 'warning', 'error', 'success'].includes(value);
+                return ['info', 'warning', 'error', 'success', 'neutral'].includes(value);
             },
         },
         appearance: {
@@ -82,6 +84,7 @@ Component.register('sw-alert', {
                 warning: 'regular-exclamation-triangle',
                 error: 'regular-exclamation-circle',
                 success: 'regular-check-circle',
+                neutral: 'regular-info-circle',
             };
 
             return iconConfig[this.variant] || 'regular-bell';

@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\Test\ImportExport\Processing\Reader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class CsvReaderTest extends TestCase
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
@@ -86,7 +88,7 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => '', 'bar' => 'zxcv'], $result[$i]);
     }
 
-    public function eolProvider(): array
+    public static function eolProvider(): array
     {
         return [
             ["\r\n"], // windows

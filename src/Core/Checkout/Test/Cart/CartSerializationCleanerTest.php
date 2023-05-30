@@ -19,7 +19,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -29,6 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartSerializationCleanerTest extends TestCase
 {
     use EventDispatcherBehaviour;
@@ -36,11 +37,12 @@ class CartSerializationCleanerTest extends TestCase
 
     /**
      * @dataProvider cleanupCustomFieldsProvider
+     *
+     * @param array<string, mixed> $payloads
+     * @param array<string> $allowed
      */
     public function testLineItemCustomFields(Cart $cart, array $payloads = [], array $allowed = []): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
@@ -74,8 +76,6 @@ class CartSerializationCleanerTest extends TestCase
      */
     public function testLineItemCovers(Cart $cart, ?MediaEntity $expectedCover): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $dispatcher = $this->createMock(EventDispatcher::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())->method('fetchFirstColumn');
@@ -89,10 +89,10 @@ class CartSerializationCleanerTest extends TestCase
         }
     }
 
-    public function cleanupCustomFieldsProvider(): \Generator
+    public static function cleanupCustomFieldsProvider(): \Generator
     {
         yield 'Test empty cart' => [
-            new Cart('test', 'test'),
+            new Cart('test'),
             [],
         ];
 
@@ -120,7 +120,7 @@ class CartSerializationCleanerTest extends TestCase
         ];
     }
 
-    public function cleanupCoversProvider(): \Generator
+    public static function cleanupCoversProvider(): \Generator
     {
         yield 'Test cover thumbnailRo cleanup' => [
             self::coverCart('foo', 'test'),
@@ -138,6 +138,9 @@ class CartSerializationCleanerTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private static function payloadItem(string $id, array $payload): LineItem
     {
         $item = new LineItem($id, 'foo');
@@ -179,9 +182,12 @@ class CartSerializationCleanerTest extends TestCase
         return $item;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private static function payloadCart(string $id, array $payload): Cart
     {
-        $cart = (new Cart('test', 'test'))->add(self::payloadItem($id, $payload));
+        $cart = (new Cart('test'))->add(self::payloadItem($id, $payload));
         $cart->addDeliveries(self::itemDelivery(self::payloadItem($id, $payload)));
 
         return $cart;
@@ -189,7 +195,7 @@ class CartSerializationCleanerTest extends TestCase
 
     private static function coverCart(string $id, ?string $thumbnailString, bool $skipCover = false): Cart
     {
-        $cart = (new Cart('test', 'test'))->add(self::coverItem($id, $thumbnailString, $skipCover));
+        $cart = (new Cart('test'))->add(self::coverItem($id, $thumbnailString, $skipCover));
         $cart->addDeliveries(self::itemDelivery(self::coverItem($id, $thumbnailString, $skipCover)));
 
         return $cart;

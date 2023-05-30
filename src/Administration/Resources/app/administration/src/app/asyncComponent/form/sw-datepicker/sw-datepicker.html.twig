@@ -1,0 +1,57 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_datepicker %}
+<sw-contextual-field
+    class="sw-field--datepicker"
+    :class="{ 'has--focus': isDatepickerOpen }"
+    v-bind="$attrs"
+    :required="required"
+    :name="formFieldName"
+    :disabled="disabled"
+    @sw-contextual-field-suffix-clicked="openDatepicker"
+    @inheritance-restore="$emit('inheritance-restore', $event)"
+    @inheritance-remove="$emit('inheritance-remove', $event)"
+    @hook:mounted="createFlatpickrInstance"
+    v-on="additionalEventListeners"
+>
+
+    <template #sw-field-input="{ identification, disabled }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            :id="identification"
+            ref="flatpickrInput"
+            type="text"
+            :name="identification"
+            :disabled="disabled"
+            :placeholder="placeholder"
+        >
+        <sw-icon
+            v-if="!required && timezoneFormattedValue && !disabled"
+            class="sw-field--datepicker__button-reset-value"
+            name="regular-times-xs"
+            @click="unsetValue"
+        />
+    </template>
+
+    <template
+        v-if="showTimeZoneHint"
+        #hint
+    >
+        <sw-icon
+            name="solid-clock"
+            size="12px"
+        />
+        {{ userTimeZone }}
+    </template>
+
+    <template #sw-contextual-field-suffix>
+        <sw-icon
+            :name="suffixName"
+            @click.stop="openDatepicker"
+        />
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+</sw-contextual-field>
+{% endblock %}

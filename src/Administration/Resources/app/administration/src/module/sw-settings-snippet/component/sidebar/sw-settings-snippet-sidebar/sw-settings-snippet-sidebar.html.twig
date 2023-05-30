@@ -16,9 +16,20 @@
         ref="filterSideBar"
         icon="regular-filter"
         :title="$tc('sw-settings-snippet.list.titleSidebarItemFilter')"
+        :badge="activeFilterNumber"
         @close-content="closeContent"
         @click="closeContent"
     >
+        <template #headline-content>
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <a
+                v-if="activeFilterNumber"
+                class="sw-snippet-settings__sidebar-reset-all"
+                @click="resetAll"
+            >
+                {{ $tc('sw-sidebar-filter-panel.resetButton') }}
+            </a>
+        </template>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_only_empty %}
@@ -26,6 +37,7 @@
             name="emptySnippets"
             group="emptySnippets"
             type="small"
+            :value="filterSettings?.emptySnippets"
             :label="$tc('sw-settings-snippet.filter.showOnlyEmpty')"
             @change="onChange"
         />
@@ -37,6 +49,7 @@
             name="editedSnippets"
             group="editedSnippets"
             type="small"
+            :value="filterSettings?.editedSnippets"
             :label="$tc('sw-settings-snippet.filter.showOnlyCustom')"
             @change="onChange"
         />
@@ -48,6 +61,7 @@
             name="addedSnippets"
             group="addedSnippets"
             type="small"
+            :value="filterSettings?.addedSnippets"
             :label="$tc('sw-settings-snippet.filter.showOnlyAdded')"
             @change="onChange"
         />
@@ -55,18 +69,19 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_author %}
-        <sw-sidebar-collapse>
-            <template slot="header">
+        <sw-sidebar-collapse :expand-on-loading="isExpandedAuthorFilters">
+            <template #header>
                 {{ $tc('sw-settings-snippet.filter.author') }}
             </template>
-            <template slot="content">
+            <template #content>
                 <div
                     v-for="(item, index) in authorFilters"
                     :key="index"
                 >
                     <sw-settings-snippet-filter-switch
-                        :name="item"
                         group="authorFilter"
+                        :name="item"
+                        :value="filterSettings?.[item]"
                         :label="item"
                         @change="onChange"
                     />
@@ -77,18 +92,19 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_grid_sidebar_filter_more %}
-        <sw-sidebar-collapse>
-            <template slot="header">
+        <sw-sidebar-collapse :expand-on-loading="isExpandedMoreFilters">
+            <template #header>
                 {{ $tc('sw-settings-snippet.filter.more') }}
             </template>
-            <template slot="content">
+            <template #content>
                 <div
                     v-for="(item, index) in filterItems"
                     :key="index"
                 >
                     <sw-settings-snippet-filter-switch
-                        :name="item"
                         group="namespaceFilters"
+                        :name="item"
+                        :value="filterSettings?.[item]"
                         :label="item"
                         @change="onChange"
                     />

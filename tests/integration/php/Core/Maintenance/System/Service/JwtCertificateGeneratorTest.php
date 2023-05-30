@@ -23,7 +23,7 @@ class JwtCertificateGeneratorTest extends TestCase
 
     private string $dirname;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->jwtCertificateGenerator = $this->getContainer()->get(JwtCertificateGenerator::class);
 
@@ -33,7 +33,7 @@ class JwtCertificateGeneratorTest extends TestCase
         $this->dirname = 'does-not-exist';
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unlink($this->privatePath);
         unlink($this->publicPath);
@@ -63,7 +63,7 @@ class JwtCertificateGeneratorTest extends TestCase
 
         /** @var string $privateCertificate */
         $privateCertificate = file_get_contents($this->privatePath);
-        /** @var resource $privateKey */
+        /** @var \OpenSSLAsymmetricKey $privateKey */
         $privateKey = openssl_pkey_get_private($privateCertificate, $passphrase);
 
         openssl_sign($data, $signature, $privateKey);
@@ -93,7 +93,7 @@ class JwtCertificateGeneratorTest extends TestCase
         $data = 'test data';
         /** @var string $privateCertificate */
         $privateCertificate = file_get_contents($this->privatePath);
-        /** @var resource $privateKey */
+        /** @var \OpenSSLAsymmetricKey $privateKey */
         $privateKey = openssl_pkey_get_private($privateCertificate);
 
         openssl_sign($data, $signature, $privateKey);

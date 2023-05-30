@@ -2,8 +2,14 @@
 
 namespace Shopware\Core\DevOps\Environment;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class EnvironmentHelper
 {
+    /**
+     * @var array<int, array<class-string<EnvironmentHelperTransformerInterface>, class-string<EnvironmentHelperTransformerInterface>>>
+     */
     private static array $transformers = [];
 
     /**
@@ -20,6 +26,7 @@ class EnvironmentHelper
         $transformerData = new EnvironmentHelperTransformerData($key, $value, $default);
 
         foreach (self::$transformers as $transformers) {
+            /** @var class-string<EnvironmentHelperTransformerInterface> $transformer */
             foreach ($transformers as $transformer) {
                 $transformer::transform($transformerData);
             }

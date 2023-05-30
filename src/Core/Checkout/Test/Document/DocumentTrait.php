@@ -4,19 +4,21 @@ namespace Shopware\Core\Checkout\Test\Document;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -27,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('customer-order')]
 trait DocumentTrait
 {
     use IntegrationTestBehaviour;
@@ -86,13 +89,13 @@ trait DocumentTrait
     {
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $cart = $cartService->createNew('a-b-c', 'A');
+        $cart = $cartService->createNew('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
         $products = [];
 
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         $ids = new IdsCollection();
 
@@ -116,7 +119,7 @@ trait DocumentTrait
 
             $products[] = $product;
 
-            $lineItems[] = $factory->create($ids->get($number));
+            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
             $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
         }
 
@@ -127,14 +130,14 @@ trait DocumentTrait
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
         )->firstId();
 
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        /** @var EntityRepository $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
 
         $criteria = new Criteria();
@@ -168,7 +171,7 @@ trait DocumentTrait
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
@@ -200,7 +203,7 @@ trait DocumentTrait
             ];
         }
 
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        /** @var EntityRepository $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }

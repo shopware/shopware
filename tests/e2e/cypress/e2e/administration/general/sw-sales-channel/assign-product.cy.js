@@ -5,24 +5,20 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Sales Channel: Test product assignment operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.searchViaAdminApi({
-                    endpoint: 'category',
-                    data: {
-                        field: 'name',
-                        value: 'Home'
-                    }
-                });
-            })
-            .then(({ id: categoryId }) => {
-                cy.createCategoryFixture({
-                    name: 'Test category',
-                    type: 'page',
-                    parentId: categoryId,
-                    active: true
-                });
-            })
+        cy.searchViaAdminApi({
+            endpoint: 'category',
+            data: {
+                field: 'name',
+                value: 'Home',
+            },
+        }).then(({ id: categoryId }) => {
+            cy.createCategoryFixture({
+                name: 'Test category',
+                type: 'page',
+                parentId: categoryId,
+                active: true,
+            });
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -37,17 +33,17 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductVisibility');
 
 
@@ -56,7 +52,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.smart-bar__header h2').should('be.visible');
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -121,17 +117,17 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductVisibility');
 
 
@@ -141,7 +137,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
 
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

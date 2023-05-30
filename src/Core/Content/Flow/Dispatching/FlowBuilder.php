@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal not intended for decoration or replacement
  */
+#[Package('business-ops')]
 class FlowBuilder
 {
     public function build(string $id, array $flowSequences): Flow
@@ -26,7 +28,10 @@ class FlowBuilder
             $sequences[] = $this->createNestedSequence($flowSequence, [], $flatBag);
         }
 
-        return new Flow($id, $sequences, $flatBag->all());
+        /** @var array<string, Sequence> $flat */
+        $flat = $flatBag->all();
+
+        return new Flow($id, $sequences, $flat);
     }
 
     private function buildHierarchyTree(array $flowSequences, ?string $parentId = null): array
@@ -74,7 +79,7 @@ class FlowBuilder
      */
     private function createNestedAction(array $currentSequence, array $siblingSequences, ArrayStruct $flagBag): Sequence
     {
-        $config = $currentSequence['config'] ? json_decode($currentSequence['config'], true) : [];
+        $config = $currentSequence['config'] ? json_decode((string) $currentSequence['config'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
         $children = $currentSequence['children'];
         if (!empty($children)) {
@@ -123,13 +128,9 @@ class FlowBuilder
             return Sequence::createIF($currentSequence['rule_id'], $currentSequence['flow_id'], $currentSequence['sequence_id'], null, null);
         }
 
-        $trueCases = array_filter($sequenceChildren, function (array $sequence) {
-            return (bool) $sequence['true_case'] === true;
-        });
+        $trueCases = array_filter($sequenceChildren, fn (array $sequence) => (bool) $sequence['true_case'] === true);
 
-        $falseCases = array_filter($sequenceChildren, function (array $sequence) {
-            return (bool) $sequence['true_case'] === false;
-        });
+        $falseCases = array_filter($sequenceChildren, fn (array $sequence) => (bool) $sequence['true_case'] === false);
 
         $trueCaseSequence = null;
         if (!empty($trueCases)) {

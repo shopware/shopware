@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -21,10 +22,11 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
@@ -39,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class DocumentControllerTest extends TestCase
 {
     use DocumentTrait;
@@ -53,7 +56,7 @@ class DocumentControllerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private string $customerId;
 
@@ -99,7 +102,7 @@ class DocumentControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */
@@ -129,7 +132,7 @@ class DocumentControllerTest extends TestCase
             (string) json_encode([$document])
         );
 
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $response);
 
         $filename = 'invoice';
@@ -145,7 +148,7 @@ class DocumentControllerTest extends TestCase
             $expectedFileContent
         );
 
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
@@ -164,13 +167,11 @@ class DocumentControllerTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
         static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__INVALID_ORDER_ID');
 
@@ -178,7 +179,7 @@ class DocumentControllerTest extends TestCase
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
         static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__INVALID_ORDER_ID');
 
@@ -193,8 +194,6 @@ class DocumentControllerTest extends TestCase
 
     public function testPreviewPermission(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -212,13 +211,13 @@ class DocumentControllerTest extends TestCase
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
         static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
-            ['document.viewer']
+            ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
         $this->getBrowser()->request('GET', $endpoint);
@@ -297,7 +296,7 @@ class DocumentControllerTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(200, $response->getStatusCode());
-            $response = json_decode((string) $response->getContent(), true);
+            $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('data', $response);
             static::assertNotEmpty($data = $response['data']);
             static::assertCount(2, $data);
@@ -331,7 +330,7 @@ class DocumentControllerTest extends TestCase
             (string) json_encode($content)
         );
 
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
@@ -362,7 +361,7 @@ class DocumentControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        $response = json_decode((string) $response->getContent(), true);
+        $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][$order->getId()][0]['code']);
@@ -380,7 +379,7 @@ class DocumentControllerTest extends TestCase
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -397,11 +396,7 @@ class DocumentControllerTest extends TestCase
             ])
         );
 
-        static::assertIsString($content = $this->getBrowser()->getResponse()->getContent());
-        $response = json_decode($content, true);
-
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNull($response);
     }
 
     public function testDownload(): void
@@ -440,8 +435,6 @@ class DocumentControllerTest extends TestCase
 
     public function testDownloadPermission(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
             []
@@ -450,13 +443,13 @@ class DocumentControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_action/order/document/download');
 
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
-        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
         static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
-            ['document.viewer']
+            ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
         $order = $this->createOrder($this->customerId, $this->context);
@@ -498,6 +491,8 @@ class DocumentControllerTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderNumber' => Uuid::randomHex(),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
@@ -513,7 +508,7 @@ class DocumentControllerTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
@@ -580,7 +575,7 @@ class DocumentControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => Connection::PARAM_STR_ARRAY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

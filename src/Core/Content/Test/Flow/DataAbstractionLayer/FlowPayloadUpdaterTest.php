@@ -13,19 +13,21 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
  * @internal
  */
+#[Package('business-ops')]
 class FlowPayloadUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private TestDataCollection $ids;
 
@@ -179,7 +181,7 @@ class FlowPayloadUpdaterTest extends TestCase
         $this->createTestData();
 
         /** @var FlowEntity $flowEntity */
-        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
+        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
 
         /** @var string $payload */
         $payload = $flowEntity->getPayload();

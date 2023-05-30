@@ -29,7 +29,7 @@ class VariantNotFoundExceptionTest extends TestCase
         static::assertEquals('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $exception->getErrorCode());
         static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertEquals(
-            'Variant for productId ' . $ids->get('productId') . ' with options ' . \json_encode($options) . ' not found.',
+            'Variant for productId ' . $ids->get('productId') . ' with options ' . \json_encode($options, \JSON_THROW_ON_ERROR) . ' not found.',
             $exception->getMessage()
         );
     }

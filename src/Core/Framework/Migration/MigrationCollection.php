@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
+#[Package('core')]
 class MigrationCollection
 {
     /**
@@ -14,27 +16,15 @@ class MigrationCollection
      */
     private ?array $migrationSteps = null;
 
-    private MigrationSource $migrationSource;
-
-    private Connection $connection;
-
-    private MigrationRuntime $migrationRuntime;
-
-    private ?LoggerInterface $logger = null;
-
     /**
      * @internal
      */
     public function __construct(
-        MigrationSource $migrationSource,
-        MigrationRuntime $migrationRuntime,
-        Connection $connection,
-        ?LoggerInterface $logger = null
+        private readonly MigrationSource $migrationSource,
+        private readonly MigrationRuntime $migrationRuntime,
+        private readonly Connection $connection,
+        private readonly ?LoggerInterface $logger = null
     ) {
-        $this->migrationSource = $migrationSource;
-        $this->connection = $connection;
-        $this->migrationRuntime = $migrationRuntime;
-        $this->logger = $logger;
     }
 
     public function getName(): string
@@ -131,29 +121,10 @@ class MigrationCollection
      */
     private function getMigrationData(string $className, MigrationStep $migrationStep): array
     {
-        $default = [
+        return [
             'class' => $className,
             'creation_timestamp' => $migrationStep->getCreationTimestamp(),
         ];
-
-        $oldName = $this->migrationSource->mapToOldName($className);
-        if ($oldName === null) {
-            return $default;
-        }
-
-        /** @var false|array{class: class-string<MigrationStep>, creation_timestamp: int, update: string, update_destructive: string, message: string} $row */
-        $row = $this->connection->fetchAssociative(
-            'SELECT * FROM migration WHERE class = :class',
-            ['class' => $oldName]
-        );
-
-        if ($row === false) {
-            return $default;
-        }
-
-        $row['class'] = $className;
-
-        return $row;
     }
 
     private function ensureStepsLoaded(): void

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class PrimaryKey extends Flag
 {
     public function parse(): \Generator

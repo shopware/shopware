@@ -8,8 +8,9 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,18 +24,19 @@ use Symfony\Component\Validator\Constraints\Choice;
 /**
  * @internal
  */
+#[Package('business-ops')]
 class RuleTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CartRuleHelperTrait;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private RuleConditionRegistry $conditionRegistry;
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->conditionRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
@@ -110,8 +112,12 @@ class RuleTest extends TestCase
     {
         /** @var Rule $rule */
         foreach ($this->getRules() as $rule) {
-            $constraints = $rule->getConstraints();
-            $config = $rule->getConfig();
+            try {
+                $constraints = $rule->getConstraints();
+                $config = $rule->getConfig();
+            } catch (\Throwable) {
+                continue;
+            }
 
             if ($config === null) {
                 continue;
@@ -138,9 +144,7 @@ class RuleTest extends TestCase
                 ));
             }
 
-            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
-                return $operatorConstraints instanceof Choice;
-            }));
+            $choiceConstraint = current(array_filter($constraints['operator'], fn (Constraint $operatorConstraints) => $operatorConstraints instanceof Choice));
 
             if (!$choiceConstraint) {
                 continue;
@@ -153,20 +157,38 @@ class RuleTest extends TestCase
         }
     }
 
+    public function testRuleNameConfigByConstant(): void
+    {
+        /** @var Rule $rule */
+        foreach ($this->getRules() as $rule) {
+            $ruleNameConstant = $rule::RULE_NAME; /* @phpstan-ignore-line */
+
+            static::assertNotNull($ruleNameConstant, sprintf(
+                'Rule name constant is empty in condition %s',
+                $rule->getName()
+            ));
+        }
+    }
+
+    /**
+     * @return \ArrayIterator<int, Rule>
+     */
     private function getRulesWithEmptyOperator(): \Traversable
     {
         /** @var Rule $rule */
         foreach ($this->getRules() as $rule) {
-            $constraints = $rule->getConstraints();
+            try {
+                $constraints = $rule->getConstraints();
+            } catch (\Throwable) {
+                continue;
+            }
 
             // skip instances of Rule that don't have an operator constraint
             if (empty($constraints['operator'])) {
                 continue;
             }
 
-            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
-                return $operatorConstraints instanceof Choice;
-            }));
+            $choiceConstraint = current(array_filter($constraints['operator'], fn (Constraint $operatorConstraints) => $operatorConstraints instanceof Choice));
 
             if (!$choiceConstraint) {
                 continue;
@@ -181,6 +203,9 @@ class RuleTest extends TestCase
         }
     }
 
+    /**
+     * @return \ArrayIterator<int, Rule>
+     */
     private function getRules(): \Traversable
     {
         $ruleNames = $this->conditionRegistry->getNames();

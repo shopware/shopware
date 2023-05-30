@@ -7,13 +7,11 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -25,14 +23,11 @@ class StoreRequestOptionsProviderTest extends TestCase
 
     private AbstractStoreRequestOptionsProvider $storeRequestOptionsProvider;
 
-    private SystemConfigService $systemConfigService;
-
     private Context $storeContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storeRequestOptionsProvider = $this->getContainer()->get(StoreRequestOptionsProvider::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->storeContext = $this->createAdminStoreContext();
     }
 
@@ -68,15 +63,6 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         static::expectException(InvalidContextSourceUserException::class);
         $this->storeRequestOptionsProvider->getAuthenticationHeader($context);
-    }
-
-    public function testGetDefaultQueriesReturnsLanguageIfGiven(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-        $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters(null, 'de-CH');
-
-        static::assertArrayHasKey('language', $queries);
-        static::assertEquals('de-CH', $queries['language']);
     }
 
     public function testGetDefaultQueriesReturnsLanguageFromContext(): void
@@ -130,7 +116,11 @@ class StoreRequestOptionsProviderTest extends TestCase
 
     private function getLanguageFromContext(Context $context): string
     {
-        $userId = $context->getSource()->getUserId();
+        /** @var AdminApiSource $contextSource */
+        $contextSource = $context->getSource();
+        $userId = $contextSource->getUserId();
+
+        static::assertIsString($userId);
 
         $criteria = (new Criteria([$userId]))->addAssociation('locale');
 

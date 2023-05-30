@@ -5,8 +5,10 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class AfterLineItemAddedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -24,8 +26,11 @@ class AfterLineItemAddedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    public function __construct(array $lineItems, Cart $cart, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        array $lineItems,
+        Cart $cart,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->lineItems = $lineItems;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;

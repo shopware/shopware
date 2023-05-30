@@ -10,29 +10,24 @@ use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
+#[Package('checkout')]
+class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware, FlowEventAware
 {
-    public const EVENT_NAME = 'checkout.order.placed';
+    final public const EVENT_NAME = 'checkout.order.placed';
 
-    private OrderEntity $order;
-
-    private Context $context;
-
-    private ?MailRecipientStruct $mailRecipientStruct = null;
-
-    private string $salesChannelId;
-
-    public function __construct(Context $context, OrderEntity $order, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
-    {
-        $this->order = $order;
-        $this->context = $context;
-        $this->mailRecipientStruct = $mailRecipientStruct;
-        $this->salesChannelId = $salesChannelId;
+    public function __construct(
+        private readonly Context $context,
+        private readonly OrderEntity $order,
+        private readonly string $salesChannelId,
+        private ?MailRecipientStruct $mailRecipientStruct = null
+    ) {
     }
 
     public function getName(): string

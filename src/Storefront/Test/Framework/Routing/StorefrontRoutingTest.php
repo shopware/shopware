@@ -9,7 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,38 +26,24 @@ use Symfony\Component\Routing\RequestContext;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class StorefrontRoutingTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var RequestTransformerInterface
-     */
-    private $requestTransformer;
+    private RequestTransformerInterface $requestTransformer;
 
-    /**
-     * @var Router
-     */
-    private $router;
+    private Router $router;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var RequestContext
-     */
-    private $oldContext;
+    private RequestContext $oldContext;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlReplacer;
+    private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
@@ -75,7 +61,7 @@ class StorefrontRoutingTest extends TestCase
         $this->oldContext = $this->router->getContext();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         while ($this->requestStack->pop()) {
         }
@@ -97,7 +83,7 @@ class StorefrontRoutingTest extends TestCase
         $context = $this->getContext($transformedRequest);
         $this->router->setContext($context);
 
-        $absolutePath = $this->router->generate($case->route, [], Router::ABSOLUTE_PATH);
+        $absolutePath = $this->router->generate($case->route);
         $absoluteUrl = $this->router->generate($case->route, [], Router::ABSOLUTE_URL);
         $networkPath = $this->router->generate($case->route, [], Router::NETWORK_PATH);
         $pathInfo = $this->router->generate($case->route, [], Router::PATH_INFO);
@@ -119,8 +105,7 @@ class StorefrontRoutingTest extends TestCase
 
         $absoluteSeoUrl = $this->seoUrlReplacer->replace(
             $this->seoUrlReplacer->generate(
-                $case->route,
-                []
+                $case->route
             ),
             $host,
             $salesChannelContext
@@ -129,7 +114,7 @@ class StorefrontRoutingTest extends TestCase
         static::assertSame($case->getAbsoluteUrl(), $absoluteSeoUrl);
     }
 
-    public function getRequestTestCaseProvider(): array
+    public static function getRequestTestCaseProvider(): array
     {
         $config = [
             'https' => [false, true],
@@ -137,11 +122,9 @@ class StorefrontRoutingTest extends TestCase
             'subDir' => ['', '/public', '/sw/public'],
             'salesChannel' => ['', '/de', '/de/premium', '/public'],
         ];
-        $cases = $this->generateCases(array_keys($config), $config);
+        $cases = self::generateCases(array_keys($config), $config);
 
-        return array_map(function ($params) {
-            return [$this->createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])];
-        }, $cases);
+        return array_map(fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
     }
 
     private function getContext(Request $request): RequestContext
@@ -158,7 +141,7 @@ class StorefrontRoutingTest extends TestCase
         );
     }
 
-    private function createCase(bool $https, string $host, string $subDir, string $salesChannel): RequestTestCase
+    private static function createCase(bool $https, string $host, string $subDir, string $salesChannel): RequestTestCase
     {
         return new RequestTestCase(
             'POST',
@@ -173,7 +156,7 @@ class StorefrontRoutingTest extends TestCase
         );
     }
 
-    private function generateCases(array $keys, array $config): array
+    private static function generateCases(array $keys, array $config): array
     {
         if (empty($keys)) {
             return [];
@@ -182,7 +165,7 @@ class StorefrontRoutingTest extends TestCase
         $results = [];
         $key = array_pop($keys);
         foreach ($config[$key] as $value) {
-            $childResults = $this->generateCases($keys, $config);
+            $childResults = self::generateCases($keys, $config);
             $base = [$key => $value];
             foreach ($childResults as $childResult) {
                 $base = array_merge($base, $childResult);
@@ -248,7 +231,7 @@ class StorefrontRoutingTest extends TestCase
             return array_merge_recursive($defaults, $salesChannelData);
         }, $salesChannels);
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $event = $salesChannelRepository->create($salesChannels, Context::createDefaultContext());

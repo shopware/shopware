@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1653376989ResetDefaultAlwaysValidConditionValue
  */
 class Migration1653376989ResetDefaultAlwaysValidConditionValueTest extends TestCase

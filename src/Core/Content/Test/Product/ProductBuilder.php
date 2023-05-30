@@ -22,7 +22,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *          ->price(Defaults::CURRENCY, 100)
  *          ->prices(Defaults::CURRENCY, 'rule-1', 100)
  *          ->manufacturer('m1')
+ *          ->slot('my-slot', ['media' => ['source' => 'static', value => 'some-uuid']])
  *          ->build();
+ *
+ * @phpstan-type RuleConditions array{array{type: 'orContainer', position: 0, children: array{array{type: 'andContainer', position: 0, children: array{array{type: 'currency'|'alwaysValid', value?: array{operator: '=', currencyIds: array{string}}, position: 0}}}}}}
+ * @phpstan-type CurrencyPrice array{gross: float, net: float, linked: bool, listPrice?: float|array{gross: float, net: float, linked: bool}, currencyId: string}
+ * @phpstan-type Manufacturer array{id: string, name: string, translations: array<string, array{name: string}>}|null
+ * @phpstan-type Tax array{id: string, name: string, taxRate: int}|null
+ * @phpstan-type Price array{gross: float, net: float, linked: bool, listPrice: array{gross: float, net: float, linked: bool}}|array{}
+ * @phpstan-type Properties array<array{id: string} | array{id: string, name: string, group: array{id: string, name: string}}>
+ * @phpstan-type Visibilities array<string, array{salesChannelId: string, visibility: int}>
+ * @phpstan-type ProductReviews array<array{title: string, content: string, points: float, languageId: string, salesChannelId: string, status: bool, customerId: string|null}>
+ * @phpstan-type ConfiguratorSettings array<array{option: array{id: string, name: string, group: array{id: string, name: string}}}>
+ * @phpstan-type Options array<array{id: string, name: string, position: int, group: array{id: string, name: string}} | array{id: string}>
+ * @phpstan-type Media array<array{id: string, position: int, media: array{fileName: string}}>
+ * @phpstan-type CrossSellings array<array{id: string, name: string, sortBy: string, sortDirection: 'ASC'|'DESC', active: bool, type: 'productStream', productStreamId?: string, productStream?: array{id: string, name: string, filters: mixed}}>
  */
 class ProductBuilder
 {
@@ -32,72 +46,132 @@ class ProductBuilder
 
     public string $id;
 
-    protected string $productNumber;
-
     protected ?string $name;
 
+    /**
+     * @var Manufacturer
+     */
     protected ?array $manufacturer;
 
+    /**
+     * @var Tax
+     */
     protected ?array $tax;
 
     protected bool $active = true;
 
+    /**
+     * @var Price
+     */
     protected array $price = [];
 
+    /**
+     * @var array<array<mixed>>
+     */
     protected array $prices = [];
 
+    /**
+     * @var array<array{id: string, name: string}>
+     */
     protected array $categories = [];
 
+    /**
+     * @var Properties
+     */
     protected array $properties = [];
 
-    protected int $stock;
+    protected ?string $releaseDate = null;
 
-    protected ?string $releaseDate;
-
+    /**
+     * @var array<string, mixed>
+     */
     protected array $customFields = [];
 
+    /**
+     * @var Visibilities
+     */
     protected array $visibilities = [];
 
+    /**
+     * @var array<CurrencyPrice>|null
+     */
     protected ?array $purchasePrices;
 
-    protected ?float $purchasePrice;
+    protected ?float $purchasePrice = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
+    /**
+     * @var array<array<mixed>>
+     */
     protected array $children = [];
 
+    /**
+     * @var array<string, array<string, mixed>>
+     */
     protected array $translations = [];
 
+    /**
+     * @var ProductReviews
+     */
     protected array $productReviews = [];
 
     protected ?bool $isCloseout = false;
 
+    /**
+     * @var ConfiguratorSettings
+     */
     protected array $configuratorSettings = [];
 
+    /**
+     * @var Options
+     */
     protected array $options = [];
 
+    /**
+     * @var Media
+     */
     protected array $media = [];
 
     protected ?string $coverId = null;
 
+    /**
+     * @var array{id: string}|array<mixed>|null
+     */
     protected ?array $cmsPage = null;
 
+    /**
+     * @var CrossSellings
+     */
     protected array $crossSellings = [];
 
+    /**
+     * @var array<string, array{id: string, name: string}>
+     */
     protected array $tags = [];
 
+    protected null|string $createdAt;
+
+    /**
+     * @var array<string, array<array<mixed>>>
+     */
     private array $dependencies = [];
 
-    public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
-    {
+    public function __construct(
+        IdsCollection $ids,
+        protected string $productNumber,
+        protected int $stock = 1,
+        string $taxKey = 't1'
+    ) {
         $this->ids = $ids;
-        $this->productNumber = $number;
-        $this->id = $this->ids->create($number);
-        $this->stock = $stock;
-        $this->name = $number;
+        $this->id = $this->ids->create($productNumber);
+        $this->name = $productNumber;
         $this->tax($taxKey);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function build(): array
     {
         $this->fixPricesQuantity();
@@ -136,6 +210,9 @@ class ProductBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function variant(array $data): self
     {
         $this->children[] = $data;
@@ -143,6 +220,9 @@ class ProductBuilder
         return $this;
     }
 
+    /**
+     * @param array<string, array{name: string}> $translations
+     */
     public function manufacturer(string $key, array $translations = []): self
     {
         $this->manufacturer = [
@@ -178,7 +258,7 @@ class ProductBuilder
 
     public function price(float $gross, ?float $net = null, string $currencyKey = 'default', ?float $listPriceGross = null, ?float $listPriceNet = null, bool $linked = false): self
     {
-        $net = $net ?? $gross / 115 * 100;
+        $net ??= $gross / 115 * 100;
 
         $price = [
             'gross' => $gross,
@@ -187,7 +267,7 @@ class ProductBuilder
         ];
 
         if ($listPriceGross !== null) {
-            $listPriceNet = $listPriceNet ?? $listPriceGross / 115 * 100;
+            $listPriceNet ??= $listPriceGross / 115 * 100;
 
             $price['listPrice'] = [
                 'gross' => $listPriceGross,
@@ -205,11 +285,11 @@ class ProductBuilder
 
     public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null): self
     {
-        $net = $net ?? $gross / 115 * 100;
+        $net ??= $gross / 115 * 100;
 
         $listPrice = null;
         if ($listPriceGross !== null) {
-            $listPriceNet = $listPriceNet ?? $listPriceGross / 115 * 100;
+            $listPriceNet ??= $listPriceGross / 115 * 100;
 
             $listPrice = [
                 'gross' => $listPriceGross,
@@ -271,15 +351,18 @@ class ProductBuilder
         return $this;
     }
 
+    /**
+     * @param array<string> $keys
+     */
     public function categories(array $keys): self
     {
-        array_map([$this, 'category'], $keys);
+        array_map($this->category(...), $keys);
 
         return $this;
     }
 
     /**
-     * @param array|object|string|float|int|bool|null $value
+     * @param mixed $value
      */
     public function customField(string $key, $value): self
     {
@@ -323,7 +406,7 @@ class ProductBuilder
     }
 
     /**
-     * @param array|object|string|float|int|bool|null $value
+     * @param mixed $value
      */
     public function translation(string $languageId, string $key, $value): self
     {
@@ -377,7 +460,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function option(string $key, string $group, int $positon = 1): self
+    public function option(string $key, string $group, int $position = 1): self
     {
         if ($this->ids->has($key)) {
             $this->options[] = ['id' => $this->ids->get($key)];
@@ -388,7 +471,7 @@ class ProductBuilder
         $this->options[] = [
             'id' => $this->ids->get($key),
             'name' => $key,
-            'position' => $positon,
+            'position' => $position,
             'group' => [
                 'id' => $this->ids->get($group),
                 'name' => $group,
@@ -436,6 +519,28 @@ class ProductBuilder
             ->descriptionReviews()
             ->crossSelling()
             ->build();
+
+        return $this;
+    }
+
+    /**
+     * @param array<mixed> $value
+     */
+    public function slot(string $key, array $value, string $languageId = Defaults::LANGUAGE_SYSTEM): self
+    {
+        if (isset($this->translations[$languageId]['slotConfig']) && \is_array($this->translations[$languageId]['slotConfig'])) {
+            $slotConfig = $this->translations[$languageId]['slotConfig'];
+        } else {
+            $slotConfig = [];
+        }
+
+        $slotConfig[$this->ids->get($key)] = $value;
+
+        $this->translation(
+            $languageId,
+            'slotConfig',
+            $slotConfig
+        );
 
         return $this;
     }
@@ -496,6 +601,16 @@ class ProductBuilder
         }
     }
 
+    public function createdAt(string|\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt instanceof \DateTimeImmutable ? $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT) : $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return RuleConditions
+     */
     private function getRuleConditions(bool $valid): array
     {
         if ($valid) {
@@ -545,9 +660,7 @@ class ProductBuilder
         }
 
         foreach ($grouped as &$group) {
-            usort($group, function (array $a, array $b) {
-                return $a['quantityStart'] <=> $b['quantityStart'];
-            });
+            usort($group, fn (array $a, array $b) => $a['quantityStart'] <=> $b['quantityStart']);
         }
 
         $mapped = [];
@@ -569,6 +682,11 @@ class ProductBuilder
         $this->prices = array_reverse($mapped);
     }
 
+    /**
+     * @param array{gross: float, net: float, linked: bool, listPrice?: array{gross: float, net: float, linked: bool}} $price
+     *
+     * @return CurrencyPrice
+     */
     private function buildCurrencyPrice(string $currencyKey, array $price): array
     {
         if ($currencyKey === 'default') {

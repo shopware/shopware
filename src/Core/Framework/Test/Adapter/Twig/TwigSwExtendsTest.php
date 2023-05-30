@@ -28,13 +28,13 @@ class TwigSwExtendsTest extends TestCase
 
     private CacheInterface $cache;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . microtime();
         $this->cache = new FilesystemCache($this->cacheDir);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $filesystem = $this->getContainer()->get(Filesystem::class);
         $filesystem->remove($this->cacheDir);

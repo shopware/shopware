@@ -6,17 +6,16 @@ use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('administration')]
 class AdminSearcher
 {
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function search(CriteriaCollection $entities, Context $context): array

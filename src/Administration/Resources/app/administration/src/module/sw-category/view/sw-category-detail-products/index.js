@@ -1,13 +1,15 @@
 import template from './sw-category-detail-products.html.twig';
 import './sw-category-detail-products.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const ShopwareError = Shopware.Classes.ShopwareError;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-detail-products', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -166,4 +168,4 @@ Component.register('sw-category-detail-products', {
             this.manualAssignedProductsCount = assignment.total;
         },
     },
-});
+};

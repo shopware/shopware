@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+#[Package('sales-channel')]
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'mail_template_media';
+    final public const ENTITY_NAME = 'mail_template_media';
 
     public function getEntityName(): string
     {

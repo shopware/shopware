@@ -6,11 +6,13 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ConfigValidator extends AbstractManifestValidator
 {
     private const ALLOWED_APP_CONFIGURATION_COMPONENTS = [
@@ -21,14 +23,8 @@ class ConfigValidator extends AbstractManifestValidator
         'sw-snippet-field',
     ];
 
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
-
-    public function __construct(ConfigReader $configReader)
+    public function __construct(private readonly ConfigReader $configReader)
     {
-        $this->configReader = $configReader;
     }
 
     public function validate(Manifest $manifest, ?Context $context): ErrorCollection

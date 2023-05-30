@@ -1,8 +1,12 @@
-import './page/sw-settings-store';
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-store', () => import('./page/sw-settings-store'));
 
 const { Module } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @package merchant-services
+ * @private
+ */
 Module.register('sw-settings-store', {
     type: 'core',
     name: 'settings-store',

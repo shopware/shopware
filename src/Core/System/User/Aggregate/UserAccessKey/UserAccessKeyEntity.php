@@ -5,9 +5,10 @@ namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
+#[Package('system-settings')]
 class UserAccessKeyEntity extends Entity
 {
     use EntityIdTrait;
@@ -27,13 +28,6 @@ class UserAccessKeyEntity extends Entity
      * @var string
      */
     protected $secretAccessKey;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
-     *
-     * @var bool
-     */
-    protected $writeAccess;
 
     /**
      * @var \DateTimeInterface|null
@@ -73,32 +67,6 @@ class UserAccessKeyEntity extends Entity
     public function setSecretAccessKey(string $secretAccessKey): void
     {
         $this->secretAccessKey = $secretAccessKey;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
-     */
-    public function getWriteAccess(): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ACL')
-        );
-
-        return $this->writeAccess;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, write access is handled via ACL
-     */
-    public function setWriteAccess(bool $writeAccess): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ACL')
-        );
-
-        $this->writeAccess = $writeAccess;
     }
 
     public function getLastUsageAt(): ?\DateTimeInterface

@@ -4,28 +4,25 @@ namespace Shopware\Storefront\Framework\App\Template;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class IconTemplateLoader extends AbstractTemplateLoader
 {
-    private AbstractTemplateLoader $inner;
-
-    private AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory;
-
-    private string $projectDir;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractTemplateLoader $inner,
-        AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
-        string $projectDir
+        private readonly AbstractTemplateLoader $inner,
+        private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
+        private readonly string $projectDir
     ) {
-        $this->inner = $inner;
-        $this->storefrontPluginConfigurationFactory = $storefrontPluginConfigurationFactory;
-        $this->projectDir = $projectDir;
     }
 
     public function getTemplatePathsForApp(Manifest $app): array
@@ -53,7 +50,7 @@ class IconTemplateLoader extends AbstractTemplateLoader
             // remove resource + any leading slashes from pathname
             $resourcePath = ltrim(mb_substr($file->getPathname(), mb_strlen($resourceDirectory)), '/');
 
-            return '../' . $resourcePath;
+            return $resourcePath;
         }, iterator_to_array($finder)));
 
         return [
@@ -64,6 +61,16 @@ class IconTemplateLoader extends AbstractTemplateLoader
 
     public function getTemplateContent(string $path, Manifest $app): string
     {
-        return $this->inner->getTemplateContent($path, $app);
+        if (strrpos($path, '.svg') !== \strlen($path) - 4) {
+            return $this->inner->getTemplateContent($path, $app);
+        }
+
+        $content = @file_get_contents($app->getPath() . '/Resources/' . $path);
+
+        if ($content === false) {
+            throw StorefrontFrameworkException::appTemplateFileNotReadable($app->getPath() . '/Resources/' . $path);
+        }
+
+        return $content;
     }
 }

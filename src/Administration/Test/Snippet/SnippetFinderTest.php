@@ -2,12 +2,14 @@
 
 namespace Shopware\Administration\Test\Snippet;
 
+use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Kernel;
@@ -33,17 +35,35 @@ class SnippetFinderTest extends TestCase
     public function testGetPluginPath(): void
     {
         $kernelMock = $this->createMock(Kernel::class);
-        $pluginMock = $this->createMock(Plugin::class);
-        $pluginMock->method('getPath')->willReturn(__DIR__ . '/fixtures/caseBundleLoadingWithPlugin/bundle');
-        $pluginMock->method('isActive')->willReturn(true);
 
-        $kernelPluginLoaderMock = $this->createMock(KernelPluginLoader::class);
-        $kernelPluginLoaderMock->expects(static::any())->method('getPluginInstances')->willReturn(new KernelPluginCollection([$pluginMock]));
+        $loader = $this->createMock(ClassLoader::class);
+        $loader->method('findFile')->willReturn(__DIR__);
+
+        $kernelPluginLoader = new StaticKernelPluginLoader(
+            $loader,
+            null,
+            [
+                [
+                    'name' => 'FakePlugin',
+                    'active' => true,
+                    'baseClass' => FakePlugin::class,
+                    'path' => 'src/FakePlugin',
+                    'autoload' => [
+                        'psr-4' => [
+                            'Shopware\\FakePlugin\\' => 'src/',
+                        ],
+                    ],
+                    'managedByComposer' => true,
+                ],
+            ]
+        );
+
+        $kernelPluginLoader->initializePlugins($this->getContainer()->getParameter('kernel.project_dir'));
 
         $kernelMock
             ->expects(static::exactly(2))
             ->method('getPluginLoader')
-            ->willReturn($kernelPluginLoaderMock);
+            ->willReturn($kernelPluginLoader);
 
         $kernelMock
             ->expects(static::exactly(1))
@@ -255,5 +275,16 @@ class SnippetFinderTest extends TestCase
         }
 
         return $files;
+    }
+}
+
+/**
+ * @internal
+ */
+class FakePlugin extends Plugin
+{
+    public function getPath(): string
+    {
+        return __DIR__ . '/fixtures/caseBundleLoadingWithPlugin/bundle';
     }
 }

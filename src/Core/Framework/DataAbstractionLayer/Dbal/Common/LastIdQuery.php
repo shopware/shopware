@@ -3,32 +3,23 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class LastIdQuery implements IterableQuery
 {
-    /**
-     * @var QueryBuilder
-     */
-    private $query;
+    private ?int $lastId = null;
 
-    /**
-     * @var string|null
-     */
-    private $lastId;
-
-    public function __construct(QueryBuilder $query)
+    public function __construct(private readonly QueryBuilder $query)
     {
-        $this->query = $query;
     }
 
     public function fetch(): array
     {
-        $data = $this->query->execute()->fetchAll();
-        $data = FetchModeHelper::keyPair($data);
+        $data = $this->query->executeQuery()->fetchAllKeyValue();
 
         $keys = array_keys($data);
-        $this->lastId = array_pop($keys);
+        $this->lastId = (int) array_pop($keys);
 
         $this->query->setParameter('lastId', $this->lastId);
 
@@ -45,7 +36,7 @@ class LastIdQuery implements IterableQuery
         $query->resetQueryPart('orderBy');
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
-        return (int) $query->execute()->fetchColumn();
+        return (int) $query->executeQuery()->fetchOne();
     }
 
     public function getQuery(): QueryBuilder

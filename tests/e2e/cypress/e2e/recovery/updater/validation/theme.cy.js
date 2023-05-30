@@ -23,7 +23,7 @@ describe('Validation of theme and cache after auto update', () => {
     it('@update: Check theme compile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_action/theme/**/assign/**',
-            method: 'POST'
+            method: 'POST',
         }).as('themeAssign');
 
         cy.login();

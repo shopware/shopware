@@ -1,11 +1,15 @@
+/*
+ * @package business-ops
+ */
+
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-stream-value', {
+/*
+ * @private
+ */
+export default {
     template,
 
     inject: [
@@ -150,9 +154,20 @@ Component.register('sw-product-stream-value', {
             });
         },
 
+        productStateOptions() {
+            return [
+                { label: this.$tc('sw-product-stream.filter.values.productStates.physical'), value: 'is-physical' },
+                { label: this.$tc('sw-product-stream.filter.values.productStates.digital'), value: 'is-download' },
+            ];
+        },
+
         fieldType() {
             if (!this.fieldDefinition) {
                 return null;
+            }
+
+            if (this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
+                return 'product_state_list';
             }
 
             if (this.definition.isJsonField(this.fieldDefinition)) {
@@ -464,4 +479,4 @@ Component.register('sw-product-stream-value', {
             return Object.values(category.breadcrumb).join(' / ');
         },
     },
-});
+};

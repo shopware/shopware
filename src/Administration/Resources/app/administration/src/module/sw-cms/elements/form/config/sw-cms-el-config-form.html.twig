@@ -6,7 +6,7 @@
     default-item="content"
 >
 
-    <template slot-scope="{ active }">
+    <template #default="{ active }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_config_form_tab_content %}
         <sw-tabs-item
@@ -32,8 +32,7 @@
     </template>
 
     <template
-        slot="content"
-        slot-scope="{ active }"
+        #content="{ active }"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_form_config_content %}

@@ -17,7 +17,7 @@
         <div
             ref="dialog"
             class="sw-modal__dialog"
-            :class="identifierClass"
+            :class="modalDialogClasses"
             :style="{ maxWidth: size }"
             role="dialog"
             aria-labelledby="modalTitleEl"
@@ -34,15 +34,17 @@
                     {% block sw_modal_slot_header %}
 
                     <div class="sw-modal__titles">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_modal_close %}
-                        <h4
-                            id="modalTitleEl"
-                            class="sw-modal__title"
-                        >
-                            {{ title }}
-                        </h4>
-                        {% endblock %}
+                        <slot name="modal-title">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_modal_close %}
+                            <h4
+                                id="modalTitleEl"
+                                class="sw-modal__title"
+                            >
+                                {{ title }}
+                            </h4>
+                            {% endblock %}
+                        </slot>
 
                         <h5
                             v-if="subtitle"
@@ -63,10 +65,7 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_modal_close_icon %}
-                        <sw-icon
-                            name="regular-times-s"
-                            small
-                        />
+                        <sw-icon name="regular-times-s" />
                         {% endblock %}
                     </button>
                     {% endblock %}

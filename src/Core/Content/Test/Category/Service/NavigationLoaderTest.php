@@ -13,7 +13,7 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -30,13 +30,13 @@ class NavigationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private NavigationLoaderInterface $navigationLoader;
 
     private IdsCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('category.repository');
 
@@ -267,9 +267,7 @@ class NavigationLoaderTest extends TestCase
         $tree = $this->navigationLoader->load($this->ids->get('rootId'), $context, $this->ids->get('rootId'));
 
         static::assertInstanceOf(Tree::class, $tree->getChildren($this->ids->get('category3')));
-        $elements = array_values(array_map(static function (TreeItem $item) {
-            return $item->getCategory()->getName();
-        }, $tree->getChildren($this->ids->get('category3'))->getTree()));
+        $elements = array_values(array_map(static fn (TreeItem $item) => $item->getCategory()->getName(), $tree->getChildren($this->ids->get('category3'))->getTree()));
 
         static::assertSame('Category 3.1', $elements[0]);
         static::assertSame('Category 3.3', $elements[1]);
@@ -366,7 +364,7 @@ class NavigationLoaderTest extends TestCase
         $ids = [];
         foreach ($items as $item) {
             $ids[] = $item->getId();
-            $ids = \array_merge($ids, $this->getIds($item->getChildren()));
+            $ids = [...$ids, ...$this->getIds($item->getChildren())];
         }
 
         return $ids;
@@ -378,8 +376,10 @@ class NavigationLoaderTest extends TestCase
  */
 class TestTreeAware extends CategoryEntity
 {
-    public function __construct(string $id, ?string $parentId)
-    {
+    public function __construct(
+        string $id,
+        ?string $parentId
+    ) {
         $this->id = $id;
         $this->parentId = $parentId;
     }

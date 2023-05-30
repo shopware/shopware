@@ -1,23 +1,14 @@
-/* eslint-disable max-len */
-let refactorAlias = false;
-if (global.featureFlags && global.featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {
-    refactorAlias = global.featureFlags.FEATURE_NEXT_11634;
-}
+/**
+ * @package admin
+ */
 
+/* eslint-disable max-len */
 module.exports = {
     create(context) {
         return {
             ImportDeclaration(node) {
                 const invalidNodeSources = [];
-
-                if (refactorAlias) {
-                    invalidNodeSources.push(node.source.value.startsWith('@administration/'));
-                } else {
-                    invalidNodeSources.push([
-                        node.source.value.startsWith('src/'),
-                        node.source.value.startsWith('assets/'),
-                    ]);
-                }
+                invalidNodeSources.push(node.source.value.startsWith('@administration/'));
 
                 if (invalidNodeSources.includes(true)) {
                     context.report({

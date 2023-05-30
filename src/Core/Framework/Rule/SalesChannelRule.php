@@ -2,31 +2,24 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+#[Package('business-ops')]
 class SalesChannelRule extends Rule
 {
-    /**
-     * @var array<string>|null
-     */
-    protected $salesChannelIds;
-
-    /**
-     * @var string
-     */
-    protected $operator;
+    final public const RULE_NAME = 'salesChannel';
 
     /**
      * @internal
      *
-     * @param array<string>|null $salesChannelIds
+     * @param list<string>|null $salesChannelIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $salesChannelIds = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->salesChannelIds = $salesChannelIds;
     }
 
     public function match(RuleScope $scope): bool
@@ -40,11 +33,6 @@ class SalesChannelRule extends Rule
             'salesChannelIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'salesChannel';
     }
 
     public function getConfig(): RuleConfig

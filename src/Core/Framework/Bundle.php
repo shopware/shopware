@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Framework;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\AddCoreMigrationPathCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -22,6 +24,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+#[Package('core')]
 abstract class Bundle extends SymfonyBundle
 {
     public function build(ContainerBuilder $container): void
@@ -94,7 +97,7 @@ abstract class Bundle extends SymfonyBundle
     /**
      * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
      *
-     * @return array<string>
+     * @return array<class-string>
      */
     protected function getActionEventClasses(): array
     {
@@ -115,19 +118,6 @@ abstract class Bundle extends SymfonyBundle
             ->addTag('shopware.migration_source');
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Use own migration source instead
-     */
-    protected function addCoreMigrationPath(ContainerBuilder $container, string $path, string $namespace): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $container->addCompilerPass(new AddCoreMigrationPathCompilerPass($path, $namespace));
-    }
-
     private function registerFilesystem(ContainerBuilder $container, string $key): void
     {
         $containerPrefix = $this->getContainerPrefix();
@@ -144,6 +134,10 @@ abstract class Bundle extends SymfonyBundle
         $filesystem->setPublic(true);
 
         $container->setDefinition($serviceId, $filesystem);
+
+        // SwagMigrationAssistant -> swagMigrationAssistantPublicFilesystem
+        $aliasName = (new CamelCaseToSnakeCaseNameConverter())->denormalize($this->getName()) . ucfirst($key) . 'Filesystem';
+        $container->registerAliasForArgument($serviceId, FilesystemOperator::class, $aliasName);
     }
 
     private function registerEvents(ContainerBuilder $container): void
@@ -154,7 +148,7 @@ abstract class Bundle extends SymfonyBundle
             return;
         }
 
-        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes));
+        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 
     /**
@@ -182,6 +176,9 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    /**
+     * @return list<string>
+     */
     private function getServicesFilePathArray(string $path): array
     {
         $pathArray = glob($path);

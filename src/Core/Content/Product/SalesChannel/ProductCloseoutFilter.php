@@ -4,7 +4,12 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @final
+ */
+#[Package('inventory')]
 class ProductCloseoutFilter extends NotFilter
 {
     public function __construct()

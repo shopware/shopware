@@ -4,6 +4,8 @@ import './sw-text-editor-toolbar-table-button.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-text-editor-toolbar-table-button', {
@@ -178,6 +180,7 @@ Component.register('sw-text-editor-toolbar-table-button', {
             }
 
             tableHtml += '</tbody></table>';
+            // eslint-disable-next-line vue/no-mutating-props
             this.buttonConfig.value = tableHtml;
         },
     },

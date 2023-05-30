@@ -1,0 +1,23 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>{{ 'shopware.update.steps.configure_php.title'|trans }}</h2>
+    </div>
+
+    <div class="card__body">
+        <div class="alert alert-info">{{ 'shopware.update.steps.configure_php.info'|trans }}</div>
+
+        <form method="POST" id="submit">
+            <div class="form-group">
+                <label for="name">{{ 'shopware.update.steps.configure_php.pathInput'|trans }}</label>
+                <input class="form-control" type="text" name="phpBinary" value="{{ phpBinary }}">
+            </div>
+        </form>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a class="btn flex-item flex-left" href="{{ url("index") }}">{{ 'shopware.update.back'|trans }}</a>
+        <button type="submit" class="btn btn-primary flex-item flex-right" form="submit">{{ 'shopware.update.steps.configure_php.submit'|trans }}</button>
+    </div>
+{% endblock %}

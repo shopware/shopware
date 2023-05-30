@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
@@ -13,10 +13,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -26,6 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator
  */
 class ApiCriteriaValidatorTest extends TestCase
@@ -40,7 +43,7 @@ class ApiCriteriaValidatorTest extends TestCase
         $validator = new ApiCriteriaValidator(
             new StaticDefinitionInstanceRegistry(
                 [
-                    ProductDefinition::class,
+                    SalesChannelProductDefinition::class,
                     OrderLineItemDefinition::class,
                 ],
                 $this->createMock(ValidatorInterface::class),
@@ -62,7 +65,7 @@ class ApiCriteriaValidatorTest extends TestCase
         }
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         $store = new Context(new ShopApiSource('test'));
         $sales = new Context(new SalesChannelApiSource('test'));
@@ -79,6 +82,30 @@ class ApiCriteriaValidatorTest extends TestCase
             (new Criteria())->addFilter(new EqualsFilter('orderLineItems.id', 1)),
             $sales,
             ApiProtectionException::class,
+        ];
+
+        yield 'Allow price sorting in store api' => [
+            (new Criteria())->addSorting(new FieldSorting('price')),
+            $store,
+            null,
+        ];
+
+        yield 'Allow cheapest price sorting in store api' => [
+            (new Criteria())->addSorting(new FieldSorting('cheapestPrice')),
+            $store,
+            null,
+        ];
+
+        yield 'Allow price filtering in store api' => [
+            (new Criteria())->addFilter(new RangeFilter('price', ['gt' => 10])),
+            $store,
+            null,
+        ];
+
+        yield 'Allow avg price aggregation in store api' => [
+            (new Criteria())->addAggregation(new AvgAggregation('avg', 'price')),
+            $store,
+            null,
         ];
 
         yield 'Test order line item access in system scope' => [

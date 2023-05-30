@@ -5,40 +5,32 @@ namespace Shopware\Core\Content\ProductExport\Command;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'product-export:generate',
+    description: 'Generates a product export file',
+)]
+#[Package('sales-channel')]
 class ProductExportGenerateCommand extends Command
 {
-    public static $defaultName = 'product-export:generate';
-
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
-
-    /**
-     * @var ProductExporterInterface
-     */
-    private $productExportService;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        ProductExporterInterface $productExportService
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly ProductExporterInterface $productExportService
     ) {
         parent::__construct();
-
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->productExportService = $productExportService;
     }
 
     protected function configure(): void

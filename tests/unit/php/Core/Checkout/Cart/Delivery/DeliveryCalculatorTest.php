@@ -35,9 +35,7 @@ class DeliveryCalculatorTest extends TestCase
 {
     private DeliveryTime $deliveryTime;
 
-    private DeliveryTimeEntity $deliveryTimeEntity;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->deliveryTime = (new DeliveryTime())->assign([
             'min' => 1,
@@ -45,8 +43,8 @@ class DeliveryCalculatorTest extends TestCase
             'unit' => 'day',
             'name' => '1-3 days',
         ]);
-        $this->deliveryTimeEntity = new DeliveryTimeEntity();
-        $this->deliveryTimeEntity->assign([
+        $deliveryTimeEntity = new DeliveryTimeEntity();
+        $deliveryTimeEntity->assign([
             'min' => 1,
             'max' => 3,
             'unit' => 'day',
@@ -61,7 +59,6 @@ class DeliveryCalculatorTest extends TestCase
 
         $delivery = $this->getMockBuilder(Delivery::class)
             ->disableOriginalConstructor()
-            ->setMethodsExcept(['hasExtension', 'addExtension', 'getExtension'])
             ->getMock();
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
@@ -85,7 +82,7 @@ class DeliveryCalculatorTest extends TestCase
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
 
-        $delivery->expects(static::exactly(1))->method('getPositions')->willReturn(
+        $delivery->expects(static::once())->method('getPositions')->willReturn(
             new DeliveryPositionCollection(
                 [
                     new DeliveryPosition(
@@ -101,7 +98,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cartBehavior = new CartBehavior([
             DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => 1,
         ]);

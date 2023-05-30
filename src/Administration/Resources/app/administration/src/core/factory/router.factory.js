@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/router
  */
 
@@ -10,7 +12,6 @@
  * @param {ViewFactory} View
  * @param {ModuleFactory} moduleFactory
  * @param {LoginService} LoginService
- * @returns {{}}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createRouter(Router, View, moduleFactory, LoginService) {
@@ -49,9 +50,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const mergedRoutes = registerModuleRoutesAsChildren(viewAllRoutes, viewModuleRoutes);
 
         // assign to view router options
-        const options = Object.assign({}, opts, {
-            routes: mergedRoutes,
-        });
+        const options = { ...opts, routes: mergedRoutes };
 
         // create router
         const router = new Router(options);
@@ -83,6 +82,9 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const assetPath = getAssetPath();
 
         router.beforeEach((to, from, next) => {
+            const cookieStorage = Shopware.Service('loginService').getStorage();
+            cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
+
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
@@ -95,19 +97,18 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
 
             // The login route will be called and the user is not logged in, let him see the login.
-            if ((to.name === 'login' ||
+            if (!loggedIn && (to.name === 'login' ||
                 loginAllowlist.includes(to.path) ||
-                to.path.startsWith('/login/user-recovery/'))
-                && !loggedIn
+                to.path.startsWith('/login/user-recovery/') ||
+                to.path.match(/\/inactivity\/login\/[a-z0-9]{32}/))
             ) {
                 return next();
             }
 
             // The login route will be called and the user is logged in, redirect to the dashboard.
-            if ((to.name === 'login' ||
+            if (loggedIn && (to.name === 'login' ||
                 loginAllowlist.includes(to.path) ||
                 to.path.startsWith('/login/user-recovery/'))
-                && loggedIn
             ) {
                 return next({ name: 'core' });
             }

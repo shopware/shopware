@@ -6,23 +6,19 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class ActionButtonPersister
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $actionButtonRepository;
-
-    public function __construct(EntityRepositoryInterface $actionButtonRepository)
+    public function __construct(private readonly EntityRepository $actionButtonRepository)
     {
-        $this->actionButtonRepository = $actionButtonRepository;
     }
 
     public function updateActions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
@@ -58,9 +54,7 @@ class ActionButtonPersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
+            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->actionButtonRepository->delete($ids, $context);
         }

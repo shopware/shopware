@@ -2,69 +2,28 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @phpstan-type MappingArray array{key: string, mappedKey?: string, position?: int, default?: mixed, mappedDefault?: mixed, requiredByUser?: bool, useDefaultValue?: bool, defaultValue?: mixed}
+ */
+#[Package('system-settings')]
 class Mapping extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $key;
+    protected string $mappedKey;
 
-    /**
-     * @var string
-     */
-    protected $mappedKey;
-
-    /**
-     * @var mixed|null
-     */
-    protected $default;
-
-    /**
-     * @var mixed|null
-     */
-    protected $mappedDefault;
-
-    /**
-     * @var bool
-     */
-    protected $requiredByUser;
-
-    /**
-     * @var bool
-     */
-    protected $useDefaultValue;
-
-    /**
-     * @var mixed|null
-     */
-    protected $defaultValue;
-
-    protected int $position;
-
-    /**
-     * @param mixed|null $defaultValue
-     */
     public function __construct(
-        string $key,
+        protected string $key,
         ?string $mappedKey = null,
-        int $position = 0,
-        $default = null,
-        $mappedDefault = null,
-        bool $requiredByUser = false,
-        bool $useDefaultValue = false,
-        $defaultValue = null
+        protected int $position = 0,
+        protected mixed $default = null,
+        protected mixed $mappedDefault = null,
+        protected bool $requiredByUser = false,
+        protected bool $useDefaultValue = false,
+        protected mixed $defaultValue = null
     ) {
-        $this->key = $key;
         $this->mappedKey = $mappedKey ?? $key;
-        $this->default = $default;
-        $this->mappedDefault = $mappedDefault;
-        $this->requiredByUser = $requiredByUser;
-        $this->useDefaultValue = $useDefaultValue;
-        $this->defaultValue = $defaultValue;
-        $this->position = $position;
     }
 
     public function getKey(): string
@@ -77,32 +36,6 @@ class Mapping extends Struct
         return $this->mappedKey;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
-     */
-    public function getDefault()
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
-        );
-
-        return $this->default;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
-     */
-    public function getMappedDefault()
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
-        );
-
-        return $this->mappedDefault;
-    }
-
     public function isRequiredByUser(): bool
     {
         return $this->requiredByUser;
@@ -113,10 +46,7 @@ class Mapping extends Struct
         return $this->useDefaultValue;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getDefaultValue()
+    public function getDefaultValue(): mixed
     {
         return $this->defaultValue;
     }
@@ -131,6 +61,9 @@ class Mapping extends Struct
         $this->position = $position;
     }
 
+    /**
+     * @param MappingArray $data
+     */
     public static function fromArray(array $data): self
     {
         if (!isset($data['key'])) {

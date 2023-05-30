@@ -1,10 +1,11 @@
 import template from './sw-extension-privacy-policy-extensions-modal.html.twig';
 import './sw-extension-privacy-policy-extensions-modal.scss';
 
-const { Component } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-extension-privacy-policy-extensions-modal', {
+/**
+ * @package merchant-services
+ * @private
+ */
+export default {
     template,
 
     props: {
@@ -34,4 +35,4 @@ Component.register('sw-extension-privacy-policy-extensions-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

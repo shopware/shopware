@@ -10,10 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class PromotionTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'promotion_translation';
+    final public const ENTITY_NAME = 'promotion_translation';
 
     public function getEntityName(): string
     {
@@ -30,14 +32,14 @@ class PromotionTranslationDefinition extends EntityTranslationDefinition
         return PromotionTranslationCollection::class;
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return PromotionDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.0.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return PromotionDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

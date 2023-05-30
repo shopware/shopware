@@ -3,10 +3,11 @@
 namespace Shopware\Elasticsearch\Test;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+#[Package('core')]
 trait ElasticsearchTestTestBehaviour
 {
     /**

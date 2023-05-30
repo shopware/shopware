@@ -1,8 +1,9 @@
+/**
+ * @package system-settings
+ */
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-import-export-edit-profile-general.html.twig';
 import './sw-import-export-edit-profile-general.scss';
-
-const { Component } = Shopware;
 
 const profileTypes = {
     IMPORT: 'import',
@@ -11,7 +12,7 @@ const profileTypes = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-import-export-edit-profile-general', {
+export default {
     template,
 
     inject: ['feature'],
@@ -24,12 +25,14 @@ Component.register('sw-import-export-edit-profile-general', {
     },
 
     computed: {
-        ...mapPropertyErrors('profile',
+        ...mapPropertyErrors(
+            'profile',
             [
                 'name',
                 'sourceEntity',
                 'type',
-            ]),
+            ],
+        ),
 
         supportedProfileTypes() {
             return [
@@ -159,5 +162,5 @@ Component.register('sw-import-export-edit-profile-general', {
             return true;
         },
     },
-});
+};
 

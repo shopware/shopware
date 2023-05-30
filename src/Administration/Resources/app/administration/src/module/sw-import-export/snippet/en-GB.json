@@ -27,25 +27,6 @@
                 "downloadInvalidFile": "Download invalid records",
                 "showResults": "Show summary"
             },
-            "detail": {
-                "modalTitle": "Log information",
-                "labelClose": "Close",
-                "labelFilename": "Filename",
-                "labelType": "Type",
-                "labelImportRecords": "Successfully imported records",
-                "labelExportRecords": "Successfully exported records",
-                "labelFailedRecords": "Failed records",
-                "labelSize": "File size",
-                "labelUser": "User",
-                "labelDate": "Date / time",
-                "labelState": "Status",
-                "exportLabel": "Export",
-                "importLabel": "Import",
-                "dryrunLabel": "Dry run",
-                "labelDownloadFile": "Download file",
-                "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
-                "labelDownloadInvalidFile": "Download failed records"
-            },
             "logInfo": {
               "modalTitle": "Log information",
               "labelClose": "Close",

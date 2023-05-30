@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+#[Package('core')]
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**
@@ -15,8 +17,11 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
     /**
      * @param array<string, mixed> $parameters
      */
-    public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $message,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         $this->parameters = $parameters;
         $message = $this->parse($message, $parameters);
 

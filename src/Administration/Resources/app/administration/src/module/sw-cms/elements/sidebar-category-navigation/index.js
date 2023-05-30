@@ -1,9 +1,22 @@
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-el-preview-category-navigation', () => import('./preview'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-el-config-category-navigation', () => import('./config'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-el-category-navigation', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'category-navigation',

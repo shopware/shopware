@@ -10,13 +10,16 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -86,7 +89,7 @@ class LineItemCustomFieldRuleTest extends TestCase
         $this->setupRule('testValue', 'text');
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_NEQ,
+                'operator' => Rule::OPERATOR_NEQ,
             ]
         );
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => null]), $this->salesChannelContext);
@@ -106,12 +109,7 @@ class LineItemCustomFieldRuleTest extends TestCase
         $scope = new LineItemScope($this->createLineItem(), $this->salesChannelContext);
         static::assertFalse($this->rule->match($scope));
 
-        $this->rule->assign(['operator' => $this->rule::OPERATOR_NEQ]);
-        if (!Feature::isActive('v6.5.0.0')) {
-            static::assertFalse($this->rule->match($scope));
-
-            return;
-        }
+        $this->rule->assign(['operator' => Rule::OPERATOR_NEQ]);
 
         static::assertTrue($this->rule->match($scope));
     }
@@ -176,7 +174,10 @@ class LineItemCustomFieldRuleTest extends TestCase
         static::assertSame($result, $this->rule->match($scope));
     }
 
-    public function customFieldCartScopeProvider(): array
+    /**
+     * @return array<string, array<bool|string|null>>
+     */
+    public static function customFieldCartScopeProvider(): array
     {
         return [
             'testBooleanCustomFieldFalse' => [false, 'bool', false, true],
@@ -187,19 +188,22 @@ class LineItemCustomFieldRuleTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, bool|string|null> $customFields
+     */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('customFields', $customFields);
+        return $this->createLineItem()->setPayloadValue('customFields', $customFields);
     }
 
     /**
      * @param bool|string|null $customFieldValue
      */
-    private function setupRule($customFieldValue, string $type): void
+    private function setupRule(mixed $customFieldValue, string $type): void
     {
         $this->rule->assign(
             [
-                'operator' => $this->rule::OPERATOR_EQ,
+                'operator' => Rule::OPERATOR_EQ,
                 'renderedField' => [
                     'type' => $type,
                     'name' => self::CUSTOM_FIELD_NAME,

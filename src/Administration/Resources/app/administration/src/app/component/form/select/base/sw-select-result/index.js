@@ -4,12 +4,14 @@ import template from './sw-select-result.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Base component for select results.
  * @example-type code-only
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-result', {
     template,
 
@@ -38,9 +40,9 @@ Component.register('sw-select-result', {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right'],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return ['bottom', 'right'].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
     },

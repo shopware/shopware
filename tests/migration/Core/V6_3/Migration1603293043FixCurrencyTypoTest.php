@@ -11,15 +11,16 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1603293043FixCurrencyTypo
  */
 class Migration1603293043FixCurrencyTypoTest extends TestCase
 {
     use MigrationTestTrait;
 
-    public const wrongTranslation = 'Swedish krone';
+    final public const WRONG_TRANSLATION = 'Swedish krone';
 
-    public const correctTranslation = 'Swedish krona';
+    final public const CORRECT_TRANSLATION = 'Swedish krona';
 
     private Connection $connection;
 
@@ -79,7 +80,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
                 ->andWhere('ct.language_id = :englishLanguageId')
                 ->andWhere('ct.updated_at IS NOT NULL')
                 ->setParameters(['englishLanguageId' => $this->languageIdEnglish, 'kronaEnglishShort' => 'SEK']);
-            $swedishCurrencyName = $swedishCurrencyNameQuery->execute()->fetchOne();
+            $swedishCurrencyName = $swedishCurrencyNameQuery->executeQuery()->fetchOne();
             static::assertSame('Swedish krona', $swedishCurrencyName);
         }
     }
@@ -87,7 +88,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
     /**
      * @return bool[][]
      */
-    public function migrationCases(): array
+    public static function migrationCases(): array
     {
         return [
             [true, true, true, true],
@@ -119,7 +120,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
             ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
             ->where('loc.code = :englishLocale')
             ->setParameter('englishLocale', $this->englishLanguageLocale)
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
         static::assertNotNull($englishLanguageId, 'Test failed: English language ID not found');
         $this->languageIdEnglish = $englishLanguageId;

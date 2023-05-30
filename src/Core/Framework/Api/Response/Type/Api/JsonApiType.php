@@ -12,30 +12,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class JsonApiType extends JsonFactoryBase
 {
     /**
-     * @var JsonApiEncoder
-     */
-    private $serializer;
-
-    /**
-     * @var StructEncoder
-     */
-    private $structEncoder;
-
-    /**
      * @internal
      */
-    public function __construct(JsonApiEncoder $serializer, StructEncoder $structEncoder)
-    {
-        $this->serializer = $serializer;
-        $this->structEncoder = $structEncoder;
+    public function __construct(
+        private readonly JsonApiEncoder $serializer,
+        private readonly StructEncoder $structEncoder
+    ) {
     }
 
     public function supports(string $contentType, ContextSource $origin): bool

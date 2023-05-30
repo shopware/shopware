@@ -65,9 +65,7 @@ class TemplateFinderTest extends TestCase
             $map[] = '@' . $bundleName . '/' . $templatePath;
         }
 
-        $this->loader->expects(static::any())->method('exists')->willReturnCallback(function (string $template) use ($map) {
-            return \in_array($template, $map, true);
-        });
+        $this->loader->expects(static::any())->method('exists')->willReturnCallback(fn (string $template) => \in_array($template, $map, true));
 
         $this->hierarchyBuilder->expects(static::once())->method('buildHierarchy')->willReturn($bundles);
 
@@ -79,7 +77,7 @@ class TemplateFinderTest extends TestCase
     /**
      * @return iterable<string, array<int, string>>
      */
-    public function templateNameProvider(): iterable
+    public static function templateNameProvider(): iterable
     {
         yield 'with @' => [
             '@Framework/documents/credit_note.html.twig',
@@ -95,7 +93,7 @@ class TemplateFinderTest extends TestCase
     /**
      * @return iterable<string, array<mixed>>
      */
-    public function bundleTemplatesMappingProvider(): iterable
+    public static function bundleTemplatesMappingProvider(): iterable
     {
         $coreBundles = [
             'Elasticsearch' => true,

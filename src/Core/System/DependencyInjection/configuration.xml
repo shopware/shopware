@@ -5,6 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"></argument>
+
+            <tag name="shopware.system_config.validation" />
+        </service>
+
         <service id="Shopware\Core\System\SystemConfig\SystemConfigDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -26,18 +33,19 @@
         <service id="Shopware\Core\System\SystemConfig\Api\SystemConfigController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator" />
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true">
+        <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true" lazy="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="system_config.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
             <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore">

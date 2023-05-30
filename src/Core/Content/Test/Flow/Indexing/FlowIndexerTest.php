@@ -4,13 +4,15 @@ namespace Shopware\Core\Content\Test\Flow\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Flow\Indexing\FlowIndexer;
+use Shopware\Core\Content\Flow\Indexing\FlowIndexerSubscriber;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('business-ops')]
 class FlowIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -22,7 +24,7 @@ class FlowIndexerTest extends TestCase
 
         $connection->executeStatement('UPDATE `flow` SET `payload` = null, `invalid` = 0');
 
-        $indexer = $this->getContainer()->get(FlowIndexer::class);
+        $indexer = $this->getContainer()->get(FlowIndexerSubscriber::class);
         $indexer->refreshPlugin();
 
         $this->runWorker();

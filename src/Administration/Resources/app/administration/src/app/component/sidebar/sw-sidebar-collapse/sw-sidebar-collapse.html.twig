@@ -3,8 +3,7 @@
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header_slot %}
-<template
-    slot="header"
+<div
     class="sw-sidebar-collapse__header"
 >
 
@@ -38,19 +37,19 @@
         @click="collapseItem"
     >
         <sw-icon
-            name="regular-chevron-right-xxs"
-            class="sw-sidebar-collapse__button"
+            :name="`regular-chevron-${expandChevronDirection}-xxs`"
+            class="sw-sidebar-collapse__expand-button"
             :class="expandButtonClass"
         />
         <sw-icon
             name="regular-chevron-down-xxs"
-            class="sw-sidebar-collapse__button"
+            class="sw-sidebar-collapse__collapse-button"
             :class="collapseButtonClass"
         />
     </div>
     {% endblock %}
 
-</template>
+</div>
 {% endblock %}
 
 {% endblock %}
@@ -60,7 +59,8 @@
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_collapse_panel_content_template %}
-<template slot="content">
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #content>
     <slot name="content">
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

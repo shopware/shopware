@@ -13,10 +13,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
  */
 class StructNormalizerTest extends TestCase
 {
-    /**
-     * @var StructNormalizer
-     */
-    private $normalizer;
+    private StructNormalizer $normalizer;
 
     protected function setUp(): void
     {
@@ -87,6 +84,7 @@ class StructNormalizerTest extends TestCase
     public function testDenormalizeDate(): void
     {
         $date = date_create_from_format('Y-m-d H:i:s', date('Y-m-d H:i:s'));
+        static::assertInstanceOf(\DateTime::class, $date);
 
         static::assertEquals(
             $date,
@@ -94,7 +92,10 @@ class StructNormalizerTest extends TestCase
         );
     }
 
-    public function denormalizeShouldReturnNonArraysProvider(): array
+    /**
+     * @return array<list<mixed>>
+     */
+    public static function denormalizeShouldReturnNonArraysProvider(): array
     {
         return [
             ['string'],
@@ -108,7 +109,7 @@ class StructNormalizerTest extends TestCase
     /**
      * @dataProvider denormalizeShouldReturnNonArraysProvider
      */
-    public function testDenormalizeShouldReturnNonArrays($input): void
+    public function testDenormalizeShouldReturnNonArrays(mixed $input): void
     {
         static::assertEquals($input, $this->normalizer->denormalize($input));
     }
@@ -186,12 +187,7 @@ class StructNormalizerTest extends TestCase
     public function testDenormalizeWithNonExistingClass(): void
     {
         $this->expectException(InvalidArgumentException::class);
-
-        if (\PHP_VERSION_ID >= 80000) {
-            $this->expectExceptionMessage('Class "ThisClass\DoesNot\Exists" does not exist');
-        } else {
-            $this->expectExceptionMessage('Class ThisClass\DoesNot\Exists does not exist');
-        }
+        $this->expectExceptionMessage('Class "ThisClass\DoesNot\Exists" does not exist');
 
         $this->normalizer->denormalize(['_class' => 'ThisClass\DoesNot\Exists']);
     }
@@ -220,6 +216,7 @@ class TestStruct extends Struct
 
 /**
  * @internal
+ *
  * @extends Collection<TestStruct>
  */
 class TestStructCollection extends Collection
@@ -236,7 +233,7 @@ class TestStructCollection extends Collection
 class AdvancedTestStruct extends TestStruct
 {
     /**
-     * @var TestStruct[]
+     * @var list<TestStruct>
      */
     protected $subClasses = [];
 
@@ -246,13 +243,16 @@ class AdvancedTestStruct extends TestStruct
     protected $meta = [];
 
     /**
-     * @return TestStruct[]
+     * @return list<TestStruct>
      */
     public function getSubClasses(): array
     {
         return $this->subClasses;
     }
 
+    /**
+     * @param list<TestStruct> $subClasses
+     */
     public function setSubClasses(array $subClasses): void
     {
         $this->subClasses = $subClasses;

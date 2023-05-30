@@ -11,12 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
+#[Package('checkout')]
 class StateMachineTransitionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'state_machine_transition';
+    final public const ENTITY_NAME = 'state_machine_transition';
 
     public function getEntityName(): string
     {

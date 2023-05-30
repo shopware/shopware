@@ -4,15 +4,11 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -31,67 +27,37 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class RecalculationService
 {
-    protected EntityRepositoryInterface $orderRepository;
-
-    protected OrderConverter $orderConverter;
-
-    protected CartService $cartService;
-
-    protected EntityRepositoryInterface $productRepository;
-
-    protected EntityRepositoryInterface $orderAddressRepository;
-
-    protected EntityRepositoryInterface $customerAddressRepository;
-
-    protected Processor $processor;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private PromotionItemBuilder $promotionItemBuilder;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
-        OrderConverter $orderConverter,
-        CartService $cartService,
-        EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $orderAddressRepository,
-        EntityRepositoryInterface $customerAddressRepository,
-        Processor $processor,
-        CartRuleLoader $cartRuleLoader,
-        PromotionItemBuilder $promotionItemBuilder
+        protected EntityRepository $orderRepository,
+        protected OrderConverter $orderConverter,
+        protected CartService $cartService,
+        protected EntityRepository $productRepository,
+        protected EntityRepository $orderAddressRepository,
+        protected EntityRepository $customerAddressRepository,
+        protected Processor $processor,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly PromotionItemBuilder $promotionItemBuilder
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->orderConverter = $orderConverter;
-        $this->cartService = $cartService;
-        $this->productRepository = $productRepository;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->customerAddressRepository = $customerAddressRepository;
-        $this->processor = $processor;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->promotionItemBuilder = $promotionItemBuilder;
     }
 
     /**
      * @throws InvalidOrderException
-     * @throws OrderRecalculationException
      * @throws CustomerNotLoggedInException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      * @throws InconsistentCriteriaIdsException
@@ -127,12 +93,7 @@ class RecalculationService
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidOrderException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MissingOrderRelationException
-     * @throws MixedLineItemTypeException
-     * @throws OrderRecalculationException
+     * @throws CartException
      * @throws ProductNotFoundException
      */
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
@@ -178,12 +139,7 @@ class RecalculationService
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidOrderException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws OrderRecalculationException
-     * @throws MissingOrderRelationException
+     * @throws CartException
      */
     public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context): void
     {
@@ -308,7 +264,7 @@ class RecalculationService
 
     /**
      * @throws AddressNotFoundException
-     * @throws OrderRecalculationException
+     * @throws OrderException
      * @throws InconsistentCriteriaIdsException
      */
     public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context): void
@@ -335,6 +291,7 @@ class RecalculationService
             return;
         }
 
+        /** @var Delivery $delivery */
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;
@@ -351,8 +308,8 @@ class RecalculationService
     private function fetchOrder(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions')
+            ->addAssociation('lineItems.downloads')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.positions.orderLineItem')
             ->addAssociation('deliveries.shippingOrderAddress.country')
@@ -367,7 +324,7 @@ class RecalculationService
     }
 
     /**
-     * @throws OrderRecalculationException
+     * @throws OrderException
      * @throws InvalidOrderException
      */
     private function validateOrder(?OrderEntity $order, string $orderId): void
@@ -395,20 +352,13 @@ class RecalculationService
     private function checkVersion(Entity $entity): void
     {
         if ($entity->getVersionId() === Defaults::LIVE_VERSION) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::canNotRecalculateLiveVersion($entity->getUniqueIdentifier());
-            }
-
-            throw new OrderRecalculationException(
-                $entity->getUniqueIdentifier(),
-                'Live versions can\'t be recalculated. Please create a new version.'
-            );
+            throw OrderException::canNotRecalculateLiveVersion($entity->getUniqueIdentifier());
         }
     }
 
     /**
      * @throws AddressNotFoundException
-     * @throws OrderRecalculationException
+     * @throws OrderException
      * @throws InconsistentCriteriaIdsException
      */
     private function validateOrderAddress(string $orderAddressId, Context $context): void
@@ -423,7 +373,7 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = new CartBehavior($context->getPermissions());
+        $behavior = new CartBehavior($context->getPermissions(), true, true);
 
         // all prices are now prepared for calculation -  starts the cart calculation
         $cart = $this->processor->process($cart, $context, $behavior);

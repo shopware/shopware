@@ -9,8 +9,10 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+#[Package('customer-order')]
 class OrderTransactionEntity extends Entity
 {
     use EntityIdTrait;
@@ -20,6 +22,11 @@ class OrderTransactionEntity extends Entity
      * @var string
      */
     protected $orderId;
+
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
 
     /**
      * @var string
@@ -131,5 +138,15 @@ class OrderTransactionEntity extends Entity
     public function setCaptures(OrderTransactionCaptureCollection $captures): void
     {
         $this->captures = $captures;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

@@ -5,20 +5,19 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Exception\ShopConfigurationException;
 use Symfony\Component\Intl\Currencies;
 
+#[Package('core')]
 class ShopConfigurator
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function updateBasicInformation(?string $shopName, ?string $email): void
@@ -111,7 +110,7 @@ class ShopConfigurator
             throw new ShopConfigurationException('Default currency not found');
         }
 
-        if (\mb_strtoupper($currentCurrencyIso) === \mb_strtoupper($currencyCode)) {
+        if (\mb_strtoupper((string) $currentCurrencyIso) === \mb_strtoupper($currencyCode)) {
             return;
         }
 
@@ -124,13 +123,13 @@ class ShopConfigurator
             $stmt = $conn->prepare('UPDATE currency SET id = :newId WHERE id = :oldId');
 
             // assign new uuid to old DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             ]);
 
             // change id to DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'oldId' => $newDefaultCurrencyId,
             ]);
@@ -230,9 +229,9 @@ class ShopConfigurator
             $stmt = $connection->prepare(
                 'UPDATE locale SET code = :code WHERE id = :locale_id'
             );
-            $stmt->execute(['code' => 'x-' . $locale . '_tmp', 'locale_id' => $currentLocaleId]);
-            $stmt->execute(['code' => $currentLocaleData['code'], 'locale_id' => $newDefaultLocaleId]);
-            $stmt->execute(['code' => $locale, 'locale_id' => $currentLocaleId]);
+            $stmt->executeStatement(['code' => 'x-' . $locale . '_tmp', 'locale_id' => $currentLocaleId]);
+            $stmt->executeStatement(['code' => $currentLocaleData['code'], 'locale_id' => $newDefaultLocaleId]);
+            $stmt->executeStatement(['code' => $locale, 'locale_id' => $currentLocaleId]);
 
             // swap locale_translation.{name,territory}
             $setTrans = $connection->prepare(
@@ -246,32 +245,31 @@ class ShopConfigurator
 
             foreach ($currentTrans as $trans) {
                 $trans['locale_id'] = $newDefaultLocaleId;
-                $setTrans->execute($trans);
+                $setTrans->executeStatement($trans);
             }
             foreach ($newDefTrans as $trans) {
                 $trans['locale_id'] = $currentLocaleId;
-                $setTrans->execute($trans);
+                $setTrans->executeStatement($trans);
             }
 
             $updLang = $connection->prepare('UPDATE language SET name = :name WHERE id = :languageId');
 
             // new default language does not exist -> just set to name
             if (!$newDefaultLanguageId) {
-                $updLang->execute(['name' => $name, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+                $updLang->executeStatement(['name' => $name, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
 
                 return;
             }
 
             $langName = $connection->prepare('SELECT name FROM language WHERE id = :languageId');
-            $langName->execute(['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-            $current = $langName->fetchOne();
 
-            $langName->execute(['languageId' => $newDefaultLanguageId]);
-            $new = $langName->fetchOne();
+            $current = $langName->executeQuery(['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)])->fetchOne();
+
+            $new = $langName->executeQuery(['languageId' => $newDefaultLanguageId])->fetchOne();
 
             // swap name
-            $updLang->execute(['name' => $new, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-            $updLang->execute(['name' => $current, 'languageId' => $newDefaultLanguageId]);
+            $updLang->executeStatement(['name' => $new, 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+            $updLang->executeStatement(['name' => $current, 'languageId' => $newDefaultLanguageId]);
         });
     }
 
@@ -343,7 +341,7 @@ class ShopConfigurator
         );
 
         if (!$name) {
-            throw new ShopConfigurationException("locale_translation.name for iso: '" . $iso . "', localeId: '" . $localeId . "' not found!");
+            throw new ShopConfigurationException('locale_translation.name for iso: \'' . $iso . '\', localeId: \'' . $localeId . '\' not found!');
         }
 
         $this->connection->executeStatement(
@@ -368,13 +366,13 @@ class ShopConfigurator
             );
 
             // assign new uuid to old DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]);
 
             // change id to DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'oldId' => $newLanguageId,
             ]);
@@ -409,7 +407,7 @@ class ShopConfigurator
         $this->connection->executeStatement('
             INSERT INTO `currency` (`id`, `iso_code`, `factor`, `symbol`, `position`, `item_rounding`, `total_rounding`, `created_at`)
             VALUES (:id, :currency, 1, :symbol, 1, :rounding, :rounding, NOW())
-        ', ['id' => $id, 'currency' => $currencyCode, 'symbol' => Currencies::getSymbol($currencyCode), 'rounding' => json_encode($rounding)]);
+        ', ['id' => $id, 'currency' => $currencyCode, 'symbol' => Currencies::getSymbol($currencyCode), 'rounding' => json_encode($rounding, \JSON_THROW_ON_ERROR)]);
 
         $locale = $this->getCurrentSystemLocale();
         if ($locale) {

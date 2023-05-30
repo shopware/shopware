@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Requirements\Struct;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection
  */
 class RequirementsCheckCollectionTest extends TestCase
@@ -18,7 +20,10 @@ class RequirementsCheckCollectionTest extends TestCase
     {
         $collection = new RequirementsCheckCollection();
 
-        static::assertSame(RequirementCheck::class, $collection->getExpectedClass());
+        $collection->add(new PathCheck('name', RequirementCheck::STATUS_SUCCESS));
+
+        static::expectException(\InvalidArgumentException::class);
+        $collection->add(new ProductEntity()); /** @phpstan-ignore-line */
     }
 
     /**
@@ -34,7 +39,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, array_values($collection->getPathChecks()->getElements()));
     }
 
-    public function pathCheckProvider(): \Generator
+    public static function pathCheckProvider(): \Generator
     {
         $pathCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $systemCheck = new SystemCheck('name', RequirementCheck::STATUS_SUCCESS, 'required', 'installed');
@@ -73,7 +78,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, array_values($collection->getSystemChecks()->getElements()));
     }
 
-    public function systemCheckProvider(): \Generator
+    public static function systemCheckProvider(): \Generator
     {
         $pathCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $systemCheck = new SystemCheck('name', RequirementCheck::STATUS_SUCCESS, 'required', 'installed');
@@ -111,7 +116,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, $collection->hasError());
     }
 
-    public function errorProvider(): \Generator
+    public static function errorProvider(): \Generator
     {
         $successCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $errorCheck = new PathCheck('name', RequirementCheck::STATUS_ERROR);
@@ -150,7 +155,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, $collection->hasPathError());
     }
 
-    public function pathErrorProvider(): \Generator
+    public static function pathErrorProvider(): \Generator
     {
         $successCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $pathErrorCheck = new PathCheck('name', RequirementCheck::STATUS_ERROR);
@@ -189,7 +194,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, $collection->hasSystemError());
     }
 
-    public function systemErrorProvider(): \Generator
+    public static function systemErrorProvider(): \Generator
     {
         $successCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $pathErrorCheck = new PathCheck('name', RequirementCheck::STATUS_ERROR);

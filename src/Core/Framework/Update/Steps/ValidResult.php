@@ -2,33 +2,15 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class ValidResult
 {
-    /**
-     * @var int
-     */
-    private $offset;
-
-    /**
-     * @var int
-     */
-    private $total;
-
-    /**
-     * @var array
-     */
-    private $args;
-
-    public function __construct(int $offset, int $total, array $args = [])
-    {
-        $this->offset = $offset;
-        $this->total = $total;
-        $this->args = $args;
-    }
-
-    public function getArgs(): array
-    {
-        return $this->args;
+    public function __construct(
+        private readonly int $offset,
+        private readonly int $total
+    ) {
     }
 
     public function getOffset(): int

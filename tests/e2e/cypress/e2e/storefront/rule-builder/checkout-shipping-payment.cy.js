@@ -11,8 +11,8 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
             endpoint: 'payment-method',
             data: {
                 field: 'name',
-                value: 'Invoice'
-            }
+                value: 'Invoice',
+            },
         }).then(({id: paymentMethodId}) => {
             const ruleId = createId().replace(/-/g, '');
             const orContainerId = createId().replace(/-/g, '');
@@ -32,14 +32,14 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
                             ruleId: ruleId,
                             parentId: andContainerId,
                             id: paymentMethodRuleId,
-                            value: {paymentMethodIds: [paymentMethodId]}
-                        }]
-                    }]
-                }]
+                            value: {paymentMethodIds: [paymentMethodId]},
+                        }],
+                    }],
+                }],
             });
         }).then(() => {
             return cy.createProductFixture().then(() => {
-                return cy.createDefaultFixture('category')
+                return cy.createDefaultFixture('category');
             });
         }).then(() => {
             return cy.fixture('product');
@@ -65,14 +65,9 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get('.search-suggest-product-name').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-
-            // Off canvas
-            cy.get(page.elements.offCanvasCart).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains(product.name);
-        });
+        // Off canvas
+        cy.get(page.elements.offCanvasCart).should('be.visible');
+        cy.get('.line-item-label').contains(product.name);
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
@@ -135,14 +130,9 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get('.search-suggest-product-name').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-
-            // Off canvas
-            cy.get(page.elements.offCanvasCart).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains(product.name);
-        });
+        // Off canvas
+        cy.get(page.elements.offCanvasCart).should('be.visible');
+        cy.get('.line-item-label').contains(product.name);
 
         // Go to checkout
         cy.get('.offcanvas-cart-actions .btn-primary').click();

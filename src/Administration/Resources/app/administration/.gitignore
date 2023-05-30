@@ -12,3 +12,5 @@ selenium-debug.log
 /build/artifacts/jest/
 .yalc
 yalc.lock
+src/entity-schema-definition.d.ts
+entity-schema-types

@@ -2,80 +2,41 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
-use ONGR\ElasticsearchDSL\Search;
+use OpenSearch\Client;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Search;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
+#[Package('core')]
 class ElasticsearchHelper
 {
     // max for default configuration
-    public const MAX_SIZE_VALUE = 10000;
-
-    private Client $client;
-
-    private ElasticsearchRegistry $registry;
-
-    private CriteriaParser $parser;
-
-    private bool $searchEnabled;
-
-    private bool $indexingEnabled;
-
-    private string $environment;
-
-    private LoggerInterface $logger;
-
-    private string $prefix;
-
-    private bool $throwException;
+    final public const MAX_SIZE_VALUE = 10000;
 
     /**
      * @internal
      */
     public function __construct(
-        string $environment,
-        bool $searchEnabled,
-        bool $indexingEnabled,
-        string $prefix,
-        bool $throwException,
-        Client $client,
-        ElasticsearchRegistry $registry,
-        CriteriaParser $parser,
-        LoggerInterface $logger
+        private readonly string $environment,
+        private bool $searchEnabled,
+        private bool $indexingEnabled,
+        private readonly string $prefix,
+        private readonly bool $throwException,
+        private readonly Client $client,
+        private readonly ElasticsearchRegistry $registry,
+        private readonly CriteriaParser $parser,
+        private readonly LoggerInterface $logger
     ) {
-        $this->client = $client;
-        $this->registry = $registry;
-        $this->parser = $parser;
-        $this->searchEnabled = $searchEnabled;
-        $this->indexingEnabled = $indexingEnabled;
-        $this->environment = $environment;
-        $this->logger = $logger;
-        $this->prefix = $prefix;
-        $this->throwException = $throwException;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - use logAndThrowException instead
-     */
-    public function logOrThrowException(\Throwable $exception): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'logAndThrowException()')
-        );
-
-        return $this->logAndThrowException($exception);
     }
 
     public function logAndThrowException(\Throwable $exception): bool
@@ -112,29 +73,15 @@ class ElasticsearchHelper
 
     /**
      * Validates if it is allowed do execute the search request over elasticsearch
-     *
-     * @deprecated tag:v6.5.0 - Parameter $criteria will be required
      */
-    public function allowSearch(EntityDefinition $definition, Context $context/*, Criteria $criteria */): bool
+    public function allowSearch(EntityDefinition $definition, Context $context, Criteria $criteria): bool
     {
-        /** @var Criteria|null $criteria */
-        $criteria = \func_num_args() >= 3 ? func_get_arg(2) : null;
-
-        if ($criteria === null) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The parameter $criteria is required in allowSearch');
-        }
-
         if (!$this->searchEnabled) {
             return false;
         }
 
         if (!$this->isSupported($definition)) {
             return false;
-        }
-
-        // @deprecated tag:v6.5.0 whole if block can be removed
-        if ($criteria === null || !$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE)) {
-            return $context->hasState(Context::STATE_ELASTICSEARCH_AWARE);
         }
 
         return $criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -148,8 +95,11 @@ class ElasticsearchHelper
             return;
         }
 
+        /** @var list<string> $ids */
+        $ids = array_values($ids);
+
         $query = $this->parser->parseFilter(
-            new EqualsAnyFilter('id', array_values($ids)),
+            new EqualsAnyFilter('id', $ids),
             $definition,
             $definition->getEntityName(),
             $context

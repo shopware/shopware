@@ -1,15 +1,27 @@
-import './component';
-import './preview';
+import CMS from '../../../constant/sw-cms.constant';
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-preview-sidebar-filter', () => import('./preview'));
+/**
+  * @private
+  */
+Shopware.Component.register('sw-cms-block-sidebar-filter', () => import('./component'));
+
+
+/**
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'sidebar-filter',
     label: 'sw-cms.blocks.sidebar.sidebarFilter.label',
     category: 'sidebar',
-    component: 'sw-cms-block-preview-sidebar-filter',
-    previewComponent: 'sw-cms-block-preview-sidebar-filter',
+    component: 'sw-cms-block-sidebar-filter',
+    previewComponent: 'sw-cms-preview-sidebar-filter',
+    allowedPageTypes: [CMS.PAGE_TYPES.LISTING],
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',

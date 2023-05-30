@@ -7,28 +7,27 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFi
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class FileDeletedSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
-
-    /**
      * @internal
      */
-    public function __construct(MessageBusInterface $messageBus)
+    public function __construct(private readonly MessageBusInterface $messageBus)
     {
-        $this->messageBus = $messageBus;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [ImportExportFileEvents::IMPORT_EXPORT_FILE_DELETED_EVENT => 'onFileDeleted'];
     }

@@ -1,11 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-clone-modal.html.twig';
 import './sw-product-clone-modal.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-clone-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'numberRangeService'],
@@ -27,7 +30,7 @@ Component.register('sw-product-clone-modal', {
 
     computed: {
         progressInPercentage() {
-            return 100 / this.cloneMaxProgress * this.cloneProgress;
+            return 100 / (this.cloneMaxProgress * this.cloneProgress);
         },
 
         repository() {
@@ -123,4 +126,4 @@ Component.register('sw-product-clone-modal', {
                 });
         },
     },
-});
+};

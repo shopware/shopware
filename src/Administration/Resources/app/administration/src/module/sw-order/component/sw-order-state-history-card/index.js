@@ -1,11 +1,14 @@
 import template from './sw-order-state-history-card.html.twig';
-import '../sw-order-state-change-modal';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-state-history-card', {
+export default {
     template,
 
     inject: [
@@ -81,15 +84,11 @@ Component.register('sw-order-state-history-card', {
         stateMachineHistoryCriteria() {
             const criteria = new Criteria(1, null);
 
-            const entityIds = [this.order.id];
-
-            if (this.transaction) {
-                entityIds.push(this.transaction.id);
-            }
-
-            if (this.delivery) {
-                entityIds.push(this.delivery.id);
-            }
+            const entityIds = [
+                this.order.id,
+                ...this.order.transactions?.getIds() || [],
+                ...this.order.deliveries?.getIds() || [],
+            ];
 
             criteria.addFilter(
                 Criteria.equalsAny(
@@ -146,23 +145,40 @@ Component.register('sw-order-state-history-card', {
 
         getStateHistoryEntries() {
             return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
-                this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
-                if (this.transaction) {
-                    this.transactionHistory = this.buildStateHistory(this.transaction, fetchedEntries);
+                this.orderHistory = this.buildStateHistory(
+                    this.order,
+                    this.fetchEntries([this.order.id], fetchedEntries),
+                );
+
+                if (this.transaction && this.order.transactions) {
+                    this.transactionHistory = this.buildStateHistory(
+                        this.transaction,
+                        this.fetchEntries(this.order.transactions.getIds(), fetchedEntries),
+                    );
                 }
-                if (this.delivery) {
-                    this.deliveryHistory = this.buildStateHistory(this.delivery, fetchedEntries);
+
+                if (this.delivery && this.order.deliveries) {
+                    this.deliveryHistory = this.buildStateHistory(
+                        this.delivery,
+                        this.fetchEntries(this.order.deliveries.getIds(), fetchedEntries),
+                    );
                 }
 
                 return Promise.resolve(fetchedEntries);
             });
         },
 
-        buildStateHistory(entity, allEntries) {
-            const fetchedEntries = allEntries.filter((entry) => {
-                return entry.entityId.id === entity.id;
-            });
+        fetchEntries(ids, allEntries) {
+            if (!ids.length || !allEntries.length) {
+                return [];
+            }
 
+            return allEntries.filter((entry) => {
+                return ids.includes(entry.entityId.id);
+            });
+        },
+
+        buildStateHistory(entity, fetchedEntries) {
             // this entity has no state history
             if (fetchedEntries.length === 0) {
                 return [{
@@ -176,7 +192,7 @@ Component.register('sw-order-state-history-card', {
             // Prepend start state
             entries.push({
                 state: fetchedEntries[0].fromStateMachineState,
-                createdAt: entity.createdAt,
+                createdAt: fetchedEntries[0].createdAt,
                 user: null,
             });
 
@@ -260,18 +276,12 @@ Component.register('sw-order-state-history-card', {
             });
 
             const options = entries.map((state, index) => {
-                const option = {
+                return {
                     stateName: state.technicalName,
-                    id: null,
+                    id: index,
                     name: state.translated.name,
                     disabled: true,
                 };
-
-                if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                    option.id = index;
-                }
-
-                return option;
             });
 
             options.forEach((option) => {
@@ -392,4 +402,4 @@ Component.register('sw-order-state-history-card', {
             });
         },
     },
-});
+};

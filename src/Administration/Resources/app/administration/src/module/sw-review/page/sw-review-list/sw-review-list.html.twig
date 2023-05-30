@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="product_review"
             :initial-search="term"
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_list_smart_bar_header_title %}
@@ -43,7 +43,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_content %}
-    <template slot="content">
+    <template #content>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_list_content_list %}
@@ -151,7 +151,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_list_sidebar %}
-    <template slot="sidebar">
+    <template #sidebar>
         <sw-sidebar>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

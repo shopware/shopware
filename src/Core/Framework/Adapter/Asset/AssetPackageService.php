@@ -7,22 +7,17 @@ use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
+#[\Shopware\Core\Framework\Log\Package('core')]
 class AssetPackageService
 {
-    private Packages $packages;
-
-    private Package $package;
-
-    private VersionStrategyInterface $versionStrategy;
-
     /**
      * @internal
      */
-    public function __construct(Packages $packages, Package $package, VersionStrategyInterface $versionStrategy)
-    {
-        $this->packages = $packages;
-        $this->package = $package;
-        $this->versionStrategy = $versionStrategy;
+    public function __construct(
+        private readonly Packages $packages,
+        private readonly Package $package,
+        private readonly VersionStrategyInterface $versionStrategy
+    ) {
     }
 
     public function addAssetPackage(string $bundleName, string $bundlePath): void

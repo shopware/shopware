@@ -1,6 +1,12 @@
+/**
+ * @package admin
+ */
+
 import EntityDefinition, { getScalarTypes, getJsonTypes } from 'src/core/data/entity-definition.data';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {
     getScalarTypes,
     getJsonTypes,

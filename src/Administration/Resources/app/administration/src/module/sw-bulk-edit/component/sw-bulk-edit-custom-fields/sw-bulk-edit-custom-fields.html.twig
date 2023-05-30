@@ -9,9 +9,8 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_form_renderer_change_field %}
-            <sw-field
+            <sw-checkbox-field
                 class="sw-bulk-edit-custom-fields__change"
-                type="checkbox"
                 :label="$tc('sw-bulk-edit.product.customFields.changeLabel', 0, {name: getInlineSnippet(customField.config.label)})"
                 @change="toggleItemCheck($event, customField)"
             />

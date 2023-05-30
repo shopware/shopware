@@ -9,15 +9,22 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class CalculatedItem extends QuantityItem
 {
-    public function __construct(float $price, TaxRuleCollection $taxes, SalesChannelContext $context, bool $good = true, int $quantity = 1)
-    {
+    public function __construct(
+        float $price,
+        TaxRuleCollection $taxes,
+        SalesChannelContext $context,
+        bool $good = true,
+        int $quantity = 1
+    ) {
         parent::__construct($price, $taxes, $good, $quantity);
 
         $calculator = new QuantityPriceCalculator(

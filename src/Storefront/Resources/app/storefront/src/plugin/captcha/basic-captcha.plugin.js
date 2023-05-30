@@ -77,7 +77,6 @@ export default class BasicCaptchaPlugin extends Plugin {
         const data = JSON.stringify({
             formId: this.options.formId,
             shopware_basic_captcha_confirm: this.el.querySelector(this.options.basicCaptchaInputId).value,
-            _csrf_token: this.options.preCheckRoute.token,
         });
         this._httpClient.post(this.options.preCheckRoute.path, data, (res) => {
             this.formValidating = false;
@@ -108,6 +107,12 @@ export default class BasicCaptchaPlugin extends Plugin {
         const preCheckId = `#${this.options.formId}-precheck`;
         this.el.querySelector(preCheckId).value = 'allowed';
         this.el.querySelector(this.options.basicCaptchaInputId).value = fakeSession;
+
+        if (!this._form.checkValidity()) {
+            this.el.querySelector(preCheckId).value = '';
+            return;
+        }
+
         this._form.submit();
     }
 

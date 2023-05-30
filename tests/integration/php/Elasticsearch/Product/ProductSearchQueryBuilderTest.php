@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -22,18 +23,17 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @ActiveFeatures(features={"FEATURE_NEXT_22900"})
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Product\ProductSearchQueryBuilder
+ *
+ * @package system-settings
  */
 class ProductSearchQueryBuilderTest extends TestCase
 {
@@ -218,7 +218,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @return iterable<string, array{array<string>, string, array<string>}>
      */
-    public function providerSearchCases(): iterable
+    public static function providerSearchCases(): iterable
     {
         yield 'search inside description' => [
             ['name', 'description'],
@@ -303,7 +303,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 'fields' => $enabledFields,
             ],
             [
-                'fields' => Connection::PARAM_STR_ARRAY,
+                'fields' => ArrayParameterType::STRING,
             ]
         );
 

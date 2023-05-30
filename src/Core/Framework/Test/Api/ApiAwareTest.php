@@ -15,6 +15,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ApiAwareTest extends TestCase
@@ -63,7 +64,7 @@ class ApiAwareTest extends TestCase
         if (!\is_string($expected)) {
             static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be read');
         }
-        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR);
+        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
 
         if ($this->getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(

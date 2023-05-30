@@ -12,7 +12,8 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +29,7 @@ class CreatedByFieldTest extends TestCase
 
     public function testCreatedByNotCreateWithWrongScope(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $userId = $this->fetchFirstIdFromTable('user');
         $context = $this->getAdminContext($userId);
@@ -46,7 +47,7 @@ class CreatedByFieldTest extends TestCase
 
     public function testCreatedByNotCreateWithWrongSource(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $context = Context::createDefaultContext();
 
@@ -66,7 +67,7 @@ class CreatedByFieldTest extends TestCase
 
     public function testCreateCreatedBy(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $userId = $this->fetchFirstIdFromTable('user');
         $context = $this->getAdminContext($userId);
@@ -105,6 +106,8 @@ class CreatedByFieldTest extends TestCase
 
         return [
             'id' => Uuid::randomHex(),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -142,12 +145,12 @@ class CreatedByFieldTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        return Uuid::fromBytesToHex((string) $this->getContainer()->get(Connection::class)->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 
     private function fetchOrderStateId(string $orderStateTechnicalName): string
     {
-        $id = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $id = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT state_machine_state.id
             FROM state_machine_state
             JOIN state_machine ON state_machine_state.state_machine_id = state_machine.id

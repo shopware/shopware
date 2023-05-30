@@ -8,9 +8,10 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\ShippingMethodRule;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -25,14 +26,15 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('business-ops')]
 class ShippingMethodRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -226,7 +228,10 @@ class ShippingMethodRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function matchDataProvider(): array
+    /**
+     * @return array<array<string|bool|array<string, string|array<string>>>>
+     */
+    public static function matchDataProvider(): array
     {
         return [
             [
@@ -290,6 +295,8 @@ class ShippingMethodRuleTest extends TestCase
 
     /**
      * @dataProvider matchDataProvider
+     *
+     * @param array<string, string|array<string>> $ruleProperties
      */
     public function testMatch(array $ruleProperties, string $shippingMethodId, bool $expected): void
     {
@@ -303,7 +310,7 @@ class ShippingMethodRuleTest extends TestCase
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
-            new Cart('test', 'test'),
+            new Cart('test'),
             $salesChannelContext
         );
 
@@ -322,7 +329,7 @@ class ShippingMethodRuleTest extends TestCase
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
-            new Cart('test', 'test'),
+            new Cart('test'),
             $salesChannelContext
         );
 

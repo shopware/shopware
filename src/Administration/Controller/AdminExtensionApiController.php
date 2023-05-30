@@ -13,9 +13,10 @@ use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,34 +26,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal Only to be used by the admin-extension-sdk.
- *
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('administration')]
 class AdminExtensionApiController extends AbstractController
 {
-    private Executor $executor;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private EntityRepositoryInterface $appRepository;
-
-    private QuerySigner $querySigner;
-
     public function __construct(
-        Executor $executor,
-        ShopIdProvider $shopIdProvider,
-        EntityRepositoryInterface $appRepository,
-        QuerySigner $querySigner
+        private readonly Executor $executor,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly EntityRepository $appRepository,
+        private readonly QuerySigner $querySigner
     ) {
-        $this->executor = $executor;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->appRepository = $appRepository;
-        $this->querySigner = $querySigner;
     }
 
-    /**
-     * @Route("/api/_action/extension-sdk/run-action", name="api.action.extension-sdk.run-action", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/extension-sdk/run-action', name: 'api.action.extension-sdk.run-action', methods: ['POST'])]
     public function runAction(RequestDataBag $requestDataBag, Context $context): Response
     {
         $appName = $requestDataBag->get('appName');
@@ -78,7 +65,7 @@ class AdminExtensionApiController extends AbstractController
         }
 
         $targetUrl = $requestDataBag->get('url');
-        $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
+        $targetHost = \parse_url((string) $targetUrl, \PHP_URL_HOST);
         $allowedHosts = $app->getAllowedHosts() ?? [];
         if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
             throw new UnallowedHostException($targetUrl, $allowedHosts, $app->getName());
@@ -99,9 +86,7 @@ class AdminExtensionApiController extends AbstractController
         return $this->executor->execute($action, $context);
     }
 
-    /**
-     * @Route("/api/_action/extension-sdk/sign-uri", name="api.action.extension-sdk.sign-uri", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/extension-sdk/sign-uri', name: 'api.action.extension-sdk.sign-uri', methods: ['POST'])]
     public function signUri(RequestDataBag $requestDataBag, Context $context): Response
     {
         $appName = $requestDataBag->get('appName');

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,8 +20,10 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemCreationDateRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -70,7 +72,10 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertEquals(new Choice($expectedOperators), $operators[1]);
     }
 
-    public function getMatchValues(): array
+    /**
+     * @return array<string, array<bool|string>>
+     */
+    public static function getMatchValues(): array
     {
         return [
             'EQ - positive 1' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
@@ -130,13 +135,6 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
 
         $this->rule->assign(['operator' => Rule::OPERATOR_NEQ, 'lineItemCreationDate' => '2020-02-06 00:00:00']);
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            // Rule without line item date with neq operator
-            static::assertFalse($this->rule->match($scope));
-
-            return;
-        }
 
         // Rule without line item date with neq operator
         static::assertTrue($this->rule->match($scope));
@@ -220,7 +218,10 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartRuleScopeTestData(): array
+    /**
+     * @return array<string, array<string|bool>>
+     */
+    public static function getCartRuleScopeTestData(): array
     {
         return [
             'no match' => ['2020-02-06 00:00:00', '2020-01-01 12:30:00', '2020-01-01 18:00:00', false],
@@ -231,6 +232,6 @@ class LineItemCreationDateRuleTest extends TestCase
 
     private function createLineItemWithCreatedDate(string $createdAt): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
+        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
     }
 }

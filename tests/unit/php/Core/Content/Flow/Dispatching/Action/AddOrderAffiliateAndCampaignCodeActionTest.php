@@ -7,39 +7,31 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\DelayAware;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction
  */
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private AddOrderAffiliateAndCampaignCodeAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new AddOrderAffiliateAndCampaignCodeAction($this->connection, $this->repository);
 
         $this->flow = $this->createMock(StorableFlow::class);
@@ -48,25 +40,8 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [OrderAware::class, DelayAware::class],
+            [OrderAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                AddOrderAffiliateAndCampaignCodeAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.add.order.affiliate.and.campaign.code' => 'handle'],
-            AddOrderAffiliateAndCampaignCodeAction::getSubscribedEvents()
         );
     }
 
@@ -85,13 +60,13 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
     public function testActionExecuted(array $config, array $existedData, array $expected): void
     {
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturn($existedData);
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        $withData = [array_merge([
-            'id' => $this->flow->getStore('orderId'),
-        ], $expected)];
+        $withData = [[...[
+            'id' => $this->flow->getData('orderId'),
+        ], ...$expected]];
 
         $this->repository->expects(static::once())
             ->method('update')
@@ -102,8 +77,8 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
         $this->repository->expects(static::never())->method('update');
 
         $this->action->handleFlow($this->flow);
@@ -111,15 +86,15 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
-        $this->flow->expects(static::once())->method('getStore')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
+        $this->flow->expects(static::once())->method('getData')->willReturn(Uuid::randomHex());
         $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
         $this->repository->expects(static::never())->method('update');
 
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionExecutedProvider(): \Generator
+    public static function actionExecutedProvider(): \Generator
     {
         yield 'Test with non data exists' => [
             [

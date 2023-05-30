@@ -8,20 +8,18 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
 {
-    private int $maxRulePrices;
-
-    private LoggerInterface $logger;
-
     /**
      * @internal
      */
-    public function __construct(int $maxRulePrices, LoggerInterface $logger)
-    {
-        $this->maxRulePrices = $maxRulePrices;
-        $this->logger = $logger;
+    public function __construct(
+        private readonly int $maxRulePrices,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string

@@ -3,52 +3,40 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class IdSearchResult extends Struct
 {
     use StateAwareTrait;
 
     /**
-     * @var array[]
+     * @var array<string, array<string, mixed>>
      */
     protected $data;
 
     /**
-     * @var int
-     */
-    protected $total;
-
-    /**
-     * @var Criteria
-     */
-    protected $criteria;
-
-    /**
-     * @var Context
-     */
-    protected $context;
-
-    /**
-     * @var array
+     * @var list<string>|list<array<string, string>>
      */
     protected $ids;
 
-    public function __construct(int $total, array $data, Criteria $criteria, Context $context)
-    {
-        $this->total = $total;
+    /**
+     * @param array<array<string, mixed>> $data
+     */
+    public function __construct(
+        private readonly int $total,
+        array $data,
+        private readonly Criteria $criteria,
+        private readonly Context $context
+    ) {
         $this->ids = array_column($data, 'primaryKey');
 
-        $this->data = array_map(function ($row) {
-            return $row['data'];
-        }, $data);
-
-        $this->criteria = $criteria;
-        $this->context = $context;
+        $this->data = array_map(fn ($row) => $row['data'], $data);
     }
 
     public function firstId(): ?string
@@ -57,11 +45,17 @@ class IdSearchResult extends Struct
             return null;
         }
 
-        return $this->ids[0];
+        $id = $this->ids[0];
+
+        if (!\is_string($id)) {
+            throw new \RuntimeException('Calling IdSearchResult::firstId() is not supported for mapping entities.');
+        }
+
+        return $id;
     }
 
     /**
-     * @return array[]|array<string>
+     * @return list<string>|list<array<string, string>>
      */
     public function getIds(): array
     {
@@ -83,11 +77,17 @@ class IdSearchResult extends Struct
         return $this->context;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getData(): array
     {
         return $this->data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getDataOfId(string $id): array
     {
         if (!\array_key_exists($id, $this->data)) {
@@ -97,7 +97,7 @@ class IdSearchResult extends Struct
         return $this->data[$id];
     }
 
-    public function getDataFieldOfId(string $id, string $field)
+    public function getDataFieldOfId(string $id, string $field): mixed
     {
         $data = $this->getDataOfId($id);
 
@@ -120,9 +120,9 @@ class IdSearchResult extends Struct
     }
 
     /**
-     * @param string|array $primaryKey
+     * @param string|array<string, string> $primaryKey
      */
-    public function has($primaryKey): bool
+    public function has(string|array $primaryKey): bool
     {
         if (!\is_array($primaryKey)) {
             return \in_array($primaryKey, $this->ids, true);

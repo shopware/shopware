@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 class CacheApiService {
     constructor(httpClient, loginService) {
         this.httpClient = httpClient;

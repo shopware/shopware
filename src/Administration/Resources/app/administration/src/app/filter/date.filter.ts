@@ -1,13 +1,16 @@
-const { Filter } = Shopware;
-const { date } = Shopware.Utils.format;
+/**
+ * @package admin
+ */
 
-Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions): string => {
+Shopware.Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions = {}): string => {
     if (!value) {
         return '';
     }
 
-    return date(value, options);
+    return Shopware.Utils.format.date(value, options);
 });
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {};

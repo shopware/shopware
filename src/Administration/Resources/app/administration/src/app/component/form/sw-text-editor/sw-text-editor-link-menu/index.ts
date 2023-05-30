@@ -23,9 +23,10 @@ interface TextEditorLinkMenuConfig {
 }
 
 /**
+ * @package admin
+ *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-editor-link-menu', {
     template,
 
@@ -48,7 +49,7 @@ Component.register('sw-text-editor-link-menu', {
         displayAsButton: boolean,
         buttonVariant: ButtonVariant,
         linkCategory: LinkCategories,
-        categoryCollection?: EntityCollectionType,
+        categoryCollection?: EntityCollectionType<'category'>,
         buttonVariantList: Array<{ id: ButtonVariant, name: string }>
         } {
         return {
@@ -99,7 +100,7 @@ Component.register('sw-text-editor-link-menu', {
             return criteria;
         },
 
-        categoryRepository(): RepositoryType {
+        categoryRepository(): RepositoryType<'category'> {
             return this.repositoryFactory.create('category');
         },
     },
@@ -140,12 +141,12 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('mounted');
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType> {
+        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
             const categoryCriteria = (new Criteria(1, 25)).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
 
-        getEmptyCategoryCollection(): EntityCollectionType {
+        getEmptyCategoryCollection(): EntityCollectionType<'category'> {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,

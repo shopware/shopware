@@ -2,52 +2,40 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
-use Monolog\Logger;
+use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\SubjectAware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailSentEvent extends Event implements BusinessEventInterface, LogAware, SubjectAware, ContentsAware, RecipientsAware
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - SubjectAware, ContentsAware and RecipientsAware are deprecated and will be removed in v6.6.0
+ */
+#[Package('sales-channel')]
+class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'mail.sent';
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $subject;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $contents;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $recipients;
+    final public const EVENT_NAME = 'mail.sent';
 
     /**
      * @param array<string, mixed> $recipients
      * @param array<string, mixed> $contents
      */
-    public function __construct(string $subject, array $recipients, array $contents, Context $context)
-    {
-        $this->subject = $subject;
-        $this->recipients = $recipients;
-        $this->contents = $contents;
-        $this->context = $context;
+    public function __construct(
+        private readonly string $subject,
+        private readonly array $recipients,
+        private readonly array $contents,
+        private readonly Context $context,
+        private readonly ?string $eventName = null
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -61,6 +49,18 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware, S
     public function getName(): string
     {
         return self::EVENT_NAME;
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return [
+            FlowMailVariables::SUBJECT => $this->subject,
+            FlowMailVariables::CONTENTS => $this->contents,
+            FlowMailVariables::RECIPIENTS => $this->recipients,
+        ];
     }
 
     public function getContext(): Context
@@ -89,20 +89,21 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware, S
         return $this->recipients;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getLogData(): array
     {
         return [
+            'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
             'contents' => $this->contents,
         ];
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
+     */
     public function getLogLevel(): int
     {
-        return Logger::INFO;
+        return Level::Info->value;
     }
 }

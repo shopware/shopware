@@ -89,14 +89,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns the context token. Use that as your `sw-context-token` header for subsequent requests. Redirect if getRedirectUrl is set.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ContextTokenResponse"
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ContextTokenResponse"
                     }
                 },
                 "security": [

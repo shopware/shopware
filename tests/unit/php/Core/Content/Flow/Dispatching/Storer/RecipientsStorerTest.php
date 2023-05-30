@@ -8,9 +8,12 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\RecipientsStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Feature;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\RecipientsStorer
@@ -19,8 +22,9 @@ class RecipientsStorerTest extends TestCase
 {
     private RecipientsStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $this->storer = new RecipientsStorer();
     }
 
@@ -34,7 +38,7 @@ class RecipientsStorerTest extends TestCase
 
     public function testStoreWitNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(RecipientsAware::RECIPIENTS, $stored);
@@ -44,7 +48,7 @@ class RecipientsStorerTest extends TestCase
     {
         $recipients = ['test'];
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -66,7 +70,7 @@ class RecipientsStorerTest extends TestCase
     {
         $recipients = ['test'];
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

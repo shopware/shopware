@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1603970276RemoveCustomerEmailUniqueCon
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1603970276RemoveCustomerEmailUniqueConstraint
  */
 class Migration1603970276RemoveCustomerEmailUniqueConstraintTest extends TestCase
@@ -23,9 +24,7 @@ class Migration1603970276RemoveCustomerEmailUniqueConstraintTest extends TestCas
         /** @var array<string, mixed>[] $indexes */
         $indexes = $conn->fetchAllAssociative('SHOW INDEX FROM `customer`;');
 
-        $emailUniqueConstraint = array_filter($indexes, function (array $index) {
-            return !empty($index['Key_name']) && $index['Key_name'] === 'uniq.customer.email_bound_sales_channel_id';
-        });
+        $emailUniqueConstraint = array_filter($indexes, fn (array $index) => !empty($index['Key_name']) && $index['Key_name'] === 'uniq.customer.email_bound_sales_channel_id');
 
         static::assertEmpty($emailUniqueConstraint);
     }

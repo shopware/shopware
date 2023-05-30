@@ -4,15 +4,15 @@ namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
-use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -20,15 +20,16 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PaymentMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private PaymentMethodRepositoryDecorator $paymentRepository;
+    private EntityRepository $paymentRepository;
 
     private string $paymentMethodId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->paymentRepository = $this->getContainer()->get('payment_method.repository');
         $this->paymentMethodId = Uuid::randomHex();
@@ -184,7 +185,7 @@ class PaymentMethodRepositoryTest extends TestCase
         try {
             $this->paymentRepository->delete([$primaryKey], $defaultContext);
             static::fail('this should not be reached');
-        } catch (PluginPaymentMethodsDeleteRestrictionException $e) {
+        } catch (PluginPaymentMethodsDeleteRestrictionException) {
         }
 
         $criteria = new Criteria([$this->paymentMethodId]);
@@ -231,7 +232,7 @@ class PaymentMethodRepositoryTest extends TestCase
             /** @var WriteConstraintViolationException $constraintViolation */
             $constraintViolation = $e->getExceptions()[0];
             static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
-            static::assertEquals('/name', $constraintViolation->getViolations()[0]->getPropertyPath());
+            static::assertEquals('/name', $constraintViolation->getViolations()->get(0)->getPropertyPath());
         }
     }
 
@@ -271,7 +272,7 @@ class PaymentMethodRepositoryTest extends TestCase
     {
         $pluginId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $pluginRepo */
+        /** @var EntityRepository $pluginRepo */
         $pluginRepo = $this->getContainer()->get('plugin.repository');
         $pluginRepo->create([[
             'id' => $pluginId,

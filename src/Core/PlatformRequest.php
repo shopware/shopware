@@ -2,6 +2,9 @@
 
 namespace Shopware\Core;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 final class PlatformRequest
 {
     /**
@@ -32,6 +35,8 @@ final class PlatformRequest
 
     /**
      * This header is used in the administration to get all fields
+     *
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
      */
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';
 
@@ -50,6 +55,9 @@ final class PlatformRequest
     public const ATTRIBUTE_ACL = '_acl';
     public const ATTRIBUTE_CAPTCHA = '_captcha';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
+    public const ATTRIBUTE_ENTITY = '_entity';
+    public const ATTRIBUTE_NO_STORE = '_noStore';
+    public const ATTRIBUTE_HTTP_CACHE = '_httpCache';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';

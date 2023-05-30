@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The `repository` service allows you to query data, that is stored inside shopware.
@@ -18,29 +19,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
  *
  * @script-service data_loading
  */
+#[Package('core')]
 class RepositoryFacade
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
-    private AclCriteriaValidator $criteriaValidator;
-
-    private Context $context;
-
     /**
      * @internal
      */
     public function __construct(
-        DefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder,
-        AclCriteriaValidator $criteriaValidator,
-        Context $context
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly AclCriteriaValidator $criteriaValidator,
+        private readonly Context $context
     ) {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->criteriaValidator = $criteriaValidator;
-        $this->context = $context;
     }
 
     /**

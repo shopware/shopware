@@ -2,10 +2,23 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[\AllowDynamicProperties]
+#[Package('customer-order')]
 class DocumentConfiguration extends Struct
 {
+    /**
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @var array<string>
+     */
+    protected $deliveryCountries;
+
     /**
      * @var bool|null
      */
@@ -109,6 +122,11 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      */
+    protected $companyPhone;
+
+    /**
+     * @var string|null
+     */
     protected $companyUrl;
 
     /**
@@ -162,6 +180,21 @@ class DocumentConfiguration extends Struct
     protected $custom = [];
 
     /**
+     * @var bool
+     */
+    protected $diplayLineItemPosition;
+
+    /**
+     * @var bool
+     */
+    protected $displayInCustomerAccount;
+
+    /**
+     * @var string
+     */
+    protected $documentTypeId;
+
+    /**
      * @param string                     $name
      * @param array|bool|int|string|null $value
      *
@@ -169,7 +202,7 @@ class DocumentConfiguration extends Struct
      */
     public function __set($name, $value)
     {
-        $this->$name = $value;
+        $this->$name = $value; /* @phpstan-ignore-line */
 
         return $this;
     }
@@ -181,7 +214,7 @@ class DocumentConfiguration extends Struct
      */
     public function __get($name)
     {
-        return $this->$name;
+        return $this->$name; /* @phpstan-ignore-line */
     }
 
     /**

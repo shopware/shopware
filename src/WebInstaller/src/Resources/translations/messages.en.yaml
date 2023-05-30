@@ -1,0 +1,50 @@
+shopware.update:
+    header_title: Installation
+    back: Back
+    rc_hint: (Not recommended for production)
+    language:
+        en: English
+        de: German
+    navigation:
+        start: Language
+        configure_php: Configuration
+        download: Download
+        finish: Finish
+    steps:
+        start:
+            title: Shopware Installer
+            welcomeTitle: Welcome to the Shopware Installer
+            welcomeMessage: This process will guide you through the steps necessary to install or update Shopware 6.
+            languageSelection: Installer language
+            languageSelectionInfo: The language selected here only applies to this installer. You may choose another language for your shop later on.
+            submit: Continue
+
+        configure_php:
+            title: Configuration
+            info: PHP binary found. If you want to select the file yourself, you can specify it here.
+            pathInput: PHP binary
+            submit: Save configuration
+        update:
+            title: Updating Shopware
+            log: Log
+            backupHint: Make sure you have created a backup before updating.
+            submit: Update Shopware
+            currentVersion: 'Current version: %version%'
+            updateVersion: 'Update version:'
+            error: 'Update process unsuccessful. You can access the log file <a href="#" id="download-log">here</a>.'
+        finish:
+            title: Finish
+            message: |
+                The install process has been completed successfully.
+
+                In the next step the recovery files will be removed from the server. You will be redirected to the Shopware Administration afterwards.
+            submit: Open Administration
+        install:
+            title: Download Shopware
+            info: Choose a Shopware version to download. The software will be downloaded into the current directory.
+            shopwareVersion: 'Shopware version:'
+            after_install: After downloading you should switch your document root to the newly created folder <strong>public</strong>.
+            log: Log
+            installation_failed: Download failed
+            submit: Download
+            error: 'Shopware could not be downloaded. You can access the log file <a href="#" id="download-log">here</a>.'

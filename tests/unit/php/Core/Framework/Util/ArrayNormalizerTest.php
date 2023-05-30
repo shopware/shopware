@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\ArrayNormalizer
  */
 class ArrayNormalizerTest extends TestCase
@@ -36,7 +37,7 @@ class ArrayNormalizerTest extends TestCase
     /**
      * @return array<mixed>[][]
      */
-    public function provideTestData(): array
+    public static function provideTestData(): array
     {
         return [
             [

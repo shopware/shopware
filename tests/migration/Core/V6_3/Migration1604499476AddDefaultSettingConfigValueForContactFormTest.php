@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1604499476AddDefaultSettingConfigValue
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1604499476AddDefaultSettingConfigValueForContactForm
  */
 class Migration1604499476AddDefaultSettingConfigValueForContactFormTest extends TestCase
@@ -18,20 +19,18 @@ class Migration1604499476AddDefaultSettingConfigValueForContactFormTest extends 
      *           ["1"]
      *           [false]
      *           [" "]
-     *
-     * @param bool|int|string $configPresent
      */
-    public function testDoesNotOverwriteValuesWhenAlreadyConfigured($configPresent): void
+    public function testDoesNotOverwriteValuesWhenAlreadyConfigured(bool|int|string $configPresent): void
     {
         $migration = new Migration1604499476AddDefaultSettingConfigValueForContactForm();
         $abortCondition = $configPresent !== false;
 
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['fetchColumn', 'insert'])
+            ->onlyMethods(['fetchOne', 'insert'])
             ->getMock();
 
-        $connection->method('fetchColumn')
+        $connection->method('fetchOne')
             ->willReturn($configPresent);
 
         // Assert that an insert only happens when the abort condition is not met

@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('storefront')]
 class File extends Struct
 {
     /**
@@ -16,8 +18,10 @@ class File extends Struct
      */
     protected $resolveMapping;
 
-    public function __construct(string $filepath, array $resolveMapping = [])
-    {
+    public function __construct(
+        string $filepath,
+        array $resolveMapping = []
+    ) {
         $this->filepath = $filepath;
         $this->resolveMapping = $resolveMapping;
     }

@@ -1,12 +1,13 @@
+/**
+ * @package content
+ */
 /// <reference types="Cypress" />
 
 import CategoryPageObject from '../../support/pages/module/sw-category.page-object';
 
 describe('Category: Assign product and set seo url, then check in the storefront', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -18,20 +19,20 @@ describe('Category: Assign product and set seo url, then check in the storefront
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCategory');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editCategory');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('addProductToSaleschannel');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadSalesChannel');
 
         // Add sub category under home
@@ -39,7 +40,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__sub-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`,
         );
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('SEO-Category');
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
@@ -62,7 +63,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.contains('SEO-Category').click();
 
@@ -70,7 +71,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
-        cy.get('[title="Producten"]').scrollIntoView().click();
+        cy.get('.sw-tabs-item[title="Producten"]').scrollIntoView().click();
         cy.get('input[placeholder="Producten zoeken en toewijzen …"]').click();
         cy.contains('.sw-select-result-list__content', 'Product name').click();
         cy.get('.sw-category-detail__save-action').click();
@@ -81,12 +82,12 @@ describe('Category: Assign product and set seo url, then check in the storefront
         // Add SEO url to the category
         cy.get('[title="SEO"]').scrollIntoView().click();
         cy.get('[label] .sw-entity-single-select__selection').scrollIntoView().click();
-        cy.get('.sw-select-result-list__content').contains('E2E install test').click();
+        cy.get('.sw-select-result-list__content').contains(Cypress.env('storefrontName')).click();
         cy.get('.sw-inherit-wrapper [type]').clearTypeAndCheck('test-SEO');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadCategory');
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
@@ -94,9 +95,9 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.get('.sw-loader').should('not.exist');
 
         // Add product to sales channel
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');

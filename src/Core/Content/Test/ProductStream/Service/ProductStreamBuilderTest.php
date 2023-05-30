@@ -10,43 +10,42 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
+#[Package('business-ops')]
 class ProductStreamBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productStreamRepository;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $productRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var SalesChannelContext
@@ -183,21 +182,21 @@ class ProductStreamBuilderTest extends TestCase
         static::assertCount($expected, $products);
     }
 
-    public function relativeTimeFiltersDataProvider(): array
+    public static function relativeTimeFiltersDataProvider(): array
     {
         return [
-            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 3],
-            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
-            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
-            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 7],
-            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 2],
-            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 8],
-            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 3],
-            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
-            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
-            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 7],
-            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 2],
-            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 8],
+            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 3],
+            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
+            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
+            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 7],
+            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', self::getReleaseDates('+'), 2],
+            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', self::getReleaseDates('+'), 8],
+            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('-'), 3],
+            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('-'), 5],
+            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('-'), 5],
+            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', self::getReleaseDates('-'), 7],
+            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', self::getReleaseDates('-'), 2],
+            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', self::getReleaseDates('-'), 8],
         ];
     }
 
@@ -217,7 +216,7 @@ class ProductStreamBuilderTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec(
+        $connection->executeStatement(
             "
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
@@ -225,7 +224,7 @@ class ProductStreamBuilderTest extends TestCase
         "
         );
 
-        $connection->exec(
+        $connection->executeStatement(
             "
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
@@ -246,12 +245,12 @@ class ProductStreamBuilderTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $connection->exec(
-            "
+        $connection->executeStatement(
+            '
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
-                (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[]', 0, '2019-08-16 08:43:57.488', NULL);
-        "
+                (UNHEX(\'137B079935714281BA80B40F83F8D7EB\'), \'[]\', 0, \'2019-08-16 08:43:57.488\', NULL);
+        '
         );
     }
 
@@ -285,7 +284,7 @@ class ProductStreamBuilderTest extends TestCase
         return $products;
     }
 
-    private function getReleaseDates(string $operator): array
+    private static function getReleaseDates(string $operator): array
     {
         return [
             (new \DateTimeImmutable())->modify($operator . '8 days')->format('Y-m-d'),

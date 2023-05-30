@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -11,26 +12,17 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
+#[Package('core')]
 abstract class Plugin extends Bundle
 {
     /**
-     * @var bool
-     */
-    private $active;
-
-    /**
-     * @var string
-     */
-    private $basePath;
-
-    /**
      * @internal
      */
-    final public function __construct(bool $active, string $basePath, ?string $projectDir = null)
-    {
-        $this->active = $active;
-        $this->basePath = $basePath;
-
+    final public function __construct(
+        private readonly bool $active,
+        private string $basePath,
+        ?string $projectDir = null
+    ) {
         if ($projectDir && mb_strpos($this->basePath, '/') !== 0) {
             $this->basePath = rtrim($projectDir, '/') . '/' . $this->basePath;
         }
@@ -117,7 +109,7 @@ abstract class Plugin extends Bundle
         }
 
         $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
-        Kernel::getConnection()->executeUpdate('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
+        Kernel::getConnection()->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
     public function getBasePath(): string
@@ -140,7 +132,7 @@ abstract class Plugin extends Bundle
 
     private function computePluginClassPath(): string
     {
-        $canonicalizedPluginClassPath = parent::getPath();
+        $canonicalizedPluginClassPath = $this->getPath();
         $canonicalizedPluginPath = realpath($this->basePath);
 
         if ($canonicalizedPluginPath !== false && mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
@@ -149,6 +141,6 @@ abstract class Plugin extends Bundle
             return $this->basePath . $relativePluginClassPath;
         }
 
-        return parent::getPath();
+        return $this->getPath();
     }
 }

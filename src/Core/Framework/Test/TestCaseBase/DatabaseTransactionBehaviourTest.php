@@ -61,7 +61,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
     public function testTransactionOpenWithoutClose(): void
     {
         static::expectException(ExpectationFailedException::class);
-        static::expectExceptionMessage("The previous test case's transaction was not closed properly");
+        static::expectExceptionMessage('The previous test case\'s transaction was not closed properly');
         static::expectExceptionMessage('Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase);
         static::startTransactionBefore();
         static::assertTrue(true);

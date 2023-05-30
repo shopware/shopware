@@ -5,8 +5,7 @@ namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
@@ -25,11 +24,11 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private IdsCollection $ids;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->ids = new IdsCollection();
@@ -59,7 +58,7 @@ class DatabaseConfigLoaderTest extends TestCase
      */
     public function testMediaConfigurationLoading(): void
     {
-        self::setUpMedia();
+        $this->setUpMedia();
 
         $theme = [[
             'id' => $this->ids->get('base'),
@@ -99,10 +98,6 @@ class DatabaseConfigLoaderTest extends TestCase
         static::assertNotNull($themeConfig);
 
         $mediaURL = EnvironmentHelper::getVariable('APP_URL') . '/media/fd/01/0e/testImage.png';
-
-        if (!Feature::isActive('FEATURE_NEXT_19048')) {
-            static::assertEquals($mediaURL, $themeConfig['media-field']['value'], 'If This Failes, please update NEXT-20034 and inform s.sluiter directly!');
-        }
 
         static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value'], 'If This Failes, please update NEXT-20034 and inform s.sluiter directly!');
     }
@@ -148,10 +143,6 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = null;
 
-        if (!Feature::isActive('FEATURE_NEXT_19048')) {
-            static::assertEquals($mediaURL, $themeConfig['media-field']['value']);
-        }
-
         static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
     }
 
@@ -196,15 +187,14 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = self::MEDIA_ID;
 
-        if (!Feature::isActive('FEATURE_NEXT_19048')) {
-            static::assertEquals($mediaURL, $themeConfig['media-field']['value']);
-        }
-
         static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
     }
 
     /**
      * @dataProvider configurationLoadingProvider
+     *
+     * @param array<string, mixed> $config
+     * @param array<string|int, mixed> $expected>
      */
     public function testConfigurationLoading(string $key, array $config, array $expected): void
     {
@@ -277,7 +267,10 @@ class DatabaseConfigLoaderTest extends TestCase
         }
     }
 
-    public function configurationLoadingProvider(): iterable
+    /**
+     * @return iterable<int|string, mixed>
+     */
+    public static function configurationLoadingProvider(): iterable
     {
         yield 'Test simple inheritance' => [
             'child',
@@ -341,20 +334,26 @@ class DatabaseConfigLoaderTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     private static function field(string $value): array
     {
         return ['type' => 'color', 'value' => $value];
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     private static function media(?string $value): array
     {
         return ['type' => 'media', 'value' => $value];
     }
 
     /**
-     * @param string|int $value
+     * @return array<string, string|int>
      */
-    private static function fieldUntyped($value): array
+    private static function fieldUntyped(string|int $value): array
     {
         return ['value' => $value];
     }

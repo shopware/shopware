@@ -6,8 +6,11 @@ const { Component, Utils, Classes: { ShopwareError } } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-mail-send-modal', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -32,6 +35,8 @@ Component.register('sw-flow-mail-send-modal', {
             selectedRecipient: null,
             mailTemplateIdError: null,
             recipientGridError: null,
+            replyTo: null,
+            replyToError: null,
         };
     },
 
@@ -119,6 +124,14 @@ Component.register('sw-flow-mail-send-modal', {
                     ...this.recipientCustom,
                 ];
             }
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
+                .includes(this.triggerEvent.name)) {
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
 
             const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
 
@@ -146,6 +159,36 @@ Component.register('sw-flow-mail-send-modal', {
                 label: 'sw-flow.modals.mail.columnRecipientName',
                 inlineEdit: 'string',
             }];
+        },
+
+        replyToOptions() {
+            if (this.triggerEvent.name === 'contact_form.send') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientContactFormMail,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            return [
+                ...this.recipientDefault,
+                ...this.recipientCustom,
+            ];
+        },
+
+        replyToSelection() {
+            switch (this.replyTo) {
+                case null:
+                    return 'default';
+                case 'contactFormMail':
+                    return 'contactFormMail';
+                default:
+                    return 'custom';
+            }
+        },
+
+        showReplyToField() {
+            return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
         ...mapState('swFlowState', ['mailTemplates', 'triggerEvent', 'triggerActions']),
@@ -178,6 +221,10 @@ Component.register('sw-flow-mail-send-modal', {
 
                     this.addRecipient();
                     this.showRecipientEmails = true;
+                }
+
+                if (config.replyTo) {
+                    this.replyTo = config.replyTo;
                 }
 
                 this.mailTemplateId = config.mailTemplateId;
@@ -230,10 +277,13 @@ Component.register('sw-flow-mail-send-modal', {
         },
 
         onAddAction() {
-            this.mailTemplateIdError = this.fieldError(this.mailTemplateId);
+            this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
+            if (this.showReplyToField) {
+                this.replyToError = this.setMailError(this.replyTo);
+            }
             this.recipientGridError = this.isRecipientGridError();
 
-            if (this.mailTemplateIdError || this.recipientGridError) {
+            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError) {
                 return;
             }
 
@@ -248,6 +298,7 @@ Component.register('sw-flow-mail-send-modal', {
                         type: this.mailRecipient,
                         data: this.getRecipientData(),
                     },
+                    replyTo: this.replyTo,
                 },
             };
 
@@ -364,8 +415,8 @@ Component.register('sw-flow-mail-send-modal', {
             this.recipients.splice(itemIndex, 1);
         },
 
-        fieldError(text) {
-            if (!text) {
+        mailTemplateError(mailTemplate) {
+            if (!mailTemplate) {
                 return new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
@@ -425,5 +476,33 @@ Component.register('sw-flow-mail-send-modal', {
         allowDeleteRecipient(itemIndex) {
             return itemIndex !== this.recipients.length - 1;
         },
+
+        changeShowReplyToField(value) {
+            switch (value) {
+                case 'default':
+                    this.replyToError = null;
+                    this.replyTo = null;
+
+                    return;
+                case 'contactFormMail':
+                    this.replyToError = null;
+                    this.replyTo = 'contactFormMail';
+
+                    return;
+                default:
+                    this.replyTo = '';
+            }
+        },
+
+        buildReplyToTooltip(snippet) {
+            const route = { name: 'sw.settings.basic.information.index' };
+            const routeData = this.$router.resolve(route);
+
+            const data = {
+                settingsLink: routeData.href,
+            };
+
+            return this.$tc(snippet, 0, data);
+        },
     },
-});
+};

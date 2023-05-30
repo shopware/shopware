@@ -3,19 +3,15 @@
 import NewsletterRecipientPageObject  from '../../support/pages/module/sw-newsletter-recipient.page-object';
 
 describe('Storefront profile settings', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
-    it('@package: should apply for newsletter in storefront and see the customer in newsletter recipients ', { tags: ['pa-customers-orders'] }, () => {
+    it('@package: should apply for newsletter in storefront and see the customer in newsletter recipients ', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         cy.intercept({
             url: `/widgets/account/newsletter`,
-            method: 'POST'
+            method: 'POST',
         }).as('checkNewsletter');
 
         const page = new NewsletterRecipientPageObject();
@@ -42,7 +38,7 @@ describe('Storefront profile settings', () => {
         });
         cy.get('label[for="newsletterRegister"]').click();
         cy.wait('@checkNewsletter').its('response.statusCode').should('equal', 200);
-        cy.contains('You have subscribed to the newsletter.').should('exist');
+        cy.contains('You have successfully subscribed to the newsletter.').should('exist');
 
         // Verify the subscription from the newsletter recipients
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);

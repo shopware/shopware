@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -20,38 +21,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class ProductStreamUpdater extends EntityIndexer
+#[Package('core')]
+class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
-    private Connection $connection;
-
-    private ProductDefinition $productDefinition;
-
-    private EntityRepositoryInterface $repository;
-
-    private MessageBusInterface $messageBus;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        ProductDefinition $productDefinition,
-        EntityRepositoryInterface $repository,
-        MessageBusInterface $messageBus,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+        private readonly Connection $connection,
+        private readonly ProductDefinition $productDefinition,
+        private readonly EntityRepository $repository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {
-        $this->connection = $connection;
-        $this->productDefinition = $productDefinition;
-        $this->repository = $repository;
-        $this->messageBus = $messageBus;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
     }
 
     public function getName(): string
@@ -59,20 +46,8 @@ class ProductStreamUpdater extends EntityIndexer
         return 'product_stream_mapping.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "ProductStreamUpdater" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         // in full index, the product indexer will call the `updateProducts` method
         return null;
     }
@@ -92,12 +67,16 @@ class ProductStreamUpdater extends EntityIndexer
             'SELECT api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL AND id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
+        // if the filter is invalid
+        if ($filter === false) {
+            return;
+        }
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $filter = json_decode((string) $filter, true);
+        $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
 
@@ -114,6 +93,11 @@ class ProductStreamUpdater extends EntityIndexer
 
         $binary = Uuid::fromHexToBytes($id);
 
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
+            ['id' => $binary],
+        );
+
         RetryableTransaction::retryable($this->connection, function () use ($binary): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
@@ -121,7 +105,6 @@ class ProductStreamUpdater extends EntityIndexer
             );
         });
 
-        $ids = [];
         while ($matches = $iterator->fetchIds()) {
             foreach ($matches as $id) {
                 if (!\is_string($id)) {
@@ -165,6 +148,9 @@ class ProductStreamUpdater extends EntityIndexer
         return null;
     }
 
+    /**
+     * @param string[] $ids
+     */
     public function updateProducts(array $ids, Context $context): void
     {
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
@@ -173,8 +159,10 @@ class ProductStreamUpdater extends EntityIndexer
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
+        $considerInheritance = $context->considerInheritance();
+        $context->setConsiderInheritance(true);
         foreach ($streams as $stream) {
-            $filter = json_decode((string) $stream['api_filter'], true);
+            $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
             if (empty($filter)) {
                 continue;
             }
@@ -187,7 +175,7 @@ class ProductStreamUpdater extends EntityIndexer
 
             try {
                 $matches = $this->repository->searchIds($criteria, $context);
-            } catch (UnmappedFieldException $e) {
+            } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
             }
@@ -203,12 +191,13 @@ class ProductStreamUpdater extends EntityIndexer
                 ]);
             }
         }
+        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
             $insert->execute();
         });
@@ -225,10 +214,15 @@ class ProductStreamUpdater extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     * @param string[]|null $ids
+     */
     private function getCriteria(array $filters, ?array $ids = null): ?Criteria
     {
         $exception = new SearchRequestException();
 
+        $filters = $this->replaceCheapestPriceFilters($filters);
         $parsed = [];
         foreach ($filters as $filter) {
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
@@ -246,5 +240,63 @@ class ProductStreamUpdater extends EntityIndexer
         }
 
         return $criteria;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function replaceCheapestPriceFilters(array $filters): array
+    {
+        foreach ($filters as $key => $filter) {
+            if (!empty($filter['queries'])) {
+                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
+            }
+
+            if (!$priceQueries = $this->getPriceQueries($filter)) {
+                continue;
+            }
+
+            $filters[$key] = [
+                'type' => 'multi',
+                'operator' => 'OR',
+                'queries' => $priceQueries,
+            ];
+        }
+
+        return $filters;
+    }
+
+    /**
+     * @param array<string, mixed> $filter
+     *
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function getPriceQueries(array $filter): ?array
+    {
+        if (!\array_key_exists('field', $filter)) {
+            return null;
+        }
+
+        $fieldName = $filter['field'];
+
+        $prefix = $this->productDefinition->getEntityName() . '.';
+        if (str_starts_with((string) $fieldName, $prefix)) {
+            $fieldName = substr((string) $fieldName, \strlen($prefix));
+        }
+
+        $accessors = explode('.', (string) $fieldName);
+        if (($accessors[0] ?? '') !== 'cheapestPrice') {
+            return null;
+        }
+
+        $accessors[0] = '';
+        $accessors = implode('.', $accessors);
+
+        return [
+            [...$filter, ...['field' => $prefix . 'price' . $accessors]],
+            [...$filter, ...['field' => $prefix . 'prices.price' . $accessors]],
+        ];
     }
 }

@@ -1,0 +1,279 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_upload_v2 %}
+<div class="sw-media-upload-v2">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_upload_v2_compact %}
+    <div
+        v-if="variant == 'compact'"
+        class="sw-media-upload-v2__content"
+    >
+        <sw-button-group
+            split-button
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_compact_button_file_upload %}
+            <sw-button
+                class="sw-media-upload-v2__button-compact-upload"
+                :disabled="disabled"
+                variant="primary"
+                @click="onClickUpload"
+            >
+                {{ buttonFileUploadLabel }}
+            </sw-button>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_compact_button_context_menu %}
+            <sw-context-button
+                v-if="uploadUrlFeatureEnabled"
+                :disabled="disabled"
+                class="sw-media-upload-v2__button-open-context-menu"
+            >
+                <template #button>
+                    <sw-button
+                        :disabled="disabled"
+                        square
+                        variant="primary"
+                        class="sw-media-upload-v2__button-context-menu"
+                    >
+                        <sw-icon name="regular-chevron-down-xs" />
+                    </sw-button>
+                </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_upload_v2_compact_button_context_menu_actions %}
+                <sw-context-menu-item
+                    class="sw-media-upload-v2__button-url-upload"
+                    @click="useUrlUpload"
+                >
+                    {{ $tc('global.sw-media-upload-v2.buttonUrlUpload') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_upload_v2_compact_url_form %}
+        <sw-media-url-form
+            v-if="isUrlUpload"
+            variant="modal"
+            @modal-close="useFileUpload"
+            @media-url-form-submit="onUrlUpload"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_upload_v2_regular %}
+    <div
+        v-if="variant == 'regular' || variant == 'small'"
+        class="sw-media-upload-v2__content"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_upload_v2_regular_header %}
+        <div class="sw-media-upload-v2__header">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_regular_header_label %}
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+            <label
+                v-if="label"
+                class="sw-media-upload-v2__label"
+                :class="swFieldLabelClasses"
+            >
+                {{ label }}
+            </label>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_regular_header_helptext %}
+            <sw-help-text
+                v-if="helpText"
+                class="sw-media-upload-v2__help-text"
+                :text="helpText"
+            />
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_regular_header_switch %}
+            <sw-context-button
+                v-if="!source && uploadUrlFeatureEnabled"
+                class="sw-media-upload-v2__switch-mode"
+                :disabled="disabled"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_upload_v2_regular_header_switch_file_upload %}
+                <sw-context-menu-item
+                    v-if="!isFileUpload"
+                    :disabled="disabled"
+                    class="sw-media-upload-v2__button-file-upload"
+                    @click="useFileUpload"
+                >
+                    {{ buttonFileUploadLabel }}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_upload_v2_regular_header_switch_url_upload %}
+                <sw-context-menu-item
+                    v-if="!isUrlUpload"
+                    class="sw-media-upload-v2__button-url-upload"
+                    @click="useUrlUpload"
+                >
+                    {{ $t('global.sw-media-upload-v2.buttonUrlUpload') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_upload_v2_regular_drop_zone %}
+        <div
+            ref="dropzone"
+            v-droppable="{ dragGroup: 'media', onDrop: onDropMedia, validDropCls: 'is--active' }"
+            class="sw-media-upload-v2__dropzone"
+            :class="isDragActiveClass"
+        >
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_preview %}
+            <template v-if="variant === 'regular'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_upload_v2_regular_preview_file %}
+                <sw-media-preview-v2
+                    v-if="showPreview && (source || preview)"
+                    class="sw-media-upload-v2__preview"
+                    :source="source || preview"
+                />
+                {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_upload_v2_regular_preview_fallback %}
+                <div
+                    v-else
+                    class="sw-media-upload-v2__preview is--fallback"
+                >
+                    <sw-icon
+                        class="sw-media-upload-v2__fallback-icon"
+                        name="regular-image"
+                    />
+                </div>
+                {% endblock %}
+            </template>
+
+            <template v-if="!showPreview && variant === 'regular'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_upload_v2_regular_caption %}
+                <div class="sw-media-upload-v2__upload-caption">
+                    <sw-icon name="regular-cloud-upload" />
+                    {{ $tc('global.sw-media-upload-v2.caption') }}
+                </div>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_upload_v2_actions %}
+            <div
+                class="sw-media-upload-v2__actions"
+                :class="{ 'has--source': source, 'is--small': variant === 'small' }"
+            >
+
+                <div
+                    v-if="source"
+                    class="sw-media-upload-v2__file-info"
+                >
+                    <div class="sw-media-upload-v2__file-headline">
+                        {{ source | mediaName(source.name) }}
+                    </div>
+                    <sw-icon
+                        v-if="!disabled"
+                        class="sw-media-upload-v2__remove-icon"
+                        name="regular-times-xs"
+                        @click="onRemoveMediaItem"
+                    />
+                </div>
+
+                <template v-else>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_media_upload_v2_regular_actions_url %}
+                    <sw-media-url-form
+                        v-if="isUrlUpload"
+                        class="sw-media-upload-v2__url-form"
+                        variant="inline"
+                        @media-url-form-submit="onUrlUpload"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_media_upload_v2_regular_actions_add %}
+                    <template v-if="isFileUpload">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_media_upload_v2_regular_media_sidebar_button %}
+                        <sw-button
+                            v-if="hasOpenMediaButtonListener"
+                            class="sw-media-upload-v2__button open-media-sidebar"
+                            :class="{ 'is--small': variant === 'small'}"
+                            variant="primary"
+                            size="small"
+                            :square="variant === 'small'"
+                            :disabled="disabled"
+                            @click="onClickOpenMediaSidebar"
+                        >
+                            <sw-icon
+                                v-if="variant === 'small'"
+                                name="regular-plus"
+                                size="16px"
+                            />
+                            <template v-else>
+                                {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
+                            </template>
+                        </sw-button>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_media_upload_v2_regular_upload_button %}
+                        <sw-button
+                            class="sw-media-upload-v2__button upload"
+                            :class="{ 'is--small': variant === 'small'}"
+                            variant="ghost"
+                            size="small"
+                            :disabled="disabled"
+                            @click="onClickUpload"
+                        >
+                            {{ buttonFileUploadLabel }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </template>
+
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_upload_v2_file_input %}
+    <form
+        ref="fileForm"
+        class="sw-media-upload-v2__form"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            id="files"
+            ref="fileInput"
+            class="sw-media-upload-v2__file-input"
+            type="file"
+            :accept="fileAccept"
+            :multiple="multiSelect"
+            @change="onFileInputChange"
+        >
+    </form>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -105,7 +105,7 @@
                         class="sw-category-entry-point-modal__desc-subheadline"
                         :class="{ 'is--empty': !selectedSalesChannel.homeCmsPage }"
                     >
-                        {{ selectedSalesChannel.homeCmsPage ? cmsPageTypes[selectedSalesChannel.homeCmsPage.type] : $tc('sw-category.base.cms.defaultDesc') }}
+                        {{ getCmsPageTypeName(selectedSalesChannel.homeCmsPage?.type) }}
                     </div>
                     {% endblock %}
 

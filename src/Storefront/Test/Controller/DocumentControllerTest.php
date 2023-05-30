@@ -5,10 +5,10 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -16,9 +16,9 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -34,21 +34,16 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class DocumentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -154,20 +149,18 @@ class DocumentControllerTest extends TestCase
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws \Exception
      */
     private function generateDemoCart(int $lineItemCount): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
         $products = [];
 
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $id = Uuid::randomHex();
@@ -193,7 +186,7 @@ class DocumentControllerTest extends TestCase
                 ],
             ];
 
-            $cart->add($factory->create($id));
+            $cart->add($factory->create(['id' => $id, 'referencedId' => $id], $this->salesChannelContext));
             $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 
@@ -208,9 +201,8 @@ class DocumentControllerTest extends TestCase
     private function persistCart(Cart $cart): string
     {
         $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
-        return $orderId;
+        return $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
     }
 
     private function createCustomer(string $paymentMethodId): string

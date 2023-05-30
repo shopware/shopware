@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\TestBuilderTrait;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundBuilder
 {
     use BasicTestDataBehaviour;
@@ -23,13 +25,7 @@ class OrderTransactionCaptureRefundBuilder
 
     protected string $id;
 
-    protected string $captureId;
-
     protected CalculatedPrice $amount;
-
-    protected ?string $externalReference = null;
-
-    protected ?string $reason = null;
 
     protected string $stateId;
 
@@ -38,21 +34,18 @@ class OrderTransactionCaptureRefundBuilder
     public function __construct(
         IdsCollection $ids,
         string $key,
-        string $captureId,
+        protected string $captureId,
         float $amount = 420.69,
         string $state = OrderTransactionCaptureRefundStates::STATE_OPEN,
-        ?string $externalReference = null,
-        ?string $reason = null
+        protected ?string $externalReference = null,
+        protected ?string $reason = null
     ) {
         $this->id = $ids->get($key);
         $this->ids = $ids;
-        $this->captureId = $captureId;
         $this->stateId = $this->getStateMachineState(
             OrderTransactionCaptureRefundStates::STATE_MACHINE,
             $state
         );
-        $this->externalReference = $externalReference;
-        $this->reason = $reason;
 
         $this->amount($amount);
     }

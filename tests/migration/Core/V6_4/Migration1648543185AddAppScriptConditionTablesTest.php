@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
@@ -13,18 +14,22 @@ use Shopware\Core\Migration\V6_4\Migration1648543185AddAppScriptConditionTables;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1648543185AddAppScriptConditionTables
  */
 class Migration1648543185AddAppScriptConditionTablesTest extends TestCase
 {
     private Connection $connection;
 
+    /**
+     * @var AbstractSchemaManager<MySQLPlatform>
+     */
     private AbstractSchemaManager $schemaManager;
 
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->schemaManager = $this->connection->getSchemaManager();
+        $this->schemaManager = $this->connection->createSchemaManager();
     }
 
     public function testMigration(): void
@@ -62,7 +67,7 @@ class Migration1648543185AddAppScriptConditionTablesTest extends TestCase
         $scriptIdForeignKey = null;
 
         foreach ($foreignKeys as $foreignKey) {
-            if ($foreignKey->getColumns() === ['script_id'] && $foreignKey->getForeignTableName() === AppScriptConditionDefinition::ENTITY_NAME) {
+            if ($foreignKey->getLocalColumns() === ['script_id'] && $foreignKey->getForeignTableName() === AppScriptConditionDefinition::ENTITY_NAME) {
                 $scriptIdForeignKey = $foreignKey;
 
                 break;

@@ -9,6 +9,7 @@ trait CacheTestBehaviour
 {
     /**
      * @before
+     *
      * @after
      */
     public function clearCacheData(): void
@@ -22,5 +23,5 @@ trait CacheTestBehaviour
             ->reset();
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

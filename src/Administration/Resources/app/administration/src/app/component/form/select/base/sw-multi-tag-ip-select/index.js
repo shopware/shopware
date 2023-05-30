@@ -4,6 +4,7 @@ const { Component } = Shopware;
 const { string } = Shopware.Utils;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Renders a multi select field for ip addresses specifically. The corresponding validation method

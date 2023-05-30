@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_3\Migration1607500561UpdateSignUpMailTemplateTran
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1607500561UpdateSignUpMailTemplateTranslation
  */
 class Migration1607500561UpdateSignUpMailTemplateTranslationTest extends TestCase

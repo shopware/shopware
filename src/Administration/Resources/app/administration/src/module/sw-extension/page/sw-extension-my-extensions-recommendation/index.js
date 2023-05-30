@@ -1,7 +1,10 @@
 import template from './sw-extension-store-recommendation.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-extension-my-extensions-recommendation', {
+/**
+ * @package merchant-services
+ * @private
+ */
+export default {
     template,
 
     data() {
@@ -15,4 +18,4 @@ Shopware.Component.register('sw-extension-my-extensions-recommendation', {
             this.isLoading = false;
         },
     },
-});
+};

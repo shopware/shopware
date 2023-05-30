@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage
  */
 class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPageTest extends TestCase
@@ -58,6 +59,8 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPageTes
             'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :config_key LIMIT 1;',
             ['config_key' => Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage::CONFIG_KEY]
         );
+
+        static::assertIsString($value);
 
         $jsonValue = json_decode($value, true);
         if (json_last_error() === \JSON_ERROR_NONE) {

@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\SystemConfig\Util;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 
+#[Package('system-settings')]
 class ConfigReader extends XmlReader
 {
     private const FALLBACK_LOCALE = 'en-GB';
@@ -137,7 +139,7 @@ class ConfigReader extends XmlReader
             'componentName' => $element->getAttribute('name'),
         ];
 
-        return $this->setOptionsToElementData($options, $elementData);
+        return $this->addOptionsToElementData($options, $elementData);
     }
 
     private function getElementDataForInputField(\DOMElement $element, array $options): array
@@ -148,13 +150,16 @@ class ConfigReader extends XmlReader
             'type' => $swFieldType,
         ];
 
-        return $this->setOptionsToElementData($options, $elementData);
+        return $this->addOptionsToElementData($options, $elementData);
     }
 
     /**
      * @param array<\DOMElement> $options
+     * @param array<string, mixed> $elementData
+     *
+     * @return array<string, mixed>
      */
-    private function setOptionsToElementData(array $options, array $elementData): array
+    private function addOptionsToElementData(array $options, array $elementData): array
     {
         foreach ($options as $option) {
             if ($this->isTranslateAbleOption($option)) {

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class ManifestNotFoundException extends \RuntimeException
 {
     public function __construct(string $path)

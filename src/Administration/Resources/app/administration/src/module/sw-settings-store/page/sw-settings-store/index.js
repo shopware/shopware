@@ -1,14 +1,18 @@
 import template from './sw-settings-store.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-store', {
+/**
+ * @package merchant-services
+ * @private
+ */
+export default {
     template,
 
     mixins: [
         Mixin.getByName('notification'),
     ],
+
     data() {
         return {
             isLoading: false,
@@ -25,7 +29,6 @@ Component.register('sw-settings-store', {
             title: this.$createTitle(),
         };
     },
-
 
     methods: {
         saveFinish() {
@@ -61,4 +64,4 @@ Component.register('sw-settings-store', {
             this.isLoading = loading;
         },
     },
-});
+};

@@ -15,30 +15,32 @@
 //
 import 'cypress-file-upload';
 import 'cypress-real-events/support';
+import 'cypress-network-idle';
+import registerCypressGrep from '@cypress/grep/src/support';
+
+registerCypressGrep();
 
 require('@shopware-ag/e2e-testsuite-platform/cypress/support');
-
-// load and register the grep feature
-// https://github.com/bahmutov/cypress-grep
-require('cypress-grep')()
 
 // Custom administration commands
 require('./commands/commands');
 
-Cypress.Cookies.defaults({
-    preserve: ['_test-api-dbName', '_apiAuth', 'bearerAuth', 'refreshBearerAuth']
-})
-
 // this sets the default browser locale to the environment variable
 Cypress.on('window:before:load', (window) => {
     Object.defineProperty(window.navigator, 'language', {
-        value: Cypress.env('locale')
-    })
-})
+        value: Cypress.env('locale'),
+    });
+});
 
 beforeEach(() => {
-    if (!Cypress.env('SKIP_INIT')) {
-        return cy.setToInitialState();
+    if (!Cypress.env('SKIP_AUTH')) {
+        return cy.authenticate().then(() => {
+            if (!Cypress.env('SKIP_INIT')) {
+                return cy.setToInitialState().then(() => {
+                    return cy.authenticate();
+                });
+            }
+        });
     }
 });
 
@@ -48,4 +50,4 @@ afterEach(function () {
     if (Cypress.env('INTERRUPT_ON_ERROR') && state === 'failed' && _currentRetry >= _retries) {
         throw new Error('Interrupt');
     }
-})
+});

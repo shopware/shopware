@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\ReturnNode;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+#[Package('core')]
 final class ReturnNodeTokenParser extends AbstractTokenParser
 {
     public function parse(Token $token): ReturnNode

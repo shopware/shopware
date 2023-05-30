@@ -66,6 +66,7 @@
         <div
             v-else
             class="sw-text-editor__content"
+            :class="contentClasses"
         >
             <div
                 ref="textEditor"
@@ -76,8 +77,7 @@
                 tabindex="-1"
                 @focus="onFocus"
                 @paste="onPaste"
-                @blur="emitContent"
-                @input="onContentChange"
+                @input="onInput"
                 @copy="onCopy"
                 v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
             ></div>

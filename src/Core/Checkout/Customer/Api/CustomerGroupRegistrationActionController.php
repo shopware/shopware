@@ -2,70 +2,47 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('customer-order')]
 class CustomerGroupRegistrationActionController
 {
-    private EntityRepositoryInterface $customerRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SalesChannelContextRestorer $restorer;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextRestorer $restorer
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SalesChannelContextRestorer $restorer
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->restorer = $restorer;
     }
 
     /**
-     * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
-     *
-     * @Since("6.3.1.0")
-     * @Route("/api/_action/customer-group-registration/accept/{customerId}", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"}, defaults={"customerId"=null})
+     * @throws Exception
      */
-    public function accept(Request $request, Context $context, ?string $customerId = null): JsonResponse
+    #[Route(path: '/api/_action/customer-group-registration/accept', name: 'api.customer-group.accept', methods: ['POST'], requirements: ['version' => '\d+'])]
+    public function accept(Request $request, Context $context): JsonResponse
     {
-        if ($customerId !== null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'customerId route parameter will be no longer required, use customerIds in body instead'
-            );
-        }
-
         $customerIds = $this->getRequestCustomerIds($request);
 
         $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
-
-        if (empty($customers)) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }
 
         $updateData = [];
 
@@ -79,12 +56,20 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-            /** @var CustomerGroupEntity $customerRequestedGroup */
-            $customerRequestedGroup = $customer->getRequestedGroup();
+            /** @var CustomerEntity $customer */
+            $customer = $salesChannelContext->getCustomer();
+
+            $criteria = new Criteria([$customer->getGroupId()]);
+            $criteria->setLimit(1);
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            if ($customerRequestedGroup === null) {
+                throw CustomerException::customerGroupNotFound($customer->getGroupId());
+            }
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
                 $customer,
                 $customerRequestedGroup,
@@ -96,29 +81,16 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
-     *
-     * @Since("6.3.1.0")
-     * @Route("/api/_action/customer-group-registration/decline/{customerId}", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"}, defaults={"customerId"=null})
+     * @throws Exception
      */
-    public function decline(Request $request, Context $context, ?string $customerId = null): JsonResponse
+    #[Route(path: '/api/_action/customer-group-registration/decline', name: 'api.customer-group.decline', methods: ['POST'], requirements: ['version' => '\d+'])]
+    public function decline(Request $request, Context $context): JsonResponse
     {
-        if ($customerId !== null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'customerId route parameter will be no longer required, use customerIds in body instead'
-            );
-        }
-
         $customerIds = $this->getRequestCustomerIds($request);
 
         $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
-
-        if (empty($customers)) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }
 
         $updateData = [];
 
@@ -131,12 +103,20 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-            /** @var CustomerGroupEntity $customerRequestedGroup */
-            $customerRequestedGroup = $customer->getRequestedGroup();
+            /** @var CustomerEntity $customer */
+            $customer = $salesChannelContext->getCustomer();
+
+            $criteria = new Criteria([$customer->getGroupId()]);
+            $criteria->setLimit(1);
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            if ($customerRequestedGroup === null) {
+                throw new \RuntimeException('customer group not found');
+            }
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
                 $customerRequestedGroup,
@@ -148,26 +128,14 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
+     * @return array<string>
      */
     private function getRequestCustomerIds(Request $request): array
     {
-        $customerIds = [];
+        $customerIds = $request->request->all('customerIds');
 
-        $customerId = $request->attributes->get('customerId');
-
-        if ($customerId !== null) {
-            $customerIds[] = $customerId;
-        }
-
-        $requestCustomerIds = $request->request->get('customerIds', \json_encode([]));
-
-        if (\is_string($requestCustomerIds)) {
-            $requestCustomerIds = \json_decode($requestCustomerIds, true);
-        }
-
-        if (!empty($requestCustomerIds)) {
-            $customerIds = array_unique(array_merge($customerIds, $requestCustomerIds));
+        if (!empty($customerIds)) {
+            $customerIds = array_unique($customerIds);
         }
 
         if (empty($customerIds)) {
@@ -179,13 +147,12 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @param array<string> $customerIds
+     *
+     * @return array<CustomerEntity>
      */
     private function fetchCustomers(array $customerIds, Context $context, bool $silentError = false): array
     {
         $criteria = new Criteria($customerIds);
-        $criteria->addAssociation('requestedGroup');
-        $criteria->addAssociation('salutation');
-
         $result = $this->customerRepository->search($criteria, $context);
 
         $customers = [];

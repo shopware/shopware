@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1636964297AddDefaultTaxRate
  */
 class Migration1636964297AddDefaultTaxRateTest extends TestCase
@@ -59,7 +60,7 @@ class Migration1636964297AddDefaultTaxRateTest extends TestCase
             ['config_key' => Migration1636964297AddDefaultTaxRate::CONFIG_KEY]
         );
 
-        $jsonValue = \json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+        $jsonValue = \json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
 
         return $jsonValue['_value'];
     }

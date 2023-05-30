@@ -1,11 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-feature-set-form.html.twig';
 import './sw-product-feature-set-form.scss';
 
-const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-feature-set-form', {
+export default {
     template,
 
     props: {
@@ -25,4 +28,4 @@ Component.register('sw-product-feature-set-form', {
             'loading',
         ]),
     },
-});
+};

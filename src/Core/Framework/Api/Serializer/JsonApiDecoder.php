@@ -2,19 +2,21 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
+#[Package('core')]
 class JsonApiDecoder implements DecoderInterface
 {
-    public const FORMAT = 'jsonapi';
+    final public const FORMAT = 'jsonapi';
 
     /**
      * @return array|mixed
      */
-    public function decode($data, $format, array $context = [])
+    public function decode(string $data, string $format, array $context = [])
     {
         $decodedData = (new JsonDecode([JsonDecode::ASSOCIATIVE => true]))->decode($data, 'json');
 
@@ -37,7 +39,7 @@ class JsonApiDecoder implements DecoderInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsDecoding($format): bool
+    public function supportsDecoding(string $format): bool
     {
         return $format === self::FORMAT;
     }
@@ -46,7 +48,9 @@ class JsonApiDecoder implements DecoderInterface
     {
         $this->validateResourceIdentifier($resource);
 
-        $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
+        \assert(\is_string($resource['id']));
+        \assert(\is_string($resource['type']));
+        $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
 
         if (!\array_key_exists($hash, $includes)) {
             throw new InvalidArgumentException(
@@ -164,7 +168,7 @@ class JsonApiDecoder implements DecoderInterface
 
     private function getIdentifierHash(array $resource): string
     {
-        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
+        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
     }
 
     private function decodeCollection(array $data, array $includes): array

@@ -2,11 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class ParseResult
 {
+    /**
+     * @var list<string>
+     */
     protected array $wheres = [];
 
     protected array $parameters = [];
@@ -34,9 +40,12 @@ class ParseResult
         return array_filter($this->types);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getWheres(): array
     {
-        return array_filter($this->wheres);
+        return array_values(array_filter($this->wheres));
     }
 
     public function getType(string $key)

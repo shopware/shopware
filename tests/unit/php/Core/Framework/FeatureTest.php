@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -28,14 +28,14 @@ class FeatureTest extends TestCase
      */
     private array $featureConfigBackup;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
         $this->featureConfigBackup = Feature::getRegisteredFeatures();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $_SERVER = $this->serverVarsBackup;
         $_ENV = $this->envVarsBackup;
@@ -52,13 +52,11 @@ class FeatureTest extends TestCase
         $_SERVER['FEATURE_NEXT_0000'] = true;
         $_ENV['FEATURE_NEXT_0000'] = true;
         $_SERVER['V6_4_5_0'] = true;
-        $_SERVER['PERFORMANCE_TWEAKS'] = true;
 
         Feature::fake([], function (): void {
             static::assertFalse(Feature::isActive('FEATURE_ALL'));
             static::assertFalse(Feature::isActive('FEATURE_NEXT_0000'));
-            static::assertFalse(Feature::isActive('v6.5.0.0'));
-            static::assertFalse(Feature::isActive('PERFORMANCE_TWEAKS'));
+            static::assertFalse(Feature::isActive('v6.4.5.0'));
         });
 
         static::assertArrayHasKey('FEATURE_ALL', $_SERVER);
@@ -72,9 +70,6 @@ class FeatureTest extends TestCase
 
         static::assertArrayHasKey('V6_4_5_0', $_SERVER);
         static::assertTrue($_SERVER['V6_4_5_0']);
-
-        static::assertArrayHasKey('PERFORMANCE_TWEAKS', $_SERVER);
-        static::assertTrue($_SERVER['PERFORMANCE_TWEAKS']);
     }
 
     /**
@@ -118,6 +113,8 @@ class FeatureTest extends TestCase
     }
 
     /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     *
      * @covers ::triggerDeprecationOrThrow
      */
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
@@ -133,8 +130,6 @@ class FeatureTest extends TestCase
 
     /**
      * @covers \Shopware\Core\Framework\Feature
-     *
-     * @ActiveFeatures("v6.5.0.0")
      */
     public function testTriggerDeprecationOrThrowThrows(): void
     {
@@ -143,7 +138,7 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
-    public function callSilentIfInactiveProvider(): \Generator
+    public static function callSilentIfInactiveProvider(): \Generator
     {
         yield 'Execute a callable with inactivated feature flag in silent' => [
             'v6.5.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
@@ -152,8 +147,9 @@ class FeatureTest extends TestCase
         ];
 
         yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
-            'v6.6.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
-                static::assertTrue(strpos($deprecatedMessage, $errorMessage) !== -1);
+            // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
+            'v6.4.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
+                static::assertTrue(strpos($deprecatedMessage, (string) $errorMessage) !== -1);
             },
         ];
     }
@@ -161,7 +157,8 @@ class FeatureTest extends TestCase
     /**
      * @covers \Shopware\Core\Framework\Feature
      *
-     * @ActiveFeatures("v6.4.0.0")
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     *
      * @dataProvider callSilentIfInactiveProvider
      */
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void

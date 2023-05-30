@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @group cache
  */
 class CacheIdLoaderTest extends TestCase
@@ -32,7 +33,7 @@ class CacheIdLoaderTest extends TestCase
         $id = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchColumn')
+        $connection->method('fetchOne')
             ->willReturn($id);
 
         $loader = new CacheIdLoader($connection);
@@ -43,12 +44,12 @@ class CacheIdLoaderTest extends TestCase
     public function testMissingCacheIdWritesId(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchColumn')
+        $connection->method('fetchOne')
             ->willReturn(false);
 
         $connection
             ->expects(static::once())
-            ->method('executeUpdate');
+            ->method('executeStatement');
 
         $loader = new CacheIdLoader($connection);
 
@@ -58,12 +59,12 @@ class CacheIdLoaderTest extends TestCase
     public function testCacheIdIsNotAString(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchColumn')
+        $connection->method('fetchOne')
             ->willReturn(0);
 
         $connection
             ->expects(static::once())
-            ->method('executeUpdate');
+            ->method('executeStatement');
 
         $loader = new CacheIdLoader($connection);
 
@@ -77,7 +78,7 @@ class CacheIdLoaderTest extends TestCase
 
         $new = Uuid::randomHex();
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate(
+            ->executeStatement(
                 'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
                 ['cacheId' => $new, 'key' => 'cache-id']
             );

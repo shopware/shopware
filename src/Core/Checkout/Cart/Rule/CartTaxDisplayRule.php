@@ -3,22 +3,23 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class CartTaxDisplayRule extends Rule
 {
-    protected string $taxDisplay;
+    final public const RULE_NAME = 'cartTaxDisplay';
 
     /**
      * @internal
      */
-    public function __construct(string $taxDisplay = CartPrice::TAX_STATE_GROSS)
+    public function __construct(protected string $taxDisplay = CartPrice::TAX_STATE_GROSS)
     {
         parent::__construct();
-        $this->taxDisplay = $taxDisplay;
     }
 
     public function match(RuleScope $scope): bool
@@ -31,11 +32,6 @@ class CartTaxDisplayRule extends Rule
         return [
             'taxDisplay' => RuleConstraints::string(),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartTaxDisplay';
     }
 
     public function getConfig(): RuleConfig

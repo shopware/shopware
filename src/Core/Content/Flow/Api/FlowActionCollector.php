@@ -3,32 +3,28 @@
 namespace Shopware\Core\Content\Flow\Api;
 
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('business-ops')]
 class FlowActionCollector
 {
-    protected iterable $actions;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepositoryInterface $appFlowActionRepo;
-
     /**
      * @internal
+     *
+     * @param iterable<FlowAction> $actions
      */
     public function __construct(
-        iterable $actions,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $appFlowActionRepo
+        protected iterable $actions,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $appFlowActionRepo
     ) {
-        $this->actions = $actions;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->appFlowActionRepo = $appFlowActionRepo;
     }
 
     public function collect(Context $context): FlowActionCollectorResponse
@@ -58,10 +54,13 @@ class FlowActionCollector
     {
         $criteria = new Criteria();
         $appActions = $this->appFlowActionRepo->search($criteria, $context)->getEntities();
+
+        /** @var AppFlowActionEntity $action */
         foreach ($appActions as $action) {
             $definition = new FlowActionDefinition(
                 $action->getName(),
                 $action->getRequirements(),
+                $action->getDelayable()
             );
 
             if (!$result->has($definition->getName())) {
@@ -76,18 +75,19 @@ class FlowActionCollector
     {
         $requirementsName = [];
         foreach ($service->requirements() as $requirement) {
-            /** @deprecated tag:v6.5.0 will be removed in v6.5.0 */
-            if (!Feature::isActive('v6.5.0.0')) {
-                $requirementsName[] = $requirement;
-            }
-
             $className = explode('\\', $requirement);
             $requirementsName[] = lcfirst(end($className));
         }
 
+        $delayable = false;
+        if ($service instanceof DelayableAction) {
+            $delayable = true;
+        }
+
         return new FlowActionDefinition(
-            $service::getName(),
+            $service->getName(),
             $requirementsName,
+            $delayable
         );
     }
 }

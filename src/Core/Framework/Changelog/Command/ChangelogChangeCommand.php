@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\Changelog\Command;
 
+use Shopware\Core\Framework\Changelog\ChangelogSection;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,48 +14,39 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
+#[AsCommand(
+    name: 'changelog:change',
+    description: 'Changes the changelog of a release',
+)]
+#[Package('core')]
 class ChangelogChangeCommand extends Command
 {
-    protected static $defaultName = 'changelog:change';
-
-    private ChangelogReleaseExporter $releaseExporter;
-
     /**
      * @internal
      */
-    public function __construct(ChangelogReleaseExporter $releaseExporter)
+    public function __construct(private readonly ChangelogReleaseExporter $releaseExporter)
     {
         parent::__construct();
-        $this->releaseExporter = $releaseExporter;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Returns all changes made in a specific / unreleased version.')
-            ->addArgument('version', InputArgument::OPTIONAL, 'A version of release. It should be 4-digits type. Please leave it blank for the unreleased version.')
-            ->addOption('path', 'p', InputOption::VALUE_REQUIRED, 'Renders the output of the command in a markdown file under the given path', '')
-            ->addOption('core', null, InputOption::VALUE_NONE, 'Returns all changes made in the Core')
-            ->addOption('api', null, InputOption::VALUE_NONE, 'Returns all changes made in the API')
-            ->addOption('storefront', null, InputOption::VALUE_NONE, 'Returns all changes made in the Storefront')
-            ->addOption('admin', null, InputOption::VALUE_NONE, 'Returns all changes made in the Administration')
-            ->addOption('upgrade', null, InputOption::VALUE_NONE, 'Returns all changes documented in the Upgrade Information')
-            ->addOption('major', null, InputOption::VALUE_NONE, 'Returns all changes documented in the Major Changes section')
-            ->addOption('include-feature-flags', null, InputOption::VALUE_NONE, 'Returns all changes, including features which are still behind a feature flag.')
+        $this->addArgument('version', InputArgument::OPTIONAL, 'A version of release. It should be 4-digits type. Please leave it blank for the unreleased version.')
+            ->addOption('path', 'p', InputOption::VALUE_REQUIRED, 'Renders the output of the command in a markdown file under the given path', '');
+        foreach (ChangelogSection::cases() as $changelogSection) {
+            $this->addOption($changelogSection->name, null, InputOption::VALUE_NONE, sprintf('Returns all documented changes in the "%s" section', $changelogSection->value));
+        }
+        $this->addOption('include-feature-flags', null, InputOption::VALUE_NONE, 'Returns all changes, including features which are still behind a feature flag.')
             ->addOption('keys-only', null, InputOption::VALUE_NONE, 'Returns only Jira ticket keys of all changes made.');
     }
 
-    /**
-     * @return int
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Get all changes made in the given version');
 
-        /** @var string $version */
         $version = $input->getArgument('version');
         if (!empty($version) && !preg_match("/^\d+(\.\d+){3}$/", $version)) {
             throw new \RuntimeException('Invalid version of release. It should be 4-digits type');
@@ -80,16 +74,15 @@ class ChangelogChangeCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, bool>
+     */
     private function getRequestedSection(InputInterface $input): array
     {
-        $requested = [
-            'core' => $input->getOption('core'),
-            'api' => $input->getOption('api'),
-            'storefront' => $input->getOption('storefront'),
-            'admin' => $input->getOption('admin'),
-            'upgrade' => $input->getOption('upgrade'),
-            'major' => $input->getOption('major'),
-        ];
+        $requested = [];
+        foreach (ChangelogSection::cases() as $changelogSection) {
+            $requested[$changelogSection->name] = $input->getOption($changelogSection->name);
+        }
 
         return \in_array(true, $requested, true) ? $requested : array_fill_keys(array_keys($requested), true);
     }

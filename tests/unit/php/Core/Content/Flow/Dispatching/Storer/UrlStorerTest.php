@@ -8,9 +8,12 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Feature;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer
@@ -19,8 +22,9 @@ class UrlStorerTest extends TestCase
 {
     private UrlStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $this->storer = new UrlStorer();
     }
 
@@ -34,7 +38,7 @@ class UrlStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(UrlAware::URL, $stored);
@@ -44,7 +48,7 @@ class UrlStorerTest extends TestCase
     {
         $url = 'shopware-test.com';
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -64,7 +68,7 @@ class UrlStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

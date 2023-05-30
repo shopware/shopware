@@ -16,12 +16,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var StorefrontPluginConfigurationFactory
-     */
-    private $configFactory;
+    private StorefrontPluginConfigurationFactory $configFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }
@@ -119,8 +116,10 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     {
         if ($isTheme) {
             return new class($name, $basePath) extends Bundle implements ThemeInterface {
-                public function __construct(string $name, string $basePath)
-                {
+                public function __construct(
+                    string $name,
+                    string $basePath
+                ) {
                     $this->name = $name;
                     $this->path = $basePath;
                 }
@@ -128,14 +127,19 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         return new class($name, $basePath) extends Bundle {
-            public function __construct(string $name, string $basePath)
-            {
+            public function __construct(
+                string $name,
+                string $basePath
+            ) {
                 $this->name = $name;
                 $this->path = $basePath;
             }
         };
     }
 
+    /**
+     * @param array<string, array<string, string>>$expected
+     */
     private function assertFileCollection(array $expected, FileCollection $files): void
     {
         $flatFiles = [];
@@ -150,7 +154,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
-        if (\strpos($path, $projectDir) === 0) {
+        if (str_starts_with($path, $projectDir)) {
             return substr($path, \strlen($projectDir) + 1);
         }
 

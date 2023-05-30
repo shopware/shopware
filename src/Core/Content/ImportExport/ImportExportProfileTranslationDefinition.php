@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\ImportExport;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('system-settings')]
 class ImportExportProfileTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = ImportExportProfileDefinition::ENTITY_NAME . '_translation';
+    final public const ENTITY_NAME = ImportExportProfileDefinition::ENTITY_NAME . '_translation';
 
     public function getEntityName(): string
     {
@@ -25,14 +27,14 @@ class ImportExportProfileTranslationDefinition extends EntityTranslationDefiniti
         return ImportExportProfileTranslationEntity::class;
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return ImportExportProfileDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.2.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return ImportExportProfileDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

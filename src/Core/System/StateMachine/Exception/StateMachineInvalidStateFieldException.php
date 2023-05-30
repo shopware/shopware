@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\StateMachine\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('checkout')]
 class StateMachineInvalidStateFieldException extends ShopwareHttpException
 {
     public function __construct(string $fieldName)

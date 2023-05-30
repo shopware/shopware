@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait AssignArrayTrait
 {
     /**
@@ -19,7 +22,7 @@ trait AssignArrayTrait
             }
 
             try {
-                $this->$key = $value;
+                $this->$key = $value; /* @phpstan-ignore-line */
             } catch (\Error | \Exception $error) {
                 // nth
             }

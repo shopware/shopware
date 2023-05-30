@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Test\NumberRange\Aggregate\NumberRangeSalesChanne
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,11 +19,11 @@ class NumberRangeSalesChannelDefinitionTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $numberRangeRepository;
+    private EntityRepository $numberRangeRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->numberRangeRepository = $this->getContainer()->get('number_range.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

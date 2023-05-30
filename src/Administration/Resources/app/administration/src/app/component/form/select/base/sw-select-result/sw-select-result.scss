@@ -12,7 +12,8 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
     padding: 12px 15px;
     cursor: pointer;
     display: grid;
-    grid-template-columns: auto auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas: "a b c d";
     align-items: center;
     border-radius: 4px;
 
@@ -20,6 +21,11 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         order: 1;
         margin-right: 10px;
         display: block;
+        grid-area: a;
+
+        &:empty {
+            margin-right: 0;
+        }
     }
 
     .sw-select-result__result-item-text {
@@ -29,6 +35,17 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         flex-direction: column;
         color: $color-darkgray-200;
         order: 2;
+        overflow: hidden;
+        grid-area: b;
+    }
+
+    .sw-select-result__result-item-checkmark {
+        width: 16px;
+        height: 16px;
+        padding-top: 4px;
+        padding-right: 2px;
+        padding-bottom: 3px;
+        padding-left: 2px;
     }
 
     &.is--active {
@@ -46,6 +63,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         order: 3;
         line-height: 14px;
         padding: 0 0 0 8px;
+        grid-area: c;
     }
 
     > .sw-icon {
@@ -53,19 +71,43 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         margin-left: 10px;
         order: 4;
         justify-self: end;
+        grid-area: d;
     }
 
     &.is--description-bottom {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "a b d"
+            "c c c";
 
         .sw-select-result__result-item-description {
             grid-column-start: 1;
             padding: 8px 0 0;
             order: 3;
+
+            &:empty {
+                padding: 0;
+            }
         }
 
         .sw-icon {
             order: 2;
+        }
+    }
+
+    &.is--description-left {
+        grid-template-columns: 2fr 7fr 2fr;
+        grid-template-areas:
+            "a b d"
+            "c c c";
+
+        .sw-select-result__result-item-text {
+            grid-area: a;
+        }
+
+        .sw-select-result__result-item-description {
+            grid-area: b;
+            padding: 0;
         }
     }
 

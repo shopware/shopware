@@ -9,13 +9,14 @@ use Shopware\Core\Migration\V6_3\Migration1610965670RemoveDeprecatedColumns;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1610965670RemoveDeprecatedColumns
  */
 class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
@@ -85,7 +86,7 @@ class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
     /**
      * @return array<string, mixed>|false
      */
-    private function getColumnInfo(string $table, string $column)
+    private function getColumnInfo(string $table, string $column): array|false
     {
         $database = $this->connection->fetchOne('SELECT DATABASE();');
 
@@ -106,7 +107,7 @@ class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
     /**
      * @return array<string, mixed>|false
      */
-    private function getTriggerInfo(string $triggerName)
+    private function getTriggerInfo(string $triggerName): array|false
     {
         $database = $this->connection->fetchOne('SELECT DATABASE();');
 

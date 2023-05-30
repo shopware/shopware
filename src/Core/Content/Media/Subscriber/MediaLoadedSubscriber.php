@@ -8,18 +8,20 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('content')]
 class MediaLoadedSubscriber implements EventSubscriberInterface
 {
-    private UrlGeneratorInterface $urlGenerator;
-
     /**
      * @internal
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
     }
 
     public static function getSubscribedEvents(): array
@@ -42,7 +44,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
             $media->setUrl($this->urlGenerator->getAbsoluteMediaUrl($media));
 
-            foreach ($media->getThumbnails() as $thumbnail) {
+            foreach ($media->getThumbnails() ?? [] as $thumbnail) {
                 $this->addThumbnailUrl($thumbnail, $media);
             }
         }

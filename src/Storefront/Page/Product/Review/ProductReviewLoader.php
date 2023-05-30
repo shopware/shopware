@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Product\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -13,12 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class ProductReviewLoader
 {
     private const LIMIT = 10;
@@ -26,38 +30,26 @@ class ProductReviewLoader
     private const FILTER_LANGUAGE = 'filter-language';
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductReviewRoute
-     */
-    private $route;
-
-    /**
      * @internal
      */
     public function __construct(
-        AbstractProductReviewRoute $route,
-        EventDispatcherInterface $eventDispatcher
+        private readonly AbstractProductReviewRoute $route,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->route = $route;
     }
 
     /**
      * load reviews for one product. The request must contain the productId
      * otherwise MissingRequestParameterException is thrown
      *
-     * @throws MissingRequestParameterException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws RoutingException
+     * @throws InconsistentCriteriaIdsException
      */
     public function load(Request $request, SalesChannelContext $context): ReviewLoaderResult
     {
         $productId = $request->get('parentId') ?? $request->get('productId');
         if (!$productId) {
-            throw new MissingRequestParameterException('productId');
+            throw RoutingException::missingRequestParameter('productId');
         }
 
         $criteria = $this->createCriteria($request, $context);
@@ -121,7 +113,7 @@ class ProductReviewLoader
      * a customer should only create one review per product, so if there are more than one
      * review we only take one
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     private function getCustomerReview(string $productId, SalesChannelContext $context): ?ProductReviewEntity
     {
@@ -145,6 +137,7 @@ class ProductReviewLoader
 
     private function handlePointsAggregation(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
+        $reviewFilters = [];
         $points = $request->get('points', []);
 
         if (\is_array($points) && \count($points) > 0) {

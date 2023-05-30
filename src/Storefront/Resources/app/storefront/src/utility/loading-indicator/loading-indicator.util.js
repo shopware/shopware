@@ -1,14 +1,17 @@
 import Iterator from 'src/helper/iterator.helper';
-import Feature from 'src/helper/feature.helper';
 
 const SELECTOR_CLASS = 'loader';
+const VISUALLY_HIDDEN_CLASS = 'visually-hidden';
+
+export const INDICATOR_POSITION = {
+    BEFORE: 'before',
+    AFTER: 'after',
+    INNER: 'inner',
+};
 
 /**
- * @deprecated tag:v6.5.0 - Bootstrap v5 renames `sr-only` class to `visually-hidden`
- * @type {string}
+ * @package storefront
  */
-const VISUALLY_HIDDEN_CLASS = Feature.isActive('v6.5.0.0') ? 'visually-hidden' : 'sr-only';
-
 export default class LoadingIndicatorUtil {
 
     /**
@@ -16,7 +19,7 @@ export default class LoadingIndicatorUtil {
      * @param {Element|string} parent
      * @param position
      */
-    constructor(parent, position = 'before') {
+    constructor(parent, position = INDICATOR_POSITION.BEFORE) {
         this.parent = (parent instanceof Element) ? parent : document.body.querySelector(parent);
         this.position = position;
     }
@@ -26,6 +29,13 @@ export default class LoadingIndicatorUtil {
      */
     create() {
         if (this.exists()) return;
+
+        if (this.position === INDICATOR_POSITION.INNER) {
+            this.parent.innerHTML = LoadingIndicatorUtil.getTemplate();
+
+            return;
+        }
+
         this.parent.insertAdjacentHTML(this._getPosition(), LoadingIndicatorUtil.getTemplate());
     }
 
@@ -53,7 +63,7 @@ export default class LoadingIndicatorUtil {
      * @private
      */
     _getPosition() {
-        return (this.position === 'before') ? 'afterbegin' : 'beforeend';
+        return (this.position === INDICATOR_POSITION.BEFORE) ? 'afterbegin' : 'beforeend';
     }
 
     /**

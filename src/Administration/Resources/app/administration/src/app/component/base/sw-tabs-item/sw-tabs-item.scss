@@ -18,6 +18,12 @@ $sw-side-navigation-item-link-distance: 10px;
         margin-left: 4px;
     }
 
+    .sw-tabs-item__warning-badge {
+        color: $color-pumpkin-spice-300;
+        transform: translateY(-9%);
+        margin-left: 4px;
+    }
+
     &.sw-tabs-item--active {
         color: $color-darkgray-800;
 

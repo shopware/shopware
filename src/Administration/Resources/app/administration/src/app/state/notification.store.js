@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const { Application, State } = Shopware;
@@ -17,32 +21,28 @@ export function initializeUserNotifications() {
 function _getOriginalNotification(notificationId, state) {
     let originalNotification = state.notifications[notificationId];
     if (originalNotification === undefined) {
-        originalNotification = Object.assign(
-            {},
-            state.notificationDefaults,
-            {
-                uuid: notificationId,
-                timestamp: new Date(),
-            },
-        );
+        originalNotification = {
+
+            ...state.notificationDefaults,
+            uuid: notificationId,
+            timestamp: new Date(),
+        };
     }
     return originalNotification;
 }
 
 function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
-    return Object.assign(
-        {},
-        originalNotification,
-        {
-            visited: notificationUpdate.metadata ?
-                (
-                    JSON.stringify(originalNotification.metadata) ===
+    return {
+
+        ...originalNotification,
+        visited: notificationUpdate.metadata ?
+            (
+                JSON.stringify(originalNotification.metadata) ===
                     JSON.stringify(notificationUpdate.metadata)
-                ) :
-                originalNotification.visited,
-        },
-        notificationUpdate,
-    );
+            ) :
+            originalNotification.visited,
+        ...notificationUpdate,
+    };
 }
 
 function _getStorageKey() {
@@ -240,15 +240,13 @@ export default {
             }
 
             delete notification.growl;
-            const mergedNotification = Object.assign(
-                {},
-                state.notificationDefaults,
-                notification,
-                {
-                    uuid: utils.createId(),
-                    timestamp: new Date(),
-                },
-            );
+            const mergedNotification = {
+
+                ...state.notificationDefaults,
+                uuid: utils.createId(),
+                timestamp: new Date(),
+                ...notification,
+            };
 
             if (mergedNotification.variant === 'success') {
                 return null;
@@ -259,15 +257,13 @@ export default {
         },
 
         createGrowlNotification({ state, commit }, notification) {
-            const mergedNotification = Object.assign(
-                {},
-                state.growlNotificationDefaults,
-                notification,
-                {
-                    uuid: utils.createId(),
-                    timestamp: new Date(),
-                },
-            );
+            const mergedNotification = {
+
+                ...state.growlNotificationDefaults,
+                ...notification,
+                uuid: utils.createId(),
+                timestamp: new Date(),
+            };
 
             delete mergedNotification.growl;
             commit('upsertGrowlNotification', mergedNotification);

@@ -99,9 +99,10 @@
         <service id="Shopware\Storefront\Controller\CartLineItemController">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -120,6 +121,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -147,7 +149,6 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
             <argument type="service" id="event_dispatcher"/>
 
             <call method="setContainer">
@@ -175,7 +176,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -227,10 +227,7 @@
 
         <service id="Shopware\Storefront\Controller\NewsletterController">
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader"/>
-            <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
             <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute"/>
-            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader"/>
 
             <call method="setContainer">
@@ -243,7 +240,6 @@
 
         <service id="Shopware\Storefront\Controller\ProductController">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute"/>
@@ -330,29 +326,14 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Controller\CsrfController">
-            <argument type="service" id="security.csrf.token_manager"/>
-            <argument>%storefront.csrf.enabled%</argument>
-            <argument>%storefront.csrf.mode%</argument>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
-            </call>
-        </service>
-
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader"/>
-            <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\DocumentController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
 
             <call method="setContainer">
@@ -363,9 +344,15 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\StoreApiProxyController" public="true">
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
-            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+        <service id="Shopware\Storefront\Controller\DownloadController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\WellKnownController" public="true">

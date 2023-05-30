@@ -8,45 +8,34 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\DelayAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction
+ *
+ * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction
  */
 class SetCustomerCustomFieldActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MockObject|EntitySearchResult
-     */
-    private $entitySearchResult;
+    private MockObject&EntitySearchResult $entitySearchResult;
 
     private SetCustomerCustomFieldAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetCustomerCustomFieldAction($this->connection, $this->repository);
@@ -57,25 +46,8 @@ class SetCustomerCustomFieldActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [CustomerAware::class, DelayAware::class],
+            [CustomerAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                SetCustomerCustomFieldAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.set.customer.custom.field' => 'handle'],
-            SetCustomerCustomFieldAction::getSubscribedEvents()
         );
     }
 
@@ -96,11 +68,11 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomFields($existsData);
 
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        $customerId = $this->flow->getStore('customerId');
+        $customerId = $this->flow->getData('customerId');
         $this->entitySearchResult->expects(static::once())
             ->method('first')
             ->willReturn($customer);
@@ -122,14 +94,14 @@ class SetCustomerCustomFieldActionTest extends TestCase
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
         $this->repository->expects(static::never())->method('update');
 
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionExecutedProvider(): \Generator
+    public static function actionExecutedProvider(): \Generator
     {
         yield 'Test aware with upsert config' => [
             [

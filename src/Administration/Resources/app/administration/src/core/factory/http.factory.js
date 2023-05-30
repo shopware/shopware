@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/http
  */
 import Axios from 'axios';
@@ -84,11 +86,16 @@ function globalErrorHandlingInterceptor(client) {
     client.interceptors.response.use(response => response, error => {
         const { hasOwnProperty } = Shopware.Utils.object;
 
-        if (hasOwnProperty(error.config.headers, 'sw-app-integration-id')) {
+        if (hasOwnProperty(error?.config?.headers ?? {}, 'sw-app-integration-id')) {
             return Promise.reject(error);
         }
 
-        const { response: { status, data: { errors, data } } } = error;
+        if (!error) {
+            return Promise.reject(error);
+        }
+
+        const { status } = error.response ?? { status: undefined };
+        const { errors, data } = error.response?.data ?? { errors: undefined, data: undefined };
 
         try {
             handleErrorStates({ status, errors, error, data });
@@ -255,9 +262,10 @@ function refreshTokenInterceptor(client) {
     client.interceptors.response.use((response) => {
         return response;
     }, (error) => {
-        const { config, response: { status } } = error;
+        const config = error.config || {};
+        const status = error.response?.status;
         const originalRequest = config;
-        const resource = originalRequest.url.replace(originalRequest.baseURL, '');
+        const resource = originalRequest.url?.replace(originalRequest.baseURL, '');
 
         // eslint-disable-next-line inclusive-language/use-inclusive-words
         if (tokenHandler.whitelist.includes(resource)) {
@@ -272,21 +280,23 @@ function refreshTokenInterceptor(client) {
             }
 
             return new Promise((resolve, reject) => {
-                tokenHandler.subscribe((newToken) => {
+                tokenHandler.subscribe(
+                    (newToken) => {
                     // replace the expired token and retry
-                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                    originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
-                    resolve(Axios(originalRequest));
-                }, (err) => {
-                    if (!Shopware.Application.getApplicationRoot()) {
+                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                        originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
+                        resolve(Axios(originalRequest));
+                    },
+                    (err) => {
+                        if (!Shopware.Application.getApplicationRoot()) {
+                            reject(err);
+                            window.location.reload();
+                            return;
+                        }
+
                         reject(err);
-                        window.location.reload();
-                        return;
-                    }
-                    Shopware.Service('loginService').logout();
-                    Shopware.Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
-                    reject(err);
-                });
+                    },
+                );
             });
         }
 
@@ -309,9 +319,9 @@ function storeSessionExpiredInterceptor(client) {
         return response;
     }, (error) => {
         const { config, response } = error;
-        const code = response.data?.errors[0]?.code;
+        const code = response?.data?.errors?.[0]?.code;
 
-        if (config.storeSessionRequestRetries >= maxRetryLimit) {
+        if (config?.storeSessionRequestRetries >= maxRetryLimit) {
             return Promise.reject(error);
         }
 

@@ -4,9 +4,14 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1570622696CustomerPasswordRecovery extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -30,7 +35,7 @@ class Migration1570622696CustomerPasswordRecovery extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeUpdate($query);
+        $connection->executeStatement($query);
 
         $mailTemplateTypeId = $this->createMailTemplateType($connection);
 
@@ -52,7 +57,7 @@ INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
         if (!$languageId && $locale !== 'en-GB') {
             return null;
         }
@@ -166,7 +171,7 @@ SQL;
 
     private function addTemplateToSalesChannels(Connection $connection, string $mailTemplateTypeId, string $mailTemplateId): void
     {
-        $salesChannels = $connection->fetchAll('SELECT `id` FROM `sales_channel` ');
+        $salesChannels = $connection->fetchAllAssociative('SELECT `id` FROM `sales_channel` ');
 
         foreach ($salesChannels as $salesChannel) {
             $mailTemplateSalesChannel = [
@@ -187,7 +192,7 @@ SQL;
             'id' => Uuid::randomBytes(),
             'event_name' => 'customer.recovery.request',
             'action_name' => 'action.mail.send',
-            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
+            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

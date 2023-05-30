@@ -11,45 +11,25 @@ use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('content')]
 class LandingPageRoute extends AbstractLandingPageRoute
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $landingPageRepository;
-
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
-     * @var LandingPageDefinition
-     */
-    private $landingPageDefinition;
-
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $landingPageRepository,
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        LandingPageDefinition $landingPageDefinition
+        private readonly SalesChannelRepository $landingPageRepository,
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly LandingPageDefinition $landingPageDefinition
     ) {
-        $this->landingPageRepository = $landingPageRepository;
-        $this->cmsPageLoader = $cmsPageLoader;
-        $this->landingPageDefinition = $landingPageDefinition;
     }
 
     public function getDecorated(): AbstractLandingPageRoute
@@ -57,10 +37,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
-     */
+    #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         $landingPage = $this->loadLandingPage($landingPageId, $context);

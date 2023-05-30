@@ -3,10 +3,21 @@
 <sw-page class="sw-customer-detail">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_header %}
-    <template #smart-bar-header>
-        <h2 v-if="customer && customer.salutation">
+    <template
+        v-if="!isLoading"
+        #smart-bar-header
+    >
+        <h2>
             {{ salutation(customer) }}
         </h2>
+        <sw-label
+            v-if="customer.createdById"
+            appearance="pill"
+            size="small"
+            class="sw-customer-detail__created-by-admin-label"
+        >
+            {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
+        </sw-label>
     </template>
     {% endblock %}
 
@@ -33,21 +44,21 @@
         {% endblock %}
 
         {% block sw_customer_login_as_customer_modal %}
-        <sw-customer-login-as-customer-modal
-            v-if="showLoginAsCustomerModal"
-            @modal-close="onClickButtonCloseLoginAsCustomerModal"
-            :customer="customer"
-        />
+            <sw-customer-login-as-customer-modal
+                v-if="showLoginAsCustomerModal"
+                @modal-close="onClickButtonCloseLoginAsCustomerModal"
+                :customer="customer"
+            />
         {% endblock %}
 
         {% block sw_customer_detail_actions_storefront_customer_login %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                <sw-button
-                    :disabled="isLoading"
-                    @click="onClickButtonShowLoginAsCustomerModal"
-                >
-                    {{ $tc('sw-customer.detail.buttonLoginAsCustomer') }}
-                </sw-button>
+            <sw-button
+                :disabled="isLoading"
+                @click="onClickButtonShowLoginAsCustomerModal"
+            >
+                {{ $tc('sw-customer.detail.buttonLoginAsCustomer') }}
+            </sw-button>
         {% endblock %}
 
         <span v-else>

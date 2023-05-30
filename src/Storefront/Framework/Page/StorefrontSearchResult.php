@@ -4,7 +4,9 @@ namespace Shopware\Storefront\Framework\Page;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('storefront')]
 class StorefrontSearchResult extends EntitySearchResult
 {
     /**

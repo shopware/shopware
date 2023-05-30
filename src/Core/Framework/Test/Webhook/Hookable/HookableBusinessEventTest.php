@@ -5,10 +5,7 @@ namespace Shopware\Core\Framework\Test\Webhook\Hookable;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
@@ -49,7 +46,7 @@ class HookableBusinessEventTest extends TestCase
     /**
      * @dataProvider getEventsWithoutPermissions
      */
-    public function testIsAllowedForNonEntityBasedEvents(BusinessEventInterface $rootEvent): void
+    public function testIsAllowedForNonEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
@@ -62,7 +59,7 @@ class HookableBusinessEventTest extends TestCase
     /**
      * @dataProvider getEventsWithPermissions
      */
-    public function testIsAllowedForEntityBasedEvents(BusinessEventInterface $rootEvent): void
+    public function testIsAllowedForEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
@@ -80,7 +77,7 @@ class HookableBusinessEventTest extends TestCase
         static::assertFalse($event->isAllowed(Uuid::randomHex(), $notAllowedPermissions));
     }
 
-    public function getEventsWithoutPermissions(): array
+    public static function getEventsWithoutPermissions(): array
     {
         return [
             [new ScalarBusinessEvent()],
@@ -90,29 +87,19 @@ class HookableBusinessEventTest extends TestCase
         ];
     }
 
-    public function getEventsWithPermissions(): array
+    public static function getEventsWithPermissions(): array
     {
+        $tax = new TaxEntity();
+        $tax->setId('tax-id');
+        $tax->setName('test');
+        $tax->setTaxRate(19);
+        $tax->setPosition(1);
+
         return [
-            [new EntityBusinessEvent($this->getTaxEntity())],
-            [new CollectionBusinessEvent($this->getTaxCollection())],
-            [new ArrayBusinessEvent($this->getTaxCollection())],
-            [new NestedEntityBusinessEvent($this->getTaxEntity())],
+            [new EntityBusinessEvent($tax)],
+            [new CollectionBusinessEvent(new TaxCollection([$tax]))],
+            [new ArrayBusinessEvent(new TaxCollection([$tax]))],
+            [new NestedEntityBusinessEvent($tax)],
         ];
-    }
-
-    private function getTaxEntity(): TaxEntity
-    {
-        /** @var EntityRepositoryInterface $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->first();
-    }
-
-    private function getTaxCollection(): TaxCollection
-    {
-        /** @var EntityRepositoryInterface $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
     }
 }

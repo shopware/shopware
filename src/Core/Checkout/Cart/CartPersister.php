@@ -6,37 +6,29 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
-use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class CartPersister extends AbstractCartPersister
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartSerializationCleaner $cartSerializationCleaner;
-
-    private bool $compress;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress)
-    {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartSerializationCleaner = $cartSerializationCleaner;
-        $this->compress = $compress;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartSerializationCleaner $cartSerializationCleaner,
+        private readonly bool $compress
+    ) {
     }
 
     public function getDecorated(): AbstractCartPersister
@@ -68,15 +60,11 @@ class CartPersister extends AbstractCartPersister
         $cart = $content['compressed'] ? CacheValueCompressor::uncompress($content['payload']) : unserialize((string) $content['payload']);
 
         if (!$cart instanceof Cart) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::deserializeFailed();
-            }
-
-            throw new CartDeserializeFailedException();
+            throw CartException::deserializeFailed();
         }
 
         $cart->setToken($token);
-        $cart->setRuleIds(json_decode((string) $content['rule_ids'], true) ?? []);
+        $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
 
         return $cart;
     }
@@ -86,6 +74,10 @@ class CartPersister extends AbstractCartPersister
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
+        if ($cart->getBehavior()?->isRecalculation()) {
+            return;
+        }
+
         $shouldPersist = $this->shouldPersist($cart);
 
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
@@ -100,16 +92,16 @@ class CartPersister extends AbstractCartPersister
         $payloadExists = $this->payloadExists();
 
         $sql = <<<'SQL'
-            INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
-            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :now)
-            ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :payload, `rule_ids` = :rule_ids, `updated_at` = :now;
+            INSERT INTO `cart` (`token`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
+            VALUES (:token, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :now)
+            ON DUPLICATE KEY UPDATE `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :payload, `rule_ids` = :rule_ids, `updated_at` = :now;
         SQL;
 
         if ($payloadExists) {
             $sql = <<<'SQL'
-                INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `payload`, `rule_ids`, `compressed`, `created_at`)
-                VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :compressed, :now)
-                ON DUPLICATE KEY UPDATE `name` = :name, `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `updated_at` = :now;
+                INSERT INTO `cart` (`token`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `payload`, `rule_ids`, `compressed`, `created_at`)
+                VALUES (:token, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :compressed, :now)
+                ON DUPLICATE KEY UPDATE `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `updated_at` = :now;
             SQL;
         }
 
@@ -117,7 +109,6 @@ class CartPersister extends AbstractCartPersister
 
         $data = [
             'token' => $cart->getToken(),
-            'name' => $cart->getName(),
             'currency_id' => Uuid::fromHexToBytes($context->getCurrency()->getId()),
             'shipping_method_id' => Uuid::fromHexToBytes($context->getShippingMethod()->getId()),
             'payment_method_id' => Uuid::fromHexToBytes($context->getPaymentMethod()->getId()),
@@ -127,7 +118,7 @@ class CartPersister extends AbstractCartPersister
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
             'payload' => $this->serializeCart($cart, $payloadExists),
-            'rule_ids' => json_encode($context->getRuleIds()),
+            'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
@@ -153,7 +144,7 @@ class CartPersister extends AbstractCartPersister
 
     public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
             ['newToken' => $newToken, 'oldToken' => $oldToken]
         );

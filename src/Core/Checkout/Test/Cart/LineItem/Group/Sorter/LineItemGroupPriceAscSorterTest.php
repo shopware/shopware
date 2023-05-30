@@ -7,18 +7,17 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemGroupPriceAscSorterTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
 
-    /**
-     * @var LineItemGroupSorterInterface
-     */
-    private $sorter;
+    private LineItemGroupSorterInterface $sorter;
 
     protected function setUp(): void
     {
@@ -33,7 +32,6 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * be old keys in the SetGroup entities in the database of shops, that
      * try to execute a sorter that does not exist anymore with this key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testKey(): void
@@ -46,7 +44,6 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * We add 3 items with different item prices and test that
      * the sorted list comes in the correct order.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortPriceASC(): void
@@ -71,7 +68,6 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * This test verifies that our item with PRICE null is sorted
      * before all other items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortWithPriceNullA(): void
@@ -95,7 +91,6 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * This test verifies that our item with PRICE null is sorted
      * before all other items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortWithPriceNullB(): void

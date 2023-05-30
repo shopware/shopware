@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1643366069AddSeoUrlUpdaterIndex;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1595492052SeoUrl
  */
 class Migration1595492052SeoUrlTest extends TestCase

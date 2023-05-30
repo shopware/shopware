@@ -66,7 +66,7 @@
         "descriptionLong": "Description long",
         "ean": "GTIN/EAN",
         "gross": "Gross",
-        "group": "Group",
+        "group": "Property",
         "height": "Height",
         "isBlog": "Is blog",
         "isCloseout": "On clearance sale",
@@ -75,7 +75,7 @@
         "linked": "Linked",
         "manufacturerId": "Manufacturer",
         "manufacturer": "Manufacturer",
-        "manufacturerNumber": "Manufacturer number",
+        "manufacturerNumber": "Manufacturer product number",
         "markAsTopseller": "Marked as promoted",
         "maxDeliveryTime": "Max. delivery time",
         "maxPurchase": "Max. order quantity",
@@ -113,12 +113,17 @@
         "deliveryTime": "Delivery time",
         "configuratorSettings": "Configurator settings",
         "options": "Variant values",
-        "properties": "Property values",
-        "property_group": "Group",
+        "properties": "Properties",
+        "property_group": "Property",
         "property_group_option": "Property value",
         "product_manufacturer": "Manufacturer",
         "product_visibility": "Product in Sales Channel",
-        "percentage": "Percentage ratio price/list price"
+        "percentage": "Percentage ratio price/list price",
+        "states": "Product state",
+        "productStates": {
+          "physical": "Physical",
+          "digital": "Digital"
+        }
       }
     },
     "detail": {

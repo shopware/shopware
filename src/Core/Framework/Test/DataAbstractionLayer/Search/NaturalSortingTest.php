@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -20,12 +20,12 @@ class NaturalSortingTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $groupRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $optionRepository;
 
@@ -46,9 +46,7 @@ class NaturalSortingTest extends TestCase
         $data = [
             'id' => $groupId,
             'name' => 'Content',
-            'options' => array_map(static function ($name) {
-                return ['name' => $name];
-            }, $naturalOrder),
+            'options' => array_map(static fn ($name) => ['name' => $name], $naturalOrder),
         ];
 
         $context = Context::createDefaultContext();
@@ -67,9 +65,7 @@ class NaturalSortingTest extends TestCase
         static::assertCount(\count($naturalOrder), $options);
 
         //extract names to compare them
-        $actual = $options->map(static function (PropertyGroupOptionEntity $option) {
-            return $option->getName();
-        });
+        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertEquals($rawOrder, array_values($actual));
 
@@ -79,14 +75,12 @@ class NaturalSortingTest extends TestCase
         $criteria->addSorting(new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(static function (PropertyGroupOptionEntity $option) {
-            return $option->getName();
-        });
+        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertEquals($naturalOrder, array_values($actual));
     }
 
-    public function sortingFixtures(): array
+    public static function sortingFixtures(): array
     {
         return [
             [

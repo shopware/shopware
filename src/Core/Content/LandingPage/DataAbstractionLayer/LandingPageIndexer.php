@@ -5,40 +5,29 @@ namespace Shopware\Core\Content\LandingPage\DataAbstractionLayer;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('content')]
 class LandingPageIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepositoryInterface $repository;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
 
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        EventDispatcherInterface $eventDispatcher
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -46,20 +35,8 @@ class LandingPageIndexer extends EntityIndexer
         return 'landing_page.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "LandingPageIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();

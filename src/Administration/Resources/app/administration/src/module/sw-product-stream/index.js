@@ -1,15 +1,24 @@
+/*
+ * @package business-ops
+ */
+
 import './acl';
-import './page/sw-product-stream-list';
-import './page/sw-product-stream-detail';
-import './component/sw-product-stream-field-select';
-import './component/sw-product-stream-value';
-import './component/sw-product-stream-modal-preview';
-import './component/sw-product-stream-filter';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-product-stream-list', () => import('./page/sw-product-stream-list'));
+Shopware.Component.register('sw-product-stream-detail', () => import('./page/sw-product-stream-detail'));
+Shopware.Component.register('sw-product-stream-field-select', () => import('./component/sw-product-stream-field-select'));
+Shopware.Component.register('sw-product-stream-value', () => import('./component/sw-product-stream-value'));
+Shopware.Component.register('sw-product-stream-modal-preview', () => import('./component/sw-product-stream-modal-preview'));
+Shopware.Component.extend('sw-product-stream-filter', 'sw-condition-base', () => import('./component/sw-product-stream-filter'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+
+/**
+ * @private
+ */
 Module.register('sw-product-stream', {
     type: 'core',
     name: 'product-stream',

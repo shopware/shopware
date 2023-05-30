@@ -13,6 +13,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @group cache
  */
 class TwigCacheTest extends TestCase

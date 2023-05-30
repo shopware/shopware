@@ -34,4 +34,10 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
     .sw-media-sidebar__quickaction.quickaction--download .sw-external-link__icon {
         display: none;
     }
+
+    .sw-media-quickinfo-metadata-name.sw-media-quickinfo-metadata-item__term {
+        &.has--error {
+            margin-bottom: 14px;
+        }
+    }
 }

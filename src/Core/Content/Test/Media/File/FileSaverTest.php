@@ -21,7 +21,6 @@ use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -36,10 +35,10 @@ class FileSaverTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
-    public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
+    final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    final public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     private FileSaver $fileSaver;
 
@@ -152,7 +151,7 @@ class FileSaverTest extends TestCase
         $media = $this->getTxt();
 
         $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $this->getPublicFilesystem()->put($oldMediaFilePath, 'Some ');
+        $this->getPublicFilesystem()->write($oldMediaFilePath, 'Some ');
 
         static::assertIsString($media->getFileName());
 
@@ -238,7 +237,7 @@ class FileSaverTest extends TestCase
 
         $resource = fopen($tempFile, 'rb');
         static::assertIsResource($resource);
-        $this->getPublicFilesystem()->putStream($pathName, $resource);
+        $this->getPublicFilesystem()->writeStream($pathName, $resource);
 
         static::assertIsString($png->getFileName());
 
@@ -368,7 +367,7 @@ class FileSaverTest extends TestCase
         static::assertIsInt($fileSize);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
-        $this->getPublicFilesystem()->put($this->urlGenerator->getRelativeMediaUrl($png), 'some content');
+        $this->getPublicFilesystem()->write($this->urlGenerator->getRelativeMediaUrl($png), 'some content');
 
         try {
             $this->fileSaver->persistFileToMedia(
@@ -436,7 +435,7 @@ class FileSaverTest extends TestCase
         $png = $this->getPng();
         $txt = $this->getTxt();
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-        $this->getPublicFilesystem()->put($mediaPath, 'test file content');
+        $this->getPublicFilesystem()->write($mediaPath, 'test file content');
 
         static::assertIsString($txt->getFileName());
         $this->fileSaver->renameMedia($png->getId(), $txt->getFileName(), $context);
@@ -455,7 +454,7 @@ class FileSaverTest extends TestCase
 
         $png = $this->getPng();
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-        $this->getPublicFilesystem()->put($mediaPath, 'test file content');
+        $this->getPublicFilesystem()->write($mediaPath, 'test file content');
 
         static::assertIsString($png->getFileName());
         $this->fileSaver->renameMedia($png->getId(), $png->getFileName(), $context);
@@ -481,8 +480,8 @@ class FileSaverTest extends TestCase
         $oldMediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
         $oldThumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($png, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 100]));
 
-        $this->getPublicFilesystem()->put($oldMediaPath, 'test file content');
-        $this->getPublicFilesystem()->put($oldThumbnailPath, 'test file content');
+        $this->getPublicFilesystem()->write($oldMediaPath, 'test file content');
+        $this->getPublicFilesystem()->write($oldThumbnailPath, 'test file content');
 
         $this->fileSaver->renameMedia($png->getId(), 'new destination', $context);
         $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
@@ -514,6 +513,11 @@ class FileSaverTest extends TestCase
             ->method('update')
             ->willThrowException(new \Exception());
 
+        /** @var list<string> $allowed */
+        $allowed = $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions');
+        /** @var list<string> $allowedPrivate */
+        $allowedPrivate = $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
+
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
             $this->getContainer()->get('shopware.filesystem.public'),
@@ -524,11 +528,12 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get(TypeDetector::class),
             $this->getContainer()->get('messenger.bus.shopware'),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions')
+            $allowed,
+            $allowedPrivate
         );
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-        $this->getPublicFilesystem()->put($mediaPath, 'test file');
+        $this->getPublicFilesystem()->write($mediaPath, 'test file');
 
         $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
         $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());

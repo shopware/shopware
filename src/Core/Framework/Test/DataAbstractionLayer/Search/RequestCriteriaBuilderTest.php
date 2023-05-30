@@ -34,7 +34,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
     }
 
-    public function maxApiLimitProvider(): iterable
+    public static function maxApiLimitProvider(): iterable
     {
         yield 'Test null max limit' => [10000, null, 10000, false];
         yield 'Test null max limit and null limit' => [null, null, null, false];
@@ -63,7 +63,7 @@ class RequestCriteriaBuilderTest extends TestCase
         try {
             $criteria = $builder->handleRequest($request, new Criteria(), $this->getContainer()->get(ProductDefinition::class), Context::createDefaultContext());
             static::assertSame($expected, $criteria->getLimit());
-        } catch (SearchRequestException $e) {
+        } catch (SearchRequestException) {
             static::assertTrue($exception);
         }
 
@@ -73,7 +73,7 @@ class RequestCriteriaBuilderTest extends TestCase
         try {
             $criteria = $builder->handleRequest($request, new Criteria(), $this->getContainer()->get(ProductDefinition::class), Context::createDefaultContext());
             static::assertSame($expected, $criteria->getLimit());
-        } catch (SearchRequestException $e) {
+        } catch (SearchRequestException) {
             static::assertTrue($exception);
         }
     }
@@ -236,10 +236,9 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @param mixed $totalCountMode
      * @dataProvider providerTotalCount
      */
-    public function testDifferentTotalCount($totalCountMode, int $expectedMode): void
+    public function testDifferentTotalCount(mixed $totalCountMode, int $expectedMode): void
     {
         $payload = [
             'total-count-mode' => $totalCountMode,
@@ -249,7 +248,7 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertSame($expectedMode, $criteria->getTotalCountMode());
     }
 
-    public function providerTotalCount(): iterable
+    public static function providerTotalCount(): iterable
     {
         yield [
             '0',

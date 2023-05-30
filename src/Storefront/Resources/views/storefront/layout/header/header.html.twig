@@ -18,10 +18,17 @@
                             {% block layout_header_navigation_toggle_tablet %}
                                 <div class="nav-main-toggle">
                                     {% block layout_header_navigation_toggle_tablet_button %}
-                                        <button class="btn nav-main-toggle-btn header-actions-btn"
-                                                type="button"
+                                        <button
+                                            class="btn nav-main-toggle-btn header-actions-btn"
+                                            type="button"
+                                            {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead #}
+                                            {% if feature('v6.6.0.0') %}
+                                                data-off-canvas-menu="true"
+                                            {% else %}
                                                 data-offcanvas-menu="true"
-                                                aria-label="{{ "general.menuLink"|trans|striptags }}">
+                                            {% endif %}
+                                            aria-label="{{ "general.menuLink"|trans|striptags }}"
+                                        >
                                             {% block layout_header_navigation_toggle_tablet_button_icon %}
                                                 {% sw_icon 'stack' %}
                                             {% endblock %}
@@ -39,15 +46,22 @@
 
             {% block layout_header_actions %}
                 <div class="col-12 order-1 col-sm-auto order-sm-2 header-actions-col">
-                    <div class="row {{ gridNoGuttersClass }}">
+                    <div class="row g-0">
                         {% block layout_header_navigation_toggle %}
                             <div class="col d-sm-none">
                                 <div class="menu-button">
                                     {% block layout_header_navigation_toggle_button %}
-                                        <button class="btn nav-main-toggle-btn header-actions-btn"
-                                                type="button"
+                                        <button
+                                            class="btn nav-main-toggle-btn header-actions-btn"
+                                            type="button"
+                                            {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead #}
+                                            {% if feature('v6.6.0.0') %}
+                                                data-off-canvas-menu="true"
+                                            {% else %}
                                                 data-offcanvas-menu="true"
-                                                aria-label="{{ "general.menuLink"|trans|striptags }}">
+                                            {% endif %}
+                                            aria-label="{{ "general.menuLink"|trans|striptags }}"
+                                        >
                                             {% block layout_header_navigation_toggle_button_icon %}
                                                 {% sw_icon 'stack' %}
                                             {% endblock %}
@@ -62,8 +76,8 @@
                                 <div class="search-toggle">
                                     <button class="btn header-actions-btn search-toggle-btn js-search-toggle-btn collapsed"
                                             type="button"
-                                            {{ dataBsToggleAttr }}="collapse"
-                                            {{ dataBsTargetAttr }}="#searchCollapse"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#searchCollapse"
                                             aria-expanded="false"
                                             aria-controls="searchCollapse"
                                             aria-label="{{ "header.searchButton"|trans|striptags }}">
@@ -98,8 +112,15 @@
 
                         {% block layout_header_actions_cart %}
                             <div class="col-auto">
-                                <div class="header-cart"
-                                     data-offcanvas-cart="true">
+                                <div
+                                    class="header-cart"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-cart" is deprecated. Use "data-off-canvas-cart" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-cart="true"
+                                    {% else %}
+                                        data-offcanvas-cart="true"
+                                    {% endif %}
+                                >
                                     <a class="btn header-cart-btn header-actions-btn"
                                        href="{{ path('frontend.checkout.cart.page') }}"
                                        data-cart-widget="true"

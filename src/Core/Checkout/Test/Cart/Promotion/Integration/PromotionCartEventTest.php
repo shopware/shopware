@@ -3,22 +3,20 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionCartEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -27,14 +25,11 @@ class PromotionCartEventTest extends TestCase
 
     protected CartService $cartService;
 
-    private SalesChannelContext $context;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -51,28 +46,27 @@ class PromotionCartEventTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->getContext());
 
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $addListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
+        $addListener = $this->getMockBuilder(CallableClass::class)->getMock();
         $addListener->expects(static::exactly(1 + \count($codes)))->method('__invoke');
         $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, $addListener);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
 
         // add all our prepared test fixtures
         // and promotions to our current cart.
-        /** @var int $code */
         foreach ($codes as $code) {
-            $cart = $this->addPromotionCode((string) $code, $cart, $this->cartService, $this->context);
+            $cart = $this->addPromotionCode((string) $code, $cart, $this->cartService, $this->getContext());
         }
 
         // now add our product which should trigger our event
-        $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $this->addProduct($productId, 1, $cart, $this->cartService, $this->getContext());
     }
 
     /**
@@ -85,33 +79,34 @@ class PromotionCartEventTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->getContext());
 
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $removeListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
+        $removeListener = $this->getMockBuilder(CallableClass::class)->getMock();
         $removeListener->expects(static::once())->method('__invoke');
         $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $removeListener);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
 
-        /** @var int $code */
         foreach ($codes as $code) {
-            $cart = $this->addPromotionCode((string) $code, $cart, $this->cartService, $this->context);
+            $cart = $this->addPromotionCode((string) $code, $cart, $this->cartService, $this->getContext());
         }
 
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->getContext());
 
         // now remove our cart, make sure our remove event is only called once
-        $this->cartService->remove($cart, $productId, $this->context);
+        $this->cartService->remove($cart, $productId, $this->getContext());
     }
 
+    /**
+     * @param list<float> $codes
+     */
     private function createBulkPromotions(array $codes): void
     {
-        /** @var int $percentage */
         foreach ($codes as $percentage) {
             $this->createTestFixturePercentagePromotion(
                 Uuid::randomHex(),

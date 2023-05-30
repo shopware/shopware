@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * The ErrorsFacade is a wrapper around the errors of a cart.
@@ -12,15 +13,13 @@ use Shopware\Core\Checkout\Cart\Error\GenericCartError;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\Error\Error>
+ * @implements \IteratorAggregate<array-key, Error>
  */
+#[Package('checkout')]
 class ErrorsFacade implements \IteratorAggregate
 {
-    private ErrorCollection $collection;
-
-    public function __construct(ErrorCollection $collection)
+    public function __construct(private ErrorCollection $collection)
     {
-        $this->collection = $collection;
     }
 
     /**
@@ -29,13 +28,13 @@ class ErrorsFacade implements \IteratorAggregate
      *
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
-     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     * @param array<string, mixed> $parameters Optional: Any parameters that the snippet for the error message may need.
      *
      * @example add-errors/add-errors.twig 2 1 Add a error to the cart.
      */
     public function error(string $key, ?string $id = null, array $parameters = []): void
     {
-        $this->createError($key, true, $parameters, Error::LEVEL_ERROR, $id);
+        $this->createError($key, true, true, $parameters, Error::LEVEL_ERROR, $id);
     }
 
     /**
@@ -44,13 +43,13 @@ class ErrorsFacade implements \IteratorAggregate
      *
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
-     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     * @param array<string, mixed> $parameters Optional: Any parameters that the snippet for the error message may need.
      *
      * @example add-errors/add-errors.twig 3 1 Add a warning to the cart.
      */
     public function warning(string $key, ?string $id = null, array $parameters = []): void
     {
-        $this->createError($key, false, $parameters, Error::LEVEL_WARNING, $id);
+        $this->createError($key, false, true, $parameters, Error::LEVEL_WARNING, $id);
     }
 
     /**
@@ -59,7 +58,7 @@ class ErrorsFacade implements \IteratorAggregate
      *
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
-     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     * @param array<string, mixed> $parameters Optional: Any parameters that the snippet for the error message may need.
      *
      * @example add-errors/add-errors.twig 4 1 Add a notice to the cart.
      * @example add-errors/add-errors.twig 5 1 Add a notice to the cart with a custom id.
@@ -67,7 +66,20 @@ class ErrorsFacade implements \IteratorAggregate
      */
     public function notice(string $key, ?string $id = null, array $parameters = []): void
     {
-        $this->createError($key, false, $parameters, Error::LEVEL_NOTICE, $id);
+        $this->createError($key, false, true, $parameters, Error::LEVEL_NOTICE, $id);
+    }
+
+    /**
+     * The `resubmittable()` method adds a new error of type `error` to the cart.
+     * The notice will be displayed to the user, the order will be blocked, but the user can submit the order again.
+     *
+     * @param string $key The snippet-key of the message that should be displayed to the user.
+     * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+     * @param array<mixed> $parameters Optional: Any parameters that the snippet for the error message may need.
+     */
+    public function resubmittable(string $key, ?string $id = null, array $parameters = []): void
+    {
+        $this->createError($key, false, false, $parameters, Error::LEVEL_NOTICE, $id);
     }
 
     /**
@@ -112,10 +124,13 @@ class ErrorsFacade implements \IteratorAggregate
         yield from $this->collection;
     }
 
-    private function createError(string $key, bool $block, array $parameters, int $level, ?string $id = null): void
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function createError(string $key, bool $blockOrder, bool $blockResubmit, array $parameters, int $level, ?string $id = null): void
     {
         $this->collection->add(
-            new GenericCartError($id ?? $key, $key, $parameters, $level, $block, true)
+            new GenericCartError($id ?? $key, $key, $parameters, $level, $blockOrder, true, $blockResubmit)
         );
     }
 }

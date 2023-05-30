@@ -2,29 +2,23 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class CartBehavior extends Struct
 {
     /**
-     * @var array
+     * @param array<mixed> $permissions
      */
-    private $permissions = [];
-
-    private bool $hookAware;
-
-    public function __construct(array $permissions = [], bool $hookAware = true)
-    {
-        $this->permissions = $permissions;
-        $this->hookAware = $hookAware;
+    public function __construct(
+        private readonly array $permissions = [],
+        private bool $hookAware = true,
+        private readonly bool $isRecalculation = false
+    ) {
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Return type will change to bool
-     *
-     * @phpstan-ignore-next-line when return type will be added we can remove the ignore
-     */
-    public function hasPermission(string $permission)
+    public function hasPermission(string $permission): bool
     {
         return !empty($this->permissions[$permission]);
     }
@@ -37,6 +31,11 @@ class CartBehavior extends Struct
     public function hookAware(): bool
     {
         return $this->hookAware;
+    }
+
+    public function isRecalculation(): bool
+    {
+        return $this->isRecalculation;
     }
 
     /**

@@ -6,8 +6,10 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('content')]
 class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -20,8 +22,10 @@ class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelE
      */
     protected $salesChannelContext;
 
-    public function __construct(Tree $navigation, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Tree $navigation,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->navigation = $navigation;
         $this->salesChannelContext = $salesChannelContext;
     }

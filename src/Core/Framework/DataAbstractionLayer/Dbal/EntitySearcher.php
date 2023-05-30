@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -14,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 /**
@@ -22,24 +21,16 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * The dbal entity searcher only joins and select fields which defined in sorting, filter or query classes.
  * Fields which are not necessary to determines which ids are affected are not fetched.
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class EntitySearcher implements EntitySearcherInterface
 {
-    private Connection $connection;
-
-    private EntityDefinitionQueryHelper $queryHelper;
-
-    private CriteriaQueryBuilder $criteriaQueryBuilder;
-
     public function __construct(
-        Connection $connection,
-        EntityDefinitionQueryHelper $queryHelper,
-        CriteriaQueryBuilder $criteriaQueryBuilder
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
-        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -102,7 +93,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         //execute and fetch ids
-        $rows = $query->execute()->fetchAll();
+        $rows = $query->executeQuery()->fetchAllAssociative();
 
         $total = $this->getTotalCount($criteria, $query, $rows);
 
@@ -127,27 +118,16 @@ class EntitySearcher implements EntitySearcherInterface
 
                 $value = $field->getSerializer()->decode($field, $value);
 
-                // @deprecated tag:v6.5.0 - The keys of IdSearchResult should always be field's propertyName instead of storageName
                 $data[$field->getPropertyName()] = $value;
-                if (!Feature::isActive('v6.5.0.0')) {
-                    $data[$storageName] = $value;
-                }
 
                 if (!$field->is(PrimaryKey::class)) {
                     continue;
                 }
 
-                // @deprecated tag:v6.5.0 - The keys of IdSearchResult should always be field's propertyName instead of storageName
                 $pk[$field->getPropertyName()] = $value;
-                if (!Feature::isActive('v6.5.0.0')) {
-                    $pk[$storageName] = $value;
-                }
             }
 
-            /**
-             * @deprecated tag:v6.5.0 - Will be change to $arrayKey = implode('-', $pk) due to no duplicated ids as mentioned above;
-             */
-            $arrayKey = implode('-', array_unique(array_values($pk)));
+            $arrayKey = implode('-', $pk);
 
             if (\count($pk) === 1) {
                 $pk = array_shift($pk);
@@ -183,14 +163,14 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query->resetQueryPart('orderBy');
         $query->setMaxResults(null);
-        $query->setFirstResult(null);
+        $query->setFirstResult(0);
 
-        $total = new QueryBuilder($query->getConnection());
+        $total = new QueryBuilder($this->connection);
         $total->select(['COUNT(*)'])
             ->from(sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
-        return (int) $total->execute()->fetchOne();
+        return (int) $total->executeQuery()->fetchOne();
     }
 
     private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void

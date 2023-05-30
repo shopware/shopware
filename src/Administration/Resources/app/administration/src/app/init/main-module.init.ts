@@ -1,11 +1,15 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function initMainModules(): void {
     Shopware.ExtensionAPI.handle('mainModuleAdd', async (mainModuleConfig, additionalInformation) => {
         const extensionName = Object.keys(Shopware.State.get('extensions'))
             .find(key => Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin));
 
         if (!extensionName) {
-            return;
+            throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
         const extension = Shopware.State.get('extensions')?.[extensionName];
@@ -25,5 +29,9 @@ export default function initMainModules(): void {
                 moduleId,
             });
         });
+    });
+
+    Shopware.ExtensionAPI.handle('smartBarButtonAdd', (configuration) => {
+        Shopware.State.commit('extensionSdkModules/addSmartBarButton', configuration);
     });
 }

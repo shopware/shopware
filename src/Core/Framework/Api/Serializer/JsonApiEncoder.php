@@ -13,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
+#[Package('core')]
 class JsonApiEncoder
 {
     /**
@@ -87,7 +89,7 @@ class JsonApiEncoder
             try {
                 /** @var Entity|EntityCollection<Entity>|null $relationData */
                 $relationData = $entity->get($propertyName);
-            } catch (\InvalidArgumentException $ex) {
+            } catch (\InvalidArgumentException) {
                 continue;
             }
 
@@ -118,7 +120,7 @@ class JsonApiEncoder
 
         $input = str_replace('_', '-', $input);
 
-        return $this->caseCache[$input] = ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return $this->caseCache[$input] = ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
     /**

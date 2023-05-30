@@ -2,44 +2,28 @@
 
 namespace Shopware\Storefront\Page\LandingPage;
 
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
+#[Package('content')]
 class LandingPage extends Page
 {
-    use EntityCustomFieldsTrait;
-
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $cmsPage;
-
-    protected ?string $navigationId;
-
-    public function getCmsPage(): ?CmsPageEntity
-    {
-        return $this->cmsPage;
-    }
-
-    public function setCmsPage(CmsPageEntity $cmsPage): void
-    {
-        $this->cmsPage = $cmsPage;
-    }
-
-    public function getNavigationId(): ?string
-    {
-        return $this->navigationId;
-    }
-
-    public function setNavigationId(?string $navigationId): void
-    {
-        $this->navigationId = $navigationId;
-    }
+    protected ?LandingPageEntity $landingPage = null;
 
     public function getEntityName(): string
     {
         return LandingPageDefinition::ENTITY_NAME;
+    }
+
+    public function getLandingPage(): ?LandingPageEntity
+    {
+        return $this->landingPage;
+    }
+
+    public function setLandingPage(?LandingPageEntity $landingPage): void
+    {
+        $this->landingPage = $landingPage;
     }
 }

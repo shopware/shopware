@@ -1,0 +1,165 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_field %}
+<div class="sw-media-field">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_field_label %}
+    <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+    <label
+        v-if="showLabel"
+        class="sw-media-field__label"
+    >
+        <slot name="label">
+            {{ label }}
+        </slot>
+    </label>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_field_input %}
+    <div
+        class="sw-media-field__input-container"
+        :class="mediaFieldClasses"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_field_preview %}
+        <sw-media-media-item
+            v-if="mediaEntity"
+            class="sw-media-field__media-list-item sw-media-field__input"
+            :item="mediaEntity"
+            :is-list="true"
+            :show-context-menu-button="false"
+            :editable="false"
+        />
+        <div
+            v-else
+            class="sw-media-field__empty-preview sw-media-field__input"
+        ></div>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_field_toggle_button %}
+        <sw-button
+            class="sw-media-field__toggle-button"
+            square
+            :disabled="disabled"
+            @click="onTogglePicker"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_field_media_icon %}
+            <sw-icon name="regular-image" />
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_field_media_popover %}
+            <sw-popover
+                v-if="showPicker"
+                :z-index="1000"
+                popover-class="sw-media-field__expanded-content"
+                class="sw-media-field__popover"
+            >
+                <div @click.stop>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_media_field_action_bar %}
+                    <div class="sw-media-field__actions_bar">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_media_field_action_bar_button_toggle %}
+                        <sw-button
+                            class="sw-media-field__action-button"
+                            @click="toggleUploadField"
+                        >
+                            <sw-icon
+                                class="sw-media-field__icon-add"
+                                name="regular-plus"
+                                small
+                            />
+                            {{ toggleButtonLabel }}
+                        </sw-button>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_media_field_action_bar_button_unlink %}
+                        <sw-button
+                            v-if="mediaId"
+                            class="sw-media-field__action-button is--remove"
+                            @click="removeLink"
+                        >
+                            <sw-icon
+                                class="sw-media-field__icon-remove"
+                                name="regular-times-circle-s"
+                                small
+                            />
+                            {{ $tc('global.sw-media-field.labelUnlink') }}
+                        </sw-button>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_media_field_upload_component %}
+                    <sw-upload-listener
+                        :upload-tag="uploadTag"
+                        auto-upload
+                        @media-upload-finish="exposeNewId"
+                    />
+                    <sw-media-upload-v2
+                        v-if="showUploadField"
+                        variant="regular"
+                        :file-accept="fileAccept"
+                        :default-folder="defaultFolder"
+                        :allow-multi-select="false"
+                        :upload-tag="uploadTag"
+                        :disabled="disabled"
+                    />
+                    {% endblock %}
+
+                    <div
+                        v-else
+                        class="sw-media-field__media-selection"
+                    >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_media_field_search_field %}
+                        <sw-simple-search-field
+                            v-model="searchTerm"
+                            @search-term-change="onSearchTermChange"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_media_field_media_list %}
+                        <sw-loader
+                            v-if="isLoadingSuggestions"
+                            class="sw-media-field__picker-loader"
+                        />
+
+                        <ul
+                            v-else
+                            class="sw-media-field__suggestion-list"
+                        >
+                            <li
+                                v-for="suggestion in suggestedItems"
+                                :key="suggestion.id"
+                                class="sw-media-field__suggestion-list-entry"
+                            >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_media_field_suggestion_preview %}
+                                <sw-media-media-item
+                                    class="sw-media-field__media-list-item"
+                                    :item="suggestion"
+                                    :is-list="true"
+                                    :show-context-menu-button="false"
+                                    @media-item-click="mediaItemChanged(suggestion.id)"
+                                />
+                                {% endblock %}
+                            </li>
+                        </ul>
+                        {% endblock %}
+                    </div>
+                </div>
+            </sw-popover>
+            {% endblock %}
+        </sw-button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

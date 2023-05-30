@@ -22,7 +22,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->languageLocaleProvider = $this->getContainer()->get(LanguageLocaleCodeProvider::class);
 

@@ -7,14 +7,16 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionExtensionCodesTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,11 +37,11 @@ class PromotionExtensionCodesTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {
@@ -61,7 +64,6 @@ class PromotionExtensionCodesTest extends TestCase
      * We do not assert the final price here, only that the code is
      * correctly added
      *
-     * @test
      * @group promotions
      */
     public function testAddLineItemAddsToExtension(): void
@@ -98,7 +100,6 @@ class PromotionExtensionCodesTest extends TestCase
      * line item id and remove it.
      * After that we verify that our code array is empty in our extension.
      *
-     * @test
      * @group promotions
      */
     public function testDeleteLineItemRemovesExtension(): void
@@ -137,7 +138,6 @@ class PromotionExtensionCodesTest extends TestCase
      * that does not have a code but gets removed by the user.
      * In this case the promotion must not be added automatically again and again.
      *
-     * @test
      * @group promotions
      */
     public function testAutoPromotionGetsBlockedWhenDeletingItem(): void
@@ -172,7 +172,6 @@ class PromotionExtensionCodesTest extends TestCase
      * and then add that promotion again. In this case we
      * should have the code again in our extension.
      *
-     * @test
      * @group promotions
      */
     public function testDeleteLineItemAndAddItAgainWorks(): void
@@ -240,10 +239,11 @@ class PromotionExtensionCodesTest extends TestCase
         // add promotion to cart
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $context);
 
-        /** @var CartExtension $extension */
         $extension = $cart->getExtension(CartExtension::KEY);
+        static::assertInstanceOf(CartExtension::class, $extension);
 
-        static::assertNotEmpty($extension->getCodes());
+        $before = $extension->getCodes();
+        static::assertNotEmpty($before);
 
         /** @var string $discountId */
         $discountId = array_keys($cart->getLineItems()->getElements())[1];
@@ -252,7 +252,8 @@ class PromotionExtensionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $context);
 
-        static::assertEmpty($extension->getCodes());
+        $after = $extension->getCodes();
+        static::assertEmpty($after);
     }
 
     public function testRecalculatePromotionsWithSkippedPrivilege(): void
@@ -292,9 +293,11 @@ class PromotionExtensionCodesTest extends TestCase
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
+        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $context->getContext())
             ->get($orderId);
+        static::assertNotNull($order);
 
         $cart = $this->getContainer()->get(OrderConverter::class)
             ->convertToCart($order, $context->getContext());
@@ -320,7 +323,6 @@ class PromotionExtensionCodesTest extends TestCase
      * After that we verify that our code array is empty in our extension (both discounts on the
      * two products are removed).
      *
-     * @test
      * @group promotions
      */
     public function testDeleteLineItemFixedDiscountByCode(): void
@@ -372,7 +374,6 @@ class PromotionExtensionCodesTest extends TestCase
      * again if the product conditions are back.
      * This improves the UX because the user doesn't have to re-enter a code.
      *
-     * @test
      * @group promotions
      */
     public function testAutoAddingOfPreviousCodes(): void
@@ -495,6 +496,9 @@ class PromotionExtensionCodesTest extends TestCase
         static::assertCount(3, $cart->getLineItems());
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function createCustomPercentagePromotion(string $promotionId, string $name, ?string $code, float $percentage, ?float $maxValue, array $data = []): string
     {
         $data = array_merge([

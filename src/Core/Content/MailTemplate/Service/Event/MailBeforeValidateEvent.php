@@ -2,45 +2,37 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
-use Monolog\Logger;
+use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAware, TemplateDataAware, DataAware
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - TemplateDataAware and DataAware are deprecated and will be removed in v6.6.0
+ */
+#[Package('sales-channel')]
+class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'mail.before.send';
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $data;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $templateData;
+    final public const EVENT_NAME = 'mail.before.send';
 
     /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(array $data, Context $context, array $templateData = [])
-    {
-        $this->data = $data;
-        $this->context = $context;
-        $this->templateData = $templateData;
+    public function __construct(
+        private array $data,
+        private readonly Context $context,
+        private array $templateData = []
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -53,6 +45,17 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
     public function getName(): string
     {
         return self::EVENT_NAME;
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return [
+            FlowMailVariables::DATA => $this->data,
+            FlowMailVariables::TEMPLATE_DATA => $this->templateData,
+        ];
     }
 
     /**
@@ -108,9 +111,6 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
         $this->templateData[$key] = $value;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getLogData(): array
     {
         $data = $this->data;
@@ -118,12 +118,16 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
 
         return [
             'data' => $data,
+            'eventName' => $this->templateData['eventName'] ?? null,
             'templateData' => $this->templateData,
         ];
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
+     */
     public function getLogLevel(): int
     {
-        return Logger::INFO;
+        return Level::Info->value;
     }
 }

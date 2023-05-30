@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class EntitySerializerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -60,7 +62,9 @@ class EntitySerializerTest extends TestCase
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        static::assertSame($expectedData, iterator_to_array($return));
+        $return = \is_array($return) ? $return : iterator_to_array($return);
+
+        static::assertSame($expectedData, $return);
     }
 
     public function testEnsureIdFieldsWithInvalidCharacter(): void
@@ -77,7 +81,9 @@ class EntitySerializerTest extends TestCase
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        static::assertSame($expectedData, iterator_to_array($return));
+        $return = \is_array($return) ? $return : iterator_to_array($return);
+
+        static::assertSame($expectedData, $return);
     }
 
     public function testEnsureIdFieldsWithMixedContent(): void
@@ -107,7 +113,9 @@ class EntitySerializerTest extends TestCase
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        static::assertSame($expectedData, iterator_to_array($return));
+        $return = \is_array($return) ? $return : iterator_to_array($return);
+
+        static::assertSame($expectedData, $return);
     }
 
     public function testEntityExtensionSerialization(): void
@@ -186,7 +194,7 @@ class EntitySerializerTest extends TestCase
  */
 class TestExtensionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'test_extension';
+    final public const ENTITY_NAME = 'test_extension';
 
     public function getEntityName(): string
     {

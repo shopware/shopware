@@ -13,6 +13,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ApiAliasTest extends TestCase
@@ -34,7 +35,7 @@ class ApiAliasTest extends TestCase
         $aliases = array_keys($entities);
         $aliases = array_flip($aliases);
 
-        $count = \count($aliases);
+        $count = is_countable($aliases) ? \count($aliases) : 0;
 
         foreach ($classes as $class) {
             $parts = explode('\\', $class);
@@ -76,6 +77,6 @@ class ApiAliasTest extends TestCase
             $aliases[$alias] = true;
         }
 
-        static::assertTrue(\count($aliases) > $count, 'Validated only entities, please check registered classes of class loader');
+        static::assertTrue((is_countable($aliases) ? \count($aliases) : 0) > $count, 'Validated only entities, please check registered classes of class loader');
     }
 }

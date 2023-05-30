@@ -4,32 +4,32 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\DelayAware;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-class SetOrderCustomFieldAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('business-ops')]
+class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
-
-    private EntityRepositoryInterface $orderRepository;
+    private readonly Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $orderRepository
+        private readonly EntityRepository $orderRepository
     ) {
         $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
     }
 
     public static function getName(): string
@@ -38,57 +38,20 @@ class SetOrderCustomFieldAction extends FlowAction
     }
 
     /**
-     *  @deprecated tag:v6.5.0 Will be removed
-     */
-    public static function getSubscribedEvents(): array
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [];
-        }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
-    /**
      * @return array<int, string>
      */
     public function requirements(): array
     {
-        return [OrderAware::class, DelayAware::class];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed, implement handleFlow instead
-     */
-    public function handle(FlowEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof OrderAware) {
-            return;
-        }
-
-        $this->update($baseEvent->getContext(), $event->getConfig(), $baseEvent->getOrderId());
+        return [OrderAware::class];
     }
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**

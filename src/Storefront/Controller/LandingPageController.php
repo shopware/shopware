@@ -2,10 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,31 +11,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('content')]
 class LandingPageController extends StorefrontController
 {
     /**
-     * @var LandingPageLoader
-     */
-    private $landingPageLoader;
-
-    /**
      * @internal
      */
-    public function __construct(
-        LandingPageLoader $landingPageLoader
-    ) {
-        $this->landingPageLoader = $landingPageLoader;
+    public function __construct(private readonly LandingPageLoader $landingPageLoader)
+    {
     }
 
-    /**
-     * @Since("6.4.0.0")
-     * @HttpCache()
-     * @Route("/landingPage/{landingPageId}", name="frontend.landing.page", methods={"GET"})
-     */
+    #[Route(path: '/landingPage/{landingPageId}', name: 'frontend.landing.page', defaults: ['_httpCache' => true], methods: ['GET'])]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->landingPageLoader->load($request, $context);

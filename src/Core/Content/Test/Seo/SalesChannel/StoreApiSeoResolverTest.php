@@ -51,7 +51,7 @@ class StoreApiSeoResolverTest extends TestCase
         $content = $this->browser->getResponse()->getContent();
         static::assertIsString($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNull($response['seoUrls']);
         static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
@@ -72,9 +72,8 @@ class StoreApiSeoResolverTest extends TestCase
         $content = $this->browser->getResponse()->getContent();
         static::assertIsString($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
         static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
@@ -97,9 +96,8 @@ class StoreApiSeoResolverTest extends TestCase
         $content = $this->browser->getResponse()->getContent();
         static::assertIsString($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
         static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);

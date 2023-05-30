@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+#[Package('core')]
 class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -19,13 +22,21 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
         }
 
         foreach ($bundlesMetadata as $name => $bundle) {
-            $directory = $bundle['path'] . '/Resources/views';
-            if (!file_exists($directory)) {
-                continue;
+            $viewDirectory = $bundle['path'] . '/Resources/views';
+            $resourcesDirectory = $bundle['path'] . '/Resources';
+
+            if (file_exists($viewDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory]);
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory, $name]);
             }
 
-            $fileSystemLoader->addMethodCall('addPath', [$directory]);
-            $fileSystemLoader->addMethodCall('addPath', [$directory, $name]);
+            if (file_exists($viewDirectory . '/../app/storefront/dist')) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory . '/../app/storefront/dist', $name]);
+            }
+
+            if (file_exists($resourcesDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$resourcesDirectory, $name]);
+            }
         }
 
         // App templates are only loaded in dev env from files
@@ -40,8 +51,8 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
         $connection = $container->get(Connection::class);
 
         try {
-            $apps = $connection->fetchAll('SELECT `name`, `path` FROM `app` WHERE `active` = 1');
-        } catch (\Doctrine\DBAL\DBALException $e) {
+            $apps = $connection->fetchAllAssociative('SELECT `name`, `path` FROM `app` WHERE `active` = 1');
+        } catch (Exception) {
             // If DB is not yet set up correctly we don't need to add app paths
             return;
         }
@@ -52,14 +63,22 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
         }
 
         foreach ($apps as $app) {
-            $directory = sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
+            \assert(\is_string($app['path']));
+            $viewDirectory = sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
+            $resourcesDirectory = sprintf('%s/%s/Resources', $projectDir, $app['path']);
 
-            if (!file_exists($directory)) {
-                continue;
+            if (file_exists($viewDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory]);
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory, $app['name']]);
             }
 
-            $fileSystemLoader->addMethodCall('addPath', [$directory]);
-            $fileSystemLoader->addMethodCall('addPath', [$directory, $app['name']]);
+            if (file_exists($viewDirectory . '/../app/storefront/dist')) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory . '/../app/storefront/dist', $app['name']]);
+            }
+
+            if (file_exists($resourcesDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$resourcesDirectory, $app['name']]);
+            }
         }
     }
 }

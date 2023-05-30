@@ -2,55 +2,36 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
+use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('sales-channel')]
 class ProductExporter implements ProductExporterInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productExportRepository;
-
-    /**
-     * @var ProductExportGeneratorInterface
-     */
-    private $productExportGenerator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $productExportRepository,
-        ProductExportGeneratorInterface $productExportGenerator,
-        EventDispatcherInterface $eventDispatcher,
-        ProductExportFileHandlerInterface $productExportFileHandler
+        private readonly EntityRepository $productExportRepository,
+        private readonly ProductExportGeneratorInterface $productExportGenerator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler
     ) {
-        $this->productExportRepository = $productExportRepository;
-        $this->productExportGenerator = $productExportGenerator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productExportFileHandler = $productExportFileHandler;
     }
 
     public function export(
@@ -82,6 +63,7 @@ class ProductExporter implements ProductExporterInterface
             $criteria->addFilter(new EqualsFilter('salesChannel.active', true));
         }
 
+        /** @var ProductExportCollection $productExports */
         $productExports = $this->productExportRepository->search($criteria, $context->getContext());
 
         if ($productExports->count() === 0) {
@@ -91,7 +73,6 @@ class ProductExporter implements ProductExporterInterface
             throw $exportNotFoundException;
         }
 
-        /** @var ProductExportEntity $productExport */
         foreach ($productExports as $productExport) {
             $this->createFile($productExport, $context, $behavior);
         }
@@ -112,6 +93,12 @@ class ProductExporter implements ProductExporterInterface
             return;
         }
         $result = $this->productExportGenerator->generate($productExport, $exportBehavior);
+        if (!$result instanceof ProductExportResult) {
+            $exportNotGeneratedException = new ExportNotGeneratedException();
+            $this->logException($context->getContext(), $exportNotGeneratedException);
+
+            throw $exportNotGeneratedException;
+        }
 
         if ($result->hasErrors()) {
             $exportInvalidException = new ExportInvalidException($productExport, $result->getErrors());
@@ -120,12 +107,12 @@ class ProductExporter implements ProductExporterInterface
             throw $exportInvalidException;
         }
 
-        $writeProductExportSuccesful = $this->productExportFileHandler->writeProductExportContent(
+        $writeProductExportSuccessful = $this->productExportFileHandler->writeProductExportContent(
             $result->getContent(),
             $filePath
         );
 
-        if (!$writeProductExportSuccesful) {
+        if (!$writeProductExportSuccessful) {
             return;
         }
 
@@ -145,7 +132,7 @@ class ProductExporter implements ProductExporterInterface
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            Logger::WARNING,
+            Level::Warning,
             $exception
         );
 

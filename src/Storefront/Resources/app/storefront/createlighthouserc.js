@@ -1,3 +1,7 @@
+/**
+ * @package storefront
+ */
+
 /* eslint-disable no-console */
 const fs = require('fs');
 const puppeteer = require('puppeteer');
@@ -38,10 +42,11 @@ async function getDetail(browser) {
     await page.setViewport({ width: 1920, height: 1080 });
 
     await page.goto(`${APP_URL}`);
-    const detailButton = await page.$('.product-action a.btn');
-    await detailButton.click();
 
-    await page.waitForNavigation();
+    const detailHref = await page.$eval('.product-action a.btn', el => el.href)
+
+    await page.goto(detailHref);
+
     await page.waitForSelector('meta[itemprop="productID"]');
     await page.$('.buy-widget-container .btn-buy');
 
@@ -135,6 +140,7 @@ async function main () {
             ci: {
                 collect: {
                     url: Object.values(testCases),
+                    numberOfRuns: 4,
                     settings: {
                         port: LH_PORT,
                         chromeFlags: '--no-sandbox',
@@ -169,6 +175,7 @@ async function main () {
             ci: {
                 collect: {
                     url: Object.values(testCasesMobile),
+                    numberOfRuns: 4,
                     settings: {
                         port: LH_PORT,
                         chromeFlags: '--no-sandbox',
@@ -203,6 +210,7 @@ async function main () {
             ci: {
                 collect: {
                     url: Object.values(testCasesLoggedIn),
+                    numberOfRuns: 4,
                     puppeteerScript: './lighthouse-puppeteer.js',
                     puppeteerLaunchOptions: {args: ['--allow-no-sandbox-job', '--allow-sandbox-debugging', '--no-sandbox', '--disable-gpu', '--disable-gpu-sandbox', '--display']},
                     settings: {
@@ -239,6 +247,7 @@ async function main () {
             ci: {
                 collect: {
                     url: Object.values(testCasesLoggedInMobile),
+                    numberOfRuns: 4,
                     puppeteerScript: './lighthouse-puppeteer.js',
                     puppeteerLaunchOptions: {args: ['--allow-no-sandbox-job', '--allow-sandbox-debugging', '--no-sandbox', '--disable-gpu', '--disable-gpu-sandbox', '--display']},
                     settings: {

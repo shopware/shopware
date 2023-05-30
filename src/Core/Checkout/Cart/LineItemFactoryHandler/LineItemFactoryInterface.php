@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -10,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Even if the Cart\LineItem is kept abstract, some LineItems need additional data to be created.
  * Since this is knowledge from the LineItem's processor, it should not be necessary to know this knowledge as a user of the cart.
  */
+#[Package('checkout')]
 interface LineItemFactoryInterface
 {
     public function supports(string $type): bool;

@@ -22,7 +22,7 @@ class RedisReverseProxyGatewayTest extends TestCase
 
     private MockHandler $mockHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,9 +47,19 @@ class RedisReverseProxyGatewayTest extends TestCase
 
     public function testTagging(): void
     {
-        $this->redis->expects(static::exactly(2))->method('lPush')->withConsecutive(['product-1', '/foo'], ['product-2', '/foo']);
+        $parameters = [];
+
+        $this
+            ->redis
+            ->expects(static::exactly(2))
+            ->method('lPush')
+            ->willReturnCallback(function ($key, $value) use (&$parameters): void {
+                $parameters[] = $key;
+            });
 
         $this->gateway->tag(['product-1', 'product-2'], '/foo', new SymfonyResponse());
+
+        static::assertSame(['product-1', 'product-2'], $parameters);
     }
 
     public function testInvalidate(): void

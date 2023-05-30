@@ -6,11 +6,13 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
  * @internal
  */
+#[Package('core')]
 abstract class AbstractAppLoader
 {
     abstract public function getDecorated(): AbstractAppLoader;
@@ -19,8 +21,6 @@ abstract class AbstractAppLoader
      * @return Manifest[]
      */
     abstract public function load(): array;
-
-    abstract public function getIcon(Manifest $app): ?string;
 
     /**
      * @return array<mixed>|null
@@ -37,10 +37,10 @@ abstract class AbstractAppLoader
 
     abstract public function getFlowActions(AppEntity $app): ?FlowAction;
 
-    abstract public function getFlowActionIcon(?string $iconName, FlowAction $flowAction): ?string;
-
     /**
      * @return array<string, string>
      */
     abstract public function getSnippets(AppEntity $app): array;
+
+    abstract public function loadFile(string $rootPath, string $filePath): ?string;
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<StorePluginStruct>
  */
+#[Package('merchant-services')]
 final class PluginRecommendationCollection extends Collection
 {
     public function __construct(iterable $elements = [])
@@ -21,11 +23,6 @@ final class PluginRecommendationCollection extends Collection
             $this->validateType($element);
             $this->elements[] = $element;
         }
-    }
-
-    public function getExpectedClass(): string
-    {
-        return StorePluginStruct::class;
     }
 
     public function add($element): void
@@ -46,5 +43,10 @@ final class PluginRecommendationCollection extends Collection
     public function getApiAlias(): string
     {
         return 'store_plugin_recommendation_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return StorePluginStruct::class;
     }
 }

@@ -11,10 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('sales-channel')]
 class MailTemplateTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'mail_template_translation';
+    final public const ENTITY_NAME = 'mail_template_translation';
 
     public function getEntityName(): string
     {

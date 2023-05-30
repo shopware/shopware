@@ -4,11 +4,12 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('business-ops')]
 class MailStorer extends FlowStorer
 {
     /**
@@ -32,7 +33,7 @@ class MailStorer extends FlowStorer
                 ];
 
                 $stored[MailAware::MAIL_STRUCT] = $data;
-            } catch (MailEventConfigurationException $e) {
+            } catch (MailEventConfigurationException) {
             }
         }
 
@@ -40,7 +41,7 @@ class MailStorer extends FlowStorer
             return $stored;
         }
 
-        $stored[MailAware::SALES_CHANNEL_ID] = $event->getSalesChannelId() ?? Defaults::SALES_CHANNEL;
+        $stored[MailAware::SALES_CHANNEL_ID] = $event->getSalesChannelId();
 
         return $stored;
     }
@@ -50,6 +51,8 @@ class MailStorer extends FlowStorer
         if (!$storable->hasStore(MailAware::MAIL_STRUCT)) {
             return;
         }
+
+        $storable->setData(MailAware::SALES_CHANNEL_ID, $storable->getStore(MailAware::SALES_CHANNEL_ID));
 
         $mailStructData = $storable->getStore(MailAware::MAIL_STRUCT);
 

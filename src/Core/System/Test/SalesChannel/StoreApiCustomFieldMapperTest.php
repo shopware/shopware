@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
  *
  * @covers \Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper
  */
+#[Package('sales-channel')]
 class StoreApiCustomFieldMapperTest extends TestCase
 {
     public function testMapping(): void

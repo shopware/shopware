@@ -28,11 +28,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_boolean %}
-    <sw-field
+    <sw-checkbox-field
         v-else-if="column.inlineEdit === 'boolean'"
         key="boolean"
         v-model="currentValue"
-        type="checkbox"
     />
     {% endblock %}
 

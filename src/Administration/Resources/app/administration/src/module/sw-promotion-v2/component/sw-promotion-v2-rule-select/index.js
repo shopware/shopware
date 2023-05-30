@@ -1,10 +1,11 @@
 import template from './sw-promotion-v2-rule-select.html.twig';
 import './sw-promotion-v2-rule-select.scss';
 
-const { Component } = Shopware;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-promotion-v2-rule-select', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -83,25 +84,15 @@ Component.register('sw-promotion-v2-rule-select', {
             });
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         tooltipConfig(rule) {
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return { message: '', disabled: true };
-            }
-
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
                 rule.conditions,
                 this.ruleAwareGroupKey,
             );
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted(rule) {
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return false;
-            }
-
             return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
         },
     },
-});
+};

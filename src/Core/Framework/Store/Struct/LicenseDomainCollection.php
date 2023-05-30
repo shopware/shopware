@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -9,13 +10,9 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<LicenseDomainStruct>
  */
+#[Package('merchant-services')]
 class LicenseDomainCollection extends Collection
 {
-    public function getExpectedClass(): ?string
-    {
-        return LicenseDomainStruct::class;
-    }
-
     public function add($element): void
     {
         $this->validateType($element);
@@ -31,5 +28,10 @@ class LicenseDomainCollection extends Collection
     public function getApiAlias(): string
     {
         return 'store_license_domain_collection';
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return LicenseDomainStruct::class;
     }
 }

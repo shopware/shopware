@@ -3,25 +3,22 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * @internal
+ *
  * @phpstan-import-type Api from DefinitionService
  */
+#[Package('core')]
 class BundleSchemaPathCollection
 {
     /**
-     * @var iterable<Bundle>
+     * @param iterable<Bundle> $bundles
      */
-    private iterable $bundles;
-
-    /**
-     * @param iterable<Bundle> $plugins
-     */
-    public function __construct(iterable $plugins)
+    public function __construct(private readonly iterable $bundles)
     {
-        $this->bundles = $plugins;
     }
 
     /**

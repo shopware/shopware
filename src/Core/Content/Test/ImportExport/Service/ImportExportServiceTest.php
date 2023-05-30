@@ -11,10 +11,11 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,11 +23,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class ImportExportServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private ImportExportService $importExportService;
 
@@ -42,7 +44,7 @@ class ImportExportServiceTest extends TestCase
         );
     }
 
-    public function mimeTypeProvider(): array
+    public static function mimeTypeProvider(): array
     {
         return [
             [
@@ -132,6 +134,7 @@ class ImportExportServiceTest extends TestCase
 
         $path = tempnam(sys_get_temp_dir(), '');
 
+        static::assertIsString($path);
         copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $name = 'test';
@@ -176,6 +179,8 @@ class ImportExportServiceTest extends TestCase
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
         $path = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($path);
+
         copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
@@ -225,6 +230,7 @@ class ImportExportServiceTest extends TestCase
     {
         $this->profileRepository->create([$profile], Context::createDefaultContext());
         $path = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($path);
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
 
         if ($shouldThrowException) {
@@ -238,7 +244,7 @@ class ImportExportServiceTest extends TestCase
         }
     }
 
-    public function profileProvider(): array
+    public static function profileProvider(): array
     {
         return [
             [

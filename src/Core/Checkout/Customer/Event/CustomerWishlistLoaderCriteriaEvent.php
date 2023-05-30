@@ -6,26 +6,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('customer-order')]
 class CustomerWishlistLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';
+    final public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';
 
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
-    public function __construct(Criteria $criteria, SalesChannelContext $context)
-    {
-        $this->criteria = $criteria;
-        $this->context = $context;
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     public function getName(): string

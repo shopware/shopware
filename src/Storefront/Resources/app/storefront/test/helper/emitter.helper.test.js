@@ -1,6 +1,9 @@
 /* eslint-disable */
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
+/**
+ * @package storefront
+ */
 describe('NativeEventEmitter tests', () => {
     test('global event emitter', () => {
         const emitter = new NativeEventEmitter();

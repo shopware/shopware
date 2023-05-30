@@ -1,13 +1,14 @@
 {
     "require-dev": {
-        "kubawerlos/php-cs-fixer-custom-fixers": "~v3.10.1",
-        "symplify/easy-coding-standard": "~10.2.3",
-        "friendsofphp/php-cs-fixer": "~v3.8.0"
+        "kubawerlos/php-cs-fixer-custom-fixers": "~v3.11.3",
+        "symplify/easy-coding-standard": "~10.3.3",
+        "friendsofphp/php-cs-fixer": "~v3.14.3"
     },
+    "sort-packages": true,
     "config": {
-        "platform": {
-            "php": "7.4.3"
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true,
+            "phpstan/extension-installer": true
         }
-    },
-    "sort-packages": true
+    }
 }

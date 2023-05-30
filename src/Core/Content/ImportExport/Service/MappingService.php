@@ -14,7 +14,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -22,28 +22,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('system-settings')]
 class MappingService extends AbstractMappingService
 {
-    private AbstractFileService $fileService;
-
-    private EntityRepositoryInterface $profileRepository;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractFileService $fileService,
-        EntityRepositoryInterface $profileRepository,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly AbstractFileService $fileService,
+        private readonly EntityRepository $profileRepository,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
-        $this->fileService = $fileService;
-        $this->profileRepository = $profileRepository;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
     public function getDecorated(): AbstractMappingService

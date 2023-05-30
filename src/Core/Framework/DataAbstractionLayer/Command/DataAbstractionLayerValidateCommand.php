@@ -4,27 +4,26 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'dal:validate',
+    description: 'Validates the DAL definitions',
+)]
+#[Package('core')]
 class DataAbstractionLayerValidateCommand extends Command
 {
-    protected static $defaultName = 'dal:validate';
-
-    /**
-     * @var DefinitionValidator
-     */
-    private $validator;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionValidator $validator)
+    public function __construct(private readonly DefinitionValidator $validator)
     {
         parent::__construct();
-        $this->validator = $validator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,7 +49,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
         $count = 0;
         foreach ($notices as $definition => $matches) {
-            $count += \count($matches);
+            $count += is_countable($matches) ? \count($matches) : 0;
             $io->section($definition);
             $io->listing($matches);
             $io->newLine();
@@ -59,7 +58,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if ($count <= 0) {
             $io->success('No notices found');
         } else {
-            $io->note(sprintf('Found %s notices in %s entities', $count, \count($notices)));
+            $io->note(sprintf('Found %d notices in %d entities', $count, \count($notices)));
         }
 
         return $count;
@@ -71,7 +70,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
         $count = 0;
         foreach ($violations as $definition => $matches) {
-            $count += \count($matches);
+            $count += is_countable($matches) ? \count($matches) : 0;
             $io->section($definition);
             $io->listing($matches);
             $io->newLine();
@@ -80,7 +79,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if ($count <= 0) {
             $io->success('No errors found');
         } else {
-            $io->error(sprintf('Found %s errors in %s entities', $count, \count($violations)));
+            $io->error(sprintf('Found %d errors in %d entities', $count, \count($violations)));
         }
 
         return $count;

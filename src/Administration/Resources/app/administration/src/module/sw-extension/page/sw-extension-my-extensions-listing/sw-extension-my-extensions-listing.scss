@@ -24,6 +24,11 @@
                 margin: 0 auto 24px;
             }
         }
+
+        .sw-extension-my-extensions-listing__app-url-warning {
+            max-width: 960px;
+            margin-bottom: 32px;
+        }
     }
 
     &-empty-state {
@@ -43,6 +48,11 @@
         background-color: transparent;
         border: none;
         margin: 42px auto 0;
-        max-width: 996px;
+        max-width: 960px;
+        padding: 0;
+
+        .sw-pagination__per-page {
+            margin-right: 0;
+        }
     }
 }

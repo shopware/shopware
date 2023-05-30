@@ -30,9 +30,16 @@
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ "checkout.confirmTermsReminder"|trans({
+    {{ "checkout.confirmTermsReminderText"|trans({
         '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
     })|raw }}
+{% endblock %}
+
+{% block page_checkout_confirm_revocation_control %}
+    {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+    {% if page.order.lineItems.hasLineItemWithState(DOWNLOAD_STATE) %}
+        <br>{{ "checkout.confirmRevocationReminder"|trans() }}
+    {% endif %}
 {% endblock %}
 
 {% block page_checkout_confirm_address %}
@@ -48,36 +55,29 @@
 {% endblock %}
 
 {% block page_checkout_confirm_shipping %}
-    <div class="col-sm-6 confirm-shipping">
-        {% sw_include '@Storefront/storefront/page/account/order/confirm-shipping.html.twig' %}
-    </div>
+    {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+    {% if page.order.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+        <div class="col-sm-6 confirm-shipping">
+            {% sw_include '@Storefront/storefront/page/account/order/confirm-shipping.html.twig' %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block page_checkout_confirm_table_header %}
-    {# @deprecated tag:v6.5.0 - Template `line-item-header.html.twig` is deprecated. Use `storefront/component/checkout/cart-header.html.twig` instead. #}
-    {% if feature('v6.5.0.0') %}
-        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-            showTaxPrice: true,
-            showRemoveColumn: false
-        } %}
-    {% else %}
-        {% sw_include '@Storefront/storefront/page/account/order/line-item-header.html.twig' %}
-    {% endif %}
+    {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+        showTaxPrice: true,
+        showRemoveColumn: false
+    } %}
 {% endblock %}
 
 {% block page_checkout_confirm_table_items %}
     {% for lineItem in page.order.nestedLineItems %}
         {% block page_checkout_confirm_table_item %}
-            {# @deprecated tag:v6.5.0 - Template `storefront/page/account/order/line-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
-            {% if feature('v6.5.0.0') %}
-                {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                    redirectTo: 'frontend.checkout.confirm.page',
-                    showTaxPrice: true,
-                    showRemoveButton: false
-                } %}
-            {% else %}
-                {% sw_include '@Storefront/storefront/page/account/order/line-item.html.twig' %}
-            {% endif %}
+            {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                redirectTo: 'frontend.checkout.confirm.page',
+                showTaxPrice: true,
+                showRemoveButton: false
+            } %}
         {% endblock %}
     {% endfor %}
 {% endblock %}
@@ -86,15 +86,9 @@
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
-              data-form-csrf-handler="true"
               data-form-submit-loader="true"
               data-form-preserver="true"
               method="post">
-
-            {% block page_checkout_aside_actions_csrf %}
-                {{ sw_csrf('frontend.account.edit-order.update-order') }}
-            {% endblock %}
-
             {% block page_checkout_aside_actions_payment_method_id %}
                 <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
             {% endblock %}
@@ -123,8 +117,8 @@
             {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
-                        {{ dataBsToggleAttr }}="modal"
-                        {{ dataBsTargetAttr }}="#cancelOrderModal">
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelOrderModal">
                     {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
                 </button>
             {% endif %}

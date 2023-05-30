@@ -1,6 +1,114 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.18.1
+## Twig filter whitelist for `map`, `filter`, `reduce` and `sort` 
+
+The whitelist can be extended using a yaml configuration:
+
+```yaml
+shopware:
+    twig:
+        allowed_php_functions: [ "is_bool" ]
+```
+
+# 6.4.18.0
+## Define country address formatting structure
+From the next major v6.5.0.0, address of a country are no longer fixed, but you can modify it by drag-drop address elements in admin Settings > Countries > detail page > Address tab
+The address elements are stored as a structured json in `country_translation.address_format`, the default structure can be found in `\Shopware\Core\System\Country\CountryDefinition::DEFAULT_ADDRESS_FORMAT`
+## Extension can add custom element to use in address formatting structure
+* Plugins can define their own custom snippets by placed twig files in `<pluginRoot>/src/Resources/views/snippets`, you can refer to the default Core address snippets in `src/Core/Framework/Resources/views/snippets/address`
+* Use the respective mutations instead
+## Deprecated manifest-1.0.xsd
+
+With the upcoming major release we are going to release a new XML-schema for Shopware Apps. In the new schema we remove two deprecations from the existing schema.
+
+1. attribute `parent` for element `module` will be required.
+
+   Please make sure that every of your admin modules has this attribute set like described in [our documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-modules)
+2. attribute `openNewTab` for element `action-button` will be removed.
+
+    Make sure to remove the attribute `openNewTab` from your `action-button` elements in your `manifest.xml` and use ActionButtonResponses as described in our [documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-action-button) instead.
+3. Deprecation of `manifest-1.0.xsd`
+
+    Update the `xsi:noNamespaceSchemaLocation` attribute of your `manifest` root element. to `https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd`
+### MessageQueue Deprecations
+
+For v6.5.0.0 we will remove our wrapper around the symfony messenger component and remove the enqueue integration as well. Therefore, we deprecated several classes for the retry and encryption handling, without replacement, as we  will use the symfony standards for that.
+
+Additionally, we deprecated the `Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler`, you should directly implement the `\Symfony\Component\Messenger\Handler\MessageSubscriberInterface` instead.
+
+Before:
+```php
+class MyMessageHandler extends AbstractMessageHandler
+{
+    public static function getHandledMessages(): iterable
+    {
+        return [MyMessage::class];
+    }
+
+    public function handle(MyMessage $message): void
+    {
+        // do something
+    }
+}
+```
+
+After:
+```php
+class MyMessageHandler implements MessageSubscriberInterface
+{
+    public static function getHandledMessages(): iterable
+    {
+        return [MyMessage::class];
+    }
+
+    public function __invoke(MyMessage $message): void
+    {
+        // do something
+    }
+}
+```
+
+# 6.4.17.0
+* Themes' snippets are now only applied to Storefront sales channels when they or their child themes are assigned to that sales channel
+## Disabling caching of store-api-routes
+The Cache for Store-API-Routes can now be disabled by implementing the `Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent` and calling `disableCache()` method on the event.
+## Limit remote URL file upload max file size
+By default, there is no limit on how large a file is allowed to be when using the URL upload feature. The new parameter
+`shopware.media.url_upload_max_size` can be used to limit the maximum file size. The values can be written in bytes or 
+in a human-readable format like: 1mb, 512kb, 2gb. The default is 0 (unlimited).
+
+# 6.4.16.0
+## Added possibility to extend snippets in the Administration via App. 
+* Snippets can be imported via AdminExtensionSDK
+* Snippets will be validated to not override existing snippets
+* Snippets will be sanitized to avoid script injection
+
+# 6.4.15.2
+## Changed icon.html.twig
+
+We changed the base pathes to the icons in the template `Storefront/Resources/views/storefront/utilities/icon.html.twig`
+If you have overwritten the block `utilities_icon` please change it as follows:
+
+Before:
+```twig
+...
+{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/../' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+...
+{% set icon = source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+...
+```
+
+After:
+```twig
+...
+{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+...
+{% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+...
+```
+
 # 6.4.15.0
 ## Demodata generator registration in DI
 

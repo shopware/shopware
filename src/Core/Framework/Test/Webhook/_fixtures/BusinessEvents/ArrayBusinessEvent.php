@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -14,12 +14,12 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
-class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
+class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
     /**
      * @var TaxEntity[]
      */
-    private $taxes;
+    private readonly array $taxes;
 
     public function __construct(TaxCollection $taxes)
     {
@@ -32,6 +32,9 @@ class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoder
             ->add('taxes', new ArrayType(new EntityType(TaxDefinition::class)));
     }
 
+    /**
+     * @return array<string, array<mixed>>
+     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         $taxes = [];
@@ -42,18 +45,13 @@ class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoder
                 '_uniqueIdentifier' => $tax->getId(),
                 'versionId' => null,
                 'name' => $tax->getName(),
-                'taxRate' => (int) $tax->getTaxRate(),
+                'taxRate' => $tax->getTaxRate(),
                 'position' => $tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED),
+                'createdAt' => $tax->getCreatedAt() ? $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [
-                    'foreignKeys' => [
-                        'extensions' => [],
-                        'apiAlias' => null,
-                    ],
-                ],
+                'extensions' => [],
                 'apiAlias' => 'tax',
             ];
         }
@@ -73,6 +71,9 @@ class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoder
         return Context::createDefaultContext();
     }
 
+    /**
+     * @return TaxEntity[]
+     */
     public function getTaxes(): array
     {
         return $this->taxes;

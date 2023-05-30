@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Profiler\DataCollector;
@@ -34,9 +34,6 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         static::assertFalse($container->hasDefinition(DataCollector::class));
     }
 
-    /**
-     * @backupGlobals
-     */
     public function testCompilerPassDecoratesClient(): void
     {
         $container = new ContainerBuilder();
@@ -49,15 +46,20 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         $def->setPublic(true);
         $container->setDefinition(Client::class, $def);
 
+        $def = new Definition(Client::class);
+        $def->setPublic(true);
+        $container->setDefinition('admin.openSearch.client', $def);
+
         $container->setParameter('kernel.debug', true);
 
-        $_SERVER['SHOPWARE_ES_ENABLED'] = '1';
         $compilerPass = new ElasticsearchProfileCompilerPass();
         $compilerPass->process($container);
 
         $container->compile();
 
         static::assertTrue($container->hasDefinition(Client::class));
+        static::assertTrue($container->hasDefinition('admin.openSearch.client'));
         static::assertSame(ClientProfiler::class, $container->getDefinition(Client::class)->getClass());
+        static::assertSame(ClientProfiler::class, $container->getDefinition('admin.openSearch.client')->getClass());
     }
 }

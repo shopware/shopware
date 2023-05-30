@@ -13,6 +13,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1635230747UpdateProductExportTemplate
  */
 class Migration1635230747UpdateProductExportTemplateTest extends TestCase
@@ -21,7 +22,7 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
     }
@@ -49,7 +50,7 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
     /**
      * @return array{old_template: string, expectedTemplate: string}[][]
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         /** @var array<string, string> $templates */
         $templates = require __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/templates.php';

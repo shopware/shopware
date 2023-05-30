@@ -4,16 +4,16 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -27,38 +27,21 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $config;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $reviewRepository,
-        DataValidator $validator,
-        SystemConfigService $config
+        private readonly EntityRepository $repository,
+        private readonly DataValidator $validator,
+        private readonly SystemConfigService $config,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->repository = $reviewRepository;
-        $this->validator = $validator;
-        $this->config = $config;
     }
 
     public function getDecorated(): AbstractProductReviewSaveRoute
@@ -66,10 +49,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}/review", name="store-api.product-review.save", methods={"POST"}, defaults={"_loginRequired"=true})
-     */
+    #[Route(path: '/store-api/product/{productId}/review', name: 'store-api.product-review.save', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
         $this->checkReviewsActive($context);
@@ -84,6 +64,10 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
         if (!$data->has('name')) {
             $data->set('name', $customer->getFirstName());
+        }
+
+        if (!$data->has('lastName')) {
+            $data->set('lastName', $customer->getLastName());
         }
 
         if (!$data->has('email')) {
@@ -112,6 +96,22 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         }
 
         $this->repository->upsert([$review], $context->getContext());
+
+        $mail = $this->config->get('core.basicInformation.email', $context->getSalesChannel()->getId());
+        $mail = \is_string($mail) ? $mail : '';
+        $event = new ReviewFormEvent(
+            $context->getContext(),
+            $context->getSalesChannel()->getId(),
+            new MailRecipientStruct([$mail => $mail]),
+            $data,
+            $productId,
+            $customerId
+        );
+
+        $this->eventDispatcher->dispatch(
+            $event,
+            ReviewFormEvent::EVENT_NAME
+        );
 
         return new NoContentResponse();
     }

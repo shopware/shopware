@@ -4,112 +4,35 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @internal
+ * @final
  */
-class StorableFlow
+#[Package('business-ops')]
+class StorableFlow extends Struct
 {
-    protected ?FlowState $state = null;
+    private ?FlowState $state = null;
 
     /**
      * @var array<string, mixed>
      */
-    protected array $config = [];
-
-    protected string $name;
-
-    protected Context $context;
+    private array $config = [];
 
     /**
-     * @var array<string, mixed>
-     */
-    protected array $store = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $data = [];
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    private ?FlowEventAware $originalEvent = null;
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    private ?FlowEvent $flowEvent = null;
-
-    /**
+     * @internal
+     *
      * @param array<string, mixed> $store
-     * @param array<string, mixed> $data
+     * @param array<string, mixed|callable(StorableFlow): mixed> $data
      */
     public function __construct(
-        string $name,
-        Context $context,
-        array $store = [],
-        array $data = []
+        protected string $name,
+        protected Context $context,
+        protected array $store = [],
+        protected array $data = []
     ) {
-        $this->name = $name;
-        $this->context = $context;
-        $this->data = $data;
-        $this->store = $store;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function setOriginalEvent(FlowEventAware $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->originalEvent = $event;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function getOriginalEvent(): ?FlowEventAware
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->originalEvent;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function setFlowEvent(FlowEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->flowEvent = $event;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function getFlowEvent(): ?FlowEvent
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->flowEvent;
     }
 
     public function getName(): string
@@ -122,10 +45,7 @@ class StorableFlow
         return $this->context;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setStore(string $key, $value): void
+    public function setStore(string $key, mixed $value): void
     {
         $this->store[$key] = $value;
     }
@@ -136,11 +56,9 @@ class StorableFlow
     }
 
     /**
-     * @param mixed $default
-     *
      * @return mixed
      */
-    public function getStore(string $key, $default = null)
+    public function getStore(string $key, mixed $default = null)
     {
         return $this->store[$key] ?? $default;
     }
@@ -153,10 +71,7 @@ class StorableFlow
         return $this->store;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setData(string $key, $value): void
+    public function setData(string $key, mixed $value): void
     {
         $this->data[$key] = $value;
     }
@@ -167,15 +82,14 @@ class StorableFlow
     }
 
     /**
-     * @param mixed $default
-     *
      * @return mixed
      */
-    public function getData(string $key, $default = null)
+    public function getData(string $key, mixed $default = null)
     {
         $value = $this->data[$key] ?? $default;
 
         if (\is_callable($value)) {
+            /** @var callable(StorableFlow): mixed $value */
             $this->data[$key] = $value($this);
         }
 
@@ -195,11 +109,26 @@ class StorableFlow
     }
 
     /**
-     * @param array<int, mixed> $args
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $args will be removed in v6.6.0.0
+     *
+     * @param callable(StorableFlow): mixed $closure
      */
-    public function lazy(string $key, callable $closure, array $args): void
+    public function lazy(string $key, callable $closure/*, array $args = []*/): void
     {
-        $this->data[$key] = $closure($args);
+        if (\func_num_args() === 3) {
+            $args = func_get_arg(2);
+
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                sprintf('Parameter $args in %s::%s will be removed in v6.6.0.0', __CLASS__, __METHOD__)
+            );
+
+            $this->data[$key] = $closure($args);
+
+            return;
+        }
+
+        $this->data[$key] = $closure;
     }
 
     /**

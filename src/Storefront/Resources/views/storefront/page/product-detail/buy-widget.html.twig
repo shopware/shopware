@@ -53,15 +53,9 @@
 
             {% block page_product_detail_rich_snippets_release_date %}
                 <meta itemprop="releaseDate"
-                      content="{{ page.product.releaseDate|format_date(pattern="Y-MM-dd", locale=app.request.locale) }}"/>
+                      content="{{ page.product.releaseDate|format_date(pattern='Y-MM-dd') }}"/>
             {% endblock %}
         {% endblock %}
-
-        {% if not feature('FEATURE_NEXT_16992') %}
-            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
-            {% block page_product_detail_not_available %}
-            {% endblock %}
-        {% endif %}
 
         {% block page_product_detail_buy_container %}
             <div itemprop="offers"
@@ -117,7 +111,7 @@
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       {{ dataBsToggleAttr }}="modal"
+                                       data-ajax-modal="true"
                                        data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
@@ -139,13 +133,20 @@
                                     points: page.product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a {{ dataBsToggleAttr }}="tab"
-                                   class="product-detail-reviews-link"
-                                   data-offcanvas-tabs="true"
-                                   data-remote-click="true"
-                                   data-remote-click-options='{{ remoteClickOptions|json_encode }}'
-                                   href="#review-tab-pane"
-                                   aria-controls="review-tab-pane">
+                                <a
+                                    data-bs-toggle="tab"
+                                    class="product-detail-reviews-link"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-tabs="true"
+                                    {% else %}
+                                        data-offcanvas-tabs="true"
+                                    {% endif %}
+                                    data-remote-click="true"
+                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    href="#review-tab-pane"
+                                    aria-controls="review-tab-pane"
+                                >
                                     {{ page.reviews.totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.totalReviews})|sw_sanitize }}
                                 </a>

@@ -14,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull
  */
 class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest extends TestCase
@@ -22,7 +23,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
     }
@@ -49,7 +50,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
             static::assertEquals($systemConfigKey, $result['configuration_key']);
             static::assertEquals(
                 $this->getDefaultCmsPageIdFromType($cmsPageType),
-                (\json_decode($result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR))['_value']
+                (\json_decode((string) $result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR))['_value']
             );
         }
     }
@@ -80,7 +81,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
         static::assertNotFalse($result, 'A SQL select error occurred');
 
         static::assertEquals(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $result['configuration_key']);
-        static::assertNotNull((\json_decode($result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR))['_value']);
+        static::assertNotNull((\json_decode((string) $result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR))['_value']);
     }
 
     public function testItSetsCategoryCmsPageToNullIfNecessary(): void

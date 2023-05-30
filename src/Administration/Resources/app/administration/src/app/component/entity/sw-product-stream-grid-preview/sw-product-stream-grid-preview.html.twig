@@ -13,6 +13,7 @@
             :delay="750"
             :disabled="!filters"
             class="sw-product-stream-grid-preview__search-field"
+            @search-term-change="onSearchTermChange"
         />
         {% endblock %}
     </div>

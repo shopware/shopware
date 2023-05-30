@@ -1,0 +1,274 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] = `
+<div
+  class="sw-settings-index"
+>
+  <div
+    class="sw-card-view"
+  >
+    <div
+      class="sw-tabs sw-settings__tabs sw-tabs--vertical"
+    >
+      <div
+        class="sw-tabs__content"
+        style="padding-bottom: 0px;"
+      >
+        <a
+          class="sw-tabs-item sw-settings__tab-shop"
+          title="sw-settings.index.tabShop"
+          to="[object Object]"
+        >
+          
+                        sw-settings.index.tabShop
+                     
+          <!---->
+           
+          <!---->
+        </a>
+         
+        <a
+          class="sw-tabs-item sw-settings__tab-system"
+          title="sw-settings.index.tabSystem"
+          to="[object Object]"
+        >
+          
+                        sw-settings.index.tabSystem
+                     
+          <!---->
+           
+          <!---->
+        </a>
+         
+        <a
+          class="sw-tabs-item sw-settings__tab-plugins"
+          title="sw-settings.index.tabPlugins"
+          to="[object Object]"
+        >
+          
+                        sw-settings.index.tabPlugins
+                     
+          <!---->
+           
+          <!---->
+        </a>
+          
+        <span
+          class="sw-tabs__slider"
+          style="transform: translate(0, 0px) rotate(90deg); width: 0px;"
+        />
+      </div>
+       
+      <!---->
+       
+      <!---->
+       
+      <div
+        class="sw-tabs__custom-content"
+      >
+        <h1
+          class="sw-settings__content-header"
+        >
+          
+                        sw-settings.index.title
+                    
+        </h1>
+         
+        <div
+          class="sw-card sw-settings__card"
+          position-identifier="sw-settings-index-content"
+        >
+          <div
+            class="sw-settings__content-grid"
+            id="sw-settings__content-grid-system"
+            style="display: none;"
+          >
+            <a
+              class="sw-settings-item"
+              id="sw-settings-user"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-avatar-single"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            a
+        
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-settings-foo"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-avatar-single"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            b
+        
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-settings-store"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-device-laptop"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            c
+        
+              </div>
+            </a>
+          </div>
+          <div
+            class="sw-settings__content-grid"
+            id="sw-settings__content-grid-shop"
+            style="display: none;"
+          >
+            <a
+              class="sw-settings-item"
+              id="sw-settings-shipping"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="regular-truck"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            a
+        
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-settings-snippet"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-object-globe"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            h
+        
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-settings-listing"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-symbol-products"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            s
+        
+              </div>
+            </a>
+          </div>
+          <div
+            class="sw-settings__content-grid"
+            id="sw-settings__content-grid-plugins"
+            style="display: none;"
+          >
+            <a
+              class="sw-settings-item"
+              id="sw-extension-books"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-object-books"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            extension-sdk
+        
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-extension-briefcase"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-object-books"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            general.no
+        
+              </div>
+            </a>
+          </div>
+        </div>
+         
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;

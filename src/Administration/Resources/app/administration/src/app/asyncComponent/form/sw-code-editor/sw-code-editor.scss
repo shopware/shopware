@@ -1,0 +1,73 @@
+@import "~scss/variables";
+
+$sw-text-editor-color-border: $color-gray-300;
+$sw-text-editor-color-label: $color-darkgray-200;
+
+.sw-code-editor {
+    margin-bottom: 22px;
+
+    .sw-code-editor__label {
+        display: block;
+        line-height: 16px;
+        font-size: $font-size-xs;
+        margin-bottom: 8px;
+        color: $sw-text-editor-color-label;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-code-editor__editor {
+        border: 1px solid $sw-text-editor-color-border;
+        border-radius: $border-radius-default;
+        height: 260px;
+    }
+
+    &__sanitize-bar {
+        position: relative;
+        width: 100%;
+        overflow: visible;
+    }
+
+    &__sanitize-info,
+    &__sanitized-hint {
+        display: flex;
+        font-size: calc(14 / 16 * 1rem);
+        padding: calc(4 / 16 * 1rem) 0;
+        position: absolute;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.16s ease;
+
+        &--visible {
+            opacity: 1;
+        }
+    }
+
+    &__sanitize-text {
+        margin-top: calc(6 / 16 * 1rem);
+    }
+
+    &.has--error {
+        .sw-code-editor__label {
+            color: $color-crimson-500;
+        }
+
+        .sw-code-editor__editor {
+            border: 1px solid $color-crimson-500;
+        }
+
+        .ace_content {
+            background-color: $color-crimson-50;
+        }
+    }
+}
+
+.ace_editor * {
+    font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace !important;
+}
+
+@supports (font-variation-settings: normal) {
+    .ace_editor * {
+        font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace !important;
+    }
+}

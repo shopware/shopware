@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { string } = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -20,6 +24,11 @@ export function mapPropertyErrors(entityName, properties = []) {
     });
 
     return computedValues;
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function mapSystemConfigErrors(entityName, saleChannelId, key = '') {
+    return Shopware.State.getters['error/getSystemConfigApiError'](entityName, saleChannelId, key);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

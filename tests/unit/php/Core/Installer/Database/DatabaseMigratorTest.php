@@ -14,28 +14,20 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Database\DatabaseMigrator
  */
 class DatabaseMigratorTest extends TestCase
 {
-    /**
-     * @var SetupDatabaseAdapter&MockObject
-     */
-    private $setupAdapter;
+    private MockObject&SetupDatabaseAdapter $setupAdapter;
 
-    /**
-     * @var Connection&MockObject
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MigrationCollection&MockObject
-     */
-    private $migrationCollection;
+    private MockObject&MigrationCollection $migrationCollection;
 
     private DatabaseMigrator $databaseMigrator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->setupAdapter = $this->createMock(SetupDatabaseAdapter::class);
 

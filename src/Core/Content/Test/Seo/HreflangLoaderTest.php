@@ -10,7 +10,7 @@ use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,9 +27,9 @@ class HreflangLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
-    private EntityRepositoryInterface $salesChannelDomainRepository;
+    private EntityRepository $salesChannelDomainRepository;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -57,7 +57,9 @@ class HreflangLoaderTest extends TestCase
         $randomProduct = $this->getContainer()->get('product.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext());
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(false);
 
-        $links = $this->hreflangLoader->load($this->createParameter($randomProduct->getIds()[0]));
+        $randomId = $randomProduct->firstId();
+        static::assertNotNull($randomId);
+        $links = $this->hreflangLoader->load($this->createParameter($randomId));
 
         static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(0, $links->count());
@@ -67,13 +69,14 @@ class HreflangLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $languageIds = $this->getContainer()->get('language.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext())->getIds();
+        $languageId = $this->getContainer()->get('language.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext())->firstId();
+        static::assertNotNull($languageId);
 
         $domain = new SalesChannelDomainEntity();
         $domain->setId(Uuid::randomHex());
         $domain->setUrl('https://test.de');
         $domain->setHreflangUseOnlyLocale(false);
-        $domain->setLanguageId($languageIds[0]);
+        $domain->setLanguageId($languageId);
 
         $this->salesChannelContext->getSalesChannel()->getDomains()->add($domain);
 
@@ -308,7 +311,7 @@ class HreflangLoaderTest extends TestCase
         $foundLinks = 0;
 
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === mb_substr($languages->first()->getLocale()->getCode(), 0, 2)) {
+            if ($element->getLocale() === mb_substr((string) $languages->first()->getLocale()->getCode(), 0, 2)) {
                 static::assertEquals('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }

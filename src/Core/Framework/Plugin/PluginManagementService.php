@@ -6,6 +6,7 @@ use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
@@ -17,41 +18,21 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('core')]
 class PluginManagementService
 {
-    public const PLUGIN = 'plugin';
-    public const APP = 'app';
-
-    private string $projectDir;
-
-    private PluginZipDetector $pluginZipDetector;
-
-    private PluginExtractor $pluginExtractor;
-
-    private PluginService $pluginService;
-
-    private Filesystem $filesystem;
-
-    private CacheClearer $cacheClearer;
-
-    private Client $client;
+    final public const PLUGIN = 'plugin';
+    final public const APP = 'app';
 
     public function __construct(
-        string $projectDir,
-        PluginZipDetector $pluginZipDetector,
-        PluginExtractor $pluginExtractor,
-        PluginService $pluginService,
-        Filesystem $filesystem,
-        CacheClearer $cacheClearer,
-        Client $client
+        private readonly string $projectDir,
+        private readonly PluginZipDetector $pluginZipDetector,
+        private readonly PluginExtractor $pluginExtractor,
+        private readonly PluginService $pluginService,
+        private readonly Filesystem $filesystem,
+        private readonly CacheClearer $cacheClearer,
+        private readonly Client $client
     ) {
-        $this->projectDir = $projectDir;
-        $this->pluginZipDetector = $pluginZipDetector;
-        $this->pluginExtractor = $pluginExtractor;
-        $this->pluginService = $pluginService;
-        $this->filesystem = $filesystem;
-        $this->cacheClearer = $cacheClearer;
-        $this->client = $client;
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
@@ -60,12 +41,16 @@ class PluginManagementService
 
         if ($storeType) {
             $this->pluginExtractor->extract($archive, $delete, $storeType);
+            if ($storeType === self::PLUGIN) {
+                $this->cacheClearer->clearContainerCache();
+            }
 
             return $storeType;
         }
 
         if ($this->pluginZipDetector->isPlugin($archive)) {
             $this->pluginExtractor->extract($archive, $delete, self::PLUGIN);
+            $this->cacheClearer->clearContainerCache();
 
             return self::PLUGIN;
         }
@@ -93,7 +78,6 @@ class PluginManagementService
 
         if ($type === self::PLUGIN) {
             $this->pluginService->refreshPlugins($context, new NullIO());
-            $this->cacheClearer->clearContainerCache();
         }
     }
 
@@ -108,7 +92,7 @@ class PluginManagementService
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new \RuntimeException();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new StoreNotAvailableException();
         }
 
@@ -116,12 +100,15 @@ class PluginManagementService
 
         if ($location->getType() === self::PLUGIN) {
             $this->pluginService->refreshPlugins($context, new NullIO());
-            $this->cacheClearer->clearContainerCache();
         }
     }
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
+        if ($plugin->getManagedByComposer()) {
+            throw PluginException::cannotDeleteManaged($plugin->getName());
+        }
+
         $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
 

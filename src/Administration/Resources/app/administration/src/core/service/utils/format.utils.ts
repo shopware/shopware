@@ -2,6 +2,8 @@
 import MD5 from 'md5-es';
 
 /**
+ * @package admin
+ *
  * @module core/service/utils/format
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,7 +16,8 @@ export default {
     toISODate,
 };
 
-interface CurrencyOptions extends Intl.NumberFormatOptions {
+/* @private */
+export interface CurrencyOptions extends Intl.NumberFormatOptions {
     language?: string
 }
 
@@ -54,6 +57,10 @@ export function currency(
     return val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
 }
 
+interface DateFilterOptions extends Intl.DateTimeFormatOptions {
+    skipTimezoneConversion?: boolean
+}
+
 /**
  * Formats a Date object to a localized string
  *
@@ -62,7 +69,7 @@ export function currency(
  * @returns {string}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function date(val: string, options: Intl.DateTimeFormatOptions = {}): string {
+export function date(val: string, options: DateFilterOptions = {}): string {
     // should return an empty string when no date is given
     if (!val) {
         return '';
@@ -80,10 +87,10 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone as string) ?? 'UTC';
+    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone) ?? 'UTC';
 
     const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
-        timeZone: userTimeZone,
+        timeZone: options.skipTimezoneConversion ? undefined : userTimeZone,
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -104,7 +111,7 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone as string) ?? 'UTC';
+    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
 
     // Language and options are set in order to re-create the date object
     const localizedDate = dateObj.toLocaleDateString('en-GB', {

@@ -3,55 +3,36 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CreateAliasTaskHandler extends ScheduledTaskHandler
+/**
+ * @internal
+ */
+#[AsMessageHandler(handles: CreateAliasTask::class)]
+#[Package('core')]
+final class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
-    private Client $client;
-
-    private Connection $connection;
-
-    private ElasticsearchHelper $elasticsearchHelper;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $config;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      *
      * @param array<mixed> $config
      */
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
-        Client $client,
-        Connection $connection,
-        ElasticsearchHelper $elasticsearchHelper,
-        array $config,
-        EventDispatcherInterface $eventDispatcher
+        EntityRepository $scheduledTaskRepository,
+        private readonly Client $client,
+        private readonly Connection $connection,
+        private readonly ElasticsearchHelper $elasticsearchHelper,
+        private readonly array $config,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->elasticsearchHelper = $elasticsearchHelper;
-        $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
-     * @return iterable<class-string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [CreateAliasTask::class];
     }
 
     public function run(): void

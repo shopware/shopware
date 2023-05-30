@@ -1,9 +1,15 @@
+/**
+ * @package admin
+ */
+
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
 
 const { Component, Mixin } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-login-login', {
     template,
 

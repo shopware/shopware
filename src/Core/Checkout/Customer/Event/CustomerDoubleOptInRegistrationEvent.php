@@ -4,50 +4,37 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ConfirmUrlAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ConfirmUrlAware is deprecated and will be removed in v6.6.0
+ */
+#[Package('customer-order')]
+class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
+    final public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $confirmUrl;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $mailRecipientStruct;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        CustomerEntity $customer,
-        SalesChannelContext $salesChannelContext,
-        string $confirmUrl
+        private readonly CustomerEntity $customer,
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly string $confirmUrl
     ) {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->confirmUrl = $confirmUrl;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -71,6 +58,14 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
         }
 
         return $this->mailRecipientStruct;
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return [FlowMailVariables::CONFIRM_URL => $this->confirmUrl];
     }
 
     public function getCustomer(): CustomerEntity

@@ -26,14 +26,18 @@
             {% block component_line_item_type_product_col_info %}
                 <div class="line-item-info">
                     <div class="row line-item-row">
+                        {% set showLineItemModal = controllerAction is same as('confirmPage') %}
 
                         {% if nestingLevel < 1 %}
                             {% block component_line_item_type_product_image %}
                                 <div class="col-auto line-item-info-img">
                                     <div class="line-item-img-container">
                                         {% block component_line_item_type_product_image_inner %}
+                                            {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string #}
                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
-                                                productLink: true
+                                                productLink: true,
+                                                lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                                lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
                                             } %}
                                         {% endblock %}
                                     </div>
@@ -45,8 +49,11 @@
                             <div class="line-item-details">
                                 <div class="line-item-details-container">
                                     {% block component_line_item_type_product_label %}
+                                        {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string #}
                                         {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' with {
-                                            productLink: true
+                                            productLink: true,
+                                            lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                            lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
                                         } %}
                                     {% endblock %}
 
@@ -110,7 +117,7 @@
                 {% endblock %}
             {% else %}
                 {% block component_line_item_type_product_col_unit_price %}
-                    <div class="line-item-unit-price">
+                    <div class="line-item-unit-price{% if lineItem.quantity > 1 %} is-shown{% endif %}">
                         {% sw_include '@Storefront/storefront/component/line-item/element/unit-price.html.twig' %}
                     </div>
                 {% endblock %}
@@ -132,5 +139,13 @@
                 {% endblock %}
             {% endif %}
         </div>
+
+        {% if displayMode === 'order' %}
+            {% block component_line_item_type_product_downloads_table %}
+                <div class="order-detail-content-list">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/downloads.html.twig' %}
+                </div>
+            {% endblock %}
+        {% endif %}
     </div>
 {% endblock %}

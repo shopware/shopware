@@ -6,6 +6,9 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description The sw-data-grid is a component to render tables with data.
@@ -26,7 +29,6 @@ const utils = Shopware.Utils;
  *     ]">
  * </sw-data-grid>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-data-grid', {
     template,
 
@@ -199,7 +201,7 @@ Component.register('sw-data-grid', {
             currentSetting: {},
             currentColumns: [],
             columnIndex: null,
-            selection: Object.assign({}, this.preSelection || {}),
+            selection: { ...this.preSelection || {} },
             originalTarget: null,
             compact: this.compactMode,
             previews: this.showPreviews,
@@ -222,13 +224,6 @@ Component.register('sw-data-grid', {
                 'sw-data-grid--actions': this.showActions,
                 'sw-data-grid--plain-appearance': this.plainAppearance,
             };
-        },
-
-        /**
-         * @major-deprecated tag:v6.5.0 - localStorageItemKey will be removed
-         */
-        localStorageItemKey() {
-            return `${this.identifier}-grid`;
         },
 
         selectionCount() {
@@ -338,12 +333,6 @@ Component.register('sw-data-grid', {
 
         showSelection() {
             this.selection = this.showSelection ? this.selection : {};
-        },
-
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed
-         */
-        records() {
         },
 
         compactMode() {
@@ -462,14 +451,18 @@ Component.register('sw-data-grid', {
                     return column;
                 }
 
-                return utils.object.mergeWith({}, column, userColumnSettings[column.dataIndex],
+                return utils.object.mergeWith(
+                    {},
+                    column,
+                    userColumnSettings[column.dataIndex],
                     (localValue, serverValue) => {
                         if (serverValue !== undefined && serverValue !== null) {
                             return serverValue;
                         }
 
                         return localValue;
-                    });
+                    },
+                );
             }).sort((column1, column2) => column1.position - column2.position);
         },
 
@@ -505,7 +498,7 @@ Component.register('sw-data-grid', {
                     column.dataIndex = column.property;
                 }
 
-                return Object.assign({}, defaults, column);
+                return { ...defaults, ...column };
             });
         },
 

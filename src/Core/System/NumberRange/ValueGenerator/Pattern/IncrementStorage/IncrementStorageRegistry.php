@@ -2,33 +2,30 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
-use Shopware\Core\System\NumberRange\Exception\IncrementStorageMigrationNotSupportedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 
+#[Package('checkout')]
 class IncrementStorageRegistry
 {
     /**
-     * @var IncrementStorageInterface[]|AbstractIncrementStorage[]
+     * @var AbstractIncrementStorage[]
      */
     private array $storages;
 
-    private string $configuredStorage;
-
     /**
      * @internal
+     *
+     * @param AbstractIncrementStorage[] $storages
      */
-    public function __construct(\Traversable $storages, string $configuredStorage)
-    {
-        $this->storages = iterator_to_array($storages);
-        $this->configuredStorage = $configuredStorage;
+    public function __construct(
+        iterable $storages,
+        private readonly string $configuredStorage
+    ) {
+        $this->storages = $storages instanceof \Traversable ? iterator_to_array($storages) : $storages;
     }
 
-    /**
-     * @return IncrementStorageInterface|AbstractIncrementStorage
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - will always return AbstractIncrementStorage in the future, and thus will be natively typed
-     */
-    public function getStorage(?string $storage = null)/*: AbstractIncrementStorage*/
+    public function getStorage(?string $storage = null): AbstractIncrementStorage
     {
         if ($storage === null) {
             $storage = $this->configuredStorage;
@@ -44,13 +41,7 @@ class IncrementStorageRegistry
     public function migrate(string $from, string $to): void
     {
         $fromStorage = $this->getStorage($from);
-        if (!$fromStorage instanceof AbstractIncrementStorage) {
-            throw new IncrementStorageMigrationNotSupportedException($from);
-        }
         $toStorage = $this->getStorage($to);
-        if (!$toStorage instanceof AbstractIncrementStorage) {
-            throw new IncrementStorageMigrationNotSupportedException($to);
-        }
 
         foreach ($fromStorage->list() as $numberRangeId => $state) {
             $toStorage->set($numberRangeId, $state);

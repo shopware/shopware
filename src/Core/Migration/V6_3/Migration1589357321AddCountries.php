@@ -4,9 +4,14 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1589357321AddCountries extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,43 +22,37 @@ class Migration1589357321AddCountries extends MigrationStep
     public function update(Connection $connection): void
     {
         $deLanguageId = $this->getLanguageId($connection, 'de-DE');
-
+        $languageDE = null;
         if ($deLanguageId && $deLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
-            $languageDE = static function (string $countryId, string $name) use ($deLanguageId) {
-                return [
-                    'language_id' => $deLanguageId,
-                    'name' => $name,
-                    'country_id' => $countryId,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ];
-            };
-        }
-
-        $enLanguageId = $this->getLanguageId($connection, 'en-GB');
-
-        if ($enLanguageId && $enLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
-            $languageEN = static function (string $countryId, string $name) use ($enLanguageId) {
-                return [
-                    'language_id' => $enLanguageId,
-                    'name' => $name,
-                    'country_id' => $countryId,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ];
-            };
-        }
-
-        $default = static function (string $countryId, string $name) {
-            return [
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            $languageDE = static fn (string $countryId, string $name) => [
+                'language_id' => $deLanguageId,
                 'name' => $name,
                 'country_id' => $countryId,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
-        };
+        }
+
+        $enLanguageId = $this->getLanguageId($connection, 'en-GB');
+        $languageEN = null;
+        if ($enLanguageId && $enLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+            $languageEN = static fn (string $countryId, string $name) => [
+                'language_id' => $enLanguageId,
+                'name' => $name,
+                'country_id' => $countryId,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ];
+        }
+
+        $default = static fn (string $countryId, string $name) => [
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'name' => $name,
+            'country_id' => $countryId,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
 
         foreach ($this->createNewCountries() as $country) {
             $id = Uuid::randomBytes();
-            $exists = $connection->fetchColumn('SELECT 1 FROM country WHERE iso = :iso3', ['iso3' => $country['iso3']]);
+            $exists = $connection->fetchOne('SELECT 1 FROM country WHERE iso = :iso3', ['iso3' => $country['iso3']]);
             if ($exists !== false) {
                 continue;
             }
@@ -65,10 +64,10 @@ class Migration1589357321AddCountries extends MigrationStep
             }
             $connection->insert('country_translation', $default($id, $defaultTranslations));
 
-            if (isset($languageDE)) {
+            if ($languageDE !== null) {
                 $connection->insert('country_translation', $languageDE($id, $country['de']));
             }
-            if (isset($languageEN)) {
+            if ($languageEN !== null) {
                 $connection->insert('country_translation', $languageEN($id, $country['en']));
             }
         }
@@ -92,9 +91,12 @@ class Migration1589357321AddCountries extends MigrationStep
             ORDER BY created_at ASC
 SQL;
 
-        return (string) $connection->executeQuery($sql, ['code' => $code])->fetchColumn();
+        return (string) $connection->executeQuery($sql, ['code' => $code])->fetchOne();
     }
 
+    /**
+     * @return list<array{iso: string, iso3: string, de: string, en: string}>
+     */
     private function createNewCountries(): array
     {
         return [

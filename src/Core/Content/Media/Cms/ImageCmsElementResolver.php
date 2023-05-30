@@ -13,19 +13,18 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
-    public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
-
-    private AbstractDefaultMediaResolver $mediaResolver;
+    final public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
 
     /**
      * @internal
      */
-    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
+    public function __construct(private readonly AbstractDefaultMediaResolver $mediaResolver)
     {
-        $this->mediaResolver = $mediaResolver;
     }
 
     public function getType(): string
@@ -101,10 +100,9 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            /** @var MediaEntity|null $media */
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
-            if ($media !== null) {
+            if ($media instanceof MediaEntity) {
                 $image->setMediaId($media->getUniqueIdentifier());
                 $image->setMedia($media);
             }
@@ -118,9 +116,8 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getValue());
-            if (!$media) {
+            $media = $searchResult->get($config->getStringValue());
+            if (!$media instanceof MediaEntity) {
                 return;
             }
 

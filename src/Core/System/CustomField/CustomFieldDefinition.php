@@ -15,11 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
+#[Package('system-settings')]
 class CustomFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'custom_field';
+    final public const ENTITY_NAME = 'custom_field';
 
     public function getEntityName(): string
     {
@@ -45,6 +47,7 @@ class CustomFieldDefinition extends EntityDefinition
     {
         return [
             'allowCustomerWrites' => false,
+            'allowCartExpose' => false,
         ];
     }
 
@@ -58,6 +61,7 @@ class CustomFieldDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class),
             new BoolField('allow_customer_write', 'allowCustomerWrite'),
+            new BoolField('allow_cart_expose', 'allowCartExpose'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
             (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

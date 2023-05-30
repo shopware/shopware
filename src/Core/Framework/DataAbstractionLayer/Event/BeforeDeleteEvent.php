@@ -12,13 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('core')]
 class BeforeDeleteEvent extends Event implements ShopwareEvent
 {
-    private WriteContext $writeContext;
-
     /**
      * @var \Closure[]
      */
@@ -29,24 +29,20 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
      */
     private array $errorCallbacks = [];
 
-    /**
-     * @var WriteCommand[]
-     */
-    private array $commands;
-
     private array $ids = [];
 
-    private function __construct(WriteContext $writeContext, array $commands)
-    {
-        $this->writeContext = $writeContext;
-        $this->commands = $commands;
+    /**
+     * @param WriteCommand[] $commands
+     */
+    private function __construct(
+        private readonly WriteContext $writeContext,
+        private readonly array $commands
+    ) {
     }
 
     public static function create(WriteContext $writeContext, array $commands): self
     {
-        $deleteCommands = \array_filter($commands, static function (WriteCommand $command) {
-            return $command instanceof DeleteCommand;
-        });
+        $deleteCommands = \array_filter($commands, static fn (WriteCommand $command) => $command instanceof DeleteCommand);
 
         return new self($writeContext, $deleteCommands);
     }
@@ -81,11 +77,9 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
                 continue;
             }
 
-            $primaryKeys = $definition->getPrimaryKeys()->filter(static function (Field $field) {
-                return !$field instanceof VersionField
-                    && !$field instanceof ReferenceVersionField
-                    && $field instanceof StorageAware;
-            });
+            $primaryKeys = $definition->getPrimaryKeys()->filter(static fn (Field $field) => !$field instanceof VersionField
+                && !$field instanceof ReferenceVersionField
+                && $field instanceof StorageAware);
 
             $ids[] = $this->getCommandPrimaryKey($entityWriteResult, $primaryKeys);
         }
@@ -122,10 +116,7 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
         }
     }
 
-    /**
-     * @return array|string
-     */
-    private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields)
+    private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields): array|string
     {
         $primaryKey = $command->getPrimaryKey();
 

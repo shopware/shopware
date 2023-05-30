@@ -15,6 +15,11 @@
         justify-content: flex-end;
         border-bottom: 1px solid $color-gray-300;
         padding-left: 20px;
+        background: $color-white;
+
+        &:nth-child(even) {
+            background: $color-gray-100;
+        }
 
         &:last-child {
             border-bottom: none;
@@ -41,6 +46,10 @@
 
         .sw-field--checkbox {
             margin-bottom: 0;
+        }
+
+        .sw-field--checkbox .sw-icon {
+            padding: 0;
         }
     }
 

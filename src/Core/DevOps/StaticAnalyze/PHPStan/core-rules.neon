@@ -1,0 +1,10 @@
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule

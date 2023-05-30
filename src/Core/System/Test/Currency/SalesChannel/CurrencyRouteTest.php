@@ -8,9 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class CurrencyRouteTest extends TestCase
@@ -18,15 +20,9 @@ class CurrencyRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -54,7 +50,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response);
         static::assertContains($this->ids->get('currency'), array_column($response, 'id'));
@@ -74,7 +70,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response);
         static::assertArrayNotHasKey('id', $response[0]);
@@ -92,7 +88,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $response);
     }
@@ -108,8 +104,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'test',
                 'factor' => 1,
                 'symbol' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             ],
             [
                 'id' => $this->ids->create('currency2'),
@@ -119,8 +115,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'yay',
                 'factor' => 1,
                 'symbol' => 'B',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             ],
         ];
 

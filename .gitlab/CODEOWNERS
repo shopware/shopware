@@ -9,7 +9,6 @@
 /src/Core/**/SalesChannel/                                      @product/engineering/platform-group/core
 /src/Core/**/*Rule.php                                          @product/engineering/platform-group/core
 /src/Elasticsearch/                                             @product/engineering/platform-group/core
-/src/Recovery/**/*.php                                          @product/engineering/platform-group/core
 /src/Storefront/Migration/                                      @product/engineering/platform-group/core
 /bin/                                                           @product/engineering/platform-group/core
 /public/                                                        @product/engineering/platform-group/core
@@ -27,6 +26,7 @@ ecs.php                                                         @product/enginee
 phpstan.neon                                                    @product/engineering/platform-group/core
 phpunit.xml.dist                                                @product/engineering/platform-group/core
 .bc-exclude.php                                                 @product/engineering/platform-group/core
+deprecation.ignore                                              @product/engineering/platform-group/core
 /src/Core/Framework/Resources/config/packages/shopware.yaml     @product/engineering/platform-group/core
 /src/Core/Framework/Resources/**/feature.yaml
 # shared code ownership of multiple groups seems only to work for the last entries
@@ -40,6 +40,8 @@ phpunit.xml.dist                                                @product/enginee
 /src/Administration/Resources/app/administration/config/                                @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/patches/                               @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/*                                  @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/test/*                                 @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/meta/*                             @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/app/                               @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/core/                              @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/        @product/engineering/platform-group/admin

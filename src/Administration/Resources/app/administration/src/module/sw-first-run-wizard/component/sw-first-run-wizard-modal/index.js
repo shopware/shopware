@@ -1,10 +1,12 @@
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 
-const { Component } = Shopware;
-
+/**
+ * @package merchant-services
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-first-run-wizard-modal', {
+export default {
     template,
 
     inject: ['firstRunWizardService'],
@@ -13,6 +15,8 @@ Component.register('sw-first-run-wizard-modal', {
         return {
             title: 'No title defined',
             buttonConfig: [],
+            showLoader: false,
+            wasNewExtensionActivated: false,
             stepVariant: 'info',
             currentStep: {
                 name: '',
@@ -153,6 +157,10 @@ Component.register('sw-first-run-wizard-modal', {
 
             return currentSteps;
         },
+
+        isClosable() {
+            return !Shopware.Context.app.firstRunWizard;
+        },
     },
 
     watch: {
@@ -209,6 +217,26 @@ Component.register('sw-first-run-wizard-modal', {
                     document.location.href = document.location.origin + document.location.pathname;
                 });
         },
-    },
-});
 
+        onExtensionActivated() {
+            this.wasNewExtensionActivated = true;
+        },
+
+        async closeModal() {
+            if (!this.isClosable) {
+                return;
+            }
+
+            this.showLoader = true;
+
+            await this.$nextTick();
+
+            await this.$router.push({ name: 'sw.settings.index.system' });
+
+            // reload page when new extension was activated and modal is closed
+            if (this.wasNewExtensionActivated) {
+                window.location.reload();
+            }
+        },
+    },
+};

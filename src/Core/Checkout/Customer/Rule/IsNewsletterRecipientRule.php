@@ -4,23 +4,24 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('business-ops')]
 class IsNewsletterRecipientRule extends Rule
 {
-    protected bool $isNewsletterRecipient;
+    final public const RULE_NAME = 'customerIsNewsletterRecipient';
 
     /**
      * @internal
      */
-    public function __construct(bool $isNewsletterRecipient = true)
+    public function __construct(protected bool $isNewsletterRecipient = true)
     {
         parent::__construct();
-        $this->isNewsletterRecipient = $isNewsletterRecipient;
     }
 
     public function match(RuleScope $scope): bool
@@ -45,11 +46,6 @@ class IsNewsletterRecipientRule extends Rule
         return [
             'isNewsletterRecipient' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsNewsletterRecipient';
     }
 
     public function getConfig(): RuleConfig

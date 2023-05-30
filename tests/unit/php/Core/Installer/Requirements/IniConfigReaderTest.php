@@ -7,16 +7,15 @@ use Shopware\Core\Installer\Requirements\IniConfigReader;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Requirements\IniConfigReader
  */
 class IniConfigReaderTest extends TestCase
 {
     /**
-     * @param string|false $configValue
-     *
      * @dataProvider configProvider
      */
-    public function testGet(string $key, $configValue, string $expectedValue): void
+    public function testGet(string $key, string|false $configValue, string $expectedValue): void
     {
         \ini_set($key, (string) $configValue);
 
@@ -26,7 +25,7 @@ class IniConfigReaderTest extends TestCase
         \ini_restore($key);
     }
 
-    public function configProvider(): \Generator
+    public static function configProvider(): \Generator
     {
         yield 'max_execution_time' => [
             'max_execution_time',

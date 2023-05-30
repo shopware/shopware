@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-entity-listing.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 
@@ -179,8 +186,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         applyResult(result) {
             this.records = result;
             this.total = result.total;
-            this.page = result.criteria.page;
-            this.limit = result.criteria.limit;
+            this.page = result.criteria.page || 1;
+            this.limit = result.criteria.limit || this.criteriaLimit;
             this.loading = false;
 
             this.$emit('update-records', result);

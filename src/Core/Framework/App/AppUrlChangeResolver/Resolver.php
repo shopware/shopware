@@ -4,23 +4,19 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Resolver
 {
     /**
-     * @var iterable|AbstractAppUrlChangeStrategy[]
-     */
-    private $strategies;
-
-    /**
      * @param AbstractAppUrlChangeStrategy[] $strategies
      */
-    public function __construct(iterable $strategies)
+    public function __construct(private readonly iterable $strategies)
     {
-        $this->strategies = $strategies;
     }
 
     public function resolve(string $strategyName, Context $context): void

@@ -15,6 +15,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package content
+ *
  * @covers \Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory
  */
 class ContactFormValidationFactoryTest extends TestCase
@@ -39,7 +42,7 @@ class ContactFormValidationFactoryTest extends TestCase
         $expectsClosure($definition, $contextMock);
     }
 
-    public function systemConfigDataProvider(): \Generator
+    public static function systemConfigDataProvider(): \Generator
     {
         yield 'is required' => [
             true,

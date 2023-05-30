@@ -1,11 +1,10 @@
 import template from './sw-cms-block-text-teaser.html.twig';
 import './sw-cms-block-text-teaser.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-block-text-teaser', {
+export default {
     template,
-});
+};

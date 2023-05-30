@@ -14,6 +14,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1625816310AddDefaultToCartRuleIds
  */
 class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
@@ -38,7 +39,6 @@ class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
             'cart',
             [
                 'token' => Uuid::randomHex(),
-                'name' => Uuid::randomHex(),
                 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'shipping_method_id' => $c->fetchOne('SELECT id FROM `shipping_method` WHERE `active` = 1'),
                 'payment_method_id' => $c->fetchOne('SELECT id FROM `payment_method` WHERE `active` = 1'),

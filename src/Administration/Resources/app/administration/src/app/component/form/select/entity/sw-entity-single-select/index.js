@@ -5,7 +5,9 @@ const { Component, Mixin, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { debounce, get } = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-entity-single-select', {
     template,
 
@@ -96,9 +98,9 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right'],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return ['bottom', 'right'].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {
@@ -232,8 +234,11 @@ Component.register('sw-entity-single-select', {
             }
 
             this.isLoading = true;
-
             return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
+                if (!item) {
+                    this.$emit('change', null);
+                }
+
                 this.criteria.setIds([]);
 
                 this.singleSelection = item;
@@ -269,7 +274,7 @@ Component.register('sw-entity-single-select', {
             this.isLoading = true;
             return this.checkEntityExists(this.searchTerm).then(() => {
                 if (!this.entityExists && this.searchTerm) {
-                    const criteria = new Criteria(1, 25);
+                    const criteria = new Criteria(1, this.resultLimit);
                     criteria.addFilter(
                         Criteria.contains('name', this.searchTerm),
                     );
@@ -281,12 +286,14 @@ Component.register('sw-entity-single-select', {
                         this.resultCollection = result;
 
                         const newEntity = this.repository.create(this.context, -1);
-                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                        newEntity.name = this.$tc(
+                            'global.sw-single-select.labelEntityAdd',
                             0,
                             {
                                 term: this.searchTerm,
                                 entity: this.entityCreationLabel,
-                            });
+                            },
+                        );
 
                         this.resultCollection.unshift(newEntity);
 
@@ -344,7 +351,7 @@ Component.register('sw-entity-single-select', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
                 [this.entity]: ['id', 'name'],
             });

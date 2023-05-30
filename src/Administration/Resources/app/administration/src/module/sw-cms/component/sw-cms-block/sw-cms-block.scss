@@ -61,4 +61,8 @@ $sw-cms-block-color-warning: $color-pumpkin-spice-500;
     &.has--warning > .sw-cms-block__config-overlay {
         border: none;
     }
+
+    &__content.is--expanded {
+        opacity: 0.6;
+    }
 }

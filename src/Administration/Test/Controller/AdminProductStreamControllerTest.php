@@ -13,6 +13,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class AdminProductStreamControllerTest extends TestCase
@@ -78,7 +79,7 @@ class AdminProductStreamControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(3, $content['elements']);
         $names = array_column($content['elements'], 'name');
@@ -138,7 +139,7 @@ class AdminProductStreamControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(3, $content['elements']);
         $names = array_column($content['elements'], 'name');

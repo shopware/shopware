@@ -3,9 +3,11 @@
 namespace Shopware\Core\Maintenance\System\Struct;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 
+#[Package('core')]
 class DatabaseConnectionInformation extends Struct
 {
     protected string $hostname = '';
@@ -100,7 +102,7 @@ class DatabaseConnectionInformation extends Struct
     public function asDsn(bool $withoutDatabaseName = false): string
     {
         $dsn = sprintf(
-            'mysql://%s%s:%s',
+            'mysql://%s%s:%d',
             $this->username ? ($this->username . ($this->password ? ':' . rawurlencode($this->password) : '') . '@') : '',
             $this->hostname,
             $this->port

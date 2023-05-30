@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\Client;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,28 +30,26 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $indices
             ->expects(static::exactly(4))
             ->method('get')
-            ->willReturnCallback(function () {
-                return [
-                    Uuid::randomHex() => [
-                        'aliases' => [
-                            'test',
-                        ],
-                        'settings' => [
-                            'index' => [
-                                'provided_name' => Uuid::randomHex(),
-                            ],
+            ->willReturnCallback(fn () => [
+                Uuid::randomHex() => [
+                    'aliases' => [
+                        'test',
+                    ],
+                    'settings' => [
+                        'index' => [
+                            'provided_name' => Uuid::randomHex(),
                         ],
                     ],
-                    Uuid::randomHex() => [
-                        'aliases' => [],
-                        'settings' => [
-                            'index' => [
-                                'provided_name' => Uuid::randomHex(),
-                            ],
+                ],
+                Uuid::randomHex() => [
+                    'aliases' => [],
+                    'settings' => [
+                        'index' => [
+                            'provided_name' => Uuid::randomHex(),
                         ],
                     ],
-                ];
-            });
+                ],
+            ]);
 
         $client = $this->createMock(Client::class);
         $client->method('indices')->willReturn($indices);
@@ -85,9 +83,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $indices
             ->expects(static::exactly(0))
             ->method('get')
-            ->willReturnCallback(function () {
-                return [];
-            });
+            ->willReturnCallback(fn () => []);
 
         $client = $this->createMock(Client::class);
         $client->method('indices')->willReturn($indices);

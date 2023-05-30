@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Error>
  */
+#[Package('checkout')]
 class ErrorCollection extends Collection
 {
     /**
@@ -21,6 +23,17 @@ class ErrorCollection extends Collection
     {
         foreach ($this->getIterator() as $error) {
             if ($error->blockOrder()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function blockResubmit(): bool
+    {
+        foreach ($this->getIterator() as $error) {
+            if ($error->blockResubmit()) {
                 return true;
             }
         }
@@ -45,16 +58,12 @@ class ErrorCollection extends Collection
 
     public function getPersistent(): self
     {
-        return $this->filter(function (Error $error) {
-            return $error->isPersistent();
-        });
+        return $this->filter(fn (Error $error) => $error->isPersistent());
     }
 
     public function filterByErrorLevel(int $errorLevel): array
     {
-        return $this->fmap(static function (Error $error) use ($errorLevel): ?Error {
-            return $errorLevel === $error->getLevel() ? $error : null;
-        });
+        return $this->fmap(static fn (Error $error): ?Error => $errorLevel === $error->getLevel() ? $error : null);
     }
 
     public function hasLevel(int $errorLevel): bool

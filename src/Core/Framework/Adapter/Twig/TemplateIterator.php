@@ -3,28 +3,27 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
+/**
+ * @implements \IteratorAggregate<int, string>
+ */
+#[Package('core')]
 class TemplateIterator implements \IteratorAggregate
 {
-    private TwigBundleIterator $templateIterator;
-
-    private array $kernelBundles;
-
     /**
      * @internal
+     *
+     * @param array<string, Bundle> $kernelBundles
      */
-    public function __construct(TwigBundleIterator $templateIterator, array $kernelBundles)
-    {
-        $this->templateIterator = $templateIterator;
-        $this->kernelBundles = $kernelBundles;
+    public function __construct(
+        private readonly TwigBundleIterator $templateIterator,
+        private readonly array $kernelBundles
+    ) {
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will be changed to \Traversable
-     */
-    #[\ReturnTypeWillChange]
-    public function getIterator(): iterable/* :\Traversable */
+    public function getIterator(): \Traversable
     {
         $data = iterator_to_array($this->templateIterator, false);
         $search = [];
@@ -32,10 +31,6 @@ class TemplateIterator implements \IteratorAggregate
 
         foreach ($this->kernelBundles as $bundleName => $bundle) {
             $parents = class_parents($bundle);
-            if ($parents === false) {
-                continue;
-            }
-
             if (!isset($parents[Bundle::class])) {
                 continue;
             }

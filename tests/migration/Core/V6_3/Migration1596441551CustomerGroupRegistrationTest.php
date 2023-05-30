@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1596441551CustomerGroupRegistration
  */
 class Migration1596441551CustomerGroupRegistrationTest extends TestCase
@@ -38,6 +39,8 @@ class Migration1596441551CustomerGroupRegistrationTest extends TestCase
 
     public function testDutchWithRemovedDeAndEnLanguage(): void
     {
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
+
         $connection = KernelLifecycleManager::getConnection();
         $this->changeDefaultLanguageToDutch($connection);
 

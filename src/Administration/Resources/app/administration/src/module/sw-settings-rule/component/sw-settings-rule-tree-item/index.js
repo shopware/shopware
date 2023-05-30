@@ -1,8 +1,10 @@
 import template from './sw-settings-rule-tree-item.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-settings-rule-tree-item', 'sw-tree-item', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     props: {
@@ -24,4 +26,4 @@ Component.extend('sw-settings-rule-tree-item', 'sw-tree-item', {
             return item.data[this.association]?.length > 0 || item.data.extensions[this.association]?.length > 0;
         },
     },
-});
+};

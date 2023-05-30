@@ -3,7 +3,7 @@
 <sw-page class="sw-settings-rule-detail">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="rule">
             {{ rule.name }}
         </h2>
@@ -15,7 +15,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_actions_cancel %}
@@ -55,7 +55,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_actions_save_context_menu %}
             <sw-context-button>
-                <template slot="button">
+                <template #button>
                     <sw-button
                         class="sw-settings-rule-detail__button-context-menu"
                         square
@@ -88,7 +88,7 @@
     </template>
     {% endblock %}
 
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
@@ -103,7 +103,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_tabs_discard_changes_modal %}
         <sw-discard-changes-modal
-            v-if="isDisplayingSaveChangesWarning && feature.isActive('v6.5.0.0')"
+            v-if="isDisplayingSaveChangesWarning"
             @keep-editing="onLeaveModalClose(nextRoute)"
             @discard-changes="onLeaveModalConfirm(nextRoute)"
         />
@@ -124,6 +124,7 @@
                     :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
                     :route="tab.route"
                     :title="tab.title"
+                    :has-error="tabHasError(tab)"
                 >
                     {{ tab.title }}
                 </sw-tabs-item>
@@ -146,6 +147,8 @@
                 :condition-repository="conditionRepository"
                 :is-loading="isLoading"
                 :detail-page-loading="isLoading"
+                :rule-name-error="ruleNameError"
+                :rule-priority-error="rulePriorityError"
                 @conditions-changed="conditionsChanged"
                 @tree-finished-loading="setTreeFinishedLoading"
             />

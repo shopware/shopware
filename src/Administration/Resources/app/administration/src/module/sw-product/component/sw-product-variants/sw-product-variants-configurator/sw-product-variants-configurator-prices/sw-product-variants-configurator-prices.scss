@@ -22,7 +22,7 @@ $sw-product-variants-configurator-prices-search-border: $color-gray-300;
     }
 
     .sw-product-variants-configurator-prices__groups {
-        font-size: 14px;
+        font-size: $font-size-xs;
         flex-basis: 270px;
         height: 100%;
         overflow: auto;

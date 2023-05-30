@@ -7,9 +7,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('content')]
 class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -30,8 +32,11 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     /**
      * @param EntityCollection<CmsPageEntity> $result
      */
-    public function __construct(Request $request, EntityCollection $result, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Request $request,
+        EntityCollection $result,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->request = $request;
         $this->result = $result;
         $this->salesChannelContext = $salesChannelContext;

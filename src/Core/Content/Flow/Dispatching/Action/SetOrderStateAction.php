@@ -5,22 +5,26 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\Event\DelayAware;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-class SetOrderStateAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('business-ops')]
+class SetOrderStateAction extends FlowAction implements DelayableAction
 {
-    public const FORCE_TRANSITION = 'force_transition';
+    final public const FORCE_TRANSITION = 'force_transition';
 
     private const ORDER = 'order';
 
@@ -28,23 +32,14 @@ class SetOrderStateAction extends FlowAction
 
     private const ORDER_TRANSACTION = 'order_transaction';
 
-    private Connection $connection;
-
-    private LoggerInterface $logger;
-
-    private OrderService $orderService;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        LoggerInterface $logger,
-        OrderService $orderService
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
+        private readonly OrderService $orderService
     ) {
-        $this->connection = $connection;
-        $this->logger = $logger;
-        $this->orderService = $orderService;
     }
 
     public static function getName(): string
@@ -53,59 +48,20 @@ class SetOrderStateAction extends FlowAction
     }
 
     /**
-     * @deprecated tag:v6.5.0 Will be removed
-     *
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
-    public static function getSubscribedEvents()
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [];
-        }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
-    /**
      * @return array<int, string>
      */
     public function requirements(): array
     {
-        return [OrderAware::class, DelayAware::class];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed, implement handleFlow instead
-     */
-    public function handle(FlowEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof OrderAware) {
-            return;
-        }
-
-        $this->update($baseEvent->getContext(), $event->getConfig(), $baseEvent->getOrderId());
+        return [OrderAware::class];
     }
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**
@@ -184,14 +140,13 @@ class SetOrderStateAction extends FlowAction
 
     private function getMachineId(string $machine, string $orderId): ?string
     {
-        $id = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id',
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]
-        );
-
-        return $id ?: null;
+        ) ?: null;
     }
 
     private function getAvailableActionName(string $machine, string $machineId, string $toPlace): ?string

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -43,6 +43,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class EntityAggregatorTest extends TestCase
@@ -1080,6 +1081,7 @@ class EntityAggregatorTest extends TestCase
 
     /**
      * @dataProvider dateHistogramProvider
+     *
      * @group slow
      */
     public function testDateHistogram(DateHistogramCase $case): void
@@ -1123,7 +1125,7 @@ class EntityAggregatorTest extends TestCase
     /**
      * @return list<list<DateHistogramCase>>
      */
-    public function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): array
     {
         return array_filter([
             [
@@ -1307,7 +1309,7 @@ class EntityAggregatorTest extends TestCase
 
     private function insertData(): void
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('product.repository');
 
         $this->ids = new TestDataCollection();
@@ -1329,9 +1331,7 @@ class EntityAggregatorTest extends TestCase
      */
     private function getProduct(string $key, string $taxKey, string $manufacturerKey, float $price, array $categoryKeys, string $releaseDate): array
     {
-        $categories = array_map(function (string $categoryKey) {
-            return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
-        }, $categoryKeys);
+        $categories = array_map(fn (string $categoryKey) => ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey], $categoryKeys);
 
         $data = [
             'id' => $this->ids->create($key),

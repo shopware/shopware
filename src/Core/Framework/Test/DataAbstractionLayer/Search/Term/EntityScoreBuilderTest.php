@@ -32,35 +32,17 @@ class EntityScoreBuilderTest extends TestCase
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $testDefinition;
+    private EntityDefinition $testDefinition;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $testDefinitionTranslated;
+    private EntityDefinition $testDefinitionTranslated;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $onlyDateFieldDefinition;
+    private EntityDefinition $onlyDateFieldDefinition;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $shouldTokenizeDefinition;
+    private EntityDefinition $shouldTokenizeDefinition;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $shouldNotTokenizeDefinition;
+    private EntityDefinition $shouldNotTokenizeDefinition;
 
     protected function setUp(): void
     {
@@ -258,7 +240,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    public function searchCustomerEmail()
+    public static function searchCustomerEmail()
     {
         $shouldTokenize = true;
 
@@ -268,7 +250,7 @@ class EntityScoreBuilderTest extends TestCase
         ];
     }
 
-    public function inValidDateTerms()
+    public static function inValidDateTerms()
     {
         return [
             'query should not be return abc123' => ['abc123'],
@@ -281,7 +263,7 @@ class EntityScoreBuilderTest extends TestCase
         ];
     }
 
-    public function validDateTerms()
+    public static function validDateTerms()
     {
         return [
             'query should be return 2020-01-01' => ['2020-01-01'],
@@ -297,7 +279,7 @@ class EntityScoreBuilderTest extends TestCase
  */
 class ScoreBuilderTestDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'test';
+    final public const ENTITY_NAME = 'test';
 
     public function getEntityName(): string
     {
@@ -325,7 +307,7 @@ class ScoreBuilderTestDefinition extends EntityDefinition
  */
 class NestedDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'nested';
+    final public const ENTITY_NAME = 'nested';
 
     public function getEntityName(): string
     {
@@ -350,7 +332,7 @@ class NestedDefinition extends EntityDefinition
  */
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'translated';
+    final public const ENTITY_NAME = 'translated';
 
     public function getEntityName(): string
     {
@@ -375,7 +357,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
  */
 class OnlyDateFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'dates';
+    final public const ENTITY_NAME = 'dates';
 
     public function getEntityName(): string
     {
@@ -400,7 +382,7 @@ class OnlyDateFieldDefinition extends EntityDefinition
  */
 class ShouldTokenizeFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'only_tokenize_field';
+    final public const ENTITY_NAME = 'only_tokenize_field';
 
     public function getEntityName(): string
     {
@@ -425,7 +407,7 @@ class ShouldTokenizeFieldDefinition extends EntityDefinition
  */
 class ShouldNotTokenizeFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'only_not_tokenize_field';
+    final public const ENTITY_NAME = 'only_not_tokenize_field';
 
     public function getEntityName(): string
     {

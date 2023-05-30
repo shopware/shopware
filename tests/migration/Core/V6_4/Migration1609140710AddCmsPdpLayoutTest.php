@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1609140710AddCmsPdpLayout
  */
 class Migration1609140710AddCmsPdpLayoutTest extends TestCase
@@ -220,7 +221,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContainsEquals(json_decode($slotTranslation, true), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation, true, 512, \JSON_THROW_ON_ERROR), $expectedSlotTranslations);
         }
     }
 

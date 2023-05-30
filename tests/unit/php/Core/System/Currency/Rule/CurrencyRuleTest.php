@@ -13,7 +13,10 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
+ *
  * @covers \Shopware\Core\System\Currency\Rule\CurrencyRule
  */
 class CurrencyRuleTest extends TestCase
@@ -30,8 +33,8 @@ class CurrencyRuleTest extends TestCase
         $rule = new CurrencyRule();
 
         static::assertEquals([
-            'currencyIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
+            'currencyIds' => RuleConstraints::uuids(),
         ], $rule->getConstraints());
     }
 
@@ -65,11 +68,11 @@ class CurrencyRuleTest extends TestCase
      *
      * @param list<string> $currencyIds
      */
-    public function testMatch(string $operator, CartRuleScope $cartRuleScope, array $currencyIds): void
+    public function testMatch(string $operator, string $currencyId, array $currencyIds): void
     {
         $rule = new CurrencyRule($operator, $currencyIds);
 
-        static::assertTrue($rule->match($cartRuleScope));
+        static::assertTrue($rule->match($this->getCartRuleScope($currencyId)));
     }
 
     /**
@@ -77,38 +80,38 @@ class CurrencyRuleTest extends TestCase
      *
      * @param list<string> $currencyIds
      */
-    public function testNoMatch(string $operator, CartRuleScope $cartRuleScope, array $currencyIds): void
+    public function testNoMatch(string $operator, string $currencyId, array $currencyIds): void
     {
         $rule = new CurrencyRule($operator, $currencyIds);
 
-        static::assertFalse($rule->match($cartRuleScope));
+        static::assertFalse($rule->match($this->getCartRuleScope($currencyId)));
     }
 
     /**
-     * @return array<string, array{operator: string, cartRuleScope: CartRuleScope, currencyIds: list<string>}>
+     * @return array<string, array{0: string, 1: string, 2: list<string>}>
      */
-    public function matchCurrencyRuleDataProvider(): iterable
+    public static function matchCurrencyRuleDataProvider(): iterable
     {
         yield 'It matches one currency, equals operator' => [
-            'operator' => Rule::OPERATOR_EQ,
-            'cartRuleScope' => $this->getCartRuleScope('id-1'),
-            'currencyIds' => [
+            Rule::OPERATOR_EQ,
+            'id-1',
+            [
                 'id-1',
             ],
         ];
 
         yield 'It matches one currency, not equals operator' => [
-            'operator' => Rule::OPERATOR_NEQ,
-            'cartRuleScope' => $this->getCartRuleScope('different-currency-id'),
-            'currencyIds' => [
+            Rule::OPERATOR_NEQ,
+            'different-currency-id',
+            [
                 'id-1',
             ],
         ];
 
         yield 'It matches multiple currencies, equals operator' => [
-            'operator' => Rule::OPERATOR_EQ,
-            'cartRuleScope' => $this->getCartRuleScope('id-1'),
-            'currencyIds' => [
+            Rule::OPERATOR_EQ,
+            'id-1',
+            [
                 'id-2',
                 'id-3',
                 'id-1',
@@ -116,9 +119,9 @@ class CurrencyRuleTest extends TestCase
         ];
 
         yield 'It matches multiple currencies, not equals operator' => [
-            'operator' => Rule::OPERATOR_NEQ,
-            'cartRuleScope' => $this->getCartRuleScope('different-currency-id'),
-            'currencyIds' => [
+            Rule::OPERATOR_NEQ,
+            'different-currency-id',
+            [
                 'id-1',
                 'id-2',
                 'id-3',
@@ -127,32 +130,32 @@ class CurrencyRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{operator: string, cartRuleScope: CartRuleScope, currencyIds: list<string>}>
+     * @return array<string, array{0: string, 1: string, 2: list<string>}>
      */
-    public function noMatchCurrencyRuleDataProvider(): iterable
+    public static function noMatchCurrencyRuleDataProvider(): iterable
     {
         $ids = new IdsCollection();
 
         yield 'It does not matches one currency, equals operator' => [
-            'operator' => Rule::OPERATOR_EQ,
-            'cartRuleScope' => $this->getCartRuleScope('different-currency-id'),
-            'currencyIds' => [
+            Rule::OPERATOR_EQ,
+            'different-currency-id',
+            [
                 'id-1',
             ],
         ];
 
         yield 'It does not matches one currency, not equals operator' => [
-            'operator' => Rule::OPERATOR_NEQ,
-            'cartRuleScope' => $this->getCartRuleScope('id-1'),
-            'currencyIds' => [
+            Rule::OPERATOR_NEQ,
+            'id-1',
+            [
                 'id-1',
             ],
         ];
 
         yield 'It does not matches multiple currencies, equals operator' => [
-            'operator' => Rule::OPERATOR_EQ,
-            'cartRuleScope' => $this->getCartRuleScope($ids->get('different-currency-id')),
-            'currencyIds' => [
+            Rule::OPERATOR_EQ,
+            $ids->get('different-currency-id'),
+            [
                 'id-1',
                 'id-2',
                 'id-3',
@@ -160,9 +163,9 @@ class CurrencyRuleTest extends TestCase
         ];
 
         yield 'It does not matches multiple currencies, not equals operator' => [
-            'operator' => Rule::OPERATOR_NEQ,
-            'cartRuleScope' => $this->getCartRuleScope('id-1'),
-            'currencyIds' => [
+            Rule::OPERATOR_NEQ,
+            'id-1',
+            [
                 'id-2',
                 'id-3',
                 'id-1',
@@ -180,7 +183,7 @@ class CurrencyRuleTest extends TestCase
             ->method('getContext')
             ->willReturn($context);
 
-        $cart = new Cart('foo', 'bar');
+        $cart = new Cart('bar');
 
         return new CartRuleScope($cart, $salesChannelContext);
     }

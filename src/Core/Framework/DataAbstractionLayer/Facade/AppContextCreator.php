@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
@@ -13,18 +14,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('core')]
 class AppContextCreator
 {
-    private Connection $connection;
-
     /**
      * @var array<string, AdminApiSource>
      */
     private array $appSources = [];
 
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getAppContext(Hook $hook, Script $script): Context
@@ -74,6 +73,6 @@ class AppContextCreator
             throw new \RuntimeException(sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
-        return json_decode($privileges, true);
+        return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

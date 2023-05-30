@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Store\Struct;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -40,7 +40,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(InvalidRequestParameterException::class);
+        static::expectException(RoutingException::class);
         static::expectExceptionMessage('The parameter "authorName" is invalid.');
         ReviewStruct::fromRequest(1, $request);
     }
@@ -52,7 +52,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(InvalidRequestParameterException::class);
+        static::expectException(RoutingException::class);
         static::expectExceptionMessage('The parameter "headline" is invalid.');
         ReviewStruct::fromRequest(1, $request);
     }
@@ -66,7 +66,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(InvalidRequestParameterException::class);
+        static::expectException(RoutingException::class);
         static::expectExceptionMessage('The parameter "rating" is invalid.');
         ReviewStruct::fromRequest(1, $request);
     }

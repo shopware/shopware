@@ -2,36 +2,24 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class Script extends Struct
 {
-    protected string $name;
-
-    protected string $script;
-
-    protected array $twigOptions;
-
-    protected array $includes = [];
-
-    protected \DateTimeInterface $lastModified;
-
-    private ?ScriptAppInformation $scriptAppInformation;
-
-    private bool $active;
-
-    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?ScriptAppInformation $scriptAppInformation = null, array $twigOptions = [], array $includes = [], bool $active = true)
-    {
-        $this->name = $name;
-        $this->script = $script;
-        $this->twigOptions = $twigOptions;
-        $this->lastModified = $lastModified;
-        $this->includes = $includes;
-        $this->scriptAppInformation = $scriptAppInformation;
-        $this->active = $active;
+    public function __construct(
+        protected string $name,
+        protected string $script,
+        protected \DateTimeInterface $lastModified,
+        private readonly ?ScriptAppInformation $scriptAppInformation = null,
+        protected array $twigOptions = [],
+        protected array $includes = [],
+        private readonly bool $active = true
+    ) {
     }
 
     public function getName(): string

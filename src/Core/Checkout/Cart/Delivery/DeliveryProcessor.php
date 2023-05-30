@@ -8,18 +8,20 @@ use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
-    public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
+    final public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
 
-    public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
+    final public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
 
-    public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
+    final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
 
     /**
      * @var DeliveryBuilder
@@ -32,7 +34,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     protected $deliveryCalculator;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $shippingMethodRepository;
 
@@ -42,7 +44,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     public function __construct(
         DeliveryBuilder $builder,
         DeliveryCalculator $deliveryCalculator,
-        EntityRepositoryInterface $shippingMethodRepository
+        EntityRepository $shippingMethodRepository
     ) {
         $this->builder = $builder;
         $this->deliveryCalculator = $deliveryCalculator;

@@ -17,8 +17,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_requirements_column_result %}
             <template
-                slot="column-result"
-                slot-scope="{ item, isInlineEdit }"
+                #column-result="{ item, isInlineEdit }"
             >
                 <template v-if="item.result">
                     <sw-color-badge
@@ -41,8 +40,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_requirements_column_message %}
             <template
-                slot="column-message"
-                slot-scope="{ item, isInlineEdit }"
+                #column-message="{ item, isInlineEdit }"
             >
                 <span v-html="$t('sw-settings-shopware-updates.requirements.message.' + item.message, item.vars)"></span>
             </template>

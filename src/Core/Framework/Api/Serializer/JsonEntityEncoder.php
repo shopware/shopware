@@ -12,23 +12,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+#[Package('core')]
 class JsonEntityEncoder
 {
     /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
      * @internal
      */
-    public function __construct(Serializer $serializer)
+    public function __construct(private readonly NormalizerInterface $serializer)
     {
-        $this->serializer = $serializer;
     }
 
     /**
@@ -63,7 +59,7 @@ class JsonEntityEncoder
 
     private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl): array
     {
-        /** @var array $decoded */
+        /** @var array<mixed> $decoded */
         $decoded = $this->serializer->normalize($entity);
 
         $includes = $criteria->getIncludes() ?? [];
@@ -98,11 +94,11 @@ class JsonEntityEncoder
             $object = $struct->getVars()[$property];
 
             if ($object instanceof Collection) {
-                /** @var Struct $object */
-                $object = array_values($object->getElements());
+                /** @var list<Struct> $objects */
+                $objects = array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {
-                    $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $object[$index]);
+                    $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $objects[$index]);
                 }
 
                 continue;

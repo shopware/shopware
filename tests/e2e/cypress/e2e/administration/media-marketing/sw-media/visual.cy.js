@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
@@ -5,15 +8,11 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Media: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic media workflow', { tags: ['pa-content-management'] }, () => {
@@ -22,16 +21,12 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveDataFileUpload');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/media`,
-            method: 'POST'
-        }).as('getData');
 
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'POST'
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
+            method: 'POST',
         }).as('saveDataUrlUpload');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -42,10 +37,8 @@ describe('Media: Visual tests', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/media/index',
             mainMenuId: 'sw-content',
-            subMenuId: 'sw-media'
+            subMenuId: 'sw-media',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-media-index__page-content').should('be.visible');
@@ -67,14 +60,14 @@ describe('Media: Visual tests', () => {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload-v2__button-url-upload',
-                '.sw-media-upload-v2__button-context-menu'
+                '.sw-media-upload-v2__button-context-menu',
             );
-            page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 
             cy.wait('@saveDataUrlUpload')
                 .its('response.statusCode').should('equal', 204);
             cy.awaitAndCheckNotification('File has been saved.');
-            cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
+            cy.get('.sw-media-base-item__name[title="plugin-manager--login.png"]')
                 .should('be.visible');
             cy.get('.sw-media-preview-v2__item').should('have.attr', 'src');
             cy.get('.icon--multicolor-file-thumbnail-broken').should('not.exist');
@@ -96,19 +89,19 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         // Open product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')

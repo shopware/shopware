@@ -27,7 +27,11 @@ function resolve(page) {
         cmsElements = cmsService.getCmsElementRegistry();
 
         page.sections.forEach((section) => {
+            initVisibility(section);
+
             section.blocks.forEach((block) => {
+                initVisibility(block);
+
                 block.slots.forEach((slot) => {
                     slots[slot.id] = slot;
                     initSlotConfig(slot);
@@ -88,8 +92,26 @@ function resolve(page) {
     });
 }
 
+function initVisibility(element) {
+    if (!element.visibility) {
+        element.visibility = {};
+    }
+
+    const visibilityProperties = ['mobile', 'tablet', 'desktop'];
+
+    visibilityProperties.forEach((key) => {
+        if (typeof element.visibility[key] === 'boolean') {
+            return;
+        }
+
+        element.visibility[key] = true;
+    });
+}
+
+
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -99,7 +121,8 @@ function initSlotConfig(slot) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 function initSlotDefaultData(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -109,7 +132,8 @@ function initSlotDefaultData(slot) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
@@ -142,7 +166,8 @@ function optimizeCriteriaObjects(slotEntityCollection) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 function canBeMerged(entity) {
     if (!entity.searchCriteria) {
@@ -200,7 +225,8 @@ function fetchByIdentifier(directReads) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 function fetchByCriteria(searches) {
     const results = {};
@@ -241,7 +267,8 @@ function fetchByCriteria(searches) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
 function getRepository(entity) {
     if (repositories[entity]) {

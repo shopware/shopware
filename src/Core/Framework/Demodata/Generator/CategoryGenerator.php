@@ -6,40 +6,36 @@ use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class CategoryGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $categories = [];
 
-    private EntityRepositoryInterface $categoryRepository;
-
-    private EntityRepositoryInterface $cmsPageRepository;
-
     private Generator $faker;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $categoryRepository,
-        EntityRepositoryInterface $cmsPageRepository,
-        Connection $connection
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $cmsPageRepository,
+        private readonly Connection $connection
     ) {
-        $this->categoryRepository = $categoryRepository;
-        $this->cmsPageRepository = $cmsPageRepository;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -75,7 +71,10 @@ class CategoryGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $pageIds
+     * @param list<string> $pageIds
+     * @param list<string> $tags
+     *
+     * @return array<string, mixed>
      */
     private function createCategory(DemodataContext $context, array $pageIds, array $tags, string $parentId, ?string $afterId, int $max, int $current): array
     {
@@ -102,6 +101,11 @@ class CategoryGenerator implements DemodataGeneratorInterface
         return array_filter($cat);
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return array<string, mixed>
+     */
     private function getTags(array $tags): array
     {
         $tagAssignments = [];
@@ -111,9 +115,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -122,11 +124,12 @@ class CategoryGenerator implements DemodataGeneratorInterface
         return $tagAssignments;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
-
-        return array_column($ids, 'id');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
     }
 
     private function randomDepartment(Generator $faker, int $max = 3, bool $fixedAmount = false, bool $unique = true): string
@@ -173,17 +176,26 @@ class CategoryGenerator implements DemodataGeneratorInterface
         return $categoryId;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getCmsPageIds(Context $getContext): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('type', 'product_list'));
         $criteria->setLimit(500);
 
-        return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
+        /** @var list<string> $ids */
+        $ids = $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
+
+        return $ids;
     }
 
     /**
-     * @param array<string> $pageIds
+     * @param list<string> $pageIds
+     * @param list<string> $tags
+     *
+     * @return list<array<string, mixed>>
      */
     private function createCategories(DemodataContext $context, array $pageIds, array $tags, int $count, string $id, int $max, int $current): array
     {

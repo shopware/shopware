@@ -1,9 +1,11 @@
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @module core/factory/context
  * @param {Object} context
  * @type factory
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createContext(context = {}) {
     // set initial context
     Shopware.State.commit('context/setAppEnvironment', process.env.NODE_ENV);

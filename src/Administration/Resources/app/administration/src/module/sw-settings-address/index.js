@@ -1,6 +1,9 @@
-import './page/sw-settings-address';
+// @deprecated tag:v6.6.0 - Whole module will be removed as no longer necessary since the introduction of address formatting
 
 const { Module } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-address', () => import('./page/sw-settings-address'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-address', {

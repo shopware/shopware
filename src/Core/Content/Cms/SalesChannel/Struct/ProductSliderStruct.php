@@ -3,16 +3,18 @@
 namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('content')]
 class ProductSliderStruct extends Struct
 {
     /**
      * @var ProductCollection|null
      */
-    protected $products;
+    protected $products = null;
 
-    protected ?string $streamId;
+    protected ?string $streamId = null;
 
     public function getProducts(): ?ProductCollection
     {

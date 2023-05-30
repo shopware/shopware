@@ -41,13 +41,13 @@ class CustomFieldTest extends TestCase
      */
     private $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->connection->exec('DROP TABLE IF EXISTS `attribute_test`');
-        $this->connection->exec('
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `attribute_test`');
+        $this->connection->executeStatement('
             CREATE TABLE `attribute_test` (
               id BINARY(16) NOT NULL PRIMARY KEY,
               parent_id BINARY(16) NULL,
@@ -57,8 +57,8 @@ class CustomFieldTest extends TestCase
               updated_at DATETIME(3) NULL
         )');
 
-        $this->connection->exec('DROP TABLE IF EXISTS `attribute_test_translation`');
-        $this->connection->exec('
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `attribute_test_translation`');
+        $this->connection->executeStatement('
             CREATE TABLE `attribute_test_translation` (
               attribute_test_id BINARY(16) NOT NULL,
               language_id BINARY(16) NOT NULL,
@@ -71,11 +71,11 @@ class CustomFieldTest extends TestCase
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->exec('DROP TABLE `attribute_test_translation`');
-        $this->connection->executeUpdate('DROP TABLE `attribute_test`');
+        $this->connection->executeStatement('DROP TABLE `attribute_test_translation`');
+        $this->connection->executeStatement('DROP TABLE `attribute_test`');
     }
 
     public function testSearch(): void
@@ -86,14 +86,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $barId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'bar',
                 ],
             ],
             [
                 'id' => $bazId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'baz',
                 ],
@@ -133,7 +133,7 @@ class CustomFieldTest extends TestCase
         ]);
         $entity = [
             'id' => Uuid::randomHex(),
-            'name' => "foo'bar",
+            'name' => 'foo\'bar',
             'custom' => [
                 'foo' => 'bar',
             ],
@@ -180,7 +180,7 @@ class CustomFieldTest extends TestCase
 
         $entity = [
             'id' => Uuid::randomHex(),
-            'name' => "foo'bar",
+            'name' => 'foo\'bar',
             'custom' => [
                 'foo' => ['bar'],
             ],
@@ -212,7 +212,7 @@ class CustomFieldTest extends TestCase
 
         $entity = [
             'id' => Uuid::randomHex(),
-            'name' => "foo'bar",
+            'name' => 'foo\'bar',
             'custom' => [
                 'foo' => 'bar',
             ],
@@ -226,7 +226,7 @@ class CustomFieldTest extends TestCase
 
         $patch = [
             'id' => $entity['id'],
-            'name' => "foo'bar'baz",
+            'name' => 'foo\'bar\'baz',
             'custom' => [
                 'foo' => 'baz',
             ],
@@ -253,7 +253,7 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $dotId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo.bar' => 'baz',
                 ],
@@ -316,14 +316,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'int' => 2,
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'int' => 10,
                 ],
@@ -363,14 +363,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'float' => 2.0,
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'float' => 10.0,
                 ],
@@ -414,14 +414,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'datetime' => $earlierDate,
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'datetime' => $laterDate,
                 ],
@@ -511,14 +511,14 @@ class CustomFieldTest extends TestCase
         $entities = [
             [
                 'id' => $smallId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'a',
                 ],
             ],
             [
                 'id' => $bigId,
-                'name' => "foo'bar",
+                'name' => 'foo\'bar',
                 'custom' => [
                     'foo' => 'ab',
                 ],
@@ -1130,7 +1130,7 @@ class CustomFieldTest extends TestCase
         $repo->create([$entity], Context::createDefaultContext());
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
-        $encoded = json_decode(json_encode($first), true);
+        $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['custom']['date']);
     }
 
@@ -1150,7 +1150,7 @@ class CustomFieldTest extends TestCase
         $repo->create([$entity], Context::createDefaultContext());
 
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
-        $encoded = json_decode(json_encode($first), true);
+        $encoded = json_decode(json_encode($first, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['custom']['json']['date']);
     }
 

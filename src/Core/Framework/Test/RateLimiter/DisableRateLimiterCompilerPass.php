@@ -32,7 +32,7 @@ class DisableRateLimiterCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        if (!$this::$enabled) {
+        if (!self::$enabled) {
             return;
         }
 

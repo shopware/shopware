@@ -21,15 +21,15 @@
     }
 
     .headline {
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         text-align: center;
         letter-spacing: 0.1px;
         line-height: 25px;
     }
 
     .message {
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: normal;
         text-align: center;
         letter-spacing: 0.1px;
@@ -38,8 +38,8 @@
     }
 
     .headline-useful-links {
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         letter-spacing: 0.1px;
         line-height: 25px;
         margin-top: 50px;
@@ -52,7 +52,7 @@
             display: inline-block;
             text-decoration: none;
             color: $color-shopware-brand-500;
-            font-size: 14px;
+            font-size: $font-size-xs;
             font-weight: normal;
             letter-spacing: 0.1px;
             line-height: 22px;

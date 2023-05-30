@@ -5,14 +5,17 @@ namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -25,16 +28,123 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
 class NewsletterSubscribeRouteTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+    }
+
+    public function testSubscribeWithDOIEnabled(): void
+    {
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'test@example.com',
+            'option' => 'direct',
+            'firstName' => 'Y',
+            'lastName' => 'Tran',
+        ]);
+
+        $newsletterRecipientEntity = new NewsletterRecipientEntity();
+        $newsletterRecipientEntity->setId(Uuid::randomHex());
+        $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+
+        $idSearchResult = $this->createMock(IdSearchResult::class);
+        $idSearchResult->expects(static::once())->method('firstId')->willReturn($newsletterRecipientEntity->getId());
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects(static::once())->method('searchIds')->willReturn($idSearchResult);
+        $entityRepository->expects(static::once())->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('newsletter_recipient', 1, new NewsletterRecipientCollection([$newsletterRecipientEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig
+            ->expects(static::exactly(2))
+            ->method('getBool')
+            ->with('core.newsletter.doubleOptIn')
+            ->willReturn(true);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->willReturnOnConsecutiveCalls(
+                static::isInstanceOf(BuildValidationEvent::class),
+                static::isInstanceOf(NewsletterSubscribeUrlEvent::class),
+                static::isInstanceOf(NewsletterRegisterEvent::class),
+            );
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            $this->createMock(DataValidator::class),
+            $eventDispatcher,
+            $systemConfig,
+            $this->createMock(RateLimiter::class),
+            $this->createMock(RequestStack::class),
+        );
+
+        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+    }
+
+    public function testSubscribeWithDOIDisabled(): void
+    {
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'test@example.com',
+            'option' => 'subscribe',
+            'firstName' => 'Y',
+            'lastName' => 'Tran',
+        ]);
+
+        $newsletterRecipientEntity = new NewsletterRecipientEntity();
+        $newsletterRecipientEntity->setId(Uuid::randomHex());
+        $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+
+        $idSearchResult = $this->createMock(IdSearchResult::class);
+        $idSearchResult->expects(static::once())->method('firstId')->willReturn($newsletterRecipientEntity->getId());
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects(static::once())->method('searchIds')->willReturn($idSearchResult);
+        $entityRepository->expects(static::once())->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('newsletter_recipient', 1, new NewsletterRecipientCollection([$newsletterRecipientEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig
+            ->expects(static::exactly(2))
+            ->method('getBool')
+            ->with('core.newsletter.doubleOptIn')
+            ->willReturn(false);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->willReturnOnConsecutiveCalls(
+                static::isInstanceOf(BuildValidationEvent::class),
+                static::isInstanceOf(NewsletterSubscribeUrlEvent::class),
+                static::isInstanceOf(NewsletterConfirmEvent::class),
+            );
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            $this->createMock(DataValidator::class),
+            $eventDispatcher,
+            $systemConfig,
+            $this->createMock(RateLimiter::class),
+            $this->createMock(RequestStack::class),
+        );
+
+        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
     }
 
     /**
@@ -82,7 +192,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
     }
 
-    public function validatorDataProvider(): \Generator
+    public static function validatorDataProvider(): \Generator
     {
         yield 'subscribe with no correct validation' => [
             [
@@ -134,13 +244,11 @@ class NewsletterSubscribeRouteTest extends TestCase
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->expects(static::once())->method('firstId')->willReturn($newsletterRecipientEntity->getId());
 
-        $entityRepositoryMock = $this->createMock(EntityRepositoryInterface::class);
+        $entityRepositoryMock = $this->createMock(EntityRepository::class);
         $entityRepositoryMock->expects(static::once())->method('searchIds')->willReturn($idSearchResult);
         $entityRepositoryMock->expects(static::once())->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('newsletter_recipient', 1, new NewsletterRecipientCollection([$newsletterRecipientEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),
         );
-
-        $raleLimiterMock = $this->createMock(RateLimiter::class);
 
         $request = $this->createMock(Request::class);
         $request->method('getClientIp')->willReturn('127.0.0.1');
@@ -151,7 +259,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             ->method('getMainRequest')
             ->willReturn($request);
 
-        $raleLimiterMock
+        $rateLimiterMock = $this->createMock(RateLimiter::class);
+        $rateLimiterMock
             ->expects(static::once())
             ->method('ensureAccepted')
             ->willReturnCallback(function (string $route, string $key): void {
@@ -164,7 +273,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(DataValidator::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SystemConfigService::class),
-            $raleLimiterMock,
+            $rateLimiterMock,
             $requestStackMock,
         );
 

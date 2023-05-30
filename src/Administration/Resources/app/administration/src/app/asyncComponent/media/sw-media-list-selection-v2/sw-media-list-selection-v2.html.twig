@@ -1,0 +1,43 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_list_selection_v2 %}
+<div class="sw-media-list-selection-v2">
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_list_selection_v2_upload %}
+    <sw-upload-listener
+        :upload-tag="uploadId"
+        @media-upload-add="onUploadsAdded"
+        @media-upload-finish="successfulUpload"
+        @media-upload-fail="onUploadFailed"
+    />
+
+    <sw-media-upload-v2
+        :upload-tag="uploadId"
+        variant="regular"
+        :default-folder="defaultFolderName"
+        @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_list_selection_v2_grid %}
+    <div
+        ref="grid"
+        class="sw-media-list-selection-v2__grid"
+        :style="gridAutoRows"
+    >
+        <sw-loader v-if="entity.isLoading" />
+        {%  block sw_media_list_selection_v2_grid_items %}
+        <sw-media-list-selection-item-v2
+            v-for="(mediaItem, i) in mediaItems"
+            :key="i"
+            v-draggable="{ dragGroup: 'media-items', data: mediaItem, onDragEnter: onDeboundDragDrop }"
+            v-droppable="{ dragGroup: 'media-items', data: mediaItem }"
+            :item="mediaItem"
+            @item-remove="removeItem(mediaItem, i)"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

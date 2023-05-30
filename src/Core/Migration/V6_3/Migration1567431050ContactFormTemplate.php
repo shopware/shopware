@@ -7,9 +7,14 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1567431050ContactFormTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,7 +27,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
         $contactTemplateId = $this->getContactMailTemplateId($connection);
         $contactEventConfig = $this->getContactMailEventConfig($connection);
 
-        $config = json_decode($contactEventConfig, true);
+        $config = json_decode($contactEventConfig, true, 512, \JSON_THROW_ON_ERROR);
         $contactTemplateTypeId = Uuid::fromHexToBytes($config['mail_template_type_id']);
 
         $update = false;
@@ -91,7 +96,7 @@ SQL;
                 'event_name' => ContactFormEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $contactEventConfig;
     }
@@ -109,7 +114,7 @@ SQL;
             [
                 'technical_name' => MailTemplateTypes::MAILTYPE_CONTACT_FORM,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         if ($templateTypeId) {
             return $templateTypeId;

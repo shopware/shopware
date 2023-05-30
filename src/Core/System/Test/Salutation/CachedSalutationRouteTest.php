@@ -26,10 +26,12 @@ use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group cache
  * @group store-api
  */
@@ -92,7 +94,7 @@ class CachedSalutationRouteTest extends TestCase
         $route->load(new Request(), $context, $criteria);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];
@@ -121,25 +123,25 @@ class CachedSalutationRouteTest extends TestCase
         $listener->expects(static::exactly($calls))->method('__invoke');
         $this->addEventListener($dispatcher, 'salutation.loaded', $listener);
 
-        $before();
+        $before($this->getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
 
-        $after();
+        $after($this->getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 
         yield 'Cache invalidated if created salutation assigned' => [
             function (): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('salutation'),
                     'displayName' => 'test',
@@ -147,13 +149,13 @@ class CachedSalutationRouteTest extends TestCase
                     'salutationKey' => 'test',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->create([$data], Context::createDefaultContext());
+                $container->get('salutation.repository')->create([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated if updated salutation assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('salutation'),
                     'displayName' => 'test',
@@ -161,21 +163,21 @@ class CachedSalutationRouteTest extends TestCase
                     'salutationKey' => 'test',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->create([$data], Context::createDefaultContext());
+                $container->get('salutation.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('salutation'),
                     'displayName' => 'update',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->update([$data], Context::createDefaultContext());
+                $container->get('salutation.repository')->update([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated if deleted salutation assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('salutation'),
                     'displayName' => 'test',
@@ -183,14 +185,14 @@ class CachedSalutationRouteTest extends TestCase
                     'salutationKey' => 'test',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->create([$data], Context::createDefaultContext());
+                $container->get('salutation.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('salutation'),
                 ];
 
-                $this->getContainer()->get('salutation.repository')->delete([$data], Context::createDefaultContext());
+                $container->get('salutation.repository')->delete([$data], Context::createDefaultContext());
             },
             2,
         ];

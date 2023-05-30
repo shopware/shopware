@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
@@ -11,35 +12,46 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-type Api DefinitionService::API|DefinitionService::STORE_API
  * @phpstan-type ApiType DefinitionService::TypeJsonApi|DefinitionService::TypeJson
  * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array{schemas: array<string, array<mixed>>}}
+ * @phpstan-type ApiSchema array<string, array{name: string, translatable: list<string>, properties: array<string, mixed>}|array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
  */
+#[Package('core')]
 class DefinitionService
 {
-    public const API = 'api';
-    public const STORE_API = 'store-api';
+    final public const API = 'api';
+    final public const STORE_API = 'store-api';
 
-    public const TypeJsonApi = 'jsonapi';
-    public const TypeJson = 'json';
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use DefinitionService::TYPE_JSON_API instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
+    final public const TypeJsonApi = self::TYPE_JSON_API;
+
+    final public const TYPE_JSON_API = 'jsonapi';
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed. Use DefinitionService::TYPE_JSON instead
+     *
+     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
+     */
+    final public const TypeJson = self::TYPE_JSON;
+
+    final public const TYPE_JSON = 'json';
 
     /**
      * @var ApiDefinitionGeneratorInterface[]
      */
-    private $generators;
-
-    private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
+    private readonly array $generators;
 
     /**
      * @internal
      */
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
         ApiDefinitionGeneratorInterface ...$generators
     ) {
         $this->generators = $generators;
-        $this->salesChannelDefinitionRegistry = $salesChannelDefinitionRegistry;
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     /**
@@ -48,7 +60,7 @@ class DefinitionService
      *
      * @return OpenApiSpec
      */
-    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TypeJsonApi): array
+    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API): array
     {
         return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType);
     }
@@ -56,7 +68,7 @@ class DefinitionService
     /**
      * @phpstan-param Api $type
      *
-     * @return array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}|array{name: string, translatable: array<string, mixed>, properties: array<string, mixed>}>
+     * @return ApiSchema
      */
     public function getSchema(string $format = 'openapi-3', string $type = self::API): array
     {
@@ -68,7 +80,7 @@ class DefinitionService
      */
     public function toApiType(string $apiType): ?string
     {
-        if ($apiType !== self::TypeJsonApi && $apiType !== self::TypeJson) {
+        if ($apiType !== self::TYPE_JSON_API && $apiType !== self::TYPE_JSON) {
             return null;
         }
 
@@ -92,7 +104,7 @@ class DefinitionService
     /**
      * @throws ApiDefinitionGeneratorNotFoundException
      *
-     * @return list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>
+     * @return array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>
      */
     private function getDefinitions(string $type): array
     {

@@ -19,7 +19,8 @@
                 <noscript class="noscript-main">
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'info',
-                        content: 'general.noscriptNotice'|trans|sw_sanitize
+                        content: 'general.noscriptNotice'|trans|sw_sanitize,
+                        iconCache: false
                     } %}
                 </noscript>
             {% endblock %}
@@ -53,7 +54,7 @@
                         {% else %}
                             {% block error_maintenance_main_fallback %}
                                 <div class="container mt-5">
-                                    <img src="{{ asset('bundles/storefront/assets/illustration/maintenance_mode.svg', 'asset') }}"
+                                    <img src="{{ asset('assets/illustration/maintenance_mode.svg', 'theme') }}"
                                          alt="{{ "general.maintenanceModeHeader"|trans|striptags }}"
                                          class="rounded mx-auto d-block w-75"/>
 
@@ -73,7 +74,7 @@
                             {% if config('core.basicInformation.imprintPage') is not null %}
                                 <a href="{{ seoUrl('frontend.maintenance.singlepage', { id: config('core.basicInformation.imprintPage') }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
-                                   class="{{ paddingStartClass }}-2 {{ paddingEndClass }}-2">
+                                   class="ps-2 pe-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -81,7 +82,7 @@
                             {% if config('core.basicInformation.privacyPage') is not null %}
                                 <a href="{{ seoUrl('frontend.maintenance.singlepage', { id: config('core.basicInformation.privacyPage') }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
-                                   class="{{ paddingStartClass }}-2 {{ paddingEndClass }}-2">
+                                   class="ps-2 pe-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -112,29 +113,13 @@
                         'sm': theme_config('breakpoint.sm'),
                         'md': theme_config('breakpoint.md'),
                         'lg': theme_config('breakpoint.lg'),
-                        'xl': theme_config('breakpoint.xl')
+                        'xl': theme_config('breakpoint.xl'),
+                        'xxl': theme_config('breakpoint.xxl')
                     } %}
-
-                    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint #}
-                    {% if feature('v6.5.0.0') %}
-                        {% set breakpoint = breakpoint|merge({
-                            'xxl': theme_config('breakpoint.xxl')
-                        }) %}
-                    {% endif %}
 
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
                 </script>
             {% endblock %}
-
-            {% block error_maintenance_script_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
-                </script>
-            {% endblock %}
-
             {% block error_maintenance_script_reload %}
                 <script>
                     setTimeout(function () {

@@ -3,51 +3,47 @@
 namespace Shopware\Core\Framework\Changelog;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
+#[Package('core')]
 class ChangelogDefinition
 {
-    /**
-     * @Assert\NotBlank(
-     *     message="The title should not be blank"
-     * )
-     */
+    private const VIOLATION_MESSAGE_SECTION_SEPARATOR = 'You should use "___" to separate %s and %s section';
+    private const VIOLATION_MESSAGE_STARTING_KEYWORD = "Changelog entry \"%s\" does not start with a valid keyword.\nPlease have look at the handbook: https://handbook.shopware.com/Product/Guides/Development/WritingChangelog#changelog-entries";
+
+    #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
 
-    /**
-     * @Assert\NotBlank(
-     *     message="The Jira ticket should not be blank"
-     * )
-     */
+    #[Assert\NotBlank(message: 'The Jira ticket should not be blank')]
+    #[Assert\Regex(pattern: '/^NEXT-\d+$/', message: 'The Jira ticket has an invalid format')]
     private string $issue;
 
-    private ?string $flag;
+    private ?string $flag = null;
 
-    private ?string $author;
+    private ?string $author = null;
 
-    private ?string $authorEmail;
+    private ?string $authorEmail = null;
 
-    private ?string $authorGitHub;
+    private ?string $authorGitHub = null;
 
-    private ?string $core;
+    private ?string $core = null;
 
-    private ?string $storefront;
+    private ?string $storefront = null;
 
-    private ?string $administration;
+    private ?string $administration = null;
 
-    private ?string $api;
+    private ?string $api = null;
 
-    private ?string $upgrade;
+    private ?string $upgrade = null;
 
-    private ?string $nextMajorVersionChanges;
+    private ?string $nextMajorVersionChanges = null;
 
-    /**
-     * @Assert\Callback
-     */
+    #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
         if (empty($this->api) && empty($this->core) && empty($this->storefront) && empty($this->administration)) {
@@ -55,40 +51,40 @@ class ChangelogDefinition
                 ->addViolation();
         }
 
-        if ($this->api && preg_match('/\n+#\s+(\w+)/', $this->api, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate API and %s section', $matches[1]))
-                ->atPath('api')
-                ->addViolation();
+        if ($this->api) {
+            if (preg_match('/\n+#\s+(\w+)/', $this->api, $matches)) {
+                $this->buildViolationSectionSeparator($context, ChangelogSection::api, $matches[1]);
+            }
+            $this->checkChangelogEntries($context, $this->api, ChangelogSection::api);
         }
 
-        if ($this->storefront && preg_match('/\n+#\s+(\w+)/', $this->storefront, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Storefront and %s section', $matches[1]))
-                ->atPath('storefront')
-                ->addViolation();
+        if ($this->storefront) {
+            if (preg_match('/\n+#\s+(\w+)/', $this->storefront, $matches)) {
+                $this->buildViolationSectionSeparator($context, ChangelogSection::storefront, $matches[1]);
+            }
+            $this->checkChangelogEntries($context, $this->storefront, ChangelogSection::storefront);
         }
 
-        if ($this->administration && preg_match('/\n+#\s+(\w+)/', $this->administration, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Administration and %s section', $matches[1]))
-                ->atPath('administration')
-                ->addViolation();
+        if ($this->administration) {
+            if (preg_match('/\n+#\s+(\w+)/', $this->administration, $matches)) {
+                $this->buildViolationSectionSeparator($context, ChangelogSection::administration, $matches[1]);
+            }
+            $this->checkChangelogEntries($context, $this->administration, ChangelogSection::administration);
         }
 
-        if ($this->core && preg_match('/\n+#\s+(\w+)/', $this->core, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Core and %s section', $matches[1]))
-                ->atPath('core')
-                ->addViolation();
+        if ($this->core) {
+            if (preg_match('/\n+#\s+(\w+)/', $this->core, $matches)) {
+                $this->buildViolationSectionSeparator($context, ChangelogSection::core, $matches[1]);
+            }
+            $this->checkChangelogEntries($context, $this->core, ChangelogSection::core);
         }
 
         if ($this->upgrade && preg_match('/\n+#\s+(\w+)/', $this->upgrade, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Upgrade Information and %s section ', $matches[1]))
-                ->atPath('upgrade')
-                ->addViolation();
+            $this->buildViolationSectionSeparator($context, ChangelogSection::upgrade, $matches[1]);
         }
 
         if ($this->nextMajorVersionChanges && preg_match('/\n+#\s+(\w+)/', $this->nextMajorVersionChanges, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Next Major Version Changes and %s section ', $matches[1]))
-                ->atPath('nextMajorVersionChanges')
-                ->addViolation();
+            $this->buildViolationSectionSeparator($context, ChangelogSection::major, $matches[1]);
         }
 
         if ($this->flag && !Feature::has($this->flag)) {
@@ -291,5 +287,40 @@ EOD;
         $template = str_replace("\n\n", "\n", $template);
 
         return trim($template);
+    }
+
+    private function buildViolationSectionSeparator(ExecutionContextInterface $context, ChangelogSection $currentSection, string $nextSection): void
+    {
+        $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_SECTION_SEPARATOR, $currentSection->value, $nextSection))
+            ->atPath($currentSection->name)
+            ->addViolation();
+    }
+
+    private function checkChangelogEntries(ExecutionContextInterface $context, ?string $changelogPart, ChangelogSection $currentSection): void
+    {
+        if (!\is_string($changelogPart)) {
+            return;
+        }
+
+        $changelogEntries = explode("\n", $changelogPart);
+        foreach ($changelogEntries as $changelogEntry) {
+            if (!str_starts_with($changelogEntry, '*')) {
+                continue;
+            }
+            // Remove leading asterisk and spaces around changelog entry
+            $changelogEntry = trim(substr($changelogEntry, 1));
+            if ($changelogEntry === '') {
+                continue;
+            }
+
+            foreach (ChangelogKeyword::cases() as $allowedChangelogKeyword) {
+                if (str_starts_with($changelogEntry, $allowedChangelogKeyword->value)) {
+                    continue 2;
+                }
+            }
+            $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry))
+                ->atPath($currentSection->name)
+                ->addViolation();
+        }
     }
 }

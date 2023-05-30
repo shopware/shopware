@@ -2,13 +2,17 @@
 
 namespace Shopware\Core\System\StateMachine\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('checkout')]
 class StateMachineInvalidEntityIdException extends ShopwareHttpException
 {
-    public function __construct(string $entityName, string $entityId)
-    {
+    public function __construct(
+        string $entityName,
+        string $entityId
+    ) {
         parent::__construct(
             'Unable to read entity "{{ entityName }}" with id "{{ entityId }}".',
             [

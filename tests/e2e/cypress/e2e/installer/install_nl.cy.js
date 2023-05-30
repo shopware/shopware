@@ -2,7 +2,8 @@
 
 describe('Minimal install', () => {
     before(() => {
-       Cypress.env('SKIP_INIT', 'true');
+        Cypress.env('SKIP_INIT', 'true');
+        Cypress.env('SKIP_AUTH', 'true');
     });
 
     /**
@@ -13,8 +14,8 @@ describe('Minimal install', () => {
     it('@install: nl-NL and Euro', { tags: ['pa-system-settings'] }, () => {
         cy.visit('/installer', {
             headers: {
-                'Accept-Language': Cypress.env('acceptLanguage')
-            }
+                'Accept-Language': Cypress.env('acceptLanguage'),
+            },
         });
 
         cy.get('.content--main').should('be.visible');
@@ -118,7 +119,7 @@ describe('Minimal install', () => {
 
         cy.contains('.btn.btn-primary', 'Verder').click();
 
-        // See if return to Admin was successful
+        // See if redirect to Admin was successful
         cy.get('.sw-desktop').should('be.visible');
 
         // @frw in Administration: welcome
@@ -133,6 +134,7 @@ describe('Minimal install', () => {
 
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Data import');
+        cy.get('.sw-first-run-wizard-data-import__headline').should('be.visible');
 
         cy.contains('.sw-button span', 'Next').click();
 
@@ -141,6 +143,7 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Default values');
 
+        cy.contains('.sw-button', 'Next').should('not.be.disabled');
         cy.contains('.sw-button span', 'Next').click();
         cy.get('.sw-loader__element').should('not.exist');
 
@@ -150,7 +153,8 @@ describe('Minimal install', () => {
         cy.contains('.sw-first-run-wizard-mailer-selection__headline', 'Establishing email communication');
 
         // @frw: SwagPayPal install
-        cy.intercept('POST', '**/api/_action/extension/install/plugin/SwagPayPal').as('installSwagPayPal');
+        // TODO: Reactivate when PayPal is 6.5 compatible
+        // cy.intercept('POST', '**/api/_action/extension/install/plugin/SwagPayPal').as('installSwagPayPal');
         cy.contains('.sw-button span', 'Configure later').click();
 
         // @frw: skip paypal
@@ -158,7 +162,8 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'PayPal setup');
 
-        cy.wait('@installSwagPayPal').its('response.statusCode').should('equal', 204);
+        // TODO: Reactivate when PayPal is 6.5 compatible
+        //cy.wait('@installSwagPayPal').its('response.statusCode').should('equal', 204);
 
         cy.contains('.sw-button span', 'Skip').click();
 
@@ -190,13 +195,12 @@ describe('Minimal install', () => {
 
         cy.intercept({
             url: '/api/_action/store/frw/finish',
-            method: 'post'
+            method: 'post',
         }).as('finishCall');
 
         cy.contains('.sw-button span', 'Finish').click();
 
         cy.wait('@finishCall').its('response.statusCode').should('equal', 200);
-
 
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq(`${Cypress.env('admin')}`);

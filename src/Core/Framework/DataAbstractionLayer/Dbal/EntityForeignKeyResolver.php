@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -27,27 +28,18 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * Determines all associated data for a definition.
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class EntityForeignKeyResolver
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityDefinitionQueryHelper $queryHelper)
-    {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper
+    ) {
     }
 
     /**
@@ -154,9 +146,7 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        $cascades = $definition->getFields()->filter(static function (Field $field) use ($class): bool {
-            return $field->is($class);
-        });
+        $cascades = $definition->getFields()->filter(static fn (Field $field): bool => $field->is($class));
 
         if ($cascades->count() === 0) {
             return [];
@@ -245,7 +235,7 @@ class EntityForeignKeyResolver
 
         $this->queryHelper->addIdCondition(new Criteria($ids), $root, $query);
 
-        $affected = $query->execute()->fetchAll();
+        $affected = $query->executeQuery()->fetchAllAssociative();
 
         if (empty($affected)) {
             return [];

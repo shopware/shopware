@@ -9,61 +9,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @final
+ */
+#[Package('core')]
 class DemodataContext
 {
     /**
-     * @var Context
-     */
-    private $context;
-
-    /**
      * List of created entities for definition
      *
-     * @var string[][]
+     * @var array<string, list<string>>
      */
-    private $entities = [];
+    private array $entities = [];
 
     /**
-     * @var SymfonyStyle
+     * @var array<string, array{definition: string, items: int, time: float}>
      */
-    private $console;
-
-    /**
-     * @var Generator
-     */
-    private $faker;
-
-    /**
-     * @var array[]
-     */
-    private $timings;
-
-    /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private array $timings;
 
     public function __construct(
-        Context $context,
-        Generator $faker,
-        string $projectDir,
-        SymfonyStyle $console,
-        DefinitionInstanceRegistry $registry
+        private readonly Context $context,
+        private readonly Generator $faker,
+        private readonly string $projectDir,
+        private readonly SymfonyStyle $console,
+        private readonly DefinitionInstanceRegistry $registry
     ) {
-        $this->context = $context;
-        $this->faker = $faker;
-        $this->projectDir = $projectDir;
-        $this->console = $console;
-        $this->registry = $registry;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(string $entity): array
     {
         if (!empty($this->entities[$entity])) {
@@ -78,13 +56,11 @@ class DemodataContext
         }
         $criteria->setLimit(500);
 
-        /** @var array<string> $ids */
+        /** @var list<string> $ids */
         $ids = $repository->searchIds($criteria, Context::createDefaultContext())
             ->getIds();
 
-        $this->entities[$entity] = $ids;
-
-        return $this->entities[$entity];
+        return $this->entities[$entity] = $ids;
     }
 
     public function getRandomId(string $entity): ?string
@@ -118,6 +94,9 @@ class DemodataContext
         ];
     }
 
+    /**
+     * @return array<string, array{definition: string, items: int, time: float}>
+     */
     public function getTimings(): array
     {
         return $this->timings;

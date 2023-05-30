@@ -2,19 +2,18 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
+#[Package('storefront')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(StorefrontPluginRegistryInterface $themeRegistry)
+    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry)
     {
-        $this->themeRegistry = $themeRegistry;
     }
 
     /**
@@ -42,6 +41,12 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
             $inheritance['@Plugins'][] = $bundle;
         }
+
+        /*
+         * Reverse the order here so our reversal after flattening doesn't
+         * collaterally invert our desired plugin order.
+         */
+        $inheritance['@Plugins'] = array_reverse($inheritance['@Plugins']);
 
         $flat = [];
         foreach ($inheritance as $namespace) {

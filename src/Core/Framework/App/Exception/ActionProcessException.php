@@ -2,17 +2,18 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class ActionProcessException extends ShopwareHttpException
 {
-    private string $actionId;
-
-    public function __construct(string $actionId, string $errorMessage, ?\Throwable $e = null)
-    {
-        $this->actionId = $actionId;
-
+    public function __construct(
+        private readonly string $actionId,
+        string $errorMessage,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'The synchronous action process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage],

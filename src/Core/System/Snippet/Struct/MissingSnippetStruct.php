@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\System\Snippet\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('system-settings')]
 class MissingSnippetStruct extends Struct
 {
     /**

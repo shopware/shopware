@@ -1,6 +1,10 @@
-const { Component, State } = Shopware;
+/**
+ * @package system-settings
+ */
+const { State } = Shopware;
 
-Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-edit-order-documents-generate-invoice', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     computed: {
         generateData: {
             get() {
@@ -14,4 +18,4 @@ Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-e
             },
         },
     },
-});
+};

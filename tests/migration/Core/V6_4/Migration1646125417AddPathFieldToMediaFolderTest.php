@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1646125417AddPathFieldToMediaFolder
  */
 class Migration1646125417AddPathFieldToMediaFolderTest extends TestCase

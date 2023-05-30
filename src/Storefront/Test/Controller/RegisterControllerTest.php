@@ -12,11 +12,11 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -45,6 +45,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class RegisterControllerTest extends TestCase
 {
     use MailTemplateTestBehaviour;
@@ -73,7 +74,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $config = $this->getContainer()->get(SystemConfigService::class);
@@ -109,7 +110,7 @@ class RegisterControllerTest extends TestCase
         $response = $registerController->register($request, $data, $this->salesChannelContext);
 
         $customers = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
+            ->fetchAllAssociative('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -124,7 +125,7 @@ class RegisterControllerTest extends TestCase
         $response = $this->getContainer()->get(RegisterController::class)->register($request, $data, $this->salesChannelContext);
 
         $customers = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
+            ->fetchAllAssociative('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -134,7 +135,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -188,7 +189,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -246,7 +247,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -285,7 +286,7 @@ class RegisterControllerTest extends TestCase
         $queryData = new QueryDataBag();
         $queryData->set('redirectTo', 'frontend.checkout.confirm.page');
         $queryData->set('hash', $customer->first()->getHash());
-        $queryData->set('em', hash('sha1', $event->getCustomer()->getEmail()));
+        $queryData->set('em', hash('sha1', (string) $event->getCustomer()->getEmail()));
 
         /** @var RedirectResponse $response */
         $response = $registerController->confirmRegistration($this->salesChannelContext, $queryData);
@@ -340,6 +341,9 @@ class RegisterControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutRegisterPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    /**
+     * @param array<string|int, mixed> $customerData
+     */
     private function getMailRecipientStruct(array $customerData): MailRecipientStruct
     {
         return new MailRecipientStruct([
@@ -379,18 +383,8 @@ class RegisterControllerTest extends TestCase
             ],
         ];
 
-        if (Feature::isActive('FEATURE_NEXT_16236')) {
-            if (!$isGuest) {
-                $data['createCustomerAccount'] = true;
-                $data['password'] = '12345678';
-            }
-
-            return new RequestDataBag($data);
-        }
-
-        if ($isGuest) {
-            $data['guest'] = true;
-        } else {
+        if (!$isGuest) {
+            $data['createCustomerAccount'] = true;
             $data['password'] = '12345678';
         }
 

@@ -7,17 +7,21 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group store-api
  */
+#[Package('sales-channel')]
 class ContextSwitchRouteTest extends TestCase
 {
     use SalesChannelApiTestBehaviour;
@@ -42,7 +46,7 @@ class ContextSwitchRouteTest extends TestCase
          * Shipping method
          */
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['shippingMethodId' => $testId]);
-        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
@@ -53,7 +57,7 @@ class ContextSwitchRouteTest extends TestCase
          * Payment method
          */
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['paymentMethodId' => $testId]);
-        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
@@ -69,7 +73,7 @@ class ContextSwitchRouteTest extends TestCase
          * Billing address
          */
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['billingAddressId' => $testId]);
-        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         static::assertEquals(
@@ -81,7 +85,7 @@ class ContextSwitchRouteTest extends TestCase
          * Shipping address
          */
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['shippingAddressId' => $testId]);
-        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         static::assertEquals(
@@ -102,7 +106,7 @@ class ContextSwitchRouteTest extends TestCase
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['billingAddressId' => $testId]);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
@@ -114,7 +118,7 @@ class ContextSwitchRouteTest extends TestCase
          */
         $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', ['shippingAddressId' => $testId]);
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
-        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
@@ -152,7 +156,7 @@ class ContextSwitchRouteTest extends TestCase
 
         $response = $this->getSalesChannelBrowser()->getResponse();
 
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
@@ -170,7 +174,7 @@ class ContextSwitchRouteTest extends TestCase
             ->request('PATCH', '/store-api/context', ['languageId' => $id]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($content, true));
     }
@@ -203,7 +207,7 @@ class ContextSwitchRouteTest extends TestCase
         $browser->request('PATCH', '/store-api/context', ['languageId' => Defaults::LANGUAGE_SYSTEM]);
 
         $response = $browser->getResponse();
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($content, true));
         static::assertNull($content['redirectUrl']);
@@ -217,7 +221,7 @@ class ContextSwitchRouteTest extends TestCase
             ->request('PATCH', '/store-api/context', ['currencyId' => $id]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($content, true));
     }
@@ -231,7 +235,7 @@ class ContextSwitchRouteTest extends TestCase
 
         $response = $this->getSalesChannelBrowser()->getResponse();
 
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
@@ -243,7 +247,7 @@ class ContextSwitchRouteTest extends TestCase
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
-        $email = $email ?? Uuid::randomHex() . '@example.com';
+        $email ??= Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
         $this->assignSalesChannelContext();
@@ -255,10 +259,13 @@ class ContextSwitchRouteTest extends TestCase
 
         $response = $this->getSalesChannelBrowser()->getResponse();
 
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent() ?: '', true);
-        $this->getSalesChannelBrowser()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['contextToken']);
+        $this->getSalesChannelBrowser()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         return $customerId;
     }

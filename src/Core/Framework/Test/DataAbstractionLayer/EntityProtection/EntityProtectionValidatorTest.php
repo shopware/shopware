@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection\_fixtures\PluginProtectionExtension;
@@ -27,14 +27,14 @@ class EntityProtectionValidatorTest extends TestCase
     use AdminApiTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->registerDefinitionWithExtensions(PluginDefinition::class, PluginProtectionExtension::class);
         $this->registerDefinitionWithExtensions(SystemConfigDefinition::class, SystemConfigExtension::class);
         $this->registerDefinitionWithExtensions(UserAccessKeyDefinition::class, UserAccessKeyExtension::class);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeExtension(
             PluginProtectionExtension::class,
@@ -45,6 +45,7 @@ class EntityProtectionValidatorTest extends TestCase
 
     /**
      * @dataProvider blockedApiRequest
+     *
      * @group slow
      */
     public function testItBlocksApiAccess(string $method, string $url): void
@@ -60,7 +61,7 @@ class EntityProtectionValidatorTest extends TestCase
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function blockedApiRequest(): array
+    public static function blockedApiRequest(): array
     {
         return [
             ['GET', 'plugin/' . Uuid::randomHex()], // detail
@@ -186,7 +187,7 @@ class EntityProtectionValidatorTest extends TestCase
 
     public function testItDoesNotValidateCascadeDeletes(): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $countBefore = $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal();
 

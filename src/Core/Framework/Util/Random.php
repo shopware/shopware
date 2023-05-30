@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
+
 /** This class is based on Rand.php of Component_ZendMath
  *
  * @see      https://github.com/zendframework/zf2/blob/master/library/Zend/Math/Rand.php
  * @see      https://github.com/ircmaxell/RandomLib
  */
+#[Package('core')]
 class Random
 {
     public static function getBytes(int $length): string

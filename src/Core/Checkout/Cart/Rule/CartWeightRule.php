@@ -3,32 +3,29 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class CartWeightRule extends Rule
 {
-    protected float $weight;
+    final public const RULE_NAME = 'cartWeight';
 
-    protected string $operator;
+    protected float $weight;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $weight = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        ?float $weight = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->weight = (float) $weight;
-    }
-
-    public function getName(): string
-    {
-        return 'cartWeight';
     }
 
     public function match(RuleScope $scope): bool
@@ -59,7 +56,7 @@ class CartWeightRule extends Rule
     {
         $weight = 0.0;
 
-        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+        foreach ($cart->getLineItems()->filterGoodsFlat() as $lineItem) {
             $itemWeight = 0.0;
             if ($lineItem->getDeliveryInformation() !== null && $lineItem->getDeliveryInformation()->getWeight() !== null) {
                 $itemWeight = $lineItem->getDeliveryInformation()->getWeight();

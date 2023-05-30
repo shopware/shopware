@@ -4,11 +4,13 @@ $sw-country-list-color-error: $color-crimson-500;
 $sw-country-list-color-success: $color-emerald-500;
 
 .sw-settings-country-list {
-    .is--inactive {
-        color: $sw-country-list-color-error;
-    }
+    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
+        .is--inactive {
+            color: $sw-country-list-color-error;
+        }
 
-    .is--active {
-        color: $sw-country-list-color-success;
+        .is--active {
+            color: $sw-country-list-color-success;
+        }
     }
 }

@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+.sw-snippet-settings {
+    &__sidebar .sw-sidebar-item .sw-sidebar-item__headline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+        padding: 0 25px;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &__sidebar-reset-all {
+        margin-right: auto;
+        padding-left: 10px;
+        font-size: $font-size-xs;
+    }
+}

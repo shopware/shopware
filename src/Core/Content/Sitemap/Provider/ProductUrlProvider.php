@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,41 +20,24 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+#[Package('sales-channel')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
-    public const CHANGE_FREQ = 'hourly';
+    final public const CHANGE_FREQ = 'hourly';
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
-
-    private IteratorFactory $iteratorFactory;
-
-    private ConfigHandler $configHandler;
-
-    private Connection $connection;
-
-    private ProductDefinition $definition;
-
-    private RouterInterface $router;
-
-    private SystemConfigService $systemConfigService;
 
     /**
      * @internal
      */
     public function __construct(
-        ConfigHandler $configHandler,
-        Connection $connection,
-        ProductDefinition $definition,
-        IteratorFactory $iteratorFactory,
-        RouterInterface $router,
-        SystemConfigService $systemConfigService
+        private readonly ConfigHandler $configHandler,
+        private readonly Connection $connection,
+        private readonly ProductDefinition $definition,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly RouterInterface $router,
+        private readonly SystemConfigService $systemConfigService
     ) {
-        $this->configHandler = $configHandler;
-        $this->connection = $connection;
-        $this->definition = $definition;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->router = $router;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractUrlProvider
@@ -153,13 +138,13 @@ class ProductUrlProvider extends AbstractUrlProvider
         $excludedProductIds = $this->getExcludedProductIds($context);
         if (!empty($excludedProductIds)) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
-            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::STRING);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemQuantitySplitterTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -58,7 +60,7 @@ class LineItemQuantitySplitterTest extends TestCase
         }
     }
 
-    public function splitProvider(): iterable
+    public static function splitProvider(): iterable
     {
         yield 'should not split items when item qty = 10 and splitter qty = 10' => [10, 10, 0];
         yield 'should split items when item qty = 10 and splitter qty = 9' => [10, 9, 1];
@@ -71,9 +73,7 @@ class LineItemQuantitySplitterTest extends TestCase
         $qtyCalc
             ->expects(static::exactly($expects))
             ->method('calculate')
-            ->willReturnCallback(function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
-                return $this->getContainer()->get(QuantityPriceCalculator::class)->calculate($definition, $context);
-            });
+            ->willReturnCallback(fn (QuantityPriceDefinition $definition, SalesChannelContext $context) => $this->getContainer()->get(QuantityPriceCalculator::class)->calculate($definition, $context));
 
         return new LineItemQuantitySplitter($qtyCalc);
     }

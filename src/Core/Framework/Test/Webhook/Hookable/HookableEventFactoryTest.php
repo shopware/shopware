@@ -6,14 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
@@ -33,29 +31,20 @@ class HookableEventFactoryTest extends TestCase
      */
     private $hookableEventFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->hookableEventFactory = $this->getContainer()->get(HookableEventFactory::class);
     }
 
     public function testDoesNotCreateEventForConcreteBusinessEvent(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            $factory = $this->getContainer()->get(FlowFactory::class);
-            $event = $factory->create(new CustomerBeforeLoginEvent(
-                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                'test@example.com'
-            ));
-            $event->setFlowState(new FlowState());
-            $hookables = $this->hookableEventFactory->createHookablesFor($event);
-        } else {
-            $hookables = $this->hookableEventFactory->createHookablesFor(
-                new BusinessEvent(
-                    'test',
-                    new TestBusinessEvent(Context::createDefaultContext())
-                )
-            );
-        }
+        $factory = $this->getContainer()->get(FlowFactory::class);
+        $event = $factory->create(new CustomerBeforeLoginEvent(
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        ));
+        $event->setFlowState(new FlowState());
+        $hookables = $this->hookableEventFactory->createHookablesFor($event);
 
         static::assertEmpty($hookables);
     }
@@ -63,7 +52,7 @@ class HookableEventFactoryTest extends TestCase
     public function testDoesCreateHookableBusinessEvent(): void
     {
         $hookables = $this->hookableEventFactory->createHookablesFor(
-            new TestBusinessEvent(Context::createDefaultContext())
+            new TestFlowBusinessEvent(Context::createDefaultContext())
         );
 
         static::assertCount(1, $hookables);
@@ -74,7 +63,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $writtenEvent = $this->insertProduct($id, $productRepository);
 
@@ -85,6 +74,7 @@ class HookableEventFactoryTest extends TestCase
         static::assertEquals('product.written', $event->getName());
 
         $payload = $event->getWebhookPayload();
+        static::assertCount(1, $payload);
         $actualUpdatedFields = $payload[0]['updatedFields'];
         unset($payload[0]['updatedFields']);
 
@@ -123,7 +113,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -175,7 +165,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -196,7 +186,7 @@ class HookableEventFactoryTest extends TestCase
     public function testDoesNotCreateHookableNotHookableEntity(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $createdEvent = $taxRepository->upsert([
@@ -233,7 +223,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -274,7 +264,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
         $productPriceId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -350,14 +340,14 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
         $ruleRepository = $this->getContainer()->get('rule.repository');
         $ruleId = $ruleRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
 
-        /** @var EntityRepositoryInterface $productPriceRepository */
+        /** @var EntityRepository $productPriceRepository */
         $productPriceRepository = $this->getContainer()->get('product_price.repository');
         $writtenEvent = $productPriceRepository->upsert([
             [
@@ -399,7 +389,7 @@ class HookableEventFactoryTest extends TestCase
         ]], $event->getWebhookPayload());
     }
 
-    private function insertProduct(string $id, EntityRepositoryInterface $productRepository): EntityWrittenContainerEvent
+    private function insertProduct(string $id, EntityRepository $productRepository): EntityWrittenContainerEvent
     {
         return $productRepository->upsert([
             [

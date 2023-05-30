@@ -2,22 +2,21 @@
 
 namespace Shopware\Core\System\Locale;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[Package('system-settings')]
 class LanguageLocaleCodeProvider implements ResetInterface
 {
-    private LanguageLoaderInterface $languageLoader;
-
     private array $languages = [];
 
     /**
      * @internal
      */
-    public function __construct(LanguageLoaderInterface $languageLoader)
+    public function __construct(private readonly LanguageLoaderInterface $languageLoader)
     {
-        $this->languageLoader = $languageLoader;
     }
 
     public function getLocaleForLanguageId(string $languageId): string

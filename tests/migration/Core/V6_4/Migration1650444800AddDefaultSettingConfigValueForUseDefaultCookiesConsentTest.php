@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent
  */
 class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsentTest extends TestCase
@@ -27,7 +28,7 @@ class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent
         $useDefaultCookieConsent = $connection->fetchOne('SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key', [
             'key' => self::CONFIG_KEY,
         ]);
-        $useDefaultCookieConsent = json_decode($useDefaultCookieConsent, true);
+        $useDefaultCookieConsent = json_decode((string) $useDefaultCookieConsent, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($useDefaultCookieConsent['_value']);
     }
@@ -49,7 +50,7 @@ class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent
         $useDefaultCookieConsent = $connection->fetchOne('SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key', [
             'key' => self::CONFIG_KEY,
         ]);
-        $useDefaultCookieConsent = json_decode($useDefaultCookieConsent, true);
+        $useDefaultCookieConsent = json_decode((string) $useDefaultCookieConsent, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($useDefaultCookieConsent['_value']);
     }

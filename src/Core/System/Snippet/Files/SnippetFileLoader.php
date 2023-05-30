@@ -5,57 +5,28 @@ namespace Shopware\Core\System\Snippet\Files;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-/**
- * @Decoratable
- */
+#[Package('system-settings')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
     /**
-     * @var KernelInterface
+     * @var array<string, string>
      */
-    private $kernel;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var array
-     */
-    private $pluginAuthors;
-
-    /**
-     * @var AppSnippetFileLoader
-     */
-    private $appSnippetFileLoader;
-
-    /**
-     * @var ActiveAppsLoader
-     */
-    private $activeAppsLoader;
+    private array $pluginAuthors = [];
 
     /**
      * @internal
      */
     public function __construct(
-        KernelInterface $kernel,
-        Connection $connection,
-        AppSnippetFileLoader $appSnippetFileLoader,
-        ActiveAppsLoader $activeAppsLoader
+        private readonly KernelInterface $kernel,
+        private readonly Connection $connection,
+        private readonly AppSnippetFileLoader $appSnippetFileLoader,
+        private readonly ActiveAppsLoader $activeAppsLoader
     ) {
-        $this->kernel = $kernel;
-        // use Connection directly as this gets executed so early on kernel boot
-        // using the DAL would result in CircularReferences
-        $this->connection = $connection;
-        $this->appSnippetFileLoader = $appSnippetFileLoader;
-        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
@@ -93,13 +64,14 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
             foreach ($snippetFiles as $snippetFile) {
+                $snippetFile->setTechnicalName($app['name']);
                 $snippetFileCollection->add($snippetFile);
             }
         }
     }
 
     /**
-     * @return SnippetFileInterface[]
+     * @return AbstractSnippetFile[]
      */
     private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle): array
     {
@@ -121,7 +93,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
-                        false
+                        false,
+                        $bundle->getName()
                     );
 
                     break;
@@ -131,7 +104,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
-                        $nameParts[2] === 'base'
+                        $nameParts[2] === 'base',
+                        $bundle->getName()
                     );
 
                     break;
@@ -151,18 +125,22 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             return 'Shopware';
         }
 
-        return $this->getPluginAuthors()[\get_class($bundle)] ?? '';
+        return $this->getPluginAuthors()[$bundle::class] ?? '';
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getPluginAuthors(): array
     {
         if (!$this->pluginAuthors) {
-            $authors = $this->connection->fetchAll('
-            SELECT `base_class` AS `baseClass`, `author`
-            FROM `plugin`
-        ');
+            /** @var array<string, string> $authors */
+            $authors = $this->connection->fetchAllKeyValue('
+                SELECT `base_class` AS `baseClass`, `author`
+                FROM `plugin`
+            ');
 
-            $this->pluginAuthors = FetchModeHelper::keyPair($authors);
+            $this->pluginAuthors = $authors;
         }
 
         return $this->pluginAuthors;

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedEvent;
@@ -59,7 +60,7 @@ class NavigationPageTest extends TestCase
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
-        $seoUrlHandler = $this->getContainer()->get('Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface');
+        $seoUrlHandler = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
 
         /** @var NavigationPageLoadedEvent $event */
         $event = null;

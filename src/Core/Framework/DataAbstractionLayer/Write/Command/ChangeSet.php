@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class ChangeSet extends Struct
 {
     /**
@@ -21,8 +23,11 @@ class ChangeSet extends Struct
      */
     protected $isDelete;
 
-    public function __construct(array $state, array $payload, bool $isDelete)
-    {
+    public function __construct(
+        array $state,
+        array $payload,
+        bool $isDelete
+    ) {
         $this->state = $state;
 
         // calculate changes

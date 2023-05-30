@@ -12,19 +12,18 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+#[Package('inventory')]
 class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
 {
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService)
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function getType(): string
@@ -40,6 +39,7 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         }
 
         $criteria = new Criteria([$productConfig->getStringValue()]);
+        $criteria->addAssociation('manufacturer');
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);

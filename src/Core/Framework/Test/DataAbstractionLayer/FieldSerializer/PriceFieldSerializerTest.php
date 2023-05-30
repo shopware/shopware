@@ -26,7 +26,7 @@ class PriceFieldSerializerTest extends TestCase
 
     protected PriceFieldSerializer $serializer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get(PriceFieldSerializer::class);
     }

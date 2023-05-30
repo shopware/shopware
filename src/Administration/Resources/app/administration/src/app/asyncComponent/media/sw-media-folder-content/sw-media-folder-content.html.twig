@@ -1,0 +1,73 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_folder_content %}
+<div class="sw-media-folder-content">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_folder_content_folder_listing %}
+    <ul
+        v-if="subFolders.length > 0 || parentFolder !== null"
+        class="sw-media-folder-content__folder-listing"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_folder_content_list_item %}
+
+        <li
+            v-if="parentFolder !== null"
+            class="sw-media-folder-content__list-item"
+        >
+            <button
+                class="sw-media-folder-content__button sw-media-folder-content__parent-folder"
+                @click="emitInput(parentFolder)"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_folder_content_folder_icon %}
+                <img
+                    :src="'/administration/static/img/media/folder-thumbnail.svg' | asset"
+                    class="sw-media-folder-content__folder-icon"
+                    alt="Folder thumbnail"
+                >
+                {% endblock %}
+                {{ parentFolder.name }}
+            </button>
+        </li>
+
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <li
+            v-for="(folder, index) in subFolders"
+            :key="folder.id"
+            :class="[{'is--selected': folder.id === selectedId}, 'sw-media-folder-content__list-item--' + index ]"
+            class="sw-media-folder-content__list-item"
+            @click="emitInput(folder)"
+        >
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_content_button_folder %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_content_button_folder_button %}
+            <button class="sw-media-folder-content__button sw-media-folder-content__folder-button">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_media_folder_content_folder_button_icon %}
+                <img
+                    :src="'/administration/static/img/media/folder-thumbnail.svg' | asset"
+                    class="sw-media-folder-content__folder-icon"
+                    alt="Folder thumbnail"
+                >
+                {% endblock %}
+                {{ folder.name }}
+            </button>
+            {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_folder_content_switch_button %}
+            <sw-icon
+                v-if="getChildCount(folder) > 0"
+                class="sw-media-folder-content__switch-button"
+                name="regular-chevron-right-xxs"
+                size="12px"
+            />
+            {% endblock %}
+            {% endblock %}
+        </li>
+        {% endblock %}
+    </ul>
+    {% endblock %}
+</div>
+{% endblock %}

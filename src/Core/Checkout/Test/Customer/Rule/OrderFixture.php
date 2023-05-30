@@ -11,10 +11,11 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -23,6 +24,7 @@ use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
+#[Package('business-ops')]
 trait OrderFixture
 {
     use ContainerAwareTrait;
@@ -43,7 +45,7 @@ trait OrderFixture
         $customerId = Uuid::randomHex();
         $orderNumber = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
@@ -90,6 +92,10 @@ trait OrderFixture
                                 'name' => 'kasachstan',
                                 'id' => $countryId,
                             ],
+                        ],
+                        'trackingCodes' => [
+                            'CODE-1',
+                            'CODE-2',
                         ],
                         'positions' => [
                             [

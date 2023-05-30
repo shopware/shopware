@@ -3,14 +3,16 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -20,6 +22,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('core')]
 class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
 {
     /**
@@ -39,23 +42,18 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof VariantListingConfigField) {
-            throw new InvalidSerializerFieldException(VariantListingConfigField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(VariantListingConfigField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         $value = $data->getValue();
+        $value['displayParent'] = isset($value['displayParent']) ? (int) $value['displayParent'] : null;
 
-        $displayParent = isset($value['displayParent']) ? (int) $value['displayParent'] : null;
-        $mainVariantId = isset($value['mainVariantId']) ? Uuid::fromHexToBytes($value['mainVariantId']) : null;
-        $configuratorGroupConfig = isset($value['configuratorGroupConfig']) ? \json_encode($value['configuratorGroupConfig'], \JSON_THROW_ON_ERROR) : null;
-
-        yield 'display_parent' => $displayParent;
-        yield 'main_variant_id' => $mainVariantId;
-        yield 'configurator_group_config' => $configuratorGroupConfig;
+        yield $field->getStorageName() => !empty($value) ? Json::encode($value) : null;
     }
 
-    public function decode(Field $field, $value): ?VariantListingConfig
+    public function decode(Field $field, mixed $value): ?VariantListingConfig
     {
         if ($value === null) {
             return null;
@@ -66,9 +64,9 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         }
 
         return new VariantListingConfig(
-            $value['displayParent'] !== null ? (bool) $value['displayParent'] : null,
-            $value['mainVariantId'],
-            $value['configuratorGroupConfig']
+            isset($value['displayParent']) ? (bool) $value['displayParent'] : null,
+            $value['mainVariantId'] ?? null,
+            $value['configuratorGroupConfig'] ?? null,
         );
     }
 
@@ -80,14 +78,14 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
                 'allowMissingFields' => true,
                 'fields' => [
                     'displayParent' => [new Type('boolean')],
-                    'mainVariantId' => [new \Shopware\Core\Framework\Validation\Constraint\Uuid()],
+                    'mainVariantId' => [new Uuid()],
                     'configuratorGroupConfig' => [
                         new Optional(
                             new Collection([
                                 'allowExtraFields' => true,
                                 'allowMissingFields' => true,
                                 'fields' => [
-                                    'id' => [new NotBlank(), new \Shopware\Core\Framework\Validation\Constraint\Uuid()],
+                                    'id' => [new NotBlank(), new Uuid()],
                                     'representation' => [new NotBlank(), new Type('string')],
                                     'expressionForListings' => [new NotBlank(), new Type('boolean')],
                                 ],

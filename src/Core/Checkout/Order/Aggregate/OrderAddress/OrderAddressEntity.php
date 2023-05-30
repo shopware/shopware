@@ -7,10 +7,12 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+#[Package('customer-order')]
 class OrderAddressEntity extends Entity
 {
     use EntityIdTrait;
@@ -120,6 +122,11 @@ class OrderAddressEntity extends Entity
      * @var string
      */
     protected $orderId;
+
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
 
     public function getCountryId(): string
     {
@@ -329,5 +336,15 @@ class OrderAddressEntity extends Entity
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

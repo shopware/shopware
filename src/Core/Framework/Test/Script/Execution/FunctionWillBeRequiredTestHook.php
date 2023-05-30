@@ -10,16 +10,15 @@ use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
  */
 class FunctionWillBeRequiredTestHook extends OptionalFunctionHook
 {
-    private string $name;
-
-    public function __construct(string $name, Context $context, array $data)
-    {
-        $this->name = $name;
-
+    public function __construct(
+        private readonly string $name,
+        Context $context,
+        array $data
+    ) {
         parent::__construct($context);
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 

@@ -17,27 +17,29 @@ use Shopware\Core\Kernel;
  */
 class SnippetFinderTest extends TestCase
 {
-    /**
-     * @dataProvider findSnippetsFromAppDataProvider
-     *
-     * @param array<string, mixed> $expectedSnippets
-     */
-    public function testFindSnippetsFromApp(Kernel $kernel, array $expectedSnippets, Connection $connection): void
+    public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
-            $kernel,
-            $connection
+            $this->getKernelWithNoPlugins(),
+            $this->getConnectionMock('en-GB', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('en-GB');
+        static::assertArrayNotHasKey('my-custom-snippet-key', $snippets);
+    }
+
+    public function testFindSnippetsFromApp(): void
+    {
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelWithNoPlugins(),
+            $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
 
-        if (!empty($expectedSnippets)) {
-            $key = array_key_first($expectedSnippets);
-            static::assertEquals($expectedSnippets[$key], $snippets[$key]);
-        } else {
-            // assert no exception was thrown
-            static::assertTrue(true);
-        }
+        $expectedSnippets = $this->getSnippetFixtures();
+        $key = array_key_first($expectedSnippets);
+        static::assertEquals($expectedSnippets[$key], $snippets[$key]);
     }
 
     /**
@@ -96,27 +98,9 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{kernel: Kernel, expectedSnippets: array<string, mixed>, connection: Connection}>
-     */
-    public function findSnippetsFromAppDataProvider(): iterable
-    {
-        yield 'Test no snippets are provided' => [
-            'kernel' => $this->getKernelWithNoPlugins(),
-            'expectedSnippets' => [],
-            'connection' => $this->getConnectionMock('en-GB', []),
-        ];
-
-        yield 'Test snippets are provided' => [
-            'kernel' => $this->getKernelWithNoPlugins(),
-            'expectedSnippets' => $this->getSnippetFixtures(),
-            'connection' => $this->getConnectionMock('en-GB', $this->getSnippetFixtures()),
-        ];
-    }
-
-    /**
      * @return array<string, array{existingSnippets: array<string, mixed>, appSnippets: array<string, mixed>, duplicatedSnippets: list<string>}>
      */
-    public function validateAppSnippetsExceptionDataProvider(): iterable
+    public static function validateAppSnippetsExceptionDataProvider(): iterable
     {
         yield 'Throw exception if existing snippets will be overwritten' => [
             'existingSnippets' => [
@@ -137,7 +121,7 @@ class SnippetFinderTest extends TestCase
     /**
      * @return array<string, array{before: array<string, mixed>, after: array<string, mixed>}>
      */
-    public function sanitizeAppSnippetDataProvider(): iterable
+    public static function sanitizeAppSnippetDataProvider(): iterable
     {
         yield 'Test it sanitises app snippets' => [
             'before' => [
@@ -166,7 +150,7 @@ class SnippetFinderTest extends TestCase
 
         $returns = [];
         foreach ($snippets as $key => $value) {
-            $returns[]['value'] = json_encode([$key => $value]);
+            $returns[]['value'] = json_encode([$key => $value], \JSON_THROW_ON_ERROR);
         }
 
         $connection

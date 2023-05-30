@@ -3,6 +3,10 @@
         {% set redirectTo = 'frontend.checkout.cart.page' %}
     {% endif %}
 
+    {% if formAction is not defined %}
+        {% set formAction = path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id } ) %}
+    {% endif %}
+
     {% if showQuantitySelect is not defined %}
         {% set showQuantitySelect = true %}
     {% endif %}
@@ -14,6 +18,9 @@
     {% else %}
         {% set maxQuantity = config('core.cart.maxQuantity') %}
     {% endif %}
+
+    {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+    {% set isDigital = lineItem.states is defined and DOWNLOAD_STATE in lineItem.states and (DOWNLOAD_STATE not in lineItem.states or quantityInformation.maxPurchase === 1) %}
 
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
@@ -29,59 +36,63 @@
 
                     {% if showQuantitySelect and lineItem.quantityInformation and lineItem.stackable and nestingLevel < 1 %}
                         {% block component_line_item_quantity_select_form %}
-                            <form action="{{ path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id }) }}"
-                                  class="line-item-quantity-container"
+                            {% set autoSubmitOptions = {
+                                delayChangeEvent: 800,
+                            } %}
+                            <form action="{{ formAction }}"
+                                  class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"
                                   method="post"
                                   {% if displayMode == 'default' %}
                                   data-form-auto-submit="true"
+                                  data-form-auto-submit-options="{{ autoSubmitOptions|json_encode }}"
                                   {% endif %}
                             >
-
-                                {% block component_line_item_quantity_csrf %}
-                                    {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
-                                {% endblock %}
 
                                 {% block component_line_item_quantity_redirect %}
                                     <input type="hidden"
                                            name="redirectTo"
                                            value="{{ redirectTo }}">
+                                    <input type="hidden"
+                                           name="redirectParameters"
+                                           value="{{ redirectParameters }}">
                                 {% endblock %}
 
                                 {% set selectQuantityThreshold = 100 %}
                                 {% block component_line_item_quantity_select %}
-                                    {% if (maxQuantity - quantityInformation.minPurchase) / quantityInformation.purchaseSteps > selectQuantityThreshold %}
-                                        {% block component_line_item_quantity_select_input %}
+                                    {% block component_line_item_quantity_select_input %}
+                                        <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
+                                            <button
+                                                {% if isDigital %}disabled="disabled"{% endif %}
+                                                type="button"
+                                                class="btn btn-outline-light btn-minus js-btn-minus"
+                                            >
+                                                {% sw_icon 'minus' style {'size': 'xs'}  %}
+                                            </button>
                                             <input
+                                                {% if isDigital %}disabled="disabled"{% endif %}
                                                 type="number"
                                                 name="quantity"
-                                                class="form-control quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
+                                                class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
                                                 min="{{ quantityInformation.minPurchase }}"
                                                 max="{{ maxQuantity }}"
                                                 step="{{ quantityInformation.purchaseSteps }}"
                                                 value="{{ lineItem.quantity }}"
                                             />
-                                        {% endblock %}
-                                    {% else %}
-                                        {% block component_line_item_quantity_select_select %}
-                                            <select name="quantity"
-                                                class="{{ formSelectClass }} quantity-select-{{ lineItem.id }}{% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}">
-                                                {% for quantity in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
-                                                    {% block component_line_item_quantity_select_option %}
-                                                        <option value="{{ quantity }}"
-                                                            {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                                            {{ quantity }}
-                                                        </option>
-                                                    {% endblock %}
-                                                {% endfor %}
-                                            </select>
-                                        {% endblock %}
-                                    {% endif %}
+                                            <button
+                                                {% if isDigital %}disabled="disabled"{% endif %}
+                                                type="button"
+                                                class="btn btn-outline-light btn-plus js-btn-plus"
+                                            >
+                                                {% sw_icon 'plus' style {'size': 'xs'} %}
+                                            </button>
+                                        </div>
+                                    {% endblock %}
                                 {% endblock %}
                             </form>
                         {% endblock %}
                     {% else %}
                         {% block component_line_item_quantity_display %}
-                            <div class="d-flex justify-content-end line-item-quantity">
+                            <div class="d-flex justify-content-sm-center justify-content-end">
                                 {{ lineItem.quantity }}
                             </div>
                         {% endblock %}

@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
+#[Package('inventory')]
 class ProductSearchConfigFieldDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_search_config_field';
+    final public const ENTITY_NAME = 'product_search_config_field';
 
     public function getEntityName(): string
     {
@@ -51,6 +53,11 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
     public function getHydratorClass(): string
     {
         return ProductSearchConfigFieldHydrator::class;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductSearchConfigDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

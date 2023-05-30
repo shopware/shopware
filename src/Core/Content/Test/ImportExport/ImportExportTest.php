@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ImportExport;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -52,13 +53,14 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -69,7 +71,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-class ImportExportTest extends AbstractImportExportTest
+#[Package('system-settings')]
+class ImportExportTest extends AbstractImportExportTestCase
 {
     use SalesChannelApiTestBehaviour;
     use OrderFixture;
@@ -110,6 +113,7 @@ class ImportExportTest extends AbstractImportExportTest
 
     public function testImportExport(): void
     {
+        /** @var FilesystemOperator $filesystem */
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
         $productId = Uuid::randomHex();
@@ -122,13 +126,15 @@ class ImportExportTest extends AbstractImportExportTest
 
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
-        /** @var EntityRepositoryInterface $fileRepository */
+        /** @var EntityRepository $fileRepository */
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
         /** @var ImportExportFileEntity|null $file */
         $file = $fileRepository->search(new Criteria(array_filter([$this->getLogEntity($progress->getLogId())->getFileId()])), Context::createDefaultContext())->first();
 
         static::assertNotNull($file);
-        static::assertSame($filesystem->getSize($file->getPath()), $file->getSize());
+        $importExportFileEntity = $this->getLogEntity($progress->getLogId())->getFile();
+        static::assertInstanceOf(ImportExportFileEntity::class, $importExportFileEntity);
+        static::assertSame($filesystem->fileSize($importExportFileEntity->getPath()), $file->getSize());
 
         $this->productRepository->delete([['id' => $productId]], Context::createDefaultContext());
         $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
@@ -150,7 +156,7 @@ class ImportExportTest extends AbstractImportExportTest
 
     public function testCategory(): void
     {
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
 
         $rootId = Uuid::randomHex();
@@ -212,7 +218,7 @@ class ImportExportTest extends AbstractImportExportTest
 
     public function testSortingShouldWorkAsExpected(): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profile = $this->createCategoryProfileMock();
@@ -242,9 +248,7 @@ class ImportExportTest extends AbstractImportExportTest
         $csvColumns = explode(';', $firstLine);
 
         $sortedMappings = $profile['mapping'];
-        usort($sortedMappings, function ($firstMapping, $secondMapping) {
-            return $firstMapping['position'] - $secondMapping['position'];
-        });
+        usort($sortedMappings, fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
 
         foreach ($sortedMappings as $index => $mapping) {
             static::assertSame(
@@ -282,7 +286,7 @@ class ImportExportTest extends AbstractImportExportTest
             'confirmedAt' => new \DateTimeImmutable('2020-02-29 13:37'),
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('newsletter_recipient.repository');
 
         $context = Context::createDefaultContext();
@@ -315,7 +319,7 @@ class ImportExportTest extends AbstractImportExportTest
      */
     public function testDefaultProperties(): void
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('property_group.repository');
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
@@ -354,7 +358,7 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
         $logfile = $this->getLogEntity($progress->getLogId())->getFile();
         static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        static::assertGreaterThan(0, $filesystem->getSize($logfile->getPath()));
+        static::assertGreaterThan(0, $filesystem->fileSize($logfile->getPath()));
 
         $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
         file_put_contents($exportFileTmp, (string) $filesystem->read($logfile->getPath()));
@@ -369,7 +373,7 @@ class ImportExportTest extends AbstractImportExportTest
         $actual = $repository->searchIds(new Criteria($ids), Context::createDefaultContext());
         static::assertCount(\count($ids), $actual->getIds());
 
-        /** @var EntityRepositoryInterface $optionRepository */
+        /** @var EntityRepository $optionRepository */
         $optionRepository = $this->getContainer()->get('property_group_option.repository');
         foreach ($groups as $group) {
             $ids = array_column($group['options'], 'id');
@@ -451,7 +455,7 @@ class ImportExportTest extends AbstractImportExportTest
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        /** @var EntityRepositoryInterface $propertyRepository */
+        /** @var EntityRepository $propertyRepository */
         $propertyRepository = $this->getContainer()->get(PropertyGroupOptionDefinition::ENTITY_NAME . '.repository');
 
         $criteria = new Criteria();
@@ -490,7 +494,7 @@ class ImportExportTest extends AbstractImportExportTest
         // import should succeed even if required names are empty (they will be replaced by default values)
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        /** @var EntityRepositoryInterface $propertyRepository */
+        /** @var EntityRepository $propertyRepository */
         $propertyRepository = $this->getContainer()->get(PropertyGroupOptionDefinition::ENTITY_NAME . '.repository');
 
         $criteria = new Criteria();
@@ -604,7 +608,7 @@ class ImportExportTest extends AbstractImportExportTest
     public function testProductsWithVariantsCsv(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM `product`');
+        $connection->executeStatement('DELETE FROM `product`');
 
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
@@ -640,7 +644,7 @@ class ImportExportTest extends AbstractImportExportTest
     public function testProductsWithInvalidVariantsCsv(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM `product`');
+        $connection->executeStatement('DELETE FROM `product`');
 
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
@@ -671,7 +675,7 @@ class ImportExportTest extends AbstractImportExportTest
             Uuid::fromStringToHex('product4'),
         ];
 
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get(CategoryDefinition::ENTITY_NAME . '.repository');
         $category1Id = Uuid::fromStringToHex('category1');
         $category2Id = '0a600a2648b3486fbfdbc60993050103';
@@ -697,7 +701,7 @@ class ImportExportTest extends AbstractImportExportTest
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $count = $productRepository->search(new Criteria($productIds), $context)->count();
         static::assertSame(4, $count);
@@ -733,7 +737,7 @@ class ImportExportTest extends AbstractImportExportTest
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get(CategoryDefinition::ENTITY_NAME . '.repository');
         $categoryHome = Uuid::fromStringToHex('home');
         $categoryHomeFirst = Uuid::fromStringToHex('homeFirst');
@@ -773,7 +777,7 @@ class ImportExportTest extends AbstractImportExportTest
         $criteria = new Criteria([Uuid::fromStringToHex('meinhappyproduct')]);
         $criteria->addAssociation('categories');
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
 
         /** @var ProductEntity $product */
@@ -795,7 +799,7 @@ class ImportExportTest extends AbstractImportExportTest
     public function testInvalidFile(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM `product`');
+        $connection->executeStatement('DELETE FROM `product`');
 
         $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, '/fixtures/products_with_invalid.csv', 'products.csv');
 
@@ -845,7 +849,7 @@ class ImportExportTest extends AbstractImportExportTest
             $this->getContainer()->get('shopware.filesystem.private'),
             $this->createMock(EventDispatcherInterface::class),
             $this->getContainer()->get(Connection::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $pipe,
             $reader,
             $writer,
@@ -854,9 +858,7 @@ class ImportExportTest extends AbstractImportExportTest
 
         $importExportService->method('getProgress')
             ->willReturnCallback(
-                static function () use ($logEntity) {
-                    return new Progress($logEntity->getId(), $logEntity->getState());
-                }
+                static fn () => new Progress($logEntity->getId(), $logEntity->getState())
             );
 
         $logEntity->setState(Progress::STATE_SUCCEEDED);
@@ -877,7 +879,7 @@ class ImportExportTest extends AbstractImportExportTest
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->rollBack();
-        $connection->executeUpdate('DELETE FROM `product`');
+        $connection->executeStatement('DELETE FROM `product`');
 
         $clonedProductProfile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
         static::assertIsArray($clonedProductProfile->getMapping());
@@ -905,13 +907,13 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertCount(0, $ids->getIds());
 
         $result = $this->getLogEntity($progress->getLogId())->getResult();
-        static::assertEquals(2, $result['product_category']['insertError']);
+        static::assertEquals(2, $result['product_category']['insertSkip']);
         static::assertEquals(8, $result['product']['insert']);
         static::assertEquals(1, $result['product']['otherError']);
 
-        $connection->executeUpdate('DELETE FROM `import_export_log`');
-        $connection->executeUpdate('DELETE FROM `import_export_file`');
-        $connection->executeUpdate(
+        $connection->executeStatement('DELETE FROM `import_export_log`');
+        $connection->executeStatement('DELETE FROM `import_export_file`');
+        $connection->executeStatement(
             'DELETE FROM `import_export_profile` WHERE `id` = :id',
             ['id' => Uuid::fromHexToBytes($clonedProductProfile->getId())]
         );
@@ -1074,13 +1076,13 @@ class ImportExportTest extends AbstractImportExportTest
     }
 
     /**
-     * @dataProvider salesChannelAssignementCsvProvider
+     * @dataProvider salesChannelAssignmentCsvProvider
      */
     public function testSalesChannelAssignment(string $csvPath): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM `product`');
-        $connection->executeUpdate('DELETE FROM `product_visibility`');
+        $connection->executeStatement('DELETE FROM `product`');
+        $connection->executeStatement('DELETE FROM `product_visibility`');
 
         $productAId = 'a5c8b8f701034e8dbea72ac0fc32521e';
         $productABId = 'abc8b8f701034e8dbea72ac0fc32521e';
@@ -1153,11 +1155,9 @@ class ImportExportTest extends AbstractImportExportTest
     }
 
     /**
-     * @dataProvider
-     *
      * @return list<array{0: string}>
      */
-    public function salesChannelAssignementCsvProvider(): array
+    public static function salesChannelAssignmentCsvProvider(): array
     {
         return [
             ['/fixtures/products_with_visibilities.csv'],
@@ -1232,7 +1232,7 @@ class ImportExportTest extends AbstractImportExportTest
     public function testCustomersCsv(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM `customer`');
+        $connection->executeStatement('DELETE FROM `customer`');
 
         $salesChannel = $this->createSalesChannel();
 
@@ -1327,7 +1327,7 @@ class ImportExportTest extends AbstractImportExportTest
     public function testPromotionCodeImportExport(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('DELETE FROM `promotion_individual_code`');
+        $connection->executeStatement('DELETE FROM `promotion_individual_code`');
 
         // create the promotion before the import
         $promotion = $this->createPromotion([
@@ -1447,7 +1447,7 @@ class ImportExportTest extends AbstractImportExportTest
     {
         $orderId = Uuid::randomHex();
         $testOrder = $this->getOrderData($orderId, Context::createDefaultContext())[0];
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
 
         $context = Context::createDefaultContext();

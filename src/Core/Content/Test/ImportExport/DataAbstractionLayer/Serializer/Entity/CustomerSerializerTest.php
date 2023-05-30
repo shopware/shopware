@@ -9,25 +9,27 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class CustomerSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private CustomerSerializer $serializer;
 
@@ -35,7 +37,7 @@ class CustomerSerializerTest extends TestCase
 
     private string $paymentMethodId = '733530bc28f74bfbb43c32b595ac9fa0';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');

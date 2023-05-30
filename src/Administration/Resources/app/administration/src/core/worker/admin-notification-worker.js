@@ -1,7 +1,13 @@
+/**
+ * @package admin
+ */
+
 const { Service } = Shopware;
 const READ_NOTIFICATION = 'notification.lastReadAt';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default class AdminNotificationWorker {
     constructor() {
         this._notificationService = Service('notificationsService');
@@ -13,6 +19,10 @@ export default class AdminNotificationWorker {
     }
 
     start() {
+        if (!Shopware.Context.app.config.adminWorker.enableNotificationWorker) {
+            return;
+        }
+
         this.fetchUserConfig().then(() => {
             this.loadNotifications();
         });

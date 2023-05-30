@@ -22,6 +22,8 @@ class ProductCartTest extends TestCase
 
     /**
      * @dataProvider priceInCartProvider
+     *
+     * @param array<string, mixed> $contextOptions
      */
     public function testPriceInCart(ProductBuilder $builder, float $expected, array $contextOptions = []): void
     {
@@ -45,7 +47,7 @@ class ProductCartTest extends TestCase
         static::assertEquals($expected, $item->getPrice()->getTotalPrice());
     }
 
-    public function priceInCartProvider(): \Generator
+    public static function priceInCartProvider(): \Generator
     {
         $ids = new IdsCollection();
 

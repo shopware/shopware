@@ -3,11 +3,8 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -18,48 +15,20 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
+#[Package('core')]
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;
 
     /**
-     * @var RequestContextResolverInterface
-     */
-    private $decorated;
-
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SalesChannelContext[]
-     */
-    private $cache = [];
-
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
-
-    /**
      * @internal
      */
     public function __construct(
-        RequestContextResolverInterface $decorated,
-        SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher,
-        RouteScopeRegistry $routeScopeRegistry
+        private readonly RequestContextResolverInterface $decorated,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RouteScopeRegistry $routeScopeRegistry
     ) {
-        $this->decorated = $decorated;
-        $this->contextService = $contextService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public function resolve(SymfonyRequest $request): void
@@ -74,45 +43,35 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return;
         }
 
-        if (
-            $this->contextTokenRequired($request) === true
-            && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
-        ) {
-            throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        }
+        if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            if ($this->contextTokenRequired($request)) {
+                throw RoutingException::missingRequestParameter(PlatformRequest::HEADER_CONTEXT_TOKEN);
+            }
 
-        if (
-            $this->contextTokenRequired($request) === false
-            && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
-        ) {
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
-        $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-        $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-        $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
-        $domainId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID);
+        // Retrieve context for current request
+        $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $contextServiceParameters = new SalesChannelContextServiceParameters(
+            (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID),
+            $usedContextToken,
+            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)
+        );
+        $context = $this->contextService->get($contextServiceParameters);
 
-        $cacheKey = $salesChannelId . $contextToken . $language . $currencyId . $domainId;
-
-        if (!empty($this->cache[$cacheKey])) {
-            $context = $this->cache[$cacheKey];
-        } else {
-            $context = $this->contextService->get(
-                new SalesChannelContextServiceParameters((string) $salesChannelId, (string) $contextToken, $language, $currencyId, $domainId)
-            );
-            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
-        }
-
+        // Validate if a customer login is required for the current request
         $this->validateLogin($request, $context);
 
+        // Update attributes and headers of the current request
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
         $this->eventDispatcher->dispatch(
-            new SalesChannelContextResolvedEvent($context, (string) $contextToken)
+            new SalesChannelContextResolvedEvent($context, $usedContextToken)
         );
     }
 
@@ -135,69 +94,21 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
     private function contextTokenRequired(Request $request): bool
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
-        }
-
-        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED)) {
-            return false;
-        }
-
-        /** @var ContextTokenRequired|bool $contextTokenRequiredAnnotation */
-        $contextTokenRequiredAnnotation = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED);
-
-        if (\is_bool($contextTokenRequiredAnnotation)) {
-            return $contextTokenRequiredAnnotation;
-        }
-
-        return $contextTokenRequiredAnnotation->isRequired();
+        return (bool) $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
     }
 
     private function validateLogin(Request $request, SalesChannelContext $context): void
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
-                return;
-            }
-
-            if ($context->getCustomer() === null) {
-                throw CartException::customerNotLoggedIn();
-            }
-
-            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
-                throw CartException::customerNotLoggedIn();
-            }
-
+        if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
             return;
         }
 
-        /** @var LoginRequired|bool|null $loginRequired */
-        $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
-
-        if ($loginRequired === null) {
-            return;
+        if ($context->getCustomer() === null) {
+            throw CartException::customerNotLoggedIn();
         }
 
-        if (\is_bool($loginRequired)) {
-            if (!$loginRequired) {
-                return;
-            }
-
-            if ($context->getCustomer() === null) {
-                throw CartException::customerNotLoggedIn();
-            }
-
-            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
-                throw CartException::customerNotLoggedIn();
-            }
-
-            return;
+        if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
+            throw CartException::customerNotLoggedIn();
         }
-
-        if ($loginRequired->isLoggedIn($context)) {
-            return;
-        }
-
-        throw CartException::customerNotLoggedIn();
     }
 }

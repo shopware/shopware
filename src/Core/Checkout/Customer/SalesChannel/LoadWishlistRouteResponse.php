@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+#[Package('customer-order')]
 class LoadWishlistRouteResponse extends StoreApiResponse
 {
     /**
@@ -19,8 +21,10 @@ class LoadWishlistRouteResponse extends StoreApiResponse
      */
     protected $productListing;
 
-    public function __construct(CustomerWishlistEntity $wishlist, EntitySearchResult $listing)
-    {
+    public function __construct(
+        CustomerWishlistEntity $wishlist,
+        EntitySearchResult $listing
+    ) {
         $this->wishlist = $wishlist;
         $this->productListing = $listing;
         parent::__construct(new ArrayStruct([

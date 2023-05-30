@@ -4,6 +4,9 @@ import './sw-switch-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Boolean input field based on checkbox.
  * @status ready
@@ -39,6 +42,7 @@ Component.extend('sw-switch-field', 'sw-checkbox-field', {
             return [
                 {
                     'sw-field--switch-bordered': this.bordered,
+                    'sw-field--switch-padded': this.padded,
                     'sw-field--switch-no-margin-top': this.noMarginTop,
                     ...this.swCheckboxFieldClasses,
                 },

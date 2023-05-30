@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Error;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('sales-channel')]
 class XmlValidationError extends Error
 {
     /**
@@ -22,8 +25,10 @@ class XmlValidationError extends Error
     /**
      * @param \LibXMLError[] $errors
      */
-    public function __construct(string $id, array $errors = [])
-    {
+    public function __construct(
+        string $id,
+        array $errors = []
+    ) {
         $this->id = $id;
         $this->errors = $errors;
 

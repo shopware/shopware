@@ -10,6 +10,7 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Requirements\FilesystemRequirementsValidator
  */
 class FilesystemRequirementsValidatorTest extends TestCase

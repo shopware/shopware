@@ -34,17 +34,19 @@ All blocks of this template are available in the template which renders this tem
                     <td class="align-right">1</td>
                 {% endblock %}
 
-                {% block document_line_item_table_shipping_tax %}
-                    <td class="align-right">{% for tax in order.deliveries.first.shippingCosts.calculatedTaxes %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
-                {% endblock %}
+                {% if config.displayPrices %}
+                    {% block document_line_item_table_shipping_tax %}
+                        <td class="align-right">{% for tax in order.deliveries.first.shippingCosts.calculatedTaxes %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+                    {% endblock %}
 
-                {% block document_line_item_table_unit_price %}
-                    <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode, languageId) }}</td>
-                {% endblock %}
+                    {% block document_line_item_table_unit_price %}
+                        <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode, languageId) }}</td>
+                    {% endblock %}
 
-                {% block document_line_item_table_total_price %}
-                    <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode, languageId) }}</td>
-                {% endblock %}
+                    {% block document_line_item_table_total_price %}
+                        <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode, languageId) }}</td>
+                    {% endblock %}
+                {% endif %}
             </tr>
         {% endblock %}
     {% endif %}

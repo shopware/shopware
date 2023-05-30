@@ -1,0 +1,17 @@
+<div class="sw-flow-sequence-action-error">
+    <div class="sw-flow-sequence-action-error__content">
+        <slot name="content"></slot>
+    </div>
+
+    <sw-context-button
+        class="sw-flow-sequence-action-error__context-button"
+    >
+        <sw-context-menu-item
+            variant="danger"
+            class="sw-flow-sequence-action-error__delete-action"
+            @click="removeWarning(sequence.id)"
+        >
+            {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
+        </sw-context-menu-item>
+    </sw-context-button>
+</div>

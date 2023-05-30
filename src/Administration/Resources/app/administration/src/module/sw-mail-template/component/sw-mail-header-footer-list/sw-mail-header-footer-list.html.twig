@@ -5,29 +5,27 @@
     position-identifier="sw-mail-header-footer-list"
 >
 
-    <template>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_mail_header_footer_list_grid_empty_state %}
+    <sw-empty-state
+        v-if="!isLoading && !showListing"
+        :title="$tc('sw-mail-header-footer.list.emptyStateTitle')"
+        :subline="$tc('sw-mail-header-footer.list.emptyStateSubTitle')"
+        :absolute="false"
+    >
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_mail_header_footer_list_grid_empty_state %}
-        <sw-empty-state
-            v-if="!isLoading && !showListing"
-            :title="$tc('sw-mail-header-footer.list.emptyStateTitle')"
-            :subline="$tc('sw-mail-header-footer.list.emptyStateSubTitle')"
-            :absolute="false"
-        >
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_mail_header_footer_list_grid_empty_state_icon %}
-            <template #icon>
-                <img
-                    :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
-                    :alt="$tc('sw-mail-header-footer.list.emptyStateTitle')"
-                >
-            </template>
-            {% endblock %}
-
-        </sw-empty-state>
+        {% block sw_mail_header_footer_list_grid_empty_state_icon %}
+        <template #icon>
+            <img
+                :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :alt="$tc('sw-mail-header-footer.list.emptyStateTitle')"
+            >
+        </template>
         {% endblock %}
-    </template>
+
+    </sw-empty-state>
+    {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_mail_template_list_grid %}

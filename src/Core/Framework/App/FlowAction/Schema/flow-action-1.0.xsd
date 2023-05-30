@@ -51,6 +51,7 @@
             <xs:element type="xs:string" name="sw-icon" minOccurs="0"/>
             <xs:element type="xs:string" name="url"/>
             <xs:element type="xs:string" name="requirements"/>
+            <xs:element type="xs:boolean" name="delayable"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="parameter">

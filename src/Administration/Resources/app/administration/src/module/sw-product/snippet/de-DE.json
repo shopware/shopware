@@ -29,7 +29,7 @@
       "textAdvancedMode": "Erweiterter Modus"
     },
     "basicForm": {
-      "labelTitle": "Titel",
+      "labelTitle": "Name",
       "labelDescription": "Beschreibung",
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
@@ -83,7 +83,7 @@
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter",
       "taxRateHelpText": {
-        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
+        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Wenn Du einen Steuerservice-Anbieter (Tax Provider) aktiviert hast, könnte der hier festgelegte Steuersatz überschrieben werden. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
         "linkText": "Einstellungen"
       }
     },
@@ -111,7 +111,7 @@
       "labelMinPurchase": "Mindestabnahme",
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "GTIN/EAN",
-      "labelManufacturerNumber": "Herstellernummer",
+      "labelManufacturerNumber": "Hersteller-Produktnummer",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
@@ -133,17 +133,17 @@
       "placeholderPurchaseSteps": "Verkaufsintervall (Stückzahl) ...",
       "placeholderRestockTime": "Wiederauffüllintervall ...",
       "placeholderEan": "Gib die GTIN/EAN ein ...",
-      "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
+      "placeholderManufacturerNumber": "Produktnummer eingeben ...",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },
     "packagingForm": {
       "labelUnit": "Maßeinheit",
       "placeholderUnit": "Wähle aus ...",
-      "referenceUnitHelpText": "Der Wert, mit dem der Grundpreis eines Produkts berechnet wird. Abhängig von der verwendeten Maßeinheit trägst du hier wahrscheinlich eine '1' ein. Wenn z.B. die Verkaufseinheit in Litern gemessen wird, dann berechnest Du mit der '1' den Grundreis für 1 Liter. Soll der Grundpreis für 100 Milliliter berechnet werden, füge '0,1' ein.",
+      "referenceUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "packUnitPluralHelpText": "Art der Verpackung Mehrzahl: z.B. Flaschen, Kisten ...",
-      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,5 l = 3 l), füge hier z.B. '3' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen."
+      "packUnitPluralHelpText": "Art der Verpackung (Mehrzahl): z.B. Flaschen, Kisten, Tiegel ...",
+      "purchaseUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -156,16 +156,23 @@
       "linkMaintainCurrencyPrices": "Währungsabhängige Preise",
       "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
+      "cardSubtitleMedia": "Füge Dateien zur Mediengalerie des Produkts hinzu.",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "cardTitleSeo": "SEO",
-      "cardTitleVisibilityStructure": "Sichtbarkeitsstruktur"
+      "cardTitleVisibilityStructure": "Sichtbarkeitsstruktur",
+      "cardTitleDownloads": "Dateien",
+      "cardSubtitleDownloads": "Füge Dateien zu Deinem digitalen Produkt hinzu.",
+      "downloadsLabel": "Datei-Upload",
+      "manageStockLabel": "Lagerbestand verwalten",
+      "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },
     "specifications": {
       "cardTitleMeasuresPackaging": "Maße & Verpackung",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",
-      "cardTitleCustomProduct": "Custom Products"
+      "cardTitleCustomProduct": "Custom Products",
+      "cardTitleDownloads": "Dateien"
     },
     "seo": {
       "cardTitleSeo": "SEO"
@@ -211,8 +218,8 @@
     },
     "list": {
       "textProductOverview": "Produkte",
-      "textTotalProducts": "Keine Produkte | Ein Produkt | {count} Produkte",
       "buttonAddProduct": "Produkt anlegen",
+      "buttonAddDownloadableProduct": "Digitales Produkt anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDuplicate": "Duplizieren",
       "buttonDelete": "Löschen",
@@ -223,12 +230,16 @@
       "columnPrice": "Preis",
       "columnInStock": "Lagerbestand",
       "columnAvailableStock": "Verfügbar",
+      "columnCreatedAt": "Hinzugefügt am",
+      "columnUpdatedAt": "Aktualisiert am",
       "columnReleaseDate": "Erscheinungsdatum",
       "columnVisibilities": "Verkaufskanäle",
       "columnCategories": "Kategorien",
       "columnTags": "Tags",
       "columnActions": "Aktion(en)",
       "columnMedia": "Medien",
+      "columnSales": "Verkäufe",
+      "columnDownloadsTooltip": "Digitale Produkte müssen über mindestens eine Datei verfügen.",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
@@ -321,28 +332,32 @@
       }
     },
     "variations": {
+      "generatedListColumnDownload": "Dateien",
       "emptyStateTitle": "Dieses Produkt hat noch keine Varianten",
       "emptyStateDescription": "Verwaltung der Varianten von Produkten.",
       "emptyStatePropertyTitle": "Es wurden noch keine Eigenschaften angelegt",
       "emptyStatePropertyButton": "Eigenschaften erstellen",
       "emptyStatePropertyDescription": "Bitte erstelle zunächst Eigenschaften, um diese für die Variantengenerierung verwenden zu können.",
-      "emptyStateButton": "Varianten-Generator starten",
-      "generateVariationsButton": "Varianten generieren",
-      "deleteVariationsButton": "Alle Produktvarianten löschen",
+      "emptyStateButton": "Varianten generieren",
+      "generateVariationsButton": "Varianten speichern",
+      "nextModalButton": "Weiter",
+      "deleteVariationsButton": "Alle Varianten löschen",
       "cancelVariationsButton": "Abbrechen",
+      "backVariationsButton": "Zurück",
       "configuratorCardTitle": "Varianten generieren",
-      "generatedVariationCardTitle": "Verfügbare Varianten",
+      "generatedVariationCardTitle": "Varianten",
+      "variationCard": {
+        "tabs": {
+          "allProducts": "Alle Varianten",
+          "physicalProducts": "Physische Varianten",
+          "digitalProducts": "Digitale Varianten"
+        }
+      },
       "progressTypeOf": "von",
       "progressTypeDeleted": "gelöscht",
       "progressTypeGenerated": "generiert",
       "progressTypeCalculated": "berechnet",
       "progressTypeVariation": "Varianten",
-      "generationNotificationTitle": "Hinweis",
-      "generationNotificationMessage": "Mit der ausgewählten Konfiguration werden folgende Aktionen ausgeführt:",
-      "generationNotificationCountAdding": "1 Variante wird hinzugefügt | {count} Varianten werden hinzugefügt",
-      "generationNotificationCountDeletion": "1 Variante wird gelöscht | {count} Varianten werden gelöscht",
-      "generationNotificationButtonCancel": "Abbrechen",
-      "generationNotificationButtonContinue": "Generieren",
       "generatedFilterList": "Liste filtern",
       "generatedListColumnVariation": "Variante",
       "generatedListColumnPrice": "Preis (Brutto / Netto)",
@@ -350,6 +365,9 @@
       "generatedListColumnMedia": "Medien",
       "generatedListColumnActive": "Aktiv",
       "generatedListColumnStock": "Lagerbestand",
+      "generatedListColumnContentProductState": {
+        "is-download": "digital"
+      },
       "generatedListContextMenuEdit": "Bearbeiten",
       "generatedListContextMenuDelete": "Löschen",
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
@@ -368,6 +386,13 @@
       },
       "configuratorModal": {
         "title": "Varianten generieren",
+        "uploadAllButton": "Lade Dateien für alle digitalen Varianten hoch",
+        "uploadCardDescription": "Alle digitalen Varianten benötigen mindestens eine Datei, um gespeichert zu werden.",
+        "uploadCardSearchPlaceholder": "Varianten durchsuchen ...",
+        "uploadInfoBoxHeader": "Diese Aktionen werden entsprechend der aktuellen Konfiguration ausgeführt:",
+        "uploadInfoBoxCount": "{count} Varianten | {count} Variante | {count} Varianten",
+        "uploadInfoBoxCreateLabel": "werden erstellt, | wird erstellt, | werden erstellt,",
+        "uploadInfoBoxDeleteLabel": "werden gelöscht. | wird gelöscht. | werden gelöscht.",
         "selectOptions": "Ausprägungsauswahl",
         "selectOptionsExplanation": "Wähle Eigenschaftsausprägungen, aus denen die Varianten generiert werden sollen.",
         "selectRestrictionsExplanation": "Wähle Eigenschaftsausprägungen, die von der Varianten-Generierung ausgeschlossen werden sollen.",
@@ -388,7 +413,9 @@
         "save": "Speichern",
         "searchPlaceholder": "Durchsuche Ausprägungen ...",
         "singleRestrictionAddTitle": "Ausprägungen ausschließen",
-        "surchargeNotice": "Änderungen an den Auf-/Abschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen."
+        "surchargeNotice": "Änderungen an den Auf-/Abschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen.",
+        "digitalVariantSwitch": "Alle zu digitalen Varianten machen",
+        "removeAllButton": "Von allen Varianten entfernen"
       },
       "deliveryModal": {
         "modalHeadline": "Varianten-Ausspielung in der Storefront",
@@ -500,9 +527,20 @@
         "label": "Kategorien",
         "placeholder": "Kategorien auswählen ..."
       },
+      "salesFilter": {
+        "label": "Verkäufe"
+      },
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Tags auswählen ..."
+      },
+      "productStatesFilter": {
+        "label": "Produktzustände",
+        "placeholder": "Produktzustand auswählen ...",
+        "options": {
+          "physical": "Physisch",
+          "digital": "Digital"
+        }
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."

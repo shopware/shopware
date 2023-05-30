@@ -26,11 +26,11 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
@@ -49,6 +49,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -63,6 +64,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class VersioningTest extends TestCase
@@ -72,13 +74,13 @@ class VersioningTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
@@ -145,7 +147,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $priceRepository */
+        /** @var EntityRepository $priceRepository */
         $priceRepository = $this->getContainer()->get('product_price.repository');
 
         $event = $priceRepository->create([$price], $context);
@@ -162,7 +164,7 @@ class VersioningTest extends TestCase
         $commits = $this->getCommits('product', $id, $versionId);
         static::assertCount(1, $commits);
 
-        /** @var EntityRepositoryInterface $mappingRepository */
+        /** @var EntityRepository $mappingRepository */
         $mappingRepository = $this->getContainer()->get('product_category.repository');
 
         $event = $mappingRepository->delete([['productId' => $id, 'categoryId' => $categoryId]], $version);
@@ -325,7 +327,7 @@ class VersioningTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+        $this->connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
 
         $this->connection->beginTransaction();
 
@@ -432,9 +434,9 @@ class VersioningTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->exec(CalculatedPriceFieldTestDefinition::dropTable());
+        $this->connection->executeStatement(CalculatedPriceFieldTestDefinition::dropTable());
         // We have created a table so the transaction rollback don't work -> we have to do it manually
-        $this->connection->executeUpdate('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
+        $this->connection->executeStatement('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
 
         $this->connection->beginTransaction();
     }
@@ -685,17 +687,15 @@ class VersioningTest extends TestCase
         $versionId = $this->productRepository->createVersion($productId, $context);
 
         //check both products exists
-        $products = $this->connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        $products = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(2, $products);
 
-        $versions = array_map(function ($item) {
-            return Uuid::fromBytesToHex($item['version_id']);
-        }, $products);
+        $versions = array_map(fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
 
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
 
-        $prices = $this->connection->fetchAll('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        $prices = $this->connection->fetchAllAssociative('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(4, $prices);
 
         $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
@@ -738,20 +738,18 @@ class VersioningTest extends TestCase
         $versionId = $this->productRepository->createVersion($productId, $context);
 
         //check both products exists
-        $products = $this->connection->fetchAll(
+        $products = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($productId)]
         );
         static::assertCount(2, $products);
 
-        $versions = array_map(function ($item) {
-            return Uuid::fromBytesToHex($item['version_id']);
-        }, $products);
+        $versions = array_map(fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
 
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
             ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
         );
@@ -762,7 +760,7 @@ class VersioningTest extends TestCase
             static::assertSame(Defaults::LIVE_VERSION, $categoryVersion);
         }
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
             ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
         );
@@ -1087,7 +1085,7 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(CategoryCollection::class, $product->getCategories());
         static::assertCount(2, $product->getCategories());
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
             ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
         );
@@ -1871,7 +1869,7 @@ class VersioningTest extends TestCase
 
         try {
             $this->productRepository->merge($versionId, $context);
-        } catch (VersionMergeAlreadyLockedException $e) {
+        } catch (VersionMergeAlreadyLockedException) {
             $exceptionWasThrown = true;
         } finally {
             $lock->release();
@@ -1891,11 +1889,38 @@ class VersioningTest extends TestCase
         static::assertEquals('EAN', $product->getEan());
     }
 
+    public function testMergeInCorrectOrder(): void
+    {
+        // we want to ensure that the data of a commit is persisted in the correct order
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100);
+
+        $live = Context::createDefaultContext();
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], $live);
+
+        // after having a simple product - create new version
+        $versionId = $this->productRepository->createVersion($ids->get('p1'), $live);
+
+        $version = $live->createWithVersionId($versionId);
+
+        // now we want to create a manufacturer and update the product record at the same time
+        $update = (new ProductBuilder($ids, 'p1'))
+            ->manufacturer('manufacturer');
+
+        $this->productRepository->update([$update->build()], $version);
+
+        // when the version is merged - the manufacturer should be created first
+        $this->getContainer()->get('product.repository')->merge($versionId, $live);
+    }
+
     private function getReviewCount(string $productId, string $versionId): int
     {
-        return (int) $this->getContainer()
-            ->get(Connection::class)
-            ->fetchColumn(
+        return (int) $this->connection
+            ->fetchOne(
                 'SELECT COUNT(*) FROM product_review WHERE product_id = :id AND product_version_id = :version',
                 ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
             );
@@ -1903,7 +1928,7 @@ class VersioningTest extends TestCase
 
     private function createDemoCart(SalesChannelContext $salesChannelContext): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $id = Uuid::randomHex();
 
@@ -1982,14 +2007,14 @@ class VersioningTest extends TestCase
     private function getCommits(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAllAssociative(
-            "SELECT d.*
+            'SELECT d.*
              FROM version_commit_data d
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
              WHERE entity_name = :entity
-             AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY auto_increment",
+             AND JSON_EXTRACT(entity_id, \'$.id\') = :id
+             ORDER BY auto_increment',
             [
                 'entity' => $entity,
                 'id' => $id,
@@ -1998,8 +2023,8 @@ class VersioningTest extends TestCase
         );
 
         $data = array_map(function (array $row) {
-            $row['entity_id'] = json_decode($row['entity_id'], true);
-            $row['payload'] = json_decode($row['payload'], true);
+            $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
             return $row;
         }, $data);
@@ -2013,14 +2038,14 @@ class VersioningTest extends TestCase
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAllAssociative(
-            "SELECT d.*
+            'SELECT d.*
              FROM version_commit_data d
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
              WHERE entity_name = :entity
-             AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY auto_increment",
+             AND JSON_EXTRACT(entity_id, \'$.id\') = :id
+             ORDER BY auto_increment',
             [
                 'entity' => $entity,
                 'id' => $id,
@@ -2029,8 +2054,8 @@ class VersioningTest extends TestCase
         );
 
         $data = array_map(function (array $row) {
-            $row['entity_id'] = json_decode($row['entity_id'], true);
-            $row['payload'] = json_decode($row['payload'], true);
+            $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
             return $row;
         }, $data);
@@ -2044,13 +2069,13 @@ class VersioningTest extends TestCase
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId, string $versionField = 'versionId'): array
     {
         $data = $this->connection->fetchAllAssociative(
-            "SELECT *
+            'SELECT *
              FROM version_commit_data
              WHERE entity_name = :entity
-             AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
-             AND JSON_EXTRACT(entity_id, '$.languageId') = :language
-             AND JSON_EXTRACT(entity_id, '$." . $versionField . "') = :version
-             ORDER BY auto_increment",
+             AND JSON_EXTRACT(entity_id, \'$.' . $foreignKeyName . '\') = :id
+             AND JSON_EXTRACT(entity_id, \'$.languageId\') = :language
+             AND JSON_EXTRACT(entity_id, \'$.' . $versionField . '\') = :version
+             ORDER BY auto_increment',
             [
                 'entity' => $entity,
                 'id' => $foreignKey,
@@ -2060,8 +2085,8 @@ class VersioningTest extends TestCase
         );
 
         $data = array_map(function (array $row) {
-            $row['entity_id'] = json_decode($row['entity_id'], true);
-            $row['payload'] = json_decode($row['payload'], true);
+            $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
             return $row;
         }, $data);

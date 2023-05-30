@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 interface PriceDefinitionInterface
 {
     /**

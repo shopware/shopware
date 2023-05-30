@@ -1,10 +1,16 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-base-field', {
     template,
     inheritAttrs: false,
@@ -29,6 +35,12 @@ Component.register('sw-base-field', {
         },
 
         isInvalid: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        aiBadge: {
             type: Boolean,
             required: false,
             default: false,

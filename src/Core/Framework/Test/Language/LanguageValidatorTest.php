@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Language;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,13 +18,10 @@ class LanguageValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $defaultContext;
+    private Context $defaultContext;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $languageRepository;
 
@@ -796,6 +793,10 @@ class LanguageValidatorTest extends TestCase
         $this->assertInsertViolations([$root, $sub], [], false /* no default locale ! */);
     }
 
+    /**
+     * @param callable(): void $function
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertWriteStackViolations(callable $function, array $expectedCodePathPairs): void
     {
         /** @var WriteException|null $stack */
@@ -820,6 +821,10 @@ class LanguageValidatorTest extends TestCase
         static::assertCount(\count($expectedCodePathPairs), $actualViolations);
     }
 
+    /**
+     * @param list<array<string, mixed>> $updateData
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertUpdateViolations(array $updateData, array $expectedCodePathPairs): void
     {
         $this->assertWriteStackViolations(function () use ($updateData): void {
@@ -827,6 +832,10 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
+    /**
+     * @param list<array<string, mixed>> $insertData
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, bool $addDefaultTranslationCode = true): void
     {
         if ($addDefaultTranslationCode) {
@@ -838,7 +847,11 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
-    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, $addDefaultTranslationCode = true): void
+    /**
+     * @param list<array<string, mixed>> $upsertData
+     * @param list<list<string>> $expectedCodePathPairs
+     */
+    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, bool $addDefaultTranslationCode = true): void
     {
         if ($addDefaultTranslationCode) {
             $upsertData = $this->addDefaultTranslationCodes($upsertData);
@@ -849,6 +862,10 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $ids
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertDeleteViolations(array $ids, array $expectedCodePathPairs): void
     {
         $this->assertWriteStackViolations(function () use ($ids): void {
@@ -863,9 +880,7 @@ class LanguageValidatorTest extends TestCase
 
     protected function addDefaultLocales(array $languages): array
     {
-        return array_map(function ($lang) {
-            return $this->addDefaultLocale($lang);
-        }, $languages);
+        return array_map(fn ($lang) => $this->addDefaultLocale($lang), $languages);
     }
 
     protected function addDefaultLocale(array $lang): array
@@ -882,9 +897,7 @@ class LanguageValidatorTest extends TestCase
 
     protected function addDefaultTranslationCodes(array $languages)
     {
-        return array_map(function ($lang) {
-            return $this->addDefaultTranslationCode($lang);
-        }, $languages);
+        return array_map(fn ($lang) => $this->addDefaultTranslationCode($lang), $languages);
     }
 
     protected function addDefaultTranslationCode(array $lang)

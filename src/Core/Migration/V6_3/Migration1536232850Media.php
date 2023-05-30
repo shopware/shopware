@@ -3,8 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1536232850Media extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536232850Media extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `media` (
               `id`              BINARY(16)                                  NOT NULL,
               `user_id`         BINARY(16)                                  NULL,
@@ -39,7 +44,7 @@ class Migration1536232850Media extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `media_translation` (
               `media_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -57,7 +62,7 @@ class Migration1536232850Media extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->exec('
+        $connection->executeStatement('
             ALTER TABLE `user`
               ADD CONSTRAINT `fk.user.avatar_id` FOREIGN KEY (avatar_id)
                 REFERENCES `media` (id) ON DELETE SET NULL;

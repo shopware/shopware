@@ -6,33 +6,32 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @internal
+ */
+#[Package('customer-order')]
 class CustomerTokenSubscriber implements EventSubscriberInterface
 {
-    private SalesChannelContextPersister $contextPersister;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelContextPersister $contextPersister,
-        RequestStack $requestStack
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly RequestStack $requestStack
     ) {
-        $this->contextPersister = $contextPersister;
-        $this->requestStack = $requestStack;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'onCustomerWritten',
@@ -70,6 +69,9 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private function customerCredentialsChanged(array $payload): bool
     {
         return isset($payload['password']);

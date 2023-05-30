@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1652441129ReplaceIconNames
  */
 class Migration1652441129ReplaceIconNamesTest extends TestCase
@@ -23,6 +24,7 @@ class Migration1652441129ReplaceIconNamesTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
         $this->replaceSalesChannelTypeIconName('regular-storefront', 'default-building-shop', $this->connection);
         $this->replaceSalesChannelTypeIconName('regular-shopping-basket', 'default-shopping-basket', $this->connection);
+        $this->replaceSalesChannelTypeIconName('regular-rocket', 'default-object-rocket', $this->connection);
     }
 
     public function testRun(): void
@@ -60,7 +62,7 @@ class Migration1652441129ReplaceIconNamesTest extends TestCase
             ->from('sales_channel_type')
             ->where('icon_name = :iconName')
             ->setParameter('iconName', $oldIconName)
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
 
         foreach ($oldIconSalesChannelTypes as $id) {

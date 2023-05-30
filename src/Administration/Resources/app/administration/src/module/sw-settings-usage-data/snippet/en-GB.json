@@ -1,0 +1,12 @@
+{
+  "sw-settings-usage-data": {
+    "general": {
+      "mainMenuItemGeneral": "Usage data",
+      "textHeadline": "Usage data",
+      "description": "Configure to share usage data with us to improve Shopware.",
+      "alertText": "This setting applies to all Shopware Administration users.",
+      "alertTextOnlyAdmins": "Only administrators can change it.",
+      "shareUsageData": "Share usage data"
+    }
+  }
+}

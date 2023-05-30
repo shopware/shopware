@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1595492053SeoUrlTemplate;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1595492053SeoUrlTemplate
  */
 class Migration1595492053SeoUrlTemplateTest extends TestCase

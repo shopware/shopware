@@ -3,10 +3,15 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1636014089UpdateOrderConfirmationMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;

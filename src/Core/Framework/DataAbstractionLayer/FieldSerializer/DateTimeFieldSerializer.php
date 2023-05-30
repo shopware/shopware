@@ -4,18 +4,20 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class DateTimeFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
@@ -25,7 +27,7 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof DateTimeField) {
-            throw new InvalidSerializerFieldException(DateTimeField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(DateTimeField::class, $field);
         }
 
         $value = $data->getValue();
@@ -41,7 +43,7 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         $data->setValue($value);
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        if ($value === null) {
+        if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
             yield $field->getStorageName() => null;
 
             return;
@@ -52,7 +54,7 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
 
-    public function decode(Field $field, $value): ?\DateTimeInterface
+    public function decode(Field $field, mixed $value): ?\DateTimeInterface
     {
         return $value === null ? null : new \DateTimeImmutable($value);
     }

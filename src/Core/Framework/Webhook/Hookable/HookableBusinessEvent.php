@@ -9,20 +9,21 @@ use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ */
+#[Package('core')]
 class HookableBusinessEvent implements Hookable
 {
-    private FlowEventAware $flowEventAware;
-
-    private BusinessEventEncoder $businessEventEncoder;
-
-    private function __construct(FlowEventAware $flowEventAware, BusinessEventEncoder $businessEventEncoder)
-    {
-        $this->flowEventAware = $flowEventAware;
-        $this->businessEventEncoder = $businessEventEncoder;
+    private function __construct(
+        private readonly FlowEventAware $flowEventAware,
+        private readonly BusinessEventEncoder $businessEventEncoder
+    ) {
     }
 
     public static function fromBusinessEvent(
@@ -44,7 +45,7 @@ class HookableBusinessEvent implements Hookable
 
     public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
-        foreach ($this->flowEventAware::getAvailableData()->toArray() as $dataType) {
+        foreach ($this->flowEventAware->getAvailableData()->toArray() as $dataType) {
             if (!$this->checkPermissionsForDataType($dataType, $permissions)) {
                 return false;
             }
@@ -53,6 +54,9 @@ class HookableBusinessEvent implements Hookable
         return true;
     }
 
+    /**
+     * @param array<mixed> $dataType
+     */
     private function checkPermissionsForDataType(array $dataType, AclPrivilegeCollection $permissions): bool
     {
         if ($dataType['type'] === ObjectType::TYPE && \is_array($dataType['data']) && !empty($dataType['data'])) {

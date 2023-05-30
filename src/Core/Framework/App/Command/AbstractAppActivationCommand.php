@@ -4,9 +4,10 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,29 +16,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 abstract class AbstractAppActivationCommand extends Command
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $appRepo;
+    protected EntityRepository $appRepo;
 
-    /**
-     * @var string
-     */
-    private $action;
-
-    public function __construct(EntityRepositoryInterface $appRepo, string $action)
-    {
+    public function __construct(
+        EntityRepository $appRepo,
+        private readonly string $action
+    ) {
         $this->appRepo = $appRepo;
-        $this->action = $action;
 
         parent::__construct();
     }
 
     abstract public function runAction(string $appId, Context $context): void;
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
@@ -64,12 +59,7 @@ abstract class AbstractAppActivationCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription(ucfirst($this->action) . ' the app in the folder with the given name')
-            ->addArgument(
-                'name',
-                InputArgument::REQUIRED,
-                'The name of the app, has also to be the name of the folder under
-                which the app can be found under custom/apps'
-            );
+        $this->addArgument('name', InputArgument::REQUIRED, 'The name of the app, has also to be the name of the folder under
+                which the app can be found under custom/apps');
     }
 }

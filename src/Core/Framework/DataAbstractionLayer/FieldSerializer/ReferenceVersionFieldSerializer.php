@@ -4,24 +4,26 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class ReferenceVersionFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof ReferenceVersionField) {
-            throw new InvalidSerializerFieldException(ReferenceVersionField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ReferenceVersionField::class, $field);
         }
 
         $value = $data[$field->getPropertyName()] ?? null;
@@ -62,7 +64,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ReferenceVersionField) {
-            throw new InvalidSerializerFieldException(ReferenceVersionField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ReferenceVersionField::class, $field);
         }
 
         $definition = $parameters->getDefinition();
@@ -89,7 +91,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return null;

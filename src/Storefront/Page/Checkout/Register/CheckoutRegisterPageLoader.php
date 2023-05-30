@@ -11,7 +11,8 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -24,37 +25,23 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
+#[Package('storefront')]
 class CheckoutRegisterPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartService $cartService;
-
-    private AbstractSalutationRoute $salutationRoute;
-
-    private AbstractCountryRoute $countryRoute;
-
-    private AbstractListAddressRoute $listAddressRoute;
-
     /**
      * @internal
      */
     public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractListAddressRoute $listAddressRoute,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        AbstractSalutationRoute $salutationRoute,
-        AbstractCountryRoute $countryRoute
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractListAddressRoute $listAddressRoute,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartService $cartService,
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly AbstractCountryRoute $countryRoute
     ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->salutationRoute = $salutationRoute;
-        $this->countryRoute = $countryRoute;
-        $this->listAddressRoute = $listAddressRoute;
     }
 
     /**
@@ -62,7 +49,7 @@ class CheckoutRegisterPageLoader
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidUuidException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutRegisterPage
     {
@@ -122,9 +109,7 @@ class CheckoutRegisterPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }

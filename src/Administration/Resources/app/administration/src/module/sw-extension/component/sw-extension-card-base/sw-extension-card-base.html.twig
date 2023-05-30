@@ -29,11 +29,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_icon %}
-    <img
-        class="sw-extension-card-base__icon"
-        :src="image"
-        alt=""
-    >
+    <sw-extension-icon :src="image" />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -62,13 +58,6 @@
             {% endblock %}
         </section>
         {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_extension_card_base_info_description %}
-        <section class="sw-extension-card-base__info-description">
-            {{ description }}
-        </section>
-        {% endblock %}
         {% endblock %}
     </div>
     {% endblock %}
@@ -77,26 +66,14 @@
     {% block sw_extension_card_base_meta_info %}
     <div class="sw-extension-card-base__meta-info">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_extension_card_base_meta_info_content %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_extension_card_base_meta_date %}
-        <span v-if="isInstalled">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
-            {{ dateFilter(extension.installedAt.date, { year: 'numeric' }) }}
-        </span>
-
-        <span v-else-if="extension.storeLicense">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
-            {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
-        </span>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_meta_info_version %}
         <section>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_card_base_meta_info_version_label %}
-            <span v-if="extension.version">
+            <span
+                v-if="extension.version"
+                class="sw-extension-card-base__meta-info-version"
+            >
                 {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
             </span>
             {% endblock %}
@@ -115,6 +92,21 @@
         </section>
         {% endblock %}
         {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_meta_info_content %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_extension_card_base_meta_date %}
+        <span v-if="isInstalled">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
+            {{ dateFilter(extension.installedAt.date, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
+        </span>
+
+        <span v-else-if="extension.storeLicense">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
+            {{ dateFilter(extension.storeLicense.creationDate, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
+        </span>
+        {% endblock %}
     </div>
     {% endblock %}
 
@@ -130,17 +122,6 @@
             @click="openPermissionsModalForInstall"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
-        </span>
-
-        {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-        <span
-            v-else-if="openLinkExists"
-            class="sw-extension-card-base__open-extension"
-            style="display: none;"
-            @click="openExtension"
-        >
-            {{ $tc(openLinkInformation.label || 'sw-extension-store.component.sw-extension-card-base.openExtensionLabel') }}
         </span>
         {% endblock %}
     </div>
@@ -184,7 +165,7 @@
             <span class="sw-extension-card-base__context-menu-privacy-link">
                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
                 <sw-icon
-                    name="regular-small-external"
+                    name="regular-external-link-s"
                     size="10px"
                 />
             </span>

@@ -4,10 +4,8 @@ import ProductPageObject    from '../../support/pages/module/sw-product.page-obj
 
 describe('Create a new property, select value display type and test their appearance in the storefront by creating new variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
             .then(() => {
-                cy.setLocaleToEnGb();
-            }).then(() => {
                 cy.createProductFixture({
                     name: 'Variant Product',
                     productNumber: 'Variant-1234',
@@ -15,18 +13,18 @@ describe('Create a new property, select value display type and test their appear
                         {
                             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                             linked: true,
-                            gross: 60
-                        }
-                    ]
+                            gross: 60,
+                        },
+                    ],
                 });
             }).then(() => {
                 return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }],
                 });
             }).then(() => {
                 return cy.createPropertyFixture({
                     name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
                 });
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -38,25 +36,25 @@ describe('Create a new property, select value display type and test their appear
     it('@package: add property and multidimensional variant to product', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('salesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCategoryDetail');
 
         const page = new ProductPageObject();
 
         // Add product to sales channel
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');

@@ -3,34 +3,29 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class RepositoryIterator
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private readonly Criteria $criteria;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private readonly EntityRepository $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private readonly Context $context;
 
     private bool $autoIncrement = false;
 
-    public function __construct(EntityRepositoryInterface $repository, Context $context, ?Criteria $criteria = null)
-    {
+    public function __construct(
+        EntityRepository $repository,
+        Context $context,
+        ?Criteria $criteria = null
+    ) {
         if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);
@@ -86,7 +81,7 @@ class RepositoryIterator
             throw new \RuntimeException('Expected string as last element of ids array');
         }
 
-        $increment = $ids->getDataFieldOfId($last, Feature::isActive('v6.5.0.0') ? 'autoIncrement' : 'auto_increment');
+        $increment = $ids->getDataFieldOfId($last, 'autoIncrement');
         $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));
 
         return $values;

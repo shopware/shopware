@@ -2,10 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
@@ -15,32 +13,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('content')]
 class NavigationController extends StorefrontController
 {
-    private NavigationPageLoaderInterface $navigationPageLoader;
-
-    private MenuOffcanvasPageletLoaderInterface $offcanvasLoader;
-
     /**
      * @internal
      */
     public function __construct(
-        NavigationPageLoaderInterface $navigationPageLoader,
-        MenuOffcanvasPageletLoaderInterface $offcanvasLoader
+        private readonly NavigationPageLoaderInterface $navigationPageLoader,
+        private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader
     ) {
-        $this->navigationPageLoader = $navigationPageLoader;
-        $this->offcanvasLoader = $offcanvasLoader;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @HttpCache()
-     * @Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
-     */
+    #[Route(path: '/', name: 'frontend.home.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]
     public function home(Request $request, SalesChannelContext $context): ?Response
     {
         $page = $this->navigationPageLoader->load($request, $context);
@@ -50,11 +39,7 @@ class NavigationController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.3.3.0")
-     * @HttpCache()
-     * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
-     */
+    #[Route(path: '/navigation/{navigationId}', name: 'frontend.navigation.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->navigationPageLoader->load($request, $context);
@@ -64,11 +49,7 @@ class NavigationController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @HttpCache()
-     * @Route("/widgets/menu/offcanvas", name="frontend.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/widgets/menu/offcanvas', name: 'frontend.menu.offcanvas', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasLoader->load($request, $context);

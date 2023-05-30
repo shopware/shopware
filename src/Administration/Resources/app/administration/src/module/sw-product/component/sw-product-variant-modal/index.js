@@ -1,11 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variant-modal', {
+export default {
     template,
 
     inject: [
@@ -158,6 +162,13 @@ Component.register('sw-product-variant-modal', {
                     routerLink: 'sw.product.detail',
                     inlineEdit: 'string',
                     allowResize: true,
+                },
+                {
+                    property: 'sales',
+                    dataIndex: 'sales',
+                    label: this.$tc('sw-product.list.columnSales'),
+                    allowResize: true,
+                    align: 'right',
                 },
                 {
                     property: 'price',
@@ -671,12 +682,25 @@ Component.register('sw-product-variant-modal', {
 
         async onEditItems() {
             await this.$nextTick();
+
+            let includesDigital = '0';
+            const digital = Object.values(this.$refs.variantGrid.selection)
+                .filter(product => product.states.includes('is-download'));
+            if (digital.length > 0) {
+                includesDigital = (digital.filter(product => product.isCloseout).length !== digital.length) ? '1' : '2';
+            }
+
             this.$router.push({
                 name: 'sw.bulk.edit.product',
                 params: {
                     parentId: this.productEntity.id,
+                    includesDigital,
                 },
             });
         },
+
+        variantIsDigital(variant) {
+            return variant.states && variant.states.includes('is-download');
+        },
     },
-});
+};

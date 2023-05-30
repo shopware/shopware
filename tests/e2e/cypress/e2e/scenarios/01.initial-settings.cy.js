@@ -1,31 +1,28 @@
 /// <reference types="Cypress" />
 
 describe('sales channel: set and validate initial settings', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
     it('@package: should set and validate default sales channel settings', { tags: ['pa-sales-channels'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/listing/index');
-        cy.setSalesChannel('E2E install test');
+        cy.setSalesChannel(Cypress.env('storefrontName'));
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Standard', 5, 4);
 
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.url().should('include', 'settings/payment/index');
+        cy.url().should('include', 'settings/payment/overview');
         cy.setPaymentMethod('Cash on delivery');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
-        cy.goToSalesChannelDetail('E2E install test')
+        cy.goToSalesChannelDetail(Cypress.env('storefrontName'))
             .selectCountryForSalesChannel('Netherlands')
             .selectLanguageForSalesChannel('Dutch')
             .selectPaymentMethodForSalesChannel('Cash on delivery')

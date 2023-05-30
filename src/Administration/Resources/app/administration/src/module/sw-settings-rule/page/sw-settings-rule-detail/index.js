@@ -2,10 +2,14 @@ import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Component.getComponentHelper();
+const { Criteria, EntityCollection } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-rule-detail', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -18,8 +22,6 @@ Component.register('sw-settings-rule-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        /** @deprecated tag:v6.5.0 - the 'discard-detail-page-changes' mixin will be removed */
-        Mixin.getByName('discard-detail-page-changes')('rule'),
     ],
 
     shortcuts: {
@@ -70,15 +72,17 @@ Component.register('sw-settings-rule-detail', {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('tags');
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return criteria;
-            }
-
             criteria.addAssociation('personaPromotions');
             criteria.addAssociation('orderPromotions');
             criteria.addAssociation('cartPromotions');
             criteria.addAssociation('promotionDiscounts');
             criteria.addAssociation('promotionSetGroups');
+            criteria.addAssociation('flowSequences.flow');
+            criteria.addAssociation('shippingMethodPriceCalculations');
+            criteria.addAssociation('shippingMethodPrices');
+            criteria.addAssociation('productPrices');
+            criteria.addAssociation('shippingMethods');
+            criteria.addAssociation('paymentMethods');
 
             return criteria;
         },
@@ -136,6 +140,8 @@ Component.register('sw-settings-rule-detail', {
                 },
             ];
         },
+
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     watch: {
@@ -171,10 +177,6 @@ Component.register('sw-settings-rule-detail', {
         },
 
         $route(newRoute, oldRoute) {
-            if (!this.feature.isActive('v6.5.0.0')) {
-                return;
-            }
-
             // Reload the rule data when switching from assignments to base tab because changes to the assignments
             // can affect the conditions that are selectable - rule awareness
             if (newRoute.name === 'sw.settings.rule.detail.base' &&
@@ -201,10 +203,6 @@ Component.register('sw-settings-rule-detail', {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
 
-            if (!this.feature.isActive('v6.5.0.0')) {
-                return this.appScriptConditionRepository.search(criteria, context);
-            }
-
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
                 this.ruleConditionsConfigApiService.load(),
@@ -229,11 +227,6 @@ Component.register('sw-settings-rule-detail', {
         },
 
         unsavedDataLeaveHandler(to, from, next) {
-            if (!this.feature.isActive('v6.5.0.0')) {
-                next();
-                return;
-            }
-
             if (this.forceDiscardChanges) {
                 this.forceDiscardChanges = false;
                 next();
@@ -326,7 +319,76 @@ Component.register('sw-settings-rule-detail', {
             this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
+        validateRuleAwareness() {
+            const equalsAnyConfigurations = this.ruleConditionDataProviderService.getAwarenessKeysWithEqualsAnyConfig();
+            if (equalsAnyConfigurations.length <= 0) {
+                return true;
+            }
+
+            let isValid = true;
+            equalsAnyConfigurations.forEach((key) => {
+                if (this.rule[key].length > 0) {
+                    const conditions = [];
+                    this.conditionTree.forEach((condition) => {
+                        conditions.push(condition);
+
+                        if (condition.children) {
+                            const children = this.getChildrenConditions(condition);
+                            conditions.push(...children);
+                        }
+                    });
+
+                    const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
+                        new EntityCollection(
+                            this.conditionRepository.route,
+                            this.conditionRepository.entityName,
+                            Context.api,
+                            null,
+                            conditions,
+                        ),
+                        key,
+                    );
+
+                    if (restrictions.isRestricted) {
+                        const message = this.$tc(
+                            'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                            0,
+                            {
+                                conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                                    restrictions.equalsAnyNotMatched,
+                                    'sw-restricted-rules.or',
+                                ),
+                                entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                            },
+                        );
+
+                        this.createNotificationError({ message });
+                        isValid = false;
+                    }
+                }
+            });
+
+            return isValid;
+        },
+
+        getChildrenConditions(condition) {
+            const conditions = [];
+            condition.children.forEach((child) => {
+                conditions.push(child);
+                if (child.children) {
+                    const children = this.getChildrenConditions(child);
+                    conditions.push(...children);
+                }
+            });
+
+            return conditions;
+        },
+
         onSave() {
+            if (!this.validateRuleAwareness()) {
+                return Promise.resolve();
+            }
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
@@ -399,6 +461,14 @@ Component.register('sw-settings-rule-detail', {
             this.isLoading = false;
         },
 
+        tabHasError(tab) {
+            if (tab.route.name !== 'sw.settings.rule.detail.base') {
+                return false;
+            }
+
+            return !!this.ruleNameError || !!this.rulePriorityError;
+        },
+
         onCancel() {
             this.$router.push({ name: 'sw.settings.rule.index' });
         },
@@ -424,4 +494,4 @@ Component.register('sw-settings-rule-detail', {
             });
         },
     },
-});
+};

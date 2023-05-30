@@ -4,30 +4,17 @@ namespace Shopware\Core\Framework\Api\Acl\Event;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('core')]
 class CommandAclValidationEvent extends Event
 {
-    /**
-     * @var array
-     */
-    private $missingPrivileges;
-
-    /**
-     * @var AdminApiSource
-     */
-    private $source;
-
-    /**
-     * @var WriteCommand
-     */
-    private $command;
-
-    public function __construct(array $missingPrivileges, AdminApiSource $source, WriteCommand $command)
-    {
-        $this->missingPrivileges = $missingPrivileges;
-        $this->source = $source;
-        $this->command = $command;
+    public function __construct(
+        private array $missingPrivileges,
+        private readonly AdminApiSource $source,
+        private readonly WriteCommand $command
+    ) {
     }
 
     public function getMissingPrivileges(): array

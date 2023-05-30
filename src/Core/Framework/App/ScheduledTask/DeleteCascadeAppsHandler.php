@@ -4,33 +4,38 @@ namespace Shopware\Core\Framework\App\ScheduledTask;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class DeleteCascadeAppsHandler extends ScheduledTaskHandler
+/**
+ * @internal
+ */
+#[AsMessageHandler(handles: DeleteCascadeAppsTask::class)]
+#[Package('core')]
+
+final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
     private const HARD_DELETE_AFTER_DAYS = 1;
-
-    private EntityRepositoryInterface $aclRoleRepository;
-
-    private EntityRepositoryInterface $integrationRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, EntityRepositoryInterface $aclRoleRepository, EntityRepositoryInterface $integrationRepository)
-    {
+    public function __construct(
+        EntityRepository $scheduledTaskRepository,
+        private readonly EntityRepository $aclRoleRepository,
+        private readonly EntityRepository $integrationRepository
+    ) {
         parent::__construct($scheduledTaskRepository);
-        $this->aclRoleRepository = $aclRoleRepository;
-        $this->integrationRepository = $integrationRepository;
     }
 
     public function run(): void
     {
         $context = Context::createDefaultContext();
-        $timeExpired = (new \DateTimeImmutable())->modify(sprintf('-%s day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $timeExpired = (new \DateTimeImmutable())->modify(sprintf('-%d day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $criteria = new Criteria();
         $criteria->addFilter(new RangeFilter('deletedAt', [
@@ -41,12 +46,7 @@ class DeleteCascadeAppsHandler extends ScheduledTaskHandler
         $this->deleteIds($this->integrationRepository, $criteria, $context);
     }
 
-    public static function getHandledMessages(): iterable
-    {
-        return [DeleteCascadeAppsTask::class];
-    }
-
-    private function deleteIds(EntityRepositoryInterface $repository, Criteria $criteria, Context $context): void
+    private function deleteIds(EntityRepository $repository, Criteria $criteria, Context $context): void
     {
         $data = $repository->searchIds($criteria, $context)->getData();
 

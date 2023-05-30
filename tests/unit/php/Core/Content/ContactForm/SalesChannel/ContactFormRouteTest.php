@@ -26,13 +26,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package content
+ *
  * @covers \Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute
  */
 class ContactFormRouteTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
     }
@@ -54,7 +57,7 @@ class ContactFormRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
         $salutationEntitySearchResult = new EntitySearchResult(
-            'product',
+            'salutation',
             1,
             new EntityCollection([]),
             null,
@@ -90,7 +93,7 @@ class ContactFormRouteTest extends TestCase
         $contactFormRoute->load($requestData, $this->salesChannelContext);
     }
 
-    public function validatorDataProvider(): \Generator
+    public static function validatorDataProvider(): \Generator
     {
         yield 'subscribe with no correct validation' => [
             [
@@ -98,6 +101,7 @@ class ContactFormRouteTest extends TestCase
                 'option' => 'direct',
                 'firstName' => 'Y http://localhost',
                 'lastName' => 'Tran http://localhost',
+                'salutationId' => Uuid::randomHex(),
             ],
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
@@ -115,6 +119,7 @@ class ContactFormRouteTest extends TestCase
                 'option' => 'direct',
                 'firstName' => 'Y',
                 'lastName' => 'Tran',
+                'salutationId' => Uuid::randomHex(),
             ],
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [

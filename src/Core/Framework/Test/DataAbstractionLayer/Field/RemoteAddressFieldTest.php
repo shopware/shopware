@@ -11,11 +11,12 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -42,7 +43,7 @@ class RemoteAddressFieldTest extends TestCase
         $serializer = $this->getSerializer();
         $data = new KeyValuePair('remoteAddress', null, false);
 
-        $this->expectException(InvalidSerializerFieldException::class);
+        $this->expectException(DataAbstractionLayerException::class);
         $serializer->encode(
             (new IntField('remote_address', 'remoteAddress'))->addFlags(new ApiAware()),
             $this->getEntityExisting(),
@@ -56,18 +57,14 @@ class RemoteAddressFieldTest extends TestCase
         $serializer = $this->getSerializer();
         $data = new KeyValuePair('remoteAddress', '127.0.0.1', false);
 
-        try {
-            $serializer->encode(
-                $this->getRemoteAddressField(),
-                $this->getEntityExisting(),
-                $data,
-                $this->getWriteParameterBagMock()
-            )->current();
+        $serializer->encode(
+            $this->getRemoteAddressField(),
+            $this->getEntityExisting(),
+            $data,
+            $this->getWriteParameterBagMock()
+        )->current();
 
-            static::assertTrue(true);
-        } catch (InvalidSerializerFieldException $e) {
-            static::fail();
-        }
+        static::assertTrue(true);
     }
 
     public function testRemoteAddressSerializerAnonymize(): void
@@ -149,6 +146,8 @@ class RemoteAddressFieldTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),

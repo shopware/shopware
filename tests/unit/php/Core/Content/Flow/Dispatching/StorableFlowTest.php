@@ -7,8 +7,11 @@ use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\StorableFlow
@@ -17,7 +20,7 @@ class StorableFlowTest extends TestCase
 {
     private StorableFlow $storableFlow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storableFlow = new StorableFlow('checkout.order.place', Context::createDefaultContext(), [], []);
         $this->storableFlow->setConfig(['config' => 'value']);
@@ -79,9 +82,7 @@ class StorableFlowTest extends TestCase
         static::assertEquals(['id' => '123345'], $this->storableFlow->data());
         static::assertEquals('123345', $this->storableFlow->getData('id'));
 
-        $callback = function () {
-            return 'Data';
-        };
+        $callback = fn () => 'Data';
 
         $this->storableFlow->setData('data', $callback);
         static::assertEquals('Data', $this->storableFlow->getData('data'));
@@ -89,11 +90,26 @@ class StorableFlowTest extends TestCase
 
     public function testLazy(): void
     {
-        $callback = function () {
-            return 'Data';
-        };
+        $callback = fn () => 'Order Data';
 
-        $this->storableFlow->lazy('data', $callback, []);
-        static::assertEquals('Data', $this->storableFlow->getData('data'));
+        $this->storableFlow->lazy('order', $callback);
+
+        $reflection = new \ReflectionClass($this->storableFlow);
+        $reflectionProperty = $reflection->getProperty('data');
+        $data = $reflectionProperty->getValue($this->storableFlow)['order'];
+
+        static::assertIsCallable($data);
+        static::assertEquals('Order Data', $this->storableFlow->getData('order'));
+    }
+
+    public function testWithThirdArgs(): void
+    {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
+        $callback = fn () => 'Order Data';
+
+        $this->storableFlow->lazy('order', $callback, ['args' => 'args']);
+
+        static::assertEquals('Order Data', $this->storableFlow->getData('order'));
     }
 }

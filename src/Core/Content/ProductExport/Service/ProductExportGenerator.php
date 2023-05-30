@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -19,82 +19,48 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 
+#[Package('sales-channel')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
-    private ProductStreamBuilderInterface $productStreamBuilder;
-
-    private int $readBufferSize;
-
-    private SalesChannelRepositoryInterface $productRepository;
-
-    private ProductExportRendererInterface $productExportRender;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ProductExportValidatorInterface $productExportValidator;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
-
-    private Translator $translator;
-
-    private SalesChannelContextPersister $contextPersister;
-
-    private Connection $connection;
-
-    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
-
-    private TwigVariableParser $twigVariableParser;
-
-    private ProductDefinition $productDefinition;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
+    private readonly TwigVariableParser $twigVariableParser;
 
     /**
      * @internal
      */
     public function __construct(
-        ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepositoryInterface $productRepository,
-        ProductExportRendererInterface $productExportRender,
-        EventDispatcherInterface $eventDispatcher,
-        ProductExportValidatorInterface $productExportValidator,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        Translator $translator,
-        SalesChannelContextPersister $contextPersister,
-        Connection $connection,
-        int $readBufferSize,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
-        TwigVariableParser $twigVariableParser,
-        ProductDefinition $productDefinition,
-        LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly ProductExportRendererInterface $productExportRender,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductExportValidatorInterface $productExportValidator,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly Translator $translator,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly Connection $connection,
+        private readonly int $readBufferSize,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        Environment $twig,
+        private readonly ProductDefinition $productDefinition,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        TwigVariableParserFactory $parserFactory
     ) {
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->productRepository = $productRepository;
-        $this->productExportRender = $productExportRender;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productExportValidator = $productExportValidator;
-        $this->salesChannelContextService = $salesChannelContextService;
-        $this->translator = $translator;
-        $this->contextPersister = $contextPersister;
-        $this->connection = $connection;
-        $this->readBufferSize = $readBufferSize;
-        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
-        $this->twigVariableParser = $twigVariableParser;
-        $this->productDefinition = $productDefinition;
-        $this->languageLocaleProvider = $languageLocaleProvider;
+        $this->twigVariableParser = $parserFactory->getParser($twig);
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
@@ -156,7 +122,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $loggingEvent = new ProductExportLoggingEvent(
                 $context->getContext(),
                 $exception->getMessage(),
-                Logger::WARNING,
+                Level::Warning,
                 $exception
             );
 
@@ -184,8 +150,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $body = '';
         while ($productResult = $iterator->fetch()) {
-            /** @var ProductEntity $product */
             foreach ($productResult->getEntities() as $product) {
+                if (!$product instanceof ProductEntity) {
+                    continue;
+                }
+
                 $data = $productContext->getContext();
                 $data['product'] = $product;
 
@@ -209,7 +178,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $content .= $this->productExportRender->renderFooter($productExport, $context);
         }
 
-        /** @var ProductExportChangeEncodingEvent $encodingEvent */
         $encodingEvent = $this->eventDispatcher->dispatch(
             new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
         );
@@ -229,6 +197,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
     }
 
+    /**
+     * @return array<string>
+     */
     private function getAssociations(ProductExportEntity $productExport, SalesChannelContext $context): array
     {
         try {
@@ -236,7 +207,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } catch (\Exception $e) {
             $e = new RenderProductException($e->getMessage());
 
-            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Logger::ERROR, $e);
+            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Error, $e);
 
             $this->eventDispatcher->dispatch($loggingEvent);
 

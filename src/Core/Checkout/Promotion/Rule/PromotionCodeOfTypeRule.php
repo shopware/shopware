@@ -5,27 +5,26 @@ namespace Shopware\Core\Checkout\Promotion\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class PromotionCodeOfTypeRule extends Rule
 {
-    protected ?string $promotionCodeType;
-
-    protected string $operator;
+    final public const RULE_NAME = 'promotionCodeOfType';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $promotionCodeType = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $promotionCodeType = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->promotionCodeType = $promotionCodeType;
     }
 
     public function match(RuleScope $scope): bool
@@ -68,11 +67,6 @@ class PromotionCodeOfTypeRule extends Rule
             'promotionCodeType' => RuleConstraints::string(),
             'operator' => RuleConstraints::stringOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'promotionCodeOfType';
     }
 
     public function getConfig(): RuleConfig

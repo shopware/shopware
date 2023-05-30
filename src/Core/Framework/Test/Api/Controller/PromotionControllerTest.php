@@ -7,11 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -20,25 +21,13 @@ class PromotionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $promotionRepository;
+    private EntityRepository $promotionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $resourceUri;
+    private string $resourceUri;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $api;
+    private TestBrowser $api;
 
     protected function setUp(): void
     {
@@ -54,10 +43,9 @@ class PromotionControllerTest extends TestCase
      * create a new promotion with the minimum-required
      * data with our API.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     public function testCreatePromotion(): void
     {
@@ -89,7 +77,6 @@ class PromotionControllerTest extends TestCase
      * This test verifies that we can read the details of our
      * promotion using the API
      *
-     * @test
      * @group promotions
      */
     public function testReadPromotion(): void
@@ -107,7 +94,7 @@ class PromotionControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($promotionId, $json['data']['id']);
         static::assertEquals('promotion', $json['data']['type']);
@@ -119,7 +106,6 @@ class PromotionControllerTest extends TestCase
      * This test verifies that we can read the list data of our
      * promotions using the API
      *
-     * @test
      * @group promotions
      */
     public function testReadPromotionList(): void
@@ -138,7 +124,7 @@ class PromotionControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         /** @var array $json */
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // verify that we have 1 total found promotion
         static::assertEquals(1, $json['meta']['total']);
@@ -153,7 +139,6 @@ class PromotionControllerTest extends TestCase
      * with the API. In this test we update the name
      * and verify if the new values is stored in the database.
      *
-     * @test
      * @group promotions
      */
     public function testPatchPromotion(): void
@@ -186,7 +171,6 @@ class PromotionControllerTest extends TestCase
      * that only has 1 discount. then we load it from the database and
      * check if no more discounts exist.
      *
-     * @test
      * @group promotions
      */
     public function testDeletePromotionDiscount(): void
@@ -215,10 +199,9 @@ class PromotionControllerTest extends TestCase
      * new values. We change the type and value and then load it from
      * the database and see if it has been correctly updated.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     public function testPatchDiscount(): void
     {
@@ -251,7 +234,6 @@ class PromotionControllerTest extends TestCase
      * using our client, and finally verify if no more promotions exist
      * in the database for this ID.
      *
-     * @test
      * @group promotions
      */
     public function testDeletePromotion(): void

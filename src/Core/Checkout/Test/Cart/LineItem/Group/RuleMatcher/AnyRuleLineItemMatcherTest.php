@@ -29,7 +29,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
 
     private SalesChannelContext $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->matcher = new AnyRuleLineItemMatcher();
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create('test', TestDefaults::SALES_CHANNEL);
@@ -58,7 +58,10 @@ class AnyRuleLineItemMatcherTest extends TestCase
         static::assertEquals($expected, $this->matcher->isMatching($group, $lineItem, $this->context));
     }
 
-    public function lineItemProvider(): iterable
+    /**
+     * @return iterable<string, array<bool>>
+     */
+    public static function lineItemProvider(): iterable
     {
         yield 'Matching line item not in group with rules' => [true, true, false];
         yield 'Matching line item not in group without rules' => [false, false, true];

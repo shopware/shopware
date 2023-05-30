@@ -3,11 +3,10 @@ import FeatureGridTranslationService from 'src/module/sw-settings-product-featur
 import template from './sw-settings-product-feature-sets-values-card.html.twig';
 import './sw-settings-product-feature-sets-values-card.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-product-feature-sets-values-card', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -195,4 +194,4 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             }];
         },
     },
-});
+};

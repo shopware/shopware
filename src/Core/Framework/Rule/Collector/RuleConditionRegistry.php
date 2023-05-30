@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\Rule\Collector;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
+use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
 
+#[Package('business-ops')]
 class RuleConditionRegistry
 {
     /**
@@ -34,7 +37,7 @@ class RuleConditionRegistry
     {
         try {
             $this->getRuleInstance($name);
-        } catch (InvalidConditionException $exception) {
+        } catch (InvalidConditionException) {
             return false;
         }
 
@@ -55,7 +58,23 @@ class RuleConditionRegistry
      */
     public function getRuleClass(string $name): string
     {
-        return \get_class($this->getRuleInstance($name));
+        return $this->getRuleInstance($name)::class;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFlowRuleNames(): array
+    {
+        $types = [];
+
+        foreach ($this->rules as $rule) {
+            if (is_subclass_of($rule, FlowRule::class)) {
+                $types[] = $rule->getName();
+            }
+        }
+
+        return $types;
     }
 
     /**

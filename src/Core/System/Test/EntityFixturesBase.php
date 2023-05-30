@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,7 +33,7 @@ trait EntityFixturesBase
         $this->entityFixtureContext = $context;
     }
 
-    public static function getFixtureRepository(string $fixtureName): EntityRepositoryInterface
+    public static function getFixtureRepository(string $fixtureName): EntityRepository
     {
         self::ensureATransactionIsActive();
 
@@ -50,7 +50,7 @@ trait EntityFixturesBase
     /**
      * @param array<string, array<string, mixed>> $fixtureData
      */
-    public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity
+    public function createFixture(string $fixtureName, array $fixtureData, EntityRepository $repository): Entity
     {
         self::ensureATransactionIsActive();
 

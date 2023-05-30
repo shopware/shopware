@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\Random;
@@ -48,10 +49,10 @@ trait SalesChannelApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM sales_channel WHERE id IN (:salesChannelIds)',
                 ['salesChannelIds' => $this->salesChannelIds],
-                ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
+                ['salesChannelIds' => ArrayParameterType::STRING]
             );
         } catch (\Exception $ex) {
             // nth
@@ -117,16 +118,20 @@ trait SalesChannelApiTestBehaviour
                 ]
             );
 
-        /** @var string $content */
-        $content = $browser->getResponse()->getContent();
-        $response = json_decode($content, true);
+        $response = $browser->getResponse();
 
-        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        if (empty($contextToken)) {
+            throw new \RuntimeException('Cannot login with the given credential account');
+        }
+
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         return $customerId;
     }
 
-    abstract protected function getKernel(): KernelInterface;
+    abstract protected static function getKernel(): KernelInterface;
 
     protected function getSalesChannelBrowser(): KernelBrowser
     {
@@ -228,8 +233,8 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param array<mixed> $salesChannel
-     * @param array<mixed> $options
+     * @param array<string, string> $salesChannel
+     * @param array<string, mixed> $options
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
@@ -243,7 +248,7 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param array<mixed> $salesChannelOverride
+     * @param array<string, mixed> $salesChannelOverride
      */
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
@@ -263,7 +268,7 @@ trait SalesChannelApiTestBehaviour
      */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
 

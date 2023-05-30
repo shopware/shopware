@@ -2,12 +2,16 @@ import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Defaults } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-address-form', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -92,7 +96,8 @@ Component.register('sw-customer-address-form', {
 
         countryCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addSorting(Criteria.sort('position', 'ASC', true))
+                .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -102,7 +107,9 @@ Component.register('sw-customer-address-form', {
             }
 
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('countryId', this.countryId));
+            criteria.addFilter(Criteria.equals('countryId', this.countryId))
+                .addSorting(Criteria.sort('position', 'ASC', true))
+                .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -121,10 +128,6 @@ Component.register('sw-customer-address-form', {
         },
 
         isBusinessAccountType() {
-            if (!this.customer?.accountType) {
-                return true;
-            }
-
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
@@ -169,4 +172,4 @@ Component.register('sw-customer-address-form', {
             });
         },
     },
-});
+};

@@ -3,43 +3,29 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
+use Shopware\Core\Framework\Log\Package;
 
-class FilterSorterPriceDesc implements FilterSorterInterface
+#[Package('checkout')]
+class FilterSorterPriceDesc extends AbstractPriceSorter
 {
     public function getKey(): string
     {
         return 'PRICE_DESC';
     }
 
-    public function sort(DiscountPackageCollection $packages): DiscountPackageCollection
+    /**
+     * @param array<string, LineItemQuantity[]> $map
+     *
+     * @return array<string, LineItemQuantity[]>
+     */
+    protected function sortPriceMap(array $map): array
     {
-        foreach ($packages as $package) {
-            /** @var array $metaItems */
-            $metaItems = $package->getMetaData()->getElements();
+        \uksort($map, static function (string $a, string $b) {
+            // the prices are stored as strings, so we need to cast them to float
+            // we need to store the prices as string, because you can not use floats as array keys
+            return (float) $b <=> (float) $a;
+        });
 
-            usort($metaItems, static function (LineItemQuantity $a, LineItemQuantity $b) use ($package) {
-                // we only have meta data here
-                // so lets get the prices
-                $priceA = $package->getCartItem($a->getLineItemId())->getPrice();
-                $priceB = $package->getCartItem($b->getLineItemId())->getPrice();
-
-                if ($priceA === null) {
-                    return 1;
-                }
-
-                if ($priceB === null) {
-                    return 0;
-                }
-
-                return $priceB->getUnitPrice() <=> $priceA->getUnitPrice();
-            });
-
-            $package->setMetaItems(new LineItemQuantityCollection($metaItems));
-        }
-
-        return $packages;
+        return $map;
     }
 }

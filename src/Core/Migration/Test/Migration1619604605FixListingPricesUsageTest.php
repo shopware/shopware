@@ -9,11 +9,15 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterEntity;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -23,14 +27,15 @@ use Shopware\Core\Migration\V6_4\Migration1619604605FixListingPricesUsage;
 /**
  * @internal
  */
+#[Package('core')]
 class Migration1619604605FixListingPricesUsageTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $cmsPageRepository;
+    private EntityRepository $cmsPageRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
     }
@@ -39,11 +44,12 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
     {
         $cmsIds = $this->createCmsPage();
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $criteria = (new Criteria())->setLimit(1);
 
+        /** @var string $categoryId */
         $categoryId = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
 
         $repository->update([
@@ -81,11 +87,12 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
     {
         $cmsIds = $this->createCmsPage();
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $criteria = (new Criteria())->setLimit(1);
 
+        /** @var string $categoryId */
         $categoryId = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
 
         $repository->update([
@@ -138,9 +145,9 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             ->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
@@ -156,6 +163,8 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             'value' => '100',
         ]], $stream->getApiFilter());
 
+        static::assertInstanceOf(ProductStreamFilterCollection::class, $stream->getFilters());
+        static::assertInstanceOf(ProductStreamFilterEntity::class, $stream->getFilters()->first());
         static::assertEquals('cheapestPrice', $stream->getFilters()->first()->getField());
     }
 
@@ -178,9 +187,9 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             ->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
 
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
@@ -196,6 +205,8 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             'value' => '100',
         ]], $stream->getApiFilter());
 
+        static::assertInstanceOf(ProductStreamFilterCollection::class, $stream->getFilters());
+        static::assertInstanceOf(ProductStreamFilterEntity::class, $stream->getFilters()->first());
         static::assertEquals('purchasePrices', $stream->getFilters()->first()->getField());
 
         // Test it does not modify purchasePrices
@@ -213,6 +224,8 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             'value' => '100',
         ]], $stream->getApiFilter());
 
+        static::assertInstanceOf(ProductStreamFilterCollection::class, $stream->getFilters());
+        static::assertInstanceOf(ProductStreamFilterEntity::class, $stream->getFilters()->first());
         static::assertEquals('purchasePrices', $stream->getFilters()->first()->getField());
     }
 
@@ -226,12 +239,13 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('cms_slot.repository');
 
         /** @var CmsSlotEntity $cmsSlot */
         $cmsSlot = $repository->search(new Criteria([$cmsIds['sortingSlotId']]), Context::createDefaultContext())->first();
 
+        static::assertIsArray($cmsSlot->getConfig());
         static::assertEquals([
             'source' => 'static',
             'value' => 'purchasePrices:ASC',
@@ -253,7 +267,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             'label' => 'test',
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('product_sorting.repository');
         $repository->create([$data], Context::createDefaultContext());
 
@@ -279,6 +293,11 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         ], $productSorting->getFields());
     }
 
+    /**
+     * @param array<string, string>|null $sorting
+     *
+     * @return array{sortingSlotId: string, pageId: string}
+     */
     private function createCmsPage(?array $sorting = null): array
     {
         $faker = Factory::create();

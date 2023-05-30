@@ -1,0 +1,103 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_settings_tax_provider %}
+<sw-page class="sw-settings-tax-tax-provider-detail">
+    <template #smart-bar-header>
+        <h2 v-if="label">
+            {{ label }}
+        </h2>
+        <h2 v-else>
+            {{ $tc('sw-settings-tax.taxProviderDetail.textHeadline') }}
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button
+            v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
+            :disabled="isLoading"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+
+        <sw-button-process
+            v-model="isSaveSuccessful"
+            class="sw-settings-tax-tax-provider-detail__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :disabled="isLoading || !allowSave"
+            @click.prevent="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            <template v-else>
+                <sw-alert
+                    class="sw-settings-tax-tax-provider-detail-info"
+                    :title="$tc('sw-settings-tax.taxProviderDetail.infoTitle')"
+                    variant="info"
+                >
+                    {{ $tc('sw-settings-tax.taxProviderDetail.infoText') }}
+                </sw-alert>
+
+                <sw-card
+                    position-identifier="sw-settings-tax-tax-provider-detail-settings"
+                    :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleSettings')"
+                    :is-loading="isLoading"
+                >
+                    <sw-container
+                        columns="5fr 1fr"
+                        gap="0px 30px"
+                    >
+                        <sw-field
+                            v-model="taxProvider.priority"
+                            type="number"
+                            class="sw-settings-tax-tax-provider-detail__field-priority"
+                            :disabled="true"
+                            :label="$tc('sw-settings-tax.taxProviderDetail.labelPriority')"
+                        />
+
+                        <sw-field
+                            v-model="taxProvider.active"
+                            class="sw-settings-tax-tax-provider-detail__field-active"
+                            type="switch"
+                            :disabled="!acl.can('tax.editor')"
+                            :label="$tc('sw-settings-tax.taxProviderDetail.labelActive')"
+                        />
+                    </sw-container>
+                </sw-card>
+
+                <sw-card
+                    position-identifier="sw-settings-tax-tax-provider-detail-availability"
+                    :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleAvailability')"
+                    :is-loading="isLoading"
+                >
+                    <sw-select-rule-create
+                        v-if="!isLoading"
+                        class="sw-settings-tax-tax-provider-detail__field-availability-rule"
+                        :disabled="!acl.can('tax.editor')"
+                        :rule-id="taxProvider.availabilityRuleId"
+                        :rule-filter="ruleFilter"
+                        :placeholder="$tc('sw-settings-tax.taxProviderDetail.placeholderAvailabilityRule')"
+                        rule-aware-group-key="taxProvider"
+                        @save-rule="onSaveRule"
+                        @dismiss-rule="onDismissRule"
+                    />
+                </sw-card>
+
+                <sw-extension-component-section
+                    v-if="hasIdentifier"
+                    :position-identifier="positionIdentifier"
+                />
+            </template>
+        </sw-card-view>
+    </template>
+</sw-page>
+{% endblock %}

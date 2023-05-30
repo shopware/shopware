@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -13,26 +13,19 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LineItemListPriceRatioRule extends Rule
 {
-    protected ?float $amount;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemListPriceRatio';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $amount = null
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemListPriceRatio';
     }
 
     public function match(RuleScope $scope): bool
@@ -45,7 +38,7 @@ class LineItemListPriceRatioRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesListPriceCondition($lineItem)) {
                 return true;
             }
@@ -84,10 +77,6 @@ class LineItemListPriceRatioRule extends Rule
         $calculatedPrice = $lineItem->getPrice();
 
         if (!$calculatedPrice instanceof CalculatedPrice) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

@@ -6,7 +6,9 @@
       "placeholderSearchBar": "Search email templates...",
       "notificationTestMailSalesChannelErrorMessage": "Please choose a Sales Channel",
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
-      "notificationTestMailSuccessMessage": "The test email has been sent."
+      "notificationTestMailSuccessMessage": "The test email has been sent.",
+      "notificationSyntaxValidationErrorMessage": "Invalid template, check syntax: {errorMsg}",
+      "notificationGeneralSyntaxValidationErrorMessage": "Invalid template, check syntax."
     },
     "list": {
       "textMailTemplateOverview": "Email templates",

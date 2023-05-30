@@ -3,7 +3,7 @@
 <sw-page class="sw-settings-shopware-updates-wizard">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shopware_updates_wizard_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="updateInfo.version">
             {{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}
         </h2>
@@ -15,7 +15,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shopware_updates_wizard_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <div
             :key="updatePossible"
             v-tooltip="updateButtonTooltip"
@@ -25,6 +25,7 @@
                 :disabled="!updatePossible"
                 :is-loading="updaterIsRunning"
                 variant="primary"
+                class="sw-settings-shopware-updates-wizard__start-update"
                 @click="updateModalShown = true"
             >
                 {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
@@ -33,13 +34,14 @@
     </template>
     {% endblock %}
 
-    <template slot="content">
+    <template #content>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shopware_updates_wizard_content %}
         <sw-card-view v-if="isLoading || updateInfo.version">
             <sw-settings-shopware-updates-info
+                v-if="updateInfo"
                 :is-loading="isLoading"
-                :changelog="changelog"
+                :changelog="updateInfo.body"
             />
             <sw-settings-shopware-updates-requirements
                 :is-loading="isLoading"
@@ -110,9 +112,10 @@
                 {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
             </template>
 
-            <template slot="modal-footer">
+            <template #modal-footer>
                 <sw-checkbox-field
                     v-model="checkedBackupCheckbox"
+                    class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />
 
@@ -128,6 +131,7 @@
                         :disabled="!checkedBackupCheckbox"
                         variant="primary"
                         size="small"
+                        class="sw-settings-shopware-updates-check__start-update-button"
                         @click="startUpdateProcess()"
                     >
                         {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}

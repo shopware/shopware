@@ -16,6 +16,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  *
+ * @package content
+ *
  * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 class CmsPageBeforeDeleteSubscriberTest extends TestCase
@@ -26,7 +28,7 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

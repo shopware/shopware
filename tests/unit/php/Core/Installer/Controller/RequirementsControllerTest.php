@@ -11,11 +11,13 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\RequirementsController
  */
 class RequirementsControllerTest extends TestCase
@@ -73,7 +75,7 @@ class RequirementsControllerTest extends TestCase
 
         $router = $this->createMock(RouterInterface::class);
         $router->expects(static::once())->method('generate')
-            ->with('installer.license', [], RouterInterface::ABSOLUTE_PATH)
+            ->with('installer.license', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/license');
 
         $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);

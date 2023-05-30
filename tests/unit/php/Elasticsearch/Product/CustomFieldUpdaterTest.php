@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\Client;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -200,7 +200,7 @@ class CustomFieldUpdaterTest extends TestCase
     /**
      * @return iterable<string, array{0: string, 1: array<mixed>}>
      */
-    public function providerMapping(): iterable
+    public static function providerMapping(): iterable
     {
         yield 'int' => [
             CustomFieldTypes::INT,
@@ -227,7 +227,7 @@ class CustomFieldUpdaterTest extends TestCase
             CustomFieldTypes::DATETIME,
             [
                 'type' => 'date',
-                'format' => 'yyyy-MM-dd HH:mm:ss.000',
+                'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
                 'ignore_malformed' => true,
             ],
         ];

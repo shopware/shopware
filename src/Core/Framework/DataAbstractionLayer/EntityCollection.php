@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<TElement>
  */
+#[Package('core')]
 class EntityCollection extends Collection
 {
     public function __construct(iterable $elements = [])
@@ -22,9 +24,12 @@ class EntityCollection extends Collection
         }
     }
 
+    /**
+     * @param array<TElement> $entities
+     */
     public function fill(array $entities): void
     {
-        array_map([$this, 'add'], $entities);
+        array_map($this->add(...), $entities);
     }
 
     /**
@@ -40,11 +45,22 @@ class EntityCollection extends Collection
      */
     public function getIds(): array
     {
-        return $this->fmap(static function (Entity $entity) {
+        $ids = $this->fmap(static function (Entity $entity) {
             return $entity->getUniqueIdentifier();
         });
+
+        /** @var list<string> $ids */
+        return $ids;
     }
 
+    /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    #[\ReturnTypeWillChange]
     public function filterByProperty(string $property, $value)
     {
         return $this->filter(
@@ -54,6 +70,12 @@ class EntityCollection extends Collection
         );
     }
 
+    /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
+     * @return static
+     */
+    #[\ReturnTypeWillChange]
     public function filterAndReduceByProperty(string $property, $value)
     {
         $filtered = [];
@@ -99,11 +121,22 @@ class EntityCollection extends Collection
         }
     }
 
+    /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
+     * @param array<string> $ids
+     *
+     * @return static
+     */
+    #[\ReturnTypeWillChange]
     public function getList(array $ids)
     {
         return $this->createNew(array_intersect_key($this->elements, array_flip($ids)));
     }
 
+    /**
+     * @param array<array<string>|string> $ids
+     */
     public function sortByIdArray(array $ids): void
     {
         $sorted = [];
@@ -118,6 +151,134 @@ class EntityCollection extends Collection
             }
         }
         $this->elements = $sorted;
+    }
+
+    /**
+     * Global collector to access the value of multiple custom fields of the collection.
+     *
+     * If no fields are passed, all custom fields are returned.
+     * If multiple fields are passed, the result is an array with the entity id as key and an array of custom fields as value.
+     *
+     * Example:
+     * ```php
+     * $collection->getCustomFieldsValues('my_custom_field', 'my_other_custom_field');
+     *  [
+     *      'entity-id-1' => [
+     *          'my_custom_field' => 'value',
+     *          'my_other_custom_field' => 'value',
+     *      ],
+     *      'entity-id-2' => [
+     *          'my_custom_field' => 'value',
+     *          'my_other_custom_field' => 'value',
+     *      ],
+     *  ]
+     * ```
+     *
+     * @return array<string, mixed>
+     */
+    public function getCustomFieldsValues(string ...$fields): array
+    {
+        if ($this->count() === 0) {
+            return [];
+        }
+        $uses = \class_uses($this->first());
+        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
+            throw new \RuntimeException(static::class . '::getCustomFields() is only supported for entities that use the EntityCustomFieldsTrait');
+        }
+
+        $values = [];
+        foreach ($this->elements as $element) {
+            if (empty($fields)) {
+                // @phpstan-ignore-next-line not possible to typehint or docblock the trait
+                $values[$element->getUniqueIdentifier()] = $element->getCustomFields();
+
+                continue;
+            }
+
+            // @phpstan-ignore-next-line not possible to typehint or docblock the trait
+            $values[$element->getUniqueIdentifier()] = $element->getCustomFieldsValues(...$fields);
+        }
+
+        /** @var array<string, mixed> $values */
+        return $values;
+    }
+
+    /**
+     * Global collector to access the value of a custom field of the collection.
+     *
+     * The result is an array with the entity id as key and the value of the custom field as value.
+     *
+     * Example:
+     * ```php
+     * $collection->getCustomFieldsValue('my_custom_field');
+     *  [
+     *      'entity-id-1' => 'value',
+     *      'entity-id-2' => 'value',
+     *  ]
+     * ```
+     *
+     * @return array|mixed[]
+     */
+    public function getCustomFieldsValue(string $field): array
+    {
+        if ($this->count() === 0) {
+            return [];
+        }
+        $uses = \class_uses($this->first());
+        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
+            throw new \RuntimeException(static::class . '::getCustomFields() is only supported for entities that use the EntityCustomFieldsTrait');
+        }
+
+        $values = [];
+        foreach ($this->elements as $element) {
+            // @phpstan-ignore-next-line not possible to typehint or docblock the trait
+            $values[$element->getUniqueIdentifier()] = $element->getCustomFieldsValue($field);
+        }
+
+        /** @var array<string, mixed> $values */
+        return $values;
+    }
+
+    /**
+     * Sets the custom fields for all entities in the collection.
+     *
+     * The passed array must have the entity id as key and an array of custom fields as value.
+     *
+     * Example:
+     * ```php
+     * $collection->setCustomFields([
+     *    'entity-id-1' => [
+     *        'my_custom_field' => 'value',
+     *        'my_other_custom_field' => 'value',
+     *    ],
+     *    'entity-id-2' => [
+     *        'my_custom_field' => 'value',
+     *        'my_other_custom_field' => 'value',
+     *    ]
+     * ]);
+     * ```
+     *
+     * @param array<string, array<string, mixed>> $values
+     */
+    public function setCustomFields(array $values): void
+    {
+        if ($this->count() === 0) {
+            return;
+        }
+        $uses = \class_uses($this->first());
+        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
+            throw new \RuntimeException(static::class . '::setCustomFields() is only supported for entities that use the EntityCustomFieldsTrait');
+        }
+
+        foreach ($values as $id => $value) {
+            $element = $this->get($id);
+            if ($element === null) {
+                continue;
+            }
+
+            // @phpstan-ignore-next-line not possible to typehint or docblock the trait
+            $element->changeCustomFields($value);
+        }
     }
 
     protected function getExpectedClass(): string

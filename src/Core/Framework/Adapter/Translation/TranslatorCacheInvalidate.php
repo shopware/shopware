@@ -2,33 +2,29 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\SnippetEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class TranslatorCacheInvalidate implements EventSubscriberInterface
 {
     /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(CacheItemPoolInterface $cache, Connection $connection)
-    {
-        $this->cache = $cache;
-        $this->connection = $connection;
+    public function __construct(
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly Connection $connection
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -51,19 +47,13 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
         if ($event->getEntityName() === SnippetDefinition::ENTITY_NAME) {
             $snippetIds = $event->getIds();
 
-            $rows = $this->connection->fetchAll(
-                'SELECT LOWER(HEX(snippet_set_id)) id FROM snippet WHERE HEX(id) IN (:ids)',
+            $setIds = $this->connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
                 ['ids' => $snippetIds],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
-            $setIds = [];
-            foreach ($rows as ['id' => $id]) {
-                $setIds[] = $id;
-            }
 
             $this->clearCache($setIds);
-
-            return;
         }
     }
 
@@ -74,8 +64,8 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     {
         $snippetSetIds = array_unique($snippetSetIds);
 
-        foreach ($snippetSetIds as $id) {
-            $this->cache->deleteItem('translation.catalog.' . $id);
-        }
+        $snippetSetCacheKeys = array_map(fn (string $setId) => 'translation.catalog.' . $setId, $snippetSetIds);
+
+        $this->cacheInvalidator->invalidate($snippetSetCacheKeys, true);
     }
 }

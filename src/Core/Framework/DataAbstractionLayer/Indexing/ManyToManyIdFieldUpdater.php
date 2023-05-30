@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -12,21 +13,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class ManyToManyIdFieldUpdater
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
-    {
-        $this->registry = $registry;
-        $this->connection = $connection;
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly Connection $connection
+    ) {
     }
 
     /**
@@ -57,9 +56,7 @@ class ManyToManyIdFieldUpdater
         $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
 
         if ($propertyName) {
-            $fields = $fields->filter(function (ManyToManyIdField $field) use ($propertyName) {
-                return $field->getPropertyName() === $propertyName;
-            });
+            $fields = $fields->filter(fn (ManyToManyIdField $field) => $field->getPropertyName() === $propertyName);
         }
 
         if ($fields->count() <= 0) {
@@ -87,9 +84,7 @@ SQL;
             $resetTemplate .= ' AND #table#.version_id = :version';
         }
 
-        $bytes = array_map(function ($id) {
-            return Uuid::fromHexToBytes($id);
-        }, $ids);
+        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var ManyToManyIdField $field */
         foreach ($fields as $field) {
@@ -139,7 +134,7 @@ SQL;
                 $this->connection->executeStatement(
                     $resetSql,
                     $parameters,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
 
@@ -147,7 +142,7 @@ SQL;
                 $this->connection->executeStatement(
                     $sql,
                     $parameters,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
         }

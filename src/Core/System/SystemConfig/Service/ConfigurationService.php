@@ -6,63 +6,40 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
+#[Package('system-settings')]
 class ConfigurationService
 {
-    /**
-     * @var iterable
-     */
-    private $bundles;
-
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
-
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      *
      * @param BundleInterface[] $bundles
      */
     public function __construct(
-        iterable $bundles,
-        ConfigReader $configReader,
-        AbstractAppLoader $appLoader,
-        EntityRepositoryInterface $appRepository,
-        SystemConfigService $systemConfigService
+        private readonly iterable $bundles,
+        private readonly ConfigReader $configReader,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly EntityRepository $appRepository,
+        private readonly SystemConfigService $systemConfigService
     ) {
-        $this->bundles = $bundles;
-        $this->configReader = $configReader;
-        $this->appLoader = $appLoader;
-        $this->appRepository = $appRepository;
-        $this->systemConfigService = $systemConfigService;
     }
 
     /**
      * @throws ConfigurationNotFoundException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
+     *
+     * @return array<mixed>
      */
     public function getConfiguration(string $domain, Context $context): array
     {
@@ -89,7 +66,7 @@ class ConfigurationService
                 continue;
             }
 
-            foreach ($card['elements'] as $j => $field) {
+            foreach ($card['elements'] ?? [] as $j => $field) {
                 $newField = ['name' => $domain . $field['name']];
 
                 if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
@@ -112,6 +89,9 @@ class ConfigurationService
         return $config;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
     {
         $config = [];
@@ -120,7 +100,6 @@ class ConfigurationService
                 $config,
                 $this->enrichValues(
                     $this->getConfiguration($domain, $context),
-                    $domain,
                     $salesChannelId
                 )
             );
@@ -135,11 +114,14 @@ class ConfigurationService
             $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException $e) {
+        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException) {
             return false;
         }
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
         $technicalName = \array_slice(explode('\\', $scope), -1)[0];
@@ -169,7 +151,12 @@ class ConfigurationService
         return $result;
     }
 
-    private function enrichValues(array $config, string $domain, ?string $salesChannelId): array
+    /**
+     * @param array<mixed> $config
+     *
+     * @return array<mixed>
+     */
+    private function enrichValues(array $config, ?string $salesChannelId): array
     {
         foreach ($config as &$card) {
             if (!\is_array($card['elements'] ?? false)) {

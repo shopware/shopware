@@ -2,15 +2,20 @@
 
 namespace Shopware\Core\Framework\Script\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class ScriptExecutionFailedException extends ShopwareHttpException
 {
-    private ?\Throwable $rootException;
+    private readonly ?\Throwable $rootException;
 
-    public function __construct(string $hook, string $scriptName, \Throwable $previous)
-    {
+    public function __construct(
+        string $hook,
+        string $scriptName,
+        \Throwable $previous
+    ) {
         $this->rootException = $previous->getPrevious();
         parent::__construct(sprintf(
             'Execution of script "%s" for Hook "%s" failed with message: %s',

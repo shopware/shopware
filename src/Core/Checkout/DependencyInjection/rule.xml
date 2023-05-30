@@ -44,10 +44,6 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule">
-            <tag name="shopware.rule.definition"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -61,6 +57,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemWrapperRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartShippingCostRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -112,6 +112,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\IsActiveRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\LastNameRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -121,6 +125,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\CartTaxDisplayRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -140,6 +148,22 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\BillingCityRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\ShippingCityRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\BillingStateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\ShippingStateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -149,6 +173,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartCountRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\NumberOfReviewsRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -288,5 +316,48 @@
             <tag name="shopware.rule.definition" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerCreatedByAdminRule">
+            <tag name="shopware.rule.definition" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerSalutationRule">
+            <tag name="shopware.rule.definition" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CampaignCodeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerDefaultPaymentMethodRule">
+            <tag name="shopware.rule.definition" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPropertyValueRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemVariantValueRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
     </services>
 </container>

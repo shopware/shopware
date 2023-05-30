@@ -1,0 +1,22 @@
+.sw-generic-cms-page-assignment {
+    &__base-layout {
+        display: grid;
+        grid-template-columns: min-content 1fr;
+        gap: 32px;
+
+        .sw-cms-list-item {
+            width: 250px;
+        }
+    }
+
+    &__page-selection-info {
+        margin-bottom: 16px;
+    }
+
+    &__page-selection-actions {
+        .sw-button {
+            margin-bottom: 8px;
+            margin-right: 8px;
+        }
+    }
+}

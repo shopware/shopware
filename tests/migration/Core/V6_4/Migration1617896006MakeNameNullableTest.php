@@ -10,13 +10,14 @@ use Shopware\Core\Migration\V6_4\Migration1617896006MakeNameNullable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1617896006MakeNameNullable
  */
 class Migration1617896006MakeNameNullableTest extends TestCase
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setup();
 
@@ -36,11 +37,9 @@ class Migration1617896006MakeNameNullableTest extends TestCase
 
     public function testNameColumnIsNullable(): void
     {
-        $schema = $this->connection->getSchemaManager();
+        $schema = $this->connection->createSchemaManager();
 
-        $column = array_filter($schema->listTableColumns('cms_page_translation'), static function (Column $column): bool {
-            return $column->getName() === 'name';
-        });
+        $column = array_filter($schema->listTableColumns('cms_page_translation'), static fn (Column $column): bool => $column->getName() === 'name');
 
         static::assertFalse($column['name']->getNotnull());
     }

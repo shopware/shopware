@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,38 +25,18 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Executor
 {
-    private Client $guzzleClient;
-
-    private LoggerInterface $logger;
-
-    private ActionButtonResponseFactory $actionButtonResponseFactory;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private RouterInterface $router;
-
-    private RequestStack $requestStack;
-
-    private KernelInterface $kernel;
-
     public function __construct(
-        Client $guzzle,
-        LoggerInterface $logger,
-        ActionButtonResponseFactory $actionButtonResponseFactory,
-        ShopIdProvider $shopIdProvider,
-        RouterInterface $router,
-        RequestStack $requestStack,
-        KernelInterface $kernel
+        private readonly Client $guzzleClient,
+        private readonly LoggerInterface $logger,
+        private readonly ActionButtonResponseFactory $actionButtonResponseFactory,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly RouterInterface $router,
+        private readonly RequestStack $requestStack,
+        private readonly KernelInterface $kernel
     ) {
-        $this->guzzleClient = $guzzle;
-        $this->logger = $logger;
-        $this->actionButtonResponseFactory = $actionButtonResponseFactory;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->router = $router;
-        $this->requestStack = $requestStack;
-        $this->kernel = $kernel;
     }
 
     public function execute(AppAction $action, Context $context): Response

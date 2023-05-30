@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
  * as the sole purpose of this class is to abstract DB interactions during setup
  */
+#[Package('core')]
 class SetupDatabaseAdapter
 {
     public function dropDatabase(Connection $connection, string $database): void
@@ -68,10 +72,10 @@ class SetupDatabaseAdapter
 
         if (!empty($ignoredSchemas)) {
             $query->andWhere('SCHEMA_NAME NOT IN (:ignoredSchemas)')
-                ->setParameter('ignoredSchemas', $ignoredSchemas, Connection::PARAM_STR_ARRAY);
+                ->setParameter('ignoredSchemas', $ignoredSchemas, ArrayParameterType::STRING);
         }
 
-        return $query->execute()->fetchFirstColumn();
+        return $query->executeQuery()->fetchFirstColumn();
     }
 
     private function getBaseSchema(): string

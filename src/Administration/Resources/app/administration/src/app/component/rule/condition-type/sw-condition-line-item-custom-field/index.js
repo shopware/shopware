@@ -5,10 +5,13 @@ const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -25,18 +28,6 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             criteria.addAssociation('customFieldSet');
             criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
             criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
-            return criteria;
-        },
-
-        /**
-         * Only fetch custom field sets that are related to product use context
-         * @major-deprecated tag:v6.5.0 - The computed property "customFieldSetCriteria"
-         * will be removed because the set is fetched by association of the field instead
-         * @returns {Object.Criteria}
-         */
-        customFieldSetCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
             return criteria;
         },
 
@@ -117,6 +108,25 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
     },
 
     methods: {
+        getTooltipConfig(item) {
+            if (item.allowCartExpose) {
+                return { message: '', disabled: true };
+            }
+
+            const route = {
+                name: 'sw.settings.custom.field.detail',
+                params: { id: item.customFieldSetId },
+            };
+            const routeData = this.$router.resolve(route);
+
+            return {
+                disabled: false,
+                width: 260,
+                message: this.$t('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.tooltip', {
+                    customFieldSettingsLink: routeData.href,
+                }),
+            };
+        },
 
         /**
          * Clear any further field's values if no custom field has been selected
@@ -132,17 +142,6 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
 
             this.operator = null;
             this.renderedFieldValue = null;
-        },
-
-        /**
-         * Clear any further field's value if custom field set selection has changed
-         * @major-deprecated tag:v6.5.0 - The method "onFieldSetChange"
-         * will be removed because the set will instead be determined by the selected field
-         */
-        onFieldSetChange() {
-            this.selectedField = null;
-            this.operator = null;
-            this.renderedField = null;
         },
     },
 });

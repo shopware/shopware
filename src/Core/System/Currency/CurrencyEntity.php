@@ -4,18 +4,18 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+#[Package('inventory')]
 class CurrencyEntity extends Entity
 {
     use EntityIdTrait;
@@ -75,11 +75,6 @@ class CurrencyEntity extends Entity
      * @var SalesChannelDomainCollection|null
      */
     protected $salesChannelDomains;
-
-    /**
-     * @var ShippingMethodPriceCollection|null
-     */
-    protected $shippingMethodPrices;
 
     /**
      * @var PromotionDiscountPriceCollection
@@ -226,16 +221,6 @@ class CurrencyEntity extends Entity
         $this->salesChannelDomains = $salesChannelDomains;
     }
 
-    public function getShippingMethodPrices(): ?ShippingMethodPriceCollection
-    {
-        return $this->shippingMethodPrices;
-    }
-
-    public function setShippingMethodPrices(ShippingMethodPriceCollection $shippingMethodPrices): void
-    {
-        $this->shippingMethodPrices = $shippingMethodPrices;
-    }
-
     public function getIsSystemDefault(): ?bool
     {
         return $this->isSystemDefault;
@@ -294,19 +279,6 @@ class CurrencyEntity extends Entity
     public function setTotalRounding(CashRoundingConfig $totalRounding): void
     {
         $this->totalRounding = $totalRounding;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use `itemRounding.decimals` or `totalRounding.decimals`
-     */
-    public function getDecimalPrecision(): int
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', '`itemRounding.decimals` or `totalRounding.decimals`')
-        );
-
-        return $this->itemRounding->getDecimals();
     }
 
     public function getTaxFreeFrom(): ?float

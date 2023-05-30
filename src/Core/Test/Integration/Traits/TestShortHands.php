@@ -5,12 +5,12 @@ namespace Shopware\Core\Test\Integration\Traits;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Test\Customer\CustomerBuilder;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -37,7 +37,7 @@ trait TestShortHands
      */
     protected function getContext(?string $token = null, array $options = []): SalesChannelContext
     {
-        $token = $token ?? Uuid::randomHex();
+        $token ??= Uuid::randomHex();
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
@@ -46,7 +46,7 @@ trait TestShortHands
     protected function addProductToCart(string $id, SalesChannelContext $context): Cart
     {
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($id);
+            ->create(['id' => $id, 'referencedId' => $id], $context);
 
         $cart = $this->getContainer()->get(CartService::class)
             ->getCart($context->getToken(), $context);

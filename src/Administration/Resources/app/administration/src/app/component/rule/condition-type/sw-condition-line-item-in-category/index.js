@@ -5,6 +5,9 @@ const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', {
     template,
     inheritAttrs: false,

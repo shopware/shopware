@@ -2,13 +2,16 @@ import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Component, Mixin, Feature } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-order', {
+export default {
     template,
 
     inject: [
@@ -36,10 +39,6 @@ Component.register('sw-bulk-edit-order', {
             itemsPerRequest: 100,
             processStatus: '',
             order: {},
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed
-             */
-            showBulkEditDocumentWarning: false,
         };
     },
 
@@ -82,8 +81,20 @@ Component.register('sw-bulk-edit-order', {
             return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
+        restrictedFields() {
+            let restrictedFields = [];
+
+            if (this.$route.params.excludeDelivery === '1') {
+                restrictedFields = restrictedFields.concat([
+                    'orderDeliveries',
+                ]);
+            }
+
+            return restrictedFields;
+        },
+
         statusFormFields() {
-            return [
+            const fields = [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -132,6 +143,10 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
             ];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
         },
 
         documentsFormFields() {
@@ -206,7 +221,7 @@ Component.register('sw-bulk-edit-order', {
                 const { orders, orderTransactions, orderDeliveries, statusMails } = value;
                 this.isStatusSelected = (orders.isChanged && orders.value)
                     || (orderTransactions.isChanged && orderTransactions.value)
-                    || (orderDeliveries.isChanged && orderDeliveries.value);
+                    || (orderDeliveries?.isChanged && orderDeliveries.value);
 
                 this.isStatusMailsSelected = statusMails.isChanged;
             },
@@ -246,10 +261,6 @@ Component.register('sw-bulk-edit-order', {
         async createdComponent() {
             this.setRouteMetaModule();
 
-            if (!Feature.isActive('v6.5.0.0')) {
-                await this.shouldShowBulkEditDocumentWarning();
-            }
-
             this.isLoading = true;
 
             this.order = this.orderRepository.create(Shopware.Context.api);
@@ -265,17 +276,6 @@ Component.register('sw-bulk-edit-order', {
             this.isLoadedData = true;
 
             this.loadBulkEditData();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        async shouldShowBulkEditDocumentWarning() {
-            const response = await this.orderDocumentApiService.extendingDeprecatedService();
-
-            this.showBulkEditDocumentWarning = response?.data && response.data.hasOwnProperty('showWarning')
-                ? response.data.showWarning
-                : false;
         },
 
         setRouteMetaModule() {
@@ -358,8 +358,11 @@ Component.register('sw-bulk-edit-order', {
 
             const requests = payloadChunks.map(ids => {
                 const criteria = new Criteria(1, null);
-                criteria.addFilter(Criteria.equalsAny(field, ids));
-                criteria.addFilter(Criteria.equals(versionField, Shopware.Context.api.liveVersionId));
+
+                criteria.addFilter(Criteria.multi('AND', [
+                    Criteria.equalsAny(field, ids),
+                    Criteria.equals(versionField, Shopware.Context.api.liveVersionId),
+                ]));
 
                 return this.stateMachineStateRepository.searchIds(criteria);
             });
@@ -514,7 +517,7 @@ Component.register('sw-bulk-edit-order', {
             if (this.bulkEditData.orderTransactions.isChanged) {
                 promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
             }
-            if (this.bulkEditData.orderDeliveries.isChanged) {
+            if (this.bulkEditData.orderDeliveries?.isChanged) {
                 promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
             }
             if (this.bulkEditData.orders.isChanged) {
@@ -547,4 +550,4 @@ Component.register('sw-bulk-edit-order', {
             });
         },
     },
-});
+};

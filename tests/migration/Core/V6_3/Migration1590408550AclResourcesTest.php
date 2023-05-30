@@ -13,6 +13,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1590408550AclResources
  */
 class Migration1590408550AclResourcesTest extends TestCase
@@ -53,7 +54,7 @@ class Migration1590408550AclResourcesTest extends TestCase
 
         try {
             $connection->executeStatement('ALTER TABLE acl_role DROP COLUMN `privileges`');
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         $sql = '
@@ -101,7 +102,7 @@ CREATE TABLE `acl_resource` (
     /**
      * @return array<string, array<string, array<string>>[]>
      */
-    public function migrationCases(): array
+    public static function migrationCases(): array
     {
         return [
             'no roles or privs' => [
@@ -161,13 +162,13 @@ CREATE TABLE `acl_resource` (
     private function fetchRoles(): array
     {
         /** @var array{name: string, priv: string}[] $roles */
-        $roles = $this->connection->fetchAllAssociative("
+        $roles = $this->connection->fetchAllAssociative('
             SELECT `role`.name,
-            CONCAT(`resource`.`resource`, ':', `resource`.`privilege`) as priv
+            CONCAT(`resource`.`resource`, \':\', `resource`.`privilege`) as priv
             FROM acl_role `role`
                 LEFT JOIN acl_resource `resource`
                     ON `role`.id = `resource`.acl_role_id
-        ");
+        ');
 
         $grouped = [];
         foreach ($roles as $role) {

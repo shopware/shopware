@@ -1,12 +1,8 @@
 // / <reference types="Cypress" />
 
 describe('Scale units: Visual testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('unit');
-            })
+        cy.createDefaultFixture('unit')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -17,13 +13,13 @@ describe('Scale units: Visual testing', () => {
     it('@visual: check appearance of scale unit module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/unit`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-units').click();
         cy.wait('@getData')

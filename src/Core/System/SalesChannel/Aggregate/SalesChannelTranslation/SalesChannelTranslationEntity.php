@@ -4,8 +4,10 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+#[Package('sales-channel')]
 class SalesChannelTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

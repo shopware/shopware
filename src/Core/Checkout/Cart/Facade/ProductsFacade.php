@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -16,8 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
+ * @implements \IteratorAggregate<array-key, LineItem>
  */
+#[Package('checkout')]
 class ProductsFacade implements \IteratorAggregate
 {
     use ItemsGetTrait {
@@ -32,11 +34,12 @@ class ProductsFacade implements \IteratorAggregate
     /**
      * @internal
      */
-    public function __construct(LineItemCollection $items, CartFacadeHelper $helper, SalesChannelContext $context)
-    {
-        $this->items = $items;
-        $this->helper = $helper;
-        $this->context = $context;
+    public function __construct(
+        private LineItemCollection $items,
+        private ScriptPriceStubs $priceStubs,
+        private CartFacadeHelper $helper,
+        private SalesChannelContext $context
+    ) {
     }
 
     /**
@@ -74,7 +77,7 @@ class ProductsFacade implements \IteratorAggregate
      *
      * @example add-product-cases/add-product-cases.twig 2 1 Add a product to the cart by id.
      */
-    public function add($product, int $quantity = 1): ItemFacade
+    public function add(string|LineItem|ItemFacade $product, int $quantity = 1): ItemFacade
     {
         if ($product instanceof ItemFacade) {
             $this->items->add($product->getItem());
@@ -117,7 +120,7 @@ class ProductsFacade implements \IteratorAggregate
     {
         $product = $this->helper->product($productId, $quantity, $this->context);
 
-        return new ItemFacade($product, $this->helper, $this->context);
+        return new ItemFacade($product, $this->priceStubs, $this->helper, $this->context);
     }
 
     private function getItems(): LineItemCollection

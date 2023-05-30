@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { Store } from 'vuex';
 
@@ -24,7 +28,7 @@ class State {
         return this;
     }
 
-    public _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod: $TSFixMeFunction): this {
+    public _registerGetterMethod(name: string, getMethod: $TSFixMeFunction, setMethod?: $TSFixMeFunction): this {
         Object.defineProperty(this, name, {
             get: getMethod,
             set: setMethod,
@@ -44,7 +48,6 @@ export interface FullState extends State {
     getters: Store<VuexRootState>['getters'],
     commit: Store<VuexRootState>['commit'],
     dispatch: Store<VuexRootState>['dispatch'],
-    // eslint-disable-next-line max-len
     watch: Store<VuexRootState>['watch'],
     subscribe: Store<VuexRootState>['subscribe'],
     subscribeAction: Store<VuexRootState>['subscribeAction'],

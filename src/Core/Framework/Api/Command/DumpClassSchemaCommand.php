@@ -12,16 +12,21 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'framework:dump:class:schema',
+    description: 'Dumps the schema of the given entity',
+)]
+#[Package('core')]
 class DumpClassSchemaCommand extends Command
 {
-    protected static $defaultName = 'framework:dump:class:schema';
-
     /**
      * @var string
      */

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 class BinaryCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

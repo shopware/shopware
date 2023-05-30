@@ -3,16 +3,18 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class BlobFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -27,18 +29,13 @@ class BlobFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof BlobField) {
-            throw new InvalidSerializerFieldException(BlobField::class, $field);
+            throw throw DataAbstractionLayerException::invalidSerializerField(BlobField::class, $field);
         }
 
         yield $field->getStorageName() => $data->getValue();
     }
 
-    /**
-     * @return string|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?string*/
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return $value;

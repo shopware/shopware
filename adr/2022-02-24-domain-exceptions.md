@@ -1,4 +1,9 @@
-# 2022-02-24 - Domain exceptions
+---
+title: Domain exceptions
+date: 2022-02-24
+area: core
+tags: [architecture, exception, domain]
+--- 
 
 ## Context
 

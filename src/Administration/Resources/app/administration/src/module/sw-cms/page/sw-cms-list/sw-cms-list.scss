@@ -12,10 +12,10 @@
     }
 
     .sw-cms-list__sidebar {
-        width: 240px;
+        width: 180px;
         padding-top: 64px;
         position: absolute;
-        left: -240px;
+        left: -180px;
 
         @media screen and (max-width: 1400px) {
             display: none;
@@ -35,7 +35,7 @@
         }
 
         h3 {
-            font-size: 28px;
+            font-size: $font-size-3xl;
             font-weight: normal;
             margin: 0;
         }

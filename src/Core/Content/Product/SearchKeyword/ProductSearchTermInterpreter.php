@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -11,34 +12,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;
-
-    private Connection $connection;
-
-    private TokenizerInterface $tokenizer;
-
-    private LoggerInterface $logger;
-
-    private AbstractTokenFilter $tokenFilter;
 
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        TokenizerInterface $tokenizer,
-        LoggerInterface $logger,
-        AbstractTokenFilter $tokenFilter
+        private readonly Connection $connection,
+        private readonly TokenizerInterface $tokenizer,
+        private readonly LoggerInterface $logger,
+        private readonly AbstractTokenFilter $tokenFilter
     ) {
-        $this->connection = $connection;
-        $this->tokenizer = $tokenizer;
-        $this->logger = $logger;
-        $this->tokenFilter = $tokenFilter;
     }
 
     public function interpret(string $word, Context $context): SearchPattern
@@ -221,7 +212,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 
-        return $query->execute()->fetchAllNumeric();
+        return $query->executeQuery()->fetchAllNumeric();
     }
 
     /**
@@ -243,14 +234,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                /**
-                 * @deprecated tag:v6.5.0 - if can be removed as php min version is higher, only keep else branch
-                 */
-                if (\PHP_VERSION_ID < 80000) {
-                    $levenshtein = levenshtein(substr($match, 0, 255), substr((string) $token, 0, 255));
-                } else {
-                    $levenshtein = levenshtein($match, (string) $token);
-                }
+                $levenshtein = levenshtein($match, (string) $token);
 
                 if ($levenshtein === 0) {
                     $score += 6;
@@ -272,9 +256,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, function ($a, $b) {
-            return $b <=> $a;
-        });
+        uasort($scoring, fn ($a, $b) => $b <=> $a);
 
         return $scoring;
     }
@@ -301,7 +283,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $configurations = $this->connection->fetchAllAssociative(
             'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
             ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
-            ['language' => Connection::PARAM_STR_ARRAY]
+            ['language' => ArrayParameterType::STRING]
         );
         foreach ($configurations as $configuration) {
             $andLogic = (bool) $configuration['and_logic'];

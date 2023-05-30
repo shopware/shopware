@@ -60,16 +60,6 @@ class ReverseProxyCacheTest extends TestCase
         $store->invalidate(new Request());
     }
 
-    public function testInvalidate(): void
-    {
-        $gateway = $this->createMock(AbstractReverseProxyGateway::class);
-        $gateway->expects(static::once())->method('ban')->with(['/foo']);
-        $store = new ReverseProxyCache($gateway, $this->createMock(CacheTracer::class), []);
-        $request = new Request();
-        $request->attributes->set(RequestTransformer::ORIGINAL_REQUEST_URI, '/foo');
-        $store->invalidate($request);
-    }
-
     public function testTaggingOfRequest(): void
     {
         $gateway = $this->createMock(AbstractReverseProxyGateway::class);

@@ -6,9 +6,11 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\FilterCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('inventory')]
 class ProductListingCollectFilterEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -26,8 +28,11 @@ class ProductListingCollectFilterEvent extends NestedEvent implements ShopwareSa
      */
     protected $filters;
 
-    public function __construct(Request $request, FilterCollection $filters, SalesChannelContext $context)
-    {
+    public function __construct(
+        Request $request,
+        FilterCollection $filters,
+        SalesChannelContext $context
+    ) {
         $this->request = $request;
         $this->context = $context;
         $this->filters = $filters;

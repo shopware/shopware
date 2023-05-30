@@ -4,6 +4,9 @@ import './sw-tagged-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status deprecated
  * @example-type code-only
@@ -11,7 +14,6 @@ const { Component } = Shopware;
  * <sw-tagged-field label="Label" :addOnKey="['enter', ',']">
  * </sw-tagged-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-tagged-field', {
     template,
 

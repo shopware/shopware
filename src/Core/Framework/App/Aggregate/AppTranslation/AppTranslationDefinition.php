@@ -10,13 +10,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class AppTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'app_translation';
+    final public const ENTITY_NAME = 'app_translation';
 
     public function getEntityName(): string
     {

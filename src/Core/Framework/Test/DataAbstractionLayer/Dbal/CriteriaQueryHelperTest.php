@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -26,7 +26,7 @@ class CriteriaQueryHelperTest extends TestCase
     public function testInvalidSortingDirection(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
@@ -99,14 +99,16 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria = new Criteria();
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
-        $queryMock = $this->createTestProxy(QueryBuilder::class, [$this->createMock(Connection::class)]);
-        $queryMock
-            ->expects(static::exactly(2))
-            ->method('addOrderBy')
-            ->withConsecutive(['MIN(`product`.`created_at`)', 'ASC'], ['_score', 'DESC']);
+
+        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
         $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
-        $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
+        $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
+
+        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
+            'MIN(`product`.`created_at`) ASC',
+            '_score DESC',
+        ]);
     }
 
     public function testSortByScoreAndAdditionalSortingWithScore(): void
@@ -116,13 +118,14 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
         $criteria->addSorting(new FieldSorting('_score', FieldSorting::ASCENDING));
-        $queryMock = $this->createTestProxy(QueryBuilder::class, [$this->createMock(Connection::class)]);
-        $queryMock
-            ->expects(static::exactly(2))
-            ->method('addOrderBy')
-            ->withConsecutive(['MIN(`product`.`created_at`)', 'ASC'], ['_score', 'ASC']);
+        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
         $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
-        $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
+        $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
+
+        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
+            'MIN(`product`.`created_at`) ASC',
+            '_score ASC',
+        ]);
     }
 }

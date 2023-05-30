@@ -94,7 +94,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function equalsFilterDataProvider(): array
+    public static function equalsFilterDataProvider(): array
     {
         return [
             [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false],
@@ -127,7 +127,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function containsFilterDataProvider(): array
+    public static function containsFilterDataProvider(): array
     {
         return [
             [['type' => 'contains', 'field' => 'foo', 'value' => 'bar'], false],
@@ -160,7 +160,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function prefixFilterDataProvider(): array
+    public static function prefixFilterDataProvider(): array
     {
         return [
             [['type' => 'prefix', 'field' => 'foo', 'value' => 'bar'], false],
@@ -193,7 +193,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $filter['value']);
     }
 
-    public function suffixFilterDataProvider(): array
+    public static function suffixFilterDataProvider(): array
     {
         return [
             [['type' => 'suffix', 'field' => 'foo', 'value' => 'bar'], false],
@@ -235,7 +235,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($result->getValue(), $expectedValue);
     }
 
-    public function equalsAnyFilterDataProvider(): array
+    public static function equalsAnyFilterDataProvider(): array
     {
         return [
             [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'bar'], false],
@@ -267,7 +267,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($expectedFilter, $result);
     }
 
-    public function equalsAllFilterDataProvider(): \Generator
+    public static function equalsAllFilterDataProvider(): \Generator
     {
         yield 'With empty value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => ''], null, true];
         yield 'With empty field' => [['type' => 'equalsAll', 'field' => '', 'value' => 'bar'], null, true];
@@ -341,9 +341,9 @@ class QueryStringParserTest extends TestCase
         if ($primaryOperator === 'neq') {
             static::assertInstanceOf(NotFilter::class, $primaryQuery);
             $primaryQuery = $primaryQuery->getQueries()[0];
-        } else {
-            static::assertInstanceOf(RangeFilter::class, $primaryQuery);
         }
+
+        static::assertInstanceOf(RangeFilter::class, $primaryQuery);
 
         static::assertInstanceOf(RangeFilter::class, $result->getQueries()[1]);
 
@@ -372,7 +372,7 @@ class QueryStringParserTest extends TestCase
 
         $thresholdDate = \DateTimeImmutable::createFromFormat(
             Defaults::STORAGE_DATE_FORMAT,
-            array_values($primaryQuery->getParameters())[0]
+            (string) array_values($primaryQuery->getParameters())[0]
         );
 
         $primaryOperator = $filter['type'] === 'since' ? $this->negateOperator($primaryOperator) : $primaryOperator;
@@ -380,7 +380,7 @@ class QueryStringParserTest extends TestCase
         static::assertSame($thresholdInFuture, $now < $thresholdDate);
     }
 
-    public function relativeTimeToDateFilterDataProvider(): iterable
+    public static function relativeTimeToDateFilterDataProvider(): iterable
     {
         // test exceptions being thrown
         yield 'missing field exception' => [['type' => 'until', 'field' => '', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], true];
@@ -404,17 +404,12 @@ class QueryStringParserTest extends TestCase
 
     private function negateOperator(string $operator): string
     {
-        switch ($operator) {
-            case RangeFilter::LT:
-                return RangeFilter::GT;
-            case RangeFilter::GT:
-                return RangeFilter::LT;
-            case RangeFilter::LTE:
-                return RangeFilter::GTE;
-            case RangeFilter::GTE:
-                return RangeFilter::LTE;
-            default:
-                return $operator;
-        }
+        return match ($operator) {
+            RangeFilter::LT => RangeFilter::GT,
+            RangeFilter::GT => RangeFilter::LT,
+            RangeFilter::LTE => RangeFilter::GTE,
+            RangeFilter::GTE => RangeFilter::LTE,
+            default => $operator,
+        };
     }
 }

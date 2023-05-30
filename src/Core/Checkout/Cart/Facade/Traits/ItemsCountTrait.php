@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 trait ItemsCountTrait
 {
     private LineItemCollection $items;

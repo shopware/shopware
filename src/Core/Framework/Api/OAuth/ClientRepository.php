@@ -8,18 +8,17 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class ClientRepository implements ClientRepositoryInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
@@ -34,7 +33,7 @@ class ClientRepository implements ClientRepositoryInterface
                 return false;
             }
 
-            return password_verify($clientSecret, $values['secret_access_key']);
+            return password_verify($clientSecret, (string) $values['secret_access_key']);
         }
 
         // @codeCoverageIgnoreStart
@@ -79,8 +78,8 @@ class ClientRepository implements ClientRepositoryInterface
             ->from('user_access_key')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$key) {
             return null;
@@ -97,8 +96,8 @@ class ClientRepository implements ClientRepositoryInterface
             ->leftJoin('integration', 'app', 'app', 'app.integration_id = integration.id')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$key) {
             return null;

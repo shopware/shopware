@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 class AclApiService {
     constructor(httpClient, loginService) {
         this.httpClient = httpClient;

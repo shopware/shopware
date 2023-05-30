@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Test\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
@@ -17,11 +19,11 @@ use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -33,6 +35,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class StornoRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -41,7 +44,7 @@ class StornoRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private StornoRenderer $stornoRenderer;
 
@@ -123,6 +126,8 @@ class StornoRendererTest extends TestCase
         );
 
         static::assertInstanceOf(StornoOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
@@ -159,7 +164,7 @@ class StornoRendererTest extends TestCase
         );
     }
 
-    public function stornoNoteRendererDataProvider(): \Generator
+    public static function stornoNoteRendererDataProvider(): \Generator
     {
         yield 'render storno successfully' => [
             [
@@ -183,7 +188,7 @@ class StornoRendererTest extends TestCase
             function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertEquals('STORNO_9999', $rendered->getNumber());
-                static::assertEquals('storno_STORNO_9999', $rendered->getName());
+                static::assertEquals('cancellation_invoice_STORNO_9999', $rendered->getName());
             },
         ];
     }
@@ -221,13 +226,13 @@ class StornoRendererTest extends TestCase
      */
     private function generateDemoCart(array $taxes): Cart
     {
-        $cart = $this->cartService->createNew('a-b-c', 'A');
+        $cart = $this->cartService->createNew('A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
         $products = [];
 
-        $factory = new ProductLineItemFactory();
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
         $ids = new IdsCollection();
 
@@ -251,7 +256,7 @@ class StornoRendererTest extends TestCase
 
             $products[] = $product;
 
-            $lineItems[] = $factory->create($ids->get($number));
+            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
             $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
         }
 

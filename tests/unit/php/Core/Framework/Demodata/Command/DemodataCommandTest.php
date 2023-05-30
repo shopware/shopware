@@ -30,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Demodata\Command\DemodataCommand
  */
 class DemodataCommandTest extends TestCase
@@ -58,7 +59,7 @@ class DemodataCommandTest extends TestCase
 
     private DemodataCommand $command;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
         $this->command = new DemodataCommand(
@@ -80,7 +81,7 @@ class DemodataCommandTest extends TestCase
 
         static::assertFalse($eventCalled, 'Event was fired.');
         static::assertStringContainsString('Demo data command should only be used in production environment.', $tester->getDisplay());
-        static::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        static::assertSame(Command::INVALID, $tester->getStatusCode());
     }
 
     public function testRequestHasDefaults(): void

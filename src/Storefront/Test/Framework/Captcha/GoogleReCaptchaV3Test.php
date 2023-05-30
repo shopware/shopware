@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
-use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -27,17 +26,11 @@ class GoogleReCaptchaV3Test extends TestCase
     private const IS_VALID = true;
     private const IS_INVALID = false;
 
-    /**
-     * @var HoneypotCaptcha
-     */
-    private $captcha;
+    private GoogleReCaptchaV3 $captcha;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(GoogleReCaptchaV3::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -99,7 +92,7 @@ class GoogleReCaptchaV3Test extends TestCase
         static::assertEquals($captcha->isValid($request, $activeCaptchaConfig[$captcha->getName()]), $shouldBeValid);
     }
 
-    public function requestDataIsValidProvider(): array
+    public static function requestDataIsValidProvider(): array
     {
         return [
             'request with no captcha input' => [
@@ -217,7 +210,7 @@ class GoogleReCaptchaV3Test extends TestCase
         ];
     }
 
-    public function requestDataSupportProvider(): array
+    public static function requestDataSupportProvider(): array
     {
         return [
             'with get method and inactive captcha' => ['GET', false, false],

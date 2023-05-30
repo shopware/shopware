@@ -12,10 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_default_folder';
+    final public const ENTITY_NAME = 'media_default_folder';
 
     public function getEntityName(): string
     {
@@ -39,14 +42,23 @@ class MediaDefaultFolderDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-
-            (new ListField('association_fields', 'associationFields', StringField::class))->setStrict(true)->addFlags(new Required()),
 
             (new StringField('entity', 'entity'))->addFlags(new Required()),
             new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class),
             new CustomFields(),
         ]);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            /**
+             * @deprecated tag:v6.6.0 Associations are now determined by `\Shopware\Core\Content\Media\MediaDefinition`
+             */
+            $fields->add(
+                (new ListField('association_fields', 'associationFields', StringField::class))->addFlags(new Required())
+            );
+        }
+
+        return $fields;
     }
 }

@@ -3,10 +3,7 @@
 namespace Shopware\Core\Framework\Test\Webhook;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
@@ -29,12 +26,9 @@ class BusinessEventEncoderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var BusinessEventEncoder
-     */
-    private $businessEventEncoder;
+    private BusinessEventEncoder $businessEventEncoder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->businessEventEncoder = $this->getContainer()->get(BusinessEventEncoder::class);
     }
@@ -42,7 +36,7 @@ class BusinessEventEncoderTest extends TestCase
     /**
      * @dataProvider getEvents
      */
-    public function testScalarEvents(BusinessEventInterface $event): void
+    public function testScalarEvents(FlowEventAware $event): void
     {
         $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
         static::assertTrue(
@@ -52,21 +46,22 @@ class BusinessEventEncoderTest extends TestCase
         static::assertEquals($event->getEncodeValues($shopwareVersion), $this->businessEventEncoder->encode($event));
     }
 
-    /**
-     * @return array<int, mixed>
-     */
-    public function getEvents(): array
+    public static function getEvents(): \Generator
     {
-        return [
-            [new ScalarBusinessEvent()],
-            [new StructuredObjectBusinessEvent()],
-            [new StructuredArrayObjectBusinessEvent()],
-            [new UnstructuredObjectBusinessEvent()],
-            [new EntityBusinessEvent($this->getTaxEntity())],
-            [new CollectionBusinessEvent($this->getTaxCollection())],
-            [new ArrayBusinessEvent($this->getTaxCollection())],
-            [new NestedEntityBusinessEvent($this->getTaxEntity())],
-        ];
+        $tax = new TaxEntity();
+        $tax->setId('tax-id');
+        $tax->setName('test');
+        $tax->setTaxRate(19);
+        $tax->setPosition(1);
+
+        yield 'ScalarBusinessEvent' => [new ScalarBusinessEvent()];
+        yield 'StructuredObjectBusinessEvent' => [new StructuredObjectBusinessEvent()];
+        yield 'StructuredArrayObjectBusinessEvent' => [new StructuredArrayObjectBusinessEvent()];
+        yield 'UnstructuredObjectBusinessEvent' => [new UnstructuredObjectBusinessEvent()];
+        yield 'EntityBusinessEvent' => [new EntityBusinessEvent($tax)];
+        yield 'CollectionBusinessEvent' => [new CollectionBusinessEvent(new TaxCollection([$tax]))];
+        yield 'ArrayBusinessEvent' => [new ArrayBusinessEvent(new TaxCollection([$tax]))];
+        yield 'NestedEntityBusinessEvent' => [new NestedEntityBusinessEvent($tax)];
     }
 
     public function testInvalidType(): void
@@ -79,24 +74,5 @@ class BusinessEventEncoderTest extends TestCase
     {
         static::expectException(\RuntimeException::class);
         $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-    }
-
-    private function getTaxEntity(): TaxEntity
-    {
-        /** @var EntityRepositoryInterface $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->first();
-    }
-
-    private function getTaxCollection(): TaxCollection
-    {
-        /** @var EntityRepositoryInterface $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        $taxes = $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
-        static::assertInstanceOf(TaxCollection::class, $taxes);
-
-        return $taxes;
     }
 }

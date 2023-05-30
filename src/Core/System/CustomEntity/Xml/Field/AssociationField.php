@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('core')]
 abstract class AssociationField extends Field
 {
     public const SET_NULL = 'set-null';

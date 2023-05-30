@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
@@ -48,15 +48,9 @@ class JsonApiEncoderTest extends TestCase
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
@@ -73,7 +67,7 @@ class JsonApiEncoderTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -95,7 +89,7 @@ class JsonApiEncoderTest extends TestCase
     {
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->executeStatement('DROP TABLE `extended_product`');
         $this->connection->beginTransaction();
 
         $this->removeExtension(ProductExtension::class);
@@ -103,7 +97,10 @@ class JsonApiEncoderTest extends TestCase
         parent::tearDown();
     }
 
-    public function emptyInputProvider(): array
+    /**
+     * @return array<mixed>
+     */
+    public static function emptyInputProvider(): array
     {
         return [
             [null],
@@ -116,6 +113,8 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
+     * @param mixed $input
+     *
      * @dataProvider emptyInputProvider
      */
     public function testEncodeWithEmptyInput($input): void
@@ -126,7 +125,10 @@ class JsonApiEncoderTest extends TestCase
         $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
     }
 
-    public function complexStructsProvider(): array
+    /**
+     * @return array<array{string, SerializationFixture}>
+     */
+    public static function complexStructsProvider(): array
     {
         return [
             [MediaDefinition::class, new TestBasicStruct()],
@@ -148,7 +150,7 @@ class JsonApiEncoderTest extends TestCase
         $definition = $this->getContainer()->get($definitionClass);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
-        $actual = json_decode($actual, true);
+        $actual = json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR);
 
         // remove extensions from test
         $actual = $this->arrayRemove($actual, 'extensions');
@@ -178,7 +180,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
 
-        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -205,7 +207,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testEncodeEntityWithToOneEntityExtension(): void
@@ -240,7 +242,7 @@ class JsonApiEncoderTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
-        $actual = json_decode($encodedResponse, true);
+        $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($actual['included'] as $included) {
             if ($included['type'] !== 'extension') {
@@ -289,7 +291,7 @@ class JsonApiEncoderTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
-        $actual = json_decode($encodedResponse, true);
+        $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($actual['included'] as $included) {
             if ($included['type'] !== 'extension') {
@@ -303,6 +305,9 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
+     * @param array<mixed> $input
+     * @param array<mixed>|null $output
+     *
      * @dataProvider customFieldsProvider
      */
     public function testCustomFields(array $input, $output): void
@@ -315,12 +320,12 @@ class JsonApiEncoderTest extends TestCase
         $struct->setUniqueIdentifier(Uuid::randomHex());
         $struct->assign($input);
 
-        $actual = json_decode($encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL));
+        $actual = json_decode((string) $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($output, $actual->data->attributes->customFields);
+        static::assertEquals($output, $actual['data']['attributes']['customFields']);
     }
 
-    public function customFieldsProvider(): iterable
+    public static function customFieldsProvider(): \Generator
     {
         yield 'Custom field null' => [
             [
@@ -333,7 +338,7 @@ class JsonApiEncoderTest extends TestCase
             [
                 'customFields' => [],
             ],
-            new \stdClass(),
+            [],
         ];
 
         yield 'Custom field with values' => [
@@ -344,7 +349,12 @@ class JsonApiEncoderTest extends TestCase
         ];
     }
 
-    private function arrayRemove($haystack, string $keyToRemove): array
+    /**
+     * @param array<mixed> $haystack
+     *
+     * @return array<mixed>
+     */
+    private function arrayRemove(array $haystack, string $keyToRemove): array
     {
         foreach ($haystack as $key => $value) {
             if (\is_array($value)) {
@@ -359,6 +369,11 @@ class JsonApiEncoderTest extends TestCase
         return $haystack;
     }
 
+    /**
+     * @param array<array<mixed>> $array
+     *
+     * @return array<array<mixed>>
+     */
     private function removeIncludedExtensions($array): array
     {
         $filtered = [];
@@ -371,6 +386,10 @@ class JsonApiEncoderTest extends TestCase
         return $filtered;
     }
 
+    /**
+     * @param array<mixed> $expected
+     * @param array<mixed> $actual
+     */
     private function assertValues(array $expected, array $actual): void
     {
         foreach ($expected as $key => $value) {
@@ -379,7 +398,7 @@ class JsonApiEncoderTest extends TestCase
             if (\is_array($value)) {
                 $this->assertValues($value, $actual[$key]);
             } else {
-                static::assertEquals($value, $actual[$key]);
+                static::assertEquals($value, $actual[$key], 'Key: ' . $key);
             }
         }
     }

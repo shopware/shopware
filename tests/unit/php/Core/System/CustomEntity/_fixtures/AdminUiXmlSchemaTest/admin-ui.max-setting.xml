@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<admin-ui
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/System/CustomEntity/Xml/Config/AdminUi/admin-ui-1.0.xsd">
+    <entity name="custom_entity_complex" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="custom_entity_field1"/>
+                <column ref="custom_entity_field2"/>
+                <column ref="custom_entity_field3"/>
+                <column ref="custom_entity_field4"/>
+                <column ref="custom_entity_field5"/>
+                <column ref="custom_entity_field6"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="foo">
+                    <card name="water">
+                        <field ref="custom_entity_field1"/>
+                        <field ref="custom_entity_field2"/>
+                        <field ref="custom_entity_field3"/>
+                    </card>
+                    <card name="fire">
+                        <field ref="custom_entity_field4"/>
+                        <field ref="custom_entity_field5"/>
+                    </card>
+                </tab>
+                <tab name="bar">
+                    <card name="stone">
+                        <field ref="custom_entity_field6"/>
+                    </card>
+                    <card name="ice">
+                        <field ref="custom_entity_field1"/>
+                        <field ref="custom_entity_field2"/>
+                        <field ref="custom_entity_field3"/>
+                        <field ref="custom_entity_field4"/>
+                        <field ref="custom_entity_field5"/>
+                        <field ref="custom_entity_field6"/>
+                    </card>
+                    <card name="air">
+                        <field ref="custom_entity_field2"/>
+                        <field ref="custom_entity_field5"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+    <entity name="custom_entity_simple" navigation-parent="sw-content" position="50" icon="regular-tools-alt" color="#f00">
+        <listing>
+            <columns>
+                <column ref="custom_entity_field"/>
+            </columns>
+        </listing>
+        <detail>
+            <tabs>
+                <tab name="main">
+                    <card name="general">
+                        <field ref="custom_entity_field"/>
+                    </card>
+                </tab>
+            </tabs>
+        </detail>
+    </entity>
+</admin-ui>

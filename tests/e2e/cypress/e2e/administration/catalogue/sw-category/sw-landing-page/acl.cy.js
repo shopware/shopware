@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import CategoryPageObject from '../../../../../support/pages/module/sw-category.page-object';
@@ -6,17 +9,14 @@ describe('Landing pages: Test ACL privileges', () => {
     beforeEach(() => {
         // Clean previous state and prepare Administration
         let salesChannel;
-        cy.loginViaApi()
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'sales-channel',
-                    data: {
-                        field: 'name',
-                        type: 'equals',
-                        value: 'Storefront'
-                    }
-                });
-            })
+        cy.searchViaAdminApi({
+            endpoint: 'sales-channel',
+            data: {
+                field: 'name',
+                type: 'equals',
+                value: 'Storefront',
+            },
+        })
             .then((data) => {
                 salesChannel = data.id;
                 return cy.createDefaultFixture('cms-page', {}, 'cms-landing-page');
@@ -26,9 +26,9 @@ describe('Landing pages: Test ACL privileges', () => {
                     cmsPage: data,
                     salesChannels: [
                         {
-                            id: salesChannel
-                        }
-                    ]
+                            id: salesChannel,
+                        },
+                    ],
                 }, 'landing-page');
             })
             .then(() => {
@@ -36,34 +36,31 @@ describe('Landing pages: Test ACL privileges', () => {
             });
     });
 
-    it('@catalogue: can duplicate landing pages', { tags: ['pa-content-management'] }, () => {
+
+    it('@catalogue: can duplicate landing pages', {tags: ['pa-content-management']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'landing_page',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         // Request for duplicate landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/landing-page/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('duplicateData');
 
         // Request for loading landing pages
@@ -81,7 +78,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+            `${page.elements.categoryTreeItem}:nth-of-type(1)`,
         );
 
         // Verify duplicate
@@ -90,34 +87,30 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.contains(`${page.elements.categoryTreeItem}:nth-child(2)`, 'Testingpage Copy');
     });
 
-    it('@catalogue: can create landing pages', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can create landing pages', {tags: ['pa-content-management']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'landing_page',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         // Request for save landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Request for loading the landing pages
@@ -147,22 +140,18 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).first().contains('MyLandingPage');
     });
 
-    it('@catalogue: can view landing pages', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can view landing pages', {tags: ['pa-content-management']}, () => {
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         // Request for loading landing pages
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
@@ -184,31 +173,27 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.get('#landingPageName').should('have.value', 'Testingpage');
     });
 
-    it('@catalogue: can edit landing pages', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can edit landing pages', {tags: ['pa-content-management']}, () => {
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         // Request for update landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Request for loading landing pages
@@ -241,38 +226,34 @@ describe('Landing pages: Test ACL privileges', () => {
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@catalogue: can delete landing pages', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can delete landing pages', {tags: ['pa-content-management']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'landing_page',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'landing_page',
-                role: 'creator'
+                role: 'creator',
             },
             {
                 key: 'landing_page',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         // Request for delete landing page
         cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Request for loading landing pages
@@ -290,7 +271,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu__group-button-delete',
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+            `${page.elements.categoryTreeItem}:nth-of-type(1)`,
         );
 
         // Expect delete modal to be open

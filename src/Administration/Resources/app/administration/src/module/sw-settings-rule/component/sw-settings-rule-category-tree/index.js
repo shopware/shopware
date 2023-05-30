@@ -1,11 +1,13 @@
 import template from './sw-settings-rule-category-tree.html.twig';
 import './sw-settings-rule-category-tree.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-rule-category-tree', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -75,7 +77,7 @@ Component.register('sw-settings-rule-category-tree', {
 
     methods: {
         searchTreeItems(term) {
-            this.getTreeItems(null, term);
+            this.getTreeItems(null, term, true);
         },
 
         onCheckItem(checkedItems) {
@@ -86,13 +88,28 @@ Component.register('sw-settings-rule-category-tree', {
             return item[this.association]?.length > 0 || item.extensions[this.association]?.length > 0;
         },
 
-        getTreeItems(parentId = null, term = null) {
+        getTreeItems(parentId = null, term = null, withTermFilter = false) {
             this.isFetching = true;
 
             const categoryCriteria = this.treeCriteria;
-            if (term) {
+
+            categoryCriteria.filters = categoryCriteria.filters.filter((filter) => {
+                if (filter.type === 'equals' && filter.field === 'parentId') {
+                    return false;
+                }
+
+                if (filter.type === 'contains' && filter.field === 'name') {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (term && withTermFilter) {
                 categoryCriteria.addFilter(Criteria.contains('name', term));
-            } else {
+            }
+
+            if (!term) {
                 categoryCriteria.addFilter(Criteria.equals('parentId', parentId));
             }
 
@@ -114,4 +131,4 @@ Component.register('sw-settings-rule-category-tree', {
             });
         },
     },
-});
+};

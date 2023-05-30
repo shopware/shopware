@@ -3,42 +3,31 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-class EntityIndexingMessage
+#[Package('core')]
+class EntityIndexingMessage implements AsyncMessageInterface
 {
-    protected $data;
-
-    protected $offset;
-
     /**
      * @var string
      */
     protected $indexer;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var bool
-     */
-    private $forceQueue;
+    private readonly Context $context;
 
     /**
      * @var array<string>
      */
     private array $skip = [];
 
-    /**
-     * @internal
-     */
-    public function __construct($data, $offset = null, ?Context $context = null, bool $forceQueue = false)
-    {
-        $this->data = $data;
-        $this->offset = $offset;
+    public function __construct(
+        protected $data,
+        protected $offset = null,
+        ?Context $context = null,
+        private readonly bool $forceQueue = false
+    ) {
         $this->context = $context ?? Context::createDefaultContext();
-        $this->forceQueue = $forceQueue;
     }
 
     public function getData()

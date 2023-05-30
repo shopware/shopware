@@ -1,10 +1,15 @@
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
-const { Component, Utils } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Utils } = Shopware;
 const { format } = Utils;
 
-Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -77,9 +82,10 @@ Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
                 : format.currency(Number(value), this.currency.shortName);
 
             return this.$tc(
-                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0,
+                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,
+                0,
                 { value: discountValue, groupId },
             );
         },
     },
-});
+};

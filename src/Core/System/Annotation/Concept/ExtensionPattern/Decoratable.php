@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @Annotation
+ *
  * @Target("CLASS")
+ *
  * @ExtensionPattern
  *
  * Services marked with the decoratable annotation are designed to be extended via (service decoration)[https://symfony.com/doc/current/service_container/service_decoration.html].
@@ -22,6 +26,7 @@ namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
  *
  * For an introduction on how to use decoration in your plugin refer to the (symfony docs)[https://symfony.com/doc/current/service_container/service_decoration.html]
  */
+#[Package('core')]
 class Decoratable
 {
 }

@@ -11,11 +11,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('business-ops')]
 trait CartRuleHelperTrait
 {
-    protected function createLineItem(
+    protected static function createLineItem(
         string $type = LineItem::PRODUCT_LINE_ITEM_TYPE,
         int $quantity = 1,
         ?string $referenceId = null
@@ -23,7 +25,7 @@ trait CartRuleHelperTrait
         return new LineItem(Uuid::randomHex(), $type, $referenceId, $quantity);
     }
 
-    protected function createLineItemWithDeliveryInfo(
+    protected static function createLineItemWithDeliveryInfo(
         bool $freeDelivery,
         int $quantity = 1,
         ?float $weight = 50.0,
@@ -32,7 +34,7 @@ trait CartRuleHelperTrait
         ?float $length = null,
         int $stock = 9999
     ): LineItem {
-        return ($this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))->setDeliveryInformation(
+        return self::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity)->setDeliveryInformation(
             new DeliveryInformation(
                 $stock,
                 $weight,
@@ -51,14 +53,14 @@ trait CartRuleHelperTrait
         );
     }
 
-    protected function createContainerLineItem(LineItemCollection $childLineItemCollection): LineItem
+    protected static function createContainerLineItem(LineItemCollection $childLineItemCollection): LineItem
     {
-        return ($this->createLineItem('container-type'))->setChildren($childLineItemCollection);
+        return self::createLineItem('container-type')->setChildren($childLineItemCollection);
     }
 
-    protected function createLineItemWithPrice(string $type, float $price, ?ListPrice $listPrice = null): LineItem
+    protected static function createLineItemWithPrice(string $type, float $price, ?ListPrice $listPrice = null): LineItem
     {
-        return ($this->createLineItem($type))->setPrice(
+        return self::createLineItem($type)->setPrice(
             new CalculatedPrice(
                 $price,
                 $price,
@@ -71,9 +73,9 @@ trait CartRuleHelperTrait
         );
     }
 
-    protected function createCart(LineItemCollection $lineItemCollection): Cart
+    protected static function createCart(LineItemCollection $lineItemCollection): Cart
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->addLineItems($lineItemCollection);
 
         return $cart;

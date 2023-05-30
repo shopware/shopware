@@ -36,7 +36,7 @@ class SnippetExceptionTest extends TestCase
     /**
      * @return array<string, array{exception: SnippetException, statusCode: int, errorCode: string, message: string}>
      */
-    public function exceptionDataProvider(): iterable
+    public static function exceptionDataProvider(): iterable
     {
         yield SnippetException::SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION => [
             'exception' => SnippetException::duplicatedFirstLevelKey(['id1', 'id2', 'id3']),

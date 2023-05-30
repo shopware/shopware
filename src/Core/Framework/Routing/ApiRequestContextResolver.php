@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -15,34 +14,24 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('core')]
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
-
-    /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        RouteScopeRegistry $routeScopeRegistry
+        private readonly Connection $connection,
+        private readonly RouteScopeRegistry $routeScopeRegistry
     ) {
-        $this->connection = $connection;
-        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public function resolve(Request $request): void
@@ -212,8 +201,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->from('language')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($languageId))
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->executeQuery()
+            ->fetchFirstColumn();
 
         if (empty($data)) {
             throw new LanguageNotFoundException($languageId);
@@ -229,8 +218,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->from('user_access_key')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         return Uuid::fromBytesToHex($id);
     }
@@ -242,8 +231,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->from('sales_channel')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         return Uuid::fromBytesToHex($id);
     }
@@ -255,8 +244,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->from('integration')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         return Uuid::fromBytesToHex($id);
     }
@@ -293,7 +282,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function isAdmin(string $userId): bool
     {
-        return (bool) $this->connection->fetchColumn(
+        return (bool) $this->connection->fetchOne(
             'SELECT admin FROM `user` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($userId)]
         );
@@ -301,7 +290,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function isAdminIntegration(string $integrationId): bool
     {
-        return (bool) $this->connection->fetchColumn(
+        return (bool) $this->connection->fetchOne(
             'SELECT admin FROM `integration` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($integrationId)]
         );
@@ -315,12 +304,12 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
             ->where('mapping.user_id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->executeQuery()
+            ->fetchFirstColumn();
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
+            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
             $list = array_merge($list, $privileges);
         }
 
@@ -329,7 +318,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function getCashRounding(string $currencyId): CashRoundingConfig
     {
-        $rounding = $this->connection->fetchAssoc(
+        $rounding = $this->connection->fetchAssociative(
             'SELECT item_rounding FROM currency WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
@@ -337,7 +326,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             throw new \RuntimeException(sprintf('No cash rounding for currency "%s" found', $currencyId));
         }
 
-        $rounding = json_decode($rounding['item_rounding'], true);
+        $rounding = json_decode((string) $rounding['item_rounding'], true, 512, \JSON_THROW_ON_ERROR);
 
         return new CashRoundingConfig(
             (int) $rounding['decimals'],
@@ -352,7 +341,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return null;
         }
 
-        $privileges = $this->connection->fetchColumn('
+        $privileges = $this->connection->fetchOne('
             SELECT `acl_role`.`privileges`
             FROM `acl_role`
             INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
@@ -363,7 +352,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return null;
         }
 
-        return json_decode($privileges, true);
+        return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function fetchIntegrationPermissions(string $integrationId): array
@@ -374,12 +363,12 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
             ->where('mapping.integration_id = :integrationId')
             ->setParameter('integrationId', Uuid::fromHexToBytes($integrationId))
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->executeQuery()
+            ->fetchFirstColumn();
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
+            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
             $list = array_merge($list, $privileges);
         }
 
@@ -395,7 +384,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->where('integration.id = :integrationId')
             ->andWhere('app.active = 1')
             ->setParameter('integrationId', Uuid::fromHexToBytes($integrationId))
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
 
         if ($name === false) {

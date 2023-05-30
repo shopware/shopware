@@ -4,6 +4,9 @@ import './sw-chart-card.scss';
 const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description
  * Layout-wrapper for sw-card and sw-chart.
  * This component provides specific props for the card configuration and range dropdown.
@@ -13,36 +16,60 @@ const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
  * All further attributes on this component are passed down to the child "sw-chart".
  * Please refer to the documentation of "sw-chart" for proper configuration.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-chart-card', {
     template,
+
     props: {
         availableRanges: {
             type: Array,
+            required: false,
             default: () => {
                 return defaultRanges;
             },
-            validator(givenValue) {
-                const validRanges = defaultRanges;
-
-                return givenValue.length && givenValue.every((range) => validRanges.includes(range));
+        },
+        defaultRangeIndex: {
+            type: Number,
+            required: false,
+            default: () => {
+                return 0;
             },
+        },
+        cardTitle: {
+            type: String,
+            required: false,
+            default: '',
         },
         cardSubtitle: {
             type: String,
+            required: false,
             default: '',
         },
+        positionIdentifier: {
+            type: String,
+            required: true,
+            default: '',
+        },
+        helpText: {
+            type: [String, Object],
+            required: false,
+            default: () => {
+                return '';
+            },
+        },
     },
+
     data() {
         return {
-            selectedRange: this.availableRanges[0],
+            selectedRange: this.availableRanges[this.defaultRangeIndex],
         };
     },
+
     computed: {
         hasHeaderLink() {
             return !!this.$slots['header-link'];
         },
     },
+
     methods: {
         dispatchRangeUpdate() {
             this.$emit('sw-chart-card-range-update', this.selectedRange);

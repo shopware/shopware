@@ -9,32 +9,19 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class AppActionLoader
 {
-    /**
-     * @var EntityRepository
-     */
-    private $actionButtonRepo;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
-
-    public function __construct(string $url, EntityRepository $actionButtonRepo, ShopIdProvider $shopIdProvider)
-    {
-        $this->actionButtonRepo = $actionButtonRepo;
-        $this->url = $url;
-        $this->shopIdProvider = $shopIdProvider;
+    public function __construct(
+        private readonly string $url,
+        private readonly EntityRepository $actionButtonRepo,
+        private readonly ShopIdProvider $shopIdProvider
+    ) {
     }
 
     /**
@@ -54,7 +41,7 @@ class AppActionLoader
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             throw new ActionNotFoundException();
         }
 

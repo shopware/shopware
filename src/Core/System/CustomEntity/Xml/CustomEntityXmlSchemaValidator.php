@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
+use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 
 /**
  * @internal
  */
+#[Package('core')]
 class CustomEntityXmlSchemaValidator
 {
     public function validate(CustomEntityXmlSchema $schema): void
@@ -17,8 +21,20 @@ class CustomEntityXmlSchemaValidator
         }
 
         foreach ($schema->getEntities()->getEntities() as $entity) {
-            if (empty($entity->getName())) {
-                throw new \RuntimeException('Some of the entities has no configured name');
+            if ($entity->isCustomFieldsAware()) {
+                $label = $entity->getLabelProperty();
+
+                if ($label === null) {
+                    throw CustomEntityException::noLabelProperty();
+                }
+
+                if (!$entity->hasField($label)) {
+                    throw CustomEntityException::labelPropertyNotDefined($label);
+                }
+
+                if (!$entity->getField($label) instanceof StringField) {
+                    throw CustomEntityException::labelPropertyWrongType($label);
+                }
             }
 
             foreach ($entity->getFields() as $field) {

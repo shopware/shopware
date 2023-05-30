@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+#[Package('checkout')]
 class CalculatedPrice extends Struct
 {
     /**
@@ -35,7 +37,7 @@ class CalculatedPrice extends Struct
     protected $taxRules;
 
     /**
-     * @var ReferencePrice
+     * @var ReferencePrice|null
      */
     protected $referencePrice;
 
@@ -79,6 +81,11 @@ class CalculatedPrice extends Struct
         return $this->calculatedTaxes;
     }
 
+    public function setCalculatedTaxes(CalculatedTaxCollection $calculatedTaxes): void
+    {
+        $this->calculatedTaxes = $calculatedTaxes;
+    }
+
     public function getTaxRules(): TaxRuleCollection
     {
         return $this->taxRules;
@@ -112,5 +119,16 @@ class CalculatedPrice extends Struct
     public function getApiAlias(): string
     {
         return 'calculated_price';
+    }
+
+    /**
+     * Changing a price should always be a full change, otherwise you have
+     * mismatching information regarding the unit, total and tax values.
+     */
+    public function overwrite(float $unitPrice, float $totalPrice, CalculatedTaxCollection $taxes): void
+    {
+        $this->unitPrice = $unitPrice;
+        $this->totalPrice = $totalPrice;
+        $this->calculatedTaxes = $taxes;
     }
 }

@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -23,14 +24,11 @@ class ChildCountIndexerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var ChildCountUpdater
@@ -174,7 +172,7 @@ class ChildCountIndexerTest extends TestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE category SET child_count = 0 WHERE id IN (:ids)',
             [
                 'ids' => Uuid::fromHexToBytesList([
@@ -184,7 +182,7 @@ class ChildCountIndexerTest extends TestCase
                     $categoryD,
                 ]),
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);

@@ -1,5 +1,9 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
+/**
+ * @package customer-order
+ */
+
 const defaultSearchConfiguration = {
     _searchable: true,
     orderNumber: {
@@ -241,6 +245,14 @@ const defaultSearchConfiguration = {
             documentNumber: {
                 _searchable: false,
                 _score: searchRankingPoint.LOW_SEARCH_RANKING,
+            },
+        },
+    },
+    lineItems: {
+        payload: {
+            code: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
             },
         },
     },

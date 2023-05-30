@@ -14,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1592978289ProductCustomFieldSets
  *
  * @phpstan-type DbColumn array{name: string, type: Type, notnull: bool}
@@ -79,7 +80,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     /**
      * @return array{0: string, 1: DbColumn[]}[]
      */
-    public function tableInformationProvider(): array
+    public static function tableInformationProvider(): array
     {
         return [
             [
@@ -111,36 +112,30 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     private function fetchTableInformation(string $name): array
     {
         $columns = $this->connection
-            ->getSchemaManager()
-            ->listTableDetails($name)
+            ->createSchemaManager()
+            ->introspectTable($name)
             ->getColumns();
 
-        return array_map(static function (Column $column): array {
-            return self::getColumn(
-                $column->getName(),
-                $column->getType(),
-                $column->getNotnull()
-            );
-        }, $columns);
+        return array_map(static fn (Column $column): array => self::getColumn(
+            $column->getName(),
+            $column->getType(),
+            $column->getNotnull()
+        ), $columns);
     }
 
     private function hasCustomFieldSetColumn(Connection $connection, string $table): bool
     {
         return \count(array_filter(
-            $connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column): bool {
-                return $column->getName() === 'customFieldSets';
-            }
+            $connection->createSchemaManager()->listTableColumns($table),
+            static fn (Column $column): bool => $column->getName() === 'customFieldSets'
         )) > 0;
     }
 
     private function hasGlobalColumn(Connection $connection, string $table): bool
     {
         return \count(array_filter(
-            $connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column): bool {
-                return $column->getName() === 'global';
-            }
+            $connection->createSchemaManager()->listTableColumns($table),
+            static fn (Column $column): bool => $column->getName() === 'global'
         )) > 0;
     }
 }

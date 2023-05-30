@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1636018970UnusedGuestCustomerLifetime
  */
 class Migration1636018970UnusedGuestCustomerLifetimeTest extends TestCase
@@ -45,7 +46,7 @@ class Migration1636018970UnusedGuestCustomerLifetimeTest extends TestCase
         static::assertIsArray($result);
         static::assertEquals('core.loginRegistration.unusedGuestCustomerLifetime', $result['configuration_key']);
 
-        $value = \json_decode($result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
+        $value = \json_decode((string) $result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(86400, $value['_value']);
     }

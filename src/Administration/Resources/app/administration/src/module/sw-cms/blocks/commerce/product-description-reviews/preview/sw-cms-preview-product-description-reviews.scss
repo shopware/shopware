@@ -11,7 +11,7 @@
 
     &__tab-description,
     &__tab-reviews {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: $color-gray-500;
         border-bottom: 1px solid $color-gray-500;
         margin: auto 10px auto 0;
@@ -24,7 +24,7 @@
     }
 
     &__content {
-        font-size: 10px;
+        font-size: $font-size-xxs;
         color: $color-darkgray-200;
     }
 }

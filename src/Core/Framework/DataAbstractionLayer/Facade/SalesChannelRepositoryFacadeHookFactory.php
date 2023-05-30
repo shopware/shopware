@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
@@ -11,23 +12,18 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ * @internal
  */
+#[Package('core')]
 class SalesChannelRepositoryFacadeHookFactory extends HookServiceFactory
 {
-    private SalesChannelDefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelDefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder
+        private readonly SalesChannelDefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder
     ) {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function factory(Hook $hook, Script $script): SalesChannelRepositoryFacade

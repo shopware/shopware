@@ -1,6 +1,6 @@
 <sw-page class="sw-settings-units">
 
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
         <sw-button-process
             class="sw-settings-units__create-action"
@@ -15,32 +15,35 @@
 
     </template>
 
-    <sw-language-switch
-        slot="language-switch"
-        :disabled="unit === null || unit.isNew()"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="unit === null || unit.isNew()"
+            @on-change="onChangeLanguage"
+        />
+    </template>
 
-    <sw-card-view slot="content">
-        <sw-card
-            v-if="!isLoading"
-            position-identifier="sw-settings-units-content"
-        >
-            <sw-text-field
-                v-model="unit.name"
-                :label="$tc('sw-settings-units.detail.fieldLabels.name')"
-                :error="unitNameError"
-                required
-            />
+    <template #content>
+        <sw-card-view>
+            <sw-card
+                v-if="!isLoading"
+                position-identifier="sw-settings-units-content"
+            >
+                <sw-text-field
+                    v-model="unit.name"
+                    :label="$tc('sw-settings-units.detail.fieldLabels.name')"
+                    :error="unitNameError"
+                    required
+                />
 
-            <sw-text-field
-                v-model="unit.shortCode"
-                :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
-                :error="unitShortCodeError"
-                required
-            />
-        </sw-card>
+                <sw-text-field
+                    v-model="unit.shortCode"
+                    :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
+                    :error="unitShortCodeError"
+                    required
+                />
+            </sw-card>
 
-        <sw-skeleton v-else />
-    </sw-card-view>
+            <sw-skeleton v-else />
+        </sw-card-view>
+    </template>
 </sw-page>

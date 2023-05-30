@@ -4,21 +4,17 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('customer-order')]
 class WishlistProductAddedEvent implements ShopwareSalesChannelEvent
 {
-    protected string $wishlistId;
-
-    protected string $productId;
-
-    protected SalesChannelContext $context;
-
-    public function __construct(string $wishlistId, string $productId, SalesChannelContext $context)
-    {
-        $this->wishlistId = $wishlistId;
-        $this->productId = $productId;
-        $this->context = $context;
+    public function __construct(
+        protected string $wishlistId,
+        protected string $productId,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getWishlistId(): string

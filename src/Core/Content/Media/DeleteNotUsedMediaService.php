@@ -6,39 +6,40 @@ use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderE
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, use \Shopware\Core\Content\Media\UnusedMediaPurger instead
+ */
+#[Package('content')]
 class DeleteNotUsedMediaService
 {
-    public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepo;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $defaultFolderRepo;
+    final public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $mediaRepo, EntityRepositoryInterface $defaultFolderRepo)
-    {
-        $this->mediaRepo = $mediaRepo;
-        $this->defaultFolderRepo = $defaultFolderRepo;
+    public function __construct(
+        private readonly EntityRepository $mediaRepo,
+        private readonly EntityRepository $defaultFolderRepo
+    ) {
     }
 
     public function countNotUsedMedia(Context $context): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            sprintf('%s is deprecated and will be removed in v6.6.0.0. Use %s instead.', self::class, UnusedMediaPurger::class),
+        );
+
         $criteria = $this->createFilterForNotUsedMedia($context);
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
@@ -48,12 +49,15 @@ class DeleteNotUsedMediaService
 
     public function deleteNotUsedMedia(Context $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            sprintf('%s is deprecated and will be removed in v6.6.0.0. Use %s instead.', self::class, UnusedMediaPurger::class),
+        );
+
         $criteria = $this->createFilterForNotUsedMedia($context);
 
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-        $ids = array_map(static function ($id) {
-            return ['id' => $id];
-        }, $ids);
+        $ids = array_map(static fn ($id) => ['id' => $id], $ids);
         $this->mediaRepo->delete($ids, $context);
     }
 

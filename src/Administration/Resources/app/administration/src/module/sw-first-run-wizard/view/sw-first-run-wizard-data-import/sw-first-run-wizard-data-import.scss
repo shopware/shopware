@@ -20,8 +20,8 @@
     }
 
     &__headline {
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         letter-spacing: 0.1px;
         line-height: 25px;
     }
@@ -52,7 +52,7 @@
     .plugin-installed {
         height: 23px;
         color: $color-emerald-500;
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: normal;
         letter-spacing: 0.1px;
         line-height: 22px;

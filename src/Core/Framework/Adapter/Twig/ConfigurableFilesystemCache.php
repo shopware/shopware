@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 
+#[Package('core')]
 class ConfigurableFilesystemCache extends FilesystemCache
 {
     /**
@@ -16,8 +18,10 @@ class ConfigurableFilesystemCache extends FilesystemCache
      */
     protected $cacheDirectory;
 
-    public function __construct(string $directory, int $options = 0)
-    {
+    public function __construct(
+        string $directory,
+        int $options = 0
+    ) {
         $this->cacheDirectory = rtrim($directory, '\/') . '/';
         parent::__construct($directory, $options);
     }

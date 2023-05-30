@@ -1,0 +1,98 @@
+<sw-page class="sw-flow-list-index">
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="flow"
+            :placeholder="$tc('sw-flow.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-flow.list.textHeadline') }}
+
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_index_smart_bar_actions_extension %}
+        {% endblock %}
+
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('flow.creator'),
+                position: 'bottom',
+                showOnDisabledElements: true
+            }"
+            class="sw-flow-list__create"
+            variant="primary"
+            :router-link="{ name: 'sw.flow.create' }"
+            :disabled="!acl.can('flow.creator')"
+        >
+            {{ $tc('sw-flow.list.buttonAddFlow') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-tabs
+                class="sw-flow-list__tab"
+                position-identifier="sw-flow-listing"
+                :small="false"
+            >
+                <sw-tabs-item
+                    class="sw-flow-listing__tab-my-flows"
+                    name="flows"
+                    :title="$tc('sw-flow.general.tabMyFlows')"
+                    :route="{ name: 'sw.flow.index.flows'}"
+                >
+                    {{ $tc('sw-flow.general.tabMyFlows') }}
+                </sw-tabs-item>
+
+                <sw-tabs-item
+                    class="sw-flow-listing__tab-flow-templates"
+                    name="templates"
+                    :title="$tc('sw-flow.general.tabFlowTemplates')"
+                    :route="{ name: 'sw.flow.index.templates'}"
+                >
+                    {{ $tc('sw-flow.general.tabFlowTemplates') }}
+                </sw-tabs-item>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_tabs_header_extension %}{% endblock %}
+
+                <template #content="{ active }">
+                    <template v-if="isLoading">
+                        <sw-skeleton />
+                        <sw-skeleton />
+                    </template>
+
+                    <router-view
+                        v-else
+                        :is-loading="isLoading"
+                        :search-term="term"
+                        @on-update-total="onUpdateTotalFlow"
+                    />
+                </template>
+            </sw-tabs>
+        </sw-card-view>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_index_modal_content_custom %}
+        {% endblock %}
+    </template>
+</sw-page>

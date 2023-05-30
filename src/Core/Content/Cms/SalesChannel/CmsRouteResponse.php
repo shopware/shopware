@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+#[Package('content')]
 class CmsRouteResponse extends StoreApiResponse
 {
     /**

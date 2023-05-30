@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+#[Package('content')]
 class ThumbnailCouldNotBeSavedException extends ShopwareHttpException
 {
     public function __construct(string $url)

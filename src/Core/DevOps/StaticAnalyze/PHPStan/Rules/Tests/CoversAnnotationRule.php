@@ -8,11 +8,14 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
  * @implements Rule<InClassNode>
  */
+#[Package('core')]
 class CoversAnnotationRule implements Rule
 {
     public function getNodeType(): string
@@ -55,6 +58,17 @@ class CoversAnnotationRule implements Rule
 
     private function hasCovers(InClassNode $class): bool
     {
+        foreach ($class->getOriginalNode()->attrGroups as $group) {
+            $attribute = $group->attrs[0];
+
+            /** @var Node\Name\FullyQualified $name */
+            $name = $attribute->name;
+
+            if ($name->toString() === 'PHPUnit\Metadata\CoversClass\CoversClass') {
+                return true;
+            }
+        }
+
         $doc = $class->getDocComment();
 
         if ($doc === null) {

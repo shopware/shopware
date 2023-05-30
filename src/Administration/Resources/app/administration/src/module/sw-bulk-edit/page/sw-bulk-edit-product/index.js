@@ -9,8 +9,11 @@ const { chunk } = Shopware.Utils.array;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-product', {
+export default {
     template,
 
     inject: [
@@ -150,6 +153,27 @@ Component.register('sw-bulk-edit-product', {
 
         isChild() {
             return this.$route.params.parentId !== 'null';
+        },
+
+        restrictedFields() {
+            let restrictedFields = [];
+            const includesDigital = this.$route.params.includesDigital;
+
+            if (includesDigital === '1' || includesDigital === '2') {
+                restrictedFields = [
+                    'isCloseout',
+                    'restockTime',
+                    'maxPurchase',
+                    'purchaseSteps',
+                    'minPurchase',
+                    'shippingFree',
+                ];
+            }
+            if (includesDigital === '1') {
+                restrictedFields.push('stock');
+            }
+
+            return restrictedFields;
         },
 
         generalFormFields() {
@@ -316,7 +340,7 @@ Component.register('sw-bulk-edit-product', {
         },
 
         deliverabilityFormFields() {
-            return [{
+            const fields = [{
                 name: 'stock',
                 type: 'int',
                 canInherit: false,
@@ -423,6 +447,10 @@ Component.register('sw-bulk-edit-product', {
                     disabled: this.bulkEditProduct?.maxPurchase?.isInherited,
                 },
             }];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
         },
 
         assignmentFormFields() {
@@ -1310,4 +1338,4 @@ Component.register('sw-bulk-edit-product', {
             parentProduct[entityName].forEach(item => this.product[entityName].add(item));
         },
     },
-});
+};

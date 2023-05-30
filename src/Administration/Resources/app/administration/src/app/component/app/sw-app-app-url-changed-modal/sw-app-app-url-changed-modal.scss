@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-app-app-url-changed-modal {
-    font-size: $font-size-small;
+    font-size: $font-size-xs;
 
     b {
         font-weight: $font-weight-semi-bold;
@@ -41,7 +41,7 @@
                 grid-column: 2;
                 grid-row: 1;
                 text-align: left;
-                font-size: $font-size-default;
+                font-size: $font-size-s;
             }
 
             .sw-app-app-url-changed-modal__content-choices-description {
@@ -50,7 +50,7 @@
                 white-space: normal;
                 text-align: left;
                 font-weight: $font-weight-regular;
-                font-size: $font-size-small;
+                font-size: $font-size-xs;
             }
         }
 

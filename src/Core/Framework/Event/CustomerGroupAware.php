@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
+ */
+#[Package('business-ops')]
 interface CustomerGroupAware extends FlowEventAware
 {
     public const CUSTOMER_GROUP_ID = 'customerGroupId';

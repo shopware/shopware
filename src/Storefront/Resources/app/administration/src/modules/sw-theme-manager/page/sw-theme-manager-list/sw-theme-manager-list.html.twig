@@ -50,8 +50,8 @@
 
                                 {% block sw_theme_list_listing_actions_mode %}
                                     <div class="sw-theme-list__actions-mode" @click="onListModeChange">
-                                        <sw-icon name="default-view-normal" size="16" v-if="listMode === 'grid'"></sw-icon>
-                                        <sw-icon name="default-view-grid" size="16" v-if="listMode === 'list'"></sw-icon>
+                                        <sw-icon name="regular-view-normal" size="16" v-if="listMode === 'grid'"></sw-icon>
+                                        <sw-icon name="regular-view-grid" size="16" v-if="listMode === 'list'"></sw-icon>
                                     </div>
                                 {% endblock %}
                             </div>
@@ -83,7 +83,7 @@
                                                     {% block sw_theme_list_listing_list_data_grid_column_name %}
                                                         <template #column-name="{ item }">
                                                             <sw-icon
-                                                                name="default-lock-closed"
+                                                                name="regular-lock"
                                                                 class="sw-theme-list__icon-lock"
                                                                 v-if="!item.parentThemeId"
                                                                 v-tooltip="lockToolTip"
@@ -271,9 +271,6 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-
-                {# @deprecated tag:v6.5.0 - Will be removed #}
-                {% block sw_theme_list_listing_list_loader %}{% endblock %}
 
                 {% block sw_theme_list_media_modal %}
                     <sw-media-modal-v2

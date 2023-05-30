@@ -1,4 +1,5 @@
 .sw-condition-line-item-with-quantity {
     display: grid;
-    grid-template-columns: minmax(128px, auto) minmax(128px, auto) 1fr;
+    grid-template-columns: 1fr minmax(128px, auto) 1fr;
+    gap: 4px;
 }

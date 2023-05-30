@@ -3,38 +3,35 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'es:reset',
+    description: 'Reset the elasticsearch index',
+)]
+#[Package('core')]
 class ElasticsearchResetCommand extends Command
 {
-    protected static $defaultName = 'es:reset';
-
-    private ElasticsearchOutdatedIndexDetector $detector;
-
-    private Client $client;
-
-    private Connection $connection;
-
-    private IncrementGatewayRegistry $gatewayRegistry;
-
     /**
      * @internal
      */
-    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, IncrementGatewayRegistry $gatewayRegistry)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly ElasticsearchOutdatedIndexDetector $detector,
+        private readonly Connection $connection,
+        private readonly IncrementGatewayRegistry $gatewayRegistry
+    ) {
         parent::__construct();
-        $this->detector = $detector;
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     /**
@@ -42,8 +39,6 @@ class ElasticsearchResetCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Resets Elasticsearch indexing');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -68,11 +63,11 @@ class ElasticsearchResetCommand extends Command
         try {
             $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
             $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
-        } catch (IncrementGatewayNotFoundException $exception) {
+        } catch (IncrementGatewayNotFoundException) {
             // In case message_queue pool is disabled
         }
 
-        $this->connection->executeStatement('DELETE FROM enqueue WHERE body LIKE "%ElasticsearchIndexingMessage%"');
+        $this->connection->executeStatement('DELETE FROM `messenger_messages` WHERE `headers` LIKE "%ElasticsearchIndexingMessage%"');
 
         $io->success('Elasticsearch indices deleted and queue cleared');
 

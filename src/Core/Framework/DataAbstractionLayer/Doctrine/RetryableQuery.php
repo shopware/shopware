@@ -3,69 +3,27 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception\RetryableException;
+use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class RetryableQuery
 {
-    /**
-     * @var Connection|null
-     */
-    private $connection;
-
-    private Statement $query;
-
-    /**
-     * @param Connection $param1
-     * @param Statement  $param2
-     */
-    public function __construct($param1, $param2 = null)
-    {
-        if ($param1 instanceof Statement && $param2 === null) {
-            @trigger_error(
-                'Use constructor arguments (Doctrine\DBAL\Connection $connection, Doctrine\DBAL\Driver\Statement $query) instead.',
-                \E_USER_DEPRECATED
-            );
-            $this->query = $param1;
-        } elseif ($param1 instanceof Connection && $param2 instanceof Statement) {
-            $this->connection = $param1;
-            $this->query = $param2;
-        } else {
-            throw new \InvalidArgumentException(
-                'Constructor arguments must be of type (Doctrine\DBAL\Connection $connection, Doctrine\DBAL\Driver\Statement $query).'
-            );
-        }
+    public function __construct(
+        private readonly ?Connection $connection,
+        private readonly Statement $query
+    ) {
     }
 
-    public function execute(?array $params = null): bool
+    public function execute(array $params = []): int
     {
-        return self::retry($this->connection, function () use ($params) {
-            return $this->query->execute($params);
-        }, 0);
+        return self::retry($this->connection, fn () => $this->query->executeStatement($params), 0);
     }
 
-    /**
-     * @param Connection $param1
-     * @param \Closure   $param2
-     */
-    public static function retryable($param1, $param2 = null)
+    public static function retryable(Connection $connection, \Closure $closure)
     {
-        if ($param1 instanceof \Closure && $param2 === null) {
-            @trigger_error(
-                'Use arguments (Doctrine\DBAL\Connection $connection, \Closure $closure) instead.',
-                \E_USER_DEPRECATED
-            );
-
-            return self::retry(null, $param1, 0);
-        }
-
-        if ($param1 instanceof Connection && $param2 instanceof \Closure) {
-            return self::retry($param1, $param2, 0);
-        }
-
-        throw new \InvalidArgumentException(
-            'Arguments must be of type (Doctrine\DBAL\Connection $connection, \Closure $closure).'
-        );
+        return self::retry($connection, $closure, 0);
     }
 
     public function getQuery(): Statement

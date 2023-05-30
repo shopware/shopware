@@ -61,6 +61,9 @@ $color-shopware-brand-900: #0870ff;
 $color-menu-start: #303a4f;
 $color-menu-end: #2a3345;
 
+// Slate
+$color-neutrals-slate-100: #f1f5f9;
+
 /* ------------------------------------
  * 2. Status colors
  * ------------------------------------ */
@@ -210,15 +213,32 @@ $gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
  * 6. Typography
  * ------------------------------------ */
 
-$font-family-default: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-$font-size-default: 16px;
-$font-size-large: 18px;
-$font-size-small: 14px;
-$font-size-extra-small: 12px;
-$font-weight-light: 300;
+// font-family
+$font-family-default: "Inter", -apple-system, blinkmacsystemfont, "San Francisco", "Segoe UI", roboto, "Helvetica Neue", sans-serif;
+$font-family-variables: "Inter var", -apple-system, blinkmacsystemfont, "San Francisco", "Segoe UI", roboto, "Helvetica Neue", sans-serif;
+$font-family-default-feature-settings: "cv10" on, "cv05" on, "cv02" on, "cv07" on, "cv09" on, "cv04" on, "cv03" on;
+
+// font-size
+$font-size-xxs: 12px;
+$font-size-xs: 14px;
+$font-size-s: 16px;
+$font-size-m: 18px;
+$font-size-l: 20px;
+$font-size-xl: 24px;
+$font-size-3xl: 28px;
+
+// weight
 $font-weight-regular: 400;
+$font-weight-medium: 500;
 $font-weight-semi-bold: 600;
 $font-weight-bold: 700;
+
+// line-height
+$line-height-auto: auto;
+$line-height-xs: 18px;
+$line-height-sm: 20px;
+$line-height-md: 24px;
+$line-height-lg: 28px;
 
 /* ------------------------------------
  * 7. Miscellaneous

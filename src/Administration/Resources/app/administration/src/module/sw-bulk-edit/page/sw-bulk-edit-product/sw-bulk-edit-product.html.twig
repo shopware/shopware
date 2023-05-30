@@ -54,7 +54,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_product_content_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_product_actions_save %}
         <sw-button-process
@@ -101,6 +101,27 @@
                 {% endblock %}
             </sw-card>
             {% endblock %}
+
+            <sw-card
+                v-if="restrictedFields.length"
+                class="sw-bulk-edit-product__restricted-fields"
+                position-identifier="sw-bulk-edit-product-restricted-fields"
+            >
+                <sw-alert
+                    :title="$tc('sw-bulk-edit.product.alertRestrictedFields.title')"
+                    variant="warning"
+                >
+                    <span v-html="$tc('sw-bulk-edit.product.alertRestrictedFields.message')"></span>
+                    <ul>
+                        <li
+                            v-for="(restrictedField, index) in restrictedFields"
+                            :key="index"
+                        >
+                            {{ $tc(`sw-bulk-edit.product.alertRestrictedFields.${restrictedField}`) }}
+                        </li>
+                    </ul>
+                </sw-alert>
+            </sw-card>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_product_content_gereral_information_card %}
@@ -203,9 +224,7 @@
                                     v-bind="{ item, index }"
                                     @item-select="addItem"
                                 >
-                                    <template>
-                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
+                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                 </li>
                             </template>
                         </sw-entity-multi-select>

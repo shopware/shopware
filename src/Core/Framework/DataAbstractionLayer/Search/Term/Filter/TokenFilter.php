@@ -4,39 +4,28 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @phpstan-type FilterConfig array{excluded_terms: list<string>, min_search_length: int}
  */
-class TokenFilter extends AbstractTokenFilter implements ResetInterface
+#[Package('core')]
+class TokenFilter extends AbstractTokenFilter
 {
     private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be private and directly initialized with []
-     *
      * @var array<string, FilterConfig>
      */
-    protected array $config;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be private
-     */
-    protected Connection $connection;
+    private array $config = [];
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
-        /**
-         * @deprecated tag:v6.5.0 - Can be removed as the property will be correctly initialized
-         */
-        $this->config = [];
     }
 
     public function getDecorated(): AbstractTokenFilter
@@ -136,7 +125,7 @@ class TokenFilter extends AbstractTokenFilter implements ResetInterface
         }
 
         return $this->config[$languageId] = [
-            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true)) : [],
+            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [],
             'min_search_length' => (int) ($config['min_search_length'] ?? self::DEFAULT_MIN_SEARCH_TERM_LENGTH),
         ];
     }

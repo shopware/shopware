@@ -18,6 +18,8 @@ class EntityDefinitionQueryHelperTest extends TestCase
 
     /**
      * @dataProvider getData
+     *
+     * @param array<string> $expected
      */
     public function testGetFieldsOfAccessor(
         string $class,
@@ -36,7 +38,10 @@ class EntityDefinitionQueryHelperTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    public function getData(): iterable
+    /**
+     * @return iterable<string, array<int, array<int, string>|string|false>>
+     */
+    public static function getData(): iterable
     {
         yield 'With product prefix and skippable fields' => [
             ProductDefinition::class,
@@ -103,9 +108,9 @@ class EntityDefinitionQueryHelperTest extends TestCase
 
         yield 'With json field without valid field behind' => [
             ProductDefinition::class,
-            'configuratorGroupConfig.foo.bar',
+            'variantListingConfig.foo.bar',
             [
-                'configuratorGroupConfig',
+                'variantListingConfig',
             ],
         ];
     }

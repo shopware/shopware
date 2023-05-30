@@ -11,13 +11,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder
  */
 class CheapestPriceAccessorBuilderTest extends TestCase
 {
     protected CheapestPriceAccessorBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->builder = new CheapestPriceAccessorBuilder(
             1,

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Demodata\Command;
 
+use Bezhanov\Faker\Provider\Commerce;
+use Faker\Factory;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -21,43 +24,41 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
+#[AsCommand(
+    name: 'framework:demodata',
+    description: 'Generates demo data',
+)]
+#[Package('core')]
 class DemodataCommand extends Command
 {
-    protected static $defaultName = 'framework:demodata';
-
     /**
-     * @var array<string,int>
+     * @var array<string, int>
      */
     private array $defaults = [];
-
-    private DemodataService $demodataService;
-
-    private string $kernelEnv;
-
-    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      */
     public function __construct(
-        DemodataService $demodataService,
-        EventDispatcherInterface $eventDispatcher,
-        string $kernelEnv
+        private readonly DemodataService $demodataService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $kernelEnv
     ) {
         parent::__construct();
-
-        $this->kernelEnv = $kernelEnv;
-        $this->demodataService = $demodataService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function addDefault(string $name, int $value): void
@@ -78,10 +79,12 @@ class DemodataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
+        $this->ensureAllDependenciesArePresent();
 
-            return self::SUCCESS;
+        if ($this->kernelEnv !== 'prod') {
+            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follows `APP_ENV=prod bin/console framework:demodata`');
+
+            return self::INVALID;
         }
 
         $io = new ShopwareStyle($input, $output);
@@ -154,5 +157,19 @@ class DemodataCommand extends Command
         }
 
         return $this->defaults[$name] ?? 0;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    private function ensureAllDependenciesArePresent(): void
+    {
+        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
+
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                throw new \RuntimeException('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+            }
+        }
     }
 }

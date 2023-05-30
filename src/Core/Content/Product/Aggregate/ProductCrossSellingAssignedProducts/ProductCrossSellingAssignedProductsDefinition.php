@@ -13,10 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_cross_selling_assigned_products';
+    final public const ENTITY_NAME = 'product_cross_selling_assigned_products';
 
     public function getEntityName(): string
     {
@@ -33,11 +35,6 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
         return ProductCrossSellingAssignedProductsCollection::class;
     }
 
-    public function getParentDefinitionClass(): ?string
-    {
-        return ProductCrossSellingDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.2.0.0';
@@ -46,6 +43,11 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
     public function getHydratorClass(): string
     {
         return ProductCrossSellingAssignedProductsHydrator::class;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductCrossSellingDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

@@ -92,6 +92,14 @@
       "store": "Store",
       "purchased": "Meine Erweiterungen",
       "support": "Support"
+    },
+    "sw-extension-app-module-error-page": {
+      "error": {
+        "heading": "Hoppla! Du bist zu schnell und hast die Orientierung verloren.",
+        "phrase": "Die Seite, die Du gesucht hast, liegt außerhalb unserer Reichweite. Vielleicht ist die Seite umgezogen, existiert nicht mehr oder Du magst einfach unsere 404-Seite. Wir werden es wahrscheinlich nie erfahren.",
+        "info": "Mach Dir keine Sorgen! Wir haben eine Weltraumrettungskatze entsandt, die Dich wieder in Sicherheit bringen wird.",
+        "lblBackButton": "Zurück"
+      }
     }
   },
   "sw-extension-store": {
@@ -218,8 +226,8 @@
           "labelRating": "Keine Bewertungen | {numberOfRatings} Bewertung | {numberOfRatings} Bewertungen"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "Von {author} am {lastChangeDate}",
-          "labelExtensionVersion": "Version der Erweiterung {extensionVersion}"
+          "labelLastChangeDate": "{author}, {lastChangeDate}",
+          "labelExtensionVersion": "Version: {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Bewertungen und Rezensionen",
@@ -241,24 +249,24 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Miete:",
         "inactiveLabel": "(inaktiv)",
-        "purchasedLabel": "Gekauft am ",
-        "installedLabel": "Installiert am ",
-        "openExtensionLabel": "App öffnen",
-        "installExtensionLabel": "App installieren",
+        "purchasedLabel": "Gekauft:",
+        "installedLabel": "Installiert:",
+        "openExtensionLabel": "Öffnen",
+        "installExtensionLabel": "Installieren",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
         "allowDisableTooltip": "Diese App verwendet eigene Datenstrukturen, die sich auf Ihr System auswirken. Die App kann daher nicht deaktiviert werden.",
         "contextMenu": {
           "getHelpLabel": "Hilfe anfragen",
           "seeDetailsLabel": "Details ansehen",
-          "config": "Konfiguration",
+          "config": "Konfigurieren",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
           "removeLabel": "Entfernen",
           "cancelAndRemoveLabel": "Kündigen und entfernen",
           "uninstallLabel": "Deinstallieren",
           "updateLabel": "Aktualisieren auf {version}",
-          "rateLabel": "Bewerten",
+          "rateLabel": "Erweiterung bewerten",
           "policyExtensions": "Datenschutz-Erweiterungen",
-          "permissions": "Berechtigungen",
+          "permissions": "Berechtigungen einsehen",
           "openExtension": "Erweiterung öffnen"
         }
       },
@@ -328,7 +336,7 @@
         "description": "Wenn Du die Erweiterung deinstallierst, kannst Du sie nicht mehr verwenden.",
         "alert": "Bist Du sicher, dass Du die Erweiterung deinstallieren möchtest?",
         "buttonLabel": "Deinstallieren",
-        "labelRemovePluginData": "Alle App-Daten entgültig entfernen",
+        "labelRemovePluginData": "Alle App-Daten endgültig entfernen",
         "helpTextRemovePluginData": "Warnung: Alle Daten der App werden dauerhaft entfernt. Dieser Vorgang ist nicht umkehrbar."
       },
       "sw-extension-listing-card": {
@@ -483,7 +491,6 @@
         "acl_role": "ACL-Rolle",
         "acl_user_role": "ACL-Nutzerrolle",
         "dead_message": "Tote Nachricht",
-        "event_action": "Event-Aktion",
         "message_queue_stats": "Statistiken der Nachrichtenwarteschlange",
         "notification": "Benachrichtigung",
         "plugin": "Plugin",

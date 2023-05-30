@@ -1,0 +1,39 @@
+<div style="font-family:arial; font-size:12px;">
+
+    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
+    <br>
+    Attached to this email you will find the files to the order: {{ order.orderNumber }}
+    <br>
+    <br>
+
+    <table border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
+        <tr>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Prod. no.</strong></td>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Product</strong></td>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Downloads</strong></td>
+        </tr>
+
+        {% for lineItem in order.lineItems %}
+            {% if lineItem.downloads is defined and lineItem.downloads|length %}
+                {% block lineItem %}
+                    <tr>
+                        <td>{% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}</td>
+                        <td>{{ lineItem.label|u.wordwrap(80) }}</td>
+                        <td>
+                            {% for download in lineItem.downloads %}
+                                {% if download.accessGranted %}
+                                    {% set downloadLink = url('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}) %}
+                                    <a href="{{ downloadLink }}" target="_blank">
+                                        {{ download.media.fileName }}.{{ download.media.fileExtension }}
+                                    </a><br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endblock %}
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <br>
+</div>

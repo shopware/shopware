@@ -4,8 +4,10 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+#[Package('sales-channel')]
 class SalesChannelAnalyticsEntity extends Entity
 {
     use EntityIdTrait;

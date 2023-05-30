@@ -1,0 +1,66 @@
+<sw-card
+    class="sw-flow-list-flow-templates-card"
+    position-identifier="sw-flow-list-flow-templates-card"
+>
+    <div class="sw-flow-list-my-templates">
+        <div class="sw-flow-list-my-templates__content">
+            <sw-entity-listing
+                v-if="total"
+                class="sw-flow-list-my-templates__grid"
+                :show-settings="false"
+                :allow-column-edit="false"
+                :allow-view="false"
+                :allow-edit="false"
+                :allow-delete="false"
+                :allow-bulk-edit="false"
+                :columns="flowTemplateColumns"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :repository="flowTemplateRepository"
+                :items="flowTemplates"
+                :is-loading="isLoading"
+                :full-page="false"
+                :show-selection="false"
+                :show-actions="false"
+                :plain-appearance="true"
+                @column-sort="onSortColumn"
+                @page-change="onPageChange"
+            >
+                <template #column-name="{ item }">
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <a
+                        class="sw-flow-list-my-flows__content__update-flow-template-link"
+                        @click="onEditFlow(item)"
+                    >
+                        {{ item.name }}
+                    </a>
+                </template>
+
+                <template #column-createFlow="{ item }">
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <sw-internal-link
+                        :router-link="{ name: 'sw.flow.create', params: { flowTemplateId: item.id }}"
+                        :disabled="!acl.can('flow.creator')"
+                        class="sw-flow-list-my-flows__content__create-flow-link"
+                    >
+                        {{ $tc('sw-flow.template.create') }}
+                    </sw-internal-link>
+                </template>
+            </sw-entity-listing>
+
+            <sw-empty-state
+                v-else
+                class="sw-flow-list-my_templates__empty-state"
+                :title="$tc('sw-flow.list.emptyStateTitle')"
+                :subline="$tc('sw-flow.list.emptyStateSubTitle')"
+            >
+                <template #icon>
+                    <img
+                        :alt="$tc('sw-flow.list.emptyStateTitle')"
+                        :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                    >
+                </template>
+            </sw-empty-state>
+        </div>
+    </div>
+</sw-card>

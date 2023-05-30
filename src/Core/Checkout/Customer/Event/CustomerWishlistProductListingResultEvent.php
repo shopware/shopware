@@ -6,12 +6,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('customer-order')]
 class CustomerWishlistProductListingResultEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';
+    final public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';
 
     /**
      * @var Request
@@ -23,16 +25,13 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
      */
     protected $result;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
-    public function __construct(Request $request, EntitySearchResult $wishlistProductListingResult, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Request $request,
+        EntitySearchResult $wishlistProductListingResult,
+        private SalesChannelContext $context
+    ) {
         $this->request = $request;
         $this->result = $wishlistProductListingResult;
-        $this->context = $salesChannelContext;
     }
 
     public function getName(): string

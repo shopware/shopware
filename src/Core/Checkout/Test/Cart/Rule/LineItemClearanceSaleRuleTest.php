@@ -9,12 +9,15 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemClearanceSaleRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -53,7 +56,10 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getLineItemScopeTestData(): array
+    /**
+     * @return array<string, array<bool>>
+     */
+    public static function getLineItemScopeTestData(): array
     {
         return [
             'rule yes / clearance sale yes' => [true, true, true],
@@ -108,7 +114,10 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartRuleScopeTestData(): array
+    /**
+     * @return array<string, array<bool>>
+     */
+    public static function getCartRuleScopeTestData(): array
     {
         return [
             'rule yes / clearance sale yes' => [true, true, true],
@@ -120,6 +129,6 @@ class LineItemClearanceSaleRuleTest extends TestCase
 
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('isCloseout', $clearanceSaleEnabled);
+        return $this->createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);
     }
 }

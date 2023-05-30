@@ -1,13 +1,10 @@
 /// <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
-import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 describe('Media: Visual tests', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb().then(() => {
-            cy.loginViaApi();
-        }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -20,13 +17,11 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `api/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'post',
         }).as('saveDataFileUpload');
 
         page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-        const notification = Cypress.env('locale') === 'en-GB' ?
-            'File has been saved' : 'Eine Datei erfolgreich gespeichert';
         cy.wait('@saveDataFileUpload').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');

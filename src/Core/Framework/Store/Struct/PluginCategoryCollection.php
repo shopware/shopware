@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -10,15 +11,16 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<PluginCategoryStruct>
  */
+#[Package('merchant-services')]
 final class PluginCategoryCollection extends Collection
 {
-    public function getExpectedClass(): string
-    {
-        return PluginCategoryStruct::class;
-    }
-
     public function getApiAlias(): string
     {
         return 'store_category_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return PluginCategoryStruct::class;
     }
 }

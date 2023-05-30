@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\Pathname;
+namespace Shopware\Core\Content\Test\Media\Pathname;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -70,6 +70,7 @@ class PathnameStrategyTest extends TestCase
     {
         $encoded = $strategy->generatePathHash($media);
 
+        static::assertIsString($encoded);
         static::assertSame($encoded, $strategy->generatePathHash($media));
         static::assertStringEndsNotWith('/', $encoded);
         static::assertStringStartsNotWith('/', $encoded);

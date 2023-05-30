@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 
 /**
  * @internal
@@ -22,16 +22,16 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
     use StorefrontSalesChannelTestHelper;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $seoUrlRepository;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $salesChannelSeoUrlRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->salesChannelSeoUrlRepository = $this->getContainer()->get('sales_channel.seo_url.repository');

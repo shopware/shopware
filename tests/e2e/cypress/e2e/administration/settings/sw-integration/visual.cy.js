@@ -3,10 +3,7 @@
 describe('Integration: Visual testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('integration', { admin: true });
-            })
+        cy.createDefaultFixture('integration', { admin: true })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -17,13 +14,13 @@ describe('Integration: Visual testing', () => {
     it('@visual: check appearance of integrations module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/integration`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');

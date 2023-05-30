@@ -19,7 +19,9 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @group slow
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1590758953ProductFeatureSet
  *
  * @phpstan-type DbColumn array{name: string, type: Type, notnull: bool}
@@ -83,10 +85,8 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     public function testProductTableExtensionIsComplete(): void
     {
         $columns = array_filter(
-            $this->connection->getSchemaManager()->listTableColumns('product'),
-            static function (Column $column): bool {
-                return \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
-            }
+            $this->connection->createSchemaManager()->listTableColumns('product'),
+            static fn (Column $column): bool => \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true)
         );
 
         foreach ($columns as $column) {
@@ -106,7 +106,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $expectedFeatures = [$expectedFeature];
 
         $actual = $this->fetchDefaultFeatureSet();
-        $actualFeatures = json_decode($actual['features'], true);
+        $actualFeatures = json_decode((string) $actual['features'], true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(\count($expectedFeatures), $actualFeatures);
 
@@ -122,7 +122,10 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     public function testDefaultFeatureSetTranslationIsCreated(): void
     {
         $expectedTranslations = array_values(Migration1590758953ProductFeatureSet::TRANSLATIONS);
-        $actual = $this->fetchFeatureSetTranslation();
+        $actual = $this->connection->fetchAllAssociative(
+            'SELECT * FROM `product_feature_set_translation` WHERE `product_feature_set_id` = :id;',
+            ['id' => $this->fetchDefaultFeatureSet()['id']]
+        );
 
         foreach ($actual as &$translation) {
             unset(
@@ -134,9 +137,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         }
         unset($translation);
 
-        $compareByName = static function (array $a, array $b) {
-            return $a['name'] <=> $b['name'];
-        };
+        $compareByName = static fn (array $a, array $b) => $a['name'] <=> $b['name'];
 
         usort($expectedTranslations, $compareByName);
         usort($actual, $compareByName);
@@ -147,14 +148,14 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     /**
      * @return array{0: string, 1: DbColumn[]}[]
      */
-    public function tableInformationProvider(): array
+    public static function tableInformationProvider(): array
     {
         return [
             [
                 ProductFeatureSetDefinition::ENTITY_NAME,
                 [
                     self::getColumn('id', new BinaryType(), true),
-                    self::getColumn('features', $this->getJsonType()),
+                    self::getColumn('features', self::getJsonType()),
                     self::getColumn('created_at', new DateTimeType(), true),
                     self::getColumn('updated_at', new DateTimeType()),
                 ],
@@ -191,11 +192,11 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
      *
      * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#json
      */
-    private function getJsonType(): Type
+    private static function getJsonType(): Type
     {
         return KernelLifecycleManager::getConnection()
             ->getDatabasePlatform()
-            ->hasNativeJsonType() ? new JsonType() : new TextType();
+            ->getJsonTypeDeclarationSQL([]) === 'JSON' ? new JsonType() : new TextType();
     }
 
     /**
@@ -204,17 +205,15 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     private function fetchTableInformation(string $name): array
     {
         $columns = $this->connection
-            ->getSchemaManager()
-            ->listTableDetails($name)
+            ->createSchemaManager()
+            ->introspectTable($name)
             ->getColumns();
 
-        return array_map(static function (Column $column): array {
-            return self::getColumn(
-                $column->getName(),
-                $column->getType(),
-                $column->getNotnull()
-            );
-        }, $columns);
+        return array_map(static fn (Column $column): array => self::getColumn(
+            $column->getName(),
+            $column->getType(),
+            $column->getNotnull()
+        ), $columns);
     }
 
     /**
@@ -227,24 +226,11 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         );
     }
 
-    /**
-     * @return array<string, mixed>[]
-     */
-    private function fetchFeatureSetTranslation(): array
-    {
-        return $this->connection->fetchAllAssociative(
-            'SELECT * FROM `product_feature_set_translation` WHERE `product_feature_set_id` = :id;',
-            ['id' => $this->fetchDefaultFeatureSet()['id']]
-        );
-    }
-
     private function hasColumn(Connection $connection, string $table, string $columnName): bool
     {
         return \count(array_filter(
-            $connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column) use ($columnName): bool {
-                return $column->getName() === $columnName;
-            }
+            $connection->createSchemaManager()->listTableColumns($table),
+            static fn (Column $column): bool => $column->getName() === $columnName
         )) > 0;
     }
 }

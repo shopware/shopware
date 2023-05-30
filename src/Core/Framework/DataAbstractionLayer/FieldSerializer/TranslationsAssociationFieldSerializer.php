@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -15,31 +15,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {
-    /**
-     * @var WriteCommandExtractor
-     */
-    protected $writeExtractor;
-
     /**
      * @internal
      */
     public function __construct(
-        WriteCommandExtractor $writeExtractor
+        private readonly WriteCommandExtractor $writeExtractor
     ) {
-        $this->writeExtractor = $writeExtractor;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof TranslationsAssociationField) {
-            throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TranslationsAssociationField::class, $field);
         }
 
         $key = $field->getPropertyName();
@@ -69,7 +65,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find language field "%s" in definition "%s"',
                     $field->getLanguageField(),
-                    \get_class($referenceDefinition)
+                    $referenceDefinition::class
                 )
             );
         }
@@ -112,7 +108,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
             // See above for Supported formats
             $languageId = $keyValue;
-            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < (is_countable($value) ? \count($value) : 0)) {
                 // languageId is a property of $subResources. Also see formats above
                 if (isset($subResources[$languagePropName])) {
                     $languageId = $subResources[$languagePropName];
@@ -146,7 +142,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
     /**
      * @throws ExpectedArrayException
-     * @throws InvalidSerializerFieldException
+     * @throws DataAbstractionLayerException
      * @throws MissingSystemTranslationException
      * @throws MissingTranslationLanguageException
      */
@@ -157,7 +153,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof TranslationsAssociationField) {
-            throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(TranslationsAssociationField::class, $field);
         }
 
         $value = $data->getValue();
@@ -176,12 +172,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         return $this->map($field, $data, $parameters, $existence);
     }
 
-    /**
-     * @throws DecodeByHydratorException
-     *
-     * @never
-     */
-    public function decode(Field $field, $value): void
+    public function decode(Field $field, mixed $value): never
     {
         throw new DecodeByHydratorException($field);
     }
@@ -191,7 +182,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      * @throws MissingSystemTranslationException
      * @throws MissingTranslationLanguageException
      */
-    protected function map(
+    private function map(
         TranslationsAssociationField $field,
         KeyValuePair $data,
         WriteParameterBag $parameters,

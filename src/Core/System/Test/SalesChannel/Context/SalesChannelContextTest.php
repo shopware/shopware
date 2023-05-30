@@ -5,9 +5,9 @@ namespace Shopware\Core\System\Test\SalesChannel\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -25,13 +25,14 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('sales-channel')]
 class SalesChannelContextTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private TaxRuleTypeCollection $taxRuleTypes;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->taxRuleTypes = $this->loadTaxRuleTypes();
     }
@@ -674,7 +675,7 @@ class SalesChannelContextTest extends TestCase
         $salesChannelContext->ensureLoggedIn($allowGuest);
     }
 
-    public function ensureLoginProvider(): \Generator
+    public static function ensureLoginProvider(): \Generator
     {
         yield 'Not logged in' => [
             false,
@@ -717,10 +718,10 @@ class SalesChannelContextTest extends TestCase
      */
     protected function getValidCountryIds(int $limit): array
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country.repository');
 
-        $criteria = (new Criteria())->setLimit($limit)->addFilter(new EqualsFilter('taxFree', 0));
+        $criteria = (new Criteria())->setLimit($limit);
 
         /** @var list<string> $ids */
         $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
@@ -730,7 +731,7 @@ class SalesChannelContextTest extends TestCase
 
     protected function createCountryState(string $countryId): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country_state.repository');
         $id = Uuid::randomHex();
 

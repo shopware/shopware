@@ -4,42 +4,19 @@ namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('system-settings')]
 class ImportExportExceptionImportRecordEvent extends Event
 {
-    /**
-     * @var ?\Throwable
-     */
-    private $exception;
-
-    /**
-     * @var array
-     */
-    private $record;
-
-    /**
-     * @var array
-     */
-    private $row;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(\Throwable $exception, array $record, array $row, Config $config, Context $context)
-    {
-        $this->exception = $exception;
-        $this->record = $record;
-        $this->row = $row;
-        $this->config = $config;
-        $this->context = $context;
+    public function __construct(
+        private ?\Throwable $exception,
+        private readonly array $record,
+        private readonly array $row,
+        private readonly Config $config,
+        private readonly Context $context
+    ) {
     }
 
     public function getException(): ?\Throwable

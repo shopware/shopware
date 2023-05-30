@@ -9,12 +9,11 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber;
@@ -30,7 +29,7 @@ class PluginLifecycleSubscriberTest extends TestCase
 {
     private PluginLifecycleSubscriber $pluginSubscriber;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->pluginSubscriber = new PluginLifecycleSubscriber(
             $this->createMock(StorefrontPluginRegistry::class),
@@ -41,26 +40,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         );
     }
 
-    public function testgetSubscribtions(): void
-    {
-        static::assertEquals(
-            [
-                PluginPreActivateEvent::class => 'pluginActivate',
-                PluginPostActivateEvent::class => 'pluginPostActivate',
-                PluginPreUpdateEvent::class => 'pluginUpdate',
-                PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
-                PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostUninstallEvent::class => 'pluginPostUninstall',
-            ],
-            PluginLifecycleSubscriber::getSubscribedEvents()
-        );
-    }
-
-    /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
-     */
-    public function testgetSubscribtionsMajor(): void
+    public function testGetSubscribedEvents(): void
     {
         static::assertEquals(
             [
@@ -78,7 +58,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testSkipPostCompile(): void
     {
         $context = Context::createDefaultContext();
-        $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         $activateContextMock = $this->createMock(ActivateContext::class);
         $activateContextMock->expects(static::once())->method('getContext')->willReturn($context);
         $eventMock = $this->createMock(PluginPostActivateEvent::class);
@@ -90,9 +70,9 @@ class PluginLifecycleSubscriberTest extends TestCase
 
     public function testPluginPostActivate(): void
     {
-        $pluginMock = $this->createMock(PluginEntity::class);
-        $pluginMock->expects(static::once())->method('getPath')->willReturn('');
-        $pluginMock->expects(static::once())->method('getBaseClass')->willReturn('Shopware\Tests\Unit\Storefront\Theme\Subscriber\FakePlugin');
+        $pluginMock = new PluginEntity();
+        $pluginMock->setPath('');
+        $pluginMock->setBaseClass(FakePlugin::class);
         $eventMock = $this->createMock(PluginPostActivateEvent::class);
         $eventMock->expects(static::exactly(2))->method('getPlugin')->willReturn($pluginMock);
         $this->pluginSubscriber->pluginPostActivate($eventMock);
@@ -100,9 +80,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
     public function testPluginPostDeactivateFailed(): void
     {
-        $pluginMock = $this->createMock(PluginEntity::class);
-        $pluginMock->expects(static::once())->method('getPath')->willReturn('');
-        $pluginMock->expects(static::once())->method('getBaseClass')->willReturn('Shopware\Tests\Unit\Storefront\Theme\Subscriber\FakePlugin');
+        $pluginMock = new PluginEntity();
+        $pluginMock->setPath('');
+        $pluginMock->setBaseClass(FakePlugin::class);
+
         $eventMock = $this->createMock(PluginPostDeactivationFailedEvent::class);
         $eventMock->expects(static::exactly(2))->method('getPlugin')->willReturn($pluginMock);
         $this->pluginSubscriber->pluginPostDeactivateFailed($eventMock);

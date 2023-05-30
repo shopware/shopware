@@ -12,9 +12,11 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
+#[Package('content')]
 class CategoryEntity extends Entity
 {
     use EntityIdTrait;
@@ -22,6 +24,8 @@ class CategoryEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.6.0 - Will be protected
      */
     public $afterCategoryId;
 
@@ -224,6 +228,11 @@ class CategoryEntity extends Entity
      * @var SeoUrlCollection|null
      */
     protected $seoUrls;
+
+    /**
+     * @var ?string
+     */
+    protected $customEntityTypeId;
 
     public function getParentId(): ?string
     {
@@ -684,5 +693,15 @@ class CategoryEntity extends Entity
     public function setProductAssignmentType(string $productAssignmentType): void
     {
         $this->productAssignmentType = $productAssignmentType;
+    }
+
+    public function getCustomEntityTypeId(): ?string
+    {
+        return $this->customEntityTypeId;
+    }
+
+    public function setCustomEntityTypeId(?string $customEntityTypeId): void
+    {
+        $this->customEntityTypeId = $customEntityTypeId;
     }
 }

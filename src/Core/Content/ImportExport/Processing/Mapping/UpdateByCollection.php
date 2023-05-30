@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<UpdateBy>
  */
+#[Package('system-settings')]
 class UpdateByCollection extends Collection
 {
     /**
@@ -15,12 +17,7 @@ class UpdateByCollection extends Collection
     public function add($element): void
     {
         $this->validateType($element);
-        parent::set($element->getEntityName(), $element);
-    }
-
-    public function getExpectedClass(): ?string
-    {
-        return UpdateBy::class;
+        $this->set($element->getEntityName(), $element);
     }
 
     public static function fromIterable(iterable $data): self
@@ -44,5 +41,10 @@ class UpdateByCollection extends Collection
         }
 
         return $updateByCollection;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return UpdateBy::class;
     }
 }

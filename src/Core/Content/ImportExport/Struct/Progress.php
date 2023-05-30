@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Content\ImportExport\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('system-settings')]
 class Progress extends Struct
 {
-    public const STATE_PROGRESS = 'progress';
-    public const STATE_MERGING_FILES = 'merging_files';
-    public const STATE_SUCCEEDED = 'succeeded';
-    public const STATE_FAILED = 'failed';
-    public const STATE_ABORTED = 'aborted';
+    final public const STATE_PROGRESS = 'progress';
+    final public const STATE_MERGING_FILES = 'merging_files';
+    final public const STATE_SUCCEEDED = 'succeeded';
+    final public const STATE_FAILED = 'failed';
+    final public const STATE_ABORTED = 'aborted';
 
     /**
      * @var string
@@ -42,8 +44,12 @@ class Progress extends Struct
      */
     protected $state;
 
-    public function __construct(string $logId, string $state, int $offset = 0, ?int $total = null)
-    {
+    public function __construct(
+        string $logId,
+        string $state,
+        int $offset = 0,
+        ?int $total = null
+    ) {
         $this->logId = $logId;
         $this->state = $state;
         $this->offset = $offset;

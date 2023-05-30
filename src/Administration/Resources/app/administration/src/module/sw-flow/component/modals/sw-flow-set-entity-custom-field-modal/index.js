@@ -5,10 +5,12 @@ const { Component, Mixin, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-const { capitalizeString } = Shopware.Utils.string;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-set-entity-custom-field-modal', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -293,18 +295,8 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             this.entityOptions = options;
         },
 
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
-         */
-        convertEntityName(camelCaseText) {
-            if (!camelCaseText) return '';
-
-            const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
-            return capitalizeString(normalText);
-        },
-
         convertToEntityTechnicalName(camelCaseText) {
             return camelCaseText.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
         },
     },
-});
+};

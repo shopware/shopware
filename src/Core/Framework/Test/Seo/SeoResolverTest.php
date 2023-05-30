@@ -8,7 +8,7 @@ use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -20,13 +20,13 @@ class SeoResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
     private AbstractSeoResolver $seoResolver;
 
     private string $deLanguageId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->seoResolver = $this->getContainer()->get(SeoResolver::class);

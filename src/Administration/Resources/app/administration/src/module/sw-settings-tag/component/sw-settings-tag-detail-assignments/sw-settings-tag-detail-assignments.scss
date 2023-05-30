@@ -36,7 +36,7 @@
 
             .sw-settings-tag-detail-assignments__total-selected {
                 padding: 15px 20px;
-                font-size: 14px;
+                font-size: $font-size-xs;
                 text-align: right;
                 color: $color-gray-500;
             }
@@ -131,7 +131,7 @@
         }
 
         .associations-grid__count {
-            font-size: $font-size-extra-small;
+            font-size: $font-size-xxs;
             color: $color-gray-500;
         }
     }

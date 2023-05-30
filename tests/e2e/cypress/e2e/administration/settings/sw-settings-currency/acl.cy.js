@@ -4,32 +4,27 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Currency: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('currency');
-            })
+        cy.createDefaultFixture('currency')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
 
-    it('@settings: can view currency', { tags: ['pa-inventory'] }, () => {
-        const page = new SettingsPageObject();
-
+    it('@settings: can view currency', {tags: ['pa-inventory']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'currencies',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
 
-        // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--2`)
-            .contains('Euro')
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
+
+        cy.contains('Euro')
             .click();
 
         // check if values are visible
@@ -45,27 +40,27 @@ describe('Currency: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'currencies',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'currencies',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
 
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
+
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCurrency');
 
-        // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--2`)
-            .contains('Euro')
+        cy.contains('Euro')
             .click();
 
         // edit name
@@ -84,32 +79,34 @@ describe('Currency: Test acl privileges', () => {
             .contains('Kreuzer');
     });
 
-    it('@settings: can create currency', { tags: ['pa-inventory'] }, () => {
+    it('@settings: can create currency', { tags: ['pa-inventory', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'currencies',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'currencies',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'currencies',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
 
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
+
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveCurrency');
 
         // Create currency
@@ -136,22 +133,24 @@ describe('Currency: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'currencies',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'currencies',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
 
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
+
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteCurrency');
 
         // filter currency via search bar
@@ -161,7 +160,7 @@ describe('Currency: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.contains('.sw-modal__body',

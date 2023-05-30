@@ -1,11 +1,15 @@
 import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-default-addresses', {
+export default {
     template,
+
+    inject: ['customSnippetApiService'],
 
     props: {
         customer: {
@@ -18,6 +22,13 @@ Component.register('sw-customer-default-addresses', {
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            formattingShippingAddress: '',
+            formattingBillingAddress: '',
+        };
     },
 
     computed: {
@@ -47,4 +58,32 @@ Component.register('sw-customer-default-addresses', {
             };
         },
     },
-});
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.renderFormattingAddress();
+        },
+
+        renderFormattingAddress() {
+            this.customSnippetApiService
+                .render(
+                    this.customer.defaultShippingAddress,
+                    this.customer.defaultShippingAddress.country?.addressFormat,
+                ).then((res) => {
+                    this.formattingShippingAddress = res.rendered;
+                });
+
+            this.customSnippetApiService
+                .render(
+                    this.customer.defaultBillingAddress,
+                    this.customer.defaultBillingAddress.country?.addressFormat,
+                ).then((res) => {
+                    this.formattingBillingAddress = res.rendered;
+                });
+        },
+    },
+};

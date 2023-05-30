@@ -11,9 +11,12 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntit
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+#[Package('checkout')]
 class PaymentMethodEntity extends Entity
 {
     use EntityIdTrait;
@@ -115,6 +118,8 @@ class PaymentMethodEntity extends Entity
     protected $formattedHandlerIdentifier;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var string|null
      */
     protected $shortName;
@@ -322,13 +327,22 @@ class PaymentMethodEntity extends Entity
         $this->afterOrderEnabled = $afterOrderEnabled;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     */
     public function getShortName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->shortName;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     */
     public function setShortName(?string $shortName): void
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->shortName = $shortName;
     }
 

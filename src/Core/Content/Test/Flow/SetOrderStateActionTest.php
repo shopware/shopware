@@ -16,28 +16,29 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
-use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
+#[Package('business-ops')]
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private Connection $connection;
 
@@ -58,9 +59,6 @@ class SetOrderStateActionTest extends TestCase
         $this->orderRepository = $this->getContainer()->get('order.repository');
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testSetAvailableOrderState(): void
@@ -108,7 +106,8 @@ class SetOrderStateActionTest extends TestCase
     /**
      * @param array<string, mixed> $config
      * @param array<string, mixed> $expects
-     * @dataProvider setStatusProvider
+     *
+     * @dataProvider statusProvider
      */
     public function testSetOrderStatus(array $config, array $expects): void
     {
@@ -117,7 +116,7 @@ class SetOrderStateActionTest extends TestCase
 
         $this->orderRepository->create($this->getOrderData($orderId, $context), $context);
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $subscriber = new SetOrderStateAction(
             $this->getContainer()->get(Connection::class),
@@ -125,16 +124,12 @@ class SetOrderStateActionTest extends TestCase
             $this->getContainer()->get(OrderService::class)
         );
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent(CheckoutOrderPlacedEvent::EVENT_NAME, new FlowState($event), $config));
-        } else {
-            /** @var FlowFactory $flowFactory */
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         $orderStateAfterAction = $this->getOrderState(Uuid::fromHexToBytes($orderId));
         static::assertSame($expects['order'], $orderStateAfterAction);
@@ -149,7 +144,7 @@ class SetOrderStateActionTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function setStatusProvider(): array
+    public static function statusProvider(): array
     {
         return [
             'Set three states success' => [
@@ -278,7 +273,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderId(): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT id
             FROM `order`
@@ -289,7 +284,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -302,7 +297,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOderDeliveryState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -316,7 +311,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderTransactionState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -340,6 +335,8 @@ class SetOrderStateActionTest extends TestCase
         return [
             [
                 'id' => $orderId,
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -347,7 +344,7 @@ class SetOrderStateActionTest extends TestCase
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'orderNumber' => Uuid::randomHex(),
                 'transactions' => [
                     [
@@ -403,7 +400,7 @@ class SetOrderStateActionTest extends TestCase
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
                         'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [
@@ -450,7 +447,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -463,7 +460,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('state_machine_state.repository');
 
         $criteria = new Criteria();

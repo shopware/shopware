@@ -1,8 +1,14 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-purchase-price-field.html.twig';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-purchase-price-field', {
     template,
     props: {
@@ -69,6 +75,7 @@ Component.register('sw-purchase-price-field', {
                 if (priceForCurrency) {
                     priceForCurrency = newPurchasePrice;
                 } else {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.price.push(newPurchasePrice);
                 }
 

@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Page\Account\Profile;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('customer-order')]
 class AccountProfilePageLoadedEvent extends PageLoadedEvent
 {
     /**
@@ -13,8 +15,11 @@ class AccountProfilePageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(AccountProfilePage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        AccountProfilePage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

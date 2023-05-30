@@ -12,6 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class FeatureTest extends TestCase
@@ -23,8 +24,6 @@ class FeatureTest extends TestCase
     public static string $appEnvValue;
 
     public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
-
-    private ?\stdClass $indicator;
 
     /**
      * @var string[]
@@ -43,18 +42,20 @@ class FeatureTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = self::$appEnvValue;
+        $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
+        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
+        $_SERVER['APP_ENV'] = self::$appEnvValue;
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'];
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     protected function setUp(): void
     {
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = 'false';
+        $_SERVER['FEATURE_ALL'] = 'false';
+        $_ENV['FEATURE_ALL'] = 'false';
         $_SERVER['APP_ENV'] = 'test';
 
-        unset($_SERVER['FEATURE_NEXT_101']);
-        unset($_SERVER['FEATURE_NEXT_102']);
+        unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($this->getContainer()->getParameter('shopware.feature.flags'));
@@ -62,11 +63,12 @@ class FeatureTest extends TestCase
 
     protected function tearDown(): void
     {
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = self::$appEnvValue;
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
+        $_SERVER['APP_ENV'] = self::$appEnvValue;
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'];
+        $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
+        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
 
-        unset($_SERVER['FEATURE_NEXT_101']);
-        unset($_SERVER['FEATURE_NEXT_102']);
+        unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
 
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
@@ -111,31 +113,17 @@ class FeatureTest extends TestCase
         $this->setUpFixtures();
         $_SERVER['FEATURE_NEXT_101'] = '0';
         $indicator = false;
-        Feature::ifActive('FEATURE_NEXT_101', function () use (&$indicator): void {
+        Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertFalse($indicator);
 
         $_SERVER['FEATURE_NEXT_101'] = '1';
 
-        Feature::ifActive('FEATURE_NEXT_101', function () use (&$indicator): void {
+        Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertTrue($indicator);
-    }
-
-    public function testTheMethodGetsExecutes(): void
-    {
-        $this->setUpFixtures();
-        $this->indicator = null;
-
-        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate');
-        static::assertNull($this->indicator);
-
-        $_SERVER['FEATURE_NEXT_101'] = '1';
-
-        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate', new \stdClass());
-        static::assertInstanceOf(\stdClass::class, $this->indicator);
     }
 
     public function testConfigGetAllReturnsAllAndTracksState(): void
@@ -144,18 +132,18 @@ class FeatureTest extends TestCase
         $currentConfig = array_keys(Feature::getAll(false));
         $featureFlags = array_keys($this->getContainer()->getParameter('shopware.feature.flags'));
 
-        static::assertEquals(\array_map([Feature::class, 'normalizeName'], $featureFlags), \array_map([Feature::class, 'normalizeName'], $currentConfig));
+        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 
-        self::setUpFixtures();
+        $this->setUpFixtures();
         $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
 
         $configAfterRegistration = array_keys(Feature::getAll(false));
-        static::assertEquals(\array_map([Feature::class, 'normalizeName'], $featureFlags), \array_map([Feature::class, 'normalizeName'], $configAfterRegistration));
+        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $configAfterRegistration));
     }
 
     public function testTwigFeatureFlag(): void
     {
-        self::setUpFixtures();
+        $this->setUpFixtures();
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
             'cache' => false,
@@ -170,7 +158,8 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'test';
+        $_SERVER['APP_ENV'] = 'test';
+        $_ENV['APP_ENV'] = 'test';
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
@@ -180,14 +169,15 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest_unregistered.html.twig'), 'featuretest_unregistered.html.twig');
 
-        $this->expectNoticeMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
+        $this->expectExceptionMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
 
         $template->render([]);
     }
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
     {
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'prod';
+        $_SERVER['APP_ENV'] = 'prod';
+        $_ENV['APP_ENV'] = 'prod';
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
@@ -215,7 +205,7 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($features);
 
         /** @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $registeredFeatures */
-        $registeredFeatures = array_merge(array_keys(Feature::getAll(false)), ['FEATURE_NEXT_102']);
+        $registeredFeatures = [...array_keys(Feature::getAll(false)), ...['FEATURE_NEXT_102']];
         Feature::registerFeatures($registeredFeatures);
 
         $actualFeatures = Feature::getRegisteredFeatures();
@@ -231,7 +221,7 @@ class FeatureTest extends TestCase
     /**
      * @return array{0: string, 1: bool}[]
      */
-    public function featureAllDataProvider(): array
+    public static function featureAllDataProvider(): array
     {
         return [
             ['dev', true],
@@ -250,15 +240,17 @@ class FeatureTest extends TestCase
     {
         $_SERVER['FEATURE_NEXT_102'] = 'true';
 
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = $appEnv;
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = $active;
+        $_SERVER['APP_ENV'] = $appEnv;
+        $_ENV['APP_ENV'] = $appEnv;
+        $_SERVER['FEATURE_ALL'] = $active;
+        $_ENV['FEATURE_ALL'] = $active;
 
         $this->setUpFixtures();
         static::assertSame($active, Feature::isActive('FEATURE_NEXT_101'));
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
-    public function isActiveDataProvider(): \Generator
+    public static function isActiveDataProvider(): \Generator
     {
         yield 'registered active feature' => [
             [
@@ -585,7 +577,8 @@ class FeatureTest extends TestCase
      */
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
     {
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'prod';
+        $_SERVER['APP_ENV'] = 'prod';
+        $_ENV['APP_ENV'] = 'prod';
 
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
 
@@ -607,10 +600,5 @@ class FeatureTest extends TestCase
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
 
         Feature::registerFeatures($registeredFlags);
-    }
-
-    private function indicate(?\stdClass $arg = null): void
-    {
-        $this->indicator = $arg;
     }
 }

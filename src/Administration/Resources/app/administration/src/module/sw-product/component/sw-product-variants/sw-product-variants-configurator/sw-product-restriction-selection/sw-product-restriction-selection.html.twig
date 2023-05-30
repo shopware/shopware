@@ -21,7 +21,6 @@
             >
                 <option
                     v-for="item in availableGroups"
-                    slot="options"
                     :key="item.id"
                     :value="item.group.id"
                 >
@@ -57,14 +56,12 @@
             >
 
                 <template
-                    slot="selection-label-property"
-                    slot-scope="{ item }"
+                    #selection-label-property="{ item }"
                 >
                     {{ item.option.translated.name }}
                 </template>
                 <template
-                    slot="result-label-property"
-                    slot-scope="{ item }"
+                    #result-label-property="{ item }"
                 >
                     {{ item.option.translated.name }}
                 </template>

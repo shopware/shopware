@@ -5,37 +5,21 @@ namespace Shopware\Core\Content\Newsletter\Event;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('customer-order')]
 class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private string $subscribeUrl;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $hashedEmail;
-
-    private string $hash;
-
-    private array $data;
-
-    private NewsletterRecipientEntity $recipient;
-
     public function __construct(
-        SalesChannelContext $salesChannelContext,
-        string $subscribeUrl,
-        string $hashedEmail,
-        string $hash,
-        array $data,
-        NewsletterRecipientEntity $recipient
+        private readonly SalesChannelContext $salesChannelContext,
+        private string $subscribeUrl,
+        private readonly string $hashedEmail,
+        private readonly string $hash,
+        private readonly array $data,
+        private readonly NewsletterRecipientEntity $recipient
     ) {
-        $this->subscribeUrl = $subscribeUrl;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->hashedEmail = $hashedEmail;
-        $this->hash = $hash;
-        $this->data = $data;
-        $this->recipient = $recipient;
     }
 
     public function getSubscribeUrl(): string

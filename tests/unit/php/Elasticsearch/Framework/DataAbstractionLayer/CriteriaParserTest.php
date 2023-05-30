@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -12,10 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -34,7 +36,7 @@ class CriteriaParserTest extends TestCase
         $definition = $this->getDefinition();
 
         /** @var CompositeAggregation $esAgg */
-        $esAgg = (new CriteriaParser(new EntityDefinitionQueryHelper()))->parseAggregation($aggs, $definition, Context::createDefaultContext());
+        $esAgg = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
         static::assertInstanceOf(CompositeAggregation::class, $esAgg);
         static::assertSame([
@@ -76,7 +78,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper()))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -84,7 +86,7 @@ class CriteriaParserTest extends TestCase
     /**
      * @return iterable<string, array{string, Context, string}>
      */
-    public function accessorContextProvider(): iterable
+    public static function accessorContextProvider(): iterable
     {
         yield 'normal field' => [
             'foo',
@@ -129,7 +131,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $sorting = (new CriteriaParser(new EntityDefinitionQueryHelper()))->parseSorting($sorting, $definition, $context);
+        $sorting = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseSorting($sorting, $definition, $context);
 
         $script = $sorting->getParameter('script');
 
@@ -139,7 +141,7 @@ class CriteriaParserTest extends TestCase
     /**
      * @return iterable<string, array{FieldSorting, array<mixed>, Context}>
      */
-    public function providerCheapestPrice(): iterable
+    public static function providerCheapestPrice(): iterable
     {
         yield 'default cheapest price' => [
             new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
@@ -278,7 +280,7 @@ class CriteriaParserTest extends TestCase
         $context = Context::createDefaultContext();
         $definition = $this->getDefinition();
 
-        $sortedFilter = (new CriteriaParser(new EntityDefinitionQueryHelper()))->parseFilter($filter, $definition, '', $context);
+        $sortedFilter = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseFilter($filter, $definition, '', $context);
 
         static::assertEquals($expectedFilter, $sortedFilter->toArray());
     }
@@ -286,10 +288,10 @@ class CriteriaParserTest extends TestCase
     /**
      * @return iterable<string, array{Filter, array<mixed>}>
      */
-    public function providerFilter(): iterable
+    public static function providerFilter(): iterable
     {
         yield 'not filter: and' => [
-            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
             [
                 'bool' => [
                     'must_not' => [
@@ -315,7 +317,7 @@ class CriteriaParserTest extends TestCase
         ];
 
         yield 'not filter: or' => [
-            new NotFilter(NotFilter::CONNECTION_OR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
             [
                 'bool' => [
                     'must_not' => [
@@ -341,7 +343,7 @@ class CriteriaParserTest extends TestCase
         ];
 
         yield 'not filter: xor' => [
-            new NotFilter(NotFilter::CONNECTION_XOR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            new NotFilter(MultiFilter::CONNECTION_XOR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
             [
                 'bool' => [
                     'must_not' => [

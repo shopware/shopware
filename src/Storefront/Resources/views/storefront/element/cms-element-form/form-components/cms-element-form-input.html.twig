@@ -8,7 +8,7 @@
 
         {% block cms_element_form_input_input %}
             <input name="{{ fieldName }}"
-                   {% if type %}type="{{ type }}"{% endif %}
+                   type="{{ type ?? 'text'}}"
                    id="form-{{ fieldName }}"
                    value="{{ data.get( fieldName ) }}"
                    placeholder="{{ placeholder|trans }}"

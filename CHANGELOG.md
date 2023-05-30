@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.1.1
+*  [NEXT-27442 - Fix webpack cleanup config](./changelog/release-6-5-1-1/2023-05-30-fix-webpack-cleanup-config.md)
+
 ## 6.5.1.0
 *  [NEXT-19709 - Switch storefront plugin data-attribute selectors to match their -option naming](./changelog/release-6-5-1-0/2022-01-19-switch-storefront-plugin-data-attribute-selectors-to-match-their--option-naming.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-24157 - Consider Inheritance in Product Stream Mapping](./changelog/release-6-5-1-0/2022-10-20-consider-inheritance-in-product-stream-mapping.md) ([Thomas Holm Thomsen](https://github.com/wexotht))
@@ -248,6 +251,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21465 - Promotion performance](./changelog/release-6-5-1-0/2023-05-05-promotion-performance.md)
 *  [NEXT-26420 - Improve customer saving](./changelog/release-6-5-1-0/2023-05-12-improve-customer-saving.md)
 *  [NEXT-26184 - Update lazy function for breaking change](./changelog/release-6-5-1-0/2023-05-17-update-lazy-function-for-breaking-change.md)
+*  [NEXT-26995 - Fix error redirect on account login](changelog/release-6-5-1-0/2023-05-22-fix-error-route-on-account-login.md)
 
 ## 6.5.0.0
 *  [NEXT-1797 - New option for plugins using Composer 2](./changelog/release-6-5-0-0/2020-12-10-new-option-for-plugins.md)

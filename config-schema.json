@@ -707,6 +707,10 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "error_code_log_levels": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"}
                 }
             },
             "title": "Logger"

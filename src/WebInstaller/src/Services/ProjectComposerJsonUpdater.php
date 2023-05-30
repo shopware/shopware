@@ -35,7 +35,7 @@ class ProjectComposerJsonUpdater
             }
 
             // Lock the composer version to that major version
-            $version = '~' . substr($latestVersion, 0, 3) . '.0';
+            $version = $latestVersion;
 
             $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
             if (\is_string($nextVersion)) {

@@ -271,7 +271,7 @@ class UpdateControllerTest extends TestCase
 
         /** @var array{require: array<string, string>} $json */
         $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('~6.4.0', $json['require']['shopware/core']);
+        static::assertSame('6.4.15.0', $json['require']['shopware/core']);
 
         static::assertInstanceOf(StreamedResponse::class, $response);
     }
@@ -330,7 +330,7 @@ class UpdateControllerTest extends TestCase
 
         /** @var array{minimum-stability: string, require: array<string, string>} $json */
         $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('~6.5.0', $json['require']['shopware/core']);
+        static::assertSame('6.5.0.0-rc1', $json['require']['shopware/core']);
         static::assertSame('RC', $json['minimum-stability']);
 
         static::assertInstanceOf(StreamedResponse::class, $response);

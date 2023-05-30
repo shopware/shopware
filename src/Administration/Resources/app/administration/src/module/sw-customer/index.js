@@ -20,6 +20,7 @@ Shopware.Component.register('sw-customer-address-form', () => import('./componen
 Shopware.Component.register('sw-customer-address-form-options', () => import('./component/sw-customer-address-form-options'));
 Shopware.Component.register('sw-customer-default-addresses', () => import('./component/sw-customer-default-addresses'));
 Shopware.Component.register('sw-customer-card', () => import('./component/sw-customer-card'));
+Shopware.Component.register('sw-customer-login-as-customer-modal', () => import('./component/sw-customer-login-as-customer-modal'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

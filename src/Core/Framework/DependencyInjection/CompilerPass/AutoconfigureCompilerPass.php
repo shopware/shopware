@@ -157,7 +157,7 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
             ->registerForAutoconfiguration(TemplateNamespaceHierarchyBuilderInterface::class)
             ->addTag('shopware.twig.hierarchy_builder');
 
-        $container->registerAliasForArgument('shopware.filesystem.private', FilesystemOperator::class, 'privateFileSystem');
-        $container->registerAliasForArgument('shopware.filesystem.public', FilesystemOperator::class, 'publicFileSystem');
+        $container->registerAliasForArgument('shopware.filesystem.private', FilesystemOperator::class, 'privateFilesystem');
+        $container->registerAliasForArgument('shopware.filesystem.public', FilesystemOperator::class, 'publicFilesystem');
     }
 }

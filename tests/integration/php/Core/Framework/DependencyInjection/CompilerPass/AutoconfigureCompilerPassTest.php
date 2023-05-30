@@ -6,7 +6,6 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -64,6 +63,11 @@ class AutoconfigureCompilerPassTest extends TestCase
 /**
  * @internal
  */
-class ExampleService {
-    public function __construct(public FilesystemOperator $privateFileSystem, public FilesystemOperator $publicFileSystem) {}
+class ExampleService
+{
+    public function __construct(
+        public FilesystemOperator $privateFilesystem,
+        public FilesystemOperator $publicFilesystem
+    ) {
+    }
 }

@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 use Twig\Environment;
 
 #[Package('storefront')]
@@ -37,9 +39,23 @@ abstract class StorefrontController extends AbstractController
 
     private ?Environment $twig = null;
 
+    #[Required]
     public function setTwig(Environment $twig): void
     {
         $this->twig = $twig;
+    }
+
+    public static function getSubscribedServices(): array
+    {
+        $services = parent::getSubscribedServices();
+
+        $services['event_dispatcher'] = EventDispatcherInterface::class;
+        $services[SystemConfigService::class] = SystemConfigService::class;
+        $services[TemplateFinder::class] = TemplateFinder::class;
+        $services[SeoUrlPlaceholderHandlerInterface::class] = SeoUrlPlaceholderHandlerInterface::class;
+        $services[ScriptExecutor::class] = ScriptExecutor::class;
+
+        return $services;
     }
 
     /**

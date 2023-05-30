@@ -136,7 +136,7 @@ abstract class Bundle extends SymfonyBundle
         $container->setDefinition($serviceId, $filesystem);
 
         // SwagMigrationAssistant -> swagMigrationAssistantPublicFilesystem
-        $aliasName = (new CamelCaseToSnakeCaseNameConverter())->denormalize($this->getName()). ucfirst($key) . 'Filesystem';
+        $aliasName = (new CamelCaseToSnakeCaseNameConverter())->denormalize($this->getName()) . ucfirst($key) . 'Filesystem';
         $container->registerAliasForArgument($serviceId, FilesystemOperator::class, $aliasName);
     }
 

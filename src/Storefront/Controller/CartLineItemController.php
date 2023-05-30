@@ -81,7 +81,7 @@ class CartLineItemController extends StorefrontController
                 $code = (string) $request->request->get('code');
 
                 if ($code === '') {
-                    throw new \InvalidArgumentException('Code is required');
+                    throw RoutingException::missingRequestParameter('code');
                 }
 
                 $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
@@ -120,7 +120,7 @@ class CartLineItemController extends StorefrontController
                 $quantity = $request->get('quantity');
 
                 if ($quantity === null) {
-                    throw new \InvalidArgumentException('quantity field is required');
+                    throw RoutingException::missingRequestParameter('quantity');
                 }
 
                 if (!$cart->has($id)) {

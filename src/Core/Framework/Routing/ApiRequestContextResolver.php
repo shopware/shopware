@@ -100,6 +100,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $params;
     }
 
+    /**
+     * @return array{languageId?: string, currencyId?: string, considerInheritance?: true}
+     */
     private function getRuntimeParameters(Request $request): array
     {
         $parameters = [];
@@ -296,6 +299,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         );
     }
 
+    /**
+     * @return string[]
+     */
     private function fetchPermissions(string $userId): array
     {
         $permissions = $this->connection->createQueryBuilder()
@@ -335,6 +341,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         );
     }
 
+    /**
+     * @return string[]|null
+     */
     private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
     {
         if (!$integrationId) {
@@ -355,6 +364,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @return string[]
+     */
     private function fetchIntegrationPermissions(string $integrationId): array
     {
         $permissions = $this->connection->createQueryBuilder()

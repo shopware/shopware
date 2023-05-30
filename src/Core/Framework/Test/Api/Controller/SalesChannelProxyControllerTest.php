@@ -233,7 +233,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidChannelId(): void
@@ -267,7 +267,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidCustomerId(): void
@@ -367,7 +367,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testModifyShippingCostsWithoutShippingCosts(): void

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDownloadRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -40,7 +41,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -267,7 +267,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
                     static::fail('Download route returned response without access granted');
                 } catch (\Throwable $exception) {
-                    static::assertInstanceOf(FileNotFoundException::class, $exception);
+                    static::assertInstanceOf(CustomerException::class, $exception);
+                    static::assertSame(sprintf('Line item download file with id "%s" not found.', $download->getId()), $exception->getMessage());
                 }
             }
         }

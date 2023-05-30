@@ -493,7 +493,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
          *
          * See `Options and Defaults` for information
          */
-        new CleanWebpackPlugin(),
+        new CleanWebpackPlugin({
+            cleanOnceBeforeBuildPatterns: [
+                '!**/*',
+                'administration',
+            ]
+        }),
     ],
 });
 

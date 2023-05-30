@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
@@ -146,6 +147,8 @@ class Framework extends Bundle
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
             $this->container->get(ExtensionRegistry::class)
         );
+
+        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
     }
 
     /**

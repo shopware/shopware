@@ -316,6 +316,11 @@
                 "redis_prefix": {
                     "type": "string"
                 },
+                "cache_compression": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Controls the cache compression before the storage"
+                },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
                 }

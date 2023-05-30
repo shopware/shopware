@@ -51,7 +51,6 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('private')
-
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('visibility')->end()
@@ -361,6 +360,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('redis_prefix')->end()
+                ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->arrayNode('invalidation')
                     ->children()
                         ->integerNode('delay')

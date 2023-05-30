@@ -30,7 +30,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition">
-            <tag name="shopware.entity.definition" entity="product_custom_field_set"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition">
@@ -98,31 +98,31 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition">
-            <tag name="shopware.entity.definition" entity="product_cross_selling_assigned_products"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition">
-            <tag name="shopware.entity.definition" entity="product_feature_set"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="product_feature_set_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition">
-            <tag name="shopware.entity.definition" entity="product_sorting"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="product_sorting_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition">
-            <tag name="shopware.entity.definition" entity="product_search_config"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition">
-            <tag name="shopware.entity.definition" entity="product_search_config_field"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldExceptionHandler">

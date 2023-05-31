@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 abstract class AbstractLoginAsCustomerRoute
 {
-    abstract public function getDecorated(): AbstractLoginRoute;
+    abstract public function getDecorated(): AbstractLoginAsCustomerRoute;
 
     abstract public function loginAsCustomer(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse;
 }

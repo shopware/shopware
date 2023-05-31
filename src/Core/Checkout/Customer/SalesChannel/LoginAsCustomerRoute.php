@@ -40,7 +40,7 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
     ) {
     }
 
-    public function getDecorated(): AbstractLoginRoute
+    public function getDecorated(): AbstractLoginAsCustomerRoute
     {
         throw new DecorationPatternException(self::class);
     }

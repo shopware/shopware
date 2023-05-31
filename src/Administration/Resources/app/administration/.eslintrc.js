@@ -29,6 +29,9 @@ const baseRules = {
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],
+    'vue/multi-word-component-names': ['error', {
+        ignores: ['index.html'],
+    }],
 };
 
 module.exports = {

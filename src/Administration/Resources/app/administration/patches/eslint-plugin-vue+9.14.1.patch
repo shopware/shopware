@@ -1,8 +1,8 @@
 diff --git a/node_modules/eslint-plugin-vue/lib/utils/indent-common.js b/node_modules/eslint-plugin-vue/lib/utils/indent-common.js
-index 39ef586..474864f 100644
+index 4e3edb2..3ccb6b6 100644
 --- a/node_modules/eslint-plugin-vue/lib/utils/indent-common.js
 +++ b/node_modules/eslint-plugin-vue/lib/utils/indent-common.js
-@@ -204,7 +204,10 @@ module.exports.defineVisitor = function create(
+@@ -198,7 +198,10 @@ module.exports.defineVisitor = function create(
    tokenStore,
    defaultOptions
  ) {
@@ -15,10 +15,10 @@ index 39ef586..474864f 100644
    const options = parseOptions(
      context.options[0],
 diff --git a/node_modules/eslint-plugin-vue/lib/utils/index.js b/node_modules/eslint-plugin-vue/lib/utils/index.js
-index 5c49d15..4c56504 100644
+index ef8cd0e..e63eb51 100644
 --- a/node_modules/eslint-plugin-vue/lib/utils/index.js
 +++ b/node_modules/eslint-plugin-vue/lib/utils/index.js
-@@ -1945,7 +1945,7 @@ function defineTemplateBodyVisitor(
+@@ -2037,7 +2037,7 @@ function defineTemplateBodyVisitor(
  ) {
    if (context.parserServices.defineTemplateBodyVisitor == null) {
      const filename = context.getFilename()
@@ -27,55 +27,52 @@ index 5c49d15..4c56504 100644
        context.report({
          loc: { line: 1, column: 0 },
          message:
-@@ -2330,7 +2330,7 @@ function getVExpressionContainer(node) {
+@@ -2424,7 +2424,7 @@ function getVExpressionContainer(node) {
   * @param {string} path
   */
  function isVueFile(path) {
 -  return path.endsWith('.vue') || path.endsWith('.jsx')
-+  return path.endsWith('.vue') || path.endsWith('.jsx') || path.endsWith('.twig')
++    return path.endsWith('.vue') || path.endsWith('.jsx') || path.endsWith('.twig')
  }
  
  /**
-@@ -2396,6 +2396,27 @@ function getVueComponentDefinitionType(node) {
+@@ -2490,6 +2490,25 @@ function getVueComponentDefinitionType(node) {
      if (callee.type === 'MemberExpression') {
        const calleeObject = skipTSAsExpression(callee.object)
  
 +      /* Shopware Patch Part 1 */
 +      if (calleeObject.type === 'MemberExpression') {
-+        if (
-+            calleeObject &&
-+            calleeObject.object &&
-+            calleeObject.object.name === 'Shopware' &&
-+            calleeObject.property &&
-+            calleeObject.property.name === 'Component'
-+        ) {
-+          const propName = getStaticPropertyName(callee);
-+
-+          const maybeFullVueComponentForVue2 =
-+              propName &&
-+              ['register', 'extend', 'override'].includes(propName) &&
-+              isObjectArgument(parent)
-+
-+          return maybeFullVueComponentForVue2 ? propName : null;
-+        }
++          if (
++              calleeObject &&
++              calleeObject.object &&
++              calleeObject.object.name === 'Shopware' &&
++              calleeObject.property &&
++              calleeObject.property.name === 'Component'
++          ) {
++              const propName = getStaticPropertyName(callee);
++              const maybeFullVueComponentForVue2 =
++                  propName &&
++                  ['register', 'extend', 'override'].includes(propName) &&
++                  isObjectArgument(parent)
++              return maybeFullVueComponentForVue2 ? propName : null;
++          }
 +      }
 +      /* end of Shopware Patch Part 1 */
 +
        if (calleeObject.type === 'Identifier') {
          const propName = getStaticPropertyName(callee)
          if (calleeObject.name === 'Vue') {
-@@ -2412,6 +2433,17 @@ function getVueComponentDefinitionType(node) {
+@@ -2506,6 +2525,16 @@ function getVueComponentDefinitionType(node) {
              : null
          }
  
 +        /* Shopware Patch Part 2 */
 +        if (calleeObject.name === 'Component') {
-+          const maybeFullVueComponentForVue2 =
-+              propName &&
-+              ['register', 'extend', 'override'].includes(propName) &&
-+              isObjectArgument(parent)
-+
-+          return maybeFullVueComponentForVue2 ? propName : null;
++            const maybeFullVueComponentForVue2 =
++                propName &&
++                ['register', 'extend', 'override'].includes(propName) &&
++                isObjectArgument(parent)
++            return maybeFullVueComponentForVue2 ? propName : null;
 +        }
 +        /* end of Shopware Patch Part 2 */
 +

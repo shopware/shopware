@@ -27,7 +27,7 @@ Component.register('sw-many-to-many-assignment-card', {
     inject: ['repositoryFactory'],
 
     model: {
-        property: 'entityCollection',
+        prop: 'entityCollection',
         event: 'change',
     },
 

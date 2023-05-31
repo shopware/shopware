@@ -1,0 +1,31 @@
+diff --git a/node_modules/vue-eslint-parser/index.js b/node_modules/vue-eslint-parser/index.js
+index 373ad04..3bc9995 100644
+--- a/node_modules/vue-eslint-parser/index.js
++++ b/node_modules/vue-eslint-parser/index.js
+@@ -297,7 +297,7 @@ function isSFCFile(parserOptions) {
+     if (parserOptions.filePath === "<input>") {
+         return true;
+     }
+-    return path__namespace.extname(parserOptions.filePath || "unknown.vue") === ".vue";
++    return ['.vue', '.twig'].includes(path.extname(parserOptions.filePath || "unknown.vue"));
+ }
+ function getScriptParser(parser, getParserLang) {
+     if (isParserObject(parser)) {
+@@ -6249,7 +6249,7 @@ function addVariable(scope, reference) {
+ const STARTS_WITH_LT = /^\s*</u;
+ function isVueFile(code, options) {
+     const filePath = options.filePath || "unknown.js";
+-    return path__namespace.extname(filePath) === ".vue" || STARTS_WITH_LT.test(code);
++    return [".vue", ".twig"].includes(path.extname(filePath)) || STARTS_WITH_LT.test(code);
+ }
+ function parseForESLint(code, parserOptions) {
+     const options = Object.assign({
+@@ -6316,7 +6316,7 @@ function parseAsSFC(code, options) {
+                 yield getParserLangFromSFC(rootAST);
+             }) }));
+     }
+-    result.ast.templateBody = templateBody;
++    result.modifiedSourceCode = code;
+     if (options.eslintScopeManager) {
+         if (scripts.some(isScriptSetupElement)) {
+             if (!result.scopeManager) {

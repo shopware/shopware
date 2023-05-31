@@ -143,7 +143,7 @@ class FileFetcher
     private function openSourceFromUrl(string $url)
     {
         try {
-            $inputStream = @fopen($url, 'rb', false);
+            $inputStream = @fopen($url, 'rb');
         } catch (\Throwable) {
             throw new UploadException("Could not open source stream from {$url}");
         }

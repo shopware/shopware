@@ -3,13 +3,24 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -40,6 +51,14 @@ class SyncServiceTest extends TestCase
         $service = new SyncService(
             $writer,
             $this->createMock(EventDispatcherInterface::class),
+            new StaticDefinitionInstanceRegistry(
+                [ProductDefinition::class],
+                $this->createMock(ValidatorInterface::class),
+                $this->createMock(EntityWriteGatewayInterface::class),
+            ),
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(SyncFkResolver::class)
         );
 
         $upsert = new SyncOperation('foo', 'product', SyncOperation::ACTION_UPSERT, [
@@ -68,5 +87,86 @@ class SyncServiceTest extends TestCase
         ], $result->getData());
 
         static::assertSame([], $result->getNotFound());
+    }
+
+    public function testWildcardDeleteForMappingEntities(): void
+    {
+        $writer = $this->createMock(EntityWriterInterface::class);
+        $writer
+            ->expects(static::once())
+            ->method('sync')
+            ->willReturnCallback(function ($operations) {
+                static::assertCount(1, $operations);
+                static::assertInstanceOf(SyncOperation::class, $operations[0]);
+
+                $operation = $operations[0];
+
+                static::assertCount(4, $operation->getPayload());
+
+                $map = \array_map(function (array $payload) {
+                    return $payload['productId'] . '-' . $payload['categoryId'];
+                }, $operation->getPayload());
+
+                static::assertContains('product-1-category-1', $map);
+                static::assertContains('product-1-category-2', $map);
+                static::assertContains('product-2-category-1', $map);
+                static::assertContains('product-2-category-2', $map);
+
+                return new WriteResult([]);
+            });
+
+        $searcher = $this->createMock(EntitySearcherInterface::class);
+
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+
+        $filter = [
+            ['type' => 'equalsAny', 'field' => 'productId', 'value' => ['product-1', 'product-2']],
+        ];
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productId', ['product-1', 'product-2']));
+
+        $criteriaBuilder->expects(static::once())
+            ->method('fromArray')
+            ->with(['filter' => $filter])
+            ->willReturn($criteria);
+
+        $data = [
+            ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-1'], 'data' => []],
+            ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-2'], 'data' => []],
+            ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-1'], 'data' => []],
+            ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-2'], 'data' => []],
+        ];
+
+        $ids = new IdSearchResult(4, $data, new Criteria(), Context::createDefaultContext());
+
+        $searcher->expects(static::once())
+            ->method('search')
+            ->willReturn($ids);
+
+        $service = new SyncService(
+            $writer,
+            $this->createMock(EventDispatcherInterface::class),
+            new StaticDefinitionInstanceRegistry(
+                [ProductCategoryDefinition::class],
+                $this->createMock(ValidatorInterface::class),
+                $this->createMock(EntityWriteGatewayInterface::class),
+            ),
+            $searcher,
+            $criteriaBuilder,
+            $this->createMock(SyncFkResolver::class)
+        );
+
+        $delete = new SyncOperation(
+            'delete-mapping',
+            'product_category',
+            SyncOperation::ACTION_DELETE,
+            [],
+            $filter
+        );
+
+        $behavior = new SyncBehavior('disable-indexing', ['product.indexer']);
+
+        $service->sync([$delete], Context::createDefaultContext(), $behavior);
     }
 }

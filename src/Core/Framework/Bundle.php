@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
@@ -133,6 +134,10 @@ abstract class Bundle extends SymfonyBundle
         $filesystem->setPublic(true);
 
         $container->setDefinition($serviceId, $filesystem);
+
+        // SwagMigrationAssistant -> swagMigrationAssistantPublicFilesystem
+        $aliasName = (new CamelCaseToSnakeCaseNameConverter())->denormalize($this->getName()) . ucfirst($key) . 'Filesystem';
+        $container->registerAliasForArgument($serviceId, FilesystemOperator::class, $aliasName);
     }
 
     private function registerEvents(ContainerBuilder $container): void

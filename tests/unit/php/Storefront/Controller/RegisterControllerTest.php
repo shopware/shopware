@@ -14,8 +14,10 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
@@ -26,6 +28,10 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -44,10 +50,12 @@ class RegisterControllerTest extends TestCase
 
     private MockObject&CustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
 
+    private MockObject&RegisterRoute $registerRoute;
+
     protected function setUp(): void
     {
         $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
-        $registerRoute = $this->createMock(RegisterRoute::class);
+        $this->registerRoute = $this->createMock(RegisterRoute::class);
         $registerConfirmRoute = $this->createMock(RegisterConfirmRoute::class);
         $this->cartService = $this->createMock(CartService::class);
         $this->checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
@@ -58,7 +66,7 @@ class RegisterControllerTest extends TestCase
 
         $this->controller = new RegisterControllerTestClass(
             $this->accountLoginPageLoader,
-            $registerRoute,
+            $this->registerRoute,
             $registerConfirmRoute,
             $this->cartService,
             $this->checkoutRegisterPageLoader,
@@ -147,6 +155,84 @@ class RegisterControllerTest extends TestCase
         static::assertSame('frontend.account.customer-group-registration.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
         static::assertSame(json_encode(['customerGroupId' => $customerGroupId]), $this->controller->renderStorefrontParameters['errorParameters'] ?? '');
         static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $this->controller->calledHook);
+    }
+
+    public function testRegisterSuccess(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithNoErrorRouteParam(): void
+    {
+        static::expectExceptionMessage('Parameter "errorRoute" is missing.');
+
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+
+        $this->registerRoute->expects(static::once())
+            ->method('register')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $this->controller->register($request, $dataBag, $context);
+    }
+
+    public function testRegisterWithErrorRouteParamEmpty(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $request->request->set('errorRoute', '');
+
+        $dataBag = new RequestDataBag();
+
+        $this->registerRoute->expects(static::once())
+            ->method('register')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame('frontend.account.register.page', $request->request->get('errorRoute'));
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithViolation(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $request->request->set('errorRoute', 'some-url');
+
+        $dataBag = new RequestDataBag();
+
+        $this->registerRoute->expects(static::once())
+            ->method('register')
+            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    private function createRegisterRequest(): Request
+    {
+        $request = new Request();
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        return $request;
     }
 }
 

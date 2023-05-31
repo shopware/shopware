@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -65,15 +65,18 @@ class TranslatorTest extends TestCase
         $localeCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $localeCodeProvider->expects(static::any())->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
 
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
         $translator = new Translator(
             $decorated,
             $requestStack,
             $cache,
             $this->createMock(MessageFormatterInterface::class),
-            $snippetServiceMock,
             'prod',
-            $this->createMock(EntityRepository::class),
-            $localeCodeProvider
+            $connection,
+            $localeCodeProvider,
+            $snippetServiceMock
         );
 
         if ($injectSalesChannelId) {

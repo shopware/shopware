@@ -20,7 +20,7 @@
             <argument type="service" id="messenger.receiver_locator"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
-            <argument type="service" id="messenger.listener.stop_worker_on_sigterm_signal_listener"/>
+            <argument type="service" id="messenger.listener.stop_worker_signals_listener"/>
             <argument type="service" id="messenger.listener.dispatch_pcntl_signal_listener"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber"/>

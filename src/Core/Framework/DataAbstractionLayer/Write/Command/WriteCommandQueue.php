@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -39,9 +39,19 @@ class WriteCommandQueue
 
         sort($primaryKey);
 
-        $primaryKey = array_map(static fn ($id) => Uuid::fromBytesToHex($id), $primaryKey);
+        $decodedPrimaryKey = [];
+        foreach ($primaryKey as $fieldValue) {
+            /** @var string|false $fieldName */
+            $fieldName = array_search($fieldValue, $command->getPrimaryKey(), true);
+            /** @var Field|null $field */
+            $field = null;
+            if ($fieldName) {
+                $field = $senderIdentification->getFields()->get($fieldName) ?? $senderIdentification->getFields()->getByStorageName($fieldName);
+            }
+            $decodedPrimaryKey[] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
+        }
 
-        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
+        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($decodedPrimaryKey, \JSON_THROW_ON_ERROR));
 
         $this->commands[$senderIdentification->getEntityName()][] = $command;
 
@@ -147,11 +157,15 @@ class WriteCommandQueue
      */
     public function getCommandsForEntity(EntityDefinition $definition, array $primaryKey): array
     {
-        $primaryKey = array_map(static fn (string $id) => Uuid::fromBytesToHex($id), $primaryKey);
+        $decodedPrimaryKey = [];
+        foreach ($primaryKey as $fieldName => $fieldValue) {
+            /** @var Field|null $field */
+            $field = $definition->getFields()->get($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
+            $decodedPrimaryKey[$fieldName] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
+        }
+        sort($decodedPrimaryKey);
 
-        sort($primaryKey);
-
-        $hash = $definition->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
+        $hash = $definition->getEntityName() . ':' . md5(json_encode($decodedPrimaryKey, \JSON_THROW_ON_ERROR));
 
         return $this->entityCommands[$hash] ?? [];
     }
@@ -164,6 +178,7 @@ class WriteCommandQueue
         $primaryKey = $command->getPrimaryKey();
 
         $mapped = [];
+        /** @var Field $key */
         foreach ($command->getDefinition()->getPrimaryKeys() as $key) {
             if ($key instanceof VersionField || $key instanceof ReferenceVersionField) {
                 continue;
@@ -171,7 +186,8 @@ class WriteCommandQueue
             if (!$key instanceof StorageAware) {
                 throw new \RuntimeException();
             }
-            $mapped[$key->getStorageName()] = Uuid::fromBytesToHex($primaryKey[$key->getStorageName()]);
+
+            $mapped[$key->getStorageName()] = $key->getSerializer()->decode($key, $primaryKey[$key->getStorageName()]);
         }
 
         sort($mapped);
@@ -212,7 +228,7 @@ class WriteCommandQueue
             }
 
             // create a hash for the foreign key which are used for the mapping
-            $primary = [$fk->getReferenceField() => Uuid::fromBytesToHex($value)];
+            $primary = [$fk->getReferenceField() => $fk->getSerializer()->decode($fk, $value)];
 
             $hash = self::createPrimaryHash((string) $fk->getReferenceEntity(), $primary);
 

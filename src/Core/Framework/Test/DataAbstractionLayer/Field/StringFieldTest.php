@@ -43,7 +43,7 @@ class StringFieldTest extends TestCase
             try {
                 $serializer->encode(
                     $this->getStringField($name, $flags),
-                    $this->getEntityExisting(),
+                    EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current();
@@ -61,7 +61,7 @@ class StringFieldTest extends TestCase
                 $expected,
                 $serializer->encode(
                     $this->getStringField($name, $flags),
-                    $this->getEntityExisting(),
+                    EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current()

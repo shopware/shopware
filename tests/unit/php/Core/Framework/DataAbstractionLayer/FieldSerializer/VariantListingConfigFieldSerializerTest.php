@@ -78,7 +78,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
     public function testEncodeThrowExceptionOnWrongField(): void
     {
         $field = new JsonField('variant_listing_config', 'variantListingConfig');
-        $existence = new EntityExistence('test', ['someId'], true, false, false, []);
+        $existence = new EntityExistence('test', ['someId' => 'foo'], true, false, false, []);
         $keyPair = new KeyValuePair('someId', null, false);
         $bag = new WriteParameterBag(
             new ProductDefinition(),
@@ -134,7 +134,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
     private function encode(array $data): array
     {
         $field = new VariantListingConfigField('variant_listing_config', 'variantListingConfig');
-        $existence = new EntityExistence('test', ['someId'], true, false, false, []);
+        $existence = new EntityExistence('test', ['someId' => 'foo'], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
             new ProductDefinition(),

@@ -31,7 +31,7 @@ class IntFieldTest extends TestCase
         try {
             $serializer->encode(
                 $this->getIntField(),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current();
@@ -55,7 +55,7 @@ class IntFieldTest extends TestCase
         try {
             $serializer->encode(
                 $this->getIntField(),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current();
@@ -80,7 +80,7 @@ class IntFieldTest extends TestCase
             0,
             $serializer->encode(
                 $field,
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current()
@@ -97,7 +97,7 @@ class IntFieldTest extends TestCase
             15,
             $serializer->encode(
                 $this->getIntField(),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current()
@@ -113,7 +113,7 @@ class IntFieldTest extends TestCase
         static::assertNull(
             $serializer->encode(
                 $this->getIntField(false),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current()
@@ -126,11 +126,6 @@ class IntFieldTest extends TestCase
         $mockBuilder->disableOriginalConstructor();
 
         return $mockBuilder->getMock();
-    }
-
-    private function getEntityExisting(): EntityExistence
-    {
-        return new EntityExistence(null, [], true, false, false, []);
     }
 
     private function getIntField(bool $required = true): IntField

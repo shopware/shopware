@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -119,7 +118,27 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
             $definition = $this->definitionRegistry->getByEntityName($entityName);
 
-            $pks = Uuid::fromHexToBytesList($existence->getPrimaryKey());
+            $pks = array_combine(
+                array_keys($existence->getPrimaryKey()),
+                array_map(
+                    function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
+                        $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
+                        /** @var Field|null $field */
+                        $field = $definition->getFields()->getByStorageName($pkFieldStorageName);
+                        if (!$field) {
+                            return $pkFieldValue;
+                        }
+
+                        return $field->getSerializer()->encode(
+                            $field,
+                            $existence,
+                            new KeyValuePair($field->getPropertyName(), $pkFieldValue, true),
+                            $parameters,
+                        )->current();
+                    },
+                    array_keys($existence->getPrimaryKey()),
+                ),
+            );
 
             $jsonUpdateCommand = new JsonUpdateCommand(
                 $definition,

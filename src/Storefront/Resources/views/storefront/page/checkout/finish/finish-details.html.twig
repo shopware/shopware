@@ -16,7 +16,7 @@
 
                 {% block page_checkout_finish_ordernumber %}
                     <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
-                        {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}{{ page.order.orderNumber }}
+                        {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }} {{ page.order.orderNumber }}
                     </p>
                 {% endblock %}
 
@@ -43,10 +43,10 @@
                             {% endif %}
                         {% endblock %}
 
-                        {# @depracted tag:6.4.0 #}
+                        {# @deprecated tag:6.4.0 #}
                         {% block page_checkout_finish_action %}
 
-                            {# @depracted tag:6.4.0 #}
+                            {# @deprecated tag:6.4.0 #}
                             {% block page_checkout_finish_action_back %}{% endblock %}
                         {% endblock %}
                     </div>

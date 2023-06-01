@@ -19,57 +19,57 @@
 
             {% block layout_head_meta_tags_general %}
                 <meta name="author"
-                      content="{% block layout_head_meta_tags_general_author %}{{ metaInformation.author|striptags }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_general_author %}{{ metaInformation.author|striptags }}{% endblock %}">
                 <meta name="robots"
-                      content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}">
                 <meta name="revisit-after"
-                      content="{% block layout_head_meta_tags_general_revisit %}{{ metaInformation.revisit|striptags }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_general_revisit %}{{ metaInformation.revisit|striptags }}{% endblock %}">
                 <meta name="keywords"
-                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}">
                 <meta name="description"
-                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}">
             {% endblock %}
 
             {% block layout_head_meta_tags_opengraph %}
                 <meta property="og:url"
-                      content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}">
                 <meta property="og:type"
-                      content="{% block layout_head_meta_tags_type_og %}website{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_type_og %}website{% endblock %}">
                 <meta property="og:site_name"
-                      content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}">
                 <meta property="og:title"
-                      content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}">
                 <meta property="og:description"
-                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}">
                 <meta property="og:image"
-                      content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
 
                 <meta name="twitter:card"
-                      content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}">
                 <meta name="twitter:site"
-                      content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}">
                 <meta name="twitter:title"
-                      content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}">
                 <meta name="twitter:description"
-                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}">
                 <meta name="twitter:image"
-                      content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
             {% endblock %}
 
             {% block layout_head_meta_tags_schema_webpage %}
                 <meta itemprop="copyrightHolder"
-                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}">
                 <meta itemprop="copyrightYear"
-                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}">
                 <meta itemprop="isFamilyFriendly"
-                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}">
                 <meta itemprop="image"
-                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
             {% endblock %}
 
             {% block layout_head_meta_tags_hreflangs %}
                 {% for link in hrefLang %}
-                    <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}" />
+                    <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}">
                 {% endfor %}
             {% endblock %}
         {% endblock %}
@@ -89,7 +89,7 @@
 
         {% block layout_head_canonical %}
             {% if page.metaInformation.canonical %}
-                <link rel="canonical" href="{{ page.metaInformation.canonical }}" />
+                <link rel="canonical" href="{{ page.metaInformation.canonical }}">
             {% endif %}
         {% endblock %}
 
@@ -117,7 +117,7 @@
             {% sw_include "@Storefront/storefront/component/feature.html.twig" %}
         {% endblock %}
 
-        {# Block for tracking scripts which are required to include in the `head` section of the document #}
+        {# Block for tracking scripts which are required to be included in the `head` section of the document #}
         {% block layout_head_javascript_tracking %}
             {% sw_include "@Storefront/storefront/component/analytics.html.twig" %}
         {% endblock %}
@@ -157,7 +157,7 @@
         {% endblock %}
 
         {% block layout_head_javascript_breakpoints %}
-            {# Register the available viewport breakpoints the window.breakpoints object #}
+            {# Register the available viewport breakpoints as window.breakpoints object #}
             <script>
                 {% set breakpoint = {
                     'xs': theme_config('breakpoint.xs'),

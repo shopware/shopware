@@ -21,12 +21,12 @@
                 {% block component_offcanvas_summary_content_info %}
                     <div class="row offcanvas-shipping-info">
                         <span class="col-7 shipping-label shipping-cost">
-                                <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
-                                    {% if loop.first %}
-                                        <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
-                                        ({{ activeShipping.shippingMethod.translated.name }})
-                                    </small>
-                                {% endif %}
+                            <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+                            {% if loop.first %}
+                                <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
+                                    ({{ activeShipping.shippingMethod.translated.name }})
+                                </small>
+                            {% endif %}
                         </span>
 
                         <span class="col-5 pb-2 shipping-value shipping-cost">
@@ -36,7 +36,7 @@
                 {% endblock %}
             {% endfor %}
 
-            {% set activeShipping = page.cart.deliveries.elements | first %}
+            {% set activeShipping = page.cart.deliveries.elements|first %}
 
             {% block component_offcanvas_summary_content_shipping %}
                 {% if page.shippingMethods|length %}

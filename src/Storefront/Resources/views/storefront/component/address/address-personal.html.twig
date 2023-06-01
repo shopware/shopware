@@ -29,11 +29,11 @@
                             {% set isCompany = false %}
 
                             {% if page.address.company or data.company is not empty %}
-                                {% set isCompany  = true %}
+                                {% set isCompany = true %}
                             {% endif %}
 
                             {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
-                                {% set isCompany  = true %}
+                                {% set isCompany = true %}
                             {% endif %}
 
                             {% set isLoginPage = false %}

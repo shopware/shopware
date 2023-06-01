@@ -103,7 +103,7 @@
         {% endblock %}
 
         {% block cms_form_contact_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12'} %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12' } %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
@@ -120,15 +120,15 @@
         {% block cms_form_contact_hidden_fields %}
             <div class="form-hidden-fields">
                 {% if page.navigationId and page.entityName %}
-                    <input type="hidden" name="navigationId" value="{{ page.navigationId }}"/>
-                    <input type="hidden" name="entityName" value="{{ page.entityName }}"/>
+                    <input type="hidden" name="navigationId" value="{{ page.navigationId }}">
+                    <input type="hidden" name="entityName" value="{{ page.entityName }}">
                 {% else %}
-                    <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}"/>
+                    <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}">
                 {% endif %}
 
-                <input type="hidden" name="slotId" value="{{ element.id }}"/>
+                <input type="hidden" name="slotId" value="{{ element.id }}">
 
-                <input type="submit" class="submit--hidden d-none" />
+                <input type="submit" class="submit--hidden d-none">
             </div>
         {% endblock %}
     </form>

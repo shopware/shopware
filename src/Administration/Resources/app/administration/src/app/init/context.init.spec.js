@@ -1,5 +1,5 @@
 import initContext from 'src/app/init/context.init';
-import { getCurrency, getEnvironment, getLocale, getShopwareVersion, getModuleInformation, getAppInformation } from '@shopware-ag/admin-extension-sdk/es/context';
+import { getCurrency, getEnvironment, getLocale, getShopwareVersion, getModuleInformation, getAppInformation, getUserInformation } from '@shopware-ag/admin-extension-sdk/es/context';
 import extensionsStore from '../state/extensions.store';
 
 describe('src/app/init/context.init.ts', () => {
@@ -85,5 +85,97 @@ describe('src/app/init/context.init.ts', () => {
                 type: 'app',
             }));
         });
+    });
+
+    it('should return user information', async () => {
+        Shopware.State.commit('extensions/addExtension', {
+            name: 'jestapp',
+            baseUrl: '',
+            permissions: {
+                read: [
+                    'user',
+                ],
+            },
+            version: '1.0.0',
+            type: 'app',
+            integrationId: '123',
+            active: true,
+        });
+
+        Shopware.State.commit('setCurrentUser', {
+            aclRoles: [],
+            active: true,
+            admin: true,
+            email: 'john.doe@test.com',
+            firstName: 'John',
+            id: '123',
+            lastName: 'Doe',
+            localeId: 'lOcAlEiD',
+            title: 'Dr.',
+            type: 'user',
+            username: 'john.doe',
+        });
+
+        await getUserInformation().then((userInformation) => {
+            expect(userInformation).toEqual(expect.objectContaining({
+                aclRoles: expect.any(Array),
+                active: true,
+                admin: true,
+                email: 'john.doe@test.com',
+                firstName: 'John',
+                id: '123',
+                lastName: 'Doe',
+                localeId: 'lOcAlEiD',
+                title: 'Dr.',
+                type: 'user',
+                username: 'john.doe',
+            }));
+        });
+    });
+
+    it('should not return user information when permissions arent existing', async () => {
+        Shopware.State.commit('extensions/addExtension', {
+            name: 'jestapp',
+            baseUrl: '',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            integrationId: '123',
+            active: true,
+        });
+
+        Shopware.State.commit('setCurrentUser', {
+            aclRoles: [],
+            active: true,
+            admin: true,
+            email: 'john.doe@test.com',
+            firstName: 'John',
+            id: '123',
+            lastName: 'Doe',
+            localeId: 'lOcAlEiD',
+            title: 'Dr.',
+            type: 'user',
+            username: 'john.doe',
+        });
+
+        await expect(getUserInformation()).rejects.toThrow('Extension "jestapp" does not have the permission to read users');
+    });
+
+    it('should not return user information when extension is not existing', async () => {
+        Shopware.State.commit('setCurrentUser', {
+            aclRoles: [],
+            active: true,
+            admin: true,
+            email: 'john.doe@test.com',
+            firstName: 'John',
+            id: '123',
+            lastName: 'Doe',
+            localeId: 'lOcAlEiD',
+            title: 'Dr.',
+            type: 'user',
+            username: 'john.doe',
+        });
+
+        await expect(getUserInformation()).rejects.toThrow('Could not find a extension with the given event origin ""');
     });
 });

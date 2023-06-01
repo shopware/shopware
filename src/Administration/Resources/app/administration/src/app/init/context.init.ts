@@ -60,6 +60,44 @@ export default function initializeContext(): void {
         };
     });
 
+    Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
+        const appOrigin = _event_.origin;
+        const extension = Object.entries(Shopware.State.get('extensions')).find((ext) => {
+            return ext[1].baseUrl.startsWith(appOrigin);
+        });
+
+        if (!extension) {
+            return Promise.reject(new Error(`Could not find a extension with the given event origin "${_event_.origin}"`));
+        }
+
+        if (!extension[1]?.permissions?.read?.includes('user')) {
+            return Promise.reject(new Error(`Extension "${extension[0]}" does not have the permission to read users`));
+        }
+
+        const currentUser = Shopware.State.get('session').currentUser;
+
+        return Promise.resolve({
+            aclRoles: currentUser.aclRoles as unknown as Array<{
+                name: string,
+                type: string,
+                id: string,
+                privileges: Array<string>,
+            }>,
+            active: !!currentUser.active,
+            admin: !!currentUser.admin,
+            avatarId: currentUser.avatarId ?? '',
+            email: currentUser.email ?? '',
+            firstName: currentUser.firstName ?? '',
+            id: currentUser.id ?? '',
+            lastName: currentUser.lastName ?? '',
+            localeId: currentUser.localeId ?? '',
+            title: currentUser.title ?? '',
+            // @ts-expect-error - type is not defined in entity directly
+            type: (currentUser.type as unknown as string) ?? '',
+            username: currentUser.username ?? '',
+        });
+    });
+
     Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
         const extension = Object.entries(Shopware.State.get('extensions')).find((ext) => {

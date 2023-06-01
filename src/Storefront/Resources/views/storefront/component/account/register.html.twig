@@ -27,7 +27,7 @@
                     {% endblock %}
 
                     {% block component_account_register_create_account %}
-                    <input type="hidden"
+                        <input type="hidden"
                            name="createCustomerAccount"
                            value="1">
                     {% endblock %}
@@ -35,7 +35,7 @@
                     {% block component_account_register_form_action %}
                         <input type="hidden"
                                name="errorRoute"
-                               value="{{ errorRoute ?: 'frontend.account.register.page' }}"/>
+                               value="{{ errorRoute ?: 'frontend.account.register.page' }}">
 
                         <input type="hidden"
                                name="errorParameters"

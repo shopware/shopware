@@ -64,7 +64,9 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             return Promise.resolve({ data: [] });
         }
 
-        return this.syncService.sync(syncPayload, {}, {
+        const syncPayloadStringified = JSON.stringify(syncPayload, (k, v) => (v === undefined ? null : v));
+
+        return this.syncService.sync(syncPayloadStringified, {}, {
             'single-operation': 1,
             'sw-language-id': Shopware.Context.api.languageId,
         });

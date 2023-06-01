@@ -73,7 +73,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         expect(buildBulkSyncPayloadMethod).toHaveBeenCalledWith(changes);
 
         expect(syncMethod).toHaveBeenCalledTimes(1);
-        expect(syncMethod).toHaveBeenCalledWith(payload, {}, { 'single-operation': 1, 'sw-language-id': Shopware.Context.api.languageId });
+        expect(syncMethod).toHaveBeenCalledWith(JSON.stringify(payload), {}, { 'single-operation': 1, 'sw-language-id': Shopware.Context.api.languageId });
         expect(result).toBe(true);
     });
 

@@ -12,7 +12,7 @@
         {% set productReviewCount = reviews.totalReviews %}
 
 		{% if productReviewCount > 0 %}
-            {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common')  %}
+            {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common') %}
 		{% endif %}
 
 		{# TODO NEXT-16994 - replace language flag #}
@@ -37,12 +37,12 @@
 										type: "success",
 										content: "detail.reviewFormSuccessAlert"|trans|sw_sanitize
 									} %}
-                                {% elseif ratingSuccess == 2  %}
+                                {% elseif ratingSuccess == 2 %}
                                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                         type: "success",
                                         content: "detail.reviewFormSuccessUpdateAlert"|trans|sw_sanitize
                                     } %}
-								{% elseif ratingSuccess == -1  %}
+								{% elseif ratingSuccess == -1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
 										type: "danger",
 										content: "detail.reviewFormErrorAlert"|trans|sw_sanitize
@@ -158,7 +158,7 @@
                                                                             <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
                                                                                 {{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
                                                                             </option>
-                                                                            <option value="points"{% if reviews.criteria.sorting.0.field== 'points' %} selected{% endif %}>
+                                                                            <option value="points"{% if reviews.criteria.sorting.0.field == 'points' %} selected{% endif %}>
                                                                                 {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
                                                                             </option>
                                                                         </select>
@@ -182,7 +182,7 @@
                                             <p class="text-right product-detail-review-counter">
                                                 {% if (listReviewsCount > 1 and listReviewsCount > reviewsPerListPage) %}
                                                     <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ "detail.reviewCountBefore"|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
-                                                {% elseif listReviewsCount > 0 %} {# TODO (NEXT-16994) fix detail.reviewCountAfter snippet for listReviewsCount = 0#}
+                                                {% elseif listReviewsCount > 0 %} {# TODO (NEXT-16994) fix detail.reviewCountAfter snippet for listReviewsCount = 0 #}
                                                     <small><strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
                                                 {% endif %}
                                             </p>
@@ -235,7 +235,7 @@
                                                                 entities: reviews,
                                                                 criteria: criteria,
                                                                 total: productReviewCount,
-                                                            }  %}
+                                                            } %}
                                                         </form>
                                                     </div>
                                                 {% endblock %}

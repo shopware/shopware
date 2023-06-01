@@ -3,7 +3,7 @@
         {% set position = 'top-bar' %}
     {% endif %}
 
-    {% if  page.header.languages.count > 1 %}
+    {% if page.header.languages.count > 1 %}
         <div class="top-bar-nav-item top-bar-language">
             {% block layout_header_actions_language_widget_form %}
                 <form method="post"
@@ -29,7 +29,7 @@
                             {% block layout_header_actions_languages_widget_form_items %}
                                 <div class="top-bar-list dropdown-menu dropdown-menu-right"
                                     aria-labelledby="languagesDropdown-{{ position }}">
-                                    {% for language in  page.header.languages %}
+                                    {% for language in page.header.languages %}
                                         <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
                                              title="{{ language.translated.name }}">
 
@@ -56,7 +56,7 @@
                             {% endblock %}
                         </div>
 
-                        <input name="redirectTo" type="hidden" value="{{ app.request.get('_route') }}"/>
+                        <input name="redirectTo" type="hidden" value="{{ app.request.get('_route') }}">
 
                         {% for key, value in app.request.attributes.get('_route_params') %}
                             <input name="redirectParameters[{{ key }}]" type="hidden" value="{{ value }}">

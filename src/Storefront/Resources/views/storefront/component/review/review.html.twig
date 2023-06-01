@@ -11,7 +11,7 @@
 		{% set productReviewCount = reviews.totalReviews %}
 
 		{% if productReviewCount > 0 %}
-            {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common')  %}
+            {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common') %}
 		{% endif %}
 
 		{# TODO NEXT-16994 - replace language flag #}
@@ -161,7 +161,7 @@
                                                                             <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
                                                                                 {{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
                                                                             </option>
-                                                                            <option value="points"{% if reviews.criteria.sorting.0.field== 'points' %} selected{% endif %}>
+                                                                            <option value="points"{% if reviews.criteria.sorting.0.field == 'points' %} selected{% endif %}>
                                                                                 {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
                                                                             </option>
                                                                         </select>
@@ -240,7 +240,7 @@
                                                                 entities: reviews,
                                                                 criteria: criteria,
                                                                 total: productReviewCount,
-                                                            }  %}
+                                                            } %}
                                                         </form>
                                                     </div>
                                                 {% endblock %}

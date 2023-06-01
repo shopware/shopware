@@ -5,4 +5,4 @@ author_email: florian@genxtreme.de
 author_github: resslinger
 ---
 # Core
-* Add check for enableUrlValidation on method openSourceFromUrl of class FileFetcher to upload media with redirects behind CND / image services
+* Add check for enableUrlValidation on method openSourceFromUrl of class FileFetcher to upload media with redirects behind CDN / image services

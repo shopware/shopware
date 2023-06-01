@@ -70,7 +70,8 @@ class ImportExportFactory
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
-        $criteria->addAssociation('invalidRecordsLog');
+        $criteria->addAssociation('file');
+        $criteria->addAssociation('invalidRecordsLog.file');
         $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($logEntity === null) {
@@ -82,7 +83,10 @@ class ImportExportFactory
 
     private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
-        return $this->definitionInstanceRegistry->getRepository($logEntity->getProfile()->getSourceEntity());
+        /** @var ImportExportProfileEntity $profile */
+        $profile = $logEntity->getProfile();
+
+        return $this->definitionInstanceRegistry->getRepository($profile->getSourceEntity());
     }
 
     private function getPipe(ImportExportLogEntity $logEntity): AbstractPipe

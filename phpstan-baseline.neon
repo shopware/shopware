@@ -3256,11 +3256,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Cannot call method getSourceEntity\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExportFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExportProfileEntity.php
@@ -5104,91 +5099,6 @@ parameters:
 			message: "#^Instanceof between Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\IfSequence and Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\ActionSequence will always evaluate to false\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getPath\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportFile\\\\ImportExportFileEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:assertImportExportSucceeded\\(\\) has parameter \\$invalidLog with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:atomDate\\(\\) has parameter \\$str with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:createCustomField\\(\\) has parameter \\$customFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:createPromotion\\(\\) has parameter \\$promotionOverride with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:createPromotion\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:createPromotionCode\\(\\) has parameter \\$promotionCodeOverride with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:createPromotionCode\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:getDefaultProfileId\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:getInvalidLogContent\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:getTestProduct\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:runCustomerImportWithConfigAndMockedRepository\\(\\) has parameter \\$configOverrides with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:updateProfileConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:updateProfileMapping\\(\\) has parameter \\$mappings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:updateProfileUpdateBy\\(\\) has parameter \\$updateBy with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTestCase.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Api\\\\ImportExportActionControllerTest\\:\\:getValidMimeTypes\\(\\) return type has no value type specified in iterable type array\\.$#"

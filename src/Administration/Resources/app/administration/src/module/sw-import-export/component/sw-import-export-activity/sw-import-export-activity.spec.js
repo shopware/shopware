@@ -341,4 +341,12 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
 
         expect(stateHeader.text()).toBe('sw-import-export.activity.columns.state');
     });
+
+    it('should add associations no longer autoload in the activityCriteria', async () => {
+        const { wrapper } = await createWrapper({ logData: getLogData() });
+        const criteria = wrapper.vm.activityCriteria;
+
+        expect(criteria.hasAssociation('file')).toBe(true);
+        expect(criteria.getAssociation('invalidRecordsLog').hasAssociation('file')).toBe(true);
+    });
 });

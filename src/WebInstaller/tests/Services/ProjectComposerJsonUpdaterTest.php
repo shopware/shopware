@@ -42,7 +42,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
         static::assertSame(
             [
                 'require' => [
-                    'shopware/core' => '~6.4.0',
+                    'shopware/core' => '6.4.18.0',
                 ],
             ],
             $composerJson
@@ -61,7 +61,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
         static::assertSame(
             [
                 'require' => [
-                    'shopware/core' => '~6.4.0',
+                    'shopware/core' => '6.4.18.0-rc1',
                 ],
                 'minimum-stability' => 'RC',
             ],

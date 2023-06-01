@@ -365,7 +365,7 @@
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "proceedLink": "Go to checkout",
-    "addressEqualText": "Same as billing address",
+    "addressEqualText": "Same as shipping address",
     "billingAddressHeader": "Billing address",
     "shippingAddressHeader": "Shipping address",
     "confirmHeader": "Complete order",

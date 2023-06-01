@@ -365,7 +365,7 @@
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "proceedLink": "Zur Kasse",
-    "addressEqualText": "Entspricht der Rechnungsadresse",
+    "addressEqualText": "Entspricht der Lieferadresse",
     "billingAddressHeader": "Rechnungsadresse",
     "shippingAddressHeader": "Lieferadresse",
     "confirmHeader": "Bestellung abschließen",

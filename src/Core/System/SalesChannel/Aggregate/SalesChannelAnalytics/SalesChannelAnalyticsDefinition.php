@@ -38,11 +38,6 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
         return '6.2.0.0';
     }
 
-    protected function getParentDefinitionClass(): ?string
-    {
-        return SalesChannelDefinition::class;
-    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

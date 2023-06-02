@@ -9451,16 +9451,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/QueryBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$reverseSide\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionValidator.php
-
-		-
-			message: "#^Instanceof between Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/DefinitionValidator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\FetchModeHelper\\:\\:group\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/FetchModeHelper.php

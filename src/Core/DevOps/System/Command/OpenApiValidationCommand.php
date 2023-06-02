@@ -10,6 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -33,7 +34,7 @@ class OpenApiValidationCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('validatorUrl', InputArgument::OPTIONAL, 'The URL of the validator', 'https://validator.swagger.io/validator/debug');
-        $this->addOption('api-type', '', InputArgument::OPTIONAL, 'The API type to validate', DefinitionService::API);
+        $this->addOption('api-type', '', InputOption::VALUE_REQUIRED, 'The API type to validate', DefinitionService::API);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -42,7 +43,7 @@ class OpenApiValidationCommand extends Command
         $apiType = match ($input->getOption('api-type')) {
             DefinitionService::API => DefinitionService::API,
             DefinitionService::STORE_API => DefinitionService::STORE_API,
-            default => throw new \InvalidArgumentException('Invalid --apiType, must be one of "api" or "store-api"'),
+            default => throw new \InvalidArgumentException('Invalid --api-type, must be one of "api" or "store-api"'),
         };
 
         $schema = $this->definitionService->generate(

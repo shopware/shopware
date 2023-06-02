@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Composer\Semver\VersionParser;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Defaults;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
@@ -87,7 +89,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly FlowActionPersister $flowBuilderActionPersister,
         private readonly ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly CustomEntityLifecycleService $customEntityLifecycleService
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
+        private readonly string $shopwareVersion
     ) {
     }
 
@@ -98,6 +101,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     public function install(Manifest $manifest, bool $activate, Context $context): void
     {
+        $this->ensureIsCompatible($manifest);
+
         $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
         if ($app) {
             throw new AppAlreadyInstalledException($manifest->getMetadata()->getName());
@@ -127,6 +132,8 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     public function update(Manifest $manifest, array $app, Context $context): void
     {
+        $this->ensureIsCompatible($manifest);
+
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
         $appEntity = $this->updateApp($manifest, $metadata, $app['id'], $app['roleId'], $defaultLocale, $context, false);
@@ -150,6 +157,14 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssets($appEntity->getName());
         $this->customEntitySchemaUpdater->update();
+    }
+
+    public function ensureIsCompatible(Manifest $manifest): void
+    {
+        $versionParser = new VersionParser();
+        if (!$manifest->getMetadata()->getCompatibility()->matches($versionParser->parseConstraints($this->shopwareVersion))) {
+            throw AppException::notCompatible($manifest->getMetadata()->getName());
+        }
     }
 
     /**

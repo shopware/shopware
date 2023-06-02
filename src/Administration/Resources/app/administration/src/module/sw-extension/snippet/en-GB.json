@@ -75,6 +75,7 @@
       "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Extension deactivated.",
       "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer.",
+      "appIsNotCompatible": "Extension \"{name}\" is not compatible with this Shopware version",
       "appLicenseCouldNotBeVerified": {
         "title": "The licence of this extension could not be verified",
         "message": "Ensure that your licence domain is set correctly and that you are logged in with your Shopware Account to which this extension is licensed.",

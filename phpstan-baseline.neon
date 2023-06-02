@@ -17196,10 +17196,7 @@ parameters:
 			count: 4
 			path: tests/integration/php/Core/Content/Product/SalesChannel/Listing/ProductListingLoaderTest.php
 
-		-
-			message: "#^Anonymous variable in a `\\$apps\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 7
-			path: tests/integration/php/Core/Framework/App/AppServiceTest.php
+
 
 		-
 			message: "#^Anonymous variable in a `\\$script\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

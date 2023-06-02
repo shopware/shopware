@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
@@ -57,7 +58,9 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('test', $apps->first()->getName());
+        $first = $apps->first();
+        static::assertInstanceOf(AppEntity::class, $first);
+        static::assertEquals('test', $first->getName());
 
         $this->assertDefaultActionButtons();
     }
@@ -97,9 +100,11 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('test', $apps->first()->getName());
-        static::assertEquals('1.0.0', $apps->first()->getVersion());
-        static::assertNotEquals('test', $apps->first()->getTranslation('label'));
+        $first = $apps->first();
+        static::assertInstanceOf(AppEntity::class, $first);
+        static::assertEquals('test', $first->getName());
+        static::assertEquals('1.0.0', $first->getVersion());
+        static::assertNotEquals('test', $first->getTranslation('label'));
 
         $this->assertDefaultActionButtons();
     }
@@ -129,9 +134,11 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('test', $apps->first()->getName());
-        static::assertEquals('1.0.0', $apps->first()->getVersion());
-        static::assertEquals('test', $apps->first()->getTranslation('label'));
+        $first = $apps->first();
+        static::assertInstanceOf(AppEntity::class, $first);
+        static::assertEquals('test', $first->getName());
+        static::assertEquals('1.0.0', $first->getVersion());
+        static::assertEquals('test', $first->getTranslation('label'));
     }
 
     public function testRefreshDeletesApp(): void
@@ -274,7 +281,7 @@ class AppServiceTest extends TestCase
         $fails = $appService->doRefreshApps(true, $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
-        static::assertCount(12, $manifests); // 2 are not parsable
+        static::assertCount(13, $manifests); // 2 are not parsable
         static::assertCount(7, $apps);
         static::assertCount(3, $fails);
     }

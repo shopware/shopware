@@ -8,9 +8,11 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
@@ -46,6 +48,36 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class AppLifecycleTest extends TestCase
 {
+    public function testInstallNotCompatibleApp(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository->expects(static::never())->method('upsert');
+
+        $appLifecycle = $this->getAppLifecycle(new StaticEntityRepository([]), new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
+
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('App test is not compatible with this Shopware version');
+        $appLifecycle->install($manifest, false, Context::createDefaultContext());
+    }
+
+    public function testUpdateNotCompatibleApp(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository->expects(static::never())->method('upsert');
+
+        $appLifecycle = $this->getAppLifecycle(new StaticEntityRepository([]), new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
+
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('App test is not compatible with this Shopware version');
+        $appLifecycle->update($manifest, ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
+    }
+
     public function testInstallSavesSnippetsGiven(): void
     {
         $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
@@ -317,6 +349,7 @@ class AppLifecycleTest extends TestCase
             $appAdministrationSnippetPersisterMock,
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
+            '6.5.0.0'
         );
     }
 

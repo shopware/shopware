@@ -135,6 +135,7 @@
             <xs:element type="xs:string" name="version"/>
             <xs:element type="xs:string" name="icon" minOccurs="0"/>
             <xs:element type="xs:string" name="license"/>
+            <xs:element type="xs:string" name="compatibility"/>
             <xs:element type="xs:anyURI" name="privacy" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">

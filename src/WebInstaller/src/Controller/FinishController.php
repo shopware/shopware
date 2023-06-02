@@ -20,6 +20,10 @@ class FinishController extends AbstractController
     {
         // @codeCoverageIgnoreStart
         if ($request->getMethod() === Request::METHOD_POST) {
+            if ($request->hasSession()) {
+                $request->getSession()->invalidate();
+            }
+
             $self = $_SERVER['SCRIPT_FILENAME'];
             \assert(\is_string($self));
 

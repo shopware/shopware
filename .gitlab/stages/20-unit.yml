@@ -148,6 +148,35 @@ PHP bench:
         - php vendor/bin/phpbench run
             --report=compressed
 
+
+Open Api Schema validation:
+  extends: .base-no-setup
+  image: shopware/development:8.1-composer-2
+  stage: unit
+  timeout: 2m
+  needs: []
+  services:
+    -   name: swaggerapi/swagger-validator-v2:v2.0.5
+        alias: swagger
+  variables:
+    APP_ENV: "dev"
+  rules:
+    # do not run in merge trains
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+      when: never
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, run ]
+    - changes:
+        - '**/*.php'
+        - '**/*.xml'
+        - 'composer.json'
+
+  before_script:
+    - !reference [ .scripts, init, composer ]
+  script:
+    - php ./bin/console open-api:validate http://swagger:8080/validator/debug
+    - php ./bin/console open-api:validate --api-type=store-api http://swagger:8080/validator/debug
+
 PHP unit coverage:
     extends: .base-no-setup
     image: shopware/development:8.1-composer-2

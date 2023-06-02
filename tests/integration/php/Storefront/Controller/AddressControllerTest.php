@@ -57,8 +57,9 @@ class AddressControllerTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $id1]);
 
-        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-        static::assertSame($id1, $context->getCustomer()->getId());
+        $customer = $context->getCustomer();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        static::assertSame($id1, $customer->getId());
 
         $controller = $this->getContainer()->get(AddressController::class);
 
@@ -66,7 +67,7 @@ class AddressControllerTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $this->getContainer()->get('request_stack')->push($request);
 
-        $controller->deleteAddress($id2, $context, $context->getCustomer());
+        $controller->deleteAddress($id2, $context, $customer);
 
         $criteria = new Criteria([$id2]);
 
@@ -77,7 +78,7 @@ class AddressControllerTest extends TestCase
 
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
 
-        $controller->deleteAddress($id1, $context, $context->getCustomer());
+        $controller->deleteAddress($id1, $context, $customer);
 
         $criteria = new Criteria([$id1]);
 
@@ -121,6 +122,7 @@ class AddressControllerTest extends TestCase
         $dataBag = $this->getDataBag('billing');
         $controller->addressBook($request, $dataBag, $context, $customer1);
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertNotSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
         static::assertSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
@@ -157,6 +159,7 @@ class AddressControllerTest extends TestCase
         $dataBag = $this->getDataBag('shipping');
         $controller->addressBook($request, $dataBag, $context, $customer);
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertNotSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
         static::assertSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());

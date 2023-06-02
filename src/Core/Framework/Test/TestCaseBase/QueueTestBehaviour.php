@@ -30,7 +30,7 @@ trait QueueTestBehaviour
         $eventDispatcher->addSubscriber(new StopWorkerWhenIdleListener());
         $eventDispatcher->addSubscriber($this->getContainer()->get(MessageQueueStatsSubscriber::class));
 
-        /** @var ServiceLocator $locator */
+        /** @var ServiceLocator<ReceiverInterface> $locator */
         $locator = $this->getContainer()->get('messenger.test_receiver_locator');
 
         /** @var ReceiverInterface $receiver */

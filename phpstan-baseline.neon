@@ -15817,11 +15817,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Routing/RouterTest.php
 
 		-
-			message: "#^While loop condition is always false\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RouterTest.php
-
-		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Routing/StorefrontRoutingTest.php
@@ -17338,10 +17333,7 @@ parameters:
 			count: 18
 			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
 
-		-
-			message: "#^Anonymous variable in a `\\$customer\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 4
-			path: tests/integration/php/Storefront/Controller/AddressControllerTest.php
+
 
 		-
 			message: "#^Anonymous variable in a `\\\\Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AuthTestSubscriber\\:\\:\\$renderEvent\\-\\>getParameters\\(\\)\\['page'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

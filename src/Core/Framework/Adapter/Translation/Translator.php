@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -62,14 +60,14 @@ class Translator extends AbstractTranslator
      * @internal
      */
     public function __construct(
-        private readonly TranslatorInterface $translator,
+        private readonly TranslatorInterface&TranslatorBagInterface&LocaleAwareInterface $translator,
         private readonly RequestStack $requestStack,
         private readonly CacheInterface $cache,
         private readonly MessageFormatterInterface $formatter,
-        private readonly SnippetService $snippetService,
         private readonly string $environment,
-        private readonly EntityRepository $snippetSetRepository,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly Connection $connection,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly SnippetService $snippetService
     ) {
     }
 
@@ -118,7 +116,6 @@ class Translator extends AbstractTranslator
      */
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
-        \assert($this->translator instanceof TranslatorBagInterface);
         $catalog = $this->translator->getCatalogue($locale);
 
         $fallbackLocale = $this->getFallbackLocale();
@@ -161,7 +158,6 @@ class Translator extends AbstractTranslator
      */
     public function setLocale(string $locale): void
     {
-        \assert($this->translator instanceof LocaleAwareInterface);
         $this->translator->setLocale($locale);
     }
 
@@ -170,8 +166,6 @@ class Translator extends AbstractTranslator
      */
     public function getLocale(): string
     {
-        \assert($this->translator instanceof LocaleAwareInterface);
-
         return $this->translator->getLocale();
     }
 
@@ -237,11 +231,8 @@ class Translator extends AbstractTranslator
                 return $this->snippets[$locale];
             }
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('iso', $locale));
-
-            $snippetSetId = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
-            if ($snippetSetId !== null) {
+            $snippetSetId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
+            if ($snippetSetId !== false) {
                 return $this->snippets[$locale] = $snippetSetId;
             }
         }

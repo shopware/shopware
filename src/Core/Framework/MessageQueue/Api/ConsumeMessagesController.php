@@ -15,8 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnSignalsListener;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,13 +26,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class ConsumeMessagesController extends AbstractController
 {
     /**
+     * @param ServiceLocator<ReceiverInterface> $receiverLocator
+     *
      * @internal
      */
     public function __construct(
         private readonly ServiceLocator $receiverLocator,
         private readonly MessageBusInterface $bus,
         private readonly StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
-        private readonly StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
+        private readonly StopWorkerOnSignalsListener $stopWorkerOnSigtermSignalListener,
         private readonly DispatchPcntlSignalListener $dispatchPcntlSignalListener,
         private readonly EarlyReturnMessagesListener $earlyReturnListener,
         private readonly MessageQueueStatsSubscriber $statsSubscriber,

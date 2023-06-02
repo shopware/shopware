@@ -76,6 +76,23 @@ class RecoveryManagerTest extends TestCase
         $fs->remove($tmpDir);
     }
 
+    /**
+     * @backupGlobals enabled
+     */
+    public function testGetShopwareVersionPrefixed(): void
+    {
+        $recoveryManager = new RecoveryManager();
+
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid('shopware', true);
+
+        $fs = new Filesystem();
+        $this->prepareShopware($fs, $tmpDir, 'v6.4.10.0');
+
+        static::assertSame('6.4.10.0', $recoveryManager->getCurrentShopwareVersion($tmpDir));
+
+        $fs->remove($tmpDir);
+    }
+
     public function testGetVersionEmptyFolder(): void
     {
         $recoveryManager = new RecoveryManager();
@@ -131,7 +148,7 @@ class RecoveryManagerTest extends TestCase
         static::assertSame('php', $recoveryManager->getPHPBinary($request));
     }
 
-    private function prepareShopware(Filesystem $fs, string $tmpDir): void
+    private function prepareShopware(Filesystem $fs, string $tmpDir, string $version = '6.4.10.0'): void
     {
         $fs->mkdir($tmpDir);
 
@@ -139,7 +156,7 @@ class RecoveryManagerTest extends TestCase
 
         $fs->dumpFile($tmpDir . '/composer.json', json_encode([
             'require' => [
-                'shopware/core' => '6.4.10.0',
+                'shopware/core' => $version,
             ],
         ], \JSON_THROW_ON_ERROR));
 
@@ -147,7 +164,7 @@ class RecoveryManagerTest extends TestCase
             'packages' => [
                 [
                     'name' => 'shopware/core',
-                    'version' => '6.4.10.0',
+                    'version' => $version,
                 ],
             ],
         ], \JSON_THROW_ON_ERROR));

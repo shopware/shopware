@@ -69,7 +69,7 @@ class RecoveryManager
 
         foreach ($composerLock['packages'] as $package) {
             if ($package['name'] === 'shopware/core' || $package['name'] === 'shopware/platform') {
-                return $package['version'];
+                return ltrim($package['version'], 'v');
             }
         }
 

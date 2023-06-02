@@ -160,8 +160,10 @@ PHP bench:
         - php vendor/bin/phpbench run
             --report=compressed
 
+
 Open Api Schema validation:
   extends: .base-no-setup
+  image: shopware/development:8.1-composer-2
   stage: unit
   timeout: 2m
   needs: []
@@ -180,6 +182,7 @@ Open Api Schema validation:
         - '**/*.php'
         - '**/*.xml'
         - 'composer.json'
+
   before_script:
     - !reference [ .scripts, init, composer ]
   script:

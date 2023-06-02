@@ -349,6 +349,10 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('exclude_events')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('error_code_log_levels')
+                    ->useAttributeAsKey('name')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

@@ -253,6 +253,8 @@ shopware:
         exclude_events:
             - user.recovery.request
             - customer.recovery.request
+        error_code_log_levels:
+            PRODUCT__CATEGORY_NOT_FOUND: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

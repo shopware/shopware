@@ -693,6 +693,11 @@ base-uri 'self';
             <argument>%shopware.logger.exclude_exception%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
+            <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler.inner"/>
+            <argument>%shopware.logger.error_code_log_levels%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler.inner"/>
             <argument>%shopware.logger.exclude_events%</argument>

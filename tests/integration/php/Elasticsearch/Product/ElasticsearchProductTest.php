@@ -3241,6 +3241,13 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertCount(1, $result->getIds());
 
+        // Test with non-zero ms
+        $criteria = new EsAwareCriteria();
+        $criteria->addFilter(new EqualsFilter('createdAt', '2019-01-01 10:11:00.123'));
+        $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertCount(1, $result->getIds());
+
         $criteria = new EsAwareCriteria();
         $criteria->addFilter(new EqualsFilter('releaseDate', '2019/01/01 10:11:00'));
         $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);

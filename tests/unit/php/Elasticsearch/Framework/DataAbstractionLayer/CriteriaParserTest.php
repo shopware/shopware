@@ -436,6 +436,18 @@ class CriteriaParserTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'range filter: datetime' => [
+            new RangeFilter('createdAt', [RangeFilter::GTE => '2023-06-01', RangeFilter::LT => '2023-06-03 13:47:42.759']),
+            [
+                'range' => [
+                    'createdAt' => [
+                        'gte' => '2023-06-01 00:00:00.000',
+                        'lt' => '2023-06-03 13:47:42.000',
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function getDefinition(): EntityDefinition

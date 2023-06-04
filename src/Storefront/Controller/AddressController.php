@@ -257,6 +257,7 @@ class AddressController extends StorefrontController
         SalesChannelContext $context,
         CustomerEntity $customer
     ): void {
+        /** @var DataBag|null $changeableAddresses */
         $changeableAddresses = $dataBag->get('changeableAddresses');
 
         if (!$changeableAddresses instanceof DataBag) {
@@ -285,6 +286,7 @@ class AddressController extends StorefrontController
         SalesChannelContext $context,
         CustomerEntity $customer
     ): void {
+        /** @var ?DataBag $selectedAddress */
         $selectedAddress = $dataBag->get('selectAddress');
         if (!$selectedAddress instanceof DataBag) {
             return;
@@ -345,8 +347,9 @@ class AddressController extends StorefrontController
 
     private function handleCustomerVatIds(RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): void
     {
+        /** @var ?DataBag $dataBagVatIds */
         $dataBagVatIds = $dataBag->get('vatIds');
-        if (!$dataBagVatIds instanceof DataBag) {
+        if (!$dataBagVatIds) {
             return;
         }
 

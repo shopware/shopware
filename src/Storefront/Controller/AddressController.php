@@ -173,15 +173,13 @@ class AddressController extends StorefrontController
         $params = [];
 
         try {
+            $page = $this->addressListingPageLoader->load($request, $context, $customer);
+            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
+            $viewData->setPage($page);
+
             $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
             $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
             $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
-
-            $page = $this->addressListingPageLoader->load($request, $context, $customer);
-
-            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
-
-            $viewData->setPage($page);
             $this->handleCustomerVatIds($dataBag, $context, $customer);
         } catch (ConstraintViolationException $formViolations) {
             $params['formViolations'] = $formViolations;
@@ -258,6 +256,7 @@ class AddressController extends StorefrontController
         SalesChannelContext $context,
         CustomerEntity $customer
     ): void {
+        /** @var DataBag|null $changeableAddresses */
         $changeableAddresses = $dataBag->get('changeableAddresses');
 
         if ($changeableAddresses === null) {
@@ -286,6 +285,7 @@ class AddressController extends StorefrontController
         SalesChannelContext $context,
         CustomerEntity $customer
     ): void {
+        /** @var ?DataBag $selectedAddress */
         $selectedAddress = $dataBag->get('selectAddress');
 
         if ($selectedAddress === null) {
@@ -347,11 +347,13 @@ class AddressController extends StorefrontController
 
     private function handleCustomerVatIds(RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): void
     {
-        if (!$dataBag->has('vatIds')) {
+        /** @var ?DataBag $dataBagVatIds */
+        $dataBagVatIds = $dataBag->get('vatIds');
+        if (!$dataBagVatIds) {
             return;
         }
 
-        $newVatIds = $dataBag->get('vatIds')->all();
+        $newVatIds = $dataBagVatIds->all();
         $oldVatIds = $customer->getVatIds() ?? [];
         if (!array_diff($newVatIds, $oldVatIds) && !array_diff($oldVatIds, $newVatIds)) {
             return;

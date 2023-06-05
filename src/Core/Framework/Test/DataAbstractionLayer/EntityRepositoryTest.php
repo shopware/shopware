@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
@@ -49,6 +50,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -1345,6 +1347,23 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertEquals(1, $task->getRunInterval());
         static::assertEquals(1, $task->getDefaultRunInterval());
+    }
+
+    public function testSnippetWriteWithoutValueFieldThrowsWriteValidationError(): void
+    {
+        $snippetRepo = $this->createRepository(SnippetDefinition::class);
+
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
+
+        static::expectException(WriteException::class);
+        $snippetRepo->create([
+            [
+                'id' => Uuid::randomHex(),
+                'translationKey' => 'test',
+                'setId' => $snippetSetId,
+                'author' => 'test',
+            ],
+        ], Context::createDefaultContext());
     }
 
     /**

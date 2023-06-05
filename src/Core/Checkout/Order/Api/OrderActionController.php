@@ -9,12 +9,10 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +29,6 @@ class OrderActionController extends AbstractController
      */
     public function __construct(
         private readonly OrderService $orderService,
-        private readonly StateMachineDefinition $stateMachineDefinition,
         private readonly Connection $connection,
         private readonly PaymentRefundProcessor $paymentRefundProcessor
     ) {
@@ -106,12 +103,7 @@ class OrderActionController extends AbstractController
             $context
         );
 
-        $response = $this->apiVersionConverter->convertEntity(
-            $this->stateMachineDefinition,
-            $toPlace
-        );
-
-        return new JsonResponse($response);
+        return new JsonResponse($toPlace->jsonSerialize());
     }
 
     #[Route(path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}', name: 'api.action.order.state_machine.order_delivery.transition_state', methods: ['POST'])]
@@ -147,12 +139,7 @@ class OrderActionController extends AbstractController
             $context
         );
 
-        $response = $this->apiVersionConverter->convertEntity(
-            $this->stateMachineDefinition,
-            $toPlace
-        );
-
-        return new JsonResponse($response);
+        return new JsonResponse($toPlace->jsonSerialize());
     }
 
     /**

@@ -38,6 +38,7 @@ class StringFieldSerializerTest extends TestCase
         $maxLength = new StringField('name', 'name', 5);
         $optional = new StringField('name', 'name');
         $allowEmpty = (new StringField('name', 'name'))->addFlags(new AllowEmptyString());
+        $allowEmptyAndRequired = (new StringField('name', 'name'))->addFlags(new Required(), new AllowEmptyString());
 
         yield 'Create with null and required' => [$required, null, null, true, $create];
         yield 'Create with null and optional' => [$optional, null, null, false, $create];
@@ -57,6 +58,11 @@ class StringFieldSerializerTest extends TestCase
         yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
 
         yield 'Test max length' => [$maxLength, '123456789', '12345', true, $update];
+
+        yield 'Create with null and allow empty and required' => [$allowEmptyAndRequired, null, null, true, $create];
+        yield 'Update with null and allow empty and required' => [$allowEmptyAndRequired, null, null, true, $update];
+        yield 'Create with empty and allow empty and required' => [$allowEmptyAndRequired, '', '', false, $create];
+        yield 'Update with empty and allow empty and required' => [$allowEmptyAndRequired, '', '', false, $update];
     }
 
     /**

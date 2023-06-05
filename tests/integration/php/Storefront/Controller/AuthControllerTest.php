@@ -412,7 +412,7 @@ class AuthControllerTest extends TestCase
 
         $controller = $this->getAuthController($this->getContainer()->get(SendPasswordRecoveryMailRoute::class));
 
-        $request = $this->createRequest('frontend.account.recover.request', );
+        $request = $this->createRequest('frontend.account.recover.request');
 
         $data = new RequestDataBag([
             'email' => new RequestDataBag([

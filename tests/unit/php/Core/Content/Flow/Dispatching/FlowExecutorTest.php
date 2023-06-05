@@ -136,7 +136,7 @@ class FlowExecutorTest extends TestCase
                 'payload' => [],
             ]);
             $eventDispatcher->expects(static::once())->method('dispatch')->with(
-                new AppFlowActionEvent('app.action', [], [], ),
+                new AppFlowActionEvent('app.action', [], []),
                 'app.action'
             );
             $actionSequences[] = $appActionSequence;

@@ -164,7 +164,7 @@ class CartFacadeTest extends TestCase
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         // add {% do debug.dump('foo') %} to debug scripts
-//         dump($this->getContainer()->get(ScriptTraces::class)->getTraces());
+        //         dump($this->getContainer()->get(ScriptTraces::class)->getTraces());
 
         $this->assertItems($service, $expectations);
 

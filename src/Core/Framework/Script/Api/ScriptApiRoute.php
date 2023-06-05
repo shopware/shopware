@@ -77,7 +77,7 @@ class ScriptApiRoute
                 continue;
             }
 
-//            $name = $script->getAppName() ?? 'shop-owner-scripts';
+            //            $name = $script->getAppName() ?? 'shop-owner-scripts';
             if ($context->isAllowed('app.' . $appInfo->getAppName())) {
                 continue;
             }

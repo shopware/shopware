@@ -188,7 +188,7 @@ class VersionManagerTest extends TestCase
         );
 
         $clonedManyToOne = $clonedAffected['product'][0]->getPayload();
-        static::assertArrayNotHasKey('manyToOneId', $clonedManyToOne, );
+        static::assertArrayNotHasKey('manyToOneId', $clonedManyToOne);
     }
 
     private function registerEntityDefinitionAndInitDatabase(): void

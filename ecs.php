@@ -57,8 +57,6 @@ use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
 return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->sets([
-        SetList::SYMFONY,
-        SetList::SYMFONY_RISKY,
         SetList::ARRAY,
         SetList::CONTROL_STRUCTURES,
         SetList::STRICT,
@@ -120,12 +118,8 @@ return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->parallel();
 
     $ecsConfig->skip([
-        // Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
-        __DIR__ . '/src/Core/Framework/Compatibility/DocParser.php',
-        __DIR__ . '/src/Core/Framework/Compatibility/AnnotationReader.php',
-
         // Fixture
-        __DIR__ . '/src/WebInstaller/tests/_fixtures/Options.php',
+        'src/WebInstaller/tests/_fixtures/Options.php',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,
@@ -157,5 +151,6 @@ return static function (ECSConfig $ecsConfig): void {
             'src/**/*Route.php',
         ],
         PhpdocNoPackageFixer::class => null,
+        StandaloneLineConstructorParamFixer::class => null
     ]);
 };

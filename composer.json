@@ -513,17 +513,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
-            "Shopware\\Administration\\Test\\": "src/Administration/Test",
-            "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
-            "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
-            "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
-            "Shopware\\Core\\Maintenance\\Test\\": "src/Core/Maintenance/Test/",
-            "Shopware\\Core\\DevOps\\Test\\": "src/Core/DevOps/Test/",
-            "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
-            "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
-            "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
-            "Shopware\\Core\\Test\\": "src/Core/Test/",
             "Shopware\\Tests\\Unit\\": "tests/unit/php/",
             "Shopware\\Tests\\Integration\\": "tests/integration/php/",
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",

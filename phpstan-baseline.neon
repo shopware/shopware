@@ -5966,11 +5966,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Repository\\\\ImportExportProfileRepositoryTest\\:\\:getTranslationRecords\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php

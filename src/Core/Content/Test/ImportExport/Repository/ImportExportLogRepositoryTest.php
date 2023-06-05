@@ -143,7 +143,6 @@ class ImportExportLogRepositoryTest extends TestCase
         }
 
         try {
-            static::assertNotNull($data);
             $this->logRepository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {

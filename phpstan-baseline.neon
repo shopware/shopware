@@ -19816,16 +19816,6 @@ parameters:
 			path: tests/unit/php/Storefront/Controller/DownloadControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/php/Storefront/Controller/StorefrontControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/StorefrontControllerTest.php
-
-		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
 			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php

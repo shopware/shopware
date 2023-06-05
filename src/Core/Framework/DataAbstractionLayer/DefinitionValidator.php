@@ -172,7 +172,7 @@ class DefinitionValidator
 
         foreach ($this->registry->getDefinitions() as $definition) {
             // ignore definitions from a test namespace
-            if (preg_match('/.*\\\\Test\\\\.*/', $definition->getClass())) {
+            if (preg_match('/.*\\\\Test\\\\.*/', $definition->getClass()) || preg_match('/.*ComposerChild\\\\.*/', $definition->getClass())) {
                 continue;
             }
             $violations[$definition->getClass()] = [];
@@ -215,6 +215,10 @@ class DefinitionValidator
             if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationGettersAreNullable($definition));
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationDefinitions($definition));
+            }
+
+            if (($parentDefinition = $definition->getParentDefinition()) !== null) {
+                $violations = array_merge_recursive($violations, $this->validateParentDefinitionAssociation($definition, $parentDefinition));
             }
         }
 
@@ -538,6 +542,7 @@ class DefinitionValidator
 
         $associationViolations = [];
 
+        /** @var OneToOneAssociationField|null $reverseSide */
         $reverseSide = $reference->getFields()->filter(
             function (Field $field) use ($association, $definition) {
                 if (!$field instanceof OneToOneAssociationField) {
@@ -896,10 +901,6 @@ class DefinitionValidator
                 continue;
             }
 
-            if (!$field instanceof Field) {
-                continue;
-            }
-
             if (\in_array($field->getPropertyName(), self::CUSTOM_PREFIXED_NAMED, true)) {
                 continue;
             }
@@ -1097,5 +1098,26 @@ class DefinitionValidator
             $definition->getEntityName(),
             $association->getPropertyName()
         );
+    }
+
+    /**
+     * @return array<class-string<EntityDefinition>, list<string>>
+     */
+    private function validateParentDefinitionAssociation(EntityDefinition $definition, EntityDefinition $parentDefinition): array
+    {
+        /** @var FkField $fkField */
+        foreach ($definition->getFields()->filterInstance(FkField::class) as $fkField) {
+            if ($fkField->getReferenceDefinition() === $parentDefinition) {
+                return [];
+            }
+        }
+
+        return [
+            $definition->getClass() => [sprintf(
+                'Entity "%s" defines parent entity "%s", but does not have a FK to that parent entity configured.',
+                $definition->getEntityName(),
+                $parentDefinition->getEntityName(),
+            )],
+        ];
     }
 }

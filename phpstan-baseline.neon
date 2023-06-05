@@ -14146,16 +14146,6 @@ parameters:
 			path: src/Core/Framework/Uuid/Uuid.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:randomBytes\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Uuid/Uuid.php
-
-		-
-			message: "#^Parameter \\#1 \\$clockSeqHi of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:applyVariant\\(\\) expects int, float\\|int given\\.$#"
-			count: 1
-			path: src/Core/Framework/Uuid/Uuid.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:getListDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Validation/DataValidationDefinition.php

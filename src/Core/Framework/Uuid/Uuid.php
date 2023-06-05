@@ -17,28 +17,35 @@ class Uuid
      */
     final public const VALID_PATTERN = '^[0-9a-f]{32}$';
 
+    private static ?UnixTimeGenerator $generator = null;
+
     public static function randomHex(): string
     {
         return bin2hex(self::randomBytes());
     }
 
-    /** same as Ramsey\Uuid\UuidFactory->uuidFromBytesAndVersion without using a transfer object */
+    /**
+     * same as Ramsey\Uuid\UuidFactory->uuidFromBytesAndVersion without using a transfer object
+     */
     public static function randomBytes(): string
     {
-        $unixTimeGenerator = new UnixTimeGenerator((new RandomGeneratorFactory())->getGenerator());
-        $bytes = $unixTimeGenerator->generate();
+        if (self::$generator === null) {
+            self::$generator = new UnixTimeGenerator((new RandomGeneratorFactory())->getGenerator());
+        }
+        $bytes = self::$generator->generate();
 
-        /** @var array $unpackedTime */
+        /** @var array<int> $unpackedTime */
         $unpackedTime = unpack('n*', substr($bytes, 6, 2));
         $timeHi = (int) $unpackedTime[1];
         $timeHiAndVersion = pack('n*', BinaryUtils::applyVersion($timeHi, 7));
 
-        /** @var array $unpackedClockSeq */
+        /** @var array<int> $unpackedClockSeq */
         $unpackedClockSeq = unpack('n*', substr($bytes, 8, 2));
         $clockSeqHi = (int) $unpackedClockSeq[1];
         $clockSeqHiAndReserved = pack('n*', BinaryUtils::applyVariant($clockSeqHi));
 
         $bytes = substr_replace($bytes, $timeHiAndVersion, 6, 2);
+
         return substr_replace($bytes, $clockSeqHiAndReserved, 8, 2);
     }
 
@@ -107,24 +114,5 @@ class Uuid
         }
 
         return true;
-    }
-
-    private static function applyVersion(string $timeHi, int $version): int
-    {
-        $timeHi = hexdec($timeHi) & 0x0FFF;
-        $timeHi &= ~0xF000;
-        $timeHi |= $version << 12;
-
-        return $timeHi;
-    }
-
-    private static function applyVariant(int $clockSeqHi): int
-    {
-        // Set the variant to RFC 4122
-        $clockSeqHi &= 0x3F;
-        $clockSeqHi &= ~0xC0;
-        $clockSeqHi |= 0x80;
-
-        return $clockSeqHi;
     }
 }

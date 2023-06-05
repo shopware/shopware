@@ -118,10 +118,8 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
         $this->salesChannelRepository->delete($nonDefaults, Context::createDefaultContext());
 
-        $newSalesChannelId = Uuid::randomHex();
-        while ($newSalesChannelId < TestDefaults::SALES_CHANNEL) {
-            $newSalesChannelId = Uuid::randomHex();
-        }
+        // trick the sorting by making sure the new sales channel id is greater than the default sales channel id
+        $newSalesChannelId = substr_replace(TestDefaults::SALES_CHANNEL, 'f', 0, 1);
 
         $paymentMethod = $this->getAvailablePaymentMethod();
 

@@ -142,13 +142,13 @@ default:
         - bin/console system:generate-jwt || true
         - bin/console system:install --drop-database --basic-setup --force >/dev/null
         - bin/console plugin:refresh
+        - *install_dependencies
         - bin/console plugin:install --activate $PLUGIN_NAME
         - >
           if bin/console debug:container --parameter kernel.plugin_infos --format json | grep -q "$PLUGIN_NAME";
             then echo "$PLUGIN_NAME is active";
             else echo "$PLUGIN_NAME is not active"; exit 1;
           fi
-        - *install_dependencies
         - bin/console bundle:dump
         - bin/console assets:install
         # run php as root to prevent permission issues

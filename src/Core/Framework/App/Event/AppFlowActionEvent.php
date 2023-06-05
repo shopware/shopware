@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
@@ -37,7 +38,7 @@ class AppFlowActionEvent extends Event implements Hookable
     /**
      * @return array<mixed>
      */
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return $this->payload;
     }

@@ -85,6 +85,16 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     }
 
     /**
+     * @return array<string, bool>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            '*' => false,
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $argument
      */
     private function isObject(array $argument): bool

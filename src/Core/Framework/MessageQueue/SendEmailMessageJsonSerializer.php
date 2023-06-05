@@ -49,4 +49,14 @@ class SendEmailMessageJsonSerializer implements NormalizerInterface, Denormalize
     {
         return [__CLASS__ => addslashes(serialize($object))];
     }
+
+    /**
+     * @return array<class-string, bool>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            SendEmailMessage::class => true,
+        ];
+    }
 }

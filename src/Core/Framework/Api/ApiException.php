@@ -31,6 +31,7 @@ class ApiException extends HttpException
 
     public const API_UNSUPPORTED_ASSOCIATION_FIELD = 'FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION';
     public const API_INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__INVALID_SYNC_OPERATION';
+    public const API_INVALID_SCHEMA_DEFINITION_EXCEPTION = 'FRAMEWORK__INVALID_SCHEMA_DEFINITION';
 
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
 
@@ -254,6 +255,15 @@ class ApiException extends HttpException
             self::API_UNABLE_GENERATE_BUNDLE,
             'Unable to generate bundle directory for bundle "{{ bundleName }}".',
             ['bundleName' => $bundleName]
+        );
+    }
+
+    public static function invalidSchemaDefinitions(string $filename, \JsonException $exception): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
         );
     }
 }

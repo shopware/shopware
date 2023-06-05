@@ -12,10 +12,8 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnSignalsListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
@@ -34,8 +32,6 @@ class ConsumeMessagesController extends AbstractController
         private readonly ServiceLocator $receiverLocator,
         private readonly MessageBusInterface $bus,
         private readonly StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
-        private readonly StopWorkerOnSignalsListener $stopWorkerOnSigtermSignalListener,
-        private readonly DispatchPcntlSignalListener $dispatchPcntlSignalListener,
         private readonly EarlyReturnMessagesListener $earlyReturnListener,
         private readonly MessageQueueStatsSubscriber $statsSubscriber,
         private readonly string $defaultTransportName,
@@ -59,8 +55,6 @@ class ConsumeMessagesController extends AbstractController
         $workerDispatcher->addSubscriber($listener);
         $workerDispatcher->addSubscriber($this->statsSubscriber);
         $workerDispatcher->addSubscriber($this->stopWorkerOnRestartSignalListener);
-        $workerDispatcher->addSubscriber($this->stopWorkerOnSigtermSignalListener);
-        $workerDispatcher->addSubscriber($this->dispatchPcntlSignalListener);
         $workerDispatcher->addSubscriber($this->earlyReturnListener);
 
         if ($this->memoryLimit !== '-1') {

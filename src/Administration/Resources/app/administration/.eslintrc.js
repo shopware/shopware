@@ -96,7 +96,7 @@ module.exports = {
     overrides: [
         {
             extends: [
-                'plugin:vue/recommended',
+                'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
             ],
             files: ['**/*.js'],
@@ -132,6 +132,11 @@ module.exports = {
                         'renderError',
                     ],
                 }],
+                // Reenable this rule with vue 3
+                'vue/no-deprecated-destroyed-lifecycle': 'off',
+                'vue/no-deprecated-events-api': 'off',
+                'vue/require-slots-as-functions': 'off',
+                'vue/no-deprecated-props-default-this': 'off',
             },
         }, {
             extends: [

@@ -31,7 +31,6 @@ class OrderActionController extends AbstractController
      */
     public function __construct(
         private readonly OrderService $orderService,
-        private readonly ApiVersionConverter $apiVersionConverter,
         private readonly StateMachineDefinition $stateMachineDefinition,
         private readonly Connection $connection,
         private readonly PaymentRefundProcessor $paymentRefundProcessor
@@ -71,12 +70,7 @@ class OrderActionController extends AbstractController
             $context
         );
 
-        $response = $this->apiVersionConverter->convertEntity(
-            $this->stateMachineDefinition,
-            $toPlace
-        );
-
-        return new JsonResponse($response);
+        return new JsonResponse($toPlace->jsonSerialize());
     }
 
     #[Route(path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}', name: 'api.action.order.state_machine.order_transaction.transition_state', methods: ['POST'])]

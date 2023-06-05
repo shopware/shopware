@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
-use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
@@ -76,7 +74,6 @@ class ApiController extends AbstractController
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly DecoderInterface $serializer,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
-        private readonly ApiVersionConverter $apiVersionConverter,
         private readonly EntityProtectionValidator $entityProtectionValidator,
         private readonly AclCriteriaValidator $criteriaValidator
     ) {
@@ -762,10 +759,6 @@ class ApiController extends AbstractController
         string $type
     ): EntityWrittenContainerEvent {
         $repository = $this->definitionRegistry->getRepository($entity->getEntityName());
-
-        $conversionException = new ApiConversionException();
-        $payload = $this->apiVersionConverter->convertPayload($entity, $payload, $conversionException);
-        $conversionException->tryToThrow();
 
         $event = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $payload, $entity, $type): ?EntityWrittenContainerEvent {
             if ($type === self::WRITE_CREATE) {

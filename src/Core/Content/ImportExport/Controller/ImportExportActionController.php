@@ -48,8 +48,6 @@ class ImportExportActionController extends AbstractController
         private readonly DownloadService $downloadService,
         private readonly EntityRepository $profileRepository,
         private readonly DataValidator $dataValidator,
-        private readonly ImportExportLogDefinition $logDefinition,
-        private readonly ApiVersionConverter $apiVersionConverter,
         private readonly ImportExportFactory $importExportFactory,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly MessageBusInterface $messageBus,
@@ -101,7 +99,7 @@ class ImportExportActionController extends AbstractController
             );
         }
 
-        return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log)]);
+        return new JsonResponse(['log' => $log->jsonSerialize()]);
     }
 
     #[Route(path: '/api/_action/import-export/process', name: 'api.action.import_export.process', methods: ['POST'])]

@@ -177,8 +177,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * return ($this->elements is non-empty-array ? TElement : null) does not work as return type for now.
-     * Possible with PHPStan 1.9.0 see https://github.com/phpstan/phpstan/issues/7110
+     * @return TElement|null
      */
     public function first()
     {
@@ -194,8 +193,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * return ($this->elements is non-empty-array ? TElement : null) does not work as return type for now.
-     * Possible with PHPStan 1.9.0 see https://github.com/phpstan/phpstan/issues/7110
+     * @return TElement|null
      */
     public function last()
     {

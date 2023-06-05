@@ -132,3 +132,9 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException:
             log_level: notice
+        Shopware\Core\Content\Media\Exception\MediaNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
+            log_level: notice

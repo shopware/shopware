@@ -21,7 +21,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -169,7 +168,6 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(1, $locale);
 
         static::assertTrue($locale->has($id));
@@ -210,7 +208,6 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $locale);
         static::assertCount(1, $locale);
 
         static::assertTrue($locale->has($id));
@@ -279,16 +276,15 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
         static::assertCount(1, $criteria->getAssociations());
-        static::assertNotNull($criteria->getAssociation('manufacturer'));
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getSorting());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getFilters());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getAssociations());
-        static::assertNull($criteria->getAssociation('manufacturer')->getLimit());
-        static::assertNull($criteria->getAssociation('manufacturer')->getOffset());
+        $manufacturerCriteria = $criteria->getAssociations()['manufacturer'];
+        static::assertEmpty($manufacturerCriteria->getSorting());
+        static::assertEmpty($manufacturerCriteria->getFilters());
+        static::assertEmpty($manufacturerCriteria->getPostFilters());
+        static::assertEmpty($manufacturerCriteria->getAggregations());
+        static::assertEmpty($manufacturerCriteria->getAssociations());
+        static::assertNull($manufacturerCriteria->getLimit());
+        static::assertNull($manufacturerCriteria->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $products);
         static::assertCount(2, $products);
 
         static::assertTrue($products->has($id));
@@ -419,24 +415,24 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
         static::assertCount(2, $criteria->getAssociations());
-        static::assertNotNull($criteria->getAssociation('prices'));
-        static::assertEmpty($criteria->getAssociation('prices')->getSorting());
-        static::assertEmpty($criteria->getAssociation('prices')->getFilters());
-        static::assertEmpty($criteria->getAssociation('prices')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('prices')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('prices')->getAssociations());
-        static::assertNull($criteria->getAssociation('prices')->getLimit());
-        static::assertNull($criteria->getAssociation('prices')->getOffset());
-        static::assertNotNull($criteria->getAssociation('manufacturer'));
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getSorting());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getFilters());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('manufacturer')->getAssociations());
-        static::assertNull($criteria->getAssociation('manufacturer')->getLimit());
-        static::assertNull($criteria->getAssociation('manufacturer')->getOffset());
+        $priceCriteria = $criteria->getAssociations()['prices'];
+        static::assertNotNull($priceCriteria);
+        static::assertEmpty($priceCriteria->getSorting());
+        static::assertEmpty($priceCriteria->getFilters());
+        static::assertEmpty($priceCriteria->getPostFilters());
+        static::assertEmpty($priceCriteria->getAggregations());
+        static::assertEmpty($priceCriteria->getAssociations());
+        static::assertNull($priceCriteria->getLimit());
+        static::assertNull($priceCriteria->getOffset());
+        $manufacturerCriteria = $criteria->getAssociations()['manufacturer'];
+        static::assertEmpty($manufacturerCriteria->getSorting());
+        static::assertEmpty($manufacturerCriteria->getFilters());
+        static::assertEmpty($manufacturerCriteria->getPostFilters());
+        static::assertEmpty($manufacturerCriteria->getAggregations());
+        static::assertEmpty($manufacturerCriteria->getAssociations());
+        static::assertNull($manufacturerCriteria->getLimit());
+        static::assertNull($manufacturerCriteria->getOffset());
 
-        static::assertInstanceOf(EntityCollection::class, $products);
         static::assertCount(2, $products);
 
         $product = $products->get($id);
@@ -463,7 +459,6 @@ class EntityRepositoryTest extends TestCase
         $newId = Uuid::randomHex();
 
         $result = $repository->clone($id, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
         static::assertNotNull($written);
@@ -485,9 +480,7 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var CategoryEntity $old */
         $old = $entities->get($id);
-        /** @var CategoryEntity $new */
         $new = $entities->get($newId);
 
         static::assertInstanceOf(CategoryEntity::class, $old);
@@ -529,7 +522,6 @@ class EntityRepositoryTest extends TestCase
         $preCloneEntity = $repository->search($criteria, $context)->first();
 
         $result = $repository->clone($id, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
         static::assertNotNull($written);
@@ -590,8 +582,6 @@ class EntityRepositoryTest extends TestCase
 
         $result = $repository->clone($id, $context);
 
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
-
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
 
         static::assertNotNull($written);
@@ -611,14 +601,15 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
         static::assertCount(1, $criteria->getAssociations());
-        static::assertNotNull($criteria->getAssociation('children'));
-        static::assertEmpty($criteria->getAssociation('children')->getSorting());
-        static::assertEmpty($criteria->getAssociation('children')->getFilters());
-        static::assertEmpty($criteria->getAssociation('children')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('children')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('children')->getAssociations());
-        static::assertNull($criteria->getAssociation('children')->getLimit());
-        static::assertNull($criteria->getAssociation('children')->getOffset());
+        $childrenCriteria = $criteria->getAssociations()['children'];
+        static::assertNotNull($childrenCriteria);
+        static::assertEmpty($childrenCriteria->getSorting());
+        static::assertEmpty($childrenCriteria->getFilters());
+        static::assertEmpty($childrenCriteria->getPostFilters());
+        static::assertEmpty($childrenCriteria->getAggregations());
+        static::assertEmpty($childrenCriteria->getAssociations());
+        static::assertNull($childrenCriteria->getLimit());
+        static::assertNull($childrenCriteria->getOffset());
 
         static::assertCount(2, $entities);
         static::assertTrue($entities->has($id));
@@ -688,7 +679,6 @@ class EntityRepositoryTest extends TestCase
         $newId = Uuid::randomHex();
 
         $result = $repository->clone($recordA, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CustomerAddressDefinition::ENTITY_NAME);
         static::assertNotNull($written);
@@ -705,14 +695,15 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
         static::assertCount(0, $criteria->getAggregations());
-        static::assertNotNull($criteria->getAssociation('addresses'));
-        static::assertEmpty($criteria->getAssociation('addresses')->getSorting());
-        static::assertEmpty($criteria->getAssociation('addresses')->getFilters());
-        static::assertEmpty($criteria->getAssociation('addresses')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('addresses')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('addresses')->getAssociations());
-        static::assertNull($criteria->getAssociation('addresses')->getLimit());
-        static::assertNull($criteria->getAssociation('addresses')->getOffset());
+        $addressCriteria = $criteria->getAssociations()['addresses'];
+        static::assertNotNull($addressCriteria);
+        static::assertEmpty($addressCriteria->getSorting());
+        static::assertEmpty($addressCriteria->getFilters());
+        static::assertEmpty($addressCriteria->getPostFilters());
+        static::assertEmpty($addressCriteria->getAggregations());
+        static::assertEmpty($addressCriteria->getAssociations());
+        static::assertNull($addressCriteria->getLimit());
+        static::assertNull($addressCriteria->getOffset());
 
         static::assertCount(2, $entities);
         static::assertTrue($entities->has($recordA));
@@ -856,26 +847,27 @@ class EntityRepositoryTest extends TestCase
 
         static::assertCount(4, $childrenIds);
 
-        $Criteria = new Criteria([$newId]);
-        $Criteria->addAssociation('children');
+        $criteria = new Criteria([$newId]);
+        $criteria->addAssociation('children');
         /** @var CategoryEntity $category */
-        $category = $repo->search($Criteria, $context)->get($newId);
-        static::assertEquals([$newId], $Criteria->getIds());
-        static::assertEmpty($Criteria->getSorting());
-        static::assertEmpty($Criteria->getFilters());
-        static::assertEmpty($Criteria->getPostFilters());
-        static::assertEmpty($Criteria->getAggregations());
-        static::assertNull($Criteria->getLimit());
-        static::assertNull($Criteria->getOffset());
-        static::assertCount(1, $Criteria->getAssociations());
-        static::assertNotNull($Criteria->getAssociation('children'));
-        static::assertEmpty($Criteria->getAssociation('children')->getSorting());
-        static::assertEmpty($Criteria->getAssociation('children')->getFilters());
-        static::assertEmpty($Criteria->getAssociation('children')->getPostFilters());
-        static::assertEmpty($Criteria->getAssociation('children')->getAggregations());
-        static::assertEmpty($Criteria->getAssociation('children')->getAssociations());
-        static::assertNull($Criteria->getAssociation('children')->getLimit());
-        static::assertNull($Criteria->getAssociation('children')->getOffset());
+        $category = $repo->search($criteria, $context)->get($newId);
+        static::assertEquals([$newId], $criteria->getIds());
+        static::assertEmpty($criteria->getSorting());
+        static::assertEmpty($criteria->getFilters());
+        static::assertEmpty($criteria->getPostFilters());
+        static::assertEmpty($criteria->getAggregations());
+        static::assertNull($criteria->getLimit());
+        static::assertNull($criteria->getOffset());
+        static::assertCount(1, $criteria->getAssociations());
+        $childrenCriteria = $criteria->getAssociations()['children'];
+        static::assertNotNull($childrenCriteria);
+        static::assertEmpty($childrenCriteria->getSorting());
+        static::assertEmpty($childrenCriteria->getFilters());
+        static::assertEmpty($childrenCriteria->getPostFilters());
+        static::assertEmpty($childrenCriteria->getAggregations());
+        static::assertEmpty($childrenCriteria->getAssociations());
+        static::assertNull($childrenCriteria->getLimit());
+        static::assertNull($childrenCriteria->getOffset());
 
         static::assertNotNull($children = $category->getChildren());
         static::assertCount(2, $children);
@@ -1200,14 +1192,15 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
         static::assertCount(1, $criteria->getAssociations());
-        static::assertNotNull($criteria->getAssociation('children'));
-        static::assertEmpty($criteria->getAssociation('children')->getSorting());
-        static::assertEmpty($criteria->getAssociation('children')->getFilters());
-        static::assertEmpty($criteria->getAssociation('children')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('children')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('children')->getAssociations());
-        static::assertEquals(2, $criteria->getAssociation('children')->getLimit());
-        static::assertEquals(0, $criteria->getAssociation('children')->getOffset());
+        $childrenCriteria = $criteria->getAssociations()['children'];
+        static::assertNotNull($childrenCriteria);
+        static::assertEmpty($childrenCriteria->getSorting());
+        static::assertEmpty($childrenCriteria->getFilters());
+        static::assertEmpty($childrenCriteria->getPostFilters());
+        static::assertEmpty($childrenCriteria->getAggregations());
+        static::assertEmpty($childrenCriteria->getAssociations());
+        static::assertEquals(2, $childrenCriteria->getLimit());
+        static::assertEquals(0, $childrenCriteria->getOffset());
 
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
         static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
@@ -1228,14 +1221,15 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
         static::assertCount(1, $criteria->getAssociations());
-        static::assertNotNull($criteria->getAssociation('children'));
-        static::assertEmpty($criteria->getAssociation('children')->getSorting());
-        static::assertEmpty($criteria->getAssociation('children')->getFilters());
-        static::assertEmpty($criteria->getAssociation('children')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('children')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('children')->getAssociations());
-        static::assertEquals(3, $criteria->getAssociation('children')->getLimit());
-        static::assertEquals(2, $criteria->getAssociation('children')->getOffset());
+        $childrenCriteria = $criteria->getAssociations()['children'];
+        static::assertNotNull($childrenCriteria);
+        static::assertEmpty($childrenCriteria->getSorting());
+        static::assertEmpty($childrenCriteria->getFilters());
+        static::assertEmpty($childrenCriteria->getPostFilters());
+        static::assertEmpty($childrenCriteria->getAggregations());
+        static::assertEmpty($childrenCriteria->getAssociations());
+        static::assertEquals(3, $childrenCriteria->getLimit());
+        static::assertEquals(2, $childrenCriteria->getOffset());
 
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
         static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
@@ -1266,7 +1260,6 @@ class EntityRepositoryTest extends TestCase
         $newId = Uuid::randomHex();
 
         $result = $repository->clone($id, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
         static::assertNotNull($written);

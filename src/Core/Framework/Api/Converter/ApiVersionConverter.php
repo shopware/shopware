@@ -26,6 +26,9 @@ class ApiVersionConverter
     {
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function convertEntity(EntityDefinition $definition, Entity $entity): array
     {
         Feature::triggerDeprecationOrThrow(
@@ -36,6 +39,11 @@ class ApiVersionConverter
         return $entity->jsonSerialize();
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     public function convertPayload(EntityDefinition $definition, array $payload, ApiConversionException $conversionException, string $pointer = ''): array
     {
         Feature::triggerDeprecationOrThrow(
@@ -82,6 +90,11 @@ class ApiVersionConverter
         return $payload;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     private function validateFields(EntityDefinition $definition, array $payload): array
     {
         return $this->converterRegistry->convert($definition->getEntityName(), $payload);

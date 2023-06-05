@@ -96,7 +96,6 @@
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">

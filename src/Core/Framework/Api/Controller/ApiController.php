@@ -95,6 +95,7 @@ class ApiController extends AbstractController
             throw new MissingPrivilegeException([$missing]);
         }
 
+        /** @var EntityWrittenContainerEvent $eventContainer */
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
             /** @var EntityRepository $entityRepo */
             $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
@@ -168,7 +169,7 @@ class ApiController extends AbstractController
     #[Route(path: '/api/_action/version/{versionId}/{entity}/{entityId}', name: 'api.deleteVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
-        if ($versionId !== null && !Uuid::isValid($versionId)) {
+        if (!Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
         }
 
@@ -176,7 +177,7 @@ class ApiController extends AbstractController
             throw new LiveVersionDeleteException();
         }
 
-        if ($entityId !== null && !Uuid::isValid($entityId)) {
+        if (!Uuid::isValid($entityId)) {
             throw new InvalidUuidException($entityId);
         }
 
@@ -253,6 +254,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
+        /** @var EntitySearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): IdSearchResult => $repository->searchIds($criteria, $context));
 
         return new JsonResponse([
@@ -265,6 +267,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
+        /** @var EntitySearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): EntitySearchResult => $repository->search($criteria, $context));
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
@@ -741,9 +744,10 @@ class ApiController extends AbstractController
 
         $entities = $repository->search($criteria, $context);
         $entity = $entities->first();
+        \assert($entity instanceof Entity);
 
         if ($noContent) {
-            return $responseFactory->createRedirectResponse($reference, $entity->getId(), $request, $context);
+            return $responseFactory->createRedirectResponse($reference, $id, $request, $context);
         }
 
         return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
@@ -993,7 +997,7 @@ class ApiController extends AbstractController
 
         $missing[] = $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);
 
-        return array_unique(array_filter($missing));
+        return array_values(array_unique(array_filter($missing)));
     }
 
     /**

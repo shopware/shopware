@@ -158,7 +158,7 @@ class TreeUpdater
 
         try {
             $path[] = Uuid::fromBytesToHex($parent[$field->getPathField()]);
-        } catch (InvalidUuidException | InvalidUuidLengthException) {
+        } catch (InvalidUuidException|InvalidUuidLengthException) {
             $path[] = $parent[$field->getPathField()];
         }
 

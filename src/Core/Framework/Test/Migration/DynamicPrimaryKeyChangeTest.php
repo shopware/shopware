@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use function sprintf;
 
 /**
  * @internal
@@ -106,7 +105,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         ];
 
         foreach ($tables as $table) {
-            $connection->executeStatement(sprintf('DROP TABLE IF EXISTS %s', $table));
+            $connection->executeStatement(\sprintf('DROP TABLE IF EXISTS %s', $table));
         }
 
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');

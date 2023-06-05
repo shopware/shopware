@@ -20,10 +20,10 @@ class NoDALAutoloadTest extends RuleTestCase
      */
     public function testRule(): void
     {
-        //not in a class, ignore
+        // not in a class, ignore
         $this->analyse([__DIR__ . '/data/NoDalAutoload/not-in-class.php'], []);
 
-        //not in namespace, autoload is passed as true, error
+        // not in namespace, autoload is passed as true, error
         $this->analyse([__DIR__ . '/data/NoDalAutoload/not-in-namespace.php'], [
             [
                 'my-entity.prop association has a configured autoload===true, this is forbidden for platform integrations',
@@ -35,7 +35,7 @@ class NoDALAutoloadTest extends RuleTestCase
             ],
         ]);
 
-        //in namespace, autoload is passed as true, error
+        // in namespace, autoload is passed as true, error
         $this->analyse([__DIR__ . '/data/NoDalAutoload/in-core-namespace.php'], [
             [
                 'my-entity.prop association has a configured autoload===true, this is forbidden for platform integrations',
@@ -47,16 +47,16 @@ class NoDALAutoloadTest extends RuleTestCase
             ],
         ]);
 
-        //if no autoload is passed, default value is false, all good
+        // if no autoload is passed, default value is false, all good
         $this->analyse([__DIR__ . '/data/NoDalAutoload/no-autoload-param.php'], []);
 
-        //if autoload is specified as false, all good
+        // if autoload is specified as false, all good
         $this->analyse([__DIR__ . '/data/NoDalAutoload/autoload-false.php'], []);
 
-        //if we are in a Test namespace, we ignore
+        // if we are in a Test namespace, we ignore
         $this->analyse([__DIR__ . '/data/NoDalAutoload/in-test-namespace.php'], []);
 
-        //if we can't find an ENTITY_NAME const we ignore
+        // if we can't find an ENTITY_NAME const we ignore
         $this->analyse([__DIR__ . '/data/NoDalAutoload/no-entity-name.php'], []);
     }
 

@@ -16,5 +16,5 @@ abstract class AbstractAvailableThemeProvider
      *
      * @return array<string, string>
      */
-    abstract public function load(Context $context/*, bool $activeOnly */): array;
+    abstract public function load(Context $context/* , bool $activeOnly */): array;
 }

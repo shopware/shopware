@@ -12,8 +12,8 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 #[Package('checkout')]
 class StateMachineTransitionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

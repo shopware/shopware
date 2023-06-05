@@ -141,7 +141,7 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        //prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
+        // prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
         if ($definition->getClass() === LanguageDefinition::class) {
             return [];
         }

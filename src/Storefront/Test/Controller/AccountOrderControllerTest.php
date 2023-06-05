@@ -35,10 +35,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('customer-order')]
 class AccountOrderControllerTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use OrderFixture;
     use StorefrontControllerTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     protected function setUp(): void
     {

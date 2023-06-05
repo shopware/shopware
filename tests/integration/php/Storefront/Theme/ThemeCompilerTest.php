@@ -53,10 +53,10 @@ use Symfony\Component\Messenger\MessageBus;
  */
 class ThemeCompilerTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
     use AppSystemTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use EnvTestBehaviour;
+    use KernelTestBehaviour;
 
     private ThemeCompiler $themeCompiler;
 

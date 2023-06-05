@@ -78,7 +78,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $this->addGroupBy($definition, $criteria, $context, $query, $table);
 
-        //add pagination
+        // add pagination
         if ($criteria->getOffset() !== null) {
             $query->setFirstResult($criteria->getOffset());
         }
@@ -92,7 +92,7 @@ class EntitySearcher implements EntitySearcherInterface
             $query->setTitle($criteria->getTitle() . '::search-ids');
         }
 
-        //execute and fetch ids
+        // execute and fetch ids
         $rows = $query->executeQuery()->fetchAllAssociative();
 
         $total = $this->getTotalCount($criteria, $query, $rows);

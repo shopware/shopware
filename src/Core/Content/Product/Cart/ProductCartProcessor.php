@@ -308,7 +308,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             );
         }
 
-        //Check if the price has to be updated
+        // Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $lineItem->setPriceDefinition(
                 $this->getPriceDefinition($product, $context, $lineItem->getQuantity())

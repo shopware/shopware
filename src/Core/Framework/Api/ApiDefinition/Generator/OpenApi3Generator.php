@@ -128,7 +128,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             try {
                 $definition->getEntityName();
             } catch (\Exception) {
-                //mapping tables has no repository, skip them
+                // mapping tables has no repository, skip them
                 continue;
             }
 

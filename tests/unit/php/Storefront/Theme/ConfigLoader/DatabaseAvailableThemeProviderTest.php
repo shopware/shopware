@@ -25,7 +25,6 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository
  * @covers \Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider
  */
 #[Package('storefront')]
-
 class DatabaseAvailableThemeProviderTest extends TestCase
 {
     public function testThemeProviderThrowsOnGetDecorated(): void

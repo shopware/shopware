@@ -23,8 +23,8 @@ use Symfony\Component\Finder\Finder;
  */
 class AppServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private AppService $appService;
 

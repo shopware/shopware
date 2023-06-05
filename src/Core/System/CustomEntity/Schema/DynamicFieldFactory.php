@@ -214,7 +214,6 @@ class DynamicFieldFactory
 
                 break;
             case 'many-to-many':
-
                 // get reference entity definition to create bi-directionally associations
                 $reference = $registry->getByEntityName($field['reference']);
 

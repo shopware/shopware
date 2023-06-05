@@ -30,9 +30,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class JsonFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

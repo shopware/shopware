@@ -24,8 +24,8 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('customer-order')]
 class CustomerEntity extends Entity implements \Stringable
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     final public const ACCOUNT_TYPE_PRIVATE = 'private';
     final public const ACCOUNT_TYPE_BUSINESS = 'business';

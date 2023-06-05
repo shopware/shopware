@@ -74,7 +74,7 @@ class LoginRoute extends AbstractLoginRoute
                 $data->get('password'),
                 $context
             );
-        } catch (CustomerNotFoundException | BadCredentialsException $exception) {
+        } catch (CustomerNotFoundException|BadCredentialsException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         } catch (CustomerOptinNotCompletedException $exception) {
             if (!Feature::isActive('v6.6.0.0')) {

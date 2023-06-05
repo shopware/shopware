@@ -69,7 +69,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
         $salesChannelIds = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
 
         if (empty($salesChannelIds)) {
-            $output->write(sprintf('No sales channels were updated'));
+            $output->write('No sales channels were updated');
 
             return self::SUCCESS;
         }

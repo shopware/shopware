@@ -21,8 +21,8 @@ use Symfony\Component\Finder\Finder;
  */
 class CacheClearerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     public function testCleanupOldKernelDirectories(): void
     {

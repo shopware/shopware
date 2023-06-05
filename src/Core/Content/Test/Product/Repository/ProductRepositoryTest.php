@@ -576,7 +576,7 @@ class ProductRepositoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        //check nested events are triggered
+        // check nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.written', $listener);
@@ -594,7 +594,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        //validate that nested events are triggered
+        // validate that nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.loaded', $listener);
@@ -605,20 +605,20 @@ class ProductRepositoryTest extends TestCase
 
         $products = $this->repository->search($criteria, Context::createDefaultContext());
 
-        //check only provided id loaded
+        // check only provided id loaded
         static::assertCount(1, $products);
         static::assertTrue($products->has($id));
 
         $product = $products->get($id);
 
-        //check data loading is as expected
+        // check data loading is as expected
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame($id, $product->getId());
         static::assertSame('Test', $product->getName());
 
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
 
-        //check nested element loaded
+        // check nested element loaded
         $manufacturer = $product->getManufacturer();
         static::assertSame('test', $manufacturer->getName());
     }
@@ -947,7 +947,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
             ],
 
-            //price should be inherited
+            // price should be inherited
             [
                 'id' => $redId,
                 'productNumber' => Uuid::randomHex(),
@@ -956,7 +956,7 @@ class ProductRepositoryTest extends TestCase
                 'parentId' => $parentId,
             ],
 
-            //name should be inherited
+            // name should be inherited
             [
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
@@ -1282,7 +1282,7 @@ class ProductRepositoryTest extends TestCase
                 'tax' => ['id' => $parentTaxId, 'taxRate' => 13, 'name' => 'green'],
             ],
 
-            //price should be inherited
+            // price should be inherited
             [
                 'id' => $redId,
                 'productNumber' => Uuid::randomHex(),
@@ -1290,7 +1290,7 @@ class ProductRepositoryTest extends TestCase
                 'parentId' => $parentId,
             ],
 
-            //name should be inherited
+            // name should be inherited
             [
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
@@ -1719,7 +1719,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => [$parentPrice],
             ],
 
-            //price should be inherited
+            // price should be inherited
             [
                 'id' => $redId,
                 'productNumber' => Uuid::randomHex(),
@@ -1728,7 +1728,7 @@ class ProductRepositoryTest extends TestCase
                 'parentId' => $parentId,
             ],
 
-            //name should be inherited
+            // name should be inherited
             [
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
@@ -1783,7 +1783,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => [$parentPrice],
             ],
 
-            //price should be inherited
+            // price should be inherited
             [
                 'id' => $redId,
                 'productNumber' => Uuid::randomHex(),
@@ -1792,7 +1792,7 @@ class ProductRepositoryTest extends TestCase
                 'parentId' => $parentId,
             ],
 
-            //name should be inherited
+            // name should be inherited
             [
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
@@ -1850,7 +1850,7 @@ class ProductRepositoryTest extends TestCase
                 ],
             ],
 
-            //price should be inherited
+            // price should be inherited
             [
                 'id' => $redId,
                 'productNumber' => Uuid::randomHex(),
@@ -1859,7 +1859,7 @@ class ProductRepositoryTest extends TestCase
                 'parentId' => $parentId,
             ],
 
-            //name should be inherited
+            // name should be inherited
             [
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
@@ -1983,7 +1983,7 @@ class ProductRepositoryTest extends TestCase
                     'name' => 'test',
                 ],
             ],
-            //price should be inherited
+            // price should be inherited
             [
                 'id' => $redId,
                 'productNumber' => Uuid::randomHex(),
@@ -1995,7 +1995,7 @@ class ProductRepositoryTest extends TestCase
                     'name' => 'test',
                 ],
             ],
-            //manufacturer should be inherited
+            // manufacturer should be inherited
             [
                 'id' => $greenId,
                 'productNumber' => Uuid::randomHex(),
@@ -2366,7 +2366,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'prices' => [
-                //update existing rule with new price and quantity end to add another graduation
+                // update existing rule with new price and quantity end to add another graduation
                 [
                     'id' => $id,
                     'quantityEnd' => 20,
@@ -2375,7 +2375,7 @@ class ProductRepositoryTest extends TestCase
                     ],
                 ],
 
-                //add new graduation to existing rule
+                // add new graduation to existing rule
                 [
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,

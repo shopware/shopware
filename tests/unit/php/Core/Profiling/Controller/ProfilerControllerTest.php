@@ -74,7 +74,7 @@ class ProfilerControllerTest extends TestCase
         $profile->addCollector(new class() implements DataCollectorInterface {
             public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
             {
-                //noop
+                // noop
             }
 
             public function getName(): string
@@ -84,7 +84,7 @@ class ProfilerControllerTest extends TestCase
 
             public function reset(): void
             {
-                //noop
+                // noop
             }
         });
 

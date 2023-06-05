@@ -377,7 +377,7 @@ class ImportExportProfileApiTest extends TestCase
 
     protected function rotateTestdata(array $data): array
     {
-        array_push($data, array_shift($data));
+        $data[] = array_shift($data);
 
         return array_values($data);
     }

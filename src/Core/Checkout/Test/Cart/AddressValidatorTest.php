@@ -29,8 +29,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class AddressValidatorTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @dataProvider validationProvider

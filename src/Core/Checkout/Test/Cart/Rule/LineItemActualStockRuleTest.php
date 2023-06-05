@@ -59,7 +59,7 @@ class LineItemActualStockRuleTest extends TestCase
         ]);
 
         $match = $this->rule->match(new LineItemScope(
-            ($this->createLineItemWithStock(999))->setPayloadValue('stock', $lineItemStock),
+            $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock),
             $this->createMock(SalesChannelContext::class)
         ));
 
@@ -108,8 +108,8 @@ class LineItemActualStockRuleTest extends TestCase
         ]);
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItemWithStock(999))->setPayloadValue('stock', $lineItemStock1),
-            ($this->createLineItemWithStock(999))->setPayloadValue('stock', $lineItemStock2),
+            $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock1),
+            $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock2),
         ]);
         $cart = $this->createCart($lineItemCollection);
 
@@ -137,8 +137,8 @@ class LineItemActualStockRuleTest extends TestCase
         ]);
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItemWithStock(999))->setPayloadValue('stock', $lineItemStock1),
-            ($this->createLineItemWithStock(999))->setPayloadValue('stock', $lineItemStock2),
+            $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock1),
+            $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock2),
         ]);
         $containerLineItem = $this->createContainerLineItem($lineItemCollection);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));

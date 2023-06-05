@@ -64,13 +64,13 @@ class TaxProviderDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
             (new IntField('priority', 'priority'))->addFlags(new Required(), new ApiAware()),
             (new StringField('process_url', 'processUrl'))->addFlags(new ApiAware()),
-            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class)),
+            new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
-            (new TranslationsAssociationField(TaxProviderTranslationDefinition::class, 'tax_provider_id')),
+            new TranslationsAssociationField(TaxProviderTranslationDefinition::class, 'tax_provider_id'),
             (new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class))->addFlags(new RestrictDelete()),
-            (new ManyToOneAssociationField('app', 'app_id', AppDefinition::class)),
+            new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
     }
 }

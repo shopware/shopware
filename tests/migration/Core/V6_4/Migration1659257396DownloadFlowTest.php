@@ -19,8 +19,8 @@ use Shopware\Core\Migration\V6_4\Migration1659257396DownloadFlow;
  */
 class Migration1659257396DownloadFlowTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private const RULE_NAME = 'Shopping cart / Order with digital products';
     private const FLOW_NAME = 'Deliver ordered product downloads';

@@ -160,7 +160,7 @@ class StornoRendererTest extends TestCase
         static::assertInstanceOf(DocumentGenerationException::class, $errors[$orderId]);
         static::assertEquals(
             "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
-            ($errors[$orderId]->getMessage())
+            $errors[$orderId]->getMessage()
         );
     }
 

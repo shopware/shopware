@@ -81,8 +81,6 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use function array_column;
-use function array_combine;
 
 /**
  * @internal
@@ -93,14 +91,14 @@ use function array_combine;
  */
 class ElasticsearchProductTest extends TestCase
 {
-    use ElasticsearchTestTestBehaviour;
-    use KernelTestBehaviour;
-    use FilesystemBehaviour;
     use CacheTestBehaviour;
-    use SessionTestBehaviour;
-    use QueueTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use ElasticsearchTestTestBehaviour;
+    use FilesystemBehaviour;
+    use KernelTestBehaviour;
+    use QueueTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use SessionTestBehaviour;
 
     private Client $client;
 
@@ -2844,7 +2842,7 @@ class ElasticsearchProductTest extends TestCase
         $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
-        $categoryIds = array_column($product['categoriesRo'], 'id');
+        $categoryIds = \array_column($product['categoriesRo'], 'id');
 
         static::assertContains($ids->get('c1'), $categoryIds);
         static::assertContains($ids->get('c2'), $categoryIds);
@@ -3395,7 +3393,7 @@ class ElasticsearchProductTest extends TestCase
 
         ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
             $this->definition,
-            array_combine(array_column($customFields, 'name'), array_column($customFields, 'type'))
+            \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'))
         );
 
         $products = [

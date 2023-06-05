@@ -33,8 +33,8 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 #[Package('customer-order')]
 class CustomerValueResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private TestDataCollection $ids;
 

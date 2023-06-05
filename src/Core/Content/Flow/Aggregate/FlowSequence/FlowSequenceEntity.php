@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class FlowSequenceEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $flowId;
 

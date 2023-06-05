@@ -32,8 +32,8 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
     use QueueTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private EntityRepository $productRepository;
 

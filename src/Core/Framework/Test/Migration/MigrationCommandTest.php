@@ -129,7 +129,7 @@ class MigrationCommandTest extends TestCase
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException) {
-            //nth
+            // nth
         }
 
         static::assertSame(3, $this->getMigrationCount(true));
@@ -178,7 +178,7 @@ class MigrationCommandTest extends TestCase
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException) {
-            //nth
+            // nth
         }
 
         $command = $this->getDestructiveCommand();
@@ -186,7 +186,7 @@ class MigrationCommandTest extends TestCase
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException) {
-            //nth
+            // nth
         }
 
         static::assertSame(2, $this->getMigrationCount(true, true));

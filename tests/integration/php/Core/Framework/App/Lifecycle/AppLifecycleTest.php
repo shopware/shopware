@@ -51,7 +51,6 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function preg_replace;
 
 /**
  * @internal
@@ -1703,7 +1702,7 @@ class AppLifecycleTest extends TestCase
 
     private function stripWhitespace(string $text): string
     {
-        return (string) preg_replace('/\s/m', '', $text);
+        return (string) \preg_replace('/\s/m', '', $text);
     }
 
     private function setNewSystemLanguage(string $iso): void

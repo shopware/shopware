@@ -930,7 +930,7 @@ class EntityRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
         $repo->create([$data], $context);
 
-        //check count of conditions
+        // check count of conditions
         $conditions = $this->getContainer()->get(Connection::class)->fetchAllAssociative(
             'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
@@ -942,7 +942,7 @@ class EntityRepositoryTest extends TestCase
         $newId = Uuid::randomHex();
         $repo->clone($id, $context, $newId);
 
-        //check that existing rule conditions are not touched
+        // check that existing rule conditions are not touched
         $conditions = $this->getContainer()->get(Connection::class)->fetchAllAssociative(
             'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
@@ -959,7 +959,7 @@ class EntityRepositoryTest extends TestCase
 
         static::assertCount(7, $conditions);
 
-        //check that existing rule conditions are not touched
+        // check that existing rule conditions are not touched
         $newConditions = $this->getContainer()->get(Connection::class)->fetchAllAssociative(
             'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
             ['id' => Uuid::fromHexToBytes($newId)]
@@ -979,7 +979,7 @@ class EntityRepositoryTest extends TestCase
         $parentIds = array_column($conditions, 'parent_id');
         $ids = array_column($conditions, 'id');
 
-        //check that parent ids and ids of all new conditions are new
+        // check that parent ids and ids of all new conditions are new
         foreach ($newConditions as $condition) {
             static::assertNotContains($condition['id'], $ids);
             static::assertNotContains($condition['id'], $parentIds);

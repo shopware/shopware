@@ -217,15 +217,15 @@ class NewsletterAccountPageletLoader
         $dataBag->set('lastName', $customer->getLastName());
         $dataBag->set(
             'zipCode',
-            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getZipCode() : '')
+            $customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getZipCode() : ''
         );
         $dataBag->set(
             'city',
-            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getCity() : '')
+            $customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getCity() : ''
         );
         $dataBag->set(
             'street',
-            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getStreet() : '')
+            $customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getStreet() : ''
         );
 
         return $dataBag;

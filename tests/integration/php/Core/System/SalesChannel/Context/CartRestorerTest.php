@@ -30,7 +30,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
-use function json_encode;
 
 /**
  * @internal
@@ -330,7 +329,7 @@ class CartRestorerTest extends TestCase
 
         $con->insert('sales_channel_api_context', [
             'token' => Random::getAlphanumericString(32),
-            'payload' => json_encode(['expired' => false, 'customerId' => $this->customerId, 'permissions' => ['foo']], \JSON_THROW_ON_ERROR),
+            'payload' => \json_encode(['expired' => false, 'customerId' => $this->customerId, 'permissions' => ['foo']], \JSON_THROW_ON_ERROR),
             'sales_channel_id' => Uuid::fromHexToBytes($currentContext->getSalesChannelId()),
             'customer_id' => Uuid::fromHexToBytes($this->customerId),
             'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

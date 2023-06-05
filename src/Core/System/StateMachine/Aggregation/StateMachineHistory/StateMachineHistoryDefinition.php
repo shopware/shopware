@@ -62,7 +62,7 @@ class StateMachineHistoryDefinition extends EntityDefinition
             new StringField('action_name', 'transitionActionName'),
             new FkField('user_id', 'userId', UserDefinition::class),
 
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false)),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);
 
         if (Feature::isActive('v6.6.0.0')) {

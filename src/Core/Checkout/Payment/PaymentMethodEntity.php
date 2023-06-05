@@ -19,8 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 #[Package('checkout')]
 class PaymentMethodEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

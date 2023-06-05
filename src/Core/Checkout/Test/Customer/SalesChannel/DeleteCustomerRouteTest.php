@@ -24,8 +24,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('customer-order')]
 class DeleteCustomerRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

@@ -17,8 +17,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
  */
 class Migration1652864153ReindexMediaFoldersTest extends TestCase
 {
-    use MigrationTestTrait;
     use EnvTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 

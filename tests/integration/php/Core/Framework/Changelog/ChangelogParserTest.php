@@ -12,8 +12,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ChangelogParserTest extends TestCase
 {
-    use KernelTestBehaviour;
     use ChangelogTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @return list<array{0: string, 1: array<string, string|null>, 2: string, 3: int}>

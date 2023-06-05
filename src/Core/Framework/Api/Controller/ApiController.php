@@ -309,7 +309,7 @@ class ApiController extends AbstractController
         $first = array_shift($pathSegments);
 
         if (\count($pathSegments) === 0) {
-            //first api level call /product/{id}
+            // first api level call /product/{id}
             $definition = $first['definition'];
 
             $this->executeWriteOperation($definition, ['id' => $id], $context, self::WRITE_DELETE);
@@ -451,12 +451,12 @@ class ApiController extends AbstractController
         $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         if ($association instanceof ManyToManyAssociationField) {
-            //fetch inverse association definition for filter
+            // fetch inverse association definition for filter
             $reverses = $definition->getFields()->filter(
                 fn (Field $field) => $field instanceof ManyToManyAssociationField && $association->getMappingDefinition() === $field->getMappingDefinition()
             );
 
-            //contains now the inverse side association: category.products
+            // contains now the inverse side association: category.products
             /** @var ManyToManyAssociationField|null $reverse */
             $reverse = $reverses->first();
             if (!$reverse) {
@@ -486,7 +486,7 @@ class ApiController extends AbstractController
              * $definition:     \Shopware\Core\Content\Product\Definition\ProductPriceDefinition
              */
 
-            //get foreign key definition of reference
+            // get foreign key definition of reference
             /** @var Field $foreignKey */
             $foreignKey = $definition->getFields()->getByStorageName(
                 $association->getReferenceField()
@@ -494,7 +494,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                    //add filter to parent value: prices.productId = SW1
+                    // add filter to parent value: prices.productId = SW1
                     $definition->getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
                 )
@@ -506,7 +506,7 @@ class ApiController extends AbstractController
              * $definition:     \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
              */
 
-            //get inverse association to filter to parent value
+            // get inverse association to filter to parent value
             $reverses = $definition->getFields()->filter(
                 fn (Field $field) => $field instanceof AssociationField && $parentDefinition === $field->getReferenceDefinition()
             );
@@ -518,7 +518,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                    //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    // filter inverse association to parent value:  manufacturer.products.id = SW1
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -530,7 +530,7 @@ class ApiController extends AbstractController
              * $definition:     \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
              */
 
-            //get inverse association to filter to parent value
+            // get inverse association to filter to parent value
             $reverses = $definition->getFields()->filter(
                 fn (Field $field) => $field instanceof OneToOneAssociationField && $parentDefinition === $field->getReferenceDefinition()
             );
@@ -542,7 +542,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                    //filter inverse association to parent value:  order_customer.order_id = xxxx
+                    // filter inverse association to parent value:  order_customer.order_id = xxxx
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -936,7 +936,7 @@ class ApiController extends AbstractController
                 case 'application/json':
                     return $request->request->all();
             }
-        } catch (InvalidArgumentException | UnexpectedValueException $exception) {
+        } catch (InvalidArgumentException|UnexpectedValueException $exception) {
             throw new BadRequestHttpException($exception->getMessage());
         }
 

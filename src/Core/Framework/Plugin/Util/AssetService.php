@@ -115,7 +115,7 @@ class AssetService
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
         if (empty($manifest) || !isset($manifest[$bundleOrAppName])) {
-            //if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
+            // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
             $this->filesystem->deleteDirectory($targetDirectory);
         }
 
@@ -209,12 +209,12 @@ class AssetService
      */
     private function sync(string $originDir, string $targetDirectory, array $localManifest, array $remoteManifest): void
     {
-        //compare the file names and hashes: will return a list of files not present in remote as well
-        //as files with changed hashes
+        // compare the file names and hashes: will return a list of files not present in remote as well
+        // as files with changed hashes
         $uploads = array_keys(array_diff_assoc($localManifest, $remoteManifest));
 
-        //diff the opposite way to find files which are present remote, but not locally.
-        //we use array_diff_key because we don't care about the hash, just the file names
+        // diff the opposite way to find files which are present remote, but not locally.
+        // we use array_diff_key because we don't care about the hash, just the file names
         $removes = array_keys(array_diff_key($remoteManifest, $localManifest));
 
         foreach ($removes as $file) {

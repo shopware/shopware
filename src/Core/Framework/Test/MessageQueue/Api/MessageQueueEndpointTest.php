@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 #[Package('system-settings')]
 class MessageQueueEndpointTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminFunctionalTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testEndpoint(): void
     {

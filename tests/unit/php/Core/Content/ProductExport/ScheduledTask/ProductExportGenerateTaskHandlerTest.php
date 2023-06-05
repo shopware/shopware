@@ -53,22 +53,22 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     public static function shouldBeRunDataProvider(): \Generator
     {
         yield 'next generation not reached' => [
-            //Should not run because: next generation time not reached (time + intervall > now)
+            // Should not run because: next generation time not reached (time + intervall > now)
             self::prepareProductExportEntity(false, false, 45),
             false,
         ];
         yield 'already running' => [
-            //Should not run because: is running is true (another export is being generated atm.)
+            // Should not run because: is running is true (another export is being generated atm.)
             self::prepareProductExportEntity(true, false, 10),
             false,
         ];
         yield 'not generated before' => [
-            //Should run because: has not been generated before
+            // Should run because: has not been generated before
             self::prepareProductExportEntity(false, null, 0),
             true,
         ];
         yield 'generation is due' => [
-            //Should run because: next run is due (last generated + intervall < now)
+            // Should run because: next run is due (last generated + intervall < now)
             self::prepareProductExportEntity(false, true, 10),
             true,
         ];

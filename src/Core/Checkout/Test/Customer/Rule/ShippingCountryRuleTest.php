@@ -27,8 +27,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Package('business-ops')]
 class ShippingCountryRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository

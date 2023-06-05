@@ -14,8 +14,8 @@ use Shopware\Core\System\Tag\TagCollection;
 #[Package('customer-order')]
 class NewsletterRecipientEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

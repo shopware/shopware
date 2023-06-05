@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('content')]
 class CmsPageEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

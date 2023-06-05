@@ -32,8 +32,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('sales-channel')]
 class ProductUrlProviderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';

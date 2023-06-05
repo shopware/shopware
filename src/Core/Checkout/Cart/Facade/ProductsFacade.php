@@ -22,14 +22,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class ProductsFacade implements \IteratorAggregate
 {
+    use ItemsCountTrait;
+
     use ItemsGetTrait {
         ItemsGetTrait::get as private _get;
     }
-
+    use ItemsHasTrait;
     use ItemsIteratorTrait;
     use ItemsRemoveTrait;
-    use ItemsHasTrait;
-    use ItemsCountTrait;
 
     /**
      * @internal

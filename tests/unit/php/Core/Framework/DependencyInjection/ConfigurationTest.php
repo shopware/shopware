@@ -44,7 +44,7 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['sets']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['fields']);
 
-        static::assertInstanceOf(ArrayNodeDefinition::class, $setsNodes = ($nodes['sets'])->getChildNodeDefinitions()['']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $setsNodes = $nodes['sets']->getChildNodeDefinitions()['']);
         $setsNodes = $setsNodes->getChildNodeDefinitions();
         static::assertInstanceOf(ScalarNodeDefinition::class, $setsNodes['name']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $setsNodes['tags']);
@@ -52,18 +52,18 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $setsNodes['options']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $setsNodes['custom_attributes']);
 
-        static::assertInstanceOf(ArrayNodeDefinition::class, $customAttributeNodes = ($setsNodes['custom_attributes'])->getChildNodeDefinitions()['']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $customAttributeNodes = $setsNodes['custom_attributes']->getChildNodeDefinitions()['']);
         $customAttributeNodes = $customAttributeNodes->getChildNodeDefinitions();
         static::assertInstanceOf(ArrayNodeDefinition::class, $customAttributeNodes['tags']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $customAttributeNodes['attributes']);
 
-        static::assertInstanceOf(ArrayNodeDefinition::class, $optionsNodes = ($setsNodes['options'])->getChildNodeDefinitions()['']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $optionsNodes = $setsNodes['options']->getChildNodeDefinitions()['']);
         $optionsNodes = $optionsNodes->getChildNodeDefinitions();
         static::assertInstanceOf(ScalarNodeDefinition::class, $optionsNodes['key']);
         static::assertInstanceOf(ScalarNodeDefinition::class, $optionsNodes['value']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $optionsNodes['values']);
 
-        static::assertInstanceOf(ArrayNodeDefinition::class, $fieldsNodes = ($nodes['fields'])->getChildNodeDefinitions()['']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $fieldsNodes = $nodes['fields']->getChildNodeDefinitions()['']);
         $fieldsNodes = $fieldsNodes->getChildNodeDefinitions();
         static::assertInstanceOf(ScalarNodeDefinition::class, $fieldsNodes['name']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $fieldsNodes['sets']);

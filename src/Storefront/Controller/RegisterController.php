@@ -202,7 +202,7 @@ class RegisterController extends StorefrontController
                 ->confirm($queryDataBag->toRequestDataBag(), $context)
                 ->getCustomer()
                 ->getId();
-        } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException) {
+        } catch (CustomerNotFoundByHashException|CustomerAlreadyConfirmedException|ConstraintViolationException) {
             $this->addFlash(self::DANGER, $this->trans('account.confirmationIsAlreadyDone'));
 
             return $this->redirectToRoute('frontend.account.register.page');

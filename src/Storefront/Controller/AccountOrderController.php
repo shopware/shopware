@@ -107,7 +107,7 @@ class AccountOrderController extends StorefrontController
             $page = $this->orderPageLoader->load($request, $context);
 
             $this->hook(new AccountOrderPageLoadedHook($page, $context));
-        } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException | CustomerAuthThrottledException $exception) {
+        } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
                 [

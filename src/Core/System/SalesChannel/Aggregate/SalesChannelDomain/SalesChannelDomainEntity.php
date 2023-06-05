@@ -15,8 +15,8 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 #[Package('sales-channel')]
 class SalesChannelDomainEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

@@ -58,10 +58,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class RecalculationServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     protected SalesChannelContext $salesChannelContext;
 

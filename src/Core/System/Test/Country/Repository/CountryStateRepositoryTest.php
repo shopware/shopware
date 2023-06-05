@@ -20,8 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('system-settings')]
 class CountryStateRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection

@@ -5,7 +5,6 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use function array_column;
 
 /**
  * @internal
@@ -20,7 +19,7 @@ class Migration1647260673AddIndexForEmail extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $keys = array_column($connection->fetchAllAssociative('SHOW INDEX FROM customer'), 'Key_name');
+        $keys = \array_column($connection->fetchAllAssociative('SHOW INDEX FROM customer'), 'Key_name');
 
         if (\in_array('idx.email', $keys, true)) {
             return;

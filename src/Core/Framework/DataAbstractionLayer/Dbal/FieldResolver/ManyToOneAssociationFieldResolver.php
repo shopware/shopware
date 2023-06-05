@@ -54,14 +54,14 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 
         $referenceColumn = $this->getReferenceColumn($field, $context->getContext());
 
-        //specified version requested, use sub version call to solve live version or specified
+        // specified version requested, use sub version call to solve live version or specified
         if ($versionAware && $context->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             $this->joinVersion($field, $context->getAlias(), $alias, $context->getQuery(), $context->getContext(), $source, $referenceColumn);
 
             return $alias;
         }
 
-        //No Blacklisting Whitelisting for ManyToOne Association because of possible Dependencies on subentities
+        // No Blacklisting Whitelisting for ManyToOne Association because of possible Dependencies on subentities
         $parameters = [
             '#source#' => $source,
             '#root#' => EntityDefinitionQueryHelper::escape($context->getAlias()),

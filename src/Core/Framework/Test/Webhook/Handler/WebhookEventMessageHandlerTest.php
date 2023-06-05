@@ -21,8 +21,8 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  */
 class WebhookEventMessageHandlerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use GuzzleTestClientBehaviour;
+    use IntegrationTestBehaviour;
 
     private WebhookEventMessageHandler $webhookEventMessageHandler;
 
@@ -80,7 +80,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        (($this->webhookEventMessageHandler)($webhookEventMessage));
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
 
         $timestamp = time();
         $request = $this->getLastRequest();
@@ -161,7 +161,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        (($this->webhookEventMessageHandler)($webhookEventMessage));
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
 
         $timestamp = time();
         $request = $this->getLastRequest();

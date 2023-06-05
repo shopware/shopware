@@ -32,8 +32,8 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  */
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
-    use QueueTestBehaviour;
     use AdminFunctionalTestBehaviour;
+    use QueueTestBehaviour;
 
     private EntityRepository $productExportRepository;
 

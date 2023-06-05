@@ -44,10 +44,10 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[Package('checkout')]
 class CartServiceTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private EntityRepository $customerRepository;
 
@@ -156,7 +156,7 @@ class CartServiceTest extends TestCase
         $cart = $cartService->getCart($cartId, $context);
         $cartService->add(
             $cart,
-            (new LineItem('test', 'test')),
+            new LineItem('test', 'test'),
             $context
         );
     }
@@ -434,7 +434,7 @@ class CartServiceTest extends TestCase
 
             $salesChannelRepository->update([$data], $context);
         } catch (\Exception) {
-            //ignore if domain already exists
+            // ignore if domain already exists
         }
     }
 }

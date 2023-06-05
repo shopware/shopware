@@ -308,11 +308,11 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(fn ($value, $key) => sprintf('$%s: %s;', $key, (!empty($value) ? $value : 0)), $variables, array_keys($variables));
+        return array_map(fn ($value, $key) => sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
     }
 
     /**
-     * @param array{fields?: array{value: null|string|array<mixed>, scss?: bool, type: string}[]} $config
+     * @param array{fields?: array{value: string|array<mixed>|null, scss?: bool, type: string}[]} $config
      */
     private function dumpVariables(array $config, string $themeId, string $salesChannelId, Context $context): string
     {
@@ -328,7 +328,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             if (\in_array($data['type'], ['media', 'textarea'], true) && \is_string($data['value'])) {
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
-                $variables[$key] = (int) ($data['value']);
+                $variables[$key] = (int) $data['value'];
             } elseif (!\is_array($data['value'])) {
                 $variables[$key] = (string) $data['value'];
             }

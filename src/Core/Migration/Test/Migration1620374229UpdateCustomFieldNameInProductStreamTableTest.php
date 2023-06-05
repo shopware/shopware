@@ -25,8 +25,8 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 #[Package('core')]
 class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $productStreamRepository;
 

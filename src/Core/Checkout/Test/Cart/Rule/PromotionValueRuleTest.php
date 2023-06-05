@@ -34,8 +34,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class PromotionValueRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

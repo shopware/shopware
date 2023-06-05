@@ -159,7 +159,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $themeId = $this->getThemeIdByTechnicalName($technicalName, $context);
 
         if ($themeId === null) {
-            //extension is not a theme
+            // extension is not a theme
             return;
         }
 

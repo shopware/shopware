@@ -26,8 +26,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PromotionSetGroupCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
 
     protected EntityRepository $productRepository;
 

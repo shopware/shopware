@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[Package('inventory')]
 class ProductReviewEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

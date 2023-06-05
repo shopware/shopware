@@ -25,8 +25,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class CustomerTagRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

@@ -78,13 +78,13 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
             if ($data['languageEnAvailable']) {
                 $this->checkMigrationForAvailableLanguage($this->languageEN, (string) $data['expectedEnTranslation'], (string) $data['EnTranslation'], $updated_at['en']);
             } else {
-                //language is not Available so nothing should change for this language
+                // language is not Available so nothing should change for this language
                 $this->checkMigrationForUnavailableLanguage($this->languageEN);
             }
             if ($data['languageDeAvailable']) {
                 $this->checkMigrationForAvailableLanguage($this->languageDE, (string) $data['expectedDeTranslation'], (string) $data['DeTranslation'], $updated_at['de']);
             } else {
-                //language is not Available so nothing should change
+                // language is not Available so nothing should change
                 $this->checkMigrationForUnavailableLanguage($this->languageDE);
             }
         }
@@ -109,7 +109,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
         $this->checkMigrationForAvailableLanguage($this->languageEN, $data['expectedEnTranslation'], $data['EnTranslation'], $updated_at['en']);
         $this->checkMigrationForAvailableLanguage($this->languageDE, $data['expectedDeTranslation'], $data['DeTranslation'], $updated_at['de']);
 
-        //run the migration a second time, nothing should change
+        // run the migration a second time, nothing should change
         $this->checksWithNoChangesExpected();
     }
 
@@ -125,7 +125,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     public static function migrationCases(): array
     {
         return [
-            //already correct/modified, should be no changes
+            // already correct/modified, should be no changes
             [
                 [
                     'SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
@@ -140,7 +140,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
                     'expectedDeTranslation' => 'CustomerChangesDE',
                 ],
             ],
-            //Old wrong translations, should be fixed afterwards
+            // Old wrong translations, should be fixed afterwards
             [
                 [
                     'SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
@@ -148,7 +148,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
                     'expectedDeTranslation' => 'Slowakei',
                 ],
             ],
-            //Languages not available, no changes should happen
+            // Languages not available, no changes should happen
             [
                 [
                     'SlovakiaAvailable' => true, 'languageEnAvailable' => false, 'languageDeAvailable' => true,
@@ -170,7 +170,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
                     'expectedDeTranslation' => 'Slowakei',
                 ],
             ],
-            //Country not available, no changes should happen
+            // Country not available, no changes should happen
             [
                 [
                     'SlovakiaAvailable' => false, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
@@ -228,7 +228,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
         /** @var array{name: string, updated_at: string} $actualData */
         $actualData = $stmt->executeQuery([$languageId, $this->countryIdSlovakia])->fetchAssociative();
         static::assertEquals($expectedTranslation, $actualData['name']);
-        //If the data has changed the updated_at field also has to change
+        // If the data has changed the updated_at field also has to change
         if ($expectedTranslation !== $oldTranslation) {
             static::assertGreaterThan($oldUpdateDate, $actualData['updated_at']);
         } else {
@@ -249,7 +249,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
             [$languageId, $this->countryIdSlovakia]
         );
         $actualHash = md5(serialize($dbData));
-        //language not available just makes the migration not find the language. actual should be what has been set by data
+        // language not available just makes the migration not find the language. actual should be what has been set by data
         static::assertEquals(
             $expectedHash,
             $actualHash
@@ -266,7 +266,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
      */
     private function setDB(array $data): void
     {
-        //assumes the Country is always there in our testDB, changes the iso3 to make country unavailable
+        // assumes the Country is always there in our testDB, changes the iso3 to make country unavailable
         if ($data['SlovakiaAvailable'] !== null) {
             if ($data['SlovakiaAvailable'] === false) {
                 $this->connection->update('country', ['iso3' => 'SV?'], ['iso3' => 'SVK']);

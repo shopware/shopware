@@ -24,8 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('content')]
 class LandingPageLoaderTest extends TestCase
 {
-    use StorefrontPageTestBehaviour;
     use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
 
     private TestDataCollection $ids;
 

@@ -76,7 +76,7 @@ class InstallAppCommand extends Command
             if (!$input->getOption('no-validate')) {
                 try {
                     $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException | XmlParsingException $e) {
+                } catch (AppValidationException|XmlParsingException $e) {
                     $io->error(sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
 
                     $success = self::FAILURE;

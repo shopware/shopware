@@ -337,7 +337,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $hookData['interfaceHook'] = true;
         $hookData['interfaceDescription'] = "**Interface Hook**\n\n" . $hookData['trigger'];
 
-        foreach ($hook::FUNCTIONS as $functionName => $functionHook) { /* @phpstan-ignore-line  */
+        foreach ($hook::FUNCTIONS as $functionName => $functionHook) { /* @phpstan-ignore-line */
             $hookData['functions'][$functionName] = $this->getDataForHook($functionHook);
         }
 

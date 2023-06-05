@@ -33,8 +33,8 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('content')]
 class MediaEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

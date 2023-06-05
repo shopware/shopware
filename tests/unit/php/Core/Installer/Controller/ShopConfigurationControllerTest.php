@@ -29,8 +29,8 @@ use Twig\Environment;
  */
 class ShopConfigurationControllerTest extends TestCase
 {
-    use InstallerControllerTestTrait;
     use EnvTestBehaviour;
+    use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
 

@@ -26,8 +26,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
  */
 class PriceFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection

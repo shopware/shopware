@@ -134,7 +134,7 @@ class LineItemInCategoryRuleTest extends TestCase
             $this->createLineItemWithCategories(['1']),
             $this->createLineItemWithCategories($lineItemCategoryIds),
         ]);
-        $containerLineItem = ($this->createContainerLineItem($lineItemCollection))->setPayloadValue('categoryIds', ['1']);
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection)->setPayloadValue('categoryIds', ['1']);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
@@ -178,8 +178,8 @@ class LineItemInCategoryRuleTest extends TestCase
         ]);
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItemWithCategories(['1'])),
-            ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setGood(false),
+            $this->createLineItemWithCategories(['1']),
+            $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setGood(false),
         ]);
 
         $cart = $this->createCart($lineItemCollection);

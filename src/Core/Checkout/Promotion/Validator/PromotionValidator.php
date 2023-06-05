@@ -83,7 +83,6 @@ class PromotionValidator implements EventSubscriberInterface
 
             switch ($command->getDefinition()::class) {
                 case PromotionDefinition::class:
-
                     /** @var string $promotionId */
                     $promotionId = $command->getPrimaryKey()['id'];
 
@@ -103,7 +102,6 @@ class PromotionValidator implements EventSubscriberInterface
                     break;
 
                 case PromotionDiscountDefinition::class:
-
                     /** @var string $discountId */
                     $discountId = $command->getPrimaryKey()['id'];
 

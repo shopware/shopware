@@ -59,9 +59,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class ControllerRateLimiterTest extends TestCase
 {
-    use RateLimiterTestTrait;
     use CustomerTestTrait;
     use OrderFixture;
+    use RateLimiterTestTrait;
     use StorefrontControllerTestBehaviour;
 
     private Context $context;

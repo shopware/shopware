@@ -18,9 +18,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class AdminSearchControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AdminFunctionalTestBehaviour;
+    use IntegrationTestBehaviour;
 
     protected function setup(): void
     {

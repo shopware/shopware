@@ -78,7 +78,7 @@ class UserConfigControllerTest extends TestCase
         $configKey = 'me.config';
         $ids = new IdsCollection();
 
-        //Different user
+        // Different user
         $user = [
             'id' => $ids->get('user'),
             'email' => 'foo@bar.com',
@@ -106,7 +106,7 @@ class UserConfigControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         static::assertEquals([], json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['data']);
 
-        //Different Key
+        // Different Key
         $contextBrowser = $this->getBrowser()->getServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         $userId = Uuid::fromBytesToHex($contextBrowser->getSource()->getUserId());
 

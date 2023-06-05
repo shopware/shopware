@@ -139,7 +139,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
             static::assertNotNull($entry);
-            array_push($data, $entry);
+            $data[] = $entry;
         }
 
         try {

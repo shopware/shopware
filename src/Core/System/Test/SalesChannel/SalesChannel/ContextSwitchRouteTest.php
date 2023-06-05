@@ -24,8 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('sales-channel')]
 class ContextSwitchRouteTest extends TestCase
 {
-    use SalesChannelApiTestBehaviour;
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private EntityRepository $customerRepository;
 

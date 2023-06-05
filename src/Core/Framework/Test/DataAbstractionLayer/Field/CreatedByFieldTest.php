@@ -24,8 +24,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class CreatedByFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testCreatedByNotCreateWithWrongScope(): void
     {

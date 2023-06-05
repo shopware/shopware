@@ -32,8 +32,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class CartItemAddRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
     use PromotionTestFixtureBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;
 
@@ -259,7 +259,7 @@ class CartItemAddRouteTest extends TestCase
         static::assertNotEmpty($shippingCost = $deliveries[0]['shippingCosts']);
         static::assertCount(2, $shippingCostCalculatedTaxes = $shippingCost['calculatedTaxes']);
 
-        //assert there is shipping cost calculated taxes for product and custom items in cart
+        // assert there is shipping cost calculated taxes for product and custom items in cart
         $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);

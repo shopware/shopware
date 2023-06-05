@@ -74,8 +74,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('system-settings')]
 class ImportExportTest extends AbstractImportExportTestCase
 {
-    use SalesChannelApiTestBehaviour;
     use OrderFixture;
+    use SalesChannelApiTestBehaviour;
 
     public function testExportEvents(): void
     {

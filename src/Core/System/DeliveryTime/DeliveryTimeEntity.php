@@ -14,8 +14,8 @@ use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\Delivery
 #[Package('customer-order')]
 class DeliveryTimeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
     final public const DELIVERY_TIME_HOUR = 'hour';
     final public const DELIVERY_TIME_DAY = 'day';
     final public const DELIVERY_TIME_WEEK = 'week';

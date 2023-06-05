@@ -22,7 +22,7 @@ return function (array $context) {
         $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
         $baseURL = rtrim($baseURL, '/');
 
-        if (strpos($_SERVER['REQUEST_URI'], '/installer') === false) {
+        if (!str_contains($_SERVER['REQUEST_URI'], '/installer')) {
             header('Location: ' . $baseURL . '/installer');
             exit;
         }

@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class LineItemRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 
@@ -194,7 +194,7 @@ class LineItemRuleTest extends TestCase
     {
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
-                ($this->createLineItem())->setPayloadValue('parentId', 'A'),
+                $this->createLineItem()->setPayloadValue('parentId', 'A'),
                 $this->createMock(SalesChannelContext::class)
             )
         );
@@ -206,7 +206,7 @@ class LineItemRuleTest extends TestCase
     {
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
-                ($this->createLineItem())->setPayloadValue('parentId', 'C'),
+                $this->createLineItem()->setPayloadValue('parentId', 'C'),
                 $this->createMock(SalesChannelContext::class)
             )
         );

@@ -55,7 +55,7 @@ class UnusedMediaPurger
         $criteria->addSorting(new FieldSorting('media.createdAt', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
 
-        //if we provided an offset, then just grab that batch based on the limit
+        // if we provided an offset, then just grab that batch based on the limit
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
@@ -67,7 +67,7 @@ class UnusedMediaPurger
             return yield array_values($this->mediaRepo->search(new Criteria($ids), $context)->getElements());
         }
 
-        //otherwise, we need iterate over the entire result set in batches
+        // otherwise, we need iterate over the entire result set in batches
         $iterator = new RepositoryIterator($this->mediaRepo, $context, $criteria);
         while (($ids = $iterator->fetchIds()) !== null) {
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays);
@@ -140,7 +140,7 @@ class UnusedMediaPurger
         $criteria->setLimit($limit);
         $criteria->setOffset(0);
 
-        //if we provided an offset, then just grab that batch based on the limit
+        // if we provided an offset, then just grab that batch based on the limit
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
@@ -150,9 +150,9 @@ class UnusedMediaPurger
             return yield $this->dispatchEvent($ids);
         }
 
-        //in order to iterate all records whilst deleting them, we must adjust the offset for each batch
-        //using the amount of deleted records in the previous batch
-        //eg: we start from offset 0. we search for 50, and delete 3 of them. Now we start from offset 47.
+        // in order to iterate all records whilst deleting them, we must adjust the offset for each batch
+        // using the amount of deleted records in the previous batch
+        // eg: we start from offset 0. we search for 50, and delete 3 of them. Now we start from offset 47.
         while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
             /** @var array<string> $ids */
             $unusedIds = $this->dispatchEvent($ids);

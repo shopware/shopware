@@ -124,7 +124,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testCreateActionResponseWithRedirectTo(): void
     {
-        $router = static ::createMock(RouterInterface::class);
+        $router = static::createMock(RouterInterface::class);
         $router
             ->expects(static::once())
             ->method('generate')
@@ -152,7 +152,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testCreateActionResponseWithEmptyRedirectToWillRedirectToHomePage(): void
     {
-        $router = static ::createMock(RouterInterface::class);
+        $router = static::createMock(RouterInterface::class);
         $router
             ->expects(static::once())
             ->method('generate')
@@ -180,7 +180,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testCreateActionResponseWithForwardTo(): void
     {
-        $router = static ::createMock(RouterInterface::class);
+        $router = static::createMock(RouterInterface::class);
         $router
             ->expects(static::once())
             ->method('generate')

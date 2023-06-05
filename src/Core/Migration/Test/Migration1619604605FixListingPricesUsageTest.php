@@ -30,8 +30,8 @@ use Shopware\Core\Migration\V6_4\Migration1619604605FixListingPricesUsage;
 #[Package('core')]
 class Migration1619604605FixListingPricesUsageTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $cmsPageRepository;
 

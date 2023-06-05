@@ -37,14 +37,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ProductSearchQueryBuilderTest extends TestCase
 {
-    use ElasticsearchTestTestBehaviour;
-    use KernelTestBehaviour;
-    use FilesystemBehaviour;
     use CacheTestBehaviour;
-    use SessionTestBehaviour;
-    use QueueTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use ElasticsearchTestTestBehaviour;
+    use FilesystemBehaviour;
+    use KernelTestBehaviour;
+    use QueueTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use SessionTestBehaviour;
 
     private EntityRepository $productRepository;
 

@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class ShippingMethodPriceEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

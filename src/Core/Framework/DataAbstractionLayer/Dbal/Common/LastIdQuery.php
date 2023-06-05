@@ -30,7 +30,7 @@ class LastIdQuery implements IterableQuery
     {
         $query = clone $this->query;
 
-        //get first column for distinct selection
+        // get first column for distinct selection
         $select = $query->getQueryPart('select');
 
         $query->resetQueryPart('orderBy');

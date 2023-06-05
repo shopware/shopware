@@ -55,7 +55,7 @@ class UserAccessKeyDefinition extends EntityDefinition
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new DateTimeField('last_usage_at', 'lastUsageAt'),
             new CustomFields(),
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false)),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);
     }
 }

@@ -243,7 +243,7 @@ class LineItem extends Struct
      *
      * @throws CartException
      */
-    public function setPayloadValue(string $key, $value/*, ?bool $protected = null*/): self
+    public function setPayloadValue(string $key, $value/* , ?bool $protected = null */): self
     {
         $protected = false;
         if (\func_num_args() === 3) {
@@ -270,7 +270,7 @@ class LineItem extends Struct
      *
      * @throws CartException
      */
-    public function setPayload(array $payload/*, array $protection = []*/): self
+    public function setPayload(array $payload/* , array $protection = [] */): self
     {
         $protection = [];
         if (\func_num_args() === 2) {
@@ -305,7 +305,7 @@ class LineItem extends Struct
      *
      * @param array<string, mixed> $payload
      */
-    public function replacePayload(array $payload/*, array $protection = []*/): self
+    public function replacePayload(array $payload/* , array $protection = [] */): self
     {
         $protection = [];
         if (\func_num_args() === 2) {

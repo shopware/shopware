@@ -101,7 +101,7 @@ abstract class EntityDefinition
     final public function removeExtension(EntityExtension $toDelete): void
     {
         foreach ($this->extensions as $key => $extension) {
-            if (\get_class($extension) === \get_class($toDelete)) {
+            if ($extension::class === $toDelete::class) {
                 unset($this->extensions[$key]);
                 $this->fields = null;
 
@@ -314,7 +314,7 @@ abstract class EntityDefinition
 
     public function isChildrenAware(): bool
     {
-        //used in VersionManager
+        // used in VersionManager
         return $this->getFields()->getChildrenAssociationField() !== null;
     }
 

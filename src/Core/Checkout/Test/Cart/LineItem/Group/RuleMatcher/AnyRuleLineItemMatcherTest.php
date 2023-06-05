@@ -22,8 +22,8 @@ use Shopware\Core\Test\TestDefaults;
 class AnyRuleLineItemMatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use RulesTestFixtureBehaviour;
     use LineItemTestFixtureBehaviour;
+    use RulesTestFixtureBehaviour;
 
     private AbstractAnyRuleLineItemMatcher $matcher;
 

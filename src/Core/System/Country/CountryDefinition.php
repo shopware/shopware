@@ -126,7 +126,7 @@ class CountryDefinition extends EntityDefinition
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'country_id', 'id'))
                 ->addFlags(new RestrictDelete()),
 
-            (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, 'country_id', 'sales_channel_id')),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, 'country_id', 'sales_channel_id'),
 
             (new OneToManyAssociationField('taxRules', TaxRuleDefinition::class, 'country_id', 'id'))
                 ->addFlags(new RestrictDelete()),

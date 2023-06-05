@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('customer-order')]
 class OrderLineItemDownloadEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $orderLineItemId;
 

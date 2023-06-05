@@ -101,7 +101,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['type' => 'guests', '--days' => 14], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertCount(($numberOfGuests + $numberOfNoGuests - 1), $this->fetchAllCustomers());
+        static::assertCount($numberOfGuests + $numberOfNoGuests - 1, $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
@@ -167,7 +167,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     public function testCommandRemovesCart(): void
     {
-        $this->createCartWithCreatedAtDateTime(new \Datetime());
+        $this->createCartWithCreatedAtDateTime(new \DateTime());
 
         static::assertCount(1, $this->fetchAllCarts());
 
@@ -182,7 +182,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $numberOfCarts = random_int(2, 5);
 
         for ($i = 0; $i < $numberOfCarts; ++$i) {
-            $this->createCartWithCreatedAtDateTime(new \Datetime());
+            $this->createCartWithCreatedAtDateTime(new \DateTime());
         }
 
         static::assertCount($numberOfCarts, $this->fetchAllCarts());
@@ -195,7 +195,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     public function testCommandRemovesNoCartBecauseOfDays(): void
     {
-        $this->createCartWithCreatedAtDateTime(new \Datetime());
+        $this->createCartWithCreatedAtDateTime(new \DateTime());
 
         static::assertCount(1, $this->fetchAllCarts());
 
@@ -207,8 +207,8 @@ class CleanPersonalDataCommandTest extends TestCase
 
     public function testCommandRemovesCartBecauseOfDays(): void
     {
-        $this->createCartWithCreatedAtDateTime(new \Datetime());
-        $this->createCartWithCreatedAtDateTime(new \Datetime('2018-10-10'));
+        $this->createCartWithCreatedAtDateTime(new \DateTime());
+        $this->createCartWithCreatedAtDateTime(new \DateTime('2018-10-10'));
 
         static::assertCount(2, $this->fetchAllCarts());
 

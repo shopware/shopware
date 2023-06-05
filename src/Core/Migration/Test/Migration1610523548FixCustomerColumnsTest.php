@@ -102,7 +102,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         $this->insertTestCustomer();
 
         /** @var CustomerEntity $customer */
-        $customer = $this->repository->search((new Criteria()), Context::createDefaultContext())->first();
+        $customer = $this->repository->search(new Criteria(), Context::createDefaultContext())->first();
 
         $this->writer->update(
             $this->customerDefinition,

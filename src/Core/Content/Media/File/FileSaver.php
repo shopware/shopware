@@ -207,7 +207,7 @@ class FileSaver
         try {
             $this->getFileSystem($media)->delete($oldMediaFilePath);
         } catch (UnableToDeleteFile) {
-            //nth
+            // nth
         }
 
         $this->thumbnailService->deleteThumbnails($media, $context);

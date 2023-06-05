@@ -19,7 +19,7 @@ abstract class AbstractGroupAwareExtension implements ExtensionInterface
      * Should only be called if the phpbench run matches the TARGET_GROUP const (isolate commercial features)
      * If fixtures are to be created a "data.json" file must be situated in the same directory
      *
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function load(Container $container): void
     {
@@ -28,7 +28,7 @@ abstract class AbstractGroupAwareExtension implements ExtensionInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function configure(OptionsResolver $resolver): void
     {

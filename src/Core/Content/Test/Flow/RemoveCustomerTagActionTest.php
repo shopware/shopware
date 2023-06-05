@@ -26,9 +26,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Package('business-ops')]
 class RemoveCustomerTagActionTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private EntityRepository $flowRepository;
 

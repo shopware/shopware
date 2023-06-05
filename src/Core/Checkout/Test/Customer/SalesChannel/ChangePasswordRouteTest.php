@@ -19,8 +19,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Package('customer-order')]
 class ChangePasswordRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

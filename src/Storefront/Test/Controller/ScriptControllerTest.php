@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     public function testGetApiEndpoint(): void

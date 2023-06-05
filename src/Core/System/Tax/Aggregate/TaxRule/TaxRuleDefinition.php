@@ -62,8 +62,8 @@ class TaxRuleDefinition extends EntityDefinition
                 new StringField('toZipCode', 'toZipCode'),
             ]),
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id', $autoload)),
-            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id')),
+            new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id', $autoload),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id'),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'),
         ]);
     }

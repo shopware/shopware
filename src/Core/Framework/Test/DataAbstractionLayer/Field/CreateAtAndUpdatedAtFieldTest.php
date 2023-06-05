@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class CreateAtAndUpdatedAtFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection

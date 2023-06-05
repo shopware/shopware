@@ -34,8 +34,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class DaysSinceLastOrderRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use OrderFixture;
 
     private EntityRepository $ruleRepository;

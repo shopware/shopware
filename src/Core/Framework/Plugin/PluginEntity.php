@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslation
 #[Package('core')]
 class PluginEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

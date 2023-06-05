@@ -169,7 +169,7 @@ class CheckoutController extends StorefrontController
             $orderId = Profiler::trace('checkout-order', fn () => $this->orderService->createOrder($data, $context));
         } catch (ConstraintViolationException $formViolations) {
             return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
-        } catch (InvalidCartException | Error | EmptyCartException) {
+        } catch (InvalidCartException|Error|EmptyCartException) {
             $this->addCartErrors(
                 $this->cartService->getCart($context->getToken(), $context)
             );
@@ -184,7 +184,7 @@ class CheckoutController extends StorefrontController
             $response = Profiler::trace('handle-payment', fn (): ?RedirectResponse => $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl));
 
             return $response ?? new RedirectResponse($finishUrl);
-        } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException) {
+        } catch (PaymentProcessException|InvalidOrderException|UnknownPaymentMethodException) {
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
     }

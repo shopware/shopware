@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('sales-channel')]
 class MailTemplateEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

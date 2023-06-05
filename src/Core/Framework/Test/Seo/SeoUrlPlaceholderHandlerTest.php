@@ -21,10 +21,10 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
  */
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use BasicTestDataBehaviour;
     use DatabaseTransactionBehaviour;
 
-    use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;

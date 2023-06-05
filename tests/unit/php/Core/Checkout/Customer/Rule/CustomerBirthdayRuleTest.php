@@ -119,7 +119,7 @@ class CustomerBirthdayRuleTest extends TestCase
     public function testCustomerNotExist(): void
     {
         $scope = new LineItemScope(
-            (new LineItem(Uuid::randomHex(), 'product', null, 3)),
+            new LineItem(Uuid::randomHex(), 'product', null, 3),
             $this->createMock(SalesChannelContext::class)
         );
 

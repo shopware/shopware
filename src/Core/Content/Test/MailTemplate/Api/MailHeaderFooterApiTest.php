@@ -219,7 +219,7 @@ class MailHeaderFooterApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static ::assertEquals(1, $content['total']);
+            static::assertEquals(1, $content['total']);
         }
     }
 

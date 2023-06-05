@@ -98,7 +98,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        //$salesChannelRepository->delete([$ids], Context::createDefaultContext());
+        // $salesChannelRepository->delete([$ids], Context::createDefaultContext());
     }
 
     private function addSalesChannel(string $salesChannelType): string

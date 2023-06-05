@@ -31,9 +31,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 class ProductLineItemCommandValidatorTest extends TestCase
 {
-    use TaxAddToSalesChannelTestBehaviour;
-    use IntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepository

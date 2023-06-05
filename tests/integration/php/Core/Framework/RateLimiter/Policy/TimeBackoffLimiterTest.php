@@ -23,8 +23,8 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  */
 class TimeBackoffLimiterTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     /**

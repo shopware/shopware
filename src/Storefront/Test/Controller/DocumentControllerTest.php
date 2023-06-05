@@ -38,8 +38,8 @@ use Symfony\Component\HttpFoundation\Request;
 class DocumentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;
 

@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class WriterExtensionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private Connection $connection;
 

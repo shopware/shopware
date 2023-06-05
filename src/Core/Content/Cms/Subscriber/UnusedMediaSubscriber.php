@@ -119,7 +119,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
             sprintf($sql, implode(',', array_map(fn (string $id) => sprintf('"%s"', $id), $event->getUnusedIds())))
         );
 
-        //json_decode each row and flatten the result to an array of ids
+        // json_decode each row and flatten the result to an array of ids
         return array_merge(
             ...array_map(fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $result)
         );

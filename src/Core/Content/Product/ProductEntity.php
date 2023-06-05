@@ -41,8 +41,8 @@ use Shopware\Core\System\Unit\UnitEntity;
 #[Package('inventory')]
 class ProductEntity extends Entity implements \Stringable
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

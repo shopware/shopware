@@ -314,7 +314,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             $values[] = [
                 $value,
-                round($value / 100 * (random_int(50, 90)), 2),
+                round($value / 100 * random_int(50, 90), 2),
             ];
         }
 

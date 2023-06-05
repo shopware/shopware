@@ -30,7 +30,7 @@ final class DeleteFileHandler
             try {
                 $this->getFileSystem($message->getVisibility())->delete($file);
             } catch (UnableToDeleteFile) {
-                //ignore file is already deleted
+                // ignore file is already deleted
             }
         }
     }

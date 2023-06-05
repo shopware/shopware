@@ -22,9 +22,9 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class MoveShopPermanentlyStrategyTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use EnvTestBehaviour;
     use AppSystemTestBehaviour;
+    use EnvTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private SystemConfigService $systemConfigService;
 

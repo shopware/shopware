@@ -50,12 +50,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class LineItemGroupBuilderTest extends TestCase
 {
-    use PromotionSetGroupTestFixtureBehaviour;
-    use LineItemTestFixtureBehaviour;
-    use LineItemGroupTestFixtureBehaviour;
-    use RulesTestFixtureBehaviour;
-    use PromotionTestFixtureBehaviour;
     use IntegrationTestBehaviour;
+    use LineItemGroupTestFixtureBehaviour;
+    use LineItemTestFixtureBehaviour;
+    use PromotionSetGroupTestFixtureBehaviour;
+    use PromotionTestFixtureBehaviour;
+    use RulesTestFixtureBehaviour;
 
     private const KEY_PACKAGER_COUNT = 'COUNT';
 

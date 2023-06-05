@@ -18,9 +18,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 class AdminProductStreamControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AdminFunctionalTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 

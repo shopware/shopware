@@ -30,10 +30,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class CustomFieldTranslationTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use CacheTestBehaviour;
     use BasicTestDataBehaviour;
+    use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection

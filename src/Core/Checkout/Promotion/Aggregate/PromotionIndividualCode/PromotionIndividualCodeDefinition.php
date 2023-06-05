@@ -50,7 +50,7 @@ class PromotionIndividualCodeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required()),
             (new StringField('code', 'code'))->addFlags(new Required()),
-            (new JsonField('payload', 'payload')),
+            new JsonField('payload', 'payload'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
         ]);
     }

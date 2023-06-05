@@ -10,6 +10,7 @@ use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Source;
 use Twig\Template;
+
 use function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;
 
 /**

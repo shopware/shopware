@@ -26,8 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ApiRequestContextResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private Connection $connection;
 

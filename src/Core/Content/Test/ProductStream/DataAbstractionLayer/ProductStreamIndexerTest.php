@@ -29,8 +29,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('business-ops')]
 class ProductStreamIndexerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $productStreamRepository;
 

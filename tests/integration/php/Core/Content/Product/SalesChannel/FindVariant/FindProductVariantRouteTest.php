@@ -76,7 +76,7 @@ class FindProductVariantRouteTest extends TestCase
 
     public function testFindToNotCombinable(): void
     {
-        //update red-xl to inactive
+        // update red-xl to inactive
         $this->repository->update(
             [
                 ['id' => $this->ids->get('redXL'), 'active' => false],

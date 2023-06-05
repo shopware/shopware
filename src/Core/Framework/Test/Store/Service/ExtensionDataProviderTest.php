@@ -25,9 +25,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class ExtensionDataProviderTest extends TestCase
 {
+    use ExtensionBehaviour;
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
-    use ExtensionBehaviour;
 
     private AbstractExtensionDataProvider $extensionDataProvider;
 

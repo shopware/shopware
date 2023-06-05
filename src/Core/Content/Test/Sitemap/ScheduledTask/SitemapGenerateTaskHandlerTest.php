@@ -29,8 +29,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class SitemapGenerateTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
     use SalesChannelFunctionalTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private SitemapGenerateTaskHandler $sitemapHandler;
 

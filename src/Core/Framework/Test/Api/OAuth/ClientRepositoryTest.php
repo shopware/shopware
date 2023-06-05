@@ -19,9 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ClientRepositoryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testLoginFailsForInactiveApp(): void
     {

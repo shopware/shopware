@@ -134,10 +134,10 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertNotNull($property->getValue($this->calculator));
 
-        //repository mock assertion to ensure only one load
+        // repository mock assertion to ensure only one load
         $this->calculator->calculate([], $this->createMock(SalesChannelContext::class));
 
-        //good moment to test reset interface here
+        // good moment to test reset interface here
         $this->calculator->reset();
         static::assertNull($property->getValue($this->calculator));
     }

@@ -109,7 +109,7 @@ class DeleteNotUsedMediaCommand extends Command
             }
 
             if ($batchNum === 0) {
-                //we only clear the screen when we actually have some unused media
+                // we only clear the screen when we actually have some unused media
                 $cursor->clearScreen();
             }
 
@@ -140,7 +140,7 @@ class DeleteNotUsedMediaCommand extends Command
             );
 
             if (\count($medias) < 20) {
-                //last batch
+                // last batch
                 return true;
             }
 
@@ -179,7 +179,7 @@ class DeleteNotUsedMediaCommand extends Command
             }
         }
 
-        //last remaining batch
+        // last remaining batch
         if (\count($batch) > 0) {
             return $callback($i++, $batch);
         }

@@ -280,10 +280,10 @@ to
 self
 ```
 EOD;
-        $template = str_replace('%FEATURE_FLAG%', ($this->flag ? 'flag: ' . $this->flag : ''), $template);
-        $template = str_replace('%AUTHOR%', ($this->author ? 'author: ' . $this->author : ''), $template);
-        $template = str_replace('%AUTHOR_EMAIL%', ($this->authorEmail ? 'author_email: ' . $this->authorEmail : ''), $template);
-        $template = str_replace('%AUTHOR_GITHUB%', ($this->authorGitHub ? 'author_github: ' . $this->authorGitHub : ''), $template);
+        $template = str_replace('%FEATURE_FLAG%', $this->flag ? 'flag: ' . $this->flag : '', $template);
+        $template = str_replace('%AUTHOR%', $this->author ? 'author: ' . $this->author : '', $template);
+        $template = str_replace('%AUTHOR_EMAIL%', $this->authorEmail ? 'author_email: ' . $this->authorEmail : '', $template);
+        $template = str_replace('%AUTHOR_GITHUB%', $this->authorGitHub ? 'author_github: ' . $this->authorGitHub : '', $template);
         $template = str_replace("\n\n", "\n", $template);
 
         return trim($template);

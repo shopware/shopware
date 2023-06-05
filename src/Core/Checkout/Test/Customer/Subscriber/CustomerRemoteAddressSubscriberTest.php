@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\IpUtils;
 #[Package('customer-order')]
 class CustomerRemoteAddressSubscriberTest extends TestCase
 {
-    use SalesChannelFunctionalTestBehaviour;
     use LineItemTestFixtureBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     private KernelBrowser $browser;
 

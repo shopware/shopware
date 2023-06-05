@@ -19,8 +19,8 @@ use Shopware\Core\Migration\V6_4\Migration1657027979AddOrderRefundPrivilegeForOr
  */
 class Migration1657027979AddOrderRefundPrivilegeForOrderEditorTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     public function testNewPermissionsAreAdded(): void
     {

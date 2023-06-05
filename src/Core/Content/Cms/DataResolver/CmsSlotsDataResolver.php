@@ -188,17 +188,17 @@ class CmsSlotsDataResolver
 
     private function canBeMerged(Criteria $criteria): bool
     {
-        //paginated lists must be an own search
+        // paginated lists must be an own search
         if ($criteria->getOffset() !== null || $criteria->getLimit() !== null) {
             return false;
         }
 
-        //sortings must be an own search
+        // sortings must be an own search
         if (\count($criteria->getSorting())) {
             return false;
         }
 
-        //queries must be an own search
+        // queries must be an own search
         if (\count($criteria->getQueries())) {
             return false;
         }

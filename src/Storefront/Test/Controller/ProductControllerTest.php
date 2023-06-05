@@ -38,8 +38,8 @@ use Symfony\Component\HttpFoundation\Response;
 class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontControllerTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     private TestDataCollection $ids;
 

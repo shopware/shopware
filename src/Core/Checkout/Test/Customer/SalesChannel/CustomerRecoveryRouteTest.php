@@ -26,8 +26,8 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('customer-order')]
 class CustomerRecoveryRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private string $hash;
 

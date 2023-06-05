@@ -22,15 +22,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use const PHP_EOL;
 
 /**
  * @internal
  */
 class ProductExportGenerateCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CommandTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private ProductExportGenerateCommand $productExportGenerateCommand;
 
@@ -70,7 +69,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $fileContent = $this->fileSystem->read($filePath);
 
         static::assertIsString($fileContent);
-        $csvRows = explode(PHP_EOL, $fileContent);
+        $csvRows = explode(\PHP_EOL, $fileContent);
 
         static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->fileExists($filePath));

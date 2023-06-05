@@ -24,8 +24,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class StateMachineSateFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $orderRepository;
 

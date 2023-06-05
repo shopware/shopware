@@ -63,7 +63,7 @@ class FlowDefinition extends EntityDefinition
             (new BlobField('payload', 'payload'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new BoolField('active', 'active'),
-            (new StringField('description', 'description', 500)),
+            new StringField('description', 'description', 500),
             (new OneToManyAssociationField('sequences', FlowSequenceDefinition::class, 'flow_id', 'id'))->addFlags(new CascadeDelete()),
             new CustomFields(),
         ]);

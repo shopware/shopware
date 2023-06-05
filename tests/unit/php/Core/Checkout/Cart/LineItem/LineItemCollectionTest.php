@@ -65,8 +65,8 @@ class LineItemCollectionTest extends TestCase
         ];
         yield 'collection has line items without any state' => [
             new LineItemCollection([
-                (new LineItem('A', 'test')),
-                (new LineItem('B', 'test')),
+                new LineItem('A', 'test'),
+                new LineItem('B', 'test'),
             ]),
             [State::IS_PHYSICAL => false, State::IS_DOWNLOAD => false],
         ];

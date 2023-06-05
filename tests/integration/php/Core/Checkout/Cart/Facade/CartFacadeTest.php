@@ -40,8 +40,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 #[Package('checkout')]
 class CartFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 

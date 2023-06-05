@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemTotalPriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

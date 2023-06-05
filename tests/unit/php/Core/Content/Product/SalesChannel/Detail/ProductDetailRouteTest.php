@@ -130,8 +130,8 @@ class ProductDetailRouteTest extends TestCase
         $this->productRepository->expects(static::exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                (new EntitySearchResult('product', 0, new ProductCollection(), null, new Criteria(), $this->context->getContext())),
-                (new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext()))
+                new EntitySearchResult('product', 0, new ProductCollection(), null, new Criteria(), $this->context->getContext()),
+                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
         $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());

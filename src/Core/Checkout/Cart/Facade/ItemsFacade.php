@@ -24,11 +24,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ItemsFacade implements \IteratorAggregate
 {
     use ItemsAddTrait;
-    use ItemsHasTrait;
-    use ItemsRemoveTrait;
     use ItemsCountTrait;
     use ItemsGetTrait;
+    use ItemsHasTrait;
     use ItemsIteratorTrait;
+    use ItemsRemoveTrait;
 
     /**
      * @internal

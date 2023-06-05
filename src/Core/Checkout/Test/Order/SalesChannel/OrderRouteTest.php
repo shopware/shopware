@@ -62,10 +62,10 @@ use Symfony\Component\HttpFoundation\Response;
 class OrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
     use MailTemplateTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;
 

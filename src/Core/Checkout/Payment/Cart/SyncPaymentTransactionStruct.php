@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInterface
 {
     use CloneTrait;
-    use JsonSerializableTrait;
     use ExtendableTrait;
+    use JsonSerializableTrait;
 
     /**
      * @var OrderTransactionEntity

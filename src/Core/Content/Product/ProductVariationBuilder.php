@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use function array_values;
 
 #[Package('inventory')]
 class ProductVariationBuilder extends AbstractProductVariationBuilder
@@ -55,7 +54,7 @@ class ProductVariationBuilder extends AbstractProductVariationBuilder
         }, $options);
 
         $product->assign([
-            'variation' => array_values(\array_filter($names)),
+            'variation' => \array_values(\array_filter($names)),
         ]);
     }
 }

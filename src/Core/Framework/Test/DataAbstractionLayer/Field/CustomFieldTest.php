@@ -32,9 +32,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class CustomFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection
@@ -963,7 +963,7 @@ class CustomFieldTest extends TestCase
         $expected = [$parentId, $childId];
         static::assertEquals(array_combine($expected, $expected), $results->getIds());
 
-        //#####
+        // #####
 
         $context->setConsiderInheritance(false);
         $child = $repo->search(new Criteria([$childId]), $context)->first();

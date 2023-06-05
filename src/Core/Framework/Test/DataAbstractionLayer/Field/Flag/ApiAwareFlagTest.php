@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ApiAwareFlagTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public function testReadWithoutPermissionForAdminSourceWithJsonApiType(): void

@@ -63,9 +63,9 @@ class FlowSequenceDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('flow_id', 'flowId', FlowDefinition::class))->addFlags(new Required()),
-            (new FkField('rule_id', 'ruleId', RuleDefinition::class)),
+            new FkField('rule_id', 'ruleId', RuleDefinition::class),
             (new StringField('action_name', 'actionName', 255))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new JsonField('config', 'config', [], [])),
+            new JsonField('config', 'config', [], []),
             new IntField('position', 'position'),
             new IntField('display_group', 'displayGroup'),
             new BoolField('true_case', 'trueCase'),

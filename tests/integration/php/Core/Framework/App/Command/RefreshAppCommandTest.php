@@ -21,8 +21,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class RefreshAppCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private EntityRepository $appRepository;
 

@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
  */
 class RateLimiterTest extends TestCase
 {
-    use CustomerTestTrait;
     use AdminApiTestBehaviour;
+    use CustomerTestTrait;
 
     private Context $context;
 

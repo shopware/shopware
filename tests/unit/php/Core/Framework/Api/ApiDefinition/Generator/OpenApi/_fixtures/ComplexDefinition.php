@@ -34,8 +34,8 @@ class ComplexDefinition extends EntityDefinition
         return new FieldCollection(
             [
                 (new IdField('id_field', 'idField'))->addFlags(new ApiAware()),
-                (new ManyToOneAssociationField('simpleTo', 'simpleToId', SimpleDefinition::class)),
-                (new OneToManyAssociationField('simpleManys', SimpleDefinition::class, 'ref_field')),
+                new ManyToOneAssociationField('simpleTo', 'simpleToId', SimpleDefinition::class),
+                new OneToManyAssociationField('simpleManys', SimpleDefinition::class, 'ref_field'),
             ]
         );
     }

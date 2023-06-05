@@ -27,9 +27,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ProductReviewSaveRouteTest extends TestCase
 {
+    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use EventDispatcherBehaviour;
 
     private KernelBrowser $browser;
 

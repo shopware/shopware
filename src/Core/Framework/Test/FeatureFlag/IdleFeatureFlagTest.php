@@ -55,7 +55,7 @@ class IdleFeatureFlagTest extends TestCase
 
     public function testNoIdleFeatureFlagsArePresent(): void
     {
-        //init FeatureConfig
+        // init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll());
         $platformDir = \dirname(__DIR__, 4);
 

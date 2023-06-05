@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use const PHP_EOL;
 
 /**
  * @internal
@@ -320,7 +319,7 @@ class MappingServiceTest extends TestCase
             [
                 'expectedErrorClass' => InvalidFileContentException::class,
                 'sourceEntity' => 'product',
-                'csvHeader' => '' . PHP_EOL,
+                'csvHeader' => '' . \PHP_EOL,
             ],
         ];
 

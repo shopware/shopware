@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class PromotionsInCartCountRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

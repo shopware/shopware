@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomEntityApiControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * All other cases are covered in @see CustomEntityTest

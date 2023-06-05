@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('customer-order')]
 class DocumentEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

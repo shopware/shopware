@@ -26,8 +26,8 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('customer-order')]
 class OrderEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

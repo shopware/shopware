@@ -101,7 +101,7 @@ class ExtensionListingLoader
     {
         try {
             $updates = $this->client->getExtensionUpdateList($localCollection, $context);
-        } catch (StoreApiException | ClientException) {
+        } catch (StoreApiException|ClientException) {
             return;
         }
 

@@ -69,10 +69,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomEntityTest extends TestCase
 {
-    use KernelTestBehaviour;
     use AdminApiTestBehaviour;
-    use SalesChannelApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use KernelTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private const CATEGORY_TYPE = 'custom-entity-unit-test';
 

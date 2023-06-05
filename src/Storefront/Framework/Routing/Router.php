@@ -97,7 +97,6 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         switch ($referenceType) {
             case self::NETWORK_PATH:
             case self::ABSOLUTE_URL:
-
                 $schema = '';
                 if ($referenceType === self::ABSOLUTE_URL) {
                     $schema = $this->getContext()->getScheme() . ':';

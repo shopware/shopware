@@ -356,7 +356,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $customerId = $this->createCustomer();
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
-        //check token is valid here
+        // check token is valid here
         static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
         static::assertEquals($token, $result['token']);
 

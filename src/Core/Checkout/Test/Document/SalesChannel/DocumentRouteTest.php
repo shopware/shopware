@@ -26,10 +26,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('customer-order')]
 class DocumentRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use OrderActionTrait, CustomerTestTrait {
+    use CustomerTestTrait, OrderActionTrait {
         OrderActionTrait::login insteadof CustomerTestTrait;
     }
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

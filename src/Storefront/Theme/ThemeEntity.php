@@ -14,8 +14,8 @@ use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 #[Package('storefront')]
 class ThemeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected ?string $technicalName = null;
 

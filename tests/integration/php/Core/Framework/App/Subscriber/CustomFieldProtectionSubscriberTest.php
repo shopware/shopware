@@ -24,9 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomFieldProtectionSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository

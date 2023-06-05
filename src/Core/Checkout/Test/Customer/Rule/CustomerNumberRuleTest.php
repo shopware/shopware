@@ -25,8 +25,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Package('business-ops')]
 class CustomerNumberRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

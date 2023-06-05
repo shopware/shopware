@@ -12,9 +12,9 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  */
 class AppCmsControllerTest extends TestCase
 {
-    use GuzzleTestClientBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     public function testGetBlocks(): void
     {

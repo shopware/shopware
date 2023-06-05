@@ -24,8 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class FilterTagIdsServiceTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use OrderFixture;
 
     private IdsCollection $ids;
@@ -130,7 +130,7 @@ class FilterTagIdsServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addSorting(new CountSorting('products.id', FieldSorting::DESCENDING));
 
-        (Context::createDefaultContext())->enableInheritance(function (Context $context) use ($criteria): void {
+        Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria): void {
             $filteredTagIdsStruct = $this->filterTagIdsService->filterIds(
                 new Request(),
                 $criteria,
@@ -311,7 +311,7 @@ class FilterTagIdsServiceTest extends TestCase
             Uuid::randomHex()
         );
 
-        $versionContext = (Context::createDefaultContext())->createWithVersionId($versionId);
+        $versionContext = Context::createDefaultContext()->createWithVersionId($versionId);
 
         $orders = [
             [

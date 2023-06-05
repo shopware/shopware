@@ -19,9 +19,9 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  */
 class NotificationControllerTest extends TestCase
 {
-    use GuzzleTestClientBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     private EntityRepository  $notificationRepository;
 

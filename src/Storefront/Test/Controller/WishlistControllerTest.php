@@ -36,8 +36,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 class WishlistControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontControllerTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     private string $customerId;
 

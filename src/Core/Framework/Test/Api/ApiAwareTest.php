@@ -20,8 +20,8 @@ use Shopware\Storefront\Theme\ThemeDefinition;
  */
 class ApiAwareTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testApiAware(): void
     {

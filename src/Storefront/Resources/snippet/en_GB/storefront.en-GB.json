@@ -627,7 +627,8 @@
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",
     "groupComfortFeatures": "Comfort features",
-    "groupComfortFeaturesWishlist": "Wishlist"
+    "groupComfortFeaturesWishlist": "Wishlist",
+    "groupComfortFeaturesYoutubeVideo": "YouTube video"
   },
   "ellipsis": {
     "expandLabel": "show more",

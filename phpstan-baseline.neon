@@ -16348,11 +16348,6 @@ parameters:
 			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
 
 		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CookieControllerTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/FormControllerTest.php

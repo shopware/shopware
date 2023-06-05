@@ -49,6 +49,7 @@
                 </iframe>
             {% else %}
                 {% set pluginConfiguration = {
+                    cookieName: 'youtube-video',
                     videoUrl: videoUrl,
                     iframeClasses: [ iframeClass ],
                     btnClasses: [ 'btn', 'btn-outline-secondary' ],

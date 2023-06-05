@@ -16,7 +16,7 @@ final class SomeSetterClass
 
     public function setWithReturnType(string $name): object
     {
-        return new \StdClass();
+        return new \stdClass();
     }
 
     public function setWithObjectReturnType(string $name): ProductEntity

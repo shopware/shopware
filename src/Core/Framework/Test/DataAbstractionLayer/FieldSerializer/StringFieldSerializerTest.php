@@ -25,9 +25,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class StringFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     public static function serializerProvider(): \Generator
     {

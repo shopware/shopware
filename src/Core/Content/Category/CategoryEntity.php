@@ -19,8 +19,8 @@ use Shopware\Core\System\Tag\TagCollection;
 #[Package('content')]
 class CategoryEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

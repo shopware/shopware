@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class IncrementApiControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminFunctionalTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private AbstractIncrementer $gateway;
 

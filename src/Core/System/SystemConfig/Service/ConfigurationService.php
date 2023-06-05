@@ -114,7 +114,7 @@ class ConfigurationService
             $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException) {
+        } catch (\InvalidArgumentException|ConfigurationNotFoundException|BundleConfigNotFoundException) {
             return false;
         }
     }

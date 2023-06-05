@@ -16,8 +16,8 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
 #[Package('customer-order')]
 class SalutationEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

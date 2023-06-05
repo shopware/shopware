@@ -25,8 +25,8 @@ use Shopware\Core\Test\TestDefaults;
 class PromotionPercentageCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
 
     protected EntityRepository $productRepository;
 

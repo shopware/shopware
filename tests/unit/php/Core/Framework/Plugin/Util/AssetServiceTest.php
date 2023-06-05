@@ -265,8 +265,8 @@ class AssetServiceTest extends TestCase
             'destination-content-changed' => [
                 'manifest' => [
                     'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
-                    'one.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', //incorrect hash to simulate content change
-                    'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', //incorrect hash to simulate content change
+                    'one.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
+                    'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
                     'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
                 'expected-writes' => [

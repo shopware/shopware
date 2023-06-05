@@ -43,7 +43,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
      */
     private function findMediaIdsInImageGalleriesInOverridesTable(string $table, UnusedMediaSearchEvent $event): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         SELECT JSON_EXTRACT(slot_config, "$.*.sliderItems.value[*].mediaId") as mediaId
         FROM $table
         WHERE JSON_OVERLAPS(
@@ -51,6 +51,8 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
             JSON_ARRAY(%s)
         );
         SQL;
+
+        $sql = str_replace('$table', $table, $sql);
 
         return $this->executeQueryWithIds($sql, $event);
     }
@@ -60,7 +62,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
      */
     private function findMediaIdsInImagesInOverridesTable(string $table, UnusedMediaSearchEvent $event): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         SELECT JSON_EXTRACT(slot_config, "$.*.media.value") as mediaId
         FROM $table
         WHERE JSON_OVERLAPS(
@@ -68,6 +70,8 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
             JSON_ARRAY(%s)
         );
         SQL;
+
+        $sql = str_replace('$table', $table, $sql);
 
         return $this->executeQueryWithIds($sql, $event);
     }
@@ -77,7 +81,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
      */
     private function findMediaIdsInImageGalleries(UnusedMediaSearchEvent $event): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         SELECT JSON_EXTRACT(config, "$.sliderItems.value[*].mediaId") as mediaId
         FROM cms_slot_translation
         INNER JOIN cms_slot ON (cms_slot_translation.cms_slot_id = cms_slot.id)
@@ -96,7 +100,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
      */
     private function findMediaIdsInImages(UnusedMediaSearchEvent $event): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         SELECT JSON_ARRAY(JSON_EXTRACT(config, "$.media.value")) as mediaId
         FROM cms_slot_translation
         INNER JOIN cms_slot ON (cms_slot_translation.cms_slot_id = cms_slot.id)
@@ -119,7 +123,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
             sprintf($sql, implode(',', array_map(fn (string $id) => sprintf('"%s"', $id), $event->getUnusedIds())))
         );
 
-        //json_decode each row and flatten the result to an array of ids
+        // json_decode each row and flatten the result to an array of ids
         return array_merge(
             ...array_map(fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $result)
         );

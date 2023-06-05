@@ -48,14 +48,14 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 #[Package('system-settings')]
 abstract class AbstractImportExportTestCase extends TestCase
 {
-    use KernelTestBehaviour;
-    use FilesystemBehaviour;
+    use BasicTestDataBehaviour;
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
-    use BasicTestDataBehaviour;
-    use SessionTestBehaviour;
+    use FilesystemBehaviour;
+    use KernelTestBehaviour;
     use RequestStackTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use SessionTestBehaviour;
 
     final public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 

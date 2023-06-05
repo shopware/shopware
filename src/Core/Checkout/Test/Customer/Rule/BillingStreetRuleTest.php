@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class BillingStreetRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

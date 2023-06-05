@@ -20,8 +20,8 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class CleanupCartTaskHandlerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private CleanupCartTaskHandler $handler;
 

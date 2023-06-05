@@ -75,7 +75,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
         yield 'GT: bigger price' => [Rule::OPERATOR_GT, [2.3, 3.2], 3.0, true];
         yield 'GT: same price' => [Rule::OPERATOR_GT, [2.3, 3.2], 5.5, false];
         yield 'GT: less price' => [Rule::OPERATOR_GT, [2.3, 3.2], 6.0, false];
-        //LT operator
+        // LT operator
         yield 'LT: less price' => [Rule::OPERATOR_LT, [2.3, 3.2], 6.0, true];
         yield 'LT: same price' => [Rule::OPERATOR_LT, [2.3, 3.2], 5.5, false];
         yield 'LT: bigger price' => [Rule::OPERATOR_LT, [2.3, 3.2], 3.0, false];

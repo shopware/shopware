@@ -25,8 +25,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use ImportTranslationsTrait;
+    use IntegrationTestBehaviour;
 
     private const MAX_RESULTS = 7;
 

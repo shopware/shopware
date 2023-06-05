@@ -13,8 +13,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class StorefrontPluginRegistryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testConfigIsAddedIfItsATheme(): void
     {

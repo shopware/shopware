@@ -24,8 +24,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class DateRangeRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

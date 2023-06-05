@@ -54,7 +54,7 @@ class NoDALAutoload implements Rule
         }
 
         if ($this->isInTestClass($scope)) {
-            //if in a test namespace, don't care
+            // if in a test namespace, don't care
             return [];
         }
 
@@ -85,12 +85,12 @@ class NoDALAutoload implements Rule
         }
 
         if ($autoloadParamPosition === null || $propertyNameParamPosition === null) {
-            //cannot find autoload or propertyName parameter
+            // cannot find autoload or propertyName parameter
             return [];
         }
 
         if (!isset($node->getArgs()[$autoloadParamPosition])) {
-            //autoload parameter not passed
+            // autoload parameter not passed
             return [];
         }
 

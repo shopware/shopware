@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class CleanupVersionTaskHandlerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private CleanupVersionTaskHandler $handler;
 

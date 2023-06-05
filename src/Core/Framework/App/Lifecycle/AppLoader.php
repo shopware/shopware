@@ -181,7 +181,7 @@ class AppLoader extends AbstractAppLoader
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;
             } catch (XmlParsingException) {
-                //nth, if app is already registered it will be deleted
+                // nth, if app is already registered it will be deleted
             }
         }
 
@@ -205,7 +205,7 @@ class AppLoader extends AbstractAppLoader
 
                     $manifests[$manifest->getMetadata()->getName()] = $manifest;
                 } catch (XmlParsingException) {
-                    //nth, if app is already registered it will be deleted
+                    // nth, if app is already registered it will be deleted
                 }
             }
         }

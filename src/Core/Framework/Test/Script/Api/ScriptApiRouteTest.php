@@ -19,9 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptApiRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use AppSystemTestBehaviour;
     use AdminApiTestBehaviour;
+    use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testApiEndpoint(): void
     {

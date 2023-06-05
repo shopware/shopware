@@ -41,7 +41,7 @@ class StoreClientFactoryTest extends TestCase
         static::assertTrue($handler->hasHandler());
     }
 
-    private function createSystemConfigService(): SystemConfigService & MockObject
+    private function createSystemConfigService(): SystemConfigService&MockObject
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->method('getString')

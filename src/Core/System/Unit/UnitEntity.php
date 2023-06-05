@@ -12,8 +12,8 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollectio
 #[Package('inventory')]
 class UnitEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

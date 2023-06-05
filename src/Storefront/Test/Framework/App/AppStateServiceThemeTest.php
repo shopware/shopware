@@ -26,8 +26,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
  */
 class AppStateServiceThemeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private ?ThemeService $themeService;
 

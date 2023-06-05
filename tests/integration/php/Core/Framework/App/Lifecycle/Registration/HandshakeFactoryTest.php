@@ -21,8 +21,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class HandshakeFactoryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testManifestWithSecretProducesAPrivateHandshake(): void
     {

@@ -50,7 +50,7 @@ class LongTextFieldTest extends TestCase
             } catch (WriteConstraintViolationException $e) {
                 static::assertSame('/' . $name, $e->getViolations()->get(0)->getPropertyPath());
                 /* Unexpected language has to be fixed NEXT-9419 */
-                //static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
+                // static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
 
                 throw $e;
             }

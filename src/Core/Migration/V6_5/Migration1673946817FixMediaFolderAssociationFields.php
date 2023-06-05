@@ -43,7 +43,7 @@ class Migration1673946817FixMediaFolderAssociationFields extends MigrationStep
         $connection->executeStatement(
             '
             UPDATE media_default_folder
-               SET association_fields = :association_fields 
+               SET association_fields = :association_fields
             WHERE id = :id',
             ['id' => $data['id'], 'association_fields' => \json_encode(\array_keys($fields))]
         );

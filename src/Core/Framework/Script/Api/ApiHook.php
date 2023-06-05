@@ -24,8 +24,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 #[Package('core')]
 class ApiHook extends Hook implements StoppableHook
 {
-    use StoppableHookTrait;
     use ScriptResponseAwareTrait;
+    use StoppableHookTrait;
 
     final public const HOOK_NAME = 'api-{hook}';
 

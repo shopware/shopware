@@ -36,9 +36,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('sales-channel')]
 class CachedSitemapRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     use DatabaseTransactionBehaviour;
+
+    use KernelTestBehaviour;
 
     private SalesChannelContext $context;
 

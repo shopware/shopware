@@ -5,9 +5,8 @@ namespace Shopware\Core\Profiling\Doctrine;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
+
 use function array_slice;
-use function debug_backtrace;
-use const DEBUG_BACKTRACE_IGNORE_ARGS;
 
 /**
  * @phpstan-type Backtrace array<array{function?: string, line: int, file: string, class?: string, object?: Object, type: string}>
@@ -51,7 +50,7 @@ class BacktraceDebugDataHolder extends DebugDataHolder
 
         // array_slice to skip middleware calls in the trace
         /** @var Backtrace $withoutMiddleware */
-        $withoutMiddleware = \array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2);
+        $withoutMiddleware = \array_slice(\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS), 2);
         $this->backtraces[$connectionName][] = $withoutMiddleware;
     }
 

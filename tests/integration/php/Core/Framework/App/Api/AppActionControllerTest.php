@@ -20,9 +20,9 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  */
 class AppActionControllerTest extends TestCase
 {
-    use GuzzleTestClientBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     public function testGetActionsPerViewEmpty(): void
     {

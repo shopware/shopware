@@ -10,7 +10,7 @@ class DocumentConfigurationFactory
 {
     private function __construct()
     {
-        //Factory is Static
+        // Factory is Static
     }
 
     public static function createConfiguration(array $specificConfig, ?DocumentBaseConfigEntity ...$configs): DocumentConfiguration

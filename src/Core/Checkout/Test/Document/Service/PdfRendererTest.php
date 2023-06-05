@@ -62,10 +62,10 @@ class PdfRendererTest extends TestCase
 
     public function testRender(): void
     {
-        //generates one line item for each tax
+        // generates one line item for each tax
         $cart = $this->generateDemoCart(3);
 
-        //generates credit items for each price
+        // generates credit items for each price
         $orderId = $this->persistCart($cart);
 
         $invoiceConfig = new DocumentConfiguration();

@@ -55,10 +55,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('business-ops')]
 class GenerateDocumentActionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
     use AdminApiTestBehaviour;
     use ImportTranslationsTrait;
+    use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private Connection $connection;
 

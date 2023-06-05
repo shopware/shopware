@@ -1001,7 +1001,7 @@ class CheapestPriceTest extends TestCase
             ],
         ];
 
-        //# testing of same cases but with other currency then default ##
+        // # testing of same cases but with other currency then default ##
         yield 'test without rule and other currency' => [
             'rules' => [],
             'currencyId' => $ids->get('currency'),

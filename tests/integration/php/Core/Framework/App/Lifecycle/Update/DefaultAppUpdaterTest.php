@@ -19,9 +19,9 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class DefaultAppUpdaterTest extends TestCase
 {
+    use ExtensionBehaviour;
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
-    use ExtensionBehaviour;
 
     private AbstractAppUpdater $updater;
 
@@ -34,7 +34,7 @@ class DefaultAppUpdaterTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->updater = $this->getContainer()->get(AbstractAppUpdater::class);
         $this->appRepo = $this->getContainer()->get('app.repository');
-        //simulate that a user was logged in
+        // simulate that a user was logged in
         $this->createAdminStoreContext();
     }
 

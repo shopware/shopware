@@ -20,8 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class PromotionCartEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
 
     protected CartService $cartService;
 

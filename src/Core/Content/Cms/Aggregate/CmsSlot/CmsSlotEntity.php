@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('content')]
 class CmsSlotEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

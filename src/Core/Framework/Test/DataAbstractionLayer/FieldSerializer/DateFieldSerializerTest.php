@@ -24,9 +24,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class DateFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private DateFieldSerializer $serializer;
 

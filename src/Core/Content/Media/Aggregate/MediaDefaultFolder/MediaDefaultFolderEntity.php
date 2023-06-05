@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('content')]
 class MediaDefaultFolderEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @deprecated tag:v6.6.0 Associations are now determined by `\Shopware\Core\Content\Media\MediaDefinition`

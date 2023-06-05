@@ -48,8 +48,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 #[Package('customer-order')]
 class RegisterControllerTest extends TestCase
 {
-    use MailTemplateTestBehaviour;
     use IntegrationTestBehaviour;
+    use MailTemplateTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     /**

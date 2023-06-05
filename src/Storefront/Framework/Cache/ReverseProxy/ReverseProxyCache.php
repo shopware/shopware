@@ -10,7 +10,6 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
-use function array_values;
 
 /**
  * @template TCachedContent
@@ -50,7 +49,7 @@ class ReverseProxyCache implements StoreInterface
     {
         $tags = $this->tracer->get('all');
 
-        $tags = array_values(array_filter($tags, static function (string $tag): bool {
+        $tags = \array_values(array_filter($tags, static function (string $tag): bool {
             // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
             if (str_contains($tag, 'theme-config')) {
                 return false;
@@ -69,7 +68,7 @@ class ReverseProxyCache implements StoreInterface
 
         $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, \implode(',', $states));
 
-        $this->gateway->tag(array_values($tags), $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI), $response);
+        $this->gateway->tag(\array_values($tags), $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI), $response);
 
         return '';
     }

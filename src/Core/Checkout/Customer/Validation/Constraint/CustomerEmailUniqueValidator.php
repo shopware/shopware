@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
-use function array_filter;
 
 /**
  * @Annotation
@@ -44,7 +43,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
             ->executeQuery()
             ->fetchAllAssociative();
 
-        $results = array_filter($results, static function (array $entry) use ($constraint) {
+        $results = \array_filter($results, static function (array $entry) use ($constraint) {
             // Filter out guest entries
             if ($entry['guest']) {
                 return null;

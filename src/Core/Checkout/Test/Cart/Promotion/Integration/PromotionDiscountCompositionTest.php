@@ -28,10 +28,10 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class PromotionDiscountCompositionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
-    use PromotionIntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use IntegrationTestBehaviour;
+    use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
 
     protected EntityRepository $productRepository;
 

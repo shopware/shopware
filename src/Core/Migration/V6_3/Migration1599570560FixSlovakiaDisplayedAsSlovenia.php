@@ -28,20 +28,20 @@ class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
             $languageEN = $connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
             ON language.translation_code_id = locale.id AND locale.code = \'en-GB\'');
         } catch (\Exception) {
-            //English language not found, no need to update the snippet
+            // English language not found, no need to update the snippet
         }
 
         try {
             $languageDE = $connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
             ON language.translation_code_id = locale.id AND locale.code = \'de-DE\'');
         } catch (\Exception) {
-            //German language not found, no need to update the snippet
+            // German language not found, no need to update the snippet
         }
 
         try {
             $countryIdSlovakia = $connection->fetchOne('SELECT id from country WHERE iso3 = \'SVK\'');
         } catch (\Exception) {
-            //country got deleted, no need to update
+            // country got deleted, no need to update
         }
 
         if ($countryIdSlovakia) {

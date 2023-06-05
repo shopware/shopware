@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use function sprintf;
 
 /**
  * @internal
@@ -60,7 +59,7 @@ class TestBasicWithExtension extends SerializationFixture
                     'updatedAt' => null,
                 ],
                 'links' => [
-                    'self' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe', $baseUrl),
+                    'self' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe', $baseUrl),
                 ],
                 'relationships' => [
                     'extensions' => [
@@ -83,19 +82,19 @@ class TestBasicWithExtension extends SerializationFixture
                         'updatedAt' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96', $baseUrl),
+                        'self' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96', $baseUrl),
                     ],
                     'relationships' => [
                         'toOne' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-one', $baseUrl),
+                                'related' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-one', $baseUrl),
                             ],
                         ],
                         'toMany' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-many', $baseUrl),
+                                'related' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96/to-many', $baseUrl),
                             ],
                         ],
                     ],
@@ -111,19 +110,19 @@ class TestBasicWithExtension extends SerializationFixture
                         'updatedAt' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870', $baseUrl),
+                        'self' => \sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870', $baseUrl),
                     ],
                     'relationships' => [
                         'toOne' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870/to-one', $baseUrl),
+                                'related' => \sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870/to-one', $baseUrl),
                             ],
                         ],
                         'toMany' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870/to-many', $baseUrl),
+                                'related' => \sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870/to-many', $baseUrl),
                             ],
                         ],
                     ],
@@ -139,19 +138,19 @@ class TestBasicWithExtension extends SerializationFixture
                         'updatedAt' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
+                        'self' => \sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
                     ],
                     'relationships' => [
                         'toOne' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72/to-one', $baseUrl),
+                                'related' => \sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72/to-one', $baseUrl),
                             ],
                         ],
                         'toMany' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72/to-many', $baseUrl),
+                                'related' => \sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72/to-many', $baseUrl),
                             ],
                         ],
                     ],
@@ -182,7 +181,7 @@ class TestBasicWithExtension extends SerializationFixture
                                 ],
                             ],
                             'links' => [
-                                'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toMany', $baseUrl),
+                                'related' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toMany', $baseUrl),
                             ],
                         ],
                         'toOne' => [
@@ -191,7 +190,7 @@ class TestBasicWithExtension extends SerializationFixture
                                 'id' => '6f51622eb3814c75ae0263cece27ce72',
                             ],
                             'links' => [
-                                'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
+                                'related' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
                             ],
                         ],
                     ],

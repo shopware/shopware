@@ -24,8 +24,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class ShippingStateRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

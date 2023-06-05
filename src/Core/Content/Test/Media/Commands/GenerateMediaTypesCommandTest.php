@@ -24,8 +24,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class GenerateMediaTypesCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CommandTestBehaviour;
+    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**

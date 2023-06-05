@@ -15,6 +15,6 @@ class CleanupUnusedDownloadMediaTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 2628000; //1 month
+        return 2628000; // 1 month
     }
 }

@@ -27,8 +27,8 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
  */
 class ExecutorTest extends TestCase
 {
-    use GuzzleTestClientBehaviour;
     use AppSystemTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     final public const SCHEMA_LOCATION = '/src/Core/Framework/App/ActionButton/appActionEndpointSchema.json';
 

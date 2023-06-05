@@ -33,7 +33,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
         if (\count($keys) > $this->maxRulePrices) {
             $this->logger->warning(\sprintf('More than %d rules are active, only the first %d rules are considered for the cheapest price calculation', $this->maxRulePrices, $this->maxRulePrices));
             $this->logger->info(
-                \sprintf('More rules then the configured `dal.max_rule_prices` are active, thus not all rule prices are considered for the cheapest price. You can increase the `dal.max_rule_prices`, but this will have a negative performance impact. Consider restructuring your rules, so that not so many match at the same time.')
+                'More rules then the configured `dal.max_rule_prices` are active, thus not all rule prices are considered for the cheapest price. You can increase the `dal.max_rule_prices`, but this will have a negative performance impact. Consider restructuring your rules, so that not so many match at the same time.'
             );
             $keys = \array_slice($keys, 0, $this->maxRulePrices);
         }

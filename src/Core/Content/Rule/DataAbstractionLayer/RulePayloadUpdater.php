@@ -73,7 +73,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             try {
                 $nested = $this->buildNested($rule, null);
 
-                //ensure the root rule is an AndRule
+                // ensure the root rule is an AndRule
                 $nested = new AndRule($nested);
 
                 $serialized = serialize($nested);

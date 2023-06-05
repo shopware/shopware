@@ -42,7 +42,7 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
                 } elseif (method_exists($object, $isGetter)) {
                     return $object->$isGetter();
                 } elseif (method_exists($object, $item)) {
-                    return $object->$item();    //property()
+                    return $object->$item();    // property()
                 }
             }
 

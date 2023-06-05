@@ -32,8 +32,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class VersionManagerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
     private const PRODUCT_ID = 'product-1';
 
     private Connection $connection;

@@ -22,8 +22,8 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
  */
 class CurrencyRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection

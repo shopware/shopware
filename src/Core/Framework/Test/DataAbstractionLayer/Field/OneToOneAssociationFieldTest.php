@@ -33,8 +33,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class OneToOneAssociationFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection

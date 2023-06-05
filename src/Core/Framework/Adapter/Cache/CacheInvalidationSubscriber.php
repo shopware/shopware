@@ -368,7 +368,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidateDetailRoute(ProductChangedEventInterface $event): void
     {
-        //invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
+        // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
             array_map([CachedProductDetailRoute::class, 'buildName'], $event->getIds())
         );
@@ -376,7 +376,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidateProductAssignment(EntityWrittenContainerEvent $event): void
     {
-        //invalidates the product listing route, each time a product - category assignment changed
+        // invalidates the product listing route, each time a product - category assignment changed
         $ids = $event->getPrimaryKeys(ProductCategoryDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'categoryId');
@@ -388,7 +388,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
     {
-        //invalidates the context cache - each time one of the entities which are considered inside the context factory changed
+        // invalidates the context cache - each time one of the entities which are considered inside the context factory changed
         $ids = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
         $keys = array_map([CachedSalesChannelContextFactory::class, 'buildName'], $ids);
         $keys = array_merge($keys, array_map([CachedBaseContextFactory::class, 'buildName'], $ids));
@@ -665,7 +665,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedShippingAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the shipping assignment of a sales channel
+        // Used to detect changes to the shipping assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelShippingMethodDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -702,7 +702,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedPaymentAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the language assignment of a sales channel
+        // Used to detect changes to the language assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelPaymentMethodDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -754,7 +754,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        //Used to detect changes to the country itself and invalidate the route for all sales channels in which the country is assigned.
+        // Used to detect changes to the country itself and invalidate the route for all sales channels in which the country is assigned.
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_country WHERE country_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -774,7 +774,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedCountryAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the country assignment of a sales channel
+        // Used to detect changes to the country assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelCountryDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -805,7 +805,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        //Used to detect changes to the language itself and invalidate the route for all sales channels in which the language is assigned.
+        // Used to detect changes to the language itself and invalidate the route for all sales channels in which the language is assigned.
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_language WHERE language_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -825,7 +825,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedLanguageAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the language assignment of a sales channel
+        // Used to detect changes to the language assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelLanguageDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -844,7 +844,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        //Used to detect changes to the currency itself and invalidate the route for all sales channels in which the currency is assigned.
+        // Used to detect changes to the currency itself and invalidate the route for all sales channels in which the currency is assigned.
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_currency WHERE currency_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -864,7 +864,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedCurrencyAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the currency assignment of a sales channel
+        // Used to detect changes to the currency assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelCurrencyDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');

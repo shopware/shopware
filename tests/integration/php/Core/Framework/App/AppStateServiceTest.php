@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class AppStateServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private EntityRepository $appRepository;
 

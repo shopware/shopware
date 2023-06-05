@@ -134,7 +134,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
-            array_push($data, $entry);
+            $data[] = $entry;
         }
 
         try {

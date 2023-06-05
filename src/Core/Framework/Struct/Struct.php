@@ -7,22 +7,22 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class Struct implements \JsonSerializable, ExtendableInterface
 {
-    //allows to clone full struct with all references
-    use CloneTrait;
-
-    //allows json_encode and to decode object via json serializer
-    use JsonSerializableTrait;
-
-    //allows to assign array data to this object
+    // allows to assign array data to this object
     use AssignArrayTrait;
 
-    //allows to add values to an internal attribute storage
-    use ExtendableTrait;
+    // allows to clone full struct with all references
+    use CloneTrait;
 
-    //allows to create a new instance with all data of the provided object
+    // allows to create a new instance with all data of the provided object
     use CreateFromTrait;
 
-    //allows access to all protected variables of the object
+    // allows to add values to an internal attribute storage
+    use ExtendableTrait;
+
+    // allows json_encode and to decode object via json serializer
+    use JsonSerializableTrait;
+
+    // allows access to all protected variables of the object
     use VariablesAccessTrait;
 
     public function getApiAlias(): string

@@ -57,7 +57,7 @@ class RouteEventSubscriberTest extends TestCase
     public function testRenderEvent(): void
     {
         if (!\class_exists(StorefrontRenderEvent::class)) {
-            //storefront dependency not installed
+            // storefront dependency not installed
             return;
         }
 

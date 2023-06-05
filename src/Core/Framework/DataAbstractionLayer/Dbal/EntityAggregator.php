@@ -416,11 +416,9 @@ class EntityAggregator implements EntityAggregatorInterface
 
         switch (true) {
             case $aggregation instanceof DateHistogramAggregation:
-
                 return $this->hydrateDateHistogramAggregation($aggregation, $definition, $rows, $context);
 
             case $aggregation instanceof TermsAggregation:
-
                 return $this->hydrateTermsAggregation($aggregation, $definition, $rows, $context);
 
             case $aggregation instanceof FilterAggregation:
@@ -467,7 +465,6 @@ class EntityAggregator implements EntityAggregatorInterface
                 return new StatsResult($aggregation->getName(), $min, $max, $avg, $sum);
 
             case $aggregation instanceof EntityAggregation:
-
                 return $this->hydrateEntityAggregation($aggregation, $rows, $context);
             case $aggregation instanceof RangeAggregation:
                 return $this->hydrateRangeAggregation($aggregation, $rows);

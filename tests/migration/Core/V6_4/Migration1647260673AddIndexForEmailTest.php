@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1647260673AddIndexForEmail;
-use function array_column;
 
 /**
  * @internal
@@ -49,7 +48,7 @@ class Migration1647260673AddIndexForEmailTest extends TestCase
 
     private function assertIndexExists(): void
     {
-        $keys = array_column($this->connection->fetchAllAssociative('SHOW INDEX FROM customer'), 'Key_name');
+        $keys = \array_column($this->connection->fetchAllAssociative('SHOW INDEX FROM customer'), 'Key_name');
 
         static::assertContains('idx.email', $keys);
     }

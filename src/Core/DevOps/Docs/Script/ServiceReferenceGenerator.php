@@ -429,7 +429,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         /** @var class-string<object> $typeName */
         $typeName = (string) $tag->getType();
         if ($type instanceof \ReflectionNamedType) {
-            //The docBlock probably don't use the FQCN, therefore we use the native return type if we have one
+            // The docBlock probably don't use the FQCN, therefore we use the native return type if we have one
             /** @var class-string<object> $typeName */
             $typeName = $type->getName();
         }

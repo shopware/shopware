@@ -26,7 +26,6 @@ use Shopware\Core\System\SalesChannel\BaseContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\Tax\TaxCollection;
-use function array_unique;
 
 /**
  * @internal
@@ -66,7 +65,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             throw SalesChannelException::salesChannelNotFound($salesChannelId);
         }
 
-        //load active currency, fallback to shop currency
+        // load active currency, fallback to shop currency
         /** @var CurrencyEntity $currency */
         $currency = $salesChannel->getCurrency();
 
@@ -84,7 +83,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             }
         }
 
-        //load not logged in customer with default shop configuration or with provided checkout scopes
+        // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
 
         $groupId = $salesChannel->getCustomerGroupId();
@@ -97,13 +96,13 @@ class BaseContextFactory extends AbstractBaseContextFactory
         /** @var CustomerGroupEntity $customerGroup */
         $customerGroup = $customerGroups->get($groupId);
 
-        //loads tax rules based on active customer and delivery address
+        // loads tax rules based on active customer and delivery address
         $taxRules = $this->getTaxRules($context);
 
-        //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
+        // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $context, $salesChannel);
 
-        //detect active delivery method, at first checkout scope, at least shop default method
+        // detect active delivery method, at first checkout scope, at least shop default method
         $shippingMethod = $this->getShippingMethod($options, $context, $salesChannel);
 
         [$itemRounding, $totalRounding] = $this->getCashRounding($currency, $shippingLocation, $context);
@@ -174,7 +173,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
     {
         $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID] ?? $salesChannel->getShippingMethodId();
 
-        $ids = array_unique(array_filter([$id, $salesChannel->getShippingMethodId()]));
+        $ids = \array_unique(array_filter([$id, $salesChannel->getShippingMethodId()]));
 
         $criteria = new Criteria($ids);
         $criteria->addAssociation('media');
@@ -223,11 +222,11 @@ class BaseContextFactory extends AbstractBaseContextFactory
             $origin = new SalesChannelApiSource($salesChannelId);
         }
 
-        //explode all available languages for the provided sales channel
+        // explode all available languages for the provided sales channel
         $languageIds = $data['sales_channel_language_ids'] ? explode(',', (string) $data['sales_channel_language_ids']) : [];
         $languageIds = array_keys(array_flip($languageIds));
 
-        //check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)
+        // check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)
         $defaultLanguageId = Uuid::fromBytesToHex($data['sales_channel_default_language_id']);
 
         $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
@@ -270,7 +269,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
      */
     private function loadShippingLocation(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingLocation
     {
-        //allows previewing cart calculation for a specify state for not logged in customers
+        // allows previewing cart calculation for a specify state for not logged in customers
         if (isset($options[SalesChannelContextService::COUNTRY_STATE_ID])) {
             $countryStateId = $options[SalesChannelContextService::COUNTRY_STATE_ID];
             \assert(\is_string($countryStateId) && Uuid::isValid($countryStateId));
@@ -321,7 +320,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             throw SalesChannelException::invalidLanguageId();
         }
 
-        //check provided language is part of the available languages
+        // check provided language is part of the available languages
         if (!\in_array($current, $availableLanguageIds, true)) {
             throw SalesChannelException::providedLanguageNotAvailable($current, $availableLanguageIds);
         }
@@ -330,7 +329,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
             return [Defaults::LANGUAGE_SYSTEM];
         }
 
-        //provided language can be a child language
+        // provided language can be a child language
         return array_filter([$current, $this->getParentLanguageId($current), Defaults::LANGUAGE_SYSTEM]);
     }
 

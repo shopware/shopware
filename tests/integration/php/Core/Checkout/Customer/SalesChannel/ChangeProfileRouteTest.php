@@ -29,8 +29,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ChangeProfileRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

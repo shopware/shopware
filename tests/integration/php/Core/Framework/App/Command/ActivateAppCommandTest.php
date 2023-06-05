@@ -17,8 +17,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class ActivateAppCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use const JSON_THROW_ON_ERROR;
 
 #[Package('storefront')]
 class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
@@ -47,6 +46,6 @@ class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
             throw new \RuntimeException('Cannot find theme configuration. Did you run bin/console theme:dump');
         }
 
-        return json_decode((string) $this->filesystem->read(self::THEME_INDEX), true, 512, JSON_THROW_ON_ERROR);
+        return json_decode((string) $this->filesystem->read(self::THEME_INDEX), true, 512, \JSON_THROW_ON_ERROR);
     }
 }

@@ -93,7 +93,7 @@ class CsvReaderTest extends TestCase
         return [
             ["\r\n"], // windows
             ["\n"], // unix
-            //['\r'] // does not work :(
+            // ['\r'] // does not work :(
         ];
     }
 

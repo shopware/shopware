@@ -69,10 +69,10 @@ use Shopware\Core\Test\TestDefaults;
  */
 class VersioningTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     private EntityRepository $productRepository;
 
@@ -387,7 +387,7 @@ class VersioningTest extends TestCase
                     ->search(new Criteria([$id]), $context)
                     ->first();
 
-        //check that the live entity contains the original price
+        // check that the live entity contains the original price
         static::assertInstanceOf(ArrayEntity::class, $entity);
 
         /** @var CalculatedPrice $livePrice */
@@ -398,7 +398,7 @@ class VersioningTest extends TestCase
         static::assertEquals(100.30, $livePrice->getTotalPrice());
         static::assertEquals(0.38, $livePrice->getCalculatedTaxes()->getAmount());
 
-        //check that the version entity is updated with the new price
+        // check that the version entity is updated with the new price
         /** @var Entity $entity */
         $entity = $repository
             ->search(new Criteria([$id]), $versionContext)
@@ -416,7 +416,7 @@ class VersioningTest extends TestCase
 
         $repository->merge($versionId, $context);
 
-        //check that the version entity is updated with the new price
+        // check that the version entity is updated with the new price
         /** @var Entity $entity */
         $entity = $repository
             ->search(new Criteria([$id]), $context)
@@ -478,12 +478,12 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $id1 . '|' . $id2 . '|', $category->getPath());
 
-        //update parent of last category in version scope
+        // update parent of last category in version scope
         $updated = ['id' => $id3, 'parentId' => $id1];
 
         $this->categoryRepository->update([$updated], $versionContext);
 
-        //check that the path updated
+        // check that the path updated
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(new Criteria([$id3]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
@@ -495,7 +495,7 @@ class VersioningTest extends TestCase
 
         $this->categoryRepository->merge($versionId, $context);
 
-        //test after merge the path is updated too
+        // test after merge the path is updated too
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(new Criteria([$id3]), $context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
@@ -571,7 +571,7 @@ class VersioningTest extends TestCase
 
         static::assertCount(1, $changelog);
 
-        //check update written
+        // check update written
         static::assertEquals($id, $changelog[0]['entity_id']['id']);
         static::assertEquals($context->getVersionId(), $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
@@ -601,7 +601,7 @@ class VersioningTest extends TestCase
 
         static::assertCount(1, $changelog);
 
-        //check insert written
+        // check insert written
         static::assertEquals($id, $changelog[0]['entity_id']['id']);
         static::assertEquals($versionId, $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
@@ -614,7 +614,7 @@ class VersioningTest extends TestCase
 
         static::assertCount(2, $changelog);
 
-        //check insert written
+        // check insert written
         static::assertEquals($id, $changelog[0]['entity_id']['id']);
         static::assertEquals($versionId, $changelog[0]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[0]['entity_name']);
@@ -686,7 +686,7 @@ class VersioningTest extends TestCase
 
         $versionId = $this->productRepository->createVersion($productId, $context);
 
-        //check both products exists
+        // check both products exists
         $products = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(2, $products);
 
@@ -737,7 +737,7 @@ class VersioningTest extends TestCase
 
         $versionId = $this->productRepository->createVersion($productId, $context);
 
-        //check both products exists
+        // check both products exists
         $products = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($productId)]
@@ -821,7 +821,7 @@ class VersioningTest extends TestCase
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
-        //create live product with two prices
+        // create live product with two prices
         $product = [
             'id' => $productId,
             'productNumber' => Uuid::randomHex(),
@@ -855,11 +855,11 @@ class VersioningTest extends TestCase
 
         $this->productRepository->create([$product], $context);
 
-        //create new version of the product, product and prices rows are duplicated now
+        // create new version of the product, product and prices rows are duplicated now
         $versionId = $this->productRepository->createVersion($productId, $context);
         $versionContext = $context->createWithVersionId($versionId);
 
-        //update prices in version scope
+        // update prices in version scope
         $updated = [
             'id' => $productId,
             'prices' => [
@@ -882,7 +882,7 @@ class VersioningTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $versionContext)->first();
 
-        //check if the prices are updated in the version scope
+        // check if the prices are updated in the version scope
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(2, $product->getPrices());
@@ -903,7 +903,7 @@ class VersioningTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $context)->first();
 
-        //check the prices of the live version are untouched
+        // check the prices of the live version are untouched
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(2, $product->getPrices());
@@ -918,7 +918,7 @@ class VersioningTest extends TestCase
         static::assertEquals(10, $price2->getGross());
         static::assertEquals(10, $price2->getNet());
 
-        //now delete the prices in version context
+        // now delete the prices in version context
         $priceRepository = $this->getContainer()->get('product_price.repository');
         $priceRepository->delete([
             ['id' => $priceId1, 'versionId' => $versionId],
@@ -931,12 +931,12 @@ class VersioningTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $context)->first();
 
-        //live version scope should be untouched
+        // live version scope should be untouched
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(2, $product->getPrices());
 
-        //version scope should have no prices
+        // version scope should have no prices
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('prices');
 
@@ -946,7 +946,7 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
         static::assertCount(0, $product->getPrices());
 
-        //now add new prices
+        // now add new prices
         $newPriceId1 = Uuid::randomHex();
         $newPriceId2 = Uuid::randomHex();
         $newPriceId3 = Uuid::randomHex();
@@ -977,7 +977,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        //add new price matrix to product
+        // add new price matrix to product
         $this->productRepository->update([$updated], $versionContext);
 
         $criteria = new Criteria([$productId]);
@@ -1017,7 +1017,7 @@ class VersioningTest extends TestCase
 
         $newPriceId4 = Uuid::randomHex();
 
-        //check that we can add entities into a sub version using the sub entity repository
+        // check that we can add entities into a sub version using the sub entity repository
         $data = [
             'id' => $newPriceId4,
             'productId' => $productId,
@@ -1177,7 +1177,7 @@ class VersioningTest extends TestCase
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
-        //create live product with two prices
+        // create live product with two prices
         $product = [
             'id' => $productId,
             'productNumber' => Uuid::randomHex(),
@@ -1205,11 +1205,11 @@ class VersioningTest extends TestCase
 
         $this->productRepository->create([$product], $context);
 
-        //create new version of the product, product and prices rows are duplicated now
+        // create new version of the product, product and prices rows are duplicated now
         $versionId = $this->productRepository->createVersion($productId, $context);
         $versionContext = $context->createWithVersionId($versionId);
 
-        //update prices in version scope
+        // update prices in version scope
         $updated = [
             'id' => $productId,
             'prices' => [
@@ -1229,16 +1229,16 @@ class VersioningTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.prices.price.gross', 100));
 
-        //live search shouldn't find anything because the 1000.00 price is only defined in version scope
+        // live search shouldn't find anything because the 1000.00 price is only defined in version scope
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(0, $result->getIds());
 
-        //version contains should have the price
+        // version contains should have the price
         $result = $this->productRepository->searchIds($criteria, $versionContext);
         static::assertCount(1, $result->getIds());
         static::assertContains($productId, $result->getIds());
 
-        //delete second price to check if the delete is applied too
+        // delete second price to check if the delete is applied too
         $this->getContainer()->get('product_price.repository')->delete([
             ['id' => $priceId2, 'versionId' => $versionId],
         ], $versionContext);
@@ -1306,7 +1306,7 @@ class VersioningTest extends TestCase
         ];
         $this->productRepository->update([$updated], $versionContext);
 
-        //create criteria which should match only the version scope
+        // create criteria which should match only the version scope
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.categories.name', 'matching value'));
 
@@ -1376,7 +1376,7 @@ class VersioningTest extends TestCase
         $products = $this->productRepository->search($criteria, $context);
         static::assertCount(1, $products);
 
-        //in this version we have two products with the ean value "EAN"
+        // in this version we have two products with the ean value "EAN"
         $products = $this->productRepository->search($criteria, $versionContext);
         static::assertCount(2, $products);
 
@@ -1452,7 +1452,7 @@ class VersioningTest extends TestCase
             ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
-        //create live product with two prices
+        // create live product with two prices
         $product = [
             'id' => $productId,
             'productNumber' => Uuid::randomHex(),
@@ -1480,11 +1480,11 @@ class VersioningTest extends TestCase
 
         $this->productRepository->create([$product], $context);
 
-        //create new version of the product, product and prices rows are duplicated now
+        // create new version of the product, product and prices rows are duplicated now
         $versionId = $this->productRepository->createVersion($productId, $context);
         $versionContext = $context->createWithVersionId($versionId);
 
-        //update prices in version scope
+        // update prices in version scope
         $updated = [
             'id' => $productId,
             'prices' => [
@@ -1693,7 +1693,7 @@ class VersioningTest extends TestCase
         $this->productRepository->createVersion($id1, $context, 'campaign', $versionId);
         $this->productRepository->createVersion($id2, $context, 'campaign', $versionId);
 
-        //check changelog written for product 1
+        // check changelog written for product 1
         $changelog = $this->getVersionData('product', $id1, $versionId);
         static::assertCount(1, $changelog);
         static::assertEquals($id1, $changelog[0]['entity_id']['id']);
@@ -1701,7 +1701,7 @@ class VersioningTest extends TestCase
         static::assertEquals('product', $changelog[0]['entity_name']);
         static::assertEquals('clone', $changelog[0]['action']);
 
-        //check changelog written for product 2 with same version
+        // check changelog written for product 2 with same version
         $changelog = $this->getVersionData('product', $id2, $versionId);
         static::assertCount(1, $changelog);
         static::assertEquals($id2, $changelog[0]['entity_id']['id']);
@@ -1709,7 +1709,7 @@ class VersioningTest extends TestCase
         static::assertEquals('product', $changelog[0]['entity_name']);
         static::assertEquals('clone', $changelog[0]['action']);
 
-        //update products of specify version
+        // update products of specify version
         $versionContext = $context->createWithVersionId($versionId);
         $this->productRepository->update(
             [
@@ -1721,14 +1721,14 @@ class VersioningTest extends TestCase
 
         /** @var ProductCollection $products */
         $products = $this->productRepository->search(new Criteria([$id1, $id2]), $versionContext)->getEntities();
-        //check both products updated
+        // check both products updated
         static::assertCount(2, $products);
         static::assertTrue($products->has($id1));
         static::assertTrue($products->has($id2));
         static::assertEquals('EAN-1-update', $products->get($id1)->getEan());
         static::assertEquals('EAN-2-update', $products->get($id2)->getEan());
 
-        //check existing live version not to be updated
+        // check existing live version not to be updated
         /** @var ProductCollection $products */
         $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context)->getEntities();
         static::assertCount(2, $products);
@@ -1737,10 +1737,10 @@ class VersioningTest extends TestCase
         static::assertEquals('EAN-1', $products->get($id1)->getEan());
         static::assertEquals('EAN-2', $products->get($id2)->getEan());
 
-        //do merge
+        // do merge
         $this->productRepository->merge($versionId, $context);
 
-        //check both products are merged
+        // check both products are merged
         /** @var ProductCollection $products */
         $products = $this->productRepository->search(new Criteria([$id1, $id2]), $context);
         static::assertCount(2, $products);

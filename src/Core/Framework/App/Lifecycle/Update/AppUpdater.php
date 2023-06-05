@@ -57,7 +57,7 @@ class AppUpdater extends AbstractAppUpdater
             try {
                 $this->appLifecycle->updateExtension($app->getName(), false, $context);
             } catch (ExtensionUpdateRequiresConsentAffirmationException) {
-                //nth
+                // nth
             }
         }
     }

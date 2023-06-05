@@ -22,6 +22,6 @@ class Migration2 extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        //nth
+        // nth
     }
 }

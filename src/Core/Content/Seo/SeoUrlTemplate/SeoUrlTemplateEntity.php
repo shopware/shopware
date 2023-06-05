@@ -11,8 +11,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[Package('sales-channel')]
 class SeoUrlTemplateEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

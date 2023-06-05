@@ -323,7 +323,7 @@ class WriteCommandExtractor
     private function skipField(Field $field, EntityExistence $existence): bool
     {
         if ($existence->isChild() && $field->is(Inherited::class)) {
-            //inherited field of a child is never required
+            // inherited field of a child is never required
             return true;
         }
 

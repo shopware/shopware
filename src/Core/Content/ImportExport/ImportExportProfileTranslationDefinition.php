@@ -40,7 +40,7 @@ class ImportExportProfileTranslationDefinition extends EntityTranslationDefiniti
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('label', 'label')),
+            new StringField('label', 'label'),
         ]);
     }
 }

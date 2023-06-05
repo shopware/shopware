@@ -24,7 +24,7 @@ if (\PHP_VERSION_ID < 80100) {
 }
 
 if (!extension_loaded('Phar')) {
-    die('The PHP Phar extension is not enabled.');
+    exit('The PHP Phar extension is not enabled.');
 }
 
 if (function_exists('date_default_timezone_set') && function_exists('date_default_timezone_get')) {

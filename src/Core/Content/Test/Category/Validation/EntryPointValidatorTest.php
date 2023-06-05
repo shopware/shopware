@@ -19,8 +19,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntryPointValidatorTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository

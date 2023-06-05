@@ -36,9 +36,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class ElasticsearchIndexerTest extends TestCase
 {
+    use BasicTestDataBehaviour;
     use ElasticsearchTestTestBehaviour;
     use KernelTestBehaviour;
-    use BasicTestDataBehaviour;
 
     protected function setUp(): void
     {

@@ -65,7 +65,7 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('product_search_config_id', 'searchConfigId', ProductSearchConfigDefinition::class))->addFlags(new Required()),
-            (new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class)),
+            new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class),
             (new StringField('field', 'field'))->addFlags(new Required()),
             (new BoolField('tokenize', 'tokenize'))->addFlags(new Required()),
             (new BoolField('searchable', 'searchable'))->addFlags(new Required()),

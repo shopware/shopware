@@ -25,12 +25,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ContainerFacade extends ItemFacade
 {
     use DiscountTrait;
-    use SurchargeTrait;
-    use ItemsGetTrait;
-    use ItemsRemoveTrait;
-    use ItemsHasTrait;
     use ItemsCountTrait;
+    use ItemsGetTrait;
+    use ItemsHasTrait;
     use ItemsIteratorTrait;
+    use ItemsRemoveTrait;
+    use SurchargeTrait;
 
     private LineItem $item;
 

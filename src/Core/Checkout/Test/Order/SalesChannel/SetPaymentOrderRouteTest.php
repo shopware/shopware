@@ -37,8 +37,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SetPaymentOrderRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
 
     private KernelBrowser $browser;

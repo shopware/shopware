@@ -13,8 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[Package('customer-order')]
 class CustomerWishlistEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

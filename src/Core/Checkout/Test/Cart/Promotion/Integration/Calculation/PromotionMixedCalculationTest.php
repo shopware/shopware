@@ -26,9 +26,9 @@ use Shopware\Core\Test\TestDefaults;
 class PromotionMixedCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
     use PromotionSetGroupTestFixtureBehaviour;
+    use PromotionTestFixtureBehaviour;
 
     protected EntityRepository $productRepository;
 

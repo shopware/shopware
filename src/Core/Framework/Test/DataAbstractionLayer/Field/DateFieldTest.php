@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class DateFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

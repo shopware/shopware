@@ -19,8 +19,8 @@ use Shopware\Core\Test\TestDefaults;
 class PromotionHandlingTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
 
     protected CartService $cartService;
 

@@ -48,7 +48,7 @@ class CustomFieldTestDefinition extends EntityDefinition
             (new TranslatedField('customTranslated'))->addFlags(new Inherited()),
             (new CustomFields('custom', 'custom'))->addFlags(new Inherited()),
             (new TranslationsAssociationField(CustomFieldTestTranslationDefinition::class, 'attribute_test_id'))->addFlags(new ApiAware()),
-            //parent - child inheritance
+            // parent - child inheritance
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
         ]);

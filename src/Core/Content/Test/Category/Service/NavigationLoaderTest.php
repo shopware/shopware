@@ -20,8 +20,6 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use function array_map;
-use function array_values;
 
 /**
  * @internal
@@ -267,7 +265,7 @@ class NavigationLoaderTest extends TestCase
         $tree = $this->navigationLoader->load($this->ids->get('rootId'), $context, $this->ids->get('rootId'));
 
         static::assertInstanceOf(Tree::class, $tree->getChildren($this->ids->get('category3')));
-        $elements = array_values(array_map(static fn (TreeItem $item) => $item->getCategory()->getName(), $tree->getChildren($this->ids->get('category3'))->getTree()));
+        $elements = \array_values(\array_map(static fn (TreeItem $item) => $item->getCategory()->getName(), $tree->getChildren($this->ids->get('category3'))->getTree()));
 
         static::assertSame('Category 3.1', $elements[0]);
         static::assertSame('Category 3.3', $elements[1]);

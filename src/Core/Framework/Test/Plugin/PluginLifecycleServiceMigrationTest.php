@@ -39,8 +39,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;
-    use PluginTestsHelper;
     use MigrationTestBehaviour;
+    use PluginTestsHelper;
 
     private ContainerInterface $container;
 

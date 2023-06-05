@@ -24,13 +24,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class CartFacade
 {
-    use DiscountTrait;
-    use SurchargeTrait;
-    use ItemsGetTrait;
-    use ItemsRemoveTrait;
-    use ItemsHasTrait;
-    use ItemsCountTrait;
     use ContainerFactoryTrait;
+    use DiscountTrait;
+    use ItemsCountTrait;
+    use ItemsGetTrait;
+    use ItemsHasTrait;
+    use ItemsRemoveTrait;
+    use SurchargeTrait;
 
     /**
      * @internal

@@ -87,14 +87,14 @@ class ProductApiTest extends TestCase
         $data = [
             'id' => $id,
             'prices' => [
-                //update existing rule with new price and quantity end to add another graduation
+                // update existing rule with new price and quantity end to add another graduation
                 [
                     'id' => $id,
                     'quantityEnd' => 20,
                     'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5000, 'net' => 4000, 'linked' => false]],
                 ],
 
-                //add new graduation to existing rule
+                // add new graduation to existing rule
                 [
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,

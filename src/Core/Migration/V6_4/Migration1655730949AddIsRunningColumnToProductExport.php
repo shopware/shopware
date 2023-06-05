@@ -33,6 +33,6 @@ class Migration1655730949AddIsRunningColumnToProductExport extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        //Implement updateDestructive() method.
+        // Implement updateDestructive() method.
     }
 }

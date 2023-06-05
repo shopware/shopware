@@ -22,8 +22,8 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class ChangelogCommandTest extends TestCase
 {
-    use KernelTestBehaviour;
     use ChangelogTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @return list<array{0: string, 1: list<string>}>

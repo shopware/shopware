@@ -96,7 +96,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         if (!empty($code)) {
             // promotion with code
             $this->checkFixedDiscountItems($cart, $lineItem);
-            //remove other discounts of the promotion that should be deleted
+            // remove other discounts of the promotion that should be deleted
             $this->removeOtherDiscountsOfPromotion($cart, $lineItem, $event->getSalesChannelContext());
             $this->removeCode($code, $cart);
 
@@ -150,7 +150,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        //filter them by the promotion which discounts should be deleted
+        // filter them by the promotion which discounts should be deleted
         $lineItems = $lineItems->filter(fn (LineItem $promotionLineItem) => $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId'));
 
         if ($lineItems->count() < 1) {

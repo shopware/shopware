@@ -27,9 +27,9 @@ use Symfony\Component\HttpKernel\HttpCache\HttpCache;
  */
 class HttpCacheIntegrationTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use CacheTestBehaviour;
     use AppSystemTestBehaviour;
+    use CacheTestBehaviour;
+    use KernelTestBehaviour;
 
     private static string $originalHttpCacheValue;
 

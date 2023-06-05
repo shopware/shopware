@@ -80,7 +80,7 @@ class ErrorController extends StorefrontController
             if ($exception instanceof HttpException) {
                 $response->setStatusCode($exception->getStatusCode());
             }
-        } catch (\Exception $e) { //final Fallback
+        } catch (\Exception $e) { // final Fallback
             $response = $this->renderStorefront(
                 '@Storefront/storefront/page/error/index.html.twig',
                 ['exception' => $exception, 'followingException' => $e]

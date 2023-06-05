@@ -27,8 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ExtensionLifecycleServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use ExtensionBehaviour;
+    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private ExtensionLifecycleService $lifecycleService;

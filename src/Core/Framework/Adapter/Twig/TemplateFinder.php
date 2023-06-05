@@ -31,7 +31,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
     public function getTemplateName(string $template): string
     {
-        //remove static template inheritance prefix
+        // remove static template inheritance prefix
         if (mb_strpos($template, '@') !== 0) {
             return $template;
         }

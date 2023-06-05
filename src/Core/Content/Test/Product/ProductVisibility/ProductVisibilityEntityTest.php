@@ -74,7 +74,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         $event = $container->getEventByEntityName(ProductVisibilityDefinition::ENTITY_NAME);
 
-        //visibility created?
+        // visibility created?
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(2, $event->getWriteResults());
 
@@ -84,19 +84,19 @@ class ProductVisibilityEntityTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $context)->first();
 
-        //check visibilities can be loaded as association
+        // check visibilities can be loaded as association
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductVisibilityCollection::class, $product->getVisibilities());
         static::assertCount(2, $product->getVisibilities());
 
-        //check read for visibilities
+        // check read for visibilities
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_visibility.productId', $id));
 
         $visibilities = $this->visibilityRepository->search($criteria, $context);
         static::assertCount(2, $visibilities);
 
-        //test filter visibilities over product
+        // test filter visibilities over product
         $criteria = new Criteria([$id]);
 
         $criteria->addFilter(
@@ -113,7 +113,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         $product = $this->productRepository->search($criteria, $context)->first();
 
-        //visibilities filtered and loaded?
+        // visibilities filtered and loaded?
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $ids = $visibilities->map(

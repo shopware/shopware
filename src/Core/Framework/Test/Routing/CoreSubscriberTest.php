@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CoreSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testDefaultHeadersHttp(): void
     {

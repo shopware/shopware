@@ -173,7 +173,7 @@ class AuthController extends StorefrontController
 
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException | UnauthorizedHttpException | CustomerOptinNotCompletedException | CustomerAuthThrottledException $e) {
+        } catch (BadCredentialsException|UnauthorizedHttpException|CustomerOptinNotCompletedException|CustomerAuthThrottledException $e) {
             if ($e instanceof CustomerOptinNotCompletedException) {
                 $errorSnippet = $e->getSnippetKey();
             }

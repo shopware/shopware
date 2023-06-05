@@ -18,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 #[Package('inventory')]
 class CurrencyEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

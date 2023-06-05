@@ -23,8 +23,8 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 #[Package('core')]
 class AppEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

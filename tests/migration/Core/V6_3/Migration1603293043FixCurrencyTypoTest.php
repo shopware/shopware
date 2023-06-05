@@ -28,7 +28,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
 
     private Migration1603293043FixCurrencyTypo $migration;
 
-    //can change to make language "unavailable"
+    // can change to make language "unavailable"
     private string $englishLanguageLocale = 'en-GB';
 
     protected function setUp(): void
@@ -60,7 +60,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
             $this->connection->update('currency_translation', ['Updated_at' => $currentDateTime], ['short_name' => 'SEK', 'language_id' => $this->languageIdEnglish]);
         }
 
-        //if one these Parameters is different from the defaults the migration should not run
+        // if one these Parameters is different from the defaults the migration should not run
         if (!$englishAvailable || !$currencyTranslationAvailable || $currencyTranslationChanged || $updated_atSet) {
             $dbData = $this->connection->fetchAllAssociative('SELECT * FROM currency_translation ORDER BY currency_id');
             $expectedHash = md5(serialize($dbData));

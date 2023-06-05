@@ -412,7 +412,7 @@ class DocumentGeneratorTest extends TestCase
         $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
 
         static::assertNotNull($invoice);
-        //create a cancellation invoice which references the invoice
+        // create a cancellation invoice which references the invoice
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], $invoice->getId());
 
         $stornoStruct = $this->documentGenerator->generate(StornoRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
@@ -734,7 +734,7 @@ class DocumentGeneratorTest extends TestCase
         $errors = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getErrors();
         static::assertNotEmpty($errors);
         static::assertArrayHasKey($this->orderId, $errors);
-        static::assertSame(($errors[$this->orderId])->getMessage(), 'Document number 1002 has already been allocated.');
+        static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated.');
     }
 
     public function testGenerateStaticDocument(): void

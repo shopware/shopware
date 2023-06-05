@@ -31,9 +31,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Package('customer-order')]
 class LogoutRouteTest extends TestCase
 {
+    use CustomerTestTrait;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CustomerTestTrait;
 
     private KernelBrowser $browser;
 

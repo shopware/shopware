@@ -62,7 +62,7 @@ class CustomFieldSetDefinition extends EntityDefinition
             new JsonField('config', 'config', [], []),
             new BoolField('active', 'active'),
             new BoolField('global', 'global'),
-            (new IntField('position', 'position')),
+            new IntField('position', 'position'),
             new FkField('app_id', 'appId', AppDefinition::class),
 
             (new OneToManyAssociationField('customFields', CustomFieldDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),

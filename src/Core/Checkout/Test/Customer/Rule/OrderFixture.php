@@ -27,9 +27,9 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 #[Package('business-ops')]
 trait OrderFixture
 {
+    use BasicTestDataBehaviour;
     use ContainerAwareTrait;
     use EntityFixturesBase;
-    use BasicTestDataBehaviour;
 
     /**
      * @throws \JsonException

@@ -26,9 +26,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class AnyRuleMatcherTest extends TestCase
 {
-    use RulesTestFixtureBehaviour;
-    use LineItemTestFixtureBehaviour;
     use LineItemGroupTestFixtureBehaviour;
+    use LineItemTestFixtureBehaviour;
+    use RulesTestFixtureBehaviour;
 
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';
     private const KEY_SORTER_PRICE_ASC = 'PRICE_ASC';

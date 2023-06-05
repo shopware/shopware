@@ -27,8 +27,8 @@ use Shopware\Core\System\StateMachine\Transition;
 #[Package('core')]
 class Migration1625505190AddOrderTotalAmountToCustomerTableTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use OrderFixture;
 
     public function testUpdateOrderTotalAmount(): void

@@ -32,9 +32,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
+    use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use AdminApiTestBehaviour;
 
     private EntityRepository $categoryRepository;
 

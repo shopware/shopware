@@ -129,7 +129,7 @@ class AddressController extends StorefrontController
 
         try {
             $this->deleteAddressRoute->delete($addressId, $context, $customer);
-        } catch (InvalidUuidException | AddressNotFoundException | CannotDeleteDefaultAddressException) {
+        } catch (InvalidUuidException|AddressNotFoundException|CannotDeleteDefaultAddressException) {
             $success = false;
         }
 

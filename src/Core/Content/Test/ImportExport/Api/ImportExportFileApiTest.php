@@ -248,7 +248,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static ::assertEquals(0, $content['total']);
+            static::assertEquals(0, $content['total']);
 
             $filter['filter'][$key] = $value;
             $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
@@ -257,7 +257,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static ::assertEquals(1, $content['total']);
+            static::assertEquals(1, $content['total']);
         }
     }
 
@@ -321,7 +321,7 @@ class ImportExportFileApiTest extends TestCase
 
     protected function rotateTestdata(array $data): array
     {
-        array_push($data, array_shift($data));
+        $data[] = array_shift($data);
 
         return array_values($data);
     }

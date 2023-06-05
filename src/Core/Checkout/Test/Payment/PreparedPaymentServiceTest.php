@@ -47,8 +47,8 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class PreparedPaymentServiceTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     private PreparedPaymentService $paymentService;
 

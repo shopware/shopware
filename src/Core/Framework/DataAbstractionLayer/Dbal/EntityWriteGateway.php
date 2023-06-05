@@ -741,7 +741,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         /** @var Field&StorageAware $fk */
         $fk = $this->getParentField($definition);
-        //foreign key provided, !== null has parent otherwise not
+        // foreign key provided, !== null has parent otherwise not
         if (\array_key_exists($fk->getPropertyName(), $data)) {
             return isset($data[$fk->getPropertyName()]);
         }

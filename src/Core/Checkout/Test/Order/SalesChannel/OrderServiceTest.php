@@ -46,9 +46,9 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 #[Package('customer-order')]
 class OrderServiceTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -290,7 +290,7 @@ class OrderServiceTest extends TestCase
             $orderDeliveryId,
             'cancel',
             new RequestDataBag(),
-            Context::createDefaultContext() //DefaultContext is intended to test if the language of the order is used
+            Context::createDefaultContext() // DefaultContext is intended to test if the language of the order is used
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);

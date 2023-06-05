@@ -27,8 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CachedCurrencyRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private const ALL_TAG = 'test-tag';
 

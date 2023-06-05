@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 #[Package('sales-channel')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
-    use JsonSerializableTrait;
     use AssignArrayTrait;
     use CreateFromTrait;
+    use JsonSerializableTrait;
 
     abstract public function getId(): string;
 

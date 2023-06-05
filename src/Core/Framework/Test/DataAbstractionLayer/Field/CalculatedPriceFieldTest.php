@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
  */
 class CalculatedPriceFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testListPrice(): void
     {

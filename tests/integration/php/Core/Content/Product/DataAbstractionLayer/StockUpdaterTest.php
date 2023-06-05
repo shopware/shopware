@@ -40,9 +40,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 class StockUpdaterTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepository

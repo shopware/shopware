@@ -124,12 +124,12 @@ class CartSerializationCleanerTest extends TestCase
     {
         yield 'Test cover thumbnailRo cleanup' => [
             self::coverCart('foo', 'test'),
-            (self::coverItem('foo', ''))->getCover(),
+            self::coverItem('foo', '')->getCover(),
         ];
 
         yield 'Test cover thumbnailRo cleanup without ro data' => [
             self::coverCart('foo', null),
-            (self::coverItem('foo', null))->getCover(),
+            self::coverItem('foo', null)->getCover(),
         ];
 
         yield 'Test cover thumbnailRo cleanup without cover' => [

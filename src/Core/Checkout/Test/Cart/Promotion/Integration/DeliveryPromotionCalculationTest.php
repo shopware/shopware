@@ -30,8 +30,8 @@ use Shopware\Core\Test\TestDefaults;
 class DeliveryPromotionCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
     use ShippingMethodPricesTestBehaviour;
 
     private EntityRepository $promotionRepository;

@@ -13,8 +13,8 @@ use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProvide
 #[Package('checkout')]
 class TaxProviderEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected ?string $name = null;
 

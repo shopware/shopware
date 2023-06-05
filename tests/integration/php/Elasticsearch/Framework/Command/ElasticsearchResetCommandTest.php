@@ -18,8 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ElasticsearchResetCommandTest extends TestCase
 {
-    use KernelTestBehaviour;
     use AdminElasticsearchTestBehaviour;
+    use KernelTestBehaviour;
     use QueueTestBehaviour;
 
     private ElasticsearchResetCommand $refreshIndexCommand;

@@ -23,7 +23,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      * This implementation focuses on getting the next increment value in a fast, non-blocking, atomic way
      * However some tradeoffs have to be made in the case that
      * the start value of the pattern is changed and simultaneous requests to reserve the next increment are made
@@ -62,7 +62,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function preview(array $config): int
     {
@@ -77,7 +77,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      * We fetch all number range ids from the database and try to get the value stored for them in redis.
      * We don't use the `KEYS` command in redis to find all stored keys, because that would search the whole keyspace which can be huge
      */
@@ -101,7 +101,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function set(string $configurationId, int $value): void
     {

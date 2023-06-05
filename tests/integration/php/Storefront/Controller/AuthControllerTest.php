@@ -67,8 +67,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontControllerTestBehaviour;
     use LineItemTestFixtureBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;
 

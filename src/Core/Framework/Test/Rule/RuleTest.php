@@ -27,8 +27,8 @@ use Symfony\Component\Validator\Constraints\Choice;
 #[Package('business-ops')]
 class RuleTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CartRuleHelperTrait;
+    use IntegrationTestBehaviour;
 
     private EntityRepository $conditionRepository;
 

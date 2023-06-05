@@ -144,7 +144,7 @@ class InvoiceRendererTest extends TestCase
                     $container->get(CurrencyFormatter::class)->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
                         $order->getCurrency()->getIsoCode(),
-                        (Context::createDefaultContext())->getLanguageId(),
+                        Context::createDefaultContext()->getLanguageId(),
                         Context::createDefaultContext(),
                     ),
                     $rendered->getHtml()
@@ -166,7 +166,7 @@ class InvoiceRendererTest extends TestCase
 
                 $context = clone Context::createDefaultContext();
                 $context = $context->assign([
-                    'languageIdChain' => array_unique(array_filter([self::$deLanguageId, (Context::createDefaultContext())->getLanguageId()])),
+                    'languageIdChain' => array_unique(array_filter([self::$deLanguageId, Context::createDefaultContext()->getLanguageId()])),
                 ]);
                 static::assertNotNull($order->getDeliveries());
                 $container->get('shipping_method.repository')->upsert([[
@@ -204,7 +204,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertEquals(
                     'Errors happened while rendering',
-                    ($errors[$orderId]->getMessage())
+                    $errors[$orderId]->getMessage()
                 );
             },
         ];
@@ -349,7 +349,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId())->getCountry());
                 $container->get('country.repository')->upsert([[
                     'id' => $order->getAddresses()->get($order->getBillingAddressId())->getCountry()->getId(),
-                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => (Context::createDefaultContext())->getCurrencyId()],
+                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
                 ]], Context::createDefaultContext());
 
                 $operation->assign([
@@ -401,7 +401,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId())->getCountry());
                 $container->get('country.repository')->upsert([[
                     'id' => $order->getAddresses()->get($order->getBillingAddressId())->getCountry()->getId(),
-                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => (Context::createDefaultContext())->getCurrencyId()],
+                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
                 ]], Context::createDefaultContext());
 
                 $operation->assign([
@@ -452,7 +452,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId())->getCountry());
                 $container->get('country.repository')->upsert([[
                     'id' => $order->getAddresses()->get($order->getBillingAddressId())->getCountry()->getId(),
-                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => (Context::createDefaultContext())->getCurrencyId()],
+                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => Context::createDefaultContext()->getCurrencyId()],
                 ]], Context::createDefaultContext());
 
                 $operation->assign([

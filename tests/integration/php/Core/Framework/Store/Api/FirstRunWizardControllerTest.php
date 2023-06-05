@@ -29,9 +29,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 #[Package('merchant-services')]
 class FirstRunWizardControllerTest extends TestCase
 {
+    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
-    use EventDispatcherBehaviour;
 
     private FirstRunWizardController $frwController;
 

@@ -106,6 +106,6 @@ class InstallController extends AbstractController
             opcache_reset();
         }
 
-        exit();
+        exit;
     }
 }

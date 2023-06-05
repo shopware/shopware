@@ -415,10 +415,10 @@ class AppLifecycle extends AbstractAppLifecycle
                 $currentPrivileges = array_merge($currentPrivileges, $newPrivileges);
                 $currentPrivileges = array_unique($currentPrivileges);
 
-                array_push($dataUpdate, [
+                $dataUpdate[] = [
                     'id' => $role->getId(),
                     'privileges' => $currentPrivileges,
-                ]);
+                ];
             }
         }
 
@@ -445,10 +445,10 @@ class AppLifecycle extends AbstractAppLifecycle
             if (($key = array_search($appPrivileges, $currentPrivileges, true)) !== false) {
                 unset($currentPrivileges[$key]);
 
-                array_push($dataUpdate, [
+                $dataUpdate[] = [
                     'id' => $role->getId(),
                     'privileges' => $currentPrivileges,
-                ]);
+                ];
             }
         }
 

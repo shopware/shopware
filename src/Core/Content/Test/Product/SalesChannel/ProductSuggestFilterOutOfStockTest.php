@@ -231,7 +231,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
 
         if (!empty($options)) {
             foreach ($options as $index => $option) {
-                //$combination = $this->combos($option['combination']);
+                // $combination = $this->combos($option['combination']);
                 $combination = $option['combination'];
 
                 $variantKey = $key . '-' . implode('-', $this->testData->getKeyList($combination));

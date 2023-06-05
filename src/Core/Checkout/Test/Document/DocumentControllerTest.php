@@ -44,9 +44,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('customer-order')]
 class DocumentControllerTest extends TestCase
 {
-    use DocumentTrait;
     use AdminApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -555,7 +555,7 @@ class DocumentControllerTest extends TestCase
         $ids = [];
 
         foreach ($data as $value) {
-            array_push($ids, $value['documentId']);
+            $ids[] = $value['documentId'];
         }
 
         return $ids;

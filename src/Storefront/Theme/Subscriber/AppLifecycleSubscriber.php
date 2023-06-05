@@ -40,7 +40,7 @@ class AppLifecycleSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $app = $this->appRepository->search((new Criteria([$event->getAppId()])), $event->getContext())->first();
+        $app = $this->appRepository->search(new Criteria([$event->getAppId()]), $event->getContext())->first();
 
         if ($app === null) {
             return;

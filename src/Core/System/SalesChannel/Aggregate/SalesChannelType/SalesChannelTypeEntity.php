@@ -12,8 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 #[Package('sales-channel')]
 class SalesChannelTypeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

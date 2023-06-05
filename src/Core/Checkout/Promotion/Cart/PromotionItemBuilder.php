@@ -62,7 +62,7 @@ class PromotionItemBuilder
      */
     public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, string $currencyId, float $currencyFactor = 1.0): LineItem
     {
-        //get the rules collection of discount
+        // get the rules collection of discount
         $discountRuleCollection = $discount->getDiscountRules();
 
         // this is our target Filter that may be null if discount has no filters

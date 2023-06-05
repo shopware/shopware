@@ -28,8 +28,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class GenerateThumbnailsCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CommandTestBehaviour;
+    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**

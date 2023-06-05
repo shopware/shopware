@@ -89,7 +89,7 @@ class Migration1596441551CustomerGroupRegistrationTest extends TestCase
             WHERE LOWER(locale.code) = "english"'
         );
 
-        //Always use the English name since we dont have the name in the language itself
+        // Always use the English name since we dont have the name in the language itself
         $name = $connection->fetchOne(
             '
             SELECT locale_translation.name

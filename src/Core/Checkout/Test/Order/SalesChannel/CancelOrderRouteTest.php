@@ -31,8 +31,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('customer-order')]
 class CancelOrderRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

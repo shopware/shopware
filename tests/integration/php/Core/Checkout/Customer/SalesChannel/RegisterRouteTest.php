@@ -41,9 +41,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class RegisterRouteTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private KernelBrowser $browser;
 

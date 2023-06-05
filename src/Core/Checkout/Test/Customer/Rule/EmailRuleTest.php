@@ -26,8 +26,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class EmailRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

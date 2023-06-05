@@ -177,7 +177,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             return [$association->getPropertyName() => $data];
         }
 
-        //only foreign key provided? entity should only be linked
+        // only foreign key provided? entity should only be linked
         /*e.g
             [
                 categories => [
@@ -201,7 +201,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         return [
             $fk->getPropertyName() => $data[$association->getReferenceField()],
 
-            //break versioning at many to many relations
+            // break versioning at many to many relations
             $referencedDefinition->getEntityName() . '_version_id' => Defaults::LIVE_VERSION,
         ];
     }

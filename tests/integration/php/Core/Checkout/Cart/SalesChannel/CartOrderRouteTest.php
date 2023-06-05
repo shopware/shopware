@@ -33,9 +33,9 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CartOrderRouteTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private KernelBrowser $browser;
 
@@ -185,7 +185,7 @@ class CartOrderRouteTest extends TestCase
         static::assertIsString($content);
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        $statusCode = (int) ($response['errors'][0]['status']);
+        $statusCode = (int) $response['errors'][0]['status'];
         static::assertGreaterThanOrEqual(400, $statusCode);
         static::assertLessThanOrEqual(500, $statusCode);
 

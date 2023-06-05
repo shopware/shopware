@@ -12,8 +12,8 @@ use Shopware\Core\System\Snippet\SnippetCollection;
 #[Package('system-settings')]
 class SnippetSetEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

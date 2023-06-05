@@ -29,8 +29,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class RepositoryFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 

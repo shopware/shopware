@@ -29,8 +29,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class StateMachineRegistryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var Connection

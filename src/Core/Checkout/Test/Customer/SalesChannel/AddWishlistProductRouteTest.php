@@ -22,8 +22,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class AddWishlistProductRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

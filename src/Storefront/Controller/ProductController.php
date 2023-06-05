@@ -93,7 +93,7 @@ class ProductController extends StorefrontController
 
             $productId = $variantResponse->getFoundCombination()->getVariantId();
         } catch (VariantNotFoundException|ProductNotFoundException) {
-            //nth
+            // nth
         }
 
         $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)

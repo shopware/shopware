@@ -37,8 +37,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CachedSalutationRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private SalesChannelContext $context;
 

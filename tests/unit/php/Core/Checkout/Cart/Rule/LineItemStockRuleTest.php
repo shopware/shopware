@@ -65,7 +65,7 @@ class LineItemStockRuleTest extends TestCase
         yield 'GT: bigger stock' => [Rule::OPERATOR_GT, 6, true];
         yield 'GT: same stock' => [Rule::OPERATOR_GT, 5, false];
         yield 'GT: less stock' => [Rule::OPERATOR_GT, 3, false];
-        //LT operator
+        // LT operator
         yield 'LT: less stock' => [Rule::OPERATOR_LT, 4, true];
         yield 'LT: same stock' => [Rule::OPERATOR_LT, 5, false];
         yield 'LT: bigger stock' => [Rule::OPERATOR_LT, 6, false];

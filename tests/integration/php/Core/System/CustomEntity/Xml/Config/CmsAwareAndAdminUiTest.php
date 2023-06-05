@@ -29,8 +29,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class CmsAwareAndAdminUiTest extends TestCase
 {
-    use PluginTestsHelper;
     use KernelTestBehaviour;
+    use PluginTestsHelper;
 
     private const CUSTOM_ENTITY_NAME = 'custom_entity_test';
     private const APP_NAME = 'testCmsAwareAndAdminUi';

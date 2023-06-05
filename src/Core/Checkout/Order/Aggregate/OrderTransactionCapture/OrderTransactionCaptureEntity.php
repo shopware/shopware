@@ -14,8 +14,8 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 #[Package('customer-order')]
 class OrderTransactionCaptureEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $orderTransactionId;
 

@@ -24,9 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AdminSearchControllerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use AdminApiTestBehaviour;
     use AdminElasticsearchTestBehaviour;
+    use KernelTestBehaviour;
     use QueueTestBehaviour;
 
     private Connection $connection;

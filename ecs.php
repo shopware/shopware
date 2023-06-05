@@ -28,6 +28,7 @@ use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocTrimConsecutiveBlankLineSeparationFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
+use PhpCsFixer\Fixer\PhpTag\LinebreakAfterOpeningTagFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertInternalTypeFixer;
@@ -56,6 +57,11 @@ use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
 return static function (ECSConfig $ecsConfig): void {
+    $ecsConfig->dynamicSets([
+        '@Symfony',
+        '@Symfony:risky',
+    ]);
+
     $ecsConfig->sets([
         SetList::ARRAY,
         SetList::CONTROL_STRUCTURES,
@@ -151,6 +157,7 @@ return static function (ECSConfig $ecsConfig): void {
             'src/**/*Route.php',
         ],
         PhpdocNoPackageFixer::class => null,
-        StandaloneLineConstructorParamFixer::class => null
+        StandaloneLineConstructorParamFixer::class => null,
+        LinebreakAfterOpeningTagFixer::class => null,
     ]);
 };

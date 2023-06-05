@@ -50,9 +50,9 @@ class UserConfigDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
             (new StringField('key', 'key'))->addFlags(new Required()),
-            (new JsonField('value', 'value')),
+            new JsonField('value', 'value'),
 
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false)),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);
     }
 }

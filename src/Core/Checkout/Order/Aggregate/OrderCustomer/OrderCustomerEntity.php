@@ -13,8 +13,8 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 #[Package('customer-order')]
 class OrderCustomerEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

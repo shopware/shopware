@@ -52,8 +52,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class PaymentServiceTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     private PaymentService $paymentService;
 
@@ -279,7 +279,7 @@ class PaymentServiceTest extends TestCase
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
 
-        //can fail again
+        // can fail again
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 
@@ -295,7 +295,7 @@ class PaymentServiceTest extends TestCase
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
 
-        //can success after cancelled
+        // can success after cancelled
         $request->query->set('cancel', '0');
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));

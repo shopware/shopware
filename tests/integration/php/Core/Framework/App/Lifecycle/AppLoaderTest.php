@@ -14,8 +14,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class AppLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testLoad(): void
     {

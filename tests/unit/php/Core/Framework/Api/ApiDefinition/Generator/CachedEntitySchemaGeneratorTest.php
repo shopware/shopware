@@ -21,9 +21,9 @@ class CachedEntitySchemaGeneratorTest extends TestCase
 {
     private CachedEntitySchemaGenerator $cachedEntitySchemaGenerator;
 
-    private CacheInterface & MockObject $cache;
+    private CacheInterface&MockObject $cache;
 
-    private EntitySchemaGenerator & MockObject $entitySchemaGenerator;
+    private EntitySchemaGenerator&MockObject $entitySchemaGenerator;
 
     protected function setUp(): void
     {

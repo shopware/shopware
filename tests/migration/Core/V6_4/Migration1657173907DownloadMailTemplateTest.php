@@ -19,8 +19,8 @@ use Shopware\Core\Migration\V6_4\Migration1657173907DownloadMailTemplate;
  */
 class Migration1657173907DownloadMailTemplateTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

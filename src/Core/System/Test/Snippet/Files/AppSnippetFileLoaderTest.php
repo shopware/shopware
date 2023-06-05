@@ -16,8 +16,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class AppSnippetFileLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private SnippetFileLoader $snippetFileLoader;
 

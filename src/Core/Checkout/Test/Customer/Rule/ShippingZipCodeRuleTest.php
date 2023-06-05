@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Package('business-ops')]
 class ShippingZipCodeRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

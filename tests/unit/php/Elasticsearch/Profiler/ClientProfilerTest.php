@@ -6,6 +6,7 @@ use GuzzleHttp\Ring\Future\FutureArray;
 use OpenSearch\ClientBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
+
 use function React\Promise\resolve;
 
 /**

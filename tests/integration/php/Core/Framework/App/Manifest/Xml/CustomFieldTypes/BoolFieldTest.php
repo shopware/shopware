@@ -14,8 +14,8 @@ use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
  */
 class BoolFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomFieldTypeTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testCreateFromXml(): void
     {

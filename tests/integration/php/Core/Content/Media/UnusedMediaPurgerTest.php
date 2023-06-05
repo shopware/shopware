@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use function fopen;
 
 /**
  * @internal
@@ -60,10 +59,10 @@ class UnusedMediaPurgerTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->writeStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->writeStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->writeStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->writeStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($thirdPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($fourthPath, \fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->unusedMediaPurger->deleteNotUsedMedia();
         $this->runWorker();

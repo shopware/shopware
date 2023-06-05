@@ -13,8 +13,8 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 #[Package('customer-order')]
 class TaxEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var float

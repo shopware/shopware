@@ -147,7 +147,7 @@ class CustomerDefinition extends EntityDefinition
             new RemoteAddressField('remote_address', 'remoteAddress'),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new ApiAware()),
             new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class),
-            (new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false)),
+            new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
             new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class),
             (new StringField('account_type', 'accountType'))->addFlags(new ApiAware(), new Required()),
             new ManyToOneAssociationField('boundSalesChannel', 'bound_sales_channel_id', SalesChannelDefinition::class, 'id', false),

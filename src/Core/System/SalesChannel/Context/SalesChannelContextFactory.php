@@ -27,7 +27,6 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function array_unique;
 
 #[Package('sales-channel')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
@@ -63,7 +62,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         // customer
         $customer = null;
         if (\array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
-            //load logged in customer and set active addresses
+            // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
 
@@ -82,10 +81,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->first() ?? $customerGroup;
         }
 
-        //loads tax rules based on active customer and delivery address
+        // loads tax rules based on active customer and delivery address
         $taxRules = $this->getTaxRules($base, $customer, $shippingLocation);
 
-        //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
+        // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $base, $customer);
 
         [$itemRounding, $totalRounding] = $this->getCashRounding($base, $shippingLocation);
@@ -234,7 +233,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $addressIds[] = $customer->getDefaultBillingAddressId();
         $addressIds[] = $customer->getDefaultShippingAddressId();
 
-        $criteria = new Criteria(array_unique($addressIds));
+        $criteria = new Criteria(\array_unique($addressIds));
         $criteria->setTitle('context-factory::addresses');
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('country');

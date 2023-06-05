@@ -46,9 +46,9 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
  */
 class RateLimiterTest extends TestCase
 {
-    use RateLimiterTestTrait;
     use CustomerTestTrait;
     use OrderFixture;
+    use RateLimiterTestTrait;
 
     private Context $context;
 

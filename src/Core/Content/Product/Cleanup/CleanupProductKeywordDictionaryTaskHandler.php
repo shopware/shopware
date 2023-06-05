@@ -13,7 +13,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
 #[Package('inventory')]
-
 final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
     /**

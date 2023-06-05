@@ -220,7 +220,7 @@ class EntityHydrator
                 continue;
             }
 
-            //other association fields are not handled in entity reader query
+            // other association fields are not handled in entity reader query
             if ($field instanceof AssociationField) {
                 continue;
             }
@@ -282,12 +282,12 @@ class EntityHydrator
 
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
 
-        //many to many isn't loaded in case of limited association criterias
+        // many to many isn't loaded in case of limited association criterias
         if (!\array_key_exists($accessor, $row)) {
             return;
         }
 
-        //explode hexed ids
+        // explode hexed ids
         $ids = explode('||', (string) $row[$accessor]);
 
         $ids = array_map('strtolower', array_filter($ids));

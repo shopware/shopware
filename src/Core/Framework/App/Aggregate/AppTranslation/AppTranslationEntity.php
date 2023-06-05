@@ -15,8 +15,8 @@ use Shopware\Core\System\Language\LanguageEntity;
 #[Package('core')]
 class AppTranslationEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

@@ -11,6 +11,6 @@ class DeactivateValidationAnalysis extends Analysis
     public function validate(): bool
     {
         return false;
-        //deactivate Validitation
+        // deactivate Validitation
     }
 }

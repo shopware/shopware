@@ -115,7 +115,7 @@ class UnusedMediaSubscriberTest extends TestCase
             ->imageGallery(['media-6', 'media-7', 'media-8'])
             ->build();
 
-        //create a product with image slider, and image override
+        // create a product with image slider, and image override
         $product = (new ProductBuilder($ids, 'product-1'))
             ->price(100)
             ->layout('page-2')
@@ -166,7 +166,7 @@ class UnusedMediaSubscriberTest extends TestCase
             )
             ->build();
 
-        //create a category with image slider, and image override
+        // create a category with image slider, and image override
         $category = (new CategoryBuilder($ids, 'category-1'))
             ->layout('my-category-layout')
             ->slot(

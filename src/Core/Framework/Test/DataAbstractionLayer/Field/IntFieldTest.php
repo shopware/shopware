@@ -38,7 +38,7 @@ class IntFieldTest extends TestCase
         } catch (WriteConstraintViolationException $e) {
             static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             /* Unexpected language has to be fixed NEXT-9419 */
-            //static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
+            // static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
 
             throw $e;
         }
@@ -62,7 +62,7 @@ class IntFieldTest extends TestCase
         } catch (WriteConstraintViolationException $e) {
             static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             /* Unexpected language has to be fixed NEXT-9419 */
-            //static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
+            // static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
 
             throw $e;
         }

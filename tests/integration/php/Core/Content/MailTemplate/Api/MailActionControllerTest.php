@@ -41,8 +41,8 @@ use Symfony\Component\Serializer\Serializer;
 #[Package('customer-order')]
 class MailActionControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testSendSuccess(): void
     {

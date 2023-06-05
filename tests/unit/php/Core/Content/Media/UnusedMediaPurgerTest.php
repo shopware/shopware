@@ -538,7 +538,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -571,7 +571,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = new StaticEntityRepository(
             [
                 [$id1, $id2],
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -671,7 +671,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2, $id3, $id4];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -720,7 +720,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -766,7 +766,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -819,7 +819,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -861,7 +861,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -904,7 +904,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -946,7 +946,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -987,7 +987,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -1026,7 +1026,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -1069,7 +1069,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     return [$id1, $id2];
                 },
-                //fake the grace period filter
+                // fake the grace period filter
                 fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
@@ -1184,7 +1184,7 @@ class UnusedMediaPurgerTest extends TestCase
             protected function defineFields(): FieldCollection
             {
                 $fields = new FieldCollection([
-                    (new ManyToOneAssociationField('media', 'media_id', 'Media', 'id')),
+                    new ManyToOneAssociationField('media', 'media_id', 'Media', 'id'),
                 ]);
 
                 if ($this->withFkey) {
@@ -1213,7 +1213,7 @@ class UnusedMediaPurgerTest extends TestCase
                 return new FieldCollection([
                     (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
 
-                    (new OneToOneAssociationField('media', 'id', 'meta_id', 'Media', false)),
+                    new OneToOneAssociationField('media', 'id', 'meta_id', 'Media', false),
                 ]);
             }
         };

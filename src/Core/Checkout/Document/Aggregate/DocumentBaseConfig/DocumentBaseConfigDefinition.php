@@ -77,7 +77,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             (new CreatedAtField())->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
 
-            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id')),
+            new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
             (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

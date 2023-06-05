@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('customer-order')]
 class OrderLineItemEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

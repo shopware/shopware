@@ -24,8 +24,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class ChangeEmailRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

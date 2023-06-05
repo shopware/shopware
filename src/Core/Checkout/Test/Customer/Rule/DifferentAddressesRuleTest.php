@@ -22,8 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('business-ops')]
 class DifferentAddressesRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository

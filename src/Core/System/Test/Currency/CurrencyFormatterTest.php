@@ -17,8 +17,8 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
  */
 class CurrencyFormatterTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     public function testFormatByLanguage(): void
     {

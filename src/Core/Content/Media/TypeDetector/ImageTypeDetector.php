@@ -59,7 +59,7 @@ class ImageTypeDetector implements TypeDetectorInterface
      * * a static 4-byte sequence (\x00\x21\xF9\x04)
      * * 4 variable bytes
      * * a static 2-byte sequence (\x00\x2C) (some variants may use \x00\x21)
-
+     *
      * We read through the file till we reach the end of the file, or we've found
      * at least 2 frame headers
      */
@@ -71,7 +71,7 @@ class ImageTypeDetector implements TypeDetectorInterface
         $count = 0;
 
         while (!feof($fh) && $count < 2) {
-            $chunk = fread($fh, 1024 * 100); //read 100kb at a time
+            $chunk = fread($fh, 1024 * 100); // read 100kb at a time
             if ($chunk === false) {
                 throw new StreamNotReadableException('Animated gif file not readable');
             }

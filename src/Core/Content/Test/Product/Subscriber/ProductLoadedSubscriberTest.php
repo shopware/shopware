@@ -32,8 +32,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
-use function array_keys;
-use function array_values;
 
 /**
  * @internal
@@ -149,7 +147,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
             static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
             static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
-            static::assertEquals(array_keys($expectedGroup['options']), array_keys($optionElements));
+            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
                 static::assertEquals($option['id'], $optionElements[$optionId]->getId());
@@ -187,14 +185,14 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $salesChannelContext)
             ->first();
 
-        $sortedProperties = array_values($productEntity->get('sortedProperties')->getElements());
+        $sortedProperties = \array_values($productEntity->get('sortedProperties')->getElements());
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
             $optionElements = $sortedProperties[$expectedGroupKey]->get('options')->getElements();
 
             static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->get('name'));
             static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
-            static::assertEquals(array_keys($expectedGroup['options']), array_keys($optionElements));
+            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
                 static::assertEquals($option['id'], $optionElements[$optionId]->getId());
@@ -284,7 +282,7 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ],
-                (new Criteria()),
+                new Criteria(),
             ],
             [
                 array_merge($defaults, [
@@ -352,7 +350,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ],
                 [],
-                (new Criteria()),
+                new Criteria(),
             ],
         ];
     }
@@ -460,7 +458,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 ]),
                 [],
                 [Defaults::LANGUAGE_SYSTEM],
-                (new Criteria()),
+                new Criteria(),
                 false,
                 $ids->get('language'),
             ],
@@ -1129,7 +1127,7 @@ class ProductLoadedSubscriberTest extends TestCase
             'name' => $option->getName(),
         ]);
 
-        static::assertEquals($expected, array_values($names));
+        static::assertEquals($expected, \array_values($names));
     }
 
     /**

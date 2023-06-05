@@ -24,9 +24,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ReinstallAppsStrategyTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use EnvTestBehaviour;
     use AppSystemTestBehaviour;
+    use EnvTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private SystemConfigService $systemConfigService;
 

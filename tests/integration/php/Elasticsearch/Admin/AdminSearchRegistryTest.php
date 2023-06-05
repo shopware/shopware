@@ -32,9 +32,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class AdminSearchRegistryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use AdminApiTestBehaviour;
     use AdminElasticsearchTestBehaviour;
+    use KernelTestBehaviour;
     use QueueTestBehaviour;
 
     private Connection $connection;

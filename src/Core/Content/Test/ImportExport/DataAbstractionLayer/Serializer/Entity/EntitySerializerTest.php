@@ -34,8 +34,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('system-settings')]
 class EntitySerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testSupportsAll(): void
     {
@@ -206,7 +206,7 @@ class TestExtensionDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             new FkField('product_id', 'productId', ProductDefinition::class),
-            (new StringField('custom_string', 'customString')),
+            new StringField('custom_string', 'customString'),
 
             new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class, false),
         ]);

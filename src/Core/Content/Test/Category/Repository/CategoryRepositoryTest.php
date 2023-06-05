@@ -205,11 +205,11 @@ class CategoryRepositoryTest extends TestCase
         /** @var CategoryEntity $first */
         $first = $result->first();
 
-        //First Level Category should have Level 1
+        // First Level Category should have Level 1
         static::assertEquals($parent, $first->getId());
         static::assertEquals(1, $first->getLevel());
 
-        //Second Level Categories should have Level 2
+        // Second Level Categories should have Level 2
         /** @var CategoryCollection $children */
         $children = $first->getChildren();
         $children->sortByPosition();
@@ -225,11 +225,11 @@ class CategoryRepositoryTest extends TestCase
         /** @var CategoryCollection $result */
         $result = $this->repository->search($criteria, Context::createDefaultContext());
 
-        //Second Level Category should have Level 2
+        // Second Level Category should have Level 2
         static::assertEquals($recordA, $result->first()->getId());
         static::assertEquals(2, $result->first()->getLevel());
 
-        //Third Level Category should have Level 3
+        // Third Level Category should have Level 3
         $children = $result->first()->getChildren();
         static::assertEquals($recordC, $children->first()->getId());
         static::assertEquals(3, $children->first()->getLevel());

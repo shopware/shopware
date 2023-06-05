@@ -41,9 +41,9 @@ class OpenApiFileLoader
 
         foreach ($finder as $entry) {
             try {
-                $data = json_decode((string) file_get_contents($entry->getPathname()), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+                $data = json_decode((string) file_get_contents($entry->getPathname()), true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
-                var_dump($entry->getPathname());
+                throw ApiException::invalidSchemaDefinitions($entry->getPathname(), $exception);
             }
 
             $spec['paths'] = \array_replace_recursive($spec['paths'], $data['paths'] ?? []);

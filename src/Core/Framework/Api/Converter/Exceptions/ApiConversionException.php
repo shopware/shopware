@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Framework\Api\Converter\Exceptions;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed as it is not used anymore
+ */
 #[Package('core')]
 class ApiConversionException extends ShopwareHttpException
 {
@@ -20,16 +24,31 @@ class ApiConversionException extends ShopwareHttpException
 
     public function add(\Throwable $exception, string $pointer): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         $this->exceptions[$pointer][] = $exception;
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return Response::HTTP_BAD_REQUEST;
     }
 
     public function tryToThrow(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         if (empty($this->exceptions)) {
             return;
         }
@@ -39,6 +58,11 @@ class ApiConversionException extends ShopwareHttpException
 
     public function getErrors(bool $withTrace = false): \Generator
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         foreach ($this->exceptions as $pointer => $innerExceptions) {
             /** @var ShopwareException $exception */
             foreach ($innerExceptions as $exception) {
@@ -72,6 +96,11 @@ class ApiConversionException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return 'FRAMEWORK__API_VERSION_CONVERSION';
     }
 }

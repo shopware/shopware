@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -87,6 +89,10 @@ class StringFieldSerializer extends AbstractFieldSerializer
 
         if (!$field->is(AllowEmptyString::class)) {
             $constraints[] = new NotBlank();
+        }
+
+        if ($field->is(AllowEmptyString::class) && $field->is(Required::class)) {
+            $constraints[] = new NotNull();
         }
 
         return $constraints;

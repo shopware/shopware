@@ -25,67 +25,85 @@ class LongTextFieldTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider longTextFieldDataProvider
+     * @dataProvider exceptionCases
      *
-     * @param bool|string|null $input
      * @param Flag[]           $flags
      */
-    public function testLongTextFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void
+    public function testLongTextFieldSerializerThrowsWriteConstraintException(bool|string|null $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, $input, false);
 
-        if ($type === 'writeException') {
-            $this->expectException(WriteConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
 
-            try {
-                $serializer->encode(
-                    $this->getLongTextField($name, $flags),
-                    EntityExistence::createEmpty(),
-                    $data,
-                    $this->getWriteParameterBagMock()
-                )->current();
-            } catch (WriteConstraintViolationException $e) {
-                static::assertSame('/' . $name, $e->getViolations()->get(0)->getPropertyPath());
-                /* Unexpected language has to be fixed NEXT-9419 */
-                // static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
+        try {
+            $serializer->encode(
+                $this->getLongTextField($name, $flags),
+                EntityExistence::createEmpty(),
+                $data,
+                $this->getWriteParameterBagMock()
+            )->current();
+        } catch (WriteConstraintViolationException $e) {
+            static::assertSame('/' . $name, $e->getViolations()->get(0)->getPropertyPath());
+            /* Unexpected language has to be fixed NEXT-9419 */
+            // static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
 
-                throw $e;
-            }
-        }
-
-        if ($type === 'assertion') {
-            static::assertSame(
-                $expected,
-                $serializer->encode(
-                    $this->getLongTextField($name, $flags),
-                    EntityExistence::createEmpty(),
-                    $data,
-                    $this->getWriteParameterBagMock()
-                )->current()
-            );
+            throw $e;
         }
     }
 
     /**
-     * @return list<array{string, bool|string|null, ?string, Flag[]}>
+     * @dataProvider longTextFieldDataProvider
+     *
+     * @param Flag[]           $flags
+     */
+    public function testLongTextFieldSerializerEncodesValue(bool|string|null $input, ?string $expected, array $flags = []): void
+    {
+        $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
+
+        $name = 'string_' . Uuid::randomHex();
+        $data = new KeyValuePair($name, $input, false);
+
+        static::assertSame(
+            $expected,
+            $serializer->encode(
+                $this->getLongTextField($name, $flags),
+                EntityExistence::createEmpty(),
+                $data,
+                $this->getWriteParameterBagMock()
+            )->current()
+        );
+    }
+
+    /**
+     * @return array<string, array{bool|string|null, ?string, Flag[]}>
+     */
+    public static function exceptionCases(): array
+    {
+        return [
+            'Required HTML filtered content throws' => ['<test>', 'This value should not be blank.', [new Required()]],
+            'Required null content throws' => [null, 'This value should not be blank.', [new Required()]],
+            'Required empty content throws' => ['', 'This value should not be blank.', [new Required()]],
+            'Wrong type throws' => [true, 'This value should be of type string.', [new Required()]],
+            'Required and allow empty throws with null' => [null, 'This value should not be null.', [new Required(), new AllowEmptyString()]],
+        ];
+    }
+
+    /**
+     * @return array<string, array{bool|string|null, ?string, Flag[]}>
      */
     public static function longTextFieldDataProvider(): array
     {
         return [
-            ['writeException', '<test>', 'This value should not be blank.', [new Required()]],
-            ['writeException', null, 'This value should not be blank.', [new Required()]],
-            ['writeException', '', 'This value should not be blank.', [new Required()]],
-            ['writeException', true, 'This value should be of type string.', [new Required()]],
-            ['assertion', 'test12-B', 'test12-B', [new Required()]],
-            ['assertion', null, null, []],
-            ['assertion', '<test>', '<test>', [new Required(), new AllowHtml(false)]],
-            ['assertion', '', null, []],
-            ['assertion', '', '', [new AllowEmptyString()]],
-            ['assertion', '', '', [new Required(), new AllowEmptyString()]],
-            ['assertion', '<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]],
+            'String values are passed through' => ['test12-B', 'test12-B', [new Required()]],
+            'Null is allowed without required flag' => [null, null, []],
+            'Sanitation can be turned off' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]],
+            'Empty string is treated as null without AllowEmpty flag' => ['', null, []],
+            'Empty string is passed through with AllowEmptyFlag' => ['', '', [new AllowEmptyString()]],
+            'Empty string is allowed with Required and AllowEmpty flags' => ['', '', [new Required(), new AllowEmptyString()]],
+            'Html content is sanitized' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]],
         ];
     }
 

@@ -6,11 +6,6 @@ parameters:
 			path: src/Administration/Controller/AdminExtensionApiController.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\>\\:\\:has\\(\\) with \\(int\\|string\\) will always evaluate to true\\.$#"
-			count: 1
-			path: src/Administration/Controller/AdminSearchController.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\UserConfigController\\:\\:getOwnUserConfig\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Controller/UserConfigController.php
@@ -216,16 +211,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
-
-		-
 			message: "#^Anonymous variable in a `\\$delivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 4
 			path: src/Core/Checkout/Cart/Delivery/DeliveryProcessor.php
@@ -233,11 +218,6 @@ parameters:
 		-
 			message: "#^Anonymous variable in a `\\$originalDelivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 3
-			path: src/Core/Checkout/Cart/Delivery/DeliveryProcessor.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 2
 			path: src/Core/Checkout/Cart/Delivery/DeliveryProcessor.php
 
 		-
@@ -351,29 +331,14 @@ parameters:
 			path: src/Core/Checkout/Cart/Event/CheckoutOrderPlacedEvent.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\>\\:\\:has\\(\\) with 'b7d2554b0ce847cd82f…' will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Facade/CartFacade.php
-
-		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Facade/CartFacade.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\>\\:\\:has\\(\\) with 'b7d2554b0ce847cd82f…' will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Facade/ContainerFacade.php
-
-		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Facade/ContainerFacade.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\Error\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/ErrorsFacade.php
 
 		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemFacade will always evaluate to true\\.$#"
@@ -564,11 +529,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\AbstractCartItemAddRoute\\:\\:add\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/SalesChannel/AbstractCartItemAddRoute.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Tax/Struct/CalculatedTaxCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\TaxRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -1301,29 +1261,9 @@ parameters:
 			path: src/Core/Checkout/Promotion/Cart/PromotionCollector.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with 'promotions\\-auto' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionCollector.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with 'promotions\\-code' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionCollector.php
-
-		-
 			message: "#^Anonymous variable in a `\\$discountLineItem\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 5
 			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with 'promotions' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryProcessor.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with 'promotions' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Cart/PromotionProcessor.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionExclusionUpdater\\:\\:addToJSON\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -1509,16 +1449,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$calculatedCart\\-\\>getDeliveries\\(\\)\\-\\>first\\(\\)\\-\\>getShippingCosts\\(\\)\\-\\>getCalculatedTaxes\\(\\)\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryProcessorTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemQuantityCollection\\:\\:has\\(\\) with 'A' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemQuantityCollectionTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemQuantityCollection\\:\\:has\\(\\) with 'X' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemQuantityCollectionTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$lineItems\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -1854,16 +1784,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Lcobucci\\\\\\\\JWT\\\\\\\\Configuration' and Lcobucci\\\\JWT\\\\Configuration will always evaluate to true\\.$#"
 			count: 2
 			path: src/Core/Checkout/Test/Cart/Token/JWTConfigurationFactoryTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:has\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Test\\\\\\\\Cart\\\\\\\\Common\\\\\\\\FalseRule' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Validator/RuleCollectionTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:has\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Rule\\\\\\\\Container\\\\\\\\OrRule' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Validator/RuleCollectionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with false and 'Event \"Shopware…' will always evaluate to true\\.$#"
@@ -2466,16 +2386,6 @@ parameters:
 			path: src/Core/Content/Category/Event/NavigationRouteCacheTagsEvent.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedNavigationRoute.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CategoryRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CategoryRoute\\:\\:loadCategory\\(\\) should return Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
 			count: 1
 			path: src/Core/Content/Category/SalesChannel/CategoryRoute.php
@@ -2646,11 +2556,6 @@ parameters:
 			path: src/Core/Content/Cms/DataResolver/FieldConfig.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/CmsRoute.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of class Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\CmsRouteResponse constructor expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/SalesChannel/CmsRoute.php
@@ -2754,11 +2659,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionDefinition\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Content/Flow/Api/FlowActionCollector.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\AbstractFlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -3926,11 +3826,6 @@ parameters:
 			path: src/Core/Content/LandingPage/LandingPageEntity.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/LandingPageRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\LandingPageRoute\\:\\:loadLandingPage\\(\\) should return Shopware\\\\Core\\\\Content\\\\LandingPage\\\\LandingPageEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/SalesChannel/LandingPageRoute.php
@@ -4356,11 +4251,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\:\\:getProductIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductCrossSellingAssignedProducts/ProductCrossSellingAssignedProductsCollection.php
@@ -4476,11 +4366,6 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductVisibility/ProductVisibilityCollection.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
-
-		-
 			message: "#^Anonymous variable in a `\\$customField\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
@@ -4497,16 +4382,6 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<mixed\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
 
@@ -4786,11 +4661,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingFeaturesSubscriber.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingResult\\:\\:addCurrentFilter\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
@@ -4834,11 +4704,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:\\$fields type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\AnalyzedKeyword\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/AnalyzedKeywordCollection.php
 
 		-
 			message: "#^Parameter \\#1 \\$tokens of method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchTermInterpreter\\:\\:permute\\(\\) expects list\\<string\\>, non\\-empty\\-array given\\.$#"
@@ -5021,11 +4886,6 @@ parameters:
 			path: src/Core/Content/ProductStream/Service/ProductStreamBuilderInterface.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Aggregate\\\\RuleCondition\\\\RuleConditionEntity\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionEntity.php
@@ -5084,11 +4944,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Event\\\\RuleIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/Event/RuleIndexerEvent.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleCollection.php
 
 		-
 			message: "#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#"
@@ -5861,16 +5716,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\>\\:\\:has\\(\\) with '0a600a2648b3486fbfd…' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 6
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with false and 'outer must be…' will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/ChainPipeTest.php
@@ -6164,11 +6009,6 @@ parameters:
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getMediaThumbnailSizes\\(\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Media/Aggregate/MediaFolderConfigurationThumbnailSize/MediaFolderConfigurationMediaThumbnailSizeTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageSliderTypeDataResolverTest.php
 
 		-
 			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null\\.$#"
@@ -6726,31 +6566,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 16
-			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Event\\\\\\\\EntityWrittenContainerEvent' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Repository/ProductRepositoryTest.php
@@ -6884,11 +6699,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$filters of method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\ProductListingFeaturesSubscriberTest\\:\\:getFilteredValues\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\Filter\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\Filter\\> given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Product/SalesChannel/ProductListingFeaturesSubscriberTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/SalesChannel/ProductListingTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$browser\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -7936,36 +7746,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/AclController.php
 
 		-
-			message: "#^Anonymous variable in a `\\$entity\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$event\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$eventContainer\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$result\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:validatePathSegments\\(\\) should return list\\<string\\> but returns array\\<int\\<0, max\\>, non\\-falsy\\-string\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
 			message: "#^Parameter \\#2 \\$skip of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:sendIndexingMessage\\(\\) expects list\\<string\\>, array given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/CacheController.php
@@ -8004,31 +7784,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$events\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Core/Framework/Api/Controller/UserController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:convertEntity\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:convertPayload\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:convertPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:validateFields\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:validateFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:convert\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
@@ -9549,11 +9304,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:\\$translated type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<TElement of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\:\\:getBaseFields\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -11536,16 +11286,6 @@ parameters:
 			path: src/Core/Framework/Store/Search/MultiFilterStruct.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/ExtensionListingLoader.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/ExtensionLoader.php
-
-		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct is not subtype of native type Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Services/StoreClient.php
@@ -11629,11 +11369,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\DiscountCampaignStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/DiscountCampaignStruct.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/ExtensionCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -11814,11 +11549,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\VariantStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/VariantStruct.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<TElement\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:first\\(\\) has no return type specified\\.$#"
@@ -12651,31 +12381,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/EntityProtection/EntityProtectionValidatorTest.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 10
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\EntityCollection' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult will always evaluate to true\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Event\\\\\\\\EntityWrittenContainerEvent' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent will always evaluate to true\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria will always evaluate to true\\.$#"
-			count: 8
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/DataAbstractionLayer/Event/EntityLoadedEventFactoryTest.php
@@ -12688,11 +12393,6 @@ parameters:
 		-
 			message: "#^Anonymous variable in a `\\$entity\\-\\>get\\('updatedAt'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CreateAtAndUpdatedAtFieldTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 9
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CreateAtAndUpdatedAtFieldTest.php
 
 		-
@@ -12837,16 +12537,6 @@ parameters:
 
 		-
 			message: "#^Anonymous variable in a `\\$sub\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
 
@@ -13121,11 +12811,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 16
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\Aggregate\\\\\\\\CustomerAddress\\\\\\\\CustomerAddressCollection' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
@@ -13144,11 +12829,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Pricing\\\\\\\\Price' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductManufacturer\\\\ProductManufacturerEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
 
 		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
@@ -13194,11 +12874,6 @@ parameters:
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\SumResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 10
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntitySearcherTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\TestData\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -14249,16 +13924,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Subscriber\\\\LicenseHostChangedSubscriberTest\\:\\:fetchAllAdminUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Subscriber/LicenseHostChangedSubscriberTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|string\\>\\:\\:has\\(\\) with 0 will always evaluate to true\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Struct/CollectionTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|string\\>\\:\\:has\\(\\) with 1 will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Struct/CollectionTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCacheClearer\\:\\:__construct\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
@@ -16636,11 +16301,6 @@ parameters:
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Storefront/Page/Checkout/Cart/CheckoutCartPageLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:getSitemaps\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Sitemap/SitemapPage.php
@@ -17161,11 +16821,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Twig/TwigAppVariableTest.php
 
 		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 8
-			path: src/Storefront/Test/Integration/ProductVisibilityTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\ProductVisibilityTest\\:\\:createProduct\\(\\) has parameter \\$visibilities with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Integration/ProductVisibilityTest.php
@@ -17294,11 +16949,6 @@ parameters:
 			message: "#^PHPDoc tag @var with type Shopware\\\\Storefront\\\\Page\\\\Account\\\\Profile\\\\AccountProfilePageLoadedEvent is not subtype of native type null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/ProfilePageTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/CartPageTest.php
 
 		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Cart\\\\CheckoutCartPageLoadedEvent is not subtype of native type null\\.$#"
@@ -18508,11 +18158,6 @@ parameters:
 		-
 			message: "#^Anonymous variable in a `\\$dalProduct\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 18
-			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
-
-		-
-			message: "#^Call to method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\:\\:has\\(\\) with string will always evaluate to true\\.$#"
-			count: 5
 			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
 
 		-

@@ -63,8 +63,6 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DownloadService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition" />
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>

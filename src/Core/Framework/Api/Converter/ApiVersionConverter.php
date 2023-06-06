@@ -10,8 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed as it is not used anymore
+ */
 #[Package('core')]
 class ApiVersionConverter
 {
@@ -22,13 +26,31 @@ class ApiVersionConverter
     {
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function convertEntity(EntityDefinition $definition, Entity $entity): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $entity->jsonSerialize();
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     public function convertPayload(EntityDefinition $definition, array $payload, ApiConversionException $conversionException, string $pointer = ''): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         $toOneFields = $definition->getFields()->filter(fn (Field $field) => $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField);
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
@@ -68,6 +90,11 @@ class ApiVersionConverter
         return $payload;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     private function validateFields(EntityDefinition $definition, array $payload): array
     {
         return $this->converterRegistry->convert($definition->getEntityName(), $payload);

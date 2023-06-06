@@ -108,8 +108,6 @@
         <!-- controller -->
         <service id="Shopware\Core\Checkout\Order\Api\OrderActionController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService" />
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor"/>
             <call method="setContainer">

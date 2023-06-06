@@ -113,7 +113,7 @@ Component.register('sw-app-actions', {
         $route: {
             immediate: true,
             handler() {
-                this.matchedRoutes = this.$router.currentRoute.matched;
+                this.matchedRoutes = this.$router.currentRoute.value.matched;
                 this.loadActions();
             },
         },

@@ -42,7 +42,7 @@ Component.register('sw-admin', {
             }
 
             const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
-            if (!data.inactive || routeBlocklist.includes(this.$router.currentRoute.name || '')) {
+            if (!data.inactive || routeBlocklist.includes(this.$router.currentRoute.value.name || '')) {
                 return;
             }
 

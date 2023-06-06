@@ -53,7 +53,15 @@
     "previous": "Vorheriges",
     "formSubmit": "Absenden",
     "listPricePreviously": "vorher %price%",
-    "skipToContentLink": "Zum Hauptinhalt springen"
+    "skipToContentLink": "Zum Hauptinhalt springen",
+    "pagination": {
+      "first": "Erste Seite",
+      "prev": "Vorherige Seite",
+      "next": "Nächste Seite",
+      "last": "Letzte Seite",
+      "page": "Seite",
+      "title": "Paginierung"
+    }
   },
   "header": {
     "logoLink": "Zur Startseite gehen",

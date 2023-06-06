@@ -85,6 +85,10 @@ export default class VueAdapter extends ViewAdapter {
         this.app.use(store);
         this.app.use(i18n);
 
+        // Add global properties to root view instance
+        this.app.$tc = i18n.global.tc;
+        this.app.$t = i18n.global.t;
+
         this.app.mount(renderElement);
 
         if (process.env.NODE_ENV === 'development') {

@@ -236,22 +236,6 @@ services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 
-# Activate again when https://github.com/symplify/phpstan-rules/pull/25 is released
-#    -
-#        class: Symplify\PHPStanRules\Rules\ForbiddenThisArgumentRule
-#        tags: [phpstan.rules.rule]
-#        arguments:
-#            allowedCallerClasses:
-#                - Shopware\Core\Framework\Feature
-#                - Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter
-#                - Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition
-#                - Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer
-#                - Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer
-#                - Shopware\Core\Framework\Struct\Collection
-#                - Shopware\Core\Checkout\Document\DocumentConfigurationFactory
-#                - Symfony\Component\Validator\Validator\ValidatorInterface
-#                - Twig\Compiler
-
 rules:
     # rules from https://github.com/symplify/phpstan-rules
     - Symplify\PHPStanRules\Rules\Spotter\IfElseToMatchSpotterRule
@@ -272,13 +256,9 @@ rules:
 
     # explicit naming
     - Symplify\PHPStanRules\Rules\NoParentMethodCallOnNoOverrideProcessRule
-    # Activate again when https://github.com/symplify/phpstan-rules/pull/19 is released
-    # - Symplify\PHPStanRules\Rules\RequireThisOnParentMethodCallRule
-    - Symplify\PHPStanRules\Rules\RequireThisCallOnLocalMethodRule
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
-    - Symplify\PHPStanRules\Symfony\Rules\PreventDoubleSetParameterRule
 
     # complexity rules
     - Symplify\PHPStanRules\Rules\Explicit\NoMixedCallableRule
@@ -291,7 +271,9 @@ rules:
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\RequiredAbstractClassKeywordRule
-    # activate again when https://github.com/symplify/phpstan-rules/pull/40 is released
-    # - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
+    - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
+
+    # test rules
+    - Symplify\PHPStanRules\Rules\NoConstructorInTestRule

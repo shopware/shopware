@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestSessionStorage;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -34,6 +35,7 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use Twig\Error\SyntaxError;
 
 /**
  * @covers \Shopware\Storefront\Controller\StorefrontController
@@ -104,6 +106,54 @@ class StorefrontControllerTest extends TestCase
         static::assertSame('<html lang="en">test</html>', $response->getContent());
         static::assertSame('text/html', $response->headers->get('Content-Type'));
         static::assertSame($context, $response->getContext());
+    }
+
+    public function testRenderStorefrontWithException(): void
+    {
+        $context = static::createMock(SalesChannelContext::class);
+
+        $request = new Request(
+            attributes: [
+                'sw-sales-channel-context' => $context,
+                'sw-storefront-url' => 'foo',
+            ],
+        );
+
+        $requestStack = static::createMock(RequestStack::class);
+        $requestStack
+            ->expects(static::once())
+            ->method('getCurrentRequest')
+            ->willReturn($request);
+
+        $exception = new SyntaxError('test');
+        $twig = static::createMock(Environment::class);
+        $twig
+            ->expects(static::once())
+            ->method('render')
+            ->willThrowException($exception);
+
+        $seoUrlReplacer = static::createMock(SeoUrlPlaceholderHandlerInterface::class);
+
+        $templateFinder = static::createMock(TemplateFinder::class);
+        $templateFinder
+            ->expects(static::once())
+            ->method('find')
+            ->with('test.html.twig')
+            ->willReturn('test.html.twig');
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
+        $container->set('twig', $twig);
+        $container->set(TemplateFinder::class, $templateFinder);
+        $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
+        $container->set(SystemConfigService::class, static::createMock(SystemConfigService::class));
+
+        $this->controller->setContainer($container);
+        $this->controller->setTwig($twig);
+
+        static::expectException(StorefrontException::class);
+        $this->controller->testRenderStorefront('test.html.twig');
     }
 
     public function testTrans(): void
@@ -225,7 +275,6 @@ class StorefrontControllerTest extends TestCase
         $response = $this->controller->testCreateActionResponse($request);
 
         static::assertNotInstanceOf(RedirectResponse::class, $response);
-        static::assertInstanceOf(Response::class, $response);
         static::assertSame('<html lang="en">test</html>', $response->getContent());
         static::assertSame('text/html', $response->headers->get('Content-Type'));
     }
@@ -235,7 +284,6 @@ class StorefrontControllerTest extends TestCase
         $response = $this->controller->testCreateActionResponse(new Request());
 
         static::assertNotInstanceOf(RedirectResponse::class, $response);
-        static::assertInstanceOf(Response::class, $response);
         static::assertSame('', $response->getContent());
     }
 
@@ -378,7 +426,6 @@ class StorefrontControllerTest extends TestCase
 
         $flashes = $flashBag->all();
 
-        static::assertIsArray($flashes);
         static::assertCount(1, $flashes);
 
         static::assertArrayHasKey('danger', $flashes);

@@ -403,7 +403,8 @@
         "init:e2e": "@npm:e2e clean-install --no-audit --prefer-offline",
         "init:js": [
             "@npm:admin clean-install --no-audit --prefer-offline",
-            "@npm:storefront clean-install --no-audit --prefer-offline"
+            "@npm:storefront clean-install --no-audit --prefer-offline",
+            "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
             "FORCE_INSTALL=true vendor/bin/phpunit --group=none"

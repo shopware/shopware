@@ -20,9 +20,9 @@ class PromotionException extends HttpException
 
     public const PATTERN_ALREADY_IN_USE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
 
-    public const PROMOTION_NOT_FOUND = 'PROMOTION__NOT_FOUND';
+    public const PROMOTION_NOT_FOUND = 'CHECKOUT__PROMOTION__NOT_FOUND';
 
-    public const PROMOTION_DISCOUNT_NOT_FOUND = 'PROMOTION__DISCOUNT_NOT_FOUND';
+    public const PROMOTION_DISCOUNT_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND';
 
     public static function codeAlreadyRedeemed(string $code): self
     {

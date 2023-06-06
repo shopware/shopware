@@ -159,7 +159,7 @@ class ApiController extends AbstractController
     #[Route(path: '/api/_action/version/{versionId}/{entity}/{entityId}', name: 'api.deleteVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
-        if ($versionId !== null && !Uuid::isValid($versionId)) {
+        if (!Uuid::isValid($versionId)) {
             throw ApiException::invalidVersionId($versionId);
         }
 
@@ -167,7 +167,7 @@ class ApiController extends AbstractController
             throw ApiException::deleteLiveVersion();
         }
 
-        if ($entityId !== null && !Uuid::isValid($entityId)) {
+        if (!Uuid::isValid($entityId)) {
             throw ApiException::invalidVersionId($versionId);
         }
 
@@ -627,8 +627,10 @@ class ApiController extends AbstractController
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var EntityPathSegment $child */
@@ -668,8 +670,10 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
@@ -697,8 +701,10 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $manyToManyAssociation */
@@ -923,7 +929,7 @@ class ApiController extends AbstractController
                 case 'application/json':
                     return $request->request->all();
             }
-        } catch (InvalidArgumentException | UnexpectedValueException $exception) {
+        } catch (InvalidArgumentException|UnexpectedValueException $exception) {
             throw ApiException::badRequest($exception->getMessage());
         }
 

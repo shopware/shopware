@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -80,10 +79,7 @@ class CountryStateControllerTest extends TestCase
         $dispatcher->removeSubscriber($testSubscriber);
 
         static::assertInstanceOf(CountryStateDataPagelet::class, $testSubscriber->testPagelet);
-        static::assertInstanceOf(Criteria::class, $testSubscriber->criteriaEvent->getCriteria());
-        static::assertInstanceOf(Context::class, $testSubscriber->criteriaEvent->getContext());
-        static::assertInstanceOf(Request::class, $testSubscriber->criteriaEvent->getRequest());
-        static::assertInstanceOf(SalesChannelContext::class, $testSubscriber->criteriaEvent->getSalesChannelContext());
+        static::assertInstanceOf(CountryStateDataPageletCriteriaEvent::class, $testSubscriber->criteriaEvent);
     }
 
     public function testCountryStateControllerHooks(): void
@@ -147,9 +143,9 @@ class CountryStateControllerTest extends TestCase
  */
 class CountryStateControllerTestSubscriber implements EventSubscriberInterface
 {
-    public CountryStateDataPagelet $testPagelet;
+    public ?CountryStateDataPagelet $testPagelet = null;
 
-    public CountryStateDataPageletCriteriaEvent $criteriaEvent;
+    public ?CountryStateDataPageletCriteriaEvent $criteriaEvent = null;
 
     public static function getSubscribedEvents(): array
     {

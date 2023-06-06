@@ -2,6 +2,7 @@
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+
 use function PHPStan\Testing\assertType;
 
 $collection = new EntityCollection(['foo' => new Entity()]);

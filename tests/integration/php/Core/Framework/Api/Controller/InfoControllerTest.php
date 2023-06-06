@@ -543,6 +543,77 @@ class InfoControllerTest extends TestCase
         }
     }
 
+    public function testMailAwareBusinessEventRoute(): void
+    {
+        $url = '/api/_info/events.json';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $response = json_decode($content, true);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        foreach ($response as $event) {
+            if ($event['name'] === 'mail.after.create.message' || $event['name'] === 'mail.before.send' || $event['name'] === 'mail.sent') {
+                static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
+
+                continue;
+            }
+
+            static::assertTrue(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
+            static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], true));
+        }
+    }
+
+    public function testFlowBusinessEventRouteHasAppFlowEvents(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $this->createAclRole($aclRoleId);
+
+        $appId = Uuid::randomHex();
+        $this->createApp($appId, $aclRoleId);
+
+        $flowAppId = Uuid::randomHex();
+        $this->createAppFlowEvent($flowAppId, $appId);
+
+        $url = '/api/_info/events.json';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $response = json_decode($content, true);
+
+        $expected = [
+            [
+                'name' => 'customer.wishlist',
+                'aware' => [
+                    'mailAware',
+                    'customerAware',
+                ],
+                'data' => [],
+                'class' => 'Shopware\Core\Framework\App\Event\CustomAppEvent',
+                'extensions' => [],
+            ],
+        ];
+
+        foreach ($expected as $event) {
+            $actualEvent = array_values(array_filter($response, function ($x) use ($event) {
+                return $x['name'] === $event['name'];
+            }));
+
+            static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
+            static::assertCount(1, $actualEvent);
+            static::assertEquals($event, $actualEvent[0]);
+        }
+    }
+
     private function createApp(string $appId, string $aclRoleId): void
     {
         $this->getContainer()->get(Connection::class)->insert('app', [
@@ -569,6 +640,17 @@ class InfoControllerTest extends TestCase
             'url' => 'https://example.xyz',
             'delayable' => true,
             'requirements' => json_encode(['orderaware']),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function createAppFlowEvent(string $flowAppId, string $appId): void
+    {
+        $this->getContainer()->get(Connection::class)->insert('app_flow_event', [
+            'id' => Uuid::fromHexToBytes($flowAppId),
+            'app_id' => Uuid::fromHexToBytes($appId),
+            'name' => 'customer.wishlist',
+            'aware' => json_encode(['mailAware', 'customerAware']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

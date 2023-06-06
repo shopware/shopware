@@ -21,7 +21,8 @@
       "warningDeleteText": "If you delete this flow, no more actions will be performed for the trigger.",
       "confirmText": "Are you sure you want to delete this flow?",
       "emptyStateTitle": "No flows yet",
-      "emptyStateSubTitle": "Add flows by clicking the \"Add flow\" button."
+      "emptyStateSubTitle": "Add flows by clicking the \"Add flow\" button.",
+      "unknownTrigger": "Unknown trigger"
     },
     "template": {
       "create": "Create new flow from template"
@@ -42,7 +43,8 @@
         "title": "Define trigger",
         "helpText": "Triggers are the initial starting point of a flow and are tied to a certain event. Following the trigger you can add further conditions and define actions. What actions are available depends on the selected event.",
         "textNoEvent": "No events found",
-        "textHint": "At the moment this event can’t be used as a trigger, because there are no available actions."
+        "textHint": "At the moment this event can’t be used as a trigger, because there are no available actions.",
+        "unknownTriggerPlaceholder": "Unknown trigger"
       },
       "sequence": {
         "selectorTitle": "Add condition or actions",
@@ -68,7 +70,7 @@
         "noActions": "No actions added yet",
         "noRule": "No rule defined yet"
       },
-      "warningText": "This flow uses actions that are unavailable due to a plan change, inactive or uninstalled extensions. When the flow is triggered, unavailable actions will not be executed."
+      "warningText": "This flow uses actions that are unavailable due to an edition change, inactive, uninstalled or updated extensions. When the flow is triggered, unavailable actions will not be executed."
     },
     "page": {
       "tabGeneral": "General",
@@ -86,7 +88,12 @@
       "messageDuplicateError": "Flow could not be duplicated.",
       "messageCreateSuccess": "Flow created.",
       "messageUpdateTemplateSuccess": "Flow template updated.",
-      "messageCreateError": "Flow could not be created."
+      "messageCreateError": "Flow could not be created.",
+      "messageUnknownTriggerWarning": "This flow has been deactivated because it uses a trigger that is no longer available. This is likely caused, because the edition has been changed, or the extension, that is providing this trigger, is either inactive or has been uninstalled.",
+      "textIntroduce": "Try one of the following solutions to make the trigger available again:",
+      "textGuide1": "Reinstall the extension, that made the trigger available",
+      "textGuide2": "Reactivate the extension that made the trigger available",
+      "textGuide3": "Select an appropriate edition"
     },
     "actions": {
       "addTag": "Add tag",

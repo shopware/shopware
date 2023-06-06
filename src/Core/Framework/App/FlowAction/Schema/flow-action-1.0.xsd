@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            Deprecated at Shopware version 6.6.0.0, use flow-1-0.xsd instead.
+        </xs:documentation>
+    </xs:annotation>
     <xs:element name="flow-actions">
         <xs:complexType>
             <xs:annotation>

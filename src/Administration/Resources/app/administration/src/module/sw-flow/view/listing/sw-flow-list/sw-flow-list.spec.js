@@ -1,9 +1,35 @@
 import { shallowMount } from '@vue/test-utils';
 import swFlowList from 'src/module/sw-flow/view/listing/sw-flow-list';
+import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-list', swFlowList);
 
-async function createWrapper(privileges = []) {
+const mockBusinessEvents = [
+    {
+        name: 'checkout.customer.before.login',
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+    {
+        name: 'checkout.customer.changed-payment-method',
+        mailAware: false,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+    {
+        name: 'checkout.order.placed',
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+    },
+];
+
+const flowData = [
+    {
+        id: '44de136acf314e7184401d36406c1e90',
+        eventName: 'checkout.order.placed',
+    },
+];
+
+async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData) {
     return shallowMount(await Shopware.Component.build('sw-flow-list'), {
         mocks: {
             $route: {
@@ -12,18 +38,28 @@ async function createWrapper(privileges = []) {
                     limit: 25,
                 },
             },
+            $tc: (key) => {
+                if (key === 'global.businessEvents.checkout_order_placed' && !hasSnippetFromApp) {
+                    return 'Check order place';
+                }
+
+                return key;
+            },
+
+            $te(key) {
+                if (key === 'global.businessEvents.checkout_order_placed' && hasSnippetFromApp) {
+                    return false;
+                }
+
+                return true;
+            },
         },
 
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '44de136acf314e7184401d36406c1e90',
-                                eventName: 'checkout.order.placed',
-                            },
-                        ]);
+                        return Promise.resolve(customFlowData);
                     },
                     clone: jest.fn(() => Promise.resolve({
                         id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
@@ -83,6 +119,21 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
+    Shopware.Service().register('businessEventService', () => {
+        return {
+            getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+        };
+    });
+
+    beforeAll(() => {
+        Shopware.State.registerModule('swFlowState', {
+            ...flowState,
+            state: {
+                triggerEvents: [],
+            },
+        });
+    });
+
     it('should be able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
             'flow.creator',
@@ -162,7 +213,35 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
         await flushPromises();
 
         const item = wrapper.find('.sw-data-grid__row');
-        expect(item.text()).toContain('global.businessEvents.checkout_order_placed');
+        expect(item.text()).toContain('Check order place');
+        expect(item.text()).toContain('checkout.order.placed');
+    });
+
+    it('should show trigger column correctly with unknown trigger', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer',
+        ], false, [
+            {
+                id: '44de136acf314e7184401d36406c1e90',
+                eventName: 'checkout.order.custom',
+            },
+        ]);
+
+        await flushPromises();
+
+        const item = wrapper.find('.sw-data-grid__row');
+        expect(item.text()).toContain('sw-flow.list.unknownTrigger');
+    });
+
+    it('should show custom trigger column correctly', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer',
+        ], true);
+
+        await wrapper.vm.$nextTick();
+
+        const item = wrapper.find('.sw-data-grid__row');
+        expect(item.text()).toContain('sw-flow-custom-event.flow-list.checkout_order_placed');
         expect(item.text()).toContain('checkout.order.placed');
     });
 

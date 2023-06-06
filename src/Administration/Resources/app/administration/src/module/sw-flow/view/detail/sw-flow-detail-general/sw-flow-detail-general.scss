@@ -1,6 +1,12 @@
 @import "~scss/variables";
 
 .sw-flow-detail-general {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    max-width: 870px;
+    transition: max-width 0.3s ease-in-out;
+
     &__log-label {
         display: block;
         margin-bottom: 16px;
@@ -22,5 +28,13 @@
 
     &__template {
         pointer-events: none;
+    }
+
+    &__warning-unknow-trigger {
+        p {
+            &:nth-child(2) {
+                margin-top: 20px;
+            }
+        }
     }
 }

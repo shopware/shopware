@@ -2716,11 +2716,6 @@ parameters:
 			path: src/Core/Content/Flow/Dispatching/FlowBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$action\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/FlowExecutor.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/FlowLoader.php
@@ -8381,101 +8376,6 @@ parameters:
 			path: src/Core/Framework/App/Delta/PermissionsDeltaProvider.php
 
 		-
-			message: "#^PHPDoc tag @var with type string is not subtype of native type non\\-empty\\-string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Action.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Actions\\:\\:parseFlowActions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Actions.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Config\\:\\:parseInputField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Config.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Headers\\:\\:parseParameter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Headers.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:getHelpText\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:getLabel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:getOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:getPlaceHolder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:parseOption\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:parseOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:\\$helpText type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:\\$label type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:\\$options type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:\\$placeHolder type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Parameter\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Parameter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Parameter\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Parameter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Parameters\\:\\:parseParameter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Parameters.php
-
-		-
 			message: "#^Anonymous variable in a `\\$handler\\(\\$request, \\$options\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Core/Framework/App/Hmac/Guzzle/AuthMiddleware.php
@@ -10734,11 +10634,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\FrameworkExtension\\:\\:addShopwareConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/FrameworkExtension.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<class\\-string\\<object\\>\\> is not subtype of native type array\\<string, class\\-string\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventCollector.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventRegistry\\:\\:addClasses\\(\\) has parameter \\$classes with no value type specified in iterable type array\\.$#"
@@ -17906,26 +17801,6 @@ parameters:
 			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/GrantDownloadAccessActionTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$document\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$order\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: tests/integration/php/Core/Content/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$order\\-\\>getOrderCustomer\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: tests/integration/php/Core/Content/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Flow/SendMailActionTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$delivery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
@@ -18044,61 +17919,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Manifest\\\\\\\\Manifest' and Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Manifest will always evaluate to true\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Framework/App/Event/AppUpdatedEventTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$aclRole\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$app\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 6
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$app1\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 7
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$appEntity\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 65
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$appScriptConditionEntity\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$apps\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 5
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$customFieldSet\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 6
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$integrationEntity\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$localeRepository\\-\\>search\\(\\$criteria, \\\\Shopware\\\\Core\\\\Framework\\\\Context\\:\\:createDefaultContext\\(\\)\\)\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$newVersion\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$relations\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Framework/App/Lifecycle/AppLifecycleTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$refund\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -18678,11 +18498,6 @@ parameters:
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/SendMailActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
 			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/SetCustomerCustomFieldActionTest.php
 
 		-
@@ -18699,31 +18514,6 @@ parameters:
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
 			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/SetOrderStateActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/FlowExecutorTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\ActionSequence is not allowed\\. The object is very basic and can be constructed$#"
-			count: 4
-			path: tests/unit/php/Core/Content/Flow/Dispatching/FlowExecutorTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\Flow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/FlowExecutorTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\IfSequence is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/FlowExecutorTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\Context is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/FlowExecutorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
@@ -18754,11 +18544,6 @@ parameters:
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
 			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/EmailStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/MailStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
@@ -18954,71 +18739,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Payment\\\\\\\\Payload\\\\\\\\Struct\\\\\\\\Source' and Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\Source will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Framework/App/AppPayloadServiceHelperTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\FlowAction\\\\\\\\Xml\\\\\\\\Action' and Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Action will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\FlowAction\\\\\\\\Xml\\\\\\\\Config' and Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Config will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\FlowAction\\\\\\\\Xml\\\\\\\\Headers' and Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Headers will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\FlowAction\\\\\\\\Xml\\\\\\\\Metadata' and Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\FlowAction\\\\\\\\Xml\\\\\\\\Parameters' and Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Parameters will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Config is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Headers is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Parameter is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Parameters is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata is not subtype of native type PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/FlowAction/Xml/ActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/App/Lifecycle/Persister/TaxProviderPersisterTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin will always evaluate to true\\.$#"

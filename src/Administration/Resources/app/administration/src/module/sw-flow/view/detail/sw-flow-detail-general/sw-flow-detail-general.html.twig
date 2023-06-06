@@ -3,6 +3,20 @@
 <div class="sw-flow-detail-general">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_detail_general_information %}
+    <sw-alert
+        v-if="isUnknownTrigger"
+        variant="warning"
+        class="sw-flow-detail-general__warning-unknow-trigger"
+    >
+        <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+        <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
+        <ul>
+            <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
+            <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
+            <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+        </ul>
+    </sw-alert>
+
     <sw-card
         class="sw-flow-detail-general__general-card"
         position-identifier="sw-flow-detail-general"
@@ -55,7 +69,7 @@
                 v-if="!isFlowTemplate"
                 v-model="flow.active"
                 class="sw-flow-detail-general__general-active"
-                :disabled="!acl.can('flow.editor')"
+                :disabled="!acl.can('flow.editor') || isUnknownTrigger"
                 :label="$tc('sw-flow.detail.labelGeneralInformationActive')"
             />
             {% endblock %}

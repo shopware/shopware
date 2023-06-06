@@ -173,7 +173,17 @@ export default {
             return this.$route.query?.type === 'template';
         },
 
-        ...mapState('swFlowState', ['flow']),
+        isUnknownTrigger() {
+            if (!this.flowId || this.isLoading) {
+                return false;
+            }
+
+            return !this.triggerEvents.some((event) => {
+                return event.name === this.flow.eventName;
+            });
+        },
+
+        ...mapState('swFlowState', ['flow', 'triggerEvents']),
         ...mapGetters('swFlowState', [
             'sequences',
             'mailTemplateIds',
@@ -275,6 +285,7 @@ export default {
 
         getDetailFlow() {
             this.isLoading = true;
+            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
 
             return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
                 .then((data) => {

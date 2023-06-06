@@ -10,7 +10,7 @@
         <sw-contextual-field
             v-tooltip="{
                 message: getEventName(eventName),
-                disabled: !eventName,
+                disabled: !eventName || isUnknownTrigger,
             }"
             class="sw-flow-trigger__search-field"
             :required="!isTemplate"
@@ -27,7 +27,7 @@
                     v-model="searchTerm"
                     type="text"
                     class="sw-flow-trigger__input-field"
-                    :placeholder="$tc('sw-flow.detail.trigger.placeholder')"
+                    :placeholder="triggerNamePlaceholder"
                     :disabled="disabled"
                     @focus="openDropdown({ setFocusClass, removeFocusClass });"
                 >

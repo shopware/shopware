@@ -21,7 +21,8 @@
       "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
       "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
       "emptyStateTitle": "Noch keine Flows erstellt",
-      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu."
+      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
+      "unknownTrigger": "Unbekannter Auslöser"
     },
     "template": {
       "create": "Neuen Flow aus Template erstellen"
@@ -42,7 +43,8 @@
         "title": "Auslöser definieren",
         "helpText": "Auslöser sind der Startpunkt eines Flows und mit einem bestimmten Ereignis verknüpft. Du kannst im Folgenden weitere Bedingungen hinzufügen und verschiedene Aktionen definieren. Die verfügbaren Aktionen sind abhängig vom gewählten Ereignis.",
         "textNoEvent": "Keine Ereignisse gefunden",
-        "textHint": "Dieses Ereignis kann im Moment nicht als Trigger genutzt werden, da hierfür keine Aktionen zur Verfügung stehen."
+        "textHint": "Dieses Ereignis kann im Moment nicht als Auslöser genutzt werden, da hierfür keine Aktionen zur Verfügung stehen.",
+        "unknownTriggerPlaceholder": "Unbekannter Auslöser"
       },
       "sequence": {
         "selectorTitle": "Bedingung oder Aktion hinzufügen",
@@ -86,7 +88,12 @@
       "messageDuplicateError": "Flow konnte nicht dupliziert werden.",
       "messageCreateSuccess": "Flow erstellt.",
       "messageUpdateTemplateSuccess": "Flow template updated.",
-      "messageCreateError": "Flow konnte nicht erstellt werden."
+      "messageCreateError": "Flow konnte nicht erstellt werden.",
+      "messageUnknownTriggerWarning": "Dieser Flow wurde deaktiviert, weil er einen Auslöser verwendet, der nicht länger verfügbar ist. Dies ist wahrscheinlich darauf zurückzuführen, dass die Edition geändert wurde oder die Erweiterung, die diesen Auslöser bereitstellt, entweder inaktiv ist oder deinstalliert wurde.",
+      "textIntroduce": "Versuche eine der folgenden Lösungen, um den Auslöser wieder verfügbar zu machen:",
+      "textGuide1": "Installiere die Erweiterung, die den Auslöser bereitstellt",
+      "textGuide2": "Aktiviere die Erweiterung erneut, die den Auslöser bereitstellt",
+      "textGuide3": "Wähle eine geeignete Edition aus"
     },
     "actions": {
       "addTag": "Tag zuweisen",

@@ -9,7 +9,21 @@
         :style="flowContainerStyle"
     >
         <sw-alert
-            v-if="showActionWarning"
+            v-if="isUnknownTrigger"
+            variant="warning"
+            class="sw-flow-detail-flow__warning-unknow-trigger"
+        >
+            <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+            <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
+            <ul>
+                <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
+                <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
+                <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+            </ul>
+        </sw-alert>
+
+        <sw-alert
+            v-if="!isLoading && !isUnknownTrigger && showActionWarning "
             variant="warning"
             class="sw-flow-detail-flow__warning-box"
         >
@@ -26,6 +40,7 @@
                 <sw-flow-trigger
                     :disabled="!acl.can('flow.editor')"
                     :event-name="flow.eventName"
+                    :is-unknown-trigger="isUnknownTrigger"
                     @option-select="onEventChange"
                 />
                 {% endblock %}
@@ -111,6 +126,7 @@
                             name="root-sequence"
                             :sequence="sequence"
                             :disabled="!acl.can('flow.editor')"
+                            :is-unknown-trigger="isUnknownTrigger"
                         />
                     </div>
                     {% endblock %}

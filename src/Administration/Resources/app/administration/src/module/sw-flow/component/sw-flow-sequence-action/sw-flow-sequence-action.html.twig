@@ -94,7 +94,7 @@
                             @click="(event) => onEditAction(item, event.target, key)"
                         >
                             <sw-flow-sequence-action-error
-                                v-if="!isValidAction(item)"
+                                v-if="!isValidAction(item.actionName)"
                                 :sequence="item"
                             >
                                 <template #content>
@@ -238,6 +238,7 @@
                     :groups="groups"
                     :popover-classes="['sw-flow-sequence-action__popover']"
                     :error="fieldError"
+                    :disabled="isUnknownTrigger"
                     @change="openDynamicModal"
                 >
                     <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">

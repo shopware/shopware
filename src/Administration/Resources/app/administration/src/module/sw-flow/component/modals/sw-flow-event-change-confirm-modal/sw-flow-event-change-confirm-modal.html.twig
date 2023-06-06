@@ -17,11 +17,13 @@
         </h4>
         {% endblock %}
     </template>
-
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_flow_event_change_confirm_modal_text_confirmation %}
     <p
         class="sw-flow-event-change-confirm-modal__text-confirmation"
         v-html="$tc('sw-flow.modals.confirmation.textConfirmChangeTrigger')"
     ></p>
+    {% endblock %}
 
     <template #modal-footer>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

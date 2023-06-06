@@ -192,6 +192,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                     { name: 'telegram.send.message', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
                     { name: 'action.stop.flow', requirements: [], extensions: [] },
                 ],
+                originAvailableActions: [],
             },
         });
     });

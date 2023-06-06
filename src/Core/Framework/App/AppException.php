@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Core\Framework\App\Exception\AppFlowException;
+use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -30,5 +33,19 @@ class AppException extends HttpException
             'App {{ name }} is not compatible with this Shopware version',
             ['name' => $pluginName]
         );
+    }
+
+    public static function errorFlowCreateFromXmlFile(string $xmlFile, string $message): XmlParsingException
+    {
+        return new AppFlowException($xmlFile, $message);
+    }
+
+    public static function invalidAppFlowActionVariableException(
+        string $appFlowActionId,
+        string $param,
+        string $message = '',
+        int $code = 0
+    ): InvalidAppFlowActionVariableException {
+        return new InvalidAppFlowActionVariableException($appFlowActionId, $param, $message, $code);
     }
 }

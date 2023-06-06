@@ -109,7 +109,11 @@ export default {
             const allowedAwareOrigin = this.triggerEvent.aware ?? [];
             const allowAwareConverted = [];
             allowedAwareOrigin.forEach(aware => {
-                allowAwareConverted.push(aware.slice(aware.lastIndexOf('\\') + 1));
+                aware = aware.slice(aware.lastIndexOf('\\') + 1);
+                const awareUpperCase = aware.charAt(0).toUpperCase() + aware.slice(1);
+                if (!allowAwareConverted.includes(awareUpperCase)) {
+                    allowAwareConverted.push(awareUpperCase);
+                }
             });
 
             if (allowAwareConverted.length === 0) {

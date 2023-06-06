@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionC
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -212,6 +213,11 @@ class AppEntity extends Entity
      * @var AppFlowActionCollection|null
      */
     protected $flowActions;
+
+    /**
+     * @var AppFlowEventCollection|null
+     */
+    protected $flowEvents;
 
     /**
      * @var int
@@ -641,6 +647,16 @@ class AppEntity extends Entity
     public function setFlowActions(AppFlowActionCollection $flowActions): void
     {
         $this->flowActions = $flowActions;
+    }
+
+    public function getFlowEvents(): ?AppFlowEventCollection
+    {
+        return $this->flowEvents;
+    }
+
+    public function setFlowEvents(AppFlowEventCollection $flowEvents): void
+    {
+        $this->flowEvents = $flowEvents;
     }
 
     public function jsonSerialize(): array

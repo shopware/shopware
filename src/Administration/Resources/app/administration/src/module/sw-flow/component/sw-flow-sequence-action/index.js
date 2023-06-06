@@ -35,6 +35,11 @@ export default {
             required: false,
             default: false,
         },
+        isUnknownTrigger: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -190,6 +195,7 @@ export default {
                 'sequences',
                 'appActions',
                 'getSelectedAppAction',
+                'hasAvailableAction',
             ],
         ),
     },
@@ -389,7 +395,7 @@ export default {
                 return;
             }
 
-            if (!this.$refs.contextButton[key]) {
+            if (!this.hasAvailableAction(sequence.actionName)) {
                 return;
             }
 
@@ -397,7 +403,7 @@ export default {
                 return;
             }
 
-            if (this.$refs.contextButton[key].$el.contains(target)) {
+            if (this.$refs.contextButton[key] && this.$refs.contextButton[key].$el.contains(target)) {
                 return;
             }
 
@@ -475,7 +481,7 @@ export default {
         getActionDescription(sequence) {
             const { actionName, config } = sequence;
 
-            if (!actionName) return '';
+            if (!actionName || !this.hasAvailableAction(actionName)) return '';
 
             if (this.getSelectedAppFlowAction(actionName)) {
                 return this.actionDescription[ACTION.APP_FLOW_ACTION](config, actionName);
@@ -799,12 +805,8 @@ export default {
             return actions;
         },
 
-        isValidAction(action) {
-            if (!this.triggerActions.length || !action.actionName) {
-                return true;
-            }
-
-            return this.triggerActions.find(item => item.name === action.actionName);
+        isValidAction(actionName) {
+            return actionName && this.hasAvailableAction(actionName);
         },
     },
 };

@@ -98,6 +98,8 @@ describe('Flow builder: Test acl privilege', () => {
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
 
+            cy.get('.sw-flow-leave-page-modal').should('be.visible');
+            cy.get('.sw-flow-leave-page-modal__leave-page').click();
             cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

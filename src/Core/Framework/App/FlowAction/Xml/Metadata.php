@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.6.0 - Will be move to Shopware\Core\Framework\App\Flow\Action\Xml
  */
 #[Package('core')]
 class Metadata extends XmlElement
@@ -72,6 +75,11 @@ class Metadata extends XmlElement
      */
     public function getLabel(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->label;
     }
 
@@ -80,16 +88,31 @@ class Metadata extends XmlElement
      */
     public function getDescription(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->description;
     }
 
     public function getName(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->name;
     }
 
     public function getUrl(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->url;
     }
 
@@ -98,16 +121,31 @@ class Metadata extends XmlElement
      */
     public function getRequirements(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->requirements;
     }
 
     public function getIcon(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->icon;
     }
 
     public function getSwIcon(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->swIcon;
     }
 
@@ -116,21 +154,41 @@ class Metadata extends XmlElement
      */
     public function getHeadline(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->headline;
     }
 
     public function getDelayable(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->delayable;
     }
 
     public function setDelayable(bool $delayable = false): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         $this->delayable = $delayable;
     }
 
     public static function fromXml(\DOMElement $element): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return new self(self::parse($element));
     }
 
@@ -139,6 +197,11 @@ class Metadata extends XmlElement
      */
     public function toArray(string $defaultLocale): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         $data = parent::toArray($defaultLocale);
 
         foreach (self::TRANSLATABLE_FIELDS as $TRANSLATABLE_FIELD) {

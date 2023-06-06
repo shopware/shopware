@@ -21,11 +21,12 @@ use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
-use Shopware\Core\Framework\App\FlowAction\FlowAction;
+use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
@@ -90,7 +91,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
+        private readonly FlowEventPersister $flowEventPersister
     ) {
     }
 
@@ -225,6 +227,12 @@ class AppLifecycle extends AbstractAppLifecycle
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id): void {
             $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
         });
+
+        $flowEvents = $this->appLoader->getFlowEvents($app);
+
+        if ($flowEvents) {
+            $this->flowEventPersister->updateEvents($flowEvents, $id, $context, $defaultLocale);
+        }
 
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
@@ -518,7 +526,7 @@ class AppLifecycle extends AbstractAppLifecycle
     /**
      * @return array<array<string, array{name: string, eventName: string, url: string, appId: string, active: bool, errorCount: int}>>
      */
-    private function getWebhooks(Manifest $manifest, ?FlowAction $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
+    private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {
         $actions = [];
 

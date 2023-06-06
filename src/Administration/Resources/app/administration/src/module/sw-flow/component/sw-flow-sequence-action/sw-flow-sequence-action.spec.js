@@ -196,11 +196,13 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                         order: '',
                     },
                     customerAware: true,
+                    orderAware: true,
                     extensions: [],
                     mailAware: true,
                     name: 'checkout.customer.login',
                     aware: [
                         'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                        'Shopware\\Core\\Framework\\Event\\OrderAware',
                         'Shopware\\Core\\Framework\\Event\\MailAware',
                     ],
                 },
@@ -215,6 +217,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     { name: 'action.stop.flow', requirements: [], extensions: [] },
                 ],
                 appActions: [],
+                originAvailableActions: [],
             },
         });
     });
@@ -611,8 +614,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = wrapper.findAll('.sw-select-result');
 
-        expect(actionItems).toHaveLength(5);
-        expect(actionItems.at(3).get('.sw-highlight-text').text()).toBe('Telegram send message');
+        expect(actionItems).toHaveLength(6);
+        expect(actionItems.at(5).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
     it('should disable the actions when inactive the app flow actions', async () => {

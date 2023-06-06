@@ -6,8 +6,10 @@ use Composer\InstalledVersions;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
-use Shopware\Core\Framework\App\FlowAction\FlowAction;
+use Shopware\Core\Framework\App\Flow\Action\Action;
+use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
@@ -112,15 +114,25 @@ class AppLoader extends AbstractAppLoader
         return $entities;
     }
 
-    public function getFlowActions(AppEntity $app): ?FlowAction
+    public function getFlowActions(AppEntity $app): ?Action
     {
-        $configPath = sprintf('%s/%s/Resources/flow-action.xml', $this->projectDir, $app->getPath());
+        $configPath = sprintf('%s/%s/Resources/flow.xml', $this->projectDir, $app->getPath());
 
-        if (!file_exists($configPath)) {
-            return null;
+        if (file_exists($configPath)) {
+            return Action::createFromXmlFile($configPath);
         }
 
-        return FlowAction::createFromXmlFile($configPath);
+        $oldConfigPath = sprintf('%s/%s/Resources/flow-action.xml', $this->projectDir, $app->getPath());
+        if (!Feature::isActive('v6.6.0.0') && file_exists($oldConfigPath)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                'The flow-action.xml is deprecated and will be removed in v6.6.0.0. Use flow.xml instead.'
+            );
+
+            return Action::createFromXmlFile($oldConfigPath);
+        }
+
+        return null;
     }
 
     /**
@@ -186,6 +198,17 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $manifests;
+    }
+
+    public function getFlowEvents(AppEntity $app): ?Event
+    {
+        $configPath = sprintf('%s/%s/Resources/flow.xml', $this->projectDir, $app->getPath());
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return Event::createFromXmlFile($configPath);
     }
 
     /**

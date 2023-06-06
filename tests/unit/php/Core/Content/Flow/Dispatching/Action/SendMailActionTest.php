@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\Test\TestDefaults;
@@ -62,11 +64,6 @@ class SendMailActionTest extends TestCase
 
     private SendMailAction $action;
 
-    /**
-     * @var StorableFlow&MockObject
-     */
-    private StorableFlow $flow;
-
     protected function setUp(): void
     {
         $this->mailTemplate = new MailTemplateEntity();
@@ -87,8 +84,6 @@ class SendMailActionTest extends TestCase
             $this->languageLocaleProvider,
             true
         );
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -114,6 +109,7 @@ class SendMailActionTest extends TestCase
         $orderId = Uuid::randomHex();
         $mailTemplateId = Uuid::randomHex();
         $this->mailTemplate->setId($mailTemplateId);
+        $this->mailTemplate->setSenderName('Phuoc');
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
             'recipient' => ['type' => 'customer'],
@@ -149,39 +145,166 @@ class SendMailActionTest extends TestCase
 
         $expected['data'] = array_merge($expected['data'], $exptectedReplyTo);
 
-        $this->flow->expects(static::exactly(2))
-            ->method('hasData')
-            ->willReturn(true);
+        $flow = new StorableFlow(
+            '',
+            $expected['context'],
+            [
+                MailAware::MAIL_STRUCT => [
+                    'recipients' => [
+                        'email' => 'firstName lastName',
+                    ],
+                ],
+                MailAware::SALES_CHANNEL_ID => TestDefaults::SALES_CHANNEL,
+                OrderAware::ORDER_ID => $orderId,
+            ]
+        );
+        $flow->setData(MailAware::MAIL_STRUCT, $templateData);
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        $flow->setData(OrderAware::ORDER_ID, $orderId);
+        $flow->setData(FlowMailVariables::CONTACT_FORM_DATA, [
+            'email' => 'customer@example.com',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+        ]);
 
-        $this->flow->expects(static::exactly(6))
-            ->method('getData')
-            ->willReturnOnConsecutiveCalls(
-                TestDefaults::SALES_CHANNEL,
-                new MailRecipientStruct(['email' => 'firstName lastName']),
-                [],
-                TestDefaults::SALES_CHANNEL,
-                $orderId,
+        $flow->setConfig($config);
+
+        $this->entitySearchResult->expects(static::once())
+            ->method('first')
+            ->willReturn($this->mailTemplate);
+
+        $this->mailTemplateRepository->expects(static::once())
+            ->method('search')
+            ->willReturn($this->entitySearchResult);
+
+        $this->translator->expects(static::once())
+            ->method('getSnippetSetId')
+            ->willReturn(null);
+
+        $this->languageLocaleProvider->expects(static::once())
+            ->method('getLocaleForLanguageId')
+            ->willReturn('en-GB');
+
+        $this->mailService->expects(static::once())
+            ->method('send')
+            ->with(
+                $expected['data'],
+                $expected['context'],
                 [
-                    'email' => 'customer@example.com',
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
+                    'eventName' => $flow->getName(),
+                    'mailStruct' => $templateData,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'orderId' => $orderId,
+                    'contactFormData' => [
+                        'email' => 'customer@example.com',
+                        'firstName' => 'Max',
+                        'lastName' => 'Mustermann',
+                    ],
                 ],
             );
 
-        $this->flow->expects(static::exactly(2))
-            ->method('data')
-            ->willReturn([
-                'mailStruct' => $templateData,
-                'eventName' => $this->flow->getName(),
-            ]);
+        $this->action->handleFlow($flow);
+    }
 
-        $this->flow->expects(static::once())
-            ->method('getConfig')
-            ->willReturn($config);
+    public static function replyToProvider(): \Generator
+    {
+        yield 'no reply to' => [null];
+        yield 'custom reply to' => ['foo@example.com', ['senderMail' => 'foo@example.com']];
+        yield 'contact form reply to' => ['contactFormMail', [
+            'senderMail' => 'customer@example.com',
+            'senderName' => '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} {% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}',
+        ]];
+    }
 
-        $this->flow->expects(static::exactly(6))
-            ->method('getContext')
-            ->willReturn(Context::createDefaultContext());
+    public function testActionWithNotAware(): void
+    {
+        $flow = new StorableFlow('', Context::createDefaultContext(), []);
+        $flow->setConfig(array_filter([
+            'mailTemplateId' => Uuid::randomHex(),
+            'recipient' => ['type' => 'customer'],
+            'documentTypeIds' => null,
+            'replyTo' => '',
+        ]));
+
+        static::expectException(MailEventConfigurationException::class);
+        $this->mailService->expects(static::never())->method('send');
+
+        $this->action->handleFlow($flow);
+    }
+
+    public function testActionWithEmptyConfig(): void
+    {
+        $flow = new StorableFlow('', Context::createDefaultContext(), []);
+
+        static::expectException(MailEventConfigurationException::class);
+        $this->mailService->expects(static::never())->method('send');
+
+        static::expectException(MailEventConfigurationException::class);
+        $this->mailService->expects(static::never())->method('send');
+
+        $this->action->handleFlow($flow);
+    }
+
+    public function testActionExecutedWithRecipientFromStoreData(): void
+    {
+        $mailTemplateId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $config = array_filter([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => ['type' => 'customer'],
+            'documentTypeIds' => null,
+        ]);
+
+        $expected = [
+            'data' => [
+                'recipients' => [
+                    'email' => 'firstName lastName',
+                ],
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'templateId' => $mailTemplateId,
+                'customFields' => null,
+                'contentHtml' => null,
+                'contentPlain' => null,
+                'subject' => null,
+                'mediaIds' => [],
+                'senderName' => null,
+                'attachmentsConfig' => new MailAttachmentsConfig(
+                    Context::createDefaultContext(),
+                    $this->mailTemplate,
+                    new MailSendSubscriberConfig(false, [], []),
+                    $config,
+                    $orderId
+                ),
+            ],
+            'context' => Context::createDefaultContext(),
+        ];
+
+        $templateData = new MailRecipientStruct($expected['data']['recipients']);
+        $this->mailTemplate->setId($mailTemplateId);
+
+        $flow = new StorableFlow(
+            '',
+            $expected['context'],
+            [
+                MailAware::MAIL_STRUCT => [
+                    'recipients' => [
+                        'email' => 'firstName lastName',
+                    ],
+                ],
+                MailAware::SALES_CHANNEL_ID => TestDefaults::SALES_CHANNEL,
+                OrderAware::ORDER_ID => $orderId,
+            ]
+        );
+        $flow->setData(MailAware::MAIL_STRUCT, $templateData);
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        $flow->setData(OrderAware::ORDER_ID, $orderId);
+        $flow->setData(FlowMailVariables::CONTACT_FORM_DATA, [
+            'email' => 'customer@example.com',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+        ]);
+
+        $flow->setConfig($config);
 
         $this->entitySearchResult->expects(static::once())
             ->method('first')
@@ -206,43 +329,17 @@ class SendMailActionTest extends TestCase
                 $expected['context'],
                 [
                     'mailStruct' => $templateData,
-                    'eventName' => $this->flow->getName(),
-                ],
+                    'eventName' => '',
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'orderId' => $orderId,
+                    'contactFormData' => [
+                        'email' => 'customer@example.com',
+                        'firstName' => 'Max',
+                        'lastName' => 'Mustermann',
+                    ],
+                ]
             );
 
-        $this->action->handleFlow($this->flow);
-    }
-
-    public static function replyToProvider(): \Generator
-    {
-        yield 'no reply to' => [null];
-        yield 'custom reply to' => ['foo@example.com', ['senderMail' => 'foo@example.com']];
-        yield 'contact form reply to' => ['contactFormMail', [
-            'senderMail' => 'customer@example.com',
-            'senderName' => '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} {% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}',
-        ]];
-    }
-
-    public function testActionWithNotAware(): void
-    {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
-
-        static::expectException(MailEventConfigurationException::class);
-        $this->mailService->expects(static::never())->method('send');
-
-        $this->action->handleFlow($this->flow);
-    }
-
-    public function testActionWithEmptyConfig(): void
-    {
-        $this->flow->expects(static::exactly(2))->method('hasData')->willReturn(true);
-        $this->flow->expects(static::never())->method('getData');
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
-
-        static::expectException(MailEventConfigurationException::class);
-        $this->mailService->expects(static::never())->method('send');
-
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 }

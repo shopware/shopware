@@ -33,10 +33,16 @@ export default {
             type: String,
             required: true,
         },
+        isUnknownTrigger: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
         return {
+            /** @deprecated tag:v6.6.0 - events will be removed, use state triggerEvents instead. */
             events: [],
             isExpanded: false,
             isLoading: false,
@@ -70,14 +76,22 @@ export default {
         },
 
         eventTree() {
-            return this.getEventTree(this.events);
+            return this.getEventTree(this.triggerEvents);
         },
 
         isTemplate() {
             return this.$route.query?.type === 'template';
         },
 
-        ...mapState('swFlowState', ['flow']),
+        triggerNamePlaceholder() {
+            if (!this.isUnknownTrigger) {
+                return this.$tc('sw-flow.detail.trigger.placeholder');
+            }
+
+            return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
+        },
+
+        ...mapState('swFlowState', ['flow', 'triggerEvents']),
         ...mapGetters('swFlowState', ['isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
@@ -102,7 +116,7 @@ export default {
 
             const keyWords = value.split(/[\W_]+/ig);
 
-            this.searchResult = this.events.filter(event => {
+            this.searchResult = this.triggerEvents.filter(event => {
                 const eventName = this.getEventName(event.name).toLowerCase();
 
                 return keyWords.every(key => eventName.includes(key.toLowerCase()));
@@ -154,7 +168,12 @@ export default {
             document.addEventListener('click', this.handleClickEvent);
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
 
-            this.getBusinessEvents();
+            this.isLoading = true;
+            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
+            State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
+            State.dispatch('swFlowState/setRestrictedRules', this.eventName);
+
+            this.isLoading = false;
         },
 
         beforeDestroyComponent() {
@@ -542,7 +561,9 @@ export default {
             this.triggerSelect = {};
         },
 
-
+        /*
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         getBusinessEvents() {
             this.isLoading = true;
 
@@ -563,11 +584,11 @@ export default {
         },
 
         getDataByEvent(event) {
-            return this.events.find(item => item.name === event);
+            return this.triggerEvents.find(item => item.name === event);
         },
 
         hasOnlyStopFlow(event) {
-            const eventAware = this.events.find(item => item.name === event).aware || [];
+            const eventAware = this.triggerEvents.find(item => item.name === event).aware || [];
             return eventAware.length === 0;
         },
 
@@ -667,6 +688,10 @@ export default {
         },
 
         getEventName(eventName) {
+            if (this.isUnknownTrigger) {
+                return '';
+            }
+
             if (!eventName) {
                 return eventName;
             }
@@ -683,9 +708,14 @@ export default {
         },
 
         getEventNameTranslated(eventName) {
-            return this.$te(`sw-flow.triggers.${camelCase(eventName)}`)
-                ? this.$tc(`sw-flow.triggers.${camelCase(eventName)}`)
-                : eventName.replace(/_|-/g, ' ');
+            const eventNameCamelCase = camelCase(eventName);
+            const translatedEventName = [
+                `sw-flow-app.triggers-app.${eventNameCamelCase}`,
+                `sw-flow-custom-event.event-tree.${eventNameCamelCase}`,
+                `sw-flow.triggers.${eventNameCamelCase}`,
+            ].find(key => this.$te(key));
+
+            return translatedEventName ? this.$tc(translatedEventName) : eventName.replace(/_|-/g, ' ');
         },
     },
 };

@@ -87,6 +87,7 @@ class SendMailActionTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
+        /** @var OrderEntity $order */
         $order = $orderRepository->search($criteria, $context)->first();
         $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
@@ -147,7 +148,6 @@ class SendMailActionTest extends TestCase
 
         $oldDocument = $documents->get($documentIdOlder);
         static::assertInstanceOf(DocumentEntity::class, $oldDocument);
-        static::assertNotNull($oldDocument);
         static::assertFalse($oldDocument->getSent());
         $oldDocumentOrderVersionId = $oldDocument->getOrderVersionId();
 
@@ -180,7 +180,7 @@ class SendMailActionTest extends TestCase
 
                 break;
             default:
-                static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()->getEmail() => $order->getOrderCustomer()->getFirstName() . ' ' . $order->getOrderCustomer()->getLastName()]);
+                static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()?->getEmail() => $order->getOrderCustomer()?->getFirstName() . ' ' . $order->getOrderCustomer()?->getLastName()]);
         }
 
         if (!empty($documentTypeIds)) {
@@ -751,6 +751,7 @@ class SendMailActionTest extends TestCase
         $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
+        /** @var DocumentEntity $document */
         $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
 
         static::assertNotNull($document);

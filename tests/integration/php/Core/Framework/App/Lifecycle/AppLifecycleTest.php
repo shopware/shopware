@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
@@ -25,9 +26,11 @@ use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
-use Shopware\Core\Framework\App\FlowAction\FlowAction;
+use Shopware\Core\Framework\App\Flow\Action\Action;
+use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
@@ -37,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
@@ -45,9 +49,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
+use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -120,6 +127,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
@@ -140,6 +148,7 @@ class AppLifecycleTest extends TestCase
         static::assertEquals($appId, $appEntity->getId());
         static::assertFalse($appEntity->isConfigurable());
         static::assertTrue($appEntity->getAllowDisable());
+        /** @var IntegrationEntity $integrationEntity */
         $integrationEntity = $appEntity->getIntegration();
         static::assertNotNull($integrationEntity);
         static::assertFalse($integrationEntity->getAdmin());
@@ -189,6 +198,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('minimal', $appEntity->getName());
@@ -221,6 +231,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('withoutDescription', $appEntity->getName());
@@ -239,6 +250,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $apps);
 
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertCount(0, $appEntity->getModules());
@@ -260,6 +272,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
@@ -275,6 +288,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('withConfig', $appEntity->getName());
@@ -305,6 +319,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('withRuleConditions', $appEntity->getName());
@@ -312,6 +327,7 @@ class AppLifecycleTest extends TestCase
         $scriptCollection = $appEntity->getScriptConditions();
         static::assertCount(14, $scriptCollection);
 
+        /** @var AppScriptConditionEntity $scriptCondition */
         foreach ($scriptCollection as $scriptCondition) {
             static::assertStringContainsString('app\withRuleConditions_', $scriptCondition->getIdentifier());
             static::assertStringContainsString('{% return true %}', (string) $scriptCondition->getScript());
@@ -325,12 +341,14 @@ class AppLifecycleTest extends TestCase
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
 
         /** @var AppScriptConditionCollection $scriptCollection */
         $scriptCollection = $appEntity->getScriptConditions();
         static::assertCount(1, $scriptCollection);
+        /** @var AppScriptConditionEntity $appScriptConditionEntity */
         $appScriptConditionEntity = $scriptCollection->first();
         static::assertNotNull($appScriptConditionEntity);
         $identifier = $appScriptConditionEntity->getIdentifier();
@@ -493,6 +511,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
@@ -515,6 +534,7 @@ class AppLifecycleTest extends TestCase
         $this->assertAssetExists($appEntity->getName());
         $this->assertFlowActionExists($appEntity->getId());
         $this->assertDefaultHosts($appEntity);
+        $this->assertFlowEventExists($appEntity->getId());
     }
 
     public function testUpdateActiveApp(): void
@@ -654,6 +674,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
@@ -677,6 +698,7 @@ class AppLifecycleTest extends TestCase
         $this->assertAssetExists($appEntity->getName());
         $this->assertFlowActionExists($appEntity->getId());
         $this->assertDefaultHosts($appEntity);
+        $this->assertFlowEventExists($appEntity->getId());
     }
 
     public function testUpdateDoesRunRegistrationIfNecessary(): void
@@ -749,6 +771,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
 
         $this->assertDefaultActionButtons();
+        /** @var AppEntity $app1 */
         $app1 = $apps->first();
         static::assertNotNull($app1);
         $this->assertDefaultModules($app1);
@@ -761,6 +784,7 @@ class AppLifecycleTest extends TestCase
         $this->assertAssetExists($app1->getName());
         $this->assertFlowActionExists($app1->getId());
         $this->assertDefaultHosts($app1);
+        $this->assertFlowEventExists($app1->getId());
     }
 
     public function testUpdateSetsConfiguration(): void
@@ -806,6 +830,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertTrue($appEntity->isConfigurable());
@@ -892,6 +917,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertFalse($appEntity->isConfigurable());
@@ -939,6 +965,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEmpty($appEntity->getModules());
@@ -1085,18 +1112,19 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
+        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
 
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
         static::assertTrue($filesystem->fileExists('bundles/test/asset.txt'));
+        /** @var AppEntity $app */
+        $app = $apps->first();
 
-        $app = [
-            'id' => $apps->first()->getId(),
-            'roleId' => $apps->first()->getAclRoleId(),
-        ];
-
-        $this->appLifecycle->delete('test', $app, $this->context);
+        $this->appLifecycle->delete('test', [
+            'id' => $app->getId(),
+            'roleId' => $app->getAclRoleId(),
+        ], $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1113,18 +1141,17 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('withConfig', $appEntity->getName());
-        /** @var AppEntity $app */
-        $app = $appEntity;
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appLifecycle->delete('withConfig', ['id' => $app->getId()], $this->context);
+        $this->appLifecycle->delete('withConfig', ['id' => $appEntity->getId()], $this->context);
 
         static::assertEquals([], $systemConfigService->getDomain('withConfig.config'));
     }
@@ -1138,18 +1165,17 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('withConfig', $appEntity->getName());
-        /** @var AppEntity $app */
-        $app = $appEntity;
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appLifecycle->delete('withConfig', ['id' => $app->getId()], $this->context, true);
+        $this->appLifecycle->delete('withConfig', ['id' => $appEntity->getId()], $this->context, true);
 
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
@@ -1177,6 +1203,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
@@ -1198,16 +1225,19 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
+        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
 
         $aclRoleId = Uuid::randomHex();
-        $appPrivilege = 'app.' . $apps->first()->getName();
+        /** @var AppEntity $app */
+        $app = $apps->first();
+        $appPrivilege = 'app.' . $app->getName();
         $this->createAclRole($aclRoleId, [$appPrivilege]);
 
         $app = [
-            'id' => $apps->first()->getId(),
-            'roleId' => $apps->first()->getAclRoleId(),
+            'id' => $app->getId(),
+            'roleId' => $app->getAclRoleId(),
         ];
 
         $this->appLifecycle->delete('test', $app, $this->context);
@@ -1217,6 +1247,7 @@ class AppLifecycleTest extends TestCase
 
         /** @var EntityRepository $aclRoleRepository */
         $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
+        /** @var AclRoleEntity $aclRole */
         $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->first();
 
         static::assertNotContains($appPrivilege, $aclRole->getPrivileges());
@@ -1231,6 +1262,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
+        /** @var AppEntity $app */
         $app = $apps->first();
         static::assertNotNull($app);
         static::assertEquals('withAllowedHosts', $app->getName());
@@ -1246,6 +1278,7 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
+        /** @var AppEntity $app */
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
         $appFlowActions = $this->getAppFlowActions($app->getId());
@@ -1262,6 +1295,7 @@ class AppLifecycleTest extends TestCase
             $this->context
         );
 
+        /** @var AppEntity $newVersion */
         $newVersion = $this->appRepository->search(new Criteria(), $this->context)->first();
         static::assertEquals('1.1.0', $newVersion->getVersion());
 
@@ -1274,8 +1308,9 @@ class AppLifecycleTest extends TestCase
 
     public function testRefreshFlowActions(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
         $appId = $this->getAppId();
@@ -1284,7 +1319,32 @@ class AppLifecycleTest extends TestCase
         $flowActions = $this->getAppFlowActions($appId);
         static::assertIsArray($flowActions);
 
-        $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v2.xml');
+        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/Resources/flow-action-v2.xml');
+        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+
+        $newFlowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($newFlowActions);
+        static::assertCount(2, $newFlowActions);
+        foreach ($flowActions as $action) {
+            static::assertContains($action['id'], \array_column($newFlowActions, 'id'));
+        }
+    }
+
+    public function testRefreshFlowExtension(): void
+    {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($flowActions);
+
+        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
         $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
 
@@ -1298,8 +1358,9 @@ class AppLifecycleTest extends TestCase
 
     public function testRefreshFlowActionsWithAnotherAction(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
         $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
         $appId = $this->getAppId();
@@ -1308,7 +1369,32 @@ class AppLifecycleTest extends TestCase
         $flowActions = $this->getAppFlowActions($appId);
         static::assertIsArray($flowActions);
 
-        $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v3.xml');
+        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/Resources/flow-action-v3.xml');
+        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+
+        $newFlowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($newFlowActions);
+        static::assertCount(1, $newFlowActions);
+        foreach ($flowActions as $action) {
+            static::assertNotContains($action['id'], \array_column($newFlowActions, 'id'));
+        }
+    }
+
+    public function testRefreshFlowExtensionWithAnotherAction(): void
+    {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($flowActions);
+
+        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v3.xml');
         $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
 
@@ -1323,7 +1409,7 @@ class AppLifecycleTest extends TestCase
     public function testRefreshFlowActionUsedInFlowBuilder(): void
     {
         $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
         $appId = $this->getAppId();
@@ -1341,12 +1427,157 @@ class AppLifecycleTest extends TestCase
         $sequenceId = Uuid::randomHex();
         $this->createSequence($sequenceId, $flowId, $flowActions[0]['id']);
 
-        $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v2.xml');
+        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
         $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
 
         $appFlowActionId = $this->getAppFlowActionIdFromSequence($sequenceId);
         static::assertEquals($appFlowActionId, $flowActions[0]['id']);
+    }
+
+    public function testUpdateFlowEventApp(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        $appFlowEvents = $this->getAppFlowEvents($app->getId());
+        static::assertIsArray($appFlowEvents);
+        static::assertArrayHasKey(0, $appFlowEvents);
+
+        $newManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest1_1_0.xml');
+        $this->appLifecycle->update(
+            $newManifest,
+            [
+                'id' => $app->getId(),
+                'roleId' => $app->getAclRoleId(),
+            ],
+            $this->context
+        );
+
+        /** @var AppEntity $newVersion */
+        $newVersion = $this->appRepository->search(new Criteria(), $this->context)->first();
+        static::assertEquals('1.1.0', $newVersion->getVersion());
+
+        $newAppEvents = $this->getAppFlowEvents($app->getId());
+        static::assertIsArray($newAppEvents);
+        static::assertArrayHasKey(0, $newAppEvents);
+
+        static::assertEquals($appFlowEvents[0], $newAppEvents[0]);
+    }
+
+    public function testRefreshFlowEvents(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($flowEvents);
+
+        $flowEvent = Event::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
+        $flowEventPersister = $this->getContainer()->get(FlowEventPersister::class);
+        $flowEventPersister->updateEvents($flowEvent, $appId, $context, 'en-GB');
+
+        $newFlowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($newFlowEvents);
+        static::assertCount(2, $newFlowEvents);
+        foreach ($flowEvents as $event) {
+            static::assertTrue(\in_array($event['id'], array_column($newFlowEvents, 'id'), true));
+        }
+    }
+
+    public function testRefreshFlowEventsWithAnotherEvent(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($flowEvents);
+
+        $flowEvent = Event::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v3.xml');
+        $flowEventPersister = $this->getContainer()->get(FlowEventPersister::class);
+        $flowEventPersister->updateEvents($flowEvent, $appId, $context, 'en-GB');
+
+        $newFlowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($newFlowEvents);
+        static::assertCount(1, $newFlowEvents);
+        foreach ($flowEvents as $event) {
+            static::assertTrue(\in_array($event['id'], array_column($newFlowEvents, 'id'), true));
+        }
+    }
+
+    public function testRefreshFlowEventUsedInFlowBuilder(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($flowEvents);
+        static::assertArrayHasKey(0, $flowEvents);
+        static::assertIsArray($flowEvents[0]);
+        static::assertArrayHasKey('id', $flowEvents[0]);
+
+        $flowId = Uuid::randomHex();
+        $this->createFlow($flowId, 'checkout.order.place.custom', $flowEvents[0]['id']);
+
+        $sequenceId = Uuid::randomHex();
+        $this->createSequence($sequenceId, $flowId);
+
+        $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
+        static::assertNotNull($flow);
+
+        $flowEvent = Event::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
+        $flowEventPersister = $this->getContainer()->get(FlowEventPersister::class);
+        $flowEventPersister->updateEvents($flowEvent, $appId, $context, 'en-GB');
+
+        $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
+        static::assertNotNull($flow);
+    }
+
+    public function testUninstallFlowEventUsedInFlowBuilder(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $appId = $this->getAppId();
+        static::assertIsString($appId);
+
+        $flowEvents = $this->getAppFlowEvents($appId);
+        static::assertIsArray($flowEvents);
+        static::assertArrayHasKey(0, $flowEvents);
+        static::assertIsArray($flowEvents[0]);
+        static::assertArrayHasKey('id', $flowEvents[0]);
+
+        $flowId = Uuid::randomHex();
+        $this->createFlow($flowId, 'checkout.order.place.custom', $flowEvents[0]['id']);
+
+        $sequenceId = Uuid::randomHex();
+        $this->createSequence($sequenceId, $flowId);
+
+        $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
+        static::assertNotNull($flow);
+
+        $app = [
+            'id' => $appId,
+        ];
+
+        $this->appLifecycle->delete('test', $app, $this->context);
+
+        $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
+        static::assertNull($flow);
     }
 
     private function getAppFlowActionIdFromSequence(string $sequenceId): ?string
@@ -1360,24 +1591,36 @@ class AppLifecycleTest extends TestCase
         return $query->executeQuery()->fetchOne() ?: null;
     }
 
-    private function createFlow(string $flowId): void
+    private function getAppFlowEventFromFlow(string $appFlowEventId): ?string
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('event_name');
+        $query->from('flow');
+        $query->where('app_flow_event_id = :appFlowEventId');
+        $query->setParameter('appFlowEventId', Uuid::fromHexToBytes($appFlowEventId));
+
+        return $query->executeQuery()->fetchOne() ?: null;
+    }
+
+    private function createFlow(string $flowId, string $eventName = 'checkout.order.placed', ?string $appEventId = null): void
     {
         $this->connection->insert('flow', [
             'id' => Uuid::fromHexToBytes($flowId),
+            'app_flow_event_id' => $appEventId ? Uuid::fromHexToBytes($appEventId) : null,
             'name' => 'Test Flow',
-            'event_name' => 'checkout.order.placed',
+            'event_name' => $eventName,
             'priority' => 1,
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 
-    private function createSequence(string $sequenceId, string $flowId, string $appFlowActionId): void
+    private function createSequence(string $sequenceId, string $flowId, ?string $appFlowActionId = null): void
     {
         $this->connection->insert('flow_sequence', [
             'id' => Uuid::fromHexToBytes($sequenceId),
             'flow_id' => Uuid::fromHexToBytes($flowId),
-            'app_flow_action_id' => Uuid::fromHexToBytes($appFlowActionId),
+            'app_flow_action_id' => $appFlowActionId ? Uuid::fromHexToBytes($appFlowActionId) : null,
             'action_name' => 'app.telegram.send.message',
             'position' => 1,
             'display_group' => 1,
@@ -1496,6 +1739,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $customFieldSets);
 
+        /** @var CustomFieldSetEntity $customFieldSet */
         $customFieldSet = $customFieldSets->first();
         static::assertNotNull($customFieldSet);
         static::assertEquals('custom_field_test', $customFieldSet->getName());
@@ -1732,7 +1976,10 @@ class AppLifecycleTest extends TestCase
 
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        return $localeRepository->search($criteria, Context::createDefaultContext())->first()->getId();
+        /** @var LocaleEntity $locale */
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+
+        return $locale->getId();
     }
 
     private function createUser(string $userId): void
@@ -2013,5 +2260,41 @@ class AppLifecycleTest extends TestCase
             'tax-provider.app',
             'tax-provider-2.app',
         ], $app->getAllowedHosts());
+    }
+
+    /**
+     * @return array<int, mixed>|null
+     */
+    private function getAppFlowEvents(string $appId): ?array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('lower(hex(id)) AS id');
+        $query->from('app_flow_event');
+        $query->where('app_id = :appId');
+        $query->setParameter('appId', Uuid::fromHexToBytes($appId));
+
+        return $query->executeQuery()->fetchAllAssociative() ?: null;
+    }
+
+    private function assertFlowEventExists(string $appId): void
+    {
+        $appFlowEvent = $this->getContainer()
+            ->get(Connection::class)
+            ->executeQuery('SELECT * FROM `app_flow_event` WHERE `app_id` = :id', [
+                'id' => Uuid::fromHexToBytes($appId),
+            ])->fetchAssociative();
+
+        static::assertIsArray($appFlowEvent);
+        static::assertEquals($appFlowEvent['name'], 'checkout.order.place.custom');
+
+        $aware = json_decode($appFlowEvent['aware'], true);
+        static::assertNotNull($aware);
+        static::assertEquals(
+            [
+                'orderAware',
+                'customerAware',
+            ],
+            $aware
+        );
     }
 }

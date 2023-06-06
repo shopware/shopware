@@ -92,6 +92,7 @@
     "/_action/system-config/batch",
     "/_action/system-config/check",
     "/_action/system-config/schema",
+    "/_action/trigger-event/{eventName}",
     "/_action/update/check",
     "/_action/update/check-requirements",
     "/_action/update/deactivate-plugins",

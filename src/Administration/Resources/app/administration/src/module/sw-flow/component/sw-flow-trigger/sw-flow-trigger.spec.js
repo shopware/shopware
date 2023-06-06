@@ -114,6 +114,7 @@ async function createWrapper(propsData) {
             'sw-flow-event-change-confirm-modal': {
                 template: '<div class="sw-flow-event-change-confirm-modal"></div>',
             },
+            'sw-tree-input-field': true,
         },
         provide: {
             businessEventService: {
@@ -139,6 +140,12 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             };
         });
 
+        Shopware.Service().register('businessEventService', () => {
+            return {
+                getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+            };
+        });
+
         Shopware.State.registerModule('swFlowState', flowState);
     });
 
@@ -155,6 +162,26 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         expect(eventTree.exists()).toBeTruthy();
     });
 
+    it('should display event tree with event get from flow state', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvents', mockBusinessEvents);
+
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isUnknownTrigger: true,
+        });
+
+        let eventTree = wrapper.find('.sw-tree');
+        expect(eventTree.exists()).toBeFalsy();
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        expect(searchField.attributes().placeholder).toBe('sw-flow.detail.trigger.unknownTriggerPlaceholder');
+        await searchField.trigger('focus');
+
+        eventTree = wrapper.find('.sw-tree');
+        expect(eventTree.exists()).toBeTruthy();
+        Shopware.State.commit('swFlowState/setTriggerEvents', []);
+    });
+
     it('should show event name with correct format', async () => {
         const wrapper = await createWrapper({
             eventName: 'mail.before.send',
@@ -162,6 +189,15 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         const searchField = wrapper.find('.sw-flow-trigger__input-field');
         expect(searchField.element.value).toBe('Mail / Before / Send');
+    });
+
+    it('should show event name from custom event snippet with correct format', async () => {
+        const wrapper = await createWrapper({
+            eventName: 'swag.open.the_doors',
+        });
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        expect(searchField.element.value).toBe('swag / open / the doors');
     });
 
     it('should get event tree data correctly', async () => {
@@ -614,5 +650,98 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         expect(wrapper.vm.getEventNameTranslated('send')).toBe('Send');
         expect(wrapper.vm.getEventNameTranslated('test_event_name')).toBe('test event name');
+    });
+
+    it('should get event tree data correctly with custom event', async () => {
+        const wrapper = await createWrapper(null);
+
+        mockBusinessEvents.push({
+            name: 'swag.before.open.the_doors',
+            mailAware: true,
+            aware: ['Shopware\\Core\\Framework\\Event\\CustomEventAware'],
+        });
+
+        expect(wrapper.vm.eventTree).toEqual([
+            {
+                childCount: 1,
+                id: 'checkout',
+                name: 'Checkout',
+                parentId: null,
+                disabled: false,
+                disabledToolTipText: null,
+            },
+            {
+                childCount: 3,
+                id: 'checkout.customer',
+                name: 'Customer',
+                parentId: 'checkout',
+                disabled: false,
+                disabledToolTipText: null,
+            },
+            {
+                childCount: 1,
+                id: 'checkout.customer.before',
+                name: 'Before',
+                parentId: 'checkout.customer',
+                disabled: false,
+                disabledToolTipText: null,
+            },
+            {
+                childCount: 0,
+                id: 'checkout.customer.before.login',
+                name: 'Login',
+                parentId: 'checkout.customer.before',
+                disabled: false,
+                disabledToolTipText: null,
+            },
+            {
+                childCount: 0,
+                id: 'checkout.customer.changed-payment-method',
+                name: 'Changed payment method',
+                parentId: 'checkout.customer',
+                disabled: false,
+                disabledToolTipText: null,
+            },
+            {
+                childCount: 0,
+                id: 'checkout.customer.deleted',
+                name: 'Deleted',
+                parentId: 'checkout.customer',
+                disabled: false,
+                disabledToolTipText: null,
+            },
+            {
+                childCount: 1,
+                disabled: false,
+                disabledToolTipText: null,
+                id: 'swag',
+                name: 'swag',
+                parentId: null,
+            },
+            {
+                childCount: 1,
+                disabled: false,
+                disabledToolTipText: null,
+                id: 'swag.before',
+                name: 'Before',
+                parentId: 'swag',
+            },
+            {
+                childCount: 1,
+                disabled: false,
+                disabledToolTipText: null,
+                id: 'swag.before.open',
+                name: 'open',
+                parentId: 'swag.before',
+            },
+            {
+                childCount: 0,
+                disabled: false,
+                disabledToolTipText: null,
+                id: 'swag.before.open.the_doors',
+                name: 'the doors',
+                parentId: 'swag.before.open',
+            },
+        ]);
     });
 });

@@ -162,10 +162,26 @@ class TaxProviderPersisterTest extends TestCase
 
         $taxConstructor->invoke($tax, $providers);
 
-        $metaData = $this->createMock(Metadata::class);
-        $metaData
-            ->method('getName')
-            ->willReturn(self::META_APP_NAME);
+        $domDocument = new \DOMDocument();
+        $domElement = $domDocument->createElement('root');
+
+        $childElementLabel = $domDocument->createElement('label', 'label value');
+        $childElementName = $domDocument->createElement('name', self::META_APP_NAME);
+        $childElementUrl = $domDocument->createElement('url', 'url value');
+        $childElementAuthor = $domDocument->createElement('author', 'author value');
+        $childElementCopyright = $domDocument->createElement('copyright', 'copyright value');
+        $childElementLicense = $domDocument->createElement('license', 'license value');
+        $childElementVersion = $domDocument->createElement('version', 'version value');
+
+        $domElement->appendChild($childElementLabel);
+        $domElement->appendChild($childElementName);
+        $domElement->appendChild($childElementUrl);
+        $domElement->appendChild($childElementAuthor);
+        $domElement->appendChild($childElementCopyright);
+        $domElement->appendChild($childElementLicense);
+        $domElement->appendChild($childElementVersion);
+
+        $metaData = Metadata::fromXml($domElement);
 
         $manifestConstructor->invoke(
             $manifest,

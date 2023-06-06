@@ -94,4 +94,78 @@ class AppLoaderTest extends TestCase
         static::expectException(AppException::class);
         $appLoader->deleteApp('test');
     }
+
+    public function testGetFlowActions(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader(),
+            new CustomEntityXmlSchemaValidator()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('../_fixtures/');
+
+        $flowActions = $appLoader->getFlowActions($appEntity);
+        static::assertNotNull($flowActions);
+        static::assertNotNull($flowActions->getActions());
+    }
+
+    public function testGetFlowActionsWithFileNotExist(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader(),
+            new CustomEntityXmlSchemaValidator()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('../_fixtures/flow/');
+
+        $flowActions = $appLoader->getFlowActions($appEntity);
+        static::assertNull($flowActions);
+    }
+
+    public function testGetFlowEvents(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader(),
+            new CustomEntityXmlSchemaValidator()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('../_fixtures/');
+
+        $expected = [
+            'name' => 'swag.before.open_the_doors',
+            'aware' => ['customerAware'],
+        ];
+
+        $events = $appLoader->getFlowEvents($appEntity);
+        static::assertNotNull($events);
+        static::assertNotNull($events->getCustomEvents());
+        $customEvents = $events->getCustomEvents();
+        $events = $customEvents->getCustomEvents();
+        static::assertEquals($expected, $events[0]->toArray('en-GB'));
+    }
+
+    public function testGetFlowEventsWithFileNotExist(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader(),
+            new CustomEntityXmlSchemaValidator()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('../_fixtures/flow/');
+
+        $events = $appLoader->getFlowEvents($appEntity);
+        static::assertNull($events);
+    }
 }

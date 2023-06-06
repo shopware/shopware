@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionD
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -127,6 +128,7 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('scriptConditions', AppScriptConditionDefinition::class, 'app_id'))->addFlags(new CascadeDelete())->removeFlag(ApiAware::class),
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('flowEvents', AppFlowEventDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

@@ -10,6 +10,14 @@
         transition: max-width 0.3s ease-in-out;
     }
 
+    &__warning-unknow-trigger {
+        p {
+            &:nth-child(2) {
+                margin-top: 20px;
+            }
+        }
+    }
+
     &__warning-box.sw-alert {
         margin-bottom: 40px;
     }

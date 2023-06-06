@@ -67,6 +67,24 @@ function getSequencesCollection(collection = []) {
     );
 }
 
+const mockBusinessEvents = [
+    {
+        name: 'checkout.customer.before.login',
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+    {
+        name: 'checkout.customer.changed-payment-method',
+        mailAware: false,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+    {
+        name: 'checkout.customer.deleted',
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+];
+
 async function createWrapper(
     privileges = [],
     query = {},
@@ -194,7 +212,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                 },
                 invalidSequences: [],
                 appActions: [],
+                triggerEvents: [],
             },
+        });
+
+        Shopware.Service().register('businessEventService', () => {
+            return {
+                getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+            };
         });
     });
 

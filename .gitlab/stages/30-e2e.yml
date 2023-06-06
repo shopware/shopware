@@ -198,8 +198,7 @@ E2E install NL scenarios:
   stage: E2E
   script:
     - *e2e-install-nl-base
-    - composer run e2e:cypress-repeat -- run
-      -n 3
+    - composer run e2e:cypress -- run
       --browser chrome
       --spec "cypress/e2e/scenarios/**/*.cy.js"
       --headless

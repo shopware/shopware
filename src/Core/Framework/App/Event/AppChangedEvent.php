@@ -34,7 +34,7 @@ abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
         return $this->context;
     }
 
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [];
     }

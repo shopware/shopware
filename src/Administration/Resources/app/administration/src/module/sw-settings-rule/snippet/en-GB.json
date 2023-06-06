@@ -37,6 +37,8 @@
       }
     },
     "list": {
+      "columnTaxProviders": "Tax Provider assignments",
+      "columnWarehouseGroup": "Warehouse group assignments",
       "textHeadline": "Rule builder",
       "buttonAddRule": "Create rule",
       "columnName": "Rule",
@@ -63,6 +65,8 @@
       "invalid": "Invalid",
       "messageEmpty": "No rules yet",
       "assignments": {
+        "taxProviders": "Tax Provider | Tax Providers",
+        "warehouseGroup": "Warehouse group | Warehouse groups",
         "cartPromotions": "promotion cart rule | promotion cart rules",
         "orderPromotions": "promotion order rule | promotion order rules",
         "personaPromotions": "promotion customer rule | promotion customer rules",

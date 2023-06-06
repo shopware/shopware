@@ -37,6 +37,8 @@
       }
     },
     "list": {
+      "columnTaxProviders": "Steueranbieter-Zuweisungen",
+      "columnWarehouseGroup": "Lagergruppen-Zuweisungen",
       "textHeadline": "Rule Builder",
       "buttonAddRule": "Regel erstellen",
       "columnName": "Regel",
@@ -63,6 +65,8 @@
       "invalid": "Ungütig",
       "messageEmpty": "Noch keine Regeln",
       "assignments": {
+        "taxProviders": "Steueranbieter",
+        "warehouseGroup": "Lagergruppe | Lagergruppen",
         "cartPromotions": "Rabattaktion-Warenkorbregel | Rabattaktion-Warenkorbregeln",
         "orderPromotions": "Rabattaktion-Bestellungsregel | Rabattaktion-Bestellungsregeln",
         "personaPromotions": "Rabattaktion-Kundenregel | Rabattaktion-Kundenregeln",

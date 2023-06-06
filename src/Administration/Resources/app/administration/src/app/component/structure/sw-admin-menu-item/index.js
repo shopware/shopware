@@ -112,8 +112,10 @@ Component.register('sw-admin-menu-item', {
 
     methods: {
         hasAccessToRoute(path) {
-            const route = path.replace(/\./g, '/');
-            const match = this.$router.match(route);
+            const route = `/${path.replace(/\./g, '/')}`;
+            const match = this.$router.resolve({
+                path: route,
+            });
 
             if (!match.meta) {
                 return true;

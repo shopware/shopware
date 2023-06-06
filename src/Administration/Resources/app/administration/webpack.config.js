@@ -559,7 +559,7 @@ const coreConfig = {
         return {
             resolve: {
                 alias: {
-                    vue$: 'vue/dist/vue.esm.js',
+                    vue$: '@vue/compat/dist/vue.esm-bundler.js',
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },
@@ -604,7 +604,8 @@ const coreConfig = {
         }),
 
         ...(() => {
-            if (isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            // TODO: NEXT-18182 remove true condition
+            if (true || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 

@@ -12,6 +12,15 @@ import type {
     ThisTypedComponentOptionsWithArrayProps,
 // eslint-disable-next-line import/no-unresolved
 } from 'vue/types/options';
+import { defineComponent } from 'vue';
+
+/**
+ * This method is just for adding TypeScript support to component configuration and provides a this context.
+ *
+ * Function overload to support all vue component object variations.
+ */
+const wrapComponentConfig = defineComponent;
+
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -137,20 +146,6 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
 
     return true;
 }
-
-/* eslint-disable max-len */
-/**
- * This method is just for adding TypeScript support to component configuration and provides a this context.
- *
- * Function overload to support all vue component object variations.
- */
-// @ts-expect-error
-function wrapComponentConfig<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): ComponentConfig;
-function wrapComponentConfig<V extends Vue, Data, Methods, Computed, Props>(componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): ComponentConfig;
-function wrapComponentConfig(componentConfiguration: ComponentConfig<Vue>): ComponentConfig {
-    return componentConfiguration;
-}
-/* eslint-enable max-len */
 
 /**
  * Register a new component.
@@ -578,7 +573,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
      */
     ['computed', 'methods'].forEach((methodOrComputed) => {
         // @ts-expect-error
-        const ConfigMethodOrComputed = config[methodOrComputed] as typeof config['computed'] | typeof config['methods'];
+        const ConfigMethodOrComputed = config[methodOrComputed];
 
         if (!ConfigMethodOrComputed) {
             return;

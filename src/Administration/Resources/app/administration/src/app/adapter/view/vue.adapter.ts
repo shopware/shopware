@@ -3,12 +3,11 @@
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
 
-import Vue from 'vue';
+import Vue, { createApp, defineAsyncComponent, h } from 'vue';
 import type { AsyncComponent, Component as VueComponent, PluginObject } from 'vue';
-import VueRouter from 'vue-router';
-import type { FallbackLocale } from 'vue-i18n';
-import VueI18n from 'vue-i18n';
-import VueMeta from 'vue-meta';
+import type Router from 'vue-router';
+import type { FallbackLocale, I18n } from 'vue-i18n';
+import { createI18n } from 'vue-i18n';
 import VuePlugins from 'src/app/plugin';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
@@ -28,22 +27,24 @@ export default class VueAdapter extends ViewAdapter {
         [componentName: string]: VueComponent<any, any, any, any> | AsyncComponent<any, any, any, any>
     };
 
-    private i18n?: VueI18n;
+    private i18n?: I18n;
+
+    private app: Vue;
 
     constructor(Application: ApplicationBootstrapper) {
         super(Application);
 
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
-
         this.vueComponents = {};
+        this.app = createApp({ template: '<sw-admin />' });
     }
 
     /**
      * Creates the main instance for the view layer.
      * Is used on startup process of the main application.
      */
-    init(renderElement: string, router: VueRouter, providers: { [key: string]: unknown }): Vue {
+    init(renderElement: string, router: Router, providers: { [key: string]: unknown }): Vue {
         this.initPlugins();
         this.initDirectives();
         this.initFilters();
@@ -51,32 +52,40 @@ export default class VueAdapter extends ViewAdapter {
 
         const store = State._store;
         const i18n = this.initLocales(store);
-        const components = this.getComponents();
 
         // add router to View
         this.router = router;
         // add i18n to View
         this.i18n = i18n;
 
-        // Enable performance measurements in development mode
-        Vue.config.performance = process.env.NODE_ENV !== 'production';
+        this.app.config.compilerOptions.whitespace = 'preserve';
+        this.app.config.performance = process.env.NODE_ENV !== 'production';
+        this.app.config.globalProperties.$t = i18n.global.t;
+        this.app.config.globalProperties.$tc = i18n.global.tc;
 
-        this.root = new Vue({
-            el: renderElement,
-            template: '<sw-admin />',
-            router,
-            store,
-            i18n,
-            provide() {
-                return providers;
-            },
-            components,
-            data() {
-                return {
-                    initError: {},
-                };
-            },
+        /**
+         * This is a hack for providing the services to the components.
+         * We shouldn't use this anymore because it is not supported well
+         * in Vue3 (because the services are lazy loaded).
+         *
+         * So we should convert from provide/inject to Shopware.Service
+         */
+        Object.keys(providers).forEach((provideKey) => {
+            Object.defineProperty(this.app._context.provides, provideKey, {
+                get: () => providers[provideKey],
+                enumerable: true,
+                configurable: true,
+                set() { },
+            });
         });
+
+        this.root = this.app;
+
+        this.app.use(router);
+        this.app.use(store);
+        this.app.use(i18n);
+
+        this.app.mount(renderElement);
 
         if (process.env.NODE_ENV === 'development') {
             setupShopwareDevtools(this.root);
@@ -202,13 +211,14 @@ export default class VueAdapter extends ViewAdapter {
             if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
                 const resolvedComponent = this.componentResolver(componentName);
 
-                if (resolvedComponent === undefined || resolvedComponent.component === undefined) {
+                if (resolvedComponent === undefined) {
                     return;
                 }
 
-                void resolvedComponent.component.then((component) => {
-                    // @ts-expect-error - resolved config does not match completely a standard vue component
-                    const vueComponent = Vue.component(componentName, component);
+                void resolvedComponent.then((component) => {
+                    this.app.component(componentName, component);
+                    const vueComponent = this.app.component(componentName);
+
 
                     this.vueComponents[componentName] = vueComponent;
                     resolve(vueComponent as unknown as Vue);
@@ -218,7 +228,24 @@ export default class VueAdapter extends ViewAdapter {
             }
 
             // load async components
-            const vueComponent = Vue.component(componentName, () => this.componentResolver(componentName));
+            this.app.component(componentName, defineAsyncComponent({
+                // the loader function
+                loader: () => this.componentResolver(componentName),
+                // Delay before showing the loading component. Default: 200ms.
+                delay: 0,
+                loadingComponent: {
+                    name: 'async-loading-component',
+                    inheritAttrs: false,
+                    render() {
+                        return h('div', {
+                            style: { display: 'none' },
+                        });
+                    },
+                },
+            }));
+
+            const vueComponent = this.app.component(componentName);
+
             this.vueComponents[componentName] = vueComponent;
 
             resolve(vueComponent as unknown as Vue);
@@ -227,25 +254,13 @@ export default class VueAdapter extends ViewAdapter {
 
     componentResolver(componentName: string) {
         if (!this.resolvedComponentConfigs.has(componentName)) {
-            this.resolvedComponentConfigs.set(componentName, {
-                component: new Promise((resolve) => {
-                    void Component.build(componentName).then((componentConfig) => {
-                        // @ts-expect-error - component config is not fully compatible with vue component
-                        this.resolveMixins(componentConfig);
+            this.resolvedComponentConfigs.set(componentName, new Promise((resolve) => {
+                Component.build(componentName).then((componentConfig) => {
+                    this.resolveMixins(componentConfig);
 
-                        resolve(componentConfig);
-                    });
-                }),
-                loading: {
-                    functional: true,
-                    render(e) {
-                        return e('div', {
-                            style: { display: 'none' },
-                        });
-                    },
-                },
-                delay: 0,
-            });
+                    resolve(componentConfig);
+                });
+            }));
         }
 
         return this.resolvedComponentConfigs.get(componentName);
@@ -278,6 +293,14 @@ export default class VueAdapter extends ViewAdapter {
         }
 
         return this.vueComponents[componentName] as Vue;
+    }
+
+    /**
+     * Returns a final Vue component by its name without defineAsyncComponent
+     * which cannot be used in the router.
+     */
+    getComponentForRoute(componentName) {
+        return () => this.componentResolver(componentName);
     }
 
     /**
@@ -326,8 +349,6 @@ export default class VueAdapter extends ViewAdapter {
      * @private
      */
     initPlugins() {
-        // Add the community plugins to the plugin list
-        VuePlugins.push(VueRouter, VueI18n, VueMeta);
         VuePlugins.forEach((plugin) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (plugin?.install?.installed) {
@@ -335,7 +356,7 @@ export default class VueAdapter extends ViewAdapter {
             }
 
             // VueI18n.install.installed
-            Vue.use(plugin as PluginObject<unknown>);
+            this.app.use(plugin as PluginObject<unknown>);
         });
 
         return true;
@@ -388,7 +409,7 @@ export default class VueAdapter extends ViewAdapter {
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
         void store.dispatch('setAdminLocale', lastKnownLocale);
 
-        const i18n = new VueI18n({
+        const i18n = createI18n({
             locale: lastKnownLocale,
             fallbackLocale,
             silentFallbackWarn: true,

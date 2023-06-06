@@ -73,7 +73,8 @@ function enableAdminWorker(
             },
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
-            transports: config?.transports || [],
+            // Quick fix to lose the reference to the config object, this was causing issues with the worker
+            transports: JSON.parse(JSON.stringify(config))?.transports || [],
         };
     };
 

@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import VueRouter from 'vue-router';
+import * as VueRouter from 'vue-router';
 import coreRoutes from 'src/app/route';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

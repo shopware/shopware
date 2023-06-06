@@ -104,8 +104,6 @@ class DownloadRouteTest extends TestCase
         $request->request->set('downloadId', 'foo');
         $request->request->set('orderId', 'bar');
 
-        $response = $this->downloadRoute->load($request, $this->salesChannelContext);
-
-        static::assertInstanceOf(Response::class, $response);
+        $this->downloadRoute->load($request, $this->salesChannelContext);
     }
 }

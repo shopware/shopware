@@ -184,7 +184,8 @@ EOF;
         static::assertArrayHasKey('data', $responseData);
         static::assertCount(1, $responseData['data'], sprintf('Expected country %s has only one state', $id));
 
-        static::assertArrayHasKey('data', $responseData);
+        static::assertArrayHasKey('meta', $responseData);
+        static::assertArrayHasKey('total', $responseData['meta']);
         static::assertEquals(1, $responseData['meta']['total']);
 
         static::assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
@@ -627,7 +628,7 @@ EOF;
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame((ApiException::deleteLiveVersion())->getErrorCode(), $content['errors'][0]['code']);
+        static::assertSame(ApiException::deleteLiveVersion()->getErrorCode(), $content['errors'][0]['code']);
     }
 
     public function testDeleteWithoutPermission(): void

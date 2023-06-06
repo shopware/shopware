@@ -7,7 +7,6 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -83,7 +82,7 @@ class CategoryRoute extends AbstractCategoryRoute
         );
 
         if (!$pages->has($pageId)) {
-            throw new PageNotFoundException($pageId);
+            throw CategoryException::pageNotFound($pageId);
         }
 
         /** @var CmsPageEntity $page */

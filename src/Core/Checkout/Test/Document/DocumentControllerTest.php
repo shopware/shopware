@@ -544,9 +544,10 @@ class DocumentControllerTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
-        return $order->first();
+        return $order;
     }
 
     /**

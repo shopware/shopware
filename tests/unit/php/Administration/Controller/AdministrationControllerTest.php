@@ -26,7 +26,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -67,7 +66,6 @@ class AdministrationControllerTest extends TestCase
         $request = new Request([], ['email' => 'random@email.com']);
 
         $response = $this->administrationController->checkCustomerEmailValid($request, $this->context);
-        static::assertInstanceOf(JsonResponse::class, $response);
         static::assertIsString($response->getContent());
         static::assertEquals(
             ['isValid' => true],
@@ -107,7 +105,6 @@ class AdministrationControllerTest extends TestCase
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => Uuid::randomHex()]);
 
         $response = $this->administrationController->checkCustomerEmailValid($request, $this->context);
-        static::assertInstanceOf(JsonResponse::class, $response);
         static::assertIsString($response->getContent());
         static::assertEquals(
             ['isValid' => true],

@@ -125,7 +125,6 @@ class GuestWishlistPageletTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        static::assertInstanceOf(ProductListResponse::class, $page->getSearchResult());
         $phpunit->assertEquals(3, $page->getSearchResult()->getProducts()->count());
         static::assertTrue($eventDidRun);
     }
@@ -182,7 +181,6 @@ class GuestWishlistPageletTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        static::assertInstanceOf(ProductListResponse::class, $page->getSearchResult());
         static::assertEquals(0, $page->getSearchResult()->getProducts()->count());
     }
 

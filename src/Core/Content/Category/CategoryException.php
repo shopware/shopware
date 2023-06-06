@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -14,6 +15,11 @@ class CategoryException extends HttpException
     public const SERVICE_CATEGORY_NOT_FOUND = 'CHECKOUT__SERVICE_CATEGORY_NOT_FOUND';
 
     public const FOOTER_CATEGORY_NOT_FOUND = 'CHECKOUT__FOOTER_CATEGORY_NOT_FOUND';
+
+    public static function pageNotFound(string $pageId): ShopwareHttpException
+    {
+        return new PageNotFoundException($pageId);
+    }
 
     public static function categoryNotFound(string $id): ShopwareHttpException
     {

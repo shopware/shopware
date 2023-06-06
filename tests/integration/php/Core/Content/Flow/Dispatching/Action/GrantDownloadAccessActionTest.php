@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
@@ -328,8 +327,6 @@ class GrantDownloadAccessActionTest extends TestCase
     private function assertDispatchedFlowEvent(array $productDownloads, ?FlowSendMailActionEvent $flowEvent): void
     {
         static::assertInstanceOf(FlowSendMailActionEvent::class, $flowEvent);
-
-        static::assertInstanceOf(StorableFlow::class, $flowEvent->getStorableFlow());
         $order = $flowEvent->getStorableFlow()->getData(OrderAware::ORDER);
 
         static::assertInstanceOf(OrderEntity::class, $order);

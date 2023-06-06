@@ -311,7 +311,6 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertIsString($salesChannel['id']);
         // assert customer is updated in database
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
     }
@@ -349,7 +348,6 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('permissions', $payload);
         static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
     }

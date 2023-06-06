@@ -158,6 +158,6 @@ export default class FilterService {
         const router = Shopware.Application.view.router;
         const route = router?.currentRoute;
 
-        return route?.query[storeKey];
+        return route?.value?.query[storeKey];
     }
 }

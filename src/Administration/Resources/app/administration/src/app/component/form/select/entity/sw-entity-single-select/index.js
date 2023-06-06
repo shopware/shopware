@@ -112,7 +112,7 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-single-select.labelEntity');
+                return Shopware.Snippet.tc('global.sw-single-select.labelEntity');
             },
         },
         advancedSelectionComponent: {

@@ -104,7 +104,6 @@ class DownloadRouteTest extends TestCase
         $request->request->set('downloadId', 'foo');
         $request->request->set('orderId', 'bar');
 
-        $response = $this->downloadRoute->load($request, $this->salesChannelContext);
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->downloadRoute->load($request, $this->salesChannelContext);
     }
 }

@@ -634,7 +634,7 @@ const coreConfig = {
         return {
             resolve: {
                 alias: {
-                    vue$: vueAlias,
+                    vue$: '@vue/compat/dist/vue.esm-bundler.js',
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },
@@ -679,8 +679,8 @@ const coreConfig = {
         }),
 
         ...(() => {
-            // TODO: NEXT-18182 remove featureFlag condition
-            if (featureFlags.VUE3 || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            // TODO: NEXT-18182 remove true condition
+            if (true || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 

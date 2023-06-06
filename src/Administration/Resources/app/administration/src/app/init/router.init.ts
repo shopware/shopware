@@ -2,12 +2,7 @@
  * @package admin
  */
 
-// Vue3 imports
-import * as VueRouter3 from 'vue-router_v3';
-
-// Vue2 imports
-import VueRouter from 'vue-router';
-
+import * as VueRouter from 'vue-router';
 import coreRoutes from 'src/app/route';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

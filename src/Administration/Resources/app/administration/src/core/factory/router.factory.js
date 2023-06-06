@@ -51,18 +51,10 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const mergedRoutes = registerModuleRoutesAsChildren(viewAllRoutes, viewModuleRoutes);
 
         // assign to view router options
-        const options = { ...opts, routes: mergedRoutes };
+        const options = { ...opts, routes: mergedRoutes, history: Router.createWebHashHistory() };
 
         // create router
-        let router;
-        if (vue3) {
-            options.history = Router.createWebHashHistory();
-            router = Router.createRouter(options);
-            addGlobalNavigationGuard(router);
-        } else {
-            router = new Router(options);
-            beforeRouterInterceptor(router);
-        }
+        const router = Router.createRouter(options);
 
         instance = router;
 
@@ -462,11 +454,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Vue|null} - View component or null
      */
     function getViewComponent(componentName) {
-        if (vue3) {
-            return Shopware.Application.view.getComponentForRoute(componentName);
-        }
-
-        return Shopware.Application.view.getComponent(componentName);
+        return Shopware.Application.view.getComponentForRoute(componentName);
     }
 
     function getAssetPath() {

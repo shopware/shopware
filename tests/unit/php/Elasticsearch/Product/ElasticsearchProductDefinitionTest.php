@@ -37,9 +37,14 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testMapping(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())
+            ->method('fetchAllKeyValue')
+            ->willReturn(['test' => CustomFieldTypes::INT]);
+
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(Connection::class),
+            $connection,
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class)
@@ -239,6 +244,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'type' => 'object',
                     'dynamic' => true,
                     'properties' => [
+                        'test' => [
+                            'type' => 'long',
+                        ],
                     ],
                 ],
                 'customSearchKeywords' => self::SEARCHABLE_MAPPING,
@@ -279,9 +287,14 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testMappingCustomFields(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())
+            ->method('fetchAllKeyValue')
+            ->willReturn(['test' => CustomFieldTypes::INT]);
+
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(Connection::class),
+            $connection,
             [
                 'test1' => 'text',
                 'test2' => 'unknown',
@@ -293,6 +306,14 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $mapping = $definition->getMapping(Context::createDefaultContext());
 
         $customFields = $mapping['properties']['customFields'];
+
+        static::assertArrayHasKey('test', $customFields['properties']);
+        static::assertSame(
+            [
+                'type' => 'long',
+            ],
+            $customFields['properties']['test']
+        );
 
         static::assertArrayHasKey('test1', $customFields['properties']);
         static::assertSame(

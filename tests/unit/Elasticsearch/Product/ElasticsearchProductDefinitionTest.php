@@ -55,43 +55,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
-        $languageLoader = new StaticLanguageLoader([
-            'lang_en' => [
-                'id' => 'lang_en',
-                'parentId' => 'parentId',
-                'code' => 'en-GB',
-            ],
-            'lang_de' => [
-                'id' => 'lang_de',
-                'parentId' => 'parentId',
-                'code' => 'de-DE',
-            ],
-        ]);
-
-        $parameterBag = new ParameterBag([
-            'elasticsearch.product.custom_fields_mapping' => [
-                'bool' => CustomFieldTypes::BOOL,
-                'int' => CustomFieldTypes::INT,
-            ],
-        ]);
-
-        $connection = $this->createMock(Connection::class);
-
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
-        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
-            'en' => 'english',
-            'de' => 'german',
-        ]);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
-
-        $newImplementation = new EsProductDefinition(
-            $this->createMock(ProductDefinition::class),
-            $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $fieldBuilder,
-            $fieldMapper
-        );
-
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
@@ -363,43 +326,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $connection->expects(static::once())
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
-
-        $languageLoader = new StaticLanguageLoader([
-            'lang_en' => [
-                'id' => 'lang_en',
-                'parentId' => 'parentId',
-                'code' => 'en-GB',
-            ],
-            'lang_de' => [
-                'id' => 'lang_de',
-                'parentId' => 'parentId',
-                'code' => 'de-DE',
-            ],
-        ]);
-
-        $parameterBag = new ParameterBag([
-            'elasticsearch.product.custom_fields_mapping' => [
-                'test1' => 'text',
-                'test2' => 'unknown',
-            ],
-        ]);
-
-        $connection = $this->createMock(Connection::class);
-
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
-        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
-            'en' => 'english',
-            'de' => 'german',
-        ]);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
-
-        $newImplementation = new EsProductDefinition(
-            $this->createMock(ProductDefinition::class),
-            $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $fieldBuilder,
-            $fieldMapper
-        );
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),

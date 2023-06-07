@@ -167,6 +167,7 @@ PHP unit coverage:
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --bootstrap tests/unit/php/Common/UnitTestBootstrap.php
+            --exclude-group=quarantined
             --log-junit phpunit.junit.xml
             --testsuite unit
             --coverage-text
@@ -176,6 +177,7 @@ PHP unit coverage:
       when: always
       paths:
         - cobertura.xml
+        - phpunit.junit.xml
       reports:
         junit: phpunit.junit.xml
         coverage_report:
@@ -205,6 +207,7 @@ PHP migration coverage:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration tests/migration/phpunit.xml
+            --exclude-group=quarantined
             --log-junit phpunit.junit.xml
             --testsuite migration-tests
             --coverage-text

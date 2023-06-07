@@ -241,12 +241,14 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        // create flat list for single primary key entities
+        // create flat list for single primary key entities, if it is 'id'
         if ($primaryKeys->count() === 1) {
             /** @var Field $pk */
             $pk = $primaryKeys->first();
             $property = $pk->getPropertyName();
-            $affected = array_column($affected, $property);
+            if ($property === 'id') {
+                $affected = array_column($affected, $property);
+            }
         }
 
         // prevent circular reference for many to many

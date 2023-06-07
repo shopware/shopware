@@ -320,5 +320,9 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
     </services>
 </container>

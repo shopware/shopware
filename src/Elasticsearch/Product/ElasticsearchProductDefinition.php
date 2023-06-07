@@ -589,7 +589,17 @@ SQL;
             return $this->customFieldsTypes;
         }
 
-        $event = new ElasticsearchProductCustomFieldsMappingEvent($this->customMapping, $context);
+        /** @var array<string, string> $mappings */
+        $mappings = $this->connection->fetchAllKeyValue('
+SELECT
+    custom_field.`name`,
+    custom_field.type
+FROM custom_field_set_relation
+    INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
+WHERE custom_field_set_relation.entity_name = "product"
+') + $this->customMapping;
+
+        $event = new ElasticsearchProductCustomFieldsMappingEvent($mappings, $context);
         $this->eventDispatcher->dispatch($event);
 
         $this->customFieldsTypes = $event->getMappings();

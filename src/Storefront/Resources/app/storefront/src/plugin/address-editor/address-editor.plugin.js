@@ -4,7 +4,6 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
-import PluginManager from 'src/plugin-system/plugin.manager';
 
 /**
  * @package checkout
@@ -179,7 +178,7 @@ export default class AddressEditorPlugin extends Plugin {
             Iterator.iterate(ajaxForms, ajaxForm => {
 
                 /** @type FormAjaxSubmitPlugin **/
-                const FormAjaxSubmitInstance = PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
+                const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
 
                 if (FormAjaxSubmitInstance) {
                     FormAjaxSubmitInstance.addCallback(() => {
@@ -214,7 +213,6 @@ export default class AddressEditorPlugin extends Plugin {
                         }
                     });
                 }
-
             });
         }
         this.$emitter.publish('registerAjaxSubmitCallback', { pseudoModal });

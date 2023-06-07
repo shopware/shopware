@@ -81,6 +81,8 @@ framework:
             log_level: notice
         Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException:
             log_level: notice
+        Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException:
+            log_level: notice
         # Shopware exceptions
         Shopware\Core\Content\Product\Exception\ProductNotFoundException:
             log_level: notice

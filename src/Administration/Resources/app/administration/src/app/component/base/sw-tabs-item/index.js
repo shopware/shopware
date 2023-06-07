@@ -71,14 +71,14 @@ Component.register('sw-tabs-item', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-tabs-item.tooltipTabHasErrors');
+                return Shopware.Snippet.tc('global.sw-tabs-item.tooltipTabHasErrors');
             },
         },
         warningTooltip: {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-tabs-item.tooltipTabHasWarnings');
+                return Shopware.Snippet.tc('global.sw-tabs-item.tooltipTabHasWarnings');
             },
         },
     },
@@ -162,7 +162,7 @@ Component.register('sw-tabs-item', {
                  * non existing route has always the class 'router-link-active'
                  */
                 const resolvedRoute = this.$router.resolve(this.route);
-                const routeExists = resolvedRoute.resolved.matched.length > 0;
+                const routeExists = resolvedRoute.matched.length > 0;
                 if (!routeExists) {
                     return;
                 }

@@ -1,10 +1,16 @@
 import AddressEditorPlugin from 'src/plugin/address-editor/address-editor.plugin';
-import '../../../node_modules/bootstrap';
+import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
+import HttpClient from "src/service/http-client.service";
 
 jest.mock('src/plugin-system/plugin.manager', () => ({
+    __esModule: true,
     default: {
         getPluginInstances: () => {
             return [];
+        },
+
+        getPluginInstanceFromElement: () => {
+            return {};
         },
     },
 }));
@@ -14,33 +20,35 @@ jest.mock('src/plugin-system/plugin.manager', () => ({
  */
 describe('AddressEditorPlugin test', () => {
     let addressEditor;
+    let formAjaxSubmit;
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <button class="btn">Open address editor</button>
+            <button class="btn" data-address-editor="true">Open address editor</button>
 
             <div class="js-pseudo-modal-template">
                 <div class="modal fade" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
-                         <div class="modal-content">
-                             <div class="modal-header only-close">
-                                 <h5 class="modal-title js-pseudo-modal-template-title-element"></h5>
-                                 <button type="button" class="modal-close close" data-dismiss="modal" aria-label="Close">x</button>
-                             </div>
-                             <div class="modal-body js-pseudo-modal-template-content-element">
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-         `;
+                        <div class="modal-content">
+                            <div class="modal-header only-close">
+                                <h5 class="modal-title js-pseudo-modal-template-title-element"></h5>
+                                <button type="button" class="modal-close close" data-dismiss="modal" aria-label="Close">x</button>
+                            </div>
+                            <div class="modal-body js-pseudo-modal-template-content-element">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
 
         const addressEditorTemplate = `
             <div class="js-address-editor">
                 <button class="edit-address" data-toggle="collapse" data-target="#shipping-address-create-edit">Edit address</button>
 
                 <div id="shipping-addressEditorAccordion">
-                    <div id="shipping-address-create-edit" class="collapse" data-parent="#shipping-addressEditorAccordion"></div>
+                    <div id="shipping-address-create-edit" class="collapse" data-parent="#shipping-addressEditorAccordion">
+                    </div>
                 </div>
             </div>
         `;
@@ -95,5 +103,117 @@ describe('AddressEditorPlugin test', () => {
             JSON.stringify(expectedRequestData),
             expect.any(Function)
         );
+    });
+
+    test('should not close modal if there is an invalid field', () => {
+        const addressEditorTemplate = `
+            <div class="js-address-editor">
+                <button class="edit-address" data-toggle="collapse" data-target="#billing-address-create-edit">Edit address</button>
+
+                <div id="billing-addressEditorAccordion">
+                    <div id="billing-address-create-edit" class="collapse" data-parent="#billing-addressEditorAccordion">
+                        <form method="post" data-form-ajax-submit="true" class="js-close-address-editor">
+                            <input type="text" class="form-control is-invalid" id="billing-addresscompany" placeholder="Enter company..." name="address[company]" value="">
+                            <div class="address-form-actions">
+                                <button class="address-form-submit btn btn-primary" title="Save address">
+                                    Save address
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const element = document.querySelector('.btn');
+
+        const spyOnWindowLocationAssign = jest.spyOn(window.location, 'assign');
+
+        // Return address editor template when calling HttpClient post
+        addressEditor._client.post = jest.fn((url, data, callback) => {
+            callback(addressEditorTemplate);
+        });
+
+        window.PluginManager.getPluginInstanceFromElement = (element, pluginName) => {
+            if (pluginName === 'FormAjaxSubmit') {
+                formAjaxSubmit = new FormAjaxSubmitPlugin(element, {
+                    replaceSelectors: [
+                        '#billing-address-create-edit',
+                    ],
+                });
+                return formAjaxSubmit;
+            }
+
+            return {};
+        };
+
+        // Click open button
+        element.dispatchEvent(new Event('click', { bubbles: true }));
+
+        jest.runAllTimers();
+
+        expect(typeof formAjaxSubmit).toBe('object');
+        expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
+
+        formAjaxSubmit._callbacks[0]();
+
+        // Should not reload window
+        expect(spyOnWindowLocationAssign).not.toHaveBeenCalled();
+    });
+
+    test('should close modal if there is not invalid field', () => {
+        const addressEditorTemplate = `
+            <div class="js-address-editor">
+                <button class="edit-address" data-toggle="collapse" data-target="#billing-address-create-edit">Edit address</button>
+
+                <div id="billing-addressEditorAccordion">
+                    <div id="billing-address-create-edit" class="collapse" data-parent="#billing-addressEditorAccordion">
+                        <form method="post" data-form-ajax-submit="true" class="js-close-address-editor">
+                            <input type="text" class="form-control" id="billing-addresscompany" placeholder="Enter company..." name="address[company]" value="">
+                            <div class="address-form-actions">
+                                <button class="address-form-submit btn btn-primary" title="Save address">
+                                    Save address
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const element = document.querySelector('.btn');
+
+        const spyOnWindowLocationAssign = jest.spyOn(window.location, 'assign');
+
+        // Return address editor template when calling HttpClient post
+        addressEditor._client.post = jest.fn((url, data, callback) => {
+            callback(addressEditorTemplate);
+        });
+
+        window.PluginManager.getPluginInstanceFromElement = (element, pluginName) => {
+            if (pluginName === 'FormAjaxSubmit') {
+                formAjaxSubmit = new FormAjaxSubmitPlugin(element, {
+                    replaceSelectors: [
+                        '#billing-address-create-edit',
+                    ],
+                });
+                return formAjaxSubmit;
+            }
+
+            return {};
+        };
+
+        // Click open button
+        element.dispatchEvent(new Event('click', { bubbles: true }));
+
+        jest.runAllTimers();
+
+        expect(typeof formAjaxSubmit).toBe('object');
+        expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
+
+        formAjaxSubmit._callbacks[0]();
+
+        // Should not reload window
+        expect(spyOnWindowLocationAssign).toHaveBeenCalled();
     });
 });

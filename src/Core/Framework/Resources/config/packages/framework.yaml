@@ -138,3 +138,5 @@ framework:
             log_level: notice
         Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
             log_level: notice
+        Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException:
+            log_level: notice

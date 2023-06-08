@@ -8,15 +8,6 @@ author_github: mkoeck
 # Core
 *  Changed deserialize method of src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php to urldecode the filename before saving it to the destination key of the cacheMediaFiles
 ___
-# API
-*  
-___
-# Administration
-*  
-___
-# Storefront
-*  
-___
 # Upgrade Information
 ## MediaSerializer
 ### deserialize

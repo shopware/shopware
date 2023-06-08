@@ -81,6 +81,8 @@ framework:
             log_level: notice
         Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException:
             log_level: notice
+        Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException:
+            log_level: notice
         # Shopware exceptions
         Shopware\Core\Content\Product\Exception\ProductNotFoundException:
             log_level: notice
@@ -137,4 +139,8 @@ framework:
         Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
             log_level: notice
         Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
+            log_level: notice
+        Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException:
+            log_level: notice
+        Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
             log_level: notice

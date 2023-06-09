@@ -42,6 +42,11 @@ class RecoveryManager
 
         $composerLookup = \dirname($projectDir) . '/composer.lock';
 
+        // The Shopware installation is always in the "public" directory
+        if (basename($projectDir) !== 'public') {
+            throw new \RuntimeException('Could not find Shopware installation');
+        }
+
         if (file_exists($composerLookup)) {
             /** @var array{packages: array{name: string, version: string}[]} $composerJson */
             $composerJson = json_decode((string) file_get_contents($composerLookup), true, \JSON_THROW_ON_ERROR);

@@ -28,7 +28,7 @@ class RecoveryManagerTest extends TestCase
     {
         $recoveryManager = new RecoveryManager();
 
-        $fileName = $_SERVER['SCRIPT_FILENAME'];
+        $fileName = realpath($_SERVER['SCRIPT_FILENAME']);
         static::assertIsString($fileName);
         static::assertSame(\dirname($fileName), $recoveryManager->getProjectDir());
     }
@@ -45,6 +45,27 @@ class RecoveryManagerTest extends TestCase
     /**
      * @backupGlobals enabled
      */
+    public function testGetShopwareLocationFailsDueNonPublicDirectory(): void
+    {
+        $recoveryManager = new RecoveryManager();
+
+        $fs = new Filesystem();
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid('shopware', true);
+
+        $_SERVER['SCRIPT_FILENAME'] = $tmpDir . '/foo/shopware-installer.phar.php';
+        $fs->mkdir($tmpDir . '/foo');
+        $fs->touch($tmpDir . '/foo/shopware-installer.phar.php');
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Could not find Shopware installation');
+        $recoveryManager->getShopwareLocation();
+
+        $fs->remove($tmpDir);
+    }
+
+    /**
+     * @backupGlobals enabled
+     */
     public function testGetShopwareLocationReturnsShopwareLocation(): void
     {
         $recoveryManager = new RecoveryManager();
@@ -54,7 +75,7 @@ class RecoveryManagerTest extends TestCase
         $fs = new Filesystem();
         $this->prepareShopware($fs, $tmpDir);
 
-        static::assertSame($tmpDir, $recoveryManager->getShopwareLocation());
+        static::assertSame(realpath($tmpDir), $recoveryManager->getShopwareLocation());
 
         $fs->remove($tmpDir);
     }
@@ -151,8 +172,10 @@ class RecoveryManagerTest extends TestCase
     private function prepareShopware(Filesystem $fs, string $tmpDir, string $version = '6.4.10.0'): void
     {
         $fs->mkdir($tmpDir);
+        $fs->mkdir($tmpDir . '/public');
 
         $_SERVER['SCRIPT_FILENAME'] = $tmpDir . '/public/shopware-installer.phar.php';
+        $fs->touch($_SERVER['SCRIPT_FILENAME']);
 
         $fs->dumpFile($tmpDir . '/composer.json', json_encode([
             'require' => [

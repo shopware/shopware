@@ -21,6 +21,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Product\EsProductDefinition
+ *
+ * @deprecated tag:v6.6.0 - Will be removed, please transfer test cases to \Shopware\Tests\Unit\Elasticsearch\Product\ElasticsearchProductDefinitionTest
  */
 class EsProductDefinitionTest extends TestCase
 {

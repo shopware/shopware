@@ -33,8 +33,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  *
  * @final
- *
- * @deprecated tag:v6.6.0 - Will be removed, use MultilingualEsIndexer instead
  */
 #[AsMessageHandler]
 #[Package('core')]
@@ -55,7 +53,8 @@ class ElasticsearchIndexer
         private readonly EntityRepository $languageRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly int $indexingBatchSize,
-        private readonly MessageBusInterface $bus
+        private readonly MessageBusInterface $bus,
+        private readonly MultilingualEsIndexer $newImplementation
     ) {
     }
 
@@ -64,14 +63,11 @@ class ElasticsearchIndexer
      */
     public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $message instanceof ElasticsearchIndexingMessage) {
+            $this->newImplementation->__invoke($message);
+
             return;
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
 
         if (!$this->helper->allowIndexing()) {
             return;
@@ -88,19 +84,12 @@ class ElasticsearchIndexer
 
     /**
      * @param IndexerOffset|null $offset
-     *
-     * @deprecated tag:v6.6.0 - Will be removed, use MultilingualEsIndexer::iterate instead
      */
     public function iterate($offset): ?ElasticsearchIndexingMessage
     {
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            return null;
+            return $this->newImplementation->iterate($offset);
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
 
         if (!$this->helper->allowIndexing()) {
             return null;
@@ -149,6 +138,8 @@ class ElasticsearchIndexer
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $this->newImplementation->updateIds($definition, $ids);
+
             return;
         }
 
@@ -299,9 +290,7 @@ class ElasticsearchIndexer
         $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));
 
         /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context)
-            ->getEntities();
+        $languages = $this->languageRepository->search($criteria, $context)->getEntities();
 
         return $languages;
     }
@@ -322,8 +311,7 @@ class ElasticsearchIndexer
         $criteria = new Criteria([$languageId]);
 
         /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context);
+        $languages = $this->languageRepository->search($criteria, $context)->getEntities();
 
         return $languages->get($languageId);
     }

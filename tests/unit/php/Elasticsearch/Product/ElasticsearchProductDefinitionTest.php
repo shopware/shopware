@@ -9,9 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -35,6 +38,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ],
     ];
 
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+    }
+
     public function testMapping(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -42,12 +50,21 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
-        $definition = new ElasticsearchProductDefinition(
+        $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class)
+        );
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $newImplementation
         );
 
         $expectedMapping = [
@@ -292,7 +309,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
-        $definition = new ElasticsearchProductDefinition(
+        $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             [
@@ -301,6 +318,18 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class)
+        );
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
+            [
+                'test1' => 'text',
+                'test2' => 'unknown',
+            ],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $newImplementation
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -340,7 +369,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(EsProductDefinition::class)
         );
 
         static::assertSame($productDefinition, $definition->getEntityDefinition());
@@ -360,7 +390,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
-            $searchQueryBuilder
+            $searchQueryBuilder,
+            $this->createMock(EsProductDefinition::class)
         );
 
         $criteria = new Criteria();
@@ -380,9 +411,11 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testFetching(): void
     {
-        $connection = $this->getConnection();
+        $productId = Uuid::randomHex();
 
-        $definition = new ElasticsearchProductDefinition(
+        $connection = $this->getConnection($productId);
+
+        $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             [],
@@ -390,13 +423,22 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(AbstractProductSearchQueryBuilder::class)
         );
 
-        $documents = $definition->fetch(['1'], Context::createDefaultContext());
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $newImplementation
+        );
 
-        static::assertArrayHasKey('1', $documents);
+        $documents = $definition->fetch([$productId], Context::createDefaultContext());
 
-        $document = $documents['1'];
+        static::assertArrayHasKey($productId, $documents);
 
-        static::assertSame(1, $document['id']);
+        $document = $documents[$productId];
+
+        static::assertSame($productId, $document['id']);
         static::assertSame('Test', $document['name']);
 
         $prices = [
@@ -460,28 +502,31 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testFetchFormatsCustomFieldsAndRemovesNotMappedFields(): void
     {
-        $connection = $this->getConnection();
+        $productId = Uuid::randomHex();
+
+        $connection = $this->getConnection($productId);
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $this->createMock(EsProductDefinition::class)
         );
 
-        $documents = $definition->fetch(['1'], Context::createDefaultContext());
+        $documents = $definition->fetch([$productId], Context::createDefaultContext());
 
-        static::assertArrayHasKey('1', $documents);
-        static::assertArrayHasKey('customFields', $documents['1']);
+        static::assertArrayHasKey($productId, $documents);
+        static::assertArrayHasKey('customFields', $documents[$productId]);
         static::assertArrayHasKey('bool', $documents['1']['customFields']);
-        static::assertIsBool($documents['1']['customFields']['bool']);
-        static::assertArrayHasKey('int', $documents['1']['customFields']);
-        static::assertIsFloat($documents['1']['customFields']['int']);
-        static::assertArrayNotHasKey('unknown', $documents['1']['customFields']);
+        static::assertIsBool($documents[$productId]['customFields']['bool']);
+        static::assertArrayHasKey('int', $documents[$productId]['customFields']);
+        static::assertIsFloat($documents[$productId]['customFields']['int']);
+        static::assertArrayNotHasKey('unknown', $documents[$productId]['customFields']);
     }
 
-    public function getConnection(): Connection
+    public function getConnection(string $uuid): Connection
     {
         $connection = $this->createMock(Connection::class);
         $connection
@@ -489,7 +534,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->willReturnOnConsecutiveCalls(
                 [
                     [
-                        'id' => 1,
+                        'id' => $uuid,
                         'parentId' => null,
                         'productNumber' => 1,
                         'ean' => '',

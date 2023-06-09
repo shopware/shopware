@@ -178,19 +178,18 @@
             <argument>%elasticsearch.product.custom_fields_mapping%</argument>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\EsProductDefinition"/>
 
             <tag name="shopware.es.definition"/>
         </service>
 
         <!-- @deprecated tag:v6.6.0.0 - ElasticsearchProductDefinition will be removed, EsProductDefinition will become standalone service with tag `shopware.es.definition` -->
-        <service id="Shopware\Elasticsearch\Product\EsProductDefinition" decorates="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition" public="true">
+        <service id="Shopware\Elasticsearch\Product\EsProductDefinition" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%elasticsearch.product.custom_fields_mapping%</argument>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
-
-            <tag name="shopware.feature" flag="ES_MULTILINGUAL_INDEX"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
@@ -262,6 +261,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer"/>
+
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -274,8 +275,6 @@
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="logger"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
-            <tag name="messenger.message_handler"/>
-            <tag name="shopware.feature" flag="ES_MULTILINGUAL_INDEX" />
         </service>
 
         <service id="Shopware\Elasticsearch\Product\LanguageSubscriber">

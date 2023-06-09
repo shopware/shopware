@@ -57,12 +57,7 @@ class ElasticsearchIndexerTest extends TestCase
         $c = $this->getContainer()->get(Connection::class);
         static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            /** @var MultilingualEsIndexer|null $indexer */
-            $indexer = $this->getContainer()->get(MultilingualEsIndexer::class);
-        } else {
-            $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
-        }
+        $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
         $indexer->iterate(null);
 
@@ -75,12 +70,7 @@ class ElasticsearchIndexerTest extends TestCase
         $before = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
         static::assertEmpty($before);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            /** @var MultilingualEsIndexer|null $indexer */
-            $indexer = $this->getContainer()->get(MultilingualEsIndexer::class);
-        } else {
-            $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
-        }
+        $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
 
         $indexer->iterate(null);
@@ -167,7 +157,8 @@ class ElasticsearchIndexerTest extends TestCase
             $container->get(\sprintf('%s.repository', LanguageDefinition::ENTITY_NAME)),
             $eventDispatcherMock,
             $container->getParameter('elasticsearch.indexing_batch_size'),
-            $this->createMock(MessageBusInterface::class)
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(MultilingualEsIndexer::class)
         );
 
         $indexer->iterate(null);

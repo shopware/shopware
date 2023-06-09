@@ -2,13 +2,9 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @deprecated tag:v6.6.0 - Will be removed, used domain exception instead: \Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingException
- */
 #[Package('core')]
 class ElasticsearchIndexingException extends ShopwareHttpException
 {
@@ -28,11 +24,6 @@ class ElasticsearchIndexingException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
-
         return self::CODE;
     }
 }

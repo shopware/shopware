@@ -126,9 +126,10 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
      */
     private function fetchConfig(Context $context): array
     {
-        /** @var array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $config */
-        $config = $this->connection->fetchAllAssociative(
-            'SELECT
+        foreach ($context->getLanguageIdChain() as $languageId) {
+            /** @var array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $config */
+            $config = $this->connection->fetchAllAssociative(
+                'SELECT
 product_search_config.and_logic,
 product_search_config_field.field,
 product_search_config_field.tokenize,
@@ -137,16 +138,21 @@ product_search_config_field.ranking
 FROM product_search_config
 INNER JOIN product_search_config_field ON(product_search_config_field.product_search_config_id = product_search_config.id)
 WHERE product_search_config.language_id = :languageId AND product_search_config_field.searchable = 1 AND product_search_config_field.field NOT IN(:excludedFields)',
-            [
-                'languageId' => Uuid::fromHexToBytes($context->getLanguageId()),
-                'excludedFields' => self::NOT_SUPPORTED_FIELDS,
-            ],
-            [
-                'excludedFields' => ArrayParameterType::STRING,
-            ]
-        );
+                [
+                    'languageId' => Uuid::fromHexToBytes($languageId),
+                    'excludedFields' => self::NOT_SUPPORTED_FIELDS,
+                ],
+                [
+                    'excludedFields' => ArrayParameterType::STRING,
+                ]
+            );
 
-        return $config;
+            if (!empty($config)) {
+                return $config;
+            }
+        }
+
+        throw ElasticsearchProductException::configNotFound();
     }
 
     private function buildTokenQuery(BoolQuery $tokenBool, string $token, SearchFieldConfig $config, ?string $root = null): void

@@ -159,7 +159,7 @@ class CriteriaParserTest extends TestCase
      */
     public static function parseFilterDataProvider(): iterable
     {
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = '2023-06-12 05:36:22.000';
 
         yield 'NotFilter field' => [
             new NotFilter('AND', [

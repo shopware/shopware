@@ -4,6 +4,8 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException as IndexingError;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -25,16 +27,8 @@ class ElasticsearchIndexingException extends HttpException
     /**
      * @param array{index: string, id: string, type: string, reason: string}[] $errors
      */
-    public static function indexingError(array $errors): self
+    public static function indexingError(array $errors): ShopwareHttpException
     {
-        $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($errors, 'reason'));
-
-        $message = sprintf('Following errors occurred while indexing: %s', $message);
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::ES_INDEXING_ERROR,
-            $message,
-        );
+        return new IndexingError($errors);
     }
 }

@@ -13,6 +13,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -22,10 +23,17 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class IndexerOffsetTest extends TestCase
 {
-    public function testItConvertsDefinitionsToSerilizeableNamesAndCanDoAnDefinitionRoudTrip(): void
+    public function testItConvertsDefinitionsToSerializableNamesAndCanDoAnDefinitionRoundTrip(): void
     {
         $definitions = [
-            new ElasticsearchProductDefinition(new ProductDefinition(), $this->createMock(Connection::class), [], new EventDispatcher(), $this->createMock(AbstractProductSearchQueryBuilder::class)),
+            new ElasticsearchProductDefinition(
+                new ProductDefinition(),
+                $this->createMock(Connection::class),
+                [],
+                new EventDispatcher(),
+                $this->createMock(AbstractProductSearchQueryBuilder::class)
+                . $this->createMock(EsProductDefinition::class)
+            ),
             new MockElasticsearchDefinition(),
         ];
 
@@ -61,7 +69,7 @@ class IndexerOffsetTest extends TestCase
         static::assertEquals(['offset' => 42], $offset->getLastId());
     }
 
-    public function testItConvertsLanguagesToSerilizeableIdsAndCanDoAnLanguageRoudTrip(): void
+    public function testItConvertsLanguagesToSerializableIdsAndCanDoAnLanguageRoundTrip(): void
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
         $definitions = [];

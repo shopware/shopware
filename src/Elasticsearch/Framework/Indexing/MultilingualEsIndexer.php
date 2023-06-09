@@ -8,20 +8,17 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  *
- * @final
+ * @decrecated tag:v6.6.0 - Will be removed, please transfer all public methods method to ElasticsearchProductDefinition
  */
-#[AsMessageHandler]
 #[Package('core')]
 class MultilingualEsIndexer
 {
@@ -42,10 +39,6 @@ class MultilingualEsIndexer
 
     public function __invoke(ElasticsearchIndexingMessage $message): void
     {
-        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            return;
-        }
-
         if (!$this->helper->allowIndexing()) {
             return;
         }
@@ -55,10 +48,6 @@ class MultilingualEsIndexer
 
     public function iterate(?IndexerOffset $offset = null): ?ElasticsearchIndexingMessage
     {
-        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            return null;
-        }
-
         if (!$this->helper->allowIndexing()) {
             return null;
         }
@@ -75,10 +64,6 @@ class MultilingualEsIndexer
      */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
-        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            return;
-        }
-
         if (!$this->helper->allowIndexing()) {
             return;
         }

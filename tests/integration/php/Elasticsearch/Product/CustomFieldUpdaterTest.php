@@ -14,7 +14,6 @@ use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
-use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -54,15 +53,11 @@ class CustomFieldUpdaterTest extends TestCase
 
         $connection->executeStatement('DELETE FROM custom_field');
 
-        /** @var MultilingualEsIndexer|null $multilingualEsIndexer */
-        $multilingualEsIndexer = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $this->getContainer()->get(MultilingualEsIndexer::class) : null;
-
         $command = new ElasticsearchIndexingCommand(
             $this->getContainer()->get(ElasticsearchIndexer::class),
             $this->getContainer()->get('messenger.bus.shopware'),
             $this->getContainer()->get(CreateAliasTaskHandler::class),
-            true,
-            $multilingualEsIndexer,
+            true
         );
 
         $command->run(new ArrayInput([]), new NullOutput());

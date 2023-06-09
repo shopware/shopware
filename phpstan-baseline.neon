@@ -14785,11 +14785,6 @@ parameters:
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexingDto\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
@@ -16595,16 +16590,6 @@ parameters:
 			path: tests/integration/php/Core/System/User/Api/UserRecoveryControllerTest.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 2
-			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Elasticsearch/Product/ProductSearchQueryBuilderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Storefront/Controller/AddressControllerTest.php
@@ -17600,11 +17585,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Elasticsearch\\\\\\\\Framework\\\\\\\\AbstractElasticsearchDefinition' and Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexCreatedEventTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$boolQuery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/unit/php/Elasticsearch/Product/ProductSearchQueryBuilderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"

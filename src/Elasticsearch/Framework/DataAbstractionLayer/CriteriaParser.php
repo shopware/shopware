@@ -151,53 +151,7 @@ class CriteriaParser
             $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
 
             if ($field instanceof TranslatedField) {
-                $root = $definition->getEntityName();
-
-                $parts = explode('.', $sorting->getField());
-                if ($root === $parts[0]) {
-                    array_shift($parts);
-                }
-
-                if ($parts[0] === 'customFields') {
-                    $customField = $this->customFieldService->getCustomField($parts[1]);
-
-                    if ($customField instanceof IntField || $customField instanceof FloatField) {
-                        return new FieldSort('_script', $sorting->getDirection(), null, [
-                            'type' => 'number',
-                            'script' => [
-                                'id' => 'numeric_translated_field_sorting',
-                                'params' => [
-                                    'field' => 'customFields',
-                                    'languages' => $context->getLanguageIdChain(),
-                                    'suffix' => $parts[1] ?? '',
-                                ],
-                            ],
-                        ]);
-                    }
-
-                    return new FieldSort('_script', $sorting->getDirection(), null, [
-                        'type' => 'string',
-                        'script' => [
-                            'id' => 'translated_field_sorting',
-                            'params' => [
-                                'field' => 'customFields',
-                                'languages' => $context->getLanguageIdChain(),
-                                'suffix' => $parts[1] ?? '',
-                            ],
-                        ],
-                    ]);
-                }
-
-                return new FieldSort('_script', $sorting->getDirection(), null, [
-                    'type' => 'string',
-                    'script' => [
-                        'id' => 'translated_field_sorting',
-                        'params' => [
-                            'field' => implode('.', $parts),
-                            'languages' => $context->getLanguageIdChain(),
-                        ],
-                    ],
-                ]);
+                return $this->createTranslatedSorting($definition->getEntityName(), $sorting, $context);
             }
         }
 
@@ -556,10 +510,12 @@ class CriteriaParser
 
     private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation
     {
-        $field = $this->getField($definition, $fieldName);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->getField($definition, $fieldName);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $fieldName = $this->getTranslatedFieldName($fieldName, $context->getLanguageId());
+            if ($field instanceof TranslatedField) {
+                $fieldName = $this->getTranslatedFieldName($fieldName, $context->getLanguageId());
+            }
         }
 
         return match (true) {
@@ -580,38 +536,55 @@ class CriteriaParser
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        $field = $this->getField($definition, $fieldName);
+            $field = $this->getField($definition, $fieldName);
 
-        if ($filter->getValue() === null) {
-            $query = new BoolQuery();
+            if ($filter->getValue() === null) {
+                $query = new BoolQuery();
 
-            if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-                foreach ($context->getLanguageIdChain() as $languageId) {
-                    $query->add(new ExistsQuery(sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
+                if ($field instanceof TranslatedField) {
+                    foreach ($context->getLanguageIdChain() as $languageId) {
+                        $query->add(new ExistsQuery(sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
+                    }
+                } else {
+                    $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
                 }
-            } else {
-                $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+                return $this->createNestedQuery($query, $definition, $filter->getField());
+            }
+
+            $value = $this->parseValue($definition, $filter, $filter->getValue());
+            $query = new TermQuery($fieldName, $value);
+
+            if ($field instanceof TranslatedField) {
+                $multiMatchFields = [];
+
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $multiMatchFields[] = $this->getTranslatedFieldName($fieldName, $languageId);
+                }
+
+                $query = new MultiMatchQuery($multiMatchFields, $value, [
+                    'type' => 'best_fields',
+                ]);
             }
 
             return $this->createNestedQuery($query, $definition, $filter->getField());
         }
 
-        $value = $this->parseValue($definition, $filter, $filter->getValue());
-        $query = new TermQuery($fieldName, $value);
+        $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $multiMatchFields = [];
+        if ($filter->getValue() === null) {
+            $query = new BoolQuery();
+            $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
 
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $multiMatchFields[] = $this->getTranslatedFieldName($fieldName, $languageId);
-            }
-
-            $query = new MultiMatchQuery($multiMatchFields, $value, [
-                'type' => 'best_fields',
-            ]);
+            return $this->createNestedQuery($query, $definition, $filter->getField());
         }
+
+        $value = $this->parseValue($definition, $filter, $filter->getValue());
+
+        $query = new TermQuery($fieldName, $value);
 
         return $this->createNestedQuery($query, $definition, $filter->getField());
     }
@@ -619,22 +592,33 @@ class CriteriaParser
     private function parseEqualsAnyFilter(EqualsAnyFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
-        $field = $this->getField($definition, $fieldName);
+
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->getField($definition, $fieldName);
+
+            $value = $this->parseValue($definition, $filter, \array_values($filter->getValue()));
+
+            $query = new TermsQuery($fieldName, $value);
+
+            if ($field instanceof TranslatedField) {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $accessor = $this->getTranslatedFieldName($fieldName, $languageId);
+                    $query->addQuery(new TermsQuery($accessor, $value));
+                }
+            }
+
+            return $this->createNestedQuery(
+                $query,
+                $definition,
+                $filter->getField()
+            );
+        }
 
         $value = $this->parseValue($definition, $filter, \array_values($filter->getValue()));
 
-        $query = new TermsQuery($fieldName, $value);
-
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $accessor = $this->getTranslatedFieldName($fieldName, $languageId);
-                $query->addQuery(new TermsQuery($accessor, $value));
-            }
-        }
-
         return $this->createNestedQuery(
-            $query,
+            new TermsQuery($fieldName, $value),
             $definition,
             $filter->getField()
         );
@@ -643,23 +627,32 @@ class CriteriaParser
     private function parseContainsFilter(ContainsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
-        $field = $this->getField($definition, $filter->getField());
 
         /** @var string $value */
         $value = $filter->getValue();
 
-        $query = new WildcardQuery($accessor, '*' . $value . '*');
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->getField($definition, $filter->getField());
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
-                $query->addQuery(new WildcardQuery($fieldName, '*' . $value . '*'));
+            $query = new WildcardQuery($accessor, '*' . $value . '*');
+
+            if ($field instanceof TranslatedField) {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
+                    $query->addQuery(new WildcardQuery($fieldName, '*' . $value . '*'));
+                }
             }
+
+            return $this->createNestedQuery(
+                $query,
+                $definition,
+                $filter->getField()
+            );
         }
 
         return $this->createNestedQuery(
-            $query,
+            new WildcardQuery($accessor, '*' . $value . '*'),
             $definition,
             $filter->getField()
         );
@@ -671,25 +664,33 @@ class CriteriaParser
 
         $value = $filter->getValue();
 
-        $field = $this->getField($definition, $filter->getField());
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->getField($definition, $filter->getField());
 
-        $query = new PrefixQuery($accessor, $value);
+            $query = new PrefixQuery($accessor, $value);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $multiMatchFields = [];
+            if ($field instanceof TranslatedField) {
+                $multiMatchFields = [];
 
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $multiMatchFields[] = $this->getTranslatedFieldName($accessor, $languageId) . '.search';
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $multiMatchFields[] = $this->getTranslatedFieldName($accessor, $languageId) . '.search';
+                }
+
+                $query = new MultiMatchQuery($multiMatchFields, $value, [
+                    'type' => 'phrase_prefix',
+                    'slop' => 5,
+                ]);
             }
 
-            $query = new MultiMatchQuery($multiMatchFields, $value, [
-                'type' => 'phrase_prefix',
-                'slop' => 5,
-            ]);
+            return $this->createNestedQuery(
+                $query,
+                $definition,
+                $filter->getField()
+            );
         }
 
         return $this->createNestedQuery(
-            $query,
+            new PrefixQuery($accessor, $value),
             $definition,
             $filter->getField()
         );
@@ -701,20 +702,28 @@ class CriteriaParser
 
         $value = $filter->getValue();
 
-        $field = $this->getField($definition, $filter->getField());
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->getField($definition, $filter->getField());
 
-        $query = new WildcardQuery($accessor, '*' . $value);
+            $query = new WildcardQuery($accessor, '*' . $value);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
-                $query->addQuery(new WildcardQuery($fieldName, '*' . $value));
+            if ($field instanceof TranslatedField) {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
+                    $query->addQuery(new WildcardQuery($fieldName, '*' . $value));
+                }
             }
+
+            return $this->createNestedQuery(
+                $query,
+                $definition,
+                $filter->getField()
+            );
         }
 
         return $this->createNestedQuery(
-            $query,
+            new WildcardQuery($accessor, '*' . $value),
             $definition,
             $filter->getField()
         );
@@ -742,21 +751,29 @@ class CriteriaParser
 
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        $field = $this->getField($definition, $filter->getField());
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $field = $this->getField($definition, $filter->getField());
 
-        $value = $this->parseValue($definition, $filter, $filter->getParameters());
-        $query = new RangeQuery($accessor, $value);
+            $value = $this->parseValue($definition, $filter, $filter->getParameters());
+            $query = new RangeQuery($accessor, $value);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $field instanceof TranslatedField) {
-            $query = new DisMaxQuery();
-            foreach ($context->getLanguageIdChain() as $languageId) {
-                $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
-                $query->addQuery(new RangeQuery($fieldName, $value));
+            if ($field instanceof TranslatedField) {
+                $query = new DisMaxQuery();
+                foreach ($context->getLanguageIdChain() as $languageId) {
+                    $fieldName = $this->getTranslatedFieldName($accessor, $languageId);
+                    $query->addQuery(new RangeQuery($fieldName, $value));
+                }
             }
+
+            return $this->createNestedQuery(
+                $query,
+                $definition,
+                $filter->getField()
+            );
         }
 
         return $this->createNestedQuery(
-            $query,
+            new RangeQuery($accessor, $this->parseValue($definition, $filter, $filter->getParameters())),
             $definition,
             $filter->getField()
         );
@@ -991,6 +1008,55 @@ class CriteriaParser
         }
 
         return $value;
+    }
+
+    private function createTranslatedSorting(string $root, FieldSorting $sorting, Context $context): FieldSort
+    {
+        $parts = explode('.', $sorting->getField());
+        if ($root === $parts[0]) {
+            array_shift($parts);
+        }
+
+        if ($parts[0] === 'customFields') {
+            $customField = $this->customFieldService->getCustomField($parts[1]);
+
+            if ($customField instanceof IntField || $customField instanceof FloatField) {
+                return new FieldSort('_script', $sorting->getDirection(), null, [
+                    'type' => 'number',
+                    'script' => [
+                        'id' => 'numeric_translated_field_sorting',
+                        'params' => [
+                            'field' => 'customFields',
+                            'languages' => $context->getLanguageIdChain(),
+                            'suffix' => $parts[1] ?? '',
+                        ],
+                    ],
+                ]);
+            }
+
+            return new FieldSort('_script', $sorting->getDirection(), null, [
+                'type' => 'string',
+                'script' => [
+                    'id' => 'translated_field_sorting',
+                    'params' => [
+                        'field' => 'customFields',
+                        'languages' => $context->getLanguageIdChain(),
+                        'suffix' => $parts[1] ?? '',
+                    ],
+                ],
+            ]);
+        }
+
+        return new FieldSort('_script', $sorting->getDirection(), null, [
+            'type' => 'string',
+            'script' => [
+                'id' => 'translated_field_sorting',
+                'params' => [
+                    'field' => implode('.', $parts),
+                    'languages' => $context->getLanguageIdChain(),
+                ],
+            ],
+        ]);
     }
 
     private function getTranslatedFieldName(string $accessor, string $languageId): string

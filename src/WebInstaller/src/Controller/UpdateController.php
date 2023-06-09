@@ -183,7 +183,6 @@ class UpdateController extends AbstractController
         }
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
-        \assert(\is_string($shopwarePath));
 
         $currentVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
         $latestVersions = $this->releaseInfoProvider->fetchUpdateVersions($currentVersion);

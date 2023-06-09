@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\InstallerException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -30,8 +31,8 @@ class RecoveryManager
 
     public function getProjectDir(): string
     {
-        /** @var string $fileName */
         $fileName = realpath($_SERVER['SCRIPT_FILENAME']);
+        \assert(\is_string($fileName));
 
         return \dirname($fileName);
     }
@@ -41,6 +42,11 @@ class RecoveryManager
         $projectDir = $this->getProjectDir();
 
         $composerLookup = \dirname($projectDir) . '/composer.lock';
+
+        // The Shopware installation is always in the "public" directory
+        if (basename($projectDir) !== 'public') {
+            throw InstallerException::cannotFindShopwareInstallation();
+        }
 
         if (file_exists($composerLookup)) {
             /** @var array{packages: array{name: string, version: string}[]} $composerJson */
@@ -53,7 +59,7 @@ class RecoveryManager
             }
         }
 
-        throw new \RuntimeException('Could not find Shopware installation');
+        throw InstallerException::cannotFindShopwareInstallation();
     }
 
     public function getCurrentShopwareVersion(string $shopwarePath): string
@@ -61,7 +67,7 @@ class RecoveryManager
         $lockFile = $shopwarePath . '/composer.lock';
 
         if (!file_exists($lockFile)) {
-            throw new \RuntimeException('Could not find composer.lock file');
+            throw InstallerException::cannotFindComposerLock();
         }
 
         /** @var array{packages: array{name: string, version: string}[]} $composerLock */
@@ -73,7 +79,7 @@ class RecoveryManager
             }
         }
 
-        throw new \RuntimeException('Could not find shopware package in the composer.lock');
+        throw InstallerException::cannotFindShopwareInComposerLock();
     }
 
     public function isFlexProject(string $shopwarePath): bool

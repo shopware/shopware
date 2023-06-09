@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Package('content')]
 trait MimeTypeValidationTrait
 {
+    /**
+     * @param array<string, string[]> $allowedMimeTypes
+     */
     protected function checkMimeType(UploadedFile $file, array $allowedMimeTypes): bool
     {
         foreach ($allowedMimeTypes as $fileEndings => $mime) {

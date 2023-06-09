@@ -53,7 +53,7 @@ class ExpectedRequest
     public $snippetLanguageCode;
 
     /**
-     * @var string|null
+     * @var class-string<\Throwable>|null
      */
     public $exception;
 
@@ -62,6 +62,9 @@ class ExpectedRequest
      */
     public $resolvedUrl;
 
+    /**
+     * @param class-string<\Throwable>|null $exception
+     */
     public function __construct(
         string $url,
         ?string $baseUrl,

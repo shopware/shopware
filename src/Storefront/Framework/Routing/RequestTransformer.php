@@ -237,7 +237,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function isSalesChannelRequired(string $pathInfo): bool
     {
-        $pathInfo = rtrim($pathInfo, '/') . '/';
+        $pathInfo = '/' . trim($pathInfo, '/') . '/';
 
         foreach ($this->registeredApiPrefixes as $apiPrefix) {
             if (mb_strpos($pathInfo, '/' . $apiPrefix . '/') === 0) {

@@ -16626,56 +16626,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Media/StorefrontMediaUploaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:createSalesChannels\\(\\) has parameter \\$salesChannels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:domainProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:getEnglishSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:getGermanSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:getInactiveSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:getSalesChannelWithGerAndUkDomain\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:seoRedirectProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RequestTransformerTest\\:\\:testDomainResolving\\(\\) has parameter \\$salesChannels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$registeredApiPrefixes of class Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\RequestTransformer constructor expects list\\<string\\>, array\\<int, string\\> given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RouterTest\\:\\:urlCases\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Routing/RouterTest.php

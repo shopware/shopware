@@ -11,7 +11,7 @@ class SalesChannelMappingException extends ShopwareHttpException
     public function __construct(string $url)
     {
         parent::__construct(
-            'Unable to find a matching sales channel for the request: {{url}}". Please make sure the domain mapping is correct.',
+            'Unable to find a matching sales channel for the request: "{{url}}". Please make sure the domain mapping is correct.',
             ['url' => $url]
         );
     }

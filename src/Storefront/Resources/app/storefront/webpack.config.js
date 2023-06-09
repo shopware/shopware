@@ -117,7 +117,6 @@ let webpackConfig = {
         if (isHotMode) {
             return {
                 entry: {
-                    app: [path.resolve(__dirname, 'src/scss/base.scss')],
                     storefront: [],
                 },
             };

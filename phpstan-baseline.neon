@@ -16141,29 +16141,9 @@ parameters:
 			path: src/Storefront/Framework/Media/StorefrontMediaUploader.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Validator\\\\StorefrontMediaDocumentValidator\\:\\:checkMimeType\\(\\) has parameter \\$allowedMimeTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
-
-		-
 			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
-
-		-
-			message: "#^Cannot access offset 'mime' on array\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/Validator/StorefrontMediaImageValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Validator\\\\StorefrontMediaImageValidator\\:\\:checkMimeType\\(\\) has parameter \\$allowedMimeTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/Validator/StorefrontMediaImageValidator.php
-
-		-
-			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Framework/Media/Validator/StorefrontMediaImageValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult\\:\\:getPageCount\\(\\) has no return type specified\\.$#"
@@ -17729,16 +17709,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
-
-		-
-			message: "#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/WebInstaller/src/Controller/UpdateController.php
-
-		-
-			message: "#^PHPDoc tag @var with type string is not subtype of native type non\\-empty\\-string\\|false\\.$#"
-			count: 1
-			path: src/WebInstaller/src/Services/RecoveryManager.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\LineItem\\\\\\\\LineItem' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem will always evaluate to true\\.$#"

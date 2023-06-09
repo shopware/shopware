@@ -58,5 +58,8 @@ return [
         'Shopware\\\\Storefront\\\\Framework\\\\App\\\\Template\\\\IconTemplateLoader was marked "@internal"',
         'Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiRequestHook was marked "@internal"',
         'Shopware\\\\Core\\\\Content\\\\Seo\\\\Entity\\\\Dbal\\\\SeoUrlAssociationFieldResolver was marked "@internal"',
+
+        // __set cannot have a return value
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration#__set\(\) changed from no type to void'
     ],
 ];

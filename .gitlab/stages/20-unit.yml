@@ -103,6 +103,31 @@ PHP integration:
             --testsuite integration
             --order-by default
             --order-by default
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        reports:
+            junit: phpunit.junit.xml
+    parallel:
+        matrix:
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,migration", "content", "checkout"]
+
+PHP unit Elasticsearch:
+  extends: PHP unit
+  services:
+    - name: mariadb:10.4
+      alias: database
+      entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    - name: redis
+      alias: redis
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
+  parallel:
+    matrix:
+      - TESTSUITE: ["integration"]
+        FEATURE_ALL: [ "false", "major" ]
+        ES_MULTILINGUAL_INDEX: ["0", "1"]
 
 PHP bench:
     extends: .base-no-setup

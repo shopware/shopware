@@ -127,9 +127,10 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
      */
     private function fetchConfig(Context $context): array
     {
-        /** @var array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $config */
-        $config = $this->connection->fetchAllAssociative(
-            'SELECT
+        foreach ($context->getLanguageIdChain() as $languageId) {
+            /** @var array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $config */
+            $config = $this->connection->fetchAllAssociative(
+                'SELECT
 product_search_config.and_logic,
 product_search_config_field.field,
 product_search_config_field.tokenize,
@@ -138,14 +139,14 @@ product_search_config_field.ranking
 FROM product_search_config
 INNER JOIN product_search_config_field ON(product_search_config_field.product_search_config_id = product_search_config.id)
 WHERE product_search_config.language_id = :languageId AND product_search_config_field.searchable = 1 AND product_search_config_field.field NOT IN(:excludedFields)',
-            [
-                'languageId' => Uuid::fromHexToBytes($context->getLanguageId()),
-                'excludedFields' => self::NOT_SUPPORTED_FIELDS,
-            ],
-            [
-                'excludedFields' => ArrayParameterType::STRING,
-            ]
-        );
+                [
+                    'languageId' => Uuid::fromHexToBytes($languageId),
+                    'excludedFields' => self::NOT_SUPPORTED_FIELDS,
+                ],
+                [
+                    'excludedFields' => ArrayParameterType::STRING,
+                ]
+            );
 
             if (!empty($config)) {
                 return $config;
@@ -153,97 +154,6 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
         }
 
         throw ElasticsearchProductException::configNotFound();
-    }
-
-    private function buildTokenQuery(BoolQuery $tokenBool, string $token, SearchFieldConfig $config, ?string $root = null): void
-    {
-        $queries = [];
-
-        $searchField = $config->isCustomField() ? $config->getField() : $config->getField() . '.search';
-
-        $queries[] = new MatchQuery($searchField, $token, ['boost' => 5 * $config->getRanking()]);
-        $queries[] = new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $config->getRanking(), 'slop' => 5]);
-        $queries[] = new WildcardQuery($searchField, '*' . $token . '*');
-
-        if ($config->tokenize()) {
-            $ngramField = $config->isCustomField() ? $config->getField() : $config->getField() . '.ngram';
-            $queries[] = new MatchQuery($searchField, $token, ['fuzziness' => 'auto', 'boost' => 3 * $config->getRanking()]);
-            $queries[] = new MatchQuery($ngramField, $token);
-        }
-
-        foreach ($queries as $query) {
-            if ($root) {
-                $query = new NestedQuery($root, $query);
-            }
-
-            $tokenBool->add($query, BoolQuery::SHOULD);
-        }
-    }
-
-    private function buildTranslatedFieldTokenQueries(BoolQuery $tokenBool, string $token, SearchFieldConfig $config, Context $context, ?string $root = null): void
-    {
-        $multiMatchFields = [];
-        $fuzzyMatchFields = [];
-        $matchPhraseFields = [];
-        $ngramFields = [];
-
-        foreach ($context->getLanguageIdChain() as $languageId) {
-            $searchField = $this->buildTranslatedFieldName($config, $languageId, 'search');
-
-            $multiMatchFields[] = $searchField;
-            $matchPhraseFields[] = $searchField;
-
-            if ($config->tokenize()) {
-                $ngramField = $this->buildTranslatedFieldName($config, $languageId, 'ngram');
-                $fuzzyMatchFields[] = $searchField;
-                $ngramFields[] = $ngramField;
-            }
-        }
-
-        $queries = [
-            new MultiMatchQuery($multiMatchFields, $token, [
-                'type' => 'best_fields',
-                'fuzziness' => 0,
-                'boost' => $config->getRanking() * 5,
-            ]),
-            new MultiMatchQuery($matchPhraseFields, $token, [
-                'type' => 'phrase_prefix',
-                'slop' => 5,
-                'boost' => $config->getRanking(),
-            ]),
-        ];
-
-        if ($config->tokenize()) {
-            $queries[] = new MultiMatchQuery($fuzzyMatchFields, $token, [
-                'type' => 'best_fields',
-                'fuzziness' => 'auto',
-                'boost' => $config->getRanking() * 3,
-            ]);
-
-            $queries[] = new MultiMatchQuery($ngramFields, $token, [
-                'type' => 'phrase',
-                'boost' => $config->getRanking(),
-            ]);
-        }
-
-        foreach ($queries as $query) {
-            if ($root) {
-                $query = new NestedQuery($root, $query);
-            }
-
-            $tokenBool->add($query, BoolQuery::SHOULD);
-        }
-    }
-
-    private function buildTranslatedFieldName(SearchFieldConfig $fieldConfig, string $languageId, string $suffix = ''): string
-    {
-        if ($fieldConfig->isCustomField()) {
-            $parts = explode('.', $fieldConfig->getField());
-
-            return sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
-        }
-
-        return sprintf('%s.%s.%s', $fieldConfig->getField(), $languageId, $suffix);
     }
 
     private function buildTokenQuery(BoolQuery $tokenBool, string $token, SearchFieldConfig $config, ?string $root = null): void

@@ -18,8 +18,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\EsProductDefinition;
-use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -55,7 +53,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
-        $definition = new ElasticsearchProductDefinition(
+        $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             [],
@@ -64,6 +62,15 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $newImplementation,
             false,
             'dev'
+        );
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $newImplementation
         );
 
         $expectedMapping = [
@@ -327,7 +334,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willReturn(['test' => CustomFieldTypes::INT]);
 
-        $definition = new ElasticsearchProductDefinition(
+        $newImplementation = new EsProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             [
@@ -339,6 +346,18 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $newImplementation,
             false,
             'dev'
+        );
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
+            [
+                'test1' => 'text',
+                'test2' => 'unknown',
+            ],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $newImplementation
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -379,9 +398,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(EsProductDefinition::class),
-            false,
-            'dev'
+            $this->createMock(EsProductDefinition::class)
         );
 
         static::assertSame($productDefinition, $definition->getEntityDefinition());
@@ -402,9 +419,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $searchQueryBuilder,
-            $this->createMock(EsProductDefinition::class),
-            false,
-            'dev'
+            $this->createMock(EsProductDefinition::class)
         );
 
         $criteria = new Criteria();
@@ -428,39 +443,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $connection = $this->getConnection($productId);
 
-        $languageLoader = new StaticLanguageLoader([
-            'lang_en' => [
-                'id' => 'lang_en',
-                'parentId' => 'parentId',
-                'code' => 'en-GB',
-            ],
-            'lang_de' => [
-                'id' => 'lang_de',
-                'parentId' => 'parentId',
-                'code' => 'de-DE',
-            ],
-        ]);
-
-        $parameterBag = new ParameterBag(['elasticsearch.product.custom_fields_mapping' => []]);
-
-        $connection = $this->createMock(Connection::class);
-
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
-        $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
-            'en' => 'english',
-            'de' => 'german',
-        ]);
-        $fieldMapper = new ElasticsearchFieldMapper($utils);
-
         $newImplementation = new EsProductDefinition(
-            $this->createMock(ProductDefinition::class),
-            $connection,
-            $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $fieldBuilder,
-            $fieldMapper
-        );
-
-        $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
             $connection,
             [],
@@ -469,6 +452,15 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $newImplementation,
             false,
             'dev'
+        );
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $connection,
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            $newImplementation
         );
 
         $documents = $definition->fetch([$productId], Context::createDefaultContext());
@@ -551,16 +543,14 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $this->createMock(EsProductDefinition::class),
-            false,
-            'dev'
+            $this->createMock(EsProductDefinition::class)
         );
 
         $documents = $definition->fetch([$productId], Context::createDefaultContext());
 
         static::assertArrayHasKey($productId, $documents);
         static::assertArrayHasKey('customFields', $documents[$productId]);
-        static::assertArrayHasKey('bool', $documents[$productId]['customFields']);
+        static::assertArrayHasKey('bool', $documents['1']['customFields']);
         static::assertIsBool($documents[$productId]['customFields']['bool']);
         static::assertArrayHasKey('int', $documents[$productId]['customFields']);
         static::assertIsFloat($documents[$productId]['customFields']['int']);

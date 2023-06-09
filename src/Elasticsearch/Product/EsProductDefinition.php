@@ -17,6 +17,11 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
+/**
+ * @internal
+ *
+ * @decrecated tag:v6.6.0 - Will be removed, please transfer getMapping and fetch method to ElasticsearchProductDefinition
+ */
 #[Package('core')]
 class EsProductDefinition extends AbstractElasticsearchDefinition
 {
@@ -217,7 +222,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function fetch(array $ids, Context $context): array
     {
@@ -379,7 +384,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
 
             $document['categories'] = [];
             foreach ($categories as $category) {
-                if (empty($category['languageId'])) {
+                if (empty($category['languageId']) || empty($category['name'])) {
                     continue;
                 }
 
@@ -462,7 +467,7 @@ SELECT
     ) as translation_parent,
     CONCAT(
         '[',
-        GROUP_CONCAT(DISTINCT
+            GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'id', LOWER(HEX(category_translation.category_id)),
                     'languageId', LOWER(HEX(category_translation.language_id)),
@@ -471,7 +476,6 @@ SELECT
             ),
         ']'
     ) as categories,
-
     CONCAT(
         '[',
             GROUP_CONCAT(DISTINCT
@@ -482,7 +486,6 @@ SELECT
             ),
         ']'
     ) as manufacturer_translation,
-
     IFNULL(p.manufacturer_number, pp.manufacturer_number) AS manufacturerNumber,
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
@@ -600,7 +603,7 @@ SQL;
     /**
      * @param list<string> $propertyIds
      *
-     * @return array<string, array{id: string, name: string, groupId: string, name: array<string, string>}>
+     * @return array<string, array{id: string, groupId: string, translations?: string, name: array<int|string, string>}>
      */
     private function fetchPropertyGroups(array $propertyIds): array
     {

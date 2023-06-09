@@ -19,9 +19,6 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
-/**
- * @decrecated tag:v6.6.0 - Will be removed, used EsProductDefinition instead
- */
 #[Package('core')]
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
@@ -41,9 +38,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private array $customMapping,
         protected EventDispatcherInterface $eventDispatcher,
         private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
-        private readonly EsProductDefinition $newImplementation,
-        private bool $excludeSource,
-        private readonly string $environment
+        private readonly EsProductDefinition $newImplementation
     ) {
     }
 
@@ -61,9 +56,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             return $this->newImplementation->getMapping($context);
         }
 
-        $debug = $this->environment !== 'prod';
-
-        $mapping = [
+        return [
+            '_source' => ['includes' => ['id', 'autoIncrement']],
             'properties' => [
                 'id' => self::KEYWORD_FIELD,
                 'parentId' => self::KEYWORD_FIELD,
@@ -212,6 +206,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function fetch(array $ids, Context $context): array
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->fetch($ids, $context);
+        }
+
         $data = $this->fetchProducts($ids, $context);
 
         $groupIds = [];

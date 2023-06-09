@@ -84,7 +84,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -133,15 +132,8 @@ class ElasticsearchProductTest extends TestCase
 
     protected function setUp(): void
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            /** @var AbstractElasticsearchDefinition $definition */
-            $definition = $this->getContainer()->get(EsProductDefinition::class);
-            $this->definition = $definition;
-            ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
-        } else {
-            $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-            ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
-        }
+        $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
 
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
@@ -3560,17 +3552,10 @@ class ElasticsearchProductTest extends TestCase
             ],
         ], $this->context);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            ReflectionHelper::getProperty(EsProductDefinition::class, 'customMapping')->setValue(
-                $this->definition,
-                array_combine(array_column($customFields, 'name'), array_column($customFields, 'type'))
-            );
-        } else {
-            ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
-                $this->definition,
-                \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'))
-            );
-        }
+        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
+            $this->definition,
+            \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'))
+        );
 
         $products = [
             (new ProductBuilder($this->ids, 'product-1'))

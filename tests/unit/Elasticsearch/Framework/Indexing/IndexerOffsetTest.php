@@ -10,10 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
+use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
+use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -24,6 +24,18 @@ class IndexerOffsetTest extends TestCase
 {
     public function testItConvertsDefinitionsToSerializableNamesAndCanDoAnDefinitionRoundTrip(): void
     {
+        $definitions = [
+            new ElasticsearchProductDefinition(
+                new ProductDefinition(),
+                $this->createMock(Connection::class),
+                [],
+                new EventDispatcher(),
+                $this->createMock(AbstractProductSearchQueryBuilder::class)
+                . $this->createMock(EsProductDefinition::class)
+            ),
+            new MockElasticsearchDefinition(),
+        ];
+
         $timestamp = (new \DateTime())->getTimestamp();
         $offset = new IndexerOffset(
             ['foo', 'bar'],

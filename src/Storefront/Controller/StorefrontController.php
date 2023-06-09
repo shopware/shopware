@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\Attribute\Required;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -58,6 +59,8 @@ abstract class StorefrontController extends AbstractController
         $services[TemplateFinder::class] = TemplateFinder::class;
         $services[SeoUrlPlaceholderHandlerInterface::class] = SeoUrlPlaceholderHandlerInterface::class;
         $services[ScriptExecutor::class] = ScriptExecutor::class;
+        $services['translator'] = TranslatorInterface::class;
+        $services[RequestTransformerInterface::class] = RequestTransformerInterface::class;
 
         return $services;
     }

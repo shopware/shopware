@@ -154,12 +154,12 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertNotNull($product);
     }
-    
+
     public function testMediaWithEncodedUrl(): void
     {
         $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
         $progress = $this->import(Context::createDefaultContext(), MediaDefinition::ENTITY_NAME, $fixturesPath, 'media_encoded_url.csv', null, false, true);
-    
+
         static::assertTrue($progress->isFinished());
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
     }

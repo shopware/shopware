@@ -53,6 +53,7 @@ class AccountEditOrderPageLoader
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
      * @throws RoutingException
+     * @throws OrderException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
@@ -70,6 +71,7 @@ class AccountEditOrderPageLoader
 
         $orderRouteResponse = $this->getOrder($request, $salesChannelContext);
 
+        /** @var OrderEntity $order */
         $order = $orderRouteResponse->getOrders()->first();
 
         if ($this->isOrderPaid($order)) {

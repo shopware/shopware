@@ -16016,16 +16016,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getCurrencyId\\(\\)\\.$#"
-			count: 2
-			path: src/Storefront/Controller/AccountOrderController.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDeliveries\\(\\)\\.$#"
-			count: 1
-			path: src/Storefront/Controller/AccountOrderController.php
-
-		-
 			message: "#^Anonymous variable in a `\\$data\\-\\>get\\('email'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Storefront/Controller/AccountProfileController.php
@@ -16294,26 +16284,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Migration\\\\V6_4\\\\Migration1641476963ThemeDependentIds\\:\\:fixRolePrivileges\\(\\) should return list\\<string\\> but returns array\\<int\\<0, max\\>, string\\>\\.$#"
 			count: 1
 			path: src/Storefront/Migration/V6_4/Migration1641476963ThemeDependentIds.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$order of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountEditOrderPage\\:\\:setOrder\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$order of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountEditOrderPageLoader\\:\\:isOrderPaid\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
-
-		-
-			message: "#^Parameter \\#3 \\$order of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountEditOrderPageLoader\\:\\:getPaymentMethods\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
 
 		-
 			message: "#^Anonymous variable in a `\\$page\\-\\>getOrders\\(\\)\\-\\>first\\(\\)\\-\\>getOrderCustomer\\(\\)\\-\\>getCustomer\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

@@ -24,8 +24,8 @@ class ElasticsearchIndexingExceptionTest extends TestCase
             'reason' => 'Foo Error',
         ]]);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $res->getStatusCode());
-        static::assertEquals(ElasticsearchIndexingException::ES_INDEXING_ERROR, $res->getErrorCode());
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $res->getStatusCode());
+        static::assertEquals('ELASTICSEARCH_INDEXING', $res->getErrorCode());
         static::assertStringContainsString($res->getMessage(), 'Following errors occurred while indexing: ' . \PHP_EOL . 'Foo Error');
     }
 

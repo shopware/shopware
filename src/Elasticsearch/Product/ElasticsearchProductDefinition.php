@@ -12,15 +12,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
-/**
- * @decrecated tag:v6.6.0 - Will be removed, used EsProductDefinition instead
- */
 #[Package('core')]
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
@@ -39,7 +37,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private readonly Connection $connection,
         private array $customMapping,
         protected EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder
+        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
+        private readonly EsProductDefinition $newImplementation
     ) {
     }
 
@@ -53,6 +52,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function getMapping(Context $context): array
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->getMapping($context);
+        }
+
         return [
             '_source' => ['includes' => ['id', 'autoIncrement']],
             'properties' => [
@@ -189,6 +192,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function fetch(array $ids, Context $context): array
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->fetch($ids, $context);
+        }
+
         $data = $this->fetchProducts($ids, $context);
 
         $groupIds = [];

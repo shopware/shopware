@@ -14,8 +14,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @final
  */
 #[AsMessageHandler(handles: CreateAliasTask::class)]
 #[Package('core')]

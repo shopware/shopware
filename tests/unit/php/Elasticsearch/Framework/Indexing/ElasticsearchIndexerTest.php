@@ -32,6 +32,7 @@ use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchLanguageIndexIterator
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
+use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -64,6 +65,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     private IndicesNamespace&MockObject $indices;
 
+    private MultilingualEsIndexer&MockObject $newEsIndexer;
+
     protected function setUp(): void
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
@@ -76,6 +79,7 @@ class ElasticsearchIndexerTest extends TestCase
         $this->client = $this->createMock(Client::class);
         $this->currencyRepository = $this->createMock(EntityRepository::class);
         $this->languageRepository = $this->createMock(EntityRepository::class);
+        $this->newEsIndexer = $this->createMock(MultilingualEsIndexer::class);
         $this->bus = new CollectingMessageBus();
 
         $this->helper->method('allowIndexing')->willReturn(true);
@@ -411,7 +415,8 @@ class ElasticsearchIndexerTest extends TestCase
             $this->languageRepository,
             new EventDispatcher(),
             1,
-            $this->bus
+            $this->bus,
+            $this->newEsIndexer
         );
     }
 

@@ -7,7 +7,6 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
-use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -26,12 +25,11 @@ class ElasticsearchIndexingCommandTest extends TestCase
     public function testExecute(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
-        $newIndexer = $this->getMockBuilder(MultilingualEsIndexer::class)->disableOriginalConstructor()->getMock();
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
 
-        $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true, $newIndexer));
+        $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
         $commandTester->execute(['--no-queue' => true]);
 
         $commandTester->assertCommandIsSuccessful();
@@ -43,12 +41,11 @@ class ElasticsearchIndexingCommandTest extends TestCase
     public function testEsDisabled(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
-        $newIndexer = $this->getMockBuilder(MultilingualEsIndexer::class)->disableOriginalConstructor()->getMock();
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
 
-        $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, false, $newIndexer));
+        $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, false));
         $commandTester->execute(['--no-queue' => true], ['capture_stderr_separately' => true]);
 
         $output = $commandTester->getDisplay();

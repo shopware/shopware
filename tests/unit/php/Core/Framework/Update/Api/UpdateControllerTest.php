@@ -31,15 +31,20 @@ class UpdateControllerTest extends TestCase
 {
     public function testCheckForUpdatesNoUpdate(): void
     {
+        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient
+            ->method('checkForUpdates')
+            ->willReturn(new Version(['version' => '6.5.1.0', 'date' => '2020-01-01']));
+
         $updateController = new UpdateController(
-            $this->createMock(ApiClient::class),
+            $apiClient,
             $this->createMock(WriteableCheck::class),
             $this->createMock(LicenseCheck::class),
             $this->createMock(ExtensionCompatibility::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SystemConfigService::class),
             $this->createMock(AbstractExtensionLifecycle::class),
-            '6.1.0'
+            '6.5.1.0'
         );
 
         $response = $updateController->updateApiCheck();
@@ -74,6 +79,33 @@ class UpdateControllerTest extends TestCase
 
         static::assertJson((string) $content);
         static::assertSame('{"extensions":[],"title":"","body":"","date":"2020-01-01T00:00:00.000+00:00","version":"6.5.0.0","fixedVulnerabilities":[]}', $content);
+    }
+
+    public function testCheckForUpdatesNoUpdateWithDisabledUpdateCheckByEnv(): void
+    {
+        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient
+            ->method('checkForUpdates')
+            ->willReturn(new Version(['version' => '6.5.0.0', 'date' => '2020-01-01']));
+
+        $updateController = new UpdateController(
+            $apiClient,
+            $this->createMock(WriteableCheck::class),
+            $this->createMock(LicenseCheck::class),
+            $this->createMock(ExtensionCompatibility::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(AbstractExtensionLifecycle::class),
+            '6.1.0.0',
+            true
+        );
+
+        $response = $updateController->updateApiCheck();
+
+        $content = $response->getContent();
+
+        static::assertJson((string) $content);
+        static::assertSame('{}', $content);
     }
 
     public function testCheckForRequirements(): void

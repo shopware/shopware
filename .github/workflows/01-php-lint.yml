@@ -10,6 +10,7 @@ on:
       - 'changelog/**/*.md'
       - 'src/**/snippet/**/*.json'
       - '**.php'
+      - '.github/workflows/01-php-lint.yml'
 
 jobs:
   build:

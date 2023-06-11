@@ -223,6 +223,12 @@ shopware:
             - name: media
               tags: ["img"]
               attributes: ["src", "alt"]
+            - name: modal
+              tags: ["a"]
+              attributes: ["data-ajax-modal", "data-url"]
+              custom_attributes:
+                  - tags: ["a"]
+                    attributes: ["data-ajax-modal", "data-url"]
             - name: script
               tags: ["script"]
               options:
@@ -241,11 +247,11 @@ shopware:
 
         fields:
             - name: product_translation.description
-              sets: ["basic", "media"]
+              sets: ["basic", "media", "modal"]
             - name: app_cms_block.template
-              sets: ["basic", "media", "tidy"]
+              sets: ["basic", "media", "tidy", "modal"]
             - name: snippet.value
-              sets: ["basic", "media", "bootstrap"]
+              sets: ["basic", "media", "bootstrap", "modal"]
 
     logger:
         file_rotation_count: 14

@@ -179,4 +179,13 @@ class HtmlSanitizerTest extends TestCase
 
         static::assertSame('<a target="_blank" href="#" rel="noreferrer noopener">Test</a>', $filteredString);
     }
+
+    public function testAllowedModalAttributes(): void
+    {
+        foreach (['product_translation.description', 'app_cms_block.template', 'snippet.value'] as $field) {
+            $filteredString = $this->sanitizer->sanitize('<a data-ajax-modal="true" data-url="https://shopware.com" href="https://shopware.com">Test</a>', null, false, $field);
+
+            static::assertSame('<a data-ajax-modal="true" data-url="https://shopware.com" href="https://shopware.com">Test</a>', $filteredString);
+        }
+    }
 }

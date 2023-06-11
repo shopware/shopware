@@ -34,7 +34,7 @@ jobs:
       - name: Check Code
         run: |
           composer run ecs -- --no-progress-bar
-          composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
+          composer run phpstan -- --error-format=github --no-progress | tee phpstan-report.json
           composer run lint:changelog
           composer run lint:snippets
           # TODO: Re-Enable BC-Check after 6.5 RC release

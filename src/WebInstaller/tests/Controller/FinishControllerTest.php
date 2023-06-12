@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace Shopware\WebInstaller\Tests\Controller;
 
-use App\Controller\FinishController;
+use Shopware\WebInstaller\Controller\FinishController;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;

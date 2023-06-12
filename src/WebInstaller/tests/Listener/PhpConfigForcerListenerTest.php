@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Listener;
+namespace Shopware\WebInstaller\Tests\Listener;
 
-use App\Listener\PhpConfigForcerListener;
+use Shopware\WebInstaller\Listener\PhpConfigForcerListener;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

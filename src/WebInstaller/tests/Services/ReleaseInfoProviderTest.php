@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\ReleaseInfoProvider;
+use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;

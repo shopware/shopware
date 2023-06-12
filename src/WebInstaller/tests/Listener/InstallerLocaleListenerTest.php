@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Tests\Listener;
+namespace Shopware\WebInstaller\Tests\Listener;
 
-use App\Listener\InstallerLocaleListener;
+use Shopware\WebInstaller\Listener\InstallerLocaleListener;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;

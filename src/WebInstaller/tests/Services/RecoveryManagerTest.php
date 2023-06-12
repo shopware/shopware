@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\RecoveryManager;
+use Shopware\WebInstaller\Services\RecoveryManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;

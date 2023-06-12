@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace Shopware\WebInstaller\Tests\Controller;
 
-use App\Controller\InstallController;
-use App\Services\RecoveryManager;
-use App\Services\ReleaseInfoProvider;
-use App\Services\StreamedCommandResponseGenerator;
+use Shopware\WebInstaller\Controller\InstallController;
+use Shopware\WebInstaller\Services\RecoveryManager;
+use Shopware\WebInstaller\Services\ReleaseInfoProvider;
+use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;

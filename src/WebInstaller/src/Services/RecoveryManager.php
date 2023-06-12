@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services;
+namespace Shopware\WebInstaller\Services;
 
-use App\InstallerException;
+use Shopware\WebInstaller\InstallerException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 

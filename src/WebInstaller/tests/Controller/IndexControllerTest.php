@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace Shopware\WebInstaller\Tests\Controller;
 
-use App\Controller\IndexController;
+use Shopware\WebInstaller\Controller\IndexController;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Response;

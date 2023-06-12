@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\StreamedCommandResponseGenerator;
+use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 

@@ -31,12 +31,12 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "Shopware\\WebInstaller\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "Shopware\\WebInstaller\\Tests\\": "tests/"
         }
     },
     "config": {

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace Shopware\WebInstaller\Controller;
 
-use App\Services\ProjectComposerJsonUpdater;
-use App\Services\RecoveryManager;
-use App\Services\ReleaseInfoProvider;
-use App\Services\StreamedCommandResponseGenerator;
+use Shopware\WebInstaller\Services\ProjectComposerJsonUpdater;
+use Shopware\WebInstaller\Services\RecoveryManager;
+use Shopware\WebInstaller\Services\ReleaseInfoProvider;
+use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;

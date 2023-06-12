@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\ProjectComposerJsonUpdater;
+use Shopware\WebInstaller\Services\ProjectComposerJsonUpdater;
 use PHPUnit\Framework\TestCase;
 
 /**

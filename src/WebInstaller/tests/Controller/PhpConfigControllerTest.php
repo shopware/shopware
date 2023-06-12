@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Controller;
+namespace Shopware\WebInstaller\Tests\Controller;
 
-use App\Controller\PhpConfigController;
-use App\Services\PhpBinaryFinder;
-use App\Services\RecoveryManager;
+use Shopware\WebInstaller\Controller\PhpConfigController;
+use Shopware\WebInstaller\Services\PhpBinaryFinder;
+use Shopware\WebInstaller\Services\RecoveryManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;

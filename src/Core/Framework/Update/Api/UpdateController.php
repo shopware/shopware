@@ -58,7 +58,7 @@ class UpdateController extends AbstractController
 
         $updates = $this->apiClient->checkForUpdates();
 
-        if (version_compare($this->shopwareVersion, $updates->version, '>')) {
+        if (version_compare($this->shopwareVersion, $updates->version, '>=')) {
             return new JsonResponse();
         }
 

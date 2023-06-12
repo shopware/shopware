@@ -5,6 +5,8 @@ namespace Shopware\WebInstaller\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class FinishController extends AbstractController
 {
     #[Route('/finish', name: 'finish', defaults: ['step' => 3])]
-    public function default(Request $request): Response
+    public function default(Request $request, #[Autowire('%kernel.cache_dir%')] string $cacheDir): Response
     {
         // @codeCoverageIgnoreStart
         if ($request->getMethod() === Request::METHOD_POST) {
@@ -28,6 +30,10 @@ class FinishController extends AbstractController
             \assert(\is_string($self));
 
             $redirectUrl = $request->getBasePath() . '/admin';
+
+            // Cleanup our generated cache dir in system temporary directory
+            $fs = new Filesystem();
+            $fs->remove($cacheDir);
 
             // Below this line call only php native functions as we deleted our own files already
             unlink($self);

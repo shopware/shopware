@@ -3,8 +3,6 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
-        '**/src/Recovery/**', // Testing
-        '**/src/Recovery/**', // Recovery
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency

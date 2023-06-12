@@ -1,6 +1,6 @@
 ---
 title: Allow uploading of url encoded media
-issue:
+issue: NEXT-28428
 author: Michael Köck
 author_email: mkoeck@elektroshopkoeck.com
 author_github: mkoeck

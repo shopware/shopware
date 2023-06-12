@@ -1,6 +1,6 @@
 ---
 title: Use value of BeforeSystemConfigChangedEvent in the SystemConfigService set value.
-issue: #3101
+issue: NEXT-28427
 author: Andreas Allacher
 author_email: andreas.allacher@massiveart.com
 author_github: @AndreasA

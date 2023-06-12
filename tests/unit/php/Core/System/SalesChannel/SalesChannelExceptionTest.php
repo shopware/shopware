@@ -17,19 +17,11 @@ class SalesChannelExceptionTest extends TestCase
     /**
      * @dataProvider exceptionDataProvider
      */
-    public function testItThrowsException(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
+    public function testExceptions(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
     {
-        try {
-            throw $exception;
-        } catch (ShopwareHttpException|SalesChannelException $salesChannelException) {
-            $caughtException = $salesChannelException;
-        }
-
-        static::assertNotNull($caughtException);
-
-        static::assertEquals($statusCode, $caughtException->getStatusCode());
-        static::assertEquals($errorCode, $caughtException->getErrorCode());
-        static::assertEquals($message, $caughtException->getMessage());
+        static::assertEquals($statusCode, $exception->getStatusCode());
+        static::assertEquals($errorCode, $exception->getErrorCode());
+        static::assertEquals($message, $exception->getMessage());
     }
 
     /**
@@ -37,10 +29,10 @@ class SalesChannelExceptionTest extends TestCase
      */
     public static function exceptionDataProvider(): iterable
     {
-        yield SalesChannelException::SALES_CHANNEL_NOT_AVAILABLE_EXCEPTION => [
+        yield SalesChannelException::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION => [
             'exception' => SalesChannelException::providedLanguageNotAvailable('myCustomScn', ['scn1', 'scn2']),
             'statusCode' => Response::HTTP_PRECONDITION_FAILED,
-            'errorCode' => SalesChannelException::SALES_CHANNEL_NOT_AVAILABLE_EXCEPTION,
+            'errorCode' => SalesChannelException::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION,
             'message' => 'Provided language "myCustomScn" is not in list of available languages: scn1, scn2',
         ];
 

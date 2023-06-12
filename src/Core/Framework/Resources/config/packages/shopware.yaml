@@ -255,6 +255,13 @@ shopware:
             - customer.recovery.request
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
+            SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
+            SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
+            SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice
+            SYSTEM__CURRENCY_DOES_NOT_EXISTS_EXCEPTION: notice
+            SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION: notice
+            SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION: notice
+            SYSTEM__NO_CONTEXT_DATA_EXCEPTION: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

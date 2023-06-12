@@ -19261,11 +19261,6 @@ parameters:
 			path: tests/unit/php/Core/System/SalesChannel/Api/StructEncoderTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\ShopwareHttpException will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/System/SalesChannel/SalesChannelExceptionTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/php/Core/System/Snippet/Files/SnippetFileCollectionTest.php

@@ -12,6 +12,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 
 /**
  * @internal
@@ -22,6 +23,11 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 class DomainExceptionRule implements Rule
 {
     use InTestClassTrait;
+
+    private const VALID_EXCEPTION_CLASSES = [
+        DecorationPatternException::class,
+        ConstraintViolationException::class,
+    ];
 
     public function __construct(
         private ReflectionProvider $reflectionProvider
@@ -54,7 +60,7 @@ class DomainExceptionRule implements Rule
         \assert($node->expr->class instanceof Node\Name);
         $exceptionClass = $node->expr->class->toString();
 
-        if ($exceptionClass === DecorationPatternException::class) {
+        if (\in_array($exceptionClass, self::VALID_EXCEPTION_CLASSES, true)) {
             return [];
         }
 

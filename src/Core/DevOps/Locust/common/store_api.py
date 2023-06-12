@@ -49,6 +49,12 @@ class StoreApi:
     def search(self):
         return self.request('/store-api/search', name='search', parameters = {'search': random.choice(self.context.keywords)})
 
+    def searchWithSorting(self):
+        field = random.choice(['name', 'price']);
+        order = random.choice(['asc', 'desc']);
+
+        return self.request('/store-api/search', name='search-sorting', parameters = {'search': random.choice(self.context.keywords), 'order': field + '-' + order})
+
     def suggest(self):
         return self.request('/store-api/search-suggest', name='suggest', parameters = {'search': random.choice(self.context.keywords)})
 

@@ -27,6 +27,12 @@ export default {
             customFields: [],
             selectedCriteria: null,
             customFieldSetIDs: null,
+            notSortableCustomFields: [
+                'price',
+                'json',
+                'text',
+                'html',
+            ],
         };
     },
 
@@ -45,6 +51,14 @@ export default {
 
         customFieldCriteria() {
             const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not(
+                'and',
+                [
+                    Criteria.equalsAny('type', this.notSortableCustomFields),
+
+                ],
+            ));
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(
@@ -369,6 +383,14 @@ export default {
 
         customFieldCriteriaSingleSelect(customField) {
             const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not(
+                'and',
+                [
+                    Criteria.equalsAny('type', this.notSortableCustomFields),
+
+                ],
+            ));
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(

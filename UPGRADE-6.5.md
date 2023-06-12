@@ -1,3 +1,56 @@
+# 6.5.2.0
+The `context` property is used instead of `contextData` property in `src/Core/Content/Media/Message/GenerateThumbnailsMessage` due to the `context` data is serialized in context source
+## Introduce BeforeLoadStorableFlowDataEvent
+The event is dispatched before the flow storer restores the data, so you can customize the criteria before passing it to the entity repository
+
+**Reference: Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent**
+
+**Examples:**
+
+```php
+class OrderStorer extends FlowStorer
+{
+    public function restore(StorableFlow $storable): void
+    {
+        ...
+        $criteria = new Criteria();
+        $criteria->addAssociations([
+            'orderCustomer',
+            'lineItems.downloads.media',
+        ]);
+        $event = new BeforeLoadStorableFlowDataEvent(
+            OrderDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
+
+        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        ...
+    }
+}
+
+class YourBeforeLoadStorableFlowOrderDataSubscriber implements EventSubscriberInterface
+    public static function getSubscribedEvents()
+    {
+        return [
+            'flow.storer.order.criteria.event' => 'handle',
+        ];
+    }
+
+    public function handle(BeforeLoadStorableFlowDataEvent $event): void
+    {
+        $criteria = $event->getCriteria();
+        
+        // Add new association
+        $criteria->addAssociation('tags');
+    }
+}
+```
+If you are relying on the association `import_export_log.file`, please associate the definition directly with the criteria because we will remove autoload from version 6.6.0.0.
+* Renamed error code from `FRAMEWORK__STORE_CANNOT_DOWNLOAD_PLUGIN_MANAGED_BY_SHOPWARE` to `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED`
+
 # 6.5.1.0
 ## Changes to data-attribute selector names
 

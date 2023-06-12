@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests;
 
-use Shopware\WebInstaller\Kernel;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Kernel;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Routing\Router;
@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Router;
 /**
  * @internal
  *
- * @covers \App\Kernel
+ * @covers \Shopware\WebInstaller\Kernel
  */
 class KernelTest extends TestCase
 {

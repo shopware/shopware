@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\InstallController;
 use Shopware\WebInstaller\Services\RecoveryManager;
 use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +22,8 @@ use Twig\Environment;
 /**
  * @internal
  *
- * @covers \App\Controller\InstallController
- * @covers \App\Services\ProjectComposerJsonUpdater
+ * @covers \Shopware\WebInstaller\Controller\InstallController
+ * @covers \Shopware\WebInstaller\Services\ProjectComposerJsonUpdater
  */
 class InstallControllerTest extends TestCase
 {

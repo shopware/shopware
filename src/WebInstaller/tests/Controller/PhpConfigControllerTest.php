@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\PhpConfigController;
 use Shopware\WebInstaller\Services\PhpBinaryFinder;
 use Shopware\WebInstaller\Services\RecoveryManager;
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ use Twig\Environment;
 /**
  * @internal
  *
- * @covers \App\Controller\PhpConfigController
+ * @covers \Shopware\WebInstaller\Controller\PhpConfigController
  */
 class PhpConfigControllerTest extends TestCase
 {

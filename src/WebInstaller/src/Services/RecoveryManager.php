@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Services;
 
-use Shopware\WebInstaller\InstallerException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\WebInstaller\InstallerException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

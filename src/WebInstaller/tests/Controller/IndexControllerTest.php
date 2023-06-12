@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
-use Shopware\WebInstaller\Controller\IndexController;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Controller\IndexController;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
@@ -13,7 +13,7 @@ use Twig\Environment;
 /**
  * @internal
  *
- * @covers \App\Controller\IndexController
+ * @covers \Shopware\WebInstaller\Controller\IndexController
  */
 class IndexControllerTest extends TestCase
 {

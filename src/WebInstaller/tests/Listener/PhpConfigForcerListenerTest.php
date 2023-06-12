@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Listener;
 
-use Shopware\WebInstaller\Listener\PhpConfigForcerListener;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Listener\PhpConfigForcerListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  *
- * @covers \App\Listener\PhpConfigForcerListener
+ * @covers \Shopware\WebInstaller\Listener\PhpConfigForcerListener
  */
 class PhpConfigForcerListenerTest extends TestCase
 {

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
-use Shopware\WebInstaller\Controller\FinishController;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Shopware\WebInstaller\Controller\FinishController;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Router;
@@ -14,7 +14,7 @@ use Twig\Environment;
 /**
  * @internal
  *
- * @covers \App\Controller\FinishController
+ * @covers \Shopware\WebInstaller\Controller\FinishController
  */
 class FinishControllerTest extends TestCase
 {
@@ -23,7 +23,7 @@ class FinishControllerTest extends TestCase
         $controller = new FinishController();
         $controller->setContainer($this->getContainer());
 
-        $response = $controller->default(new Request());
+        $response = $controller->default(new Request(), '');
 
         static::assertSame('finish.html.twig', $response->getContent());
     }

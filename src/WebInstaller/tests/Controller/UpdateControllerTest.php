@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\UpdateController;
 use Shopware\WebInstaller\Services\FlexMigrator;
 use Shopware\WebInstaller\Services\RecoveryManager;
 use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,8 +24,8 @@ use Twig\Environment;
 /**
  * @internal
  *
- * @covers \App\Controller\UpdateController
- * @covers \App\Services\ProjectComposerJsonUpdater
+ * @covers \Shopware\WebInstaller\Controller\UpdateController
+ * @covers \Shopware\WebInstaller\Services\ProjectComposerJsonUpdater
  */
 class UpdateControllerTest extends TestCase
 {

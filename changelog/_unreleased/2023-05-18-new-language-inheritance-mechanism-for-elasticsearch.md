@@ -28,7 +28,169 @@ ___
 ___
 # Upgrade Information
 
-## New elasticsearch data mapping structure:
-* If you have your custom entities indexed, please read the [adr](../../adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md) to match your mapping structure to the new structure and then reindex your index using `bin/console es:index`
+## Old data mapping structure is deprecated, introduce new data mapping structure:
 
+* For the full reference, please read the [adr](../../adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md)
+* If you've defined your own Elasticsearch definitions, please prepare for the new structure by update your definition's `getMapping` and `fetch` methods:
+
+```php
+<?php
+
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Core\Framework\Context;
+
+class YourElasticsearchDefinition extends AbstractElasticsearchDefinition
+{
+    public function getMapping(Context $context): array
+    {
+        $languageIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language');
+        // Fetch all language in system, for eg: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b', '46986b26eadf4bb3929e9fc91821e294] for English and German language
+        // These two language ids will be used in the translated fields mapping below
+
+        $mapping = [
+            // Non-translated fields are updated as current
+            'productNumber' => [
+                'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => [
+                        'type' => 'text',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+            // Translated text fields mapping need to be updated with the new structure
+            'name' =>[
+                'properties' => [
+                    '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => [
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => [
+                                'type' => 'text',
+                            ],
+                            'ngram' => [
+                                'type' => 'text',
+                                'analyzer' => 'sw_ngram_analyzer',
+                            ],
+                        ],
+                    ],
+                    '46986b26eadf4bb3929e9fc91821e294' => [
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => [
+                                'type' => 'text',
+                            ],
+                            'ngram' => [
+                                'type' => 'text',
+                                'analyzer' => 'sw_ngram_analyzer',
+                            ],
+                        ]
+                    ]
+                ]
+            ],
+            // The same applied for customFields in case your entity's custom fields is translatable
+            'customFields' =>[
+                'properties' => [
+                    '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => [
+                        'type' => 'object',
+                        'dynamic' => true,
+                        'properties' => [],
+                    ],
+                    '46986b26eadf4bb3929e9fc91821e294' => [
+                        'type' => 'object',
+                        'dynamic' => true,
+                        'properties' => [],
+                    ]
+                ]
+            ],
+            // nested translated fields needs to be updated too in the same manner
+            'manufacturer' => [
+                'type' => 'nested',
+                'properties' => [
+                    'id' => [
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                    ],
+                    '_count' => [
+                        'type' => 'long',
+                    ],
+                    'name' => [
+                        'properties' => [
+                            '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => [
+                                'type' => 'keyword',
+                                'normalizer' => 'sw_lowercase_normalizer',
+                                'fields' => [
+                                    'search' => [
+                                        'type' => 'text',
+                                    ],
+                                    'ngram' => [
+                                        'type' => 'text',
+                                        'analyzer' => 'sw_ngram_analyzer',
+                                    ],
+                                ]
+                            ],
+                            '46986b26eadf4bb3929e9fc91821e294' => [
+                                'type' => 'keyword',
+                                'normalizer' => 'sw_lowercase_normalizer',
+                                'fields' => [
+                                    'search' => [
+                                        'type' => 'text',
+                                    ],
+                                    'ngram' => [
+                                        'type' => 'text',
+                                        'analyzer' => 'sw_ngram_analyzer',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+
+        return $mapping;
+    }
+
+    public function fetch(array $ids, Context $context): array
+    {
+        // We need to fetch all available content of translated fields in all languages
+        ...;
+
+        return [
+            '466f4eadf13a4486b851e747f5d99a4f' => [
+                'name' => [
+                    '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => 'English foo',
+                    '46986b26eadf4bb3929e9fc91821e294' => 'German foo',
+                ],
+                'manufacturer' => [
+                    'id' => '5bf0d9be43cb41ccbb5781cec3052d91',
+                    '_count' => 1,
+                    'name' => [
+                        '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => 'English baz',
+                        '46986b26eadf4bb3929e9fc91821e294' => 'German baz',
+                    ],
+                ],
+                'productNumber' => 'PRODUCT_NUM',
+            ],
+        ];
+    }
+}
+```
+
+* The new structure will be applied since next major, however you can try it out by enabling the flag `ES_MULTILINGUAL_INDEX=1`
+
+## Update your live shops
+
+* After the flag is activated, you must run `bin/console es:index`, then new index mapping will be ready after the es indexing process is finished
+___
 # Next Major Version Changes
+
+* In the previous implementation, each system language has its own index, but with the new implementation, every languages share the same index. This leads to the following changes in the next major: 
+  * Old ES indexes is deprecated and will be removed since the next major. 
+  * If you have custom elasticsearch definitions, you also need to write your own SearchQueryBuilder (Reference: \Shopware\Elasticsearch\Product\EsProductDefinition::buildTermQuery)

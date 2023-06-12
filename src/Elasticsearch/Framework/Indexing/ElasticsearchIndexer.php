@@ -58,9 +58,6 @@ class ElasticsearchIndexer
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed, use MultilingualEsIndexer::__invoke instead
-     */
     public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
     {
         if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $message instanceof ElasticsearchIndexingMessage) {

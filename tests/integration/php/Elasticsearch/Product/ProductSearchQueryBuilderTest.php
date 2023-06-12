@@ -82,6 +82,8 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testIndexing(): IdsCollection
     {
+        static::expectNotToPerformAssertions();
+
         $this->connection->executeStatement('DELETE FROM product');
 
         $this->clearElasticsearch();

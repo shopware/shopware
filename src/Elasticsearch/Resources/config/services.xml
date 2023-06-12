@@ -74,7 +74,6 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler"/>
             <argument>%elasticsearch.indexing_enabled%</argument>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer" on-invalid="null" />
             <tag name="console.command"/>
         </service>
 
@@ -101,7 +100,6 @@
         <service id="Shopware\Elasticsearch\Product\ProductUpdater">
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer" on-invalid="null" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
-use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -22,8 +21,7 @@ class ProductUpdater implements EventSubscriberInterface
      */
     public function __construct(
         private readonly ElasticsearchIndexer $indexer,
-        private readonly EntityDefinition $definition,
-        private readonly ?MultilingualEsIndexer $multilingualEsIndexer = null
+        private readonly EntityDefinition $definition
     ) {
     }
 
@@ -39,8 +37,6 @@ class ProductUpdater implements EventSubscriberInterface
 
     public function update(ProductIndexerEvent $event): void
     {
-        $indexer = $this->multilingualEsIndexer ?? $this->indexer;
-
-        $indexer->updateIds($this->definition, $event->getIds());
+        $this->indexer->updateIds($this->definition, $event->getIds());
     }
 }

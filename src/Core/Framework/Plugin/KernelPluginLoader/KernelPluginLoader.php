@@ -230,7 +230,7 @@ abstract class KernelPluginLoader extends Bundle
      *
      * @throws KernelPluginLoaderException
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function mapPsrPaths(string $plugin, array $psr, string $projectDir, string $pluginRootPath): array
     {

@@ -20,7 +20,7 @@ class ClassNamespaceTest extends TestCase
 
         $phpFiles = (new Finder())->files()
             ->in($basePath)
-            ->exclude('Recovery')
+            ->exclude('WebInstaller')
             ->name('*.php')->getIterator();
 
         $errors = [];
@@ -52,12 +52,14 @@ class ClassNamespaceTest extends TestCase
     public function testNoGlobalExceptionDirectories(): void
     {
         $result = glob(__DIR__ . '/../../*/Exception');
+        static::assertIsIterable($result);
         static::assertCount(0, $result, 'No global Exception directories allowed, put your exceptions in the right domain directory, violations: ' . print_r($result, true));
     }
 
     public function testNoGlobalCommandDirectories(): void
     {
         $result = glob(__DIR__ . '/../../*/Command');
+        static::assertIsIterable($result);
         static::assertCount(0, $result, 'No global Command directories allowed, put your commands in the right domain directory, violations: ' . print_r($result, true));
     }
 

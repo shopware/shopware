@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace App\Tests\Listener;
+namespace Shopware\WebInstaller\Tests\Listener;
 
-use App\Listener\InstallerLocaleListener;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Listener\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  *
- * @covers \App\Listener\InstallerLocaleListener
+ * @covers \Shopware\WebInstaller\Listener\InstallerLocaleListener
  */
 class InstallerLocaleListenerTest extends TestCase
 {

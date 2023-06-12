@@ -4,11 +4,11 @@ services:
     autowire: true
     public: false
 
-  App\:
+  Shopware\WebInstaller\:
     resource: '../../*'
     exclude: '../../{Command,Controller,Resources,Tests}'
 
-  App\Controller\:
+  Shopware\WebInstaller\Controller\:
     resource: '../../Controller'
     public: true
     tags: ['controller.service_arguments']

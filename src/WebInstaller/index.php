@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use App\Kernel;
+use Shopware\WebInstaller\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 

@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\StreamedCommandResponseGenerator;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
 use Symfony\Component\Process\Process;
 
 /**
  * @internal
  *
- * @covers \App\Services\StreamedCommandResponseGenerator
+ * @covers \Shopware\WebInstaller\Services\StreamedCommandResponseGenerator
  */
 class StreamedCommandResponseGeneratorTest extends TestCase
 {

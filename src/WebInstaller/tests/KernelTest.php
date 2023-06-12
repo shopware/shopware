@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace Shopware\WebInstaller\Tests;
 
-use App\Kernel;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Kernel;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Routing\Router;
@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Router;
 /**
  * @internal
  *
- * @covers \App\Kernel
+ * @covers \Shopware\WebInstaller\Kernel
  */
 class KernelTest extends TestCase
 {
@@ -45,8 +45,12 @@ class KernelTest extends TestCase
     {
         $kernel = new Kernel('test', true);
 
-        static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@/', $kernel->getCacheDir());
-        static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@/', $kernel->getLogDir());
+        /** @var string $fileName */
+        $fileName = (new \ReflectionClass($kernel))->getFileName();
+        $kernelPath = md5(\dirname($fileName));
+
+        static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . $kernelPath . '/', $kernel->getCacheDir());
+        static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@' . $kernelPath . '/', $kernel->getLogDir());
     }
 
     public function testBuildKernel(): void

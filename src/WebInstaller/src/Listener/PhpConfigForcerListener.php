@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Listener;
+namespace Shopware\WebInstaller\Listener;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;

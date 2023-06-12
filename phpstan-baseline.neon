@@ -12125,10 +12125,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Cache/CacheIdLoaderTest.php
 
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int, string\\>\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/ClassNamespaceTest.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

@@ -8,14 +8,14 @@
         "ext-curl": "*",
         "ext-iconv": "*",
         "composer/composer": "^2.4",
-        "symfony/console": "6.2.*",
-        "symfony/dotenv": "6.2.*",
-        "symfony/framework-bundle": "6.2.*",
-        "symfony/http-client": "^6.2",
-        "symfony/process": "^6.2",
-        "symfony/translation": "^6.2",
-        "symfony/twig-bundle": "^6.2",
-        "symfony/yaml": "6.2.*",
+        "symfony/console": "6.3.*",
+        "symfony/dotenv": "6.3.*",
+        "symfony/framework-bundle": "6.3.*",
+        "symfony/http-client": "^6.3",
+        "symfony/process": "^6.3",
+        "symfony/translation": "^6.3",
+        "symfony/twig-bundle": "^6.3",
+        "symfony/yaml": "^6.3",
         "twig/twig": "^3.4"
     },
     "replace": {
@@ -23,7 +23,9 @@
         "symfony/polyfill-iconv": "*",
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
-        "symfony/polyfill-php74": "*"
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -31,12 +33,12 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "Shopware\\WebInstaller\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "Shopware\\WebInstaller\\Tests\\": "tests/"
         }
     },
     "config": {

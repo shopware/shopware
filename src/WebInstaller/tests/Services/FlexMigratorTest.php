@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\FlexMigrator;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Services\FlexMigrator;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
- * @covers \App\Services\FlexMigrator
+ * @covers \Shopware\WebInstaller\Services\FlexMigrator
  */
 class FlexMigratorTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App;
+namespace Shopware\WebInstaller;
 
 use Shopware\Core\Framework\Log\Package;
 

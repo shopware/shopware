@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\ReleaseInfoProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
  *
- * @covers \App\Services\ReleaseInfoProvider
+ * @covers \Shopware\WebInstaller\Services\ReleaseInfoProvider
  */
 class ReleaseInfoProviderTest extends TestCase
 {

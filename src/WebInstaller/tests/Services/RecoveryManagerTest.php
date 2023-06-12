@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Services;
+namespace Shopware\WebInstaller\Tests\Services;
 
-use App\Services\RecoveryManager;
 use PHPUnit\Framework\TestCase;
+use Shopware\WebInstaller\Services\RecoveryManager;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  *
- * @covers \App\Services\RecoveryManager
+ * @covers \Shopware\WebInstaller\Services\RecoveryManager
  */
 class RecoveryManagerTest extends TestCase
 {
@@ -138,7 +138,7 @@ class RecoveryManagerTest extends TestCase
         ], \JSON_THROW_ON_ERROR));
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Could not find shopware package in the composer.lock');
+        static::expectExceptionMessage('Could not find Shopware in composer.lock file');
         $recoveryManager->getCurrentShopwareVersion($tmpDir);
     }
 

@@ -31,8 +31,8 @@ class IndexerOffsetTest extends TestCase
                 $this->createMock(Connection::class),
                 [],
                 new EventDispatcher(),
-                $this->createMock(AbstractProductSearchQueryBuilder::class)
-                . $this->createMock(EsProductDefinition::class)
+                $this->createMock(AbstractProductSearchQueryBuilder::class),
+                $this->createMock(EsProductDefinition::class)
             ),
             new MockElasticsearchDefinition(),
         ];
@@ -72,6 +72,7 @@ class IndexerOffsetTest extends TestCase
     public function testItConvertsLanguagesToSerializableIdsAndCanDoAnLanguageRoundTrip(): void
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
         $definitions = [];
 
         $offset = new IndexerOffset(

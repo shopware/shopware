@@ -81,6 +81,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -3475,9 +3476,18 @@ class ElasticsearchProductTest extends TestCase
             ],
         ], $this->context);
 
+        $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
+
         ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
             $this->definition,
-            \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'))
+            $customMapping
+        );
+
+        $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
+
+        ReflectionHelper::getProperty(EsProductDefinition::class, 'customMapping')->setValue(
+            $newImplementation,
+            $customMapping
         );
 
         $products = [

@@ -171,19 +171,19 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli
+        name: ghcr.io/friendsofshopware/shopware-cli:0.2.0
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
               - composer.json
     variables:
-        SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS: 1
         SHOPWARE_PROJECT_ROOT: "${CI_PROJECT_DIR}"
         APP_ENV: 'dev'
     before_script:
       - *setup_platform_and_plugin_files
     script:
-        - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --disable-git
+        - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --git-commit "${CI_COMMIT_SHA}"
+        - mv ${PLUGIN_NAME}-${CI_COMMIT_SHA}.zip ${PLUGIN_NAME}.zip
         - shopware-cli extension validate "${PLUGIN_NAME}.zip"
     artifacts:
         name: '${PLUGIN_NAME}.zip'

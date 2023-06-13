@@ -213,7 +213,9 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertIsArray($content['preOrderPayment']);
         static::assertArrayHasKey('test', $content['preOrderPayment']);
         static::assertSame('test', $content['preOrderPayment']['test']);
-        static::assertCount(4, $content);
+        static::assertArrayHasKey('recurring', $content);
+        static::assertNull($content['recurring']);
+        static::assertCount(5, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_PAID, $transactionId);
     }
 

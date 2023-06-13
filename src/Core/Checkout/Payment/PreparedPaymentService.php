@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,7 +32,8 @@ class PreparedPaymentService
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
         private readonly EntityRepository $appPaymentMethodRepository,
         private readonly LoggerInterface $logger,
-        private readonly InitialStateIdLoader $initialStateIdLoader
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
     ) {
     }
 
@@ -80,7 +81,7 @@ class PreparedPaymentService
                 return;
             }
 
-            $preparedTransactionStruct = new PreparedPaymentTransactionStruct($transaction, $order);
+            $preparedTransactionStruct = $this->paymentTransactionStructFactory->prepared($transaction, $order);
             $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
         } catch (PaymentProcessException $e) {
             $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage()]);

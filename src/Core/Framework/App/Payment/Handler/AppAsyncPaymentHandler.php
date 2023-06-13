@@ -126,7 +126,8 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
             $transaction->getOrderTransaction(),
             $transaction->getOrder(),
             $transaction->getReturnUrl(),
-            $requestData
+            $requestData,
+            $transaction->getRecurring()
         );
     }
 
@@ -137,7 +138,8 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
     {
         return new AsyncFinalizePayload(
             $transaction->getOrderTransaction(),
-            $queryParameters
+            $queryParameters,
+            $transaction->getRecurring()
         );
     }
 }

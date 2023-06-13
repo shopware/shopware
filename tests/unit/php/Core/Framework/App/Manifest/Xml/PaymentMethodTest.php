@@ -25,6 +25,7 @@ class PaymentMethodTest extends TestCase
         static::assertSame('https://payment.app/payment/process', $firstWebhook->getPayUrl());
         static::assertSame('https://payment.app/payment/finalize', $firstWebhook->getFinalizeUrl());
         static::assertSame('https://payment.app/payment/refund', $firstWebhook->getRefundUrl());
+        static::assertSame('https://payment.app/payment/recurring', $firstWebhook->getRecurringUrl());
         static::assertSame('Resources/payment.png', $firstWebhook->getIcon());
         static::assertSame([
             'en-GB' => 'The app payment method',
@@ -41,6 +42,7 @@ class PaymentMethodTest extends TestCase
         static::assertNull($secondWebhook->getPayUrl());
         static::assertNull($secondWebhook->getFinalizeUrl());
         static::assertNull($secondWebhook->getRefundUrl());
+        static::assertNull($secondWebhook->getRecurringUrl());
         static::assertNull($secondWebhook->getIcon());
         static::assertSame([
             'en-GB' => 'Another app payment method',

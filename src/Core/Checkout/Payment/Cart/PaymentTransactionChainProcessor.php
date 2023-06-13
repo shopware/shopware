@@ -35,7 +35,8 @@ class PaymentTransactionChainProcessor
         private readonly RouterInterface $router,
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
         private readonly SystemConfigService $systemConfigService,
-        private readonly InitialStateIdLoader $initialStateIdLoader
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
     ) {
     }
 
@@ -95,7 +96,7 @@ class PaymentTransactionChainProcessor
         }
 
         if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {
-            $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
+            $paymentTransaction = $this->paymentTransactionStructFactory->sync($transaction, $order);
             $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
 
             return null;
@@ -125,7 +126,7 @@ class PaymentTransactionChainProcessor
             $token = $this->tokenFactory->generateToken($tokenStruct);
 
             $returnUrl = $this->assembleReturnUrl($token);
-            $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
+            $paymentTransaction = $this->paymentTransactionStructFactory->async($transaction, $order, $returnUrl);
 
             return $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
         }

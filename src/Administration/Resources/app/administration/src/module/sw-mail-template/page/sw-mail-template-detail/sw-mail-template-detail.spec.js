@@ -5,17 +5,31 @@ import 'src/app/component/base/sw-icon';
 import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
 import 'src/app/component/tree/sw-tree-input-field';
+import 'src/app/component/structure/sw-language-info';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 Shopware.Component.register('sw-mail-template-detail', swMailTemplateDetail);
 
+const mailTemplateTypeMock = {
+    id: '6666673yd1ssd299si1d837dy1ud628',
+    name: 'Type name',
+    contentHtml: '',
+};
+
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
     media: [],
-    mailTemplateType: {
-        id: '6666673yd1ssd299si1d837dy1ud628',
-    },
+    mailTemplateType: mailTemplateTypeMock,
     isNew: () => false,
+};
+
+const refsMock = {
+    htmlEditor: {
+        defineAutocompletion: jest.fn(),
+    },
+    plainEditor: {
+        defineAutocompletion: jest.fn(),
+    },
 };
 
 const mediaMock = [
@@ -43,10 +57,6 @@ const mailTemplateMediaMock = {
     fileExtension: 'jpg',
     fileName: 'untitled-3-15870000742491754447780',
     fileSize: 792866,
-};
-
-const mailTemplateTypeMock = {
-    contentHtml: '',
 };
 
 const repositoryMockFactory = () => {
@@ -684,5 +694,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         wrapper.vm.createNotificationError.mockRestore();
         await flushPromises();
+    });
+
+    it('should render mail template type name as language info description', async () => {
+        wrapper = await createWrapper();
+        await wrapper.setData({ $refs: refsMock });
+        await flushPromises();
+
+        expect(wrapper.find('sw-language-info-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-language-info-stub').attributes('entity-description')).toBe(mailTemplateTypeMock.name);
     });
 });

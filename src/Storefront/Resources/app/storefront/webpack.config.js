@@ -117,6 +117,7 @@ let webpackConfig = {
         if (isHotMode) {
             return {
                 entry: {
+                    app: [],
                     storefront: [],
                 },
             };
@@ -397,7 +398,9 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    webpackConfig.entry.storefront = [...themeFiles.script, { filepath: scssEntryFilePath }].map((file) => {
+    webpackConfig.entry.app = [scssEntryFilePath];
+
+    webpackConfig.entry.storefront = [...themeFiles.script].map((file) => {
         return file.filepath;
     });
 }

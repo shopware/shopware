@@ -98,7 +98,7 @@ export default {
         },
 
         categoryCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'page'));
 
             return criteria;

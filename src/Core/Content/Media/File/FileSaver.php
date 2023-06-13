@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
-use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -143,7 +142,7 @@ class FileSaver
                 $this->getFileSystem($media)
             );
         } catch (\Exception) {
-            throw MediaException::couldNotRenameFile($media->getId(), (string) $media->getFileName());
+            throw MediaException::couldNotRenameFile($currentMedia->getId(), (string) $currentMedia->getFileName());
         }
 
         foreach ($media->getThumbnails() ?? [] as $thumbnail) {

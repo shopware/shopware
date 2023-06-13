@@ -446,12 +446,10 @@ class FileSaverTest extends TestCase
             ],
         ];
 
-        $this->mediaRepository->create($data, $context);
-
         $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "original_media.png" already exists.');
+        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
 
-        $this->fileSaver->renameMedia($ids->get('old'), 'original_media', $context);
+        $this->fileSaver->renameMedia($old->getId(), $png->getFileName(), $context);
     }
 
     public function testRenameMediaForNewExtensionWorksWithSameName(): void

@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
-use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -197,7 +197,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     public function testCommandAbortsIfNoFolderCanBeFound(): void
     {
         $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not find a folder with name "non-existing-folder"');
+        $this->expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
 
         $input = new StringInput('--folder-name="non-existing-folder"');
         $output = new BufferedOutput();

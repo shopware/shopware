@@ -43,12 +43,7 @@ class MediaUploadController extends AbstractController
             throw MediaException::cannotCreateTempFile();
         }
 
-        $fileName = $request->query->getString('fileName', $mediaId);
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
-
-        if (!\is_string($destination)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
+        $destination = $request->query->get('fileName', $mediaId);
 
         try {
             $uploadedFile = $this->mediaService->fetchFile($request, $tempFile);
@@ -77,10 +72,6 @@ class MediaUploadController extends AbstractController
             throw MediaException::emptyMediaFilename();
         }
 
-        if (!\is_string($destination)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
-
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
@@ -92,14 +83,7 @@ class MediaUploadController extends AbstractController
         $fileName = $request->query->getString('fileName');
         $preferredFileName = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
 
-        if (!\is_string($preferredFileName)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
-
-        $fileExtension = $request->query->getString('extension');
-        $mediaId = $request->query->has('mediaId') ? $request->query->getString('mediaId') : null;
-
-        if ($preferredFileName === '') {
+        if ($fileName === '') {
             throw MediaException::emptyMediaFilename();
         }
         if ($fileExtension === '') {

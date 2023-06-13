@@ -423,7 +423,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertEquals(2, $thumbnails->count());
 
         foreach ($thumbnails as $thumbnail) {
-            $path = $thumbnail->getPath();
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -553,6 +553,12 @@ class ThumbnailServiceTest extends TestCase
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
+
+        $thumbnail = $media->getThumbnails()?->first();
+
+        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
+
+        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
 
         $thumbnail = $media->getThumbnails()?->first();
 

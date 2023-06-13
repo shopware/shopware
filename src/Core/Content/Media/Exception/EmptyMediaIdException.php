@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,8 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::emptyMediaId instead
  */
-#[Package('buyers-experience')]
-class EmptyMediaIdException extends MediaException
+#[Package('content')]
+class EmptyMediaIdException extends ShopwareHttpException
 {
     public function __construct()
     {
@@ -20,11 +19,7 @@ class EmptyMediaIdException extends MediaException
             Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use MediaException::emptyMediaId instead')
         );
 
-        parent::__construct(
-            Response::HTTP_BAD_REQUEST,
-            self::MEDIA_EMPTY_ID,
-            'A media id must be provided.'
-        );
+        parent::__construct('A media id must be provided.');
     }
 
     public function getErrorCode(): string

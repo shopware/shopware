@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,8 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::emptyMediaFilename instead
  */
-#[Package('buyers-experience')]
-class EmptyMediaFilenameException extends MediaException
+#[Package('content')]
+class EmptyMediaFilenameException extends ShopwareHttpException
 {
     public function __construct()
     {
@@ -20,11 +19,7 @@ class EmptyMediaFilenameException extends MediaException
             Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use MediaException::emptyMediaFilename instead')
         );
 
-        parent::__construct(
-            Response::HTTP_BAD_REQUEST,
-            self::MEDIA_EMPTY_FILE_NAME,
-            'A valid filename must be provided.'
-        );
+        parent::__construct('A valid filename must be provided.');
     }
 
     public function getErrorCode(): string
@@ -34,7 +29,7 @@ class EmptyMediaFilenameException extends MediaException
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'use MediaException::emptyMediaFilename instead')
         );
 
-        return 'CONTENT__MEDIA_EMPTY_FILE_NAME';
+        return 'CONTENT__MEDIA_EMPTY_FILE';
     }
 
     public function getStatusCode(): int

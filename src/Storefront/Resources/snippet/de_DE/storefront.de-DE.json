@@ -74,7 +74,8 @@
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warten Sie %seconds% Sekunden, bevor Sie es erneut versuchen.",
     "captcha" : {
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
-    }
+    },
+    "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden."
   },
   "account": {
     "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut.",

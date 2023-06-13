@@ -148,6 +148,7 @@ class AccountOrderController extends StorefrontController
         $deliveriesCriteria = $criteria->getAssociation('deliveries');
         $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 
+        /** @var OrderEntity|null $order */
         $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
 
         if ($order === null) {
@@ -164,7 +165,7 @@ class AccountOrderController extends StorefrontController
         }
 
         /** @var OrderDeliveryEntity|null $mostCurrentDelivery */
-        $mostCurrentDelivery = $order->getDeliveries()->last();
+        $mostCurrentDelivery = $order->getDeliveries()?->last();
 
         if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
             $this->contextSwitchRoute->switchContext(
@@ -175,7 +176,13 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
         }
 
-        $page = $this->accountEditOrderPageLoader->load($request, $context);
+        try {
+            $page = $this->accountEditOrderPageLoader->load($request, $context);
+        } catch (OrderException $exception) {
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode(), ['%orderNumber%' => $order->getOrderNumber()]));
+
+            return $this->redirectToRoute('frontend.account.order.page');
+        }
 
         $this->hook(new AccountEditOrderPageLoadedHook($page, $context));
 

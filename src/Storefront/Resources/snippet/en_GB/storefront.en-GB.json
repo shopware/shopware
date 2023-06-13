@@ -74,7 +74,8 @@
     "rateLimitExceeded": "Too many requests. Please wait %seconds% seconds before trying again.",
     "captcha" : {
       "basic-captcha-invalid": "Incorrect input. Please try again."
-    }
+    },
+    "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards."
   },
   "account": {
     "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",

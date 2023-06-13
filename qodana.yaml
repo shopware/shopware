@@ -10,7 +10,6 @@ include:
     - name: CheckDependencyLicenses
     - name: MkdirRaceConditionInspection
     - name: TraitsPropertiesConflictsInspection
-    - name: OffsetOperationsInspection
     - name: ClassMockingCorrectnessInspection
     - name: CallableMethodValidityInspection
     - name: SuspiciousLoopInspection

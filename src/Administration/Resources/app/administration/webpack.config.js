@@ -496,7 +496,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: [
                 '!**/*',
-                'administration',
+                'static/**/*',
             ]
         }),
     ],

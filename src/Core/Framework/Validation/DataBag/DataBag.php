@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Validation\DataBag;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -14,11 +15,7 @@ class DataBag extends ParameterBag
      */
     final public function __construct(array $parameters = [])
     {
-        foreach ($parameters as $key => $value) {
-            if (\is_array($value)) {
-                $parameters[$key] = new static($value);
-            }
-        }
+        $parameters = $this->wrapArrayParameters($parameters);
 
         parent::__construct($parameters);
     }
@@ -47,6 +44,39 @@ class DataBag extends ParameterBag
         return $data;
     }
 
+    public function add(array $parameters = []): void
+    {
+        /**
+         * @deprecated tag:v6.6.0 - remove complete if statement, parameters will always be translated to databags
+         */
+        if (Feature::has('v6.6.0.0')) {
+            $parameters = $this->wrapArrayParameters($parameters);
+        }
+
+        parent::add($parameters);
+    }
+
+    public function set(string $key, $value): void
+    {
+        /**
+         * @deprecated tag:v6.6.0 - remove complete if statement, parameters will always be translated to databags
+         */
+        if (Feature::has('v6.6.0.0')) {
+            $value = $this->wrapArrayParameters([$value])[0];
+        }
+
+        parent::set($key, $value);
+    }
+
+    public function __clone(): void
+    {
+        foreach ($this->parameters as &$value) {
+            if ($value instanceof self) {
+                $value = clone $value;
+            }
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -58,5 +88,16 @@ class DataBag extends ParameterBag
     public function toRequestDataBag(): RequestDataBag
     {
         return new RequestDataBag($this->all());
+    }
+
+    private function wrapArrayParameters(array $parameters): array
+    {
+        foreach ($parameters as $key => $value) {
+            if (\is_array($value)) {
+                $parameters[$key] = new static($value);
+            }
+        }
+
+        return $parameters;
     }
 }

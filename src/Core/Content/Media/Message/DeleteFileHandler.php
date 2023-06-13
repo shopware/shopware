@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Message;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\Visibility;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -40,7 +41,7 @@ final class DeleteFileHandler
         return match ($visibility) {
             Visibility::PUBLIC => $this->filesystemPublic,
             Visibility::PRIVATE => $this->filesystemPrivate,
-            default => throw new \RuntimeException('Invalid filesystem visibility.'),
+            default => throw MediaException::invalidFilesystemVisibility(),
         };
     }
 }

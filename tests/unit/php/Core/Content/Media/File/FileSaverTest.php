@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -98,7 +98,10 @@ class FileSaverTest extends TestCase
         $mediaFile = new MediaFile('foo', 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
-        static::expectException(DuplicatedMediaFileNameException::class);
+
+        static::expectException(MediaException::class);
+        static::expectExceptionMessage('A file with the name "foo.png" already exists.');
+
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', Uuid::randomHex(), $context);
     }
 

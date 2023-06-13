@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -210,7 +211,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testCommandAbortsIfNoFolderCanBeFound(): void
     {
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
 
         $input = new StringInput('--folder-name="non-existing-folder"');
@@ -220,8 +221,10 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testItThrowsExceptionOnNonNumericLimit(): void
     {
-        $this->expectException(\Exception::class);
-        $input = new StringInput('-i test');
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Provided batch size is invalid.');
+
+        $input = new StringInput('--batch-size "test"');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);

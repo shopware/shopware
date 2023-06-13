@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Exception\IllegalUrlException;
-use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
-use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\TestBootstrapper;
 use Symfony\Component\HttpFoundation\HeaderBag;
@@ -84,8 +82,8 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestDataWithWrongFileSize(): void
     {
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage('expected content-length did not match actual size');
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Expected content-length did not match actual size.');
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -104,7 +102,8 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestDataWithMissingExtension(): void
     {
-        $this->expectException(MissingFileExtensionException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('No file extension provided. Please use the "extension" query parameter to specify the extension of the uploaded file.');
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
         $request = new Request();
@@ -121,8 +120,8 @@ class FileFetcherTest extends TestCase
     public function testItThrowsExceptionWhenDestinationStreamCannotBeOpened(): void
     {
         $fileName = '';
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage("Could not open Stream to write upload data: {$fileName}");
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(\sprintf('Cannot open source stream to write upload data: %s', $fileName));
 
         $content = fopen(self::TEST_IMAGE, 'rb');
         static::assertIsResource($content);
@@ -172,8 +171,8 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithNoUrlGiven(): void
     {
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage('You must provide a valid url.');
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Parameter url is missing.');
 
         $this->fileFetcher->fetchFileFromURL(
             new Request(),
@@ -183,12 +182,13 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithMalformedUrl(): void
     {
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage('malformed url');
+        $invalidUrl = 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg';
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(\sprintf('Provided URL "%s" is invalid.', $invalidUrl));
 
         $request = new Request();
         $request->query->set('extension', 'png');
-        $request->request->set('url', 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg');
+        $request->request->set('url', $invalidUrl);
 
         $this->fileFetcher->fetchFileFromURL(
             $request,
@@ -203,7 +203,8 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://invalid/host';
 
-        $this->expectException(IllegalUrlException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(\sprintf('Provided URL "%s" is not allowed.', $url));
 
         $request = new Request();
         $request->request->set('url', $url);
@@ -219,7 +220,8 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://localhost/myForbiddenImage.png';
 
-        $this->expectException(IllegalUrlException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(\sprintf('Provided URL "%s" is not allowed.', $url));
 
         $request = new Request();
         $request->request->set('url', $url);
@@ -235,7 +237,8 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://127.0.0.1/myForbiddenImage.png';
 
-        $this->expectException(IllegalUrlException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(\sprintf('Provided URL "%s" is not allowed.', $url));
 
         $request = new Request();
         $request->request->set('url', $url);
@@ -251,7 +254,8 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://[::1]/myForbiddenImage.png';
 
-        $this->expectException(IllegalUrlException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(\sprintf('Provided URL "%s" is not allowed.', $url));
 
         $request = new Request();
         $request->request->set('url', $url);
@@ -343,7 +347,9 @@ class FileFetcherTest extends TestCase
 
         $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 5000);
 
-        $this->expectException(UploadException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Source file exceeds maximum file size limit.');
+
         $mediaFile = $fileFetcher->fetchFileFromURL($request, $tempFile);
         static::assertEquals(0, $mediaFile->getFileSize());
         static::assertFileDoesNotExist($tempFile);

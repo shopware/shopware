@@ -4,9 +4,8 @@ namespace Shopware\Core\Content\Media\Pathname;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
@@ -24,8 +23,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getRelativeMediaUrl(MediaEntity $media): string
     {
@@ -40,8 +38,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
@@ -49,8 +46,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getRelativeThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
@@ -65,8 +61,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getAbsoluteThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
@@ -77,23 +72,25 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     {
     }
 
+    /**
+     * @param array<string|null> $parts
+     */
     private function toPathString(array $parts): string
     {
         return implode('/', array_filter($parts));
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     private function validateMedia(MediaEntity $media): void
     {
         if (empty($media->getId())) {
-            throw new EmptyMediaIdException();
+            throw MediaException::emptyMediaId();
         }
 
         if (empty($media->getFileName())) {
-            throw new EmptyMediaFilenameException();
+            throw MediaException::emptyMediaFilename();
         }
     }
 }

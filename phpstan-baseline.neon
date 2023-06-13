@@ -3748,39 +3748,9 @@ parameters:
 			path: src/Core/Content/Media/Aggregate/MediaTranslation/MediaTranslationCollection.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Api/MediaUploadController.php
-
-		-
-			message: "#^Parameter \\#2 \\$tempFile of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaService\\:\\:fetchFile\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Api/MediaUploadController.php
-
-		-
 			message: "#^Anonymous variable in a `\\$sliderItems\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
-
-		-
-			message: "#^Parameter \\#2 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Commands\\\\GenerateMediaTypesCommand\\:\\:detectMediaType\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
-
-		-
-			message: "#^Parameter \\#3 \\$fileExtension of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
@@ -3878,49 +3848,9 @@ parameters:
 			path: src/Core/Content/Media/Event/MediaIndexerEvent.php
 
 		-
-			message: "#^Anonymous variable in a `\\$context\\-\\>getContext\\(\\)\\-\\>scope\\(\\\\Shopware\\\\Core\\\\Framework\\\\Context\\:\\:SYSTEM_SCOPE, fn\\(\\\\Shopware\\\\Core\\\\Framework\\\\Context \\$context\\)\\: \\\\Psr\\\\Http\\\\Message\\\\StreamInterface \\=\\> \\$this\\-\\>mediaService\\-\\>loadFileStream\\(\\$media\\-\\>getId\\(\\), \\$context\\)\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Media/File/DownloadResponseGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileLoader\\:\\:findMediaById\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection\\:\\:getUserIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaCollection.php
-
-		-
-			message: "#^Anonymous variable in a `\\$folder\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:duplicateFolderConfig\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:duplicateFolderConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:fetchFolder\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaFolderService.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -3966,11 +3896,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$fromValue of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\AbstractPathNameStrategy\\:\\:generateMd5Path\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Pathname/PathnameStrategy/FilenamePathnameStrategy.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:toPathString\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Pathname/UrlGenerator.php
 
 		-
 			message: "#^PHPDoc tag @var with type array\\<string\\>\\|false is not subtype of native type list\\<string\\>\\.$#"
@@ -5903,104 +5828,9 @@ parameters:
 			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:controlCharacters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:ntfsInternals\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:restrictedCharacters\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:testValidateFileNameThrowsExceptionIfControlCharacterIsPresent\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:testValidateFileNameThrowsIfFileNameIsNtfsInternal\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:testValidateFileNameThrowsIfRestrictedCharacterIsPresent\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileUrlValidatorTest\\:\\:fileSourceProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/File/FileUrlValidatorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getConfigurationId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Cannot call method getConfigurationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 5
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Cannot call method getCreateThumbnails\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Cannot call method getKeepAspectRatio\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Cannot call method getMediaFolderId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Cannot call method getParentId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Cannot call method getThumbnailQuality\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaFolderServiceTest\\:\\:assertConfigIsDeleted\\(\\) has parameter \\$configId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$folder of method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaFolderServiceTest\\:\\:assertConfig\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$folder of method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaFolderServiceTest\\:\\:assertConfigIsSame\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$folderId of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:dissolve\\(\\) expects string, string\\|null given\\.$#"
-			count: 5
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$childFolder of method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaFolderServiceTest\\:\\:assertConfigIsSame\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
@@ -6036,61 +5866,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int\\|string, array\\<int\\|string, int\\|string\\>\\|int\\|string\\>\\|string given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$filteredThumbnails\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$size\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Media\\\\\\\\Aggregate\\\\\\\\MediaThumbnail\\\\\\\\MediaThumbnailCollection' and Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 8
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method getThumbnails\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 8
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Thumbnail\\\\ThumbnailServiceTest\\:\\:strictModeConditionsProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$elements of class Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection constructor expects iterable\\<Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\>, array\\<int, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\> given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGeneratorInterface\\:\\:getRelativeMediaUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGeneratorInterface\\:\\:getRelativeThumbnailUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:updateThumbnails\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$me\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -15641,11 +15416,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/Event/HttpCacheItemWrittenEvent.php
 
 		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/StorefrontMediaUploader.php
-
-		-
 			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
@@ -16099,11 +15869,6 @@ parameters:
 			message: "#^Parameter \\#7 \\$content of class Symfony\\\\Component\\\\HttpFoundation\\\\Request constructor expects resource\\|string\\|null, array given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/HoneypotCaptchaTest.php
-
-		-
-			message: "#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Media/StorefrontMediaUploaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RouterTest\\:\\:urlCases\\(\\) has no return type specified\\.$#"
@@ -17059,21 +16824,6 @@ parameters:
 			message: "#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleHandler.php
-
-		-
-			message: "#^Anonymous variable in a `\\$item\\['mediaFile'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleService\\:\\:getThemeByTechnicalName\\(\\) should return Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleService.php
 
 		-
 			message: "#^Anonymous variable in a `\\$parentTheme\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

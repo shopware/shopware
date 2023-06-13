@@ -98,6 +98,7 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException:
             log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
         Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException:
             log_level: notice
         Shopware\Core\System\StateMachine\Exception\IllegalTransitionException:
@@ -153,4 +154,7 @@ framework:
         Shopware\Core\Framework\App\Exception\AppRegistrationException:
             log_level: notice
         Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\Media\Exception\MissingFileException:
             log_level: notice

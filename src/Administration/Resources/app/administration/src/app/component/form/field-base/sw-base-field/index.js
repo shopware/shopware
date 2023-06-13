@@ -111,6 +111,7 @@ Component.register('sw-base-field', {
         swFieldClasses() {
             return {
                 'has--error': this.hasError,
+                'has--hint': this.$slots.hint,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
             };

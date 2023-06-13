@@ -76,7 +76,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_mail_template_detail_content_language_info %}
                 <sw-language-info
-                    :entity-description="placeholder(mailTemplate, 'description', $tc('sw-mail-template.detail.textHeadline'))"
+                    :entity-description="placeholder(mailTemplate.mailTemplateType, 'name', $tc('sw-mail-template.detail.textHeadline'))"
                 />
                 {% endblock %}
 

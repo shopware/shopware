@@ -4,10 +4,11 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\MimeType;
-use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -125,7 +126,9 @@ class ThemeLifecycleService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
 
-        return $this->themeRepository->search($criteria, $context)->first();
+        $theme = $this->themeRepository->search($criteria, $context)->first();
+
+        return $theme instanceof ThemeEntity ? $theme : null;
     }
 
     /**
@@ -162,7 +165,11 @@ class ThemeLifecycleService
         $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
         $defaultFolderId = null;
         if ($defaultFolder->count() === 1) {
-            $defaultFolderId = $defaultFolder->first()->getId();
+            $defaultFolder = $defaultFolder->first();
+
+            if ($defaultFolder instanceof MediaFolderEntity) {
+                $defaultFolderId = $defaultFolder->getId();
+            }
         }
 
         return $defaultFolderId;
@@ -385,9 +392,17 @@ class ThemeLifecycleService
             $this->mediaRepository->create($mediaIds, $context);
 
             foreach ($media as $item) {
+                if (!$item['mediaFile'] instanceof MediaFile) {
+                    throw MediaException::missingFile($item['media']['id']);
+                }
+
                 try {
                     $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
-                } catch (DuplicatedMediaFileNameException) {
+                } catch (MediaException $e) {
+                    if ($e->getErrorCode() !== MediaException::MEDIA_DUPLICATED_FILE_NAME) {
+                        throw $e;
+                    }
+
                     $newFileName = $this->fileNameProvider->provide(
                         $item['basename'],
                         $item['mediaFile']->getFileExtension(),

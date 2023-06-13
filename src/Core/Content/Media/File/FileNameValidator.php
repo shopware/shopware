@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('content')]
@@ -29,13 +28,12 @@ class FileNameValidator
     ];
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws IllegalFileNameException
+     * @throws MediaException
      */
     public function validateFileName(string $fileName): void
     {
         if (empty($fileName)) {
-            throw new EmptyMediaFilenameException();
+            throw MediaException::emptyMediaFilename();
         }
 
         $this->validateFileNameDoesNotEndWithSpaces($fileName);
@@ -47,11 +45,11 @@ class FileNameValidator
     private function validateFileNameDoesNotEndOrStartWithDot(string $fileName): void
     {
         if (mb_substr($fileName, 0, 1) === '.') {
-            throw new IllegalFileNameException($fileName, 'Filename must not start with a "." (dot).');
+            throw MediaException::illegalFileName($fileName, 'Filename must not start with a "." (dot).');
         }
 
         if (mb_substr($fileName, mb_strlen($fileName) - 1) === '.') {
-            throw new IllegalFileNameException($fileName, 'Filename must not end with a "." (dot).');
+            throw MediaException::illegalFileName($fileName, 'Filename must not end with a "." (dot).');
         }
     }
 
@@ -59,13 +57,10 @@ class FileNameValidator
     {
         foreach (self::RESTRICTED_CHARACTERS as $character) {
             if (mb_strpos($fileName, $character) !== false) {
-                throw new IllegalFileNameException(
-                    $fileName,
-                    sprintf(
-                        'Filename must not contain "%s"',
-                        $character
-                    )
-                );
+                throw MediaException::illegalFileName($fileName, sprintf(
+                    'Filename must not contain "%s"',
+                    $character
+                ));
             }
         }
     }
@@ -74,13 +69,10 @@ class FileNameValidator
     {
         foreach (range(0, 31) as $controlCharacter) {
             if (mb_strpos($fileName, \chr($controlCharacter)) !== false) {
-                throw new IllegalFileNameException(
-                    $fileName,
-                    sprintf(
-                        'Filename must not contain character "%x"',
-                        $controlCharacter
-                    )
-                );
+                throw MediaException::illegalFileName($fileName, sprintf(
+                    'Filename must not contain character "%x"',
+                    $controlCharacter
+                ));
             }
         }
     }
@@ -88,7 +80,7 @@ class FileNameValidator
     private function validateFileNameDoesNotEndWithSpaces(string $fileName): void
     {
         if (mb_substr($fileName, -1) === ' ') {
-            throw new IllegalFileNameException($fileName, 'Filename must not end with spaces');
+            throw MediaException::illegalFileName($fileName, 'Filename must not end with spaces');
         }
     }
 }

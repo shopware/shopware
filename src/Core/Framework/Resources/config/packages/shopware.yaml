@@ -252,12 +252,14 @@ shopware:
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            # deprecated tag:v6.6.0 - Exception will be removed
             - Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
         exclude_events:
             - user.recovery.request
             - customer.recovery.request
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
+            PRODUCT_SORTING_NOT_FOUND: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
             CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
             CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice
@@ -273,6 +275,27 @@ shopware:
             CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND: notice
             CHECKOUT__SERVICE_CATEGORY_NOT_FOUND: notice
             CHECKOUT__FOOTER_CATEGORY_NOT_FOUND: notice
+            CONTENT__MEDIA_INVALID_CONTENT_LENGTH: notice
+            CONTENT__MEDIA_INVALID_URL: notice
+            CONTENT__MEDIA_ILLEGAL_URL: notice
+            CONTENT__MEDIA_DISABLE_URL_UPLOAD_FEATURE: notice
+            CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ: notice
+            CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_WRITE: notice
+            CONTENT__MEDIA_FILE_SIZE_LIMIT_EXCEEDED: notice
+            CONTENT__MEDIA_MISSING_FILE_EXTENSION: notice
+            CONTENT__MEDIA_ILLEGAL_FILE_NAME: notice
+            CONTENT__MEDIA_EMPTY_FILE: notice
+            CONTENT__MEDIA_INVALID_FILE: notice
+            CONTENT__MEDIA_EMPTY_FILE_NAME: notice
+            CONTENT__MEDIA_FOLDER_NOT_FOUND: notice
+            CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND: notice
+            CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED: notice
+            CONTENT__MEDIA_EMPTY_ID: notice
+            CONTENT__MEDIA_FILE_NOT_SUPPORTED_FOR_THUMBNAIL: notice
+            CONTENT__MEDIA_STRATEGY_NOT_FOUND: notice
+            CONTENT__MEDIA_DUPLICATED_FILE_NAME: notice
+            CONTENT__MEDIA_NOT_FOUND: notice
+            CONTENT__MEDIA_MISSING_FILE: notice
             FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__TEMPLATE_PARAMETER_IS_MISSING: notice
             FRAMEWORK__ROUTE_NAME_PARAMETER_IS_MISSING: notice

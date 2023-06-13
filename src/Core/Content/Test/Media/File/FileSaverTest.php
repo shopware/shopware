@@ -5,15 +5,11 @@ namespace Shopware\Core\Content\Test\Media\File;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
-use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
-use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
-use Shopware\Core\Content\Media\Exception\FileExtensionNotSupportedException;
-use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
-use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -262,7 +258,8 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        $this->expectException(DuplicatedMediaFileNameException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
 
         $context = Context::createDefaultContext();
 
@@ -391,18 +388,22 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void
     {
-        $this->expectException(MediaNotFoundException::class);
+        $id = Uuid::randomHex();
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::mediaNotFound($id)->getMessage());
 
         $context = Context::createDefaultContext();
-        $this->fileSaver->renameMedia(Uuid::randomHex(), 'new file destination', $context);
+        $this->fileSaver->renameMedia($id, 'new file destination', $context);
     }
 
     public function testRenameMediaThrowsExceptionIfMediaHasNoFileAttached(): void
     {
-        $this->expectException(MissingFileException::class);
+        $id = Uuid::randomHex();
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::missingFile($id)->getMessage());
 
         $context = Context::createDefaultContext();
-        $id = Uuid::randomHex();
 
         $this->mediaRepository->create([
             [
@@ -423,7 +424,9 @@ class FileSaverTest extends TestCase
 
         static::assertIsString($png->getFileName());
 
-        $this->expectException(DuplicatedMediaFileNameException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
+
         $this->fileSaver->renameMedia($old->getId(), $png->getFileName(), $context);
     }
 
@@ -495,11 +498,13 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaMakesRollbackOnFailure(): void
     {
-        $this->expectException(CouldNotRenameFileException::class);
+        $png = $this->getPng();
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName())->getMessage());
 
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);
-        $png = $this->getPng();
 
         $collection = new MediaCollection([$png]);
         $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
@@ -545,8 +550,6 @@ class FileSaverTest extends TestCase
 
     public function testMaliciousFileExtension(): void
     {
-        $this->expectException(FileExtensionNotSupportedException::class);
-
         $tempFile = tempnam(sys_get_temp_dir(), '');
         static::assertIsString($tempFile);
         copy(self::TEST_SCRIPT_FILE, $tempFile);
@@ -556,8 +559,10 @@ class FileSaverTest extends TestCase
         $mediaFile = new MediaFile($tempFile, 'text/plain', 'php', $fileSize);
 
         $mediaId = Uuid::randomHex();
-
         $context = Context::createDefaultContext();
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::fileExtensionNotSupported($mediaId, 'php')->getMessage());
 
         $this->mediaRepository->create(
             [

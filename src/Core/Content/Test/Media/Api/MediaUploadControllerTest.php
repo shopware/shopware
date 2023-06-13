@@ -209,7 +209,7 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(400, $response->getStatusCode());
-        static::assertEquals('CONTENT__MEDIA_EMPTY_FILE', $responseData['errors'][0]['code']);
+        static::assertEquals('CONTENT__MEDIA_EMPTY_FILE_NAME', $responseData['errors'][0]['code']);
 
         static::assertNull($this->thrownMediaEvent);
     }

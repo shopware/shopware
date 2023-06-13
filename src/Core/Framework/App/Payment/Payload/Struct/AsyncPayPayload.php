@@ -20,8 +20,8 @@ class AsyncPayPayload extends SyncPayPayload
         OrderTransactionEntity $orderTransaction,
         OrderEntity $order,
         protected string $returnUrl,
-        array $requestData = [],
-        ?RecurringDataStruct $recurring = null,
+        protected array $requestData,
+        protected ?RecurringDataStruct $recurring = null,
     ) {
         parent::__construct($orderTransaction, $order, $requestData, $recurring);
     }
@@ -29,5 +29,15 @@ class AsyncPayPayload extends SyncPayPayload
     public function getReturnUrl(): string
     {
         return $this->returnUrl;
+    }
+
+    public function getRequestData(): array
+    {
+        return $this->requestData;
+    }
+
+    public function getRecurring(): ?RecurringDataStruct
+    {
+        return $this->recurring;
     }
 }

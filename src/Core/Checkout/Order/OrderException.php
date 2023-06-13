@@ -123,6 +123,16 @@ class OrderException extends HttpException
         );
     }
 
+    public static function missingTransactions(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_MISSING_TRANSACTIONS_CODE,
+            'Order with id {{ orderId }} has no transactions.',
+            ['orderId' => $orderId]
+        );
+    }
+
     public static function missingOrderNumber(string $orderId): self
     {
         return new self(

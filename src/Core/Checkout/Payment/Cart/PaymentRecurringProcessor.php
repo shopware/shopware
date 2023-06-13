@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Event\RecurringPaymentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
 class PaymentRecurringProcessor
@@ -29,7 +27,6 @@ class PaymentRecurringProcessor
         private readonly OrderTransactionStateHandler $stateHandler,
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
         private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
-        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -47,8 +44,6 @@ class PaymentRecurringProcessor
         $criteria->addAssociation('billingAddress.country');
         $criteria->addAssociation('lineItems');
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
-
-        $this->eventDispatcher->dispatch(new RecurringPaymentOrderCriteriaEvent($orderId, $criteria, $context));
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $context)->first();
@@ -73,12 +68,12 @@ class PaymentRecurringProcessor
 
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getRecurringPaymentHandler($paymentMethod->getId());
         if (!$paymentHandler) {
-            throw PaymentException::unknownPaymentMethodByHandlerIdentifier($paymentMethod->getHandlerIdentifier());
+            throw PaymentException::unknownPaymentMethod($paymentMethod->getHandlerIdentifier());
         }
 
         $struct = $this->paymentTransactionStructFactory->recurring($transaction, $order);

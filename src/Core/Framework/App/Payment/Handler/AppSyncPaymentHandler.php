@@ -72,7 +72,6 @@ class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaym
         return new SyncPayPayload(
             $transaction->getOrderTransaction(),
             $transaction->getOrder(),
-            $requestData,
             $transaction->getRecurring()
         );
     }

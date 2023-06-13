@@ -38,7 +38,6 @@ class PaymentTransactionChainProcessor
         private readonly SystemConfigService $systemConfigService,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
-        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 

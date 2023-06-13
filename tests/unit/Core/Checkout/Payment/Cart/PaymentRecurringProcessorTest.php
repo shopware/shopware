@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerIn
 use Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Event\RecurringPaymentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
@@ -25,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor
@@ -59,23 +57,16 @@ class PaymentRecurringProcessorTest extends TestCase
             ->with($criteria, Context::createDefaultContext())
             ->willReturn(new EntitySearchResult('order', 0, new OrderCollection(), null, $criteria, Context::createDefaultContext()));
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
         $processor = new PaymentRecurringProcessor(
             $repo,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(OrderTransactionStateHandler::class),
             $this->createMock(PaymentHandlerRegistry::class),
-            new PaymentTransactionStructFactory(),
-            $dispatcher,
+            new PaymentTransactionStructFactory()
         );
 
-        $this->expectException(OrderException::class);
-        $this->expectExceptionMessage('Could not find order with id "foo"');
+        static::expectException(OrderException::class);
+
         $processor->processRecurring($orderId, Context::createDefaultContext());
     }
 
@@ -87,23 +78,16 @@ class PaymentRecurringProcessorTest extends TestCase
             ->method('search')
             ->willReturn(new EntitySearchResult('order', 0, new OrderCollection(), null, new Criteria(), Context::createDefaultContext()));
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
         $processor = new PaymentRecurringProcessor(
             $repo,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(OrderTransactionStateHandler::class),
             $this->createMock(PaymentHandlerRegistry::class),
-            new PaymentTransactionStructFactory(),
-            $dispatcher,
+            new PaymentTransactionStructFactory()
         );
 
-        $this->expectException(OrderException::class);
-        $this->expectExceptionMessage('Could not find order with id "foo"');
+        static::expectException(OrderException::class);
+        static::expectExceptionMessage(OrderException::orderNotFound('foo')->getMessage());
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -119,23 +103,16 @@ class PaymentRecurringProcessorTest extends TestCase
             ->method('search')
             ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), Context::createDefaultContext()));
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
         $processor = new PaymentRecurringProcessor(
             $repo,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(OrderTransactionStateHandler::class),
             $this->createMock(PaymentHandlerRegistry::class),
-            new PaymentTransactionStructFactory(),
-            $dispatcher,
+            new PaymentTransactionStructFactory()
         );
 
-        $this->expectException(OrderException::class);
-        $this->expectExceptionMessage('Order with id foo has no transactions.');
+        static::expectException(OrderException::class);
+        static::expectExceptionMessage(OrderException::missingTransactions('foo')->getMessage());
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -183,13 +160,7 @@ class PaymentRecurringProcessorTest extends TestCase
             ->expects(static::never())
             ->method('fail');
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
-        $processor = new PaymentRecurringProcessor($repo, $stateLoader, $stateHandler, $registry, new PaymentTransactionStructFactory(), $dispatcher);
+        $processor = new PaymentRecurringProcessor($repo, $stateLoader, $stateHandler, $registry, new PaymentTransactionStructFactory());
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
 
@@ -219,23 +190,16 @@ class PaymentRecurringProcessorTest extends TestCase
             ->with(OrderTransactionStates::STATE_MACHINE)
             ->willReturn('initial_state_id');
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
         $processor = new PaymentRecurringProcessor(
             $repo,
             $stateLoader,
             $this->createMock(OrderTransactionStateHandler::class),
             $this->createMock(PaymentHandlerRegistry::class),
-            new PaymentTransactionStructFactory(),
-            $dispatcher,
+            new PaymentTransactionStructFactory()
         );
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "foo"');
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('The payment method foo could not be found.');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -278,23 +242,16 @@ class PaymentRecurringProcessorTest extends TestCase
             ->with('foo')
             ->willReturn(null);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
         $processor = new PaymentRecurringProcessor(
             $repo,
             $stateLoader,
             $this->createMock(OrderTransactionStateHandler::class),
             $registry,
-            new PaymentTransactionStructFactory(),
-            $dispatcher,
+            new PaymentTransactionStructFactory()
         );
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with handler identifier "foo_recurring_handler"');
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('The payment method foo_recurring_handler could not be found.');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -345,19 +302,12 @@ class PaymentRecurringProcessorTest extends TestCase
             ->with('foo')
             ->willReturn($handler);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
-
         $processor = new PaymentRecurringProcessor(
             $repo,
             $stateLoader,
             $this->createMock(OrderTransactionStateHandler::class),
             $registry,
             new PaymentTransactionStructFactory(),
-            $dispatcher,
         );
 
         $processor->processRecurring('foo', Context::createDefaultContext());
@@ -416,16 +366,10 @@ class PaymentRecurringProcessorTest extends TestCase
             ->method('fail')
             ->with($transaction->getId(), Context::createDefaultContext());
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(RecurringPaymentOrderCriteriaEvent::class));
+        $processor = new PaymentRecurringProcessor($repo, $stateLoader, $stateHandler, $registry, new PaymentTransactionStructFactory());
 
-        $processor = new PaymentRecurringProcessor($repo, $stateLoader, $stateHandler, $registry, new PaymentTransactionStructFactory(), $dispatcher);
-
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('error_foo');
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('error_foo');
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }

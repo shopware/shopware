@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInt
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
@@ -283,9 +284,7 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
     {
         return new RecurringPayPayload(
             $transaction->getOrderTransaction(),
-            $transaction->getOrder(),
-            [],
-            $transaction->getRecurring()
+            $transaction->getOrder()
         );
     }
 }

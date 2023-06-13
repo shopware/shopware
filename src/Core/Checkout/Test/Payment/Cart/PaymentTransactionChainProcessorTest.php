@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -63,7 +64,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(PaymentHandlerRegistry::class),
             $this->createMock(SystemConfigService::class),
-            $this->createMock(InitialStateIdLoader::class)
+            $this->createMock(InitialStateIdLoader::class),
+            new PaymentTransactionStructFactory()
         );
 
         if (!Feature::isActive('v6.6.0.0')) {
@@ -127,7 +129,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $this->createMock(RouterInterface::class),
             $paymentHandlerRegistry,
             $this->createMock(SystemConfigService::class),
-            $initialStateIdLoader
+            $initialStateIdLoader,
+            new PaymentTransactionStructFactory()
         );
 
         if (!Feature::isActive('v6.6.0.0')) {

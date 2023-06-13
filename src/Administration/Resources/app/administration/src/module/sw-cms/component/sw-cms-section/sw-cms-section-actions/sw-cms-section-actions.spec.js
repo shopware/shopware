@@ -21,6 +21,18 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('cmsPageState', {
+            namespaced: true,
+            state: {
+                selectedSection: {},
+            },
+            actions: {
+                setSection: () => {},
+            },
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 

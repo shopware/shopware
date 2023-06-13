@@ -59,5 +59,11 @@
             <capture-url>https://payment.app/payment/capture</capture-url>
             <refund-url>https://payment.app/payment/refund</refund-url>
         </payment-method>
+        <payment-method>
+            <identifier>recurring</identifier>
+            <name>The app payment method</name>
+            <description>This is a description</description>
+            <recurring-url>https://payment.app/payment/recurring</recurring-url>
+        </payment-method>
     </payments>
 </manifest>

@@ -61,7 +61,9 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
-        static::assertCount(3, $content);
+        static::assertArrayHasKey('recurring', $content);
+        static::assertNull($content['recurring']);
+        static::assertCount(4, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
     }
 

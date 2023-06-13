@@ -39,8 +39,13 @@ class PaymentMethod extends XmlElement
 
     protected ?string $refundUrl = null;
 
+    protected ?string $recurringUrl = null;
+
     protected ?string $icon = null;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function __construct(array $data)
     {
         $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
@@ -75,6 +80,7 @@ class PaymentMethod extends XmlElement
             'validateUrl' => $data['validateUrl'],
             'captureUrl' => $data['captureUrl'],
             'refundUrl' => $data['refundUrl'],
+            'recurringUrl' => $data['recurringUrl'],
         ];
 
         unset(
@@ -84,6 +90,7 @@ class PaymentMethod extends XmlElement
             $data['validateUrl'],
             $data['captureUrl'],
             $data['refundUrl'],
+            $data['recurringUrl'],
             $data['icon']
         );
 
@@ -136,11 +143,19 @@ class PaymentMethod extends XmlElement
         return $this->refundUrl;
     }
 
+    public function getRecurringUrl(): ?string
+    {
+        return $this->recurringUrl;
+    }
+
     public function getIcon(): ?string
     {
         return $this->icon;
     }
 
+    /**
+     * @return mixed[]
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];

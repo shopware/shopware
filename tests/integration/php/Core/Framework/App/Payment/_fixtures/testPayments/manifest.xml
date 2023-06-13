@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
     <meta>
         <name>testPayments</name>
         <label>Swag App Payments Test</label>
@@ -59,6 +59,12 @@
             <description>This is a description</description>
             <capture-url>https://payment.app/payment/capture</capture-url>
             <refund-url>https://payment.app/payment/refund</refund-url>
+        </payment-method>
+        <payment-method>
+            <identifier>recurring</identifier>
+            <name>The app payment method</name>
+            <description>This is a description</description>
+            <recurring-url>https://payment.app/payment/recurring</recurring-url>
         </payment-method>
     </payments>
 </manifest>

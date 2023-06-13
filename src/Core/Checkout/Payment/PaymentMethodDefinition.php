@@ -80,6 +80,7 @@ class PaymentMethodDefinition extends EntityDefinition
             (new BoolField('asynchronous', 'asynchronous'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
             (new BoolField('prepared', 'prepared'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
             (new BoolField('refundable', 'refundable'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
+            (new BoolField('recurring', 'recurring'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
 
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),

@@ -301,7 +301,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertArrayHasKey('queryParameters', $content);
         static::assertIsArray($content['queryParameters']);
-        static::assertCount(3, $content);
+        static::assertCount(4, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $data['transactionId']);
     }
 
@@ -408,7 +408,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
-        static::assertCount(5, $content);
+        static::assertArrayHasKey('recurring', $content);
+        static::assertNull($content['recurring']);
+        static::assertCount(6, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
 
         return [

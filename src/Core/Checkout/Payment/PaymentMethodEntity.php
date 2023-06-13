@@ -137,6 +137,8 @@ class PaymentMethodEntity extends Entity
 
     protected bool $refundable = false;
 
+    protected bool $recurring = false;
+
     public function getPluginId(): ?string
     {
         return $this->pluginId;
@@ -394,5 +396,15 @@ class PaymentMethodEntity extends Entity
     public function setRefundable(bool $refundable): void
     {
         $this->refundable = $refundable;
+    }
+
+    public function isRecurring(): bool
+    {
+        return $this->recurring;
+    }
+
+    public function setRecurring(bool $recurring): void
+    {
+        $this->recurring = $recurring;
     }
 }

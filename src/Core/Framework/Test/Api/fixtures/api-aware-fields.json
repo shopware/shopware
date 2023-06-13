@@ -1381,6 +1381,7 @@
     "payment_method.asynchronous",
     "payment_method.prepared",
     "payment_method.refundable",
+    "payment_method.recurring",
     "payment_method.translations",
     "payment_method.media",
     "payment_method.createdAt",

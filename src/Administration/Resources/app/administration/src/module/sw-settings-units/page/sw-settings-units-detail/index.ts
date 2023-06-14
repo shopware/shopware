@@ -6,6 +6,7 @@ import Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import template from './index.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
+import Criteria from "@shopware-ag/admin-extension-sdk/es/data/Criteria";
 
 const { Component, Mixin } = Shopware;
 
@@ -22,6 +23,11 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'acl'],
 
+    data() {
+        return {
+            customFieldSets: [],
+        };
+    },
 
     props: {
         /**
@@ -94,13 +100,6 @@ export default Component.wrapComponentConfig({
             }
 
             this.unit = this.unitRepository.create(Shopware.Context.api);
-            this.isLoading = false;
-        }).catch(() => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.createNotificationError({
-                message: this.$tc('sw-settings-units.notification.errorMessage'),
-            });
-
             this.isLoading = false;
         });
     },

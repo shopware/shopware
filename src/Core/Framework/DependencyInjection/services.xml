@@ -333,6 +333,7 @@ base-uri 'self';
             <argument>%twig.cache%</argument>
             <argument type="service"
                       id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -341,6 +342,7 @@ base-uri 'self';
             <argument type="tagged" tag="shopware.twig.hierarchy_builder"/>
         </service>
 
+
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -348,8 +350,13 @@ base-uri 'self';
             <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector">
+            <argument type="service" id="request_stack"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
             <tag name="twig.extension"/>
         </service>
 

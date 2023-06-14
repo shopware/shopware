@@ -4,8 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\ConfigurableFilesystemCache;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
@@ -17,24 +20,29 @@ use Twig\Loader\LoaderInterface;
  */
 class TemplateFinderTest extends TestCase
 {
-    /**
-     * @var NamespaceHierarchyBuilder&MockObject
-     */
-    private NamespaceHierarchyBuilder $hierarchyBuilder;
+    private NamespaceHierarchyBuilder&MockObject $hierarchyBuilder;
 
-    /**
-     * @var LoaderInterface&MockObject
-     */
-    private LoaderInterface $loader;
+    private LoaderInterface&MockObject $loader;
 
     private TemplateFinder $finder;
+
+    private TemplateScopeDetector&MockObject $templateScopeDetector;
+
+    private Environment&MockObject $twig;
 
     protected function setUp(): void
     {
         $this->hierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
         $this->loader = $this->createMock(LoaderInterface::class);
-        $twig = $this->createMock(Environment::class);
-        $this->finder = new TemplateFinder($twig, $this->loader, '', $this->hierarchyBuilder);
+        $this->templateScopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $this->twig = $this->createMock(Environment::class);
+        $this->finder = new TemplateFinder(
+            $this->twig,
+            $this->loader,
+            '',
+            $this->hierarchyBuilder,
+            $this->templateScopeDetector
+        );
     }
 
     /**
@@ -72,6 +80,25 @@ class TemplateFinderTest extends TestCase
         $foundTemplate = $this->finder->find($template, $ignoreMissing, $source);
 
         static::assertEquals($expectedTemplate, $foundTemplate);
+    }
+
+    public function testFindModifiesCache(): void
+    {
+        $this->twig->expects(static::once())->method('getCache')->willReturn($this->createMock(FilesystemCache::class));
+        $this->twig->expects(static::once())->method('setCache')->with(static::callback(static function (ConfigurableFilesystemCache $cache) {
+            $hash = $cache->generateKey('foo', 'bar');
+            $cache->setTemplateScopes(['foo']);
+
+            // template scope has been set
+            static::assertEquals($hash, $cache->generateKey('foo', 'bar'));
+
+            // config hash had been set as well
+            $cache->setConfigHash('');
+
+            return $hash !== $cache->generateKey('foo', 'bar');
+        }));
+        $this->templateScopeDetector->expects(static::once())->method('getScopes')->willReturn(['foo']);
+        $this->finder->find('', true);
     }
 
     /**

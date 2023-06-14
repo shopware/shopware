@@ -43,7 +43,23 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             }
 
             try {
-                $value = \is_array($value) ? $value[$part] : $value->get($part);
+                switch (true) {
+                    case \is_array($value):
+                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+
+                        break;
+                    case $value instanceof Entity:
+                        $value = $value->get($part);
+
+                        break;
+                    case $value instanceof Struct:
+                        $value = $value->getVars();
+                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+
+                        break;
+                    default:
+                        $value = null;
+                }
 
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
@@ -79,7 +95,11 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             $content = $dateFormatter->format($content);
         }
 
-        return (string) $content;
+        if ($content === null || \is_scalar($content) || (\is_object($content) && \method_exists($content, '__toString'))) {
+            return (string) $content;
+        }
+
+        return $path;
     }
 
     protected function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field

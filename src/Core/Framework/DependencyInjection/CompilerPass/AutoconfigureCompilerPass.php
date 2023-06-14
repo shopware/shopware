@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AbstractListingProcessor;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
@@ -156,6 +158,14 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(TemplateNamespaceHierarchyBuilderInterface::class)
             ->addTag('shopware.twig.hierarchy_builder');
+
+        $container
+            ->registerForAutoconfiguration(AbstractListingProcessor::class)
+            ->addTag('shopware.listing.processor');
+
+        $container
+            ->registerForAutoconfiguration(AbstractListingFilterHandler::class)
+            ->addTag('shopware.listing.filter.handler');
 
         $container->registerAliasForArgument('shopware.filesystem.private', FilesystemOperator::class, 'privateFilesystem');
         $container->registerAliasForArgument('shopware.filesystem.public', FilesystemOperator::class, 'publicFilesystem');

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -16,7 +14,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('system-settings')]
@@ -27,7 +24,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      */
     public function __construct(
         private readonly ProductSearchBuilderInterface $searchBuilder,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductListingLoader $productListingLoader
     ) {
     }
@@ -55,13 +51,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         $result = $this->productListingLoader->load($criteria, $context);
 
         $result = ProductListingResult::createFrom($result);
-
-        $this->eventDispatcher->dispatch(
-            new ProductSearchResultEvent($request, $result, $context),
-            ProductEvents::PRODUCT_SEARCH_RESULT
-        );
-
-        $result->addCurrentFilter('search', $request->get('search'));
 
         return new ProductSearchRouteResponse($result);
     }

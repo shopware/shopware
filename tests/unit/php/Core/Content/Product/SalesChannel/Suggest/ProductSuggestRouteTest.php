@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
@@ -139,7 +140,8 @@ class ProductSuggestRouteTest extends TestCase
         return new ProductSuggestRoute(
             $this->searchBuilder,
             $this->eventDispatcher,
-            $this->listingLoader
+            $this->listingLoader,
+            new CompositeListingProcessor([])
         );
     }
 }

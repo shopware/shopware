@@ -8,7 +8,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
@@ -107,7 +107,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slot->setType('product-listing');
         $slot->addTranslated('config', $slotConfig);
 
-        static::expectException(ProductSortingNotFoundException::class);
+        static::expectException(ProductException::class);
 
         $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
     }

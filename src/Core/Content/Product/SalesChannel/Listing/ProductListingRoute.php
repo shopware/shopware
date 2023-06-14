@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
@@ -28,7 +26,6 @@ class ProductListingRoute extends AbstractProductListingRoute
      */
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $categoryRepository,
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
     ) {
@@ -64,12 +61,6 @@ class ProductListingRoute extends AbstractProductListingRoute
 
         $result = ProductListingResult::createFrom($entities);
         $result->addState(...$entities->getStates());
-
-        $result->addCurrentFilter('navigationId', $categoryId);
-
-        $this->eventDispatcher->dispatch(
-            new ProductListingResultEvent($request, $result, $context)
-        );
 
         $result->setStreamId($category->get('productStreamId'));
 

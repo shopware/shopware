@@ -41,6 +41,11 @@
                     :error="unitShortCodeError"
                     required
                 />
+                <sw-custom-field-set-renderer
+                    :entity="unit"
+                    :sets="customFieldSets"
+                    :disabled="!acl.can('unit.editor')"
+                />
             </sw-card>
 
             <sw-skeleton v-else />

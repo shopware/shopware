@@ -2,6 +2,7 @@ import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals
 import template from './index.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
+import Criteria from "@shopware-ag/admin-extension-sdk/es/data/Criteria";
 
 const { Component, Mixin } = Shopware;
 
@@ -17,6 +18,12 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'acl'],
 
+    data() {
+        return {
+            customFieldSets: [],
+        };
+    },
+
     props: {
         /**
          * Either the id of the unit when in edit mode or null when in create mode.
@@ -31,6 +38,17 @@ export default Component.wrapComponentConfig({
     computed: {
         unitRepository(): Repository<'unit'> {
             return this.repositoryFactory.create('unit');
+        },
+
+        customFieldSetRepository(): Repository<'custom_field_set'> {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria(): Criteria {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
+
+            return criteria;
         },
 
         ...mapPropertyErrors('unit', ['name', 'shortCode']),
@@ -61,14 +79,18 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        if (this.unitId !== null) {
-            this.loadUnit();
+        this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
+            this.customFieldSets = result;
 
-            return;
-        }
+            if (this.unitId !== null) {
+                this.loadUnit();
 
-        this.unit = this.unitRepository.create(Shopware.Context.api);
-        this.isLoading = false;
+                return;
+            }
+
+            this.unit = this.unitRepository.create(Shopware.Context.api);
+            this.isLoading = false;
+        });
     },
 
     methods: {

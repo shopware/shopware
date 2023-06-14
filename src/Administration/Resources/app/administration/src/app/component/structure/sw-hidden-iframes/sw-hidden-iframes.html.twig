@@ -1,11 +1,13 @@
-<div
-    class="sw-hidden-iframes"
-    style="display: none;"
->
-    <sw-iframe-renderer
-        v-for="extension in extensions"
-        :key="extension.baseUrl"
-        :src="extension.baseUrl"
-        :location-id="MAIN_HIDDEN"
-    />
-</div>
+{% block sw_hidden_iframes %}
+    <div
+        class="sw-hidden-iframes"
+        style="display: none;"
+    >
+        <sw-iframe-renderer
+            v-for="extension in extensions"
+            :key="extension.baseUrl"
+            :src="extension.baseUrl"
+            :location-id="MAIN_HIDDEN"
+        />
+    </div>
+{% endblock %}

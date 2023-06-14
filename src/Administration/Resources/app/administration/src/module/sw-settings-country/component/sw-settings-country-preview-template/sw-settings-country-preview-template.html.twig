@@ -1,3 +1,5 @@
-<div class="sw-settings-country-preview-template">
-    <div v-html="displayFormattingAddress"></div>
-</div>
+{% block sw_settings_country_preview_template %}
+    <div class="sw-settings-country-preview-template">
+        <div v-html="displayFormattingAddress"></div>
+    </div>
+{% endblock %}

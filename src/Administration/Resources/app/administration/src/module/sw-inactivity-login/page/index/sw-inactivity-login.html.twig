@@ -1,35 +1,42 @@
-<div class="sw-inactivity-login">
+{% block sw_inactivity_login %}
+    <div class="sw-inactivity-login">
+        <sw-modal
+            v-if="lastKnownUser"
+            class="sw-inactivity-login__modal"
+            :title="$tc('sw-inactivity-login.modal.title')"
+            :closable="false"
+        >
+            {% block sw_inactivity_login_modal %}
+                {% block sw_inactivity_login_modal_content %}
+                    <sw-password-field
+                        v-model="password"
+                        v-autofocus
+                        :label="$tc('sw-login.index.labelPassword')"
+                        :disabled="isLoading"
+                        :error="passwordError"
+                        @keydown.enter="loginUserWithPassword"
+                    />
+                {% endblock %}
 
-    <sw-modal
-        v-if="lastKnownUser"
-        class="sw-inactivity-login__modal"
-        :title="$tc('sw-inactivity-login.modal.title')"
-        :closable="false"
-    >
-        <sw-password-field
-            v-model="password"
-            v-autofocus
-            :label="$tc('sw-login.index.labelPassword')"
-            :disabled="isLoading"
-            :error="passwordError"
-            @keydown.enter="loginUserWithPassword"
-        />
+                <template #modal-footer>
+                    {% block sw_inactivity_login_modal_footer %}
+                        <a
+                            @click="onBackToLogin"
+                            @keydown.enter="onBackToLogin"
+                        >
+                            {{ $tc('sw-inactivity-login.modal.actions.backToLogin') }}
+                        </a>
 
-        <template #modal-footer>
-            <a
-                @click="onBackToLogin"
-                @keydown.enter="onBackToLogin"
-            >
-                {{ $tc('sw-inactivity-login.modal.actions.backToLogin') }}
-            </a>
-
-            <sw-button
-                variant="primary"
-                :is-loading="isLoading"
-                @click="loginUserWithPassword"
-            >
-                {{ $tc('sw-login.index.buttonLogin') }}
-            </sw-button>
-        </template>
-    </sw-modal>
-</div>
+                        <sw-button
+                            variant="primary"
+                            :is-loading="isLoading"
+                            @click="loginUserWithPassword"
+                        >
+                            {{ $tc('sw-login.index.buttonLogin') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        </sw-modal>
+    </div>
+{% endblock %}

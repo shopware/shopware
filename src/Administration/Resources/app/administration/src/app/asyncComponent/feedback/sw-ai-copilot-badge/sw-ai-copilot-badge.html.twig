@@ -1,24 +1,30 @@
-{# Information: the text should be harcoded and non translatable #}
-<div class="sw-ai-copilot-badge">
-    <sw-icon
-        v-tooltip="{
-            message: 'AI Copilot',
-            disabled: label,
-            width: 98
-        }"
-        name="solid-sparkles"
-        size="12px"
-    />
+{% block sw_ai_copilot_badge %}
+    {# Information: the text should be harcoded and non translatable #}
+    <div class="sw-ai-copilot-badge">
+        {% block sw_ai_copilot_badge_icon %}
+            <sw-icon
+                v-tooltip="{
+                    message: 'AI Copilot',
+                    disabled: label,
+                    width: 98
+                }"
+                name="solid-sparkles"
+                size="12px"
+            />
+        {% endblock %}
 
-    <div
-        v-if="label"
-        class="sw-ai-copilot-badge__label"
-    >
-        <span class="disambiguation">
-            AI
-        </span>
-        <span>
-            Copilot
-        </span>
+        {% block sw_ai_copilot_badge_label %}
+            <div
+                v-if="label"
+                class="sw-ai-copilot-badge__label"
+            >
+                <span class="disambiguation">
+                    AI
+                </span>
+                <span>
+                    Copilot
+                </span>
+            </div>
+        {% endblock %}
     </div>
-</div>
+{% endblock %}

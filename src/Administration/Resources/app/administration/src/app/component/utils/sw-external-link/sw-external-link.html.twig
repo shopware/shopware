@@ -1,29 +1,31 @@
-<a
-    v-if="$attrs.hasOwnProperty('href')"
-    v-bind="$attrs"
-    target="_blank"
-    :rel="rel"
-    class="sw-external-link"
-    :class="classes"
->
-    <slot></slot>
-    <sw-icon
-        class="sw-external-link__icon"
-        :size="iconSize"
-        :name="icon"
-    />
-</a>
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-<span
-    v-else
-    class="sw-external-link"
-    :class="classes"
-    @click="onClick"
->
-    <slot></slot>
-    <sw-icon
-        class="sw-external-link__icon"
-        :size="iconSize"
-        :name="icon"
-    />
-</span>
+{% block sw_external_link %}
+    <a
+        v-if="$attrs.hasOwnProperty('href')"
+        v-bind="$attrs"
+        target="_blank"
+        :rel="rel"
+        class="sw-external-link"
+        :class="classes"
+    >
+        <slot></slot>
+        <sw-icon
+            class="sw-external-link__icon"
+            :size="iconSize"
+            :name="icon"
+        />
+    </a>
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+    <span
+        v-else
+        class="sw-external-link"
+        :class="classes"
+        @click="onClick"
+    >
+        <slot></slot>
+        <sw-icon
+            class="sw-external-link__icon"
+            :size="iconSize"
+            :name="icon"
+        />
+    </span>
+{% endblock %}

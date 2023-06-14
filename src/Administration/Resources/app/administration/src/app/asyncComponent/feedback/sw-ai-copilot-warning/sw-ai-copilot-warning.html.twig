@@ -1,7 +1,13 @@
-<div class="sw-ai-copilot-warning">
-    <sw-icon
-        name="solid-exclamation-triangle"
-        size="14px"
-    />
-    {{ warningText }}
-</div>
+{% block sw_ai_copilot_warning %}
+    <div class="sw-ai-copilot-warning">
+        {% block sw_ai_copilot_warning_icon %}
+            <sw-icon
+                name="solid-exclamation-triangle"
+                size="14px"
+            />
+        {% endblock %}
+        {% block sw_ai_copilot_warning_text %}
+            {{ warningText }}
+        {% endblock %}
+    </div>
+{% endblock %}

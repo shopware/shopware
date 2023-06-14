@@ -1,27 +1,33 @@
-<div>
-    <template v-if="componentName">
-        <component :is="componentName" />
-    </template>
+{% block sw_iframe_renderer %}
+    <div>
+        {% block sw_iframe_renderer_iframe_component %}
+            <template v-if="componentName">
+                <component :is="componentName" />
+            </template>
 
-    <template v-else-if="extensionIsApp">
-        <iframe
-            v-if="signedIframeSrc"
-            ref="iframe"
-            :src="signedIframeSrc"
-            frameborder="0"
-            :title="src"
-            width="100%"
-            :height="iFrameHeight"
-        ></iframe>
-    </template>
+            <template v-else-if="extensionIsApp">
+                <iframe
+                    v-if="signedIframeSrc"
+                    ref="iframe"
+                    :src="signedIframeSrc"
+                    frameborder="0"
+                    :title="src"
+                    width="100%"
+                    :height="iFrameHeight"
+                ></iframe>
+            </template>
+        {% endblock %}
 
-    <iframe
-        v-else
-        ref="iframe"
-        :src="iFrameSrc"
-        frameborder="0"
-        :title="src"
-        width="100%"
-        :height="iFrameHeight"
-    ></iframe>
-</div>
+        {% block sw_iframe_renderer_iframe %}
+            <iframe
+                v-else
+                ref="iframe"
+                :src="iFrameSrc"
+                frameborder="0"
+                :title="src"
+                width="100%"
+                :height="iFrameHeight"
+            ></iframe>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,6 +1,43 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.2.0
+*  [NEXT-25553 - Add module sw-settings-usage-data](./changelog/release-6-5-2-0/2023-03-28-add-module-sw-settings-usage-data.md)
+*  [NEXT-26207 - Fix non-UUID FKFields in data abstraction layer](./changelog/release-6-5-2-0/2023-04-18-fix-non-uuid-fk-fields-in-data-abstraction-layer.md)
+*  [NEXT-26890 - Do not use request locale to format the rich snippet product release date](./changelog/release-6-5-2-0/2023-05-07-do-not-use-request-locale-to-format-the-rich-snippet-product-release-date.md) ([Max](https://github.com/aragon999))
+*  [NEXT-26331 - Moved closing div in correct twig block](./changelog/release-6-5-2-0/2023-05-08-moved-closing-div-in-correct-twig-block.md) ([Ioannis Pourliotis](https://github.com/PheysX))
+*  [NEXT-25610 - Deprecate large button variant](./changelog/release-6-5-2-0/2023-05-10-deprecate-large-button-variant.md)
+*  [NEXT-23543 - rename-markAsTopseller-label-in-admin-product-details](./changelog/release-6-5-2-0/2023-05-10-rename-markastopseller-label-in-admin-product-details.md)
+*  [NEXT-26649 - Display rebuild search index search config for non-elasticsearch shop](./changelog/release-6-5-2-0/2023-05-11-display-rebuild-search-index-search-config-for-non-elasticsearch-shop.md)
+*  [NEXT-26258 - Add styling property to sw-checkbox-field](./changelog/release-6-5-2-0/2023-05-15-add-styling-property-to-sw-checkbox-field.md)
+*  [NEXT-23498 - Alphabetical sorting of countries and states](./changelog/release-6-5-2-0/2023-05-15-alphabetical-sorting-of-countries-and-states.md)
+*  [NEXT-25322 - Fix bug missing snippets input when snippets set is more than 25](./changelog/release-6-5-2-0/2023-05-15-fix-bug-cannot-edit-snippet-on-snippet-detail.md)
+*  [NEXT-26752 - Replace serialize/unserialize with JsonSerializable](./changelog/release-6-5-2-0/2023-05-15-replace-serialize-unserialize-with-jsonserializable.md)
+*  [NEXT-26782 - Fix Admin management of composer plugins](./changelog/release-6-5-2-0/2023-05-16-fix-admin-management-of-composer-plugins.md)
+*  [NEXT-26433 - Fix bug wrong icon name on settings logs page and settings storefront page](./changelog/release-6-5-2-0/2023-05-16-fix-bug-wrong-icon-name-on-settings-logs-page.md)
+*  [NEXT-25750 - Fix SDK tabs issue](./changelog/release-6-5-2-0/2023-05-16-fix-sdk-tabs-issue.md)
+*  [NEXT-26896 - Fix Elasticsearch visibility mapping definition](./changelog/release-6-5-2-0/2023-05-17-fix-elasticsearch-visibility-mapping-definition.md) ([Max](https://github.com/aragon999))
+*  [NEXT-26184 - Update lazy function for breaking change](./changelog/release-6-5-2-0/2023-05-17-update-lazy-function-for-breaking-change.md)
+*  [NEXT-18244 - Correct the behavior of order status change in bulk editing orders](./changelog/release-6-5-2-0/2023-05-18-correct-the-behavior-of-order-status-change.md)
+*  [NEXT-25347 - Add product states to product streams](./changelog/release-6-5-2-0/2023-05-19-add-product-states-to-product-stream-conditions.md)
+*  [NEXT-26882 - Should be able to extend criteria before loading entity inside flow storer](./changelog/release-6-5-2-0/2023-05-20-should-be-able-to-extend-criteria-before-loading-entity-inside-flow-storer.md)
+*  [NEXT-25347 - Little changes on the customer group detail page](./changelog/release-6-5-2-0/2023-05-22-change-customer-group-detail-page.md)
+*  [NEXT-25332 - Remove deprecated autoload === true associations](./changelog/release-6-5-2-0/2023-05-22-remove-deprecated-autoload-true-associations.md)
+*  [NEXT-26983 - Allow composer app install](./changelog/release-6-5-2-0/2023-05-23-allow-composer-app-install.md)
+*  [NEXT-25020 - Handle user context information](./changelog/release-6-5-2-0/2023-05-24-handle-user-context-information.md)
+*  [NEXT-27122 - Introduce new DomainExceptions](./changelog/release-6-5-2-0/2023-05-24-introduce-new-domainexceptions.md)
+*  [NEXT-27046 - Added exception on invalid promotion code pattern](./changelog/release-6-5-2-0/2023-05-25-added-exception-on-invalid-promotion-code-pattern.md)
+*  [NEXT-27106 - Salutation change is not possible in the storefront](./changelog/release-6-5-2-0/2023-05-25-salutation-change-is-not-possible-in-the-storefront.md)
+*  [NEXT-27207 - Add Sales channel domain exceptions](./changelog/release-6-5-2-0/2023-05-26-add-sales-channel-domain-exceptions.md)
+*  [NEXT-27079 - Handle exception when register without error route](./changelog/release-6-5-2-0/2023-05-26-handle-exception-when-register-without-error-route.md)
+*  [NEXT-26748 - Add app version constraint](./changelog/release-6-5-2-0/2023-05-30-add-app-version-constraint.md)
+*  [NEXT-27176 - Allow configuration for log level on error codes for domain exceptions](./changelog/release-6-5-2-0/2023-05-30-configure-log-levels-for-domain-exceptions.md)
+*  [NEXT-27466 - Update and evaluate all packages for Vue 3](./changelog/release-6-5-2-0/2023-05-31-update-and-evaluate-all-packages-for-vue-3.md)
+*  [NEXT-28406 - Correct version compare for shopware](./changelog/release-6-5-2-0/2023-06-10-correct-version-compare-for-shopware.md) ([tinect](https://github.com/tinect))
+
+## 6.5.1.1
+*  [NEXT-27442 - Fix webpack cleanup config](./changelog/release-6-5-1-1/2023-05-30-fix-webpack-cleanup-config.md)
+
 ## 6.5.1.0
 *  [NEXT-19709 - Switch storefront plugin data-attribute selectors to match their -option naming](./changelog/release-6-5-1-0/2022-01-19-switch-storefront-plugin-data-attribute-selectors-to-match-their--option-naming.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-24157 - Consider Inheritance in Product Stream Mapping](./changelog/release-6-5-1-0/2022-10-20-consider-inheritance-in-product-stream-mapping.md) ([Thomas Holm Thomsen](https://github.com/wexotht))
@@ -248,6 +285,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21465 - Promotion performance](./changelog/release-6-5-1-0/2023-05-05-promotion-performance.md)
 *  [NEXT-26420 - Improve customer saving](./changelog/release-6-5-1-0/2023-05-12-improve-customer-saving.md)
 *  [NEXT-26184 - Update lazy function for breaking change](./changelog/release-6-5-1-0/2023-05-17-update-lazy-function-for-breaking-change.md)
+*  [NEXT-26995 - Fix error redirect on account login](changelog/release-6-5-1-0/2023-05-22-fix-error-route-on-account-login.md)
 
 ## 6.5.0.0
 *  [NEXT-1797 - New option for plugins using Composer 2](./changelog/release-6-5-0-0/2020-12-10-new-option-for-plugins.md)

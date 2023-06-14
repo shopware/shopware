@@ -156,10 +156,24 @@
                             @input="onChangePattern()"
                         />
                         {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_number_range_detail_content_field_pattern %}
+                        <sw-field
+                            v-if="advanced"
+                            v-model="numberRange.pattern"
+                            type="text"
+                            :label="$tc('sw-settings-number-range.detail.labelPattern')"
+                            :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
+                            :disabled="!acl.can('number_ranges.editor')"
+                            @input="onChangePattern()"
+                        />
+                        <div v-if="!advanced"></div>
+                        {% endblock %}
                     </sw-container>
 
                     <sw-container
-                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        columns="1fr 1fr"
                         gap="0px 30px"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -178,21 +192,12 @@
                             />
                         </div>
                         {% endblock %}
+                    </sw-container>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_number_range_detail_content_field_pattern %}
-                        <sw-field
-                            v-if="advanced"
-                            v-model="numberRange.pattern"
-                            type="text"
-                            :label="$tc('sw-settings-number-range.detail.labelPattern')"
-                            :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
-                            :disabled="!acl.can('number_ranges.editor')"
-                            @input="onChangePattern()"
-                        />
-                        <div v-if="!advanced"></div>
-                        {% endblock %}
-
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_current_number %}
                         <sw-field

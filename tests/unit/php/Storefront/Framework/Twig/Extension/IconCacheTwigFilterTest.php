@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -149,16 +150,22 @@ class IconCacheTwigFilterTest extends TestCase
             ->method('buildNamespaceHierarchy')
             ->willReturn(['Storefront' => 0]);
 
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->expects(static::any())
+            ->method('getScopes')
+            ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
             sys_get_temp_dir() . '/twig_test_' . microtime(true),
             new NamespaceHierarchyBuilder([
                 $builder,
-            ])
+            ]),
+            $scopeDetector,
         );
 
-        $twig->addExtension(new NodeExtension($templateFinder));
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
         $twig->getExtension(NodeExtension::class)->getFinder();
 
         $twig->addExtension(new IconCacheTwigFilter());

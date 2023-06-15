@@ -19296,3 +19296,8 @@ parameters:
 			message: "#^Parameter \\#2 \\$entities of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\EntityResult constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/Filter/PropertyListingFilterHandler.php
+
+		-
+			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\FieldResolver\\\\ManyToOneAssociationFieldResolverTest\\:\\:getBaseConfig\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: tests/integration/php/Core/Framework/DataAbstractionLayer/Dbal/FieldResolver/ManyToOneAssociationFieldResolverTest.php

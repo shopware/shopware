@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
-use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
+use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -47,10 +47,6 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         $data = $dataBag->only('email');
         $recipient = $this->getNewsletterRecipient($data['email'], $context);
 
-        if (!$recipient) {
-            throw new NewsletterRecipientNotFoundException('email', $data['email']);
-        }
-
         $data['id'] = $recipient->getId();
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_OUT;
 
@@ -65,7 +61,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         return new NoContentResponse();
     }
 
-    private function getNewsletterRecipient(string $email, SalesChannelContext $context): ?NewsletterRecipientEntity
+    private function getNewsletterRecipient(string $email, SalesChannelContext $context): NewsletterRecipientEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -76,9 +72,17 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        return $this->newsletterRecipientRepository
-            ->search($criteria, $context->getContext())
-            ->first();
+        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
+        $newsletterRecipient = $this->newsletterRecipientRepository->search(
+            $criteria,
+            $context->getContext()
+        )->getEntities()->first();
+
+        if (!$newsletterRecipient) {
+            throw NewsletterException::recipientNotFound('email', $email);
+        }
+
+        return $newsletterRecipient;
     }
 
     private function getOptOutValidation(): DataValidationDefinition

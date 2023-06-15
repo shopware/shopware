@@ -47,9 +47,8 @@
             {% block sw_product_variants_delivery_media_data_grid_column_name %}
             <template
                 #column-name="{ item, isInlineEdit, compact }"
-            >
-                {{ item.option.translated.name }}
-            </template>
+                v-html="$sanitize(item.option.translated.name)"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

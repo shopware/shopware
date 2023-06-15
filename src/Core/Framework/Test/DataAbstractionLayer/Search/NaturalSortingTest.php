@@ -106,6 +106,10 @@ class NaturalSortingTest extends TestCase
                 ['1', '10', '1.0', '1.1', '1.3', '1.5', '2.22222'], // natural sorting
                 ['1', '1.0', '1.1', '1.3', '1.5', '10', '2.22222'], // none natural
             ],
+            [
+                ['fancy', '<b>fancy</b>'], // natural sorting
+                ['<b>fancy</b>', 'fancy'], // none natural
+            ],
         ];
     }
 }

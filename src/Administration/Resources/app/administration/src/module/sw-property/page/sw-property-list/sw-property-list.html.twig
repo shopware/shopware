@@ -114,7 +114,8 @@
                         v-for="(option, index) in item.options.slice(0, 4)"
                         :key="option.id"
                     >
-                        {{ (index > 0) ? `, ${option.translated.name}` : option.translated.name }}
+                        <template v-if="index > 0">, </template>
+                        <template v-html="$sanitize(option.translated.name)"/>
                     </span>
                     <span v-if="item.options.length >= 5">
                         , ...

@@ -19,7 +19,7 @@
                                                 {% apply spaceless %}
                                                     {% for option in group.options %}
                                                         {% set i = ( i | default(0) ) + 1 %}
-                                                        <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
+                                                        <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|sw_sanitize }}</span>
                                                     {% endfor %}
                                                 {% endapply %}
                                             </td>

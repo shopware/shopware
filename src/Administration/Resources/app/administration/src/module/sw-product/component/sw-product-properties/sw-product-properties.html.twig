@@ -131,7 +131,9 @@
                                     :dismissable="acl.can('product.deleter')"
                                     @dismiss="onDeletePropertyValue(option)"
                                 >
-                                    {{ option.translated.name }}
+                                    <template
+                                        v-html="$sanitize(option.translated.name)"
+                                    ></template>
                                 </sw-label>
                             </div>
                             {% endblock %}

@@ -561,50 +561,50 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('orderTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTagRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('orderTrackingCode', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTrackingCodeRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('orderDeliveryStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderDeliveryStatusRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('orderTransactionStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTransactionStatusRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('orderStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderStatusRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('orderCreatedByAdmin', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderCreatedByAdminRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('orderCustomField', {
         component: 'sw-condition-order-custom-field',
         label: 'global.sw-condition.condition.orderCustomFieldRule',
-        scopes: ['flow'],
-        group: 'flow',
+        scopes: ['order'],
+        group: 'order',
     });
 
     ruleConditionService.addCondition('cartLineItemPropertyValue', {

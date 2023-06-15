@@ -77,8 +77,7 @@ class AssetService
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,
-            $appName,
-            $force
+            $appName
         );
     }
 

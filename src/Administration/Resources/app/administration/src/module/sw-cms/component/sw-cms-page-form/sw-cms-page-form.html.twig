@@ -149,6 +149,7 @@
                         <component
                             :is="cmsElements[element.type].configComponent"
                             :element="element"
+                            @element-update="elementUpdate"
                         />
                         {% endblock %}
                     </div>

@@ -61,6 +61,10 @@ export default {
 
             return criteria;
         },
+
+        languageId() {
+            return Shopware.Context.api.languageId;
+        },
     },
 
     watch: {
@@ -78,6 +82,11 @@ export default {
 
                 this.updateCmsPageDataMapping();
             },
+        },
+
+        languageId() {
+            State.dispatch('cmsPageState/resetCmsPageState');
+            this.handleGetCmsPage();
         },
     },
 
@@ -167,6 +176,13 @@ export default {
 
         onResetLayout() {
             this.onSelectLayout(null);
+        },
+
+        elementUpdate(element) {
+            const slotContent = this.product.slotConfig[element.id]?.content;
+            if (slotContent && slotContent.value) {
+                slotContent.value = element.config.content.value;
+            }
         },
     },
 };

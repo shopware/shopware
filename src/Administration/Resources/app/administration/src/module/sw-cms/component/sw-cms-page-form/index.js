@@ -16,6 +16,11 @@ export default {
             type: Object,
             required: true,
         },
+        elementUpdate: {
+            type: Function,
+            required: false,
+            default: () => {},
+        },
     },
 
     computed: {

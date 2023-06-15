@@ -219,6 +219,10 @@ export default class RuleConditionService {
             id: 'promotion',
             name: 'sw-settings-rule.detail.groups.promotions',
         },
+        orders: {
+            id: 'order',
+            name: 'sw-settings-rule.detail.groups.orders',
+        },
         flow: {
             id: 'flow',
             name: 'sw-settings-rule.detail.groups.flow',

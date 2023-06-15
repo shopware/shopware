@@ -99,7 +99,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
             $this->cacheMediaFiles[(string) $deserialized['id']] = [
                 'media' => $media,
-                'destination' => $pathInfo['filename'],
+                'destination' => urldecode($pathInfo['filename']),
             ];
         }
 

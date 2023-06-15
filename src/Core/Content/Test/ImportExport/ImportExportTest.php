@@ -35,6 +35,7 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -52,6 +53,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -76,6 +78,33 @@ class ImportExportTest extends AbstractImportExportTestCase
 {
     use OrderFixture;
     use SalesChannelApiTestBehaviour;
+
+    private bool $mediaDirCreated = false;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        if (!\is_dir($projectDir . '/public/media')) {
+            mkdir($projectDir . '/public/media');
+            $this->mediaDirCreated = true;
+        }
+
+        \copy(self::TEST_IMAGE, $this->getContainer()->getParameter('kernel.project_dir') . '/public/media/ßhopware-logö.png');
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        \unlink($this->getContainer()->getParameter('kernel.project_dir') . '/public/media/ßhopware-logö.png');
+
+        if ($this->mediaDirCreated) {
+            rmdir($this->getContainer()->getParameter('kernel.project_dir') . '/public/media');
+            $this->mediaDirCreated = false;
+        }
+    }
 
     public function testExportEvents(): void
     {
@@ -152,6 +181,27 @@ class ImportExportTest extends AbstractImportExportTestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($product);
+    }
+
+    /**
+     * @group needsWebserver
+     */
+    public function testMediaWithEncodedUrl(): void
+    {
+        $csvContent = sprintf('url
+%s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
+
+        $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
+        file_put_contents($fixturesPath, $csvContent);
+
+        try {
+            $progress = $this->import(Context::createDefaultContext(), MediaDefinition::ENTITY_NAME, $fixturesPath, 'media_encoded_url.csv', null, false, true);
+
+            static::assertTrue($progress->isFinished());
+            static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+        } finally {
+            unlink($fixturesPath);
+        }
     }
 
     public function testCategory(): void

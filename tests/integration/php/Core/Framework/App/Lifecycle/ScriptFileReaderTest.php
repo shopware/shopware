@@ -3,19 +3,36 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
-use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
 
 /**
  * @internal
  */
 class ScriptFileReaderTest extends TestCase
 {
-    private ScriptFileReaderInterface $scriptReader;
+    private ScriptFileReader $scriptReader;
 
     protected function setUp(): void
     {
-        $this->scriptReader = new ScriptFileReader(\dirname(__DIR__) . '/');
+        $loader = $this->createMock(AppLoader::class);
+        $loader
+            ->method('locatePath')->willReturnCallback(static function (string $path, string $file) {
+                return \dirname(__DIR__) . '/' . $path . '/' . $file;
+            });
+
+        $loader
+            ->method('loadFile')->willReturnCallback(static function (string $path, string $file) {
+                $file = \dirname(__DIR__) . '/' . $path . '/' . $file;
+
+                if (!file_exists($file)) {
+                    return null;
+                }
+
+                return file_get_contents($file);
+            });
+
+        $this->scriptReader = new ScriptFileReader($loader);
     }
 
     public function testGetScriptPathsForApp(): void

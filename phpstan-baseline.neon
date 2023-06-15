@@ -55,10 +55,7 @@ parameters:
 			count: 1
 			path: src/Administration/Service/AdminSearcher.php
 
-		-
-			message: "#^Parameter \\#1 \\$keys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:extendOrOverwriteCore\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
-			count: 1
-			path: src/Administration/Snippet/AppAdministrationSnippetPersister.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$duplicatedKeys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:duplicatedFirstLevelKey\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
@@ -17801,10 +17798,7 @@ parameters:
 			count: 1
 			path: tests/performance/bench/BenchExtension.php
 
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Administration/Snippet/AppAdministrationSnippetPersisterTest.php
+
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\ShopwareHttpException' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Exception\\\\TaxProviderExceptions will always evaluate to true\\.$#"

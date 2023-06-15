@@ -121,6 +121,7 @@
         <service id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister">
             <argument type="service" id="app_administration_snippet.repository"/>
             <argument type="service" id="locale.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\SnippetFinder">

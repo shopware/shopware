@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -41,6 +44,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
+            $this->createAppLoader(),
         );
 
         static::assertNull(
@@ -70,6 +74,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
+            $this->createAppLoader(),
         );
 
         $customEntityXmlSchema = $customEntityLifecycleService->updatePlugin(
@@ -100,6 +105,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
+            $this->createAppLoader(),
         );
 
         $schema = $customEntityLifecycleService->updateApp(
@@ -130,6 +136,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
+            $this->createAppLoader(),
         );
 
         $schema = $customEntityLifecycleService->updatePlugin(
@@ -160,6 +167,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
+            $this->createAppLoader(),
         );
 
         $schema = $customEntityLifecycleService->updateApp(
@@ -204,5 +212,27 @@ class CustomEntityLifecycleServiceTest extends TestCase
                 fn (Entity $customEntity) => $customEntity->getName() === $ceName
             )
         )[0];
+    }
+
+    private function createAppLoader(): AbstractAppLoader&MockObject
+    {
+        $loader = $this->createMock(AppLoader::class);
+        $loader
+            ->method('locatePath')->willReturnCallback(static function (string $path, string $file) {
+                return $path . '/' . $file;
+            });
+
+        $loader
+            ->method('loadFile')->willReturnCallback(static function (string $path, string $file) {
+                $file = $path . '/' . $file;
+
+                if (!file_exists($file)) {
+                    return null;
+                }
+
+                return file_get_contents($file);
+            });
+
+        return $loader;
     }
 }

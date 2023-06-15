@@ -118,14 +118,4 @@ class AppLoaderTest extends TestCase
         static::assertNotNull($blocks);
         static::assertCount(2, $blocks->getBlocks());
     }
-
-    public function testGetAssetPathForAppPath(): void
-    {
-        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures');
-
-        static::assertEquals(
-            $this->getContainer()->getParameter('kernel.project_dir') . '/custom/apps/test/Resources/public',
-            $appLoader->getAssetPathForAppPath('custom/apps/test')
-        );
-    }
 }

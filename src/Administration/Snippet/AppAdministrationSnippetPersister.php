@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,7 +21,8 @@ class AppAdministrationSnippetPersister
 {
     public function __construct(
         private readonly EntityRepository $appAdministrationSnippetRepository,
-        private readonly EntityRepository $localeRepository
+        private readonly EntityRepository $localeRepository,
+        private readonly CacheInvalidator $cacheInvalidator
     ) {
     }
 
@@ -39,7 +41,7 @@ class AppAdministrationSnippetPersister
             $firstLevelSnippetKeys = array_keys($decodedSnippets);
         }
 
-        if ($duplicatedKeys = array_intersect(array_keys($coreSnippets), $firstLevelSnippetKeys)) {
+        if ($duplicatedKeys = array_values(array_intersect(array_keys($coreSnippets), $firstLevelSnippetKeys))) {
             throw SnippetException::extendOrOverwriteCore($duplicatedKeys);
         }
 
@@ -84,6 +86,8 @@ class AppAdministrationSnippetPersister
         // if locale is given --> upsert, if not given --> delete
         $deletedIds = array_values($existingLocales);
         $this->deleteSnippets($deletedIds, $context);
+
+        $this->cacheInvalidator->invalidate([CachedSnippetFinder::CACHE_TAG]);
     }
 
     private function getExistingSnippets(string $appId, Context $context): AppAdministrationSnippetCollection

@@ -7,6 +7,8 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
+use Shopware\Administration\Snippet\CachedSnippetFinder;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,15 +39,19 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         AppEntity $appEntity,
         array $snippets
     ): void {
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator
+            ->expects(static::once())
+            ->method('invalidate')
+            ->with([CachedSnippetFinder::CACHE_TAG]);
+
         $persister = new AppAdministrationSnippetPersister(
             $this->getAppAdministrationSnippetRepository(...$snippetData),
-            $this->getLocaleRepository($localeData)
+            $this->getLocaleRepository($localeData),
+            $cacheInvalidator
         );
 
         $persister->updateSnippets($appEntity, $snippets, Context::createDefaultContext());
-
-        // assert no exception was thrown
-        static::assertTrue(true);
     }
 
     /**
@@ -64,7 +70,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
         $persister = new AppAdministrationSnippetPersister(
             $this->getAppAdministrationSnippetRepository(),
-            $this->getLocaleRepository($localeData)
+            $this->getLocaleRepository($localeData),
+            $this->createMock(CacheInvalidator::class)
         );
 
         try {

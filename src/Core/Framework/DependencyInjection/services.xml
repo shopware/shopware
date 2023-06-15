@@ -511,7 +511,7 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
             <argument type="service" id="cache.messenger.restart_workers_signal"/>
         </service>
 
@@ -713,6 +713,10 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory" public="true">
             <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>

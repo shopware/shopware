@@ -180,4 +180,167 @@ class CartLineItemControllerTest extends TestCase
         $this->expectExceptionObject($exception);
         $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
     }
+
+    public function testDeleteLineItems(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $ids = [$id1, $id2];
+
+        $request = new Request([], ['ids' => $ids]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects(static::once())
+            ->method('removeItems')
+            ->with($cart, $ids, $context)
+            ->willReturn($cart);
+
+        $stack = $this->createMock(RequestStack::class);
+        $stack->method('getSession')->willReturn(new Session(new MockArraySessionStorage()));
+        $this->container->method('get')
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
+
+        $this->controller->deleteLineItems($cart, $request, $context);
+    }
+
+    public function testDeleteLineItemsMissingIdsParameter(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects(static::never())->method('remove');
+
+        $stack = $this->createMock(RequestStack::class);
+        $session = new Session(new MockArraySessionStorage());
+        $stack->method('getSession')->willReturn($session);
+        $this->container->method('get')
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
+
+        $this->controller->deleteLineItems($cart, $request, $context);
+
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testDeleteLineItemsWrongParameter(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects(static::never())->method('remove');
+
+        $stack = $this->createMock(RequestStack::class);
+        $session = new Session(new MockArraySessionStorage());
+        $stack->method('getSession')->willReturn($session);
+        $this->container->method('get')
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
+
+        $this->controller->deleteLineItems($cart, $request, $context);
+
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testUpdateLineItems(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $lineItems = [
+            [
+                'id' => $id1,
+                'quantity' => 5,
+                'stackable' => false,
+            ],
+            [
+                'id' => $id2,
+                'removable' => false,
+            ],
+        ];
+
+        $request = new Request([], ['lineItems' => $lineItems]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects(static::once())
+            ->method('update')
+            ->with($cart, $lineItems, $context)
+            ->willReturn($cart);
+
+        $stack = $this->createMock(RequestStack::class);
+        $stack->method('getSession')->willReturn(new Session(new MockArraySessionStorage()));
+        $this->container->method('get')
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
+
+        $this->controller->updateLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
+    }
+
+    public function testDeleteLineItemsMissingParameter(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects(static::never())->method('update');
+
+        $stack = $this->createMock(RequestStack::class);
+        $session = new Session(new MockArraySessionStorage());
+        $stack->method('getSession')->willReturn($session);
+        $this->container->method('get')
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
+
+        $this->controller->updateLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
+
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
 }

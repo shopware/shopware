@@ -43,7 +43,7 @@
     "@babel/preset-typescript": "7.21.0",
     "@babel/runtime": "7.21.0",
     "@lhci/cli": "0.11.0",
-    "@shopware-ag/admin-extension-sdk": "3.0.5",
+    "@shopware-ag/admin-extension-sdk": "3.0.13",
     "@shopware-ag/eslint-config-base": "2.0.0",
     "@shopware-ag/meteor-icon-kit": "5.1.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",

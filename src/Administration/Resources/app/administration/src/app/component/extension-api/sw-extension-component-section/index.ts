@@ -34,8 +34,8 @@ Shopware.Component.register('sw-extension-component-section', {
 
         getActiveTab(componentSection: ComponentSectionEntry) {
             return this.activeTabName
-                ? componentSection.props.tabs.find(tab => tab.name === this.activeTabName)
-                : componentSection.props.tabs[0];
+                ? componentSection.props.tabs?.find(tab => tab.name === this.activeTabName)
+                : componentSection.props.tabs?.[0];
         },
     },
 

@@ -7,12 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -48,6 +54,20 @@ class StaticEntityRepository extends EntityRepository
         private array $searches,
         private readonly ?EntityDefinition $definition = null
     ) {
+        if (!$definition) {
+            return;
+        }
+
+        try {
+            $definition->getFields();
+        } catch (\Throwable $exception) {
+            $registry = new StaticDefinitionInstanceRegistry(
+                [$definition],
+                Validation::createValidator(),
+                new StaticEntityWriterGateway()
+            );
+            $definition->compile($registry);
+        }
     }
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
@@ -56,8 +76,8 @@ class StaticEntityRepository extends EntityRepository
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context): ResultTypes $callable */
-            $result = $callable($criteria, $context);
+            /** @var callable(Criteria, Context, StaticEntityRepository): ResultTypes $callable */
+            $result = $callable($criteria, $context, $this);
         }
 
         if ($result instanceof EntitySearchResult) {
@@ -65,11 +85,11 @@ class StaticEntityRepository extends EntityRepository
         }
 
         if ($result instanceof EntityCollection) {
-            return new EntitySearchResult('mock', $result->count(), $result, null, $criteria, $context);
+            return new EntitySearchResult($this->getDummyEntityName(), $result->count(), $result, null, $criteria, $context);
         }
 
         if ($result instanceof AggregationResultCollection) {
-            return new EntitySearchResult('mock', 0, new EntityCollection(), $result, $criteria, $context);
+            return new EntitySearchResult($this->getDummyEntityName(), 0, new EntityCollection(), $result, $criteria, $context);
         }
 
         throw new \RuntimeException('Invalid mock repository configuration');
@@ -106,9 +126,13 @@ class StaticEntityRepository extends EntityRepository
      */
     public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
-        $this->creates[] = $data;
+        $writeResults = $this->getDummyWriteResults($data, EntityWriteResult::OPERATION_INSERT, $context);
+        /** @var EntityWrittenEvent $entityWrittenEvent */
+        $entityWrittenEvent = $writeResults->first();
 
-        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+        $this->creates[] = $entityWrittenEvent->getPayloads();
+
+        return new EntityWrittenContainerEvent($context, $writeResults, []);
     }
 
     /**
@@ -118,7 +142,11 @@ class StaticEntityRepository extends EntityRepository
     {
         $this->updates[] = $data;
 
-        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+        return new EntityWrittenContainerEvent(
+            $context,
+            $this->getDummyWriteResults($data, EntityWriteResult::OPERATION_UPDATE, $context),
+            []
+        );
     }
 
     /**
@@ -126,9 +154,13 @@ class StaticEntityRepository extends EntityRepository
      */
     public function upsert(array $data, Context $context): EntityWrittenContainerEvent
     {
-        $this->upserts[] = $data;
+        $writeResults = $this->getDummyWriteResults($data, EntityWriteResult::OPERATION_INSERT, $context);
+        /** @var EntityWrittenEvent $entityWrittenEvent */
+        $entityWrittenEvent = $writeResults->first();
 
-        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+        $this->upserts[] = $entityWrittenEvent->getPayloads();
+
+        return new EntityWrittenContainerEvent($context, $writeResults, []);
     }
 
     /**
@@ -138,7 +170,11 @@ class StaticEntityRepository extends EntityRepository
     {
         $this->deletes[] = $ids;
 
-        return EntityWrittenContainerEvent::createWithDeletedEvents([], Context::createDefaultContext(), []);
+        return new EntityWrittenContainerEvent(
+            $context,
+            $this->getDummyWriteResults($ids, EntityWriteResult::OPERATION_DELETE, $context),
+            []
+        );
     }
 
     public function getDefinition(): EntityDefinition
@@ -148,5 +184,64 @@ class StaticEntityRepository extends EntityRepository
         }
 
         return $this->definition;
+    }
+
+    /**
+     * @param mixed[][] $data
+     */
+    private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection
+    {
+        $writeResults = [];
+
+        foreach ($data as $payload) {
+            $primaryKeys = $this->getDummyPrimaryKeys($payload);
+            $payload = array_merge($primaryKeys, $payload);
+            $primaryKey = \count($primaryKeys) === 1 ? current($primaryKeys) : $primaryKeys;
+
+            $writeResults[] = new EntityWriteResult(
+                empty($primaryKey) ? Uuid::randomHex() : $primaryKey,
+                $payload,
+                $this->getDummyEntityName(),
+                $operation
+            );
+        }
+
+        if ($operation === EntityWriteResult::OPERATION_DELETE) {
+            $event = new EntityDeletedEvent($this->getDummyEntityName(), $writeResults, $context);
+        } else {
+            $event = new EntityWrittenEvent($this->getDummyEntityName(), $writeResults, $context);
+        }
+
+        return new NestedEventCollection([$event]);
+    }
+
+    /**
+     * @param mixed[] $payload
+     *
+     * @return mixed[]
+     */
+    private function getDummyPrimaryKeys(array $payload): array
+    {
+        if ($this->definition === null) {
+            return [];
+        }
+
+        $primaryKeys = [];
+
+        /** @var Field $field */
+        foreach ($this->definition->getPrimaryKeys() as $field) {
+            $primaryKeys[$field->getPropertyName()] = $payload[$field->getPropertyName()] ?? Uuid::randomHex();
+        }
+
+        return $primaryKeys;
+    }
+
+    private function getDummyEntityName(): string
+    {
+        if (!$this->definition) {
+            return 'mock';
+        }
+
+        return $this->definition->getEntityName();
     }
 }

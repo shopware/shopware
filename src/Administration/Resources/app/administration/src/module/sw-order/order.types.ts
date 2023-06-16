@@ -45,6 +45,7 @@ interface LineItem {
     identifier: string,
     _isNew: boolean,
     price: CalculatedPrice | null,
+    children?: LineItem[],
     priceDefinition: {
         price: number,
         taxRules: TaxRule[],

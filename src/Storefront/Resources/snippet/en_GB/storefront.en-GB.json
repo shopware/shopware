@@ -75,7 +75,8 @@
     "captcha" : {
       "basic-captcha-invalid": "Incorrect input. Please try again."
     },
-    "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards."
+    "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
+    "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found."
   },
   "account": {
     "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",

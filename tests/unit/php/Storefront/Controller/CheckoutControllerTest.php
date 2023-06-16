@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -283,6 +284,19 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
+        static::assertEquals(new RedirectResponse('url'), $response);
+    }
+
+    public function testFinishPageOrderNotFound(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $this->finishPageLoaderMock->method('load')->willThrowException(OrderException::orderNotFound('not-found'));
+
+        $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
+
+        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
         static::assertEquals(new RedirectResponse('url'), $response);
     }
 

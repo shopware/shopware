@@ -401,14 +401,14 @@ class CartLineItemController extends StorefrontController
 
         if (isset($lineItemArray['stackable'])) {
             $lineItemArray['stackable'] = (bool) $lineItemArray['stackable'];
-        } elseif (isset($defaultValues['stackable'])) {
-            $lineItemArray['stackable'] = $defaultValues['stackable'];
+        } elseif (isset($defaultValues['quantity'])) {
+            $lineItemArray['quantity'] = $defaultValues['quantity'];
         }
 
         if (isset($lineItemArray['removable'])) {
             $lineItemArray['removable'] = (bool) $lineItemArray['removable'];
-        } elseif (isset($defaultValues['removable'])) {
-            $lineItemArray['removable'] = $defaultValues['removable'];
+        } elseif (isset($defaultValues['quantity'])) {
+            $lineItemArray['quantity'] = $defaultValues['quantity'];
         }
 
         if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['quantity'])) {

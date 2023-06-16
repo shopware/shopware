@@ -11,7 +11,7 @@ describe('Category: SDK Test', ()=> {
             .should('exist');
     });
 
-    it('@sdk: dataset get', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: dataset get', { tags: ['ct-admin'] }, ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Storefront')
             .click();
 
@@ -38,7 +38,7 @@ describe('Category: SDK Test', ()=> {
             .contains('Returned active state: true');
     });
 
-    it('@sdk: dataset subscribe', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: dataset subscribe', { tags: ['ct-admin'] }, ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Storefront')
             .click();
 
@@ -62,7 +62,7 @@ describe('Category: SDK Test', ()=> {
             .contains('Returned name: Storefront');
     });
 
-    it('@sdk: dataset update', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: dataset update', { tags: ['ct-admin'] }, ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Storefront')
             .click();
 

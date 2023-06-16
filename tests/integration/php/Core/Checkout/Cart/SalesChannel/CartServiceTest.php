@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -259,6 +259,114 @@ class CartServiceTest extends TestCase
         static::assertTrue($cart->has($this->productId));
 
         $cartService->changeQuantity($cart, $this->productId, 100, $context);
+    }
+
+    public function testLineItemAddAndUpdate(): void
+    {
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $context = $this->getSalesChannelContext();
+
+        $productId = Uuid::randomHex();
+        $product = [
+            'id' => $productId,
+            'productNumber' => $productId,
+            'name' => 'test',
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 5, 'linked' => false],
+            ],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
+            'manufacturer' => ['name' => 'test'],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], $context->getContext());
+        $this->addTaxDataToSalesChannel($context, $product['tax']);
+
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $context);
+        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->add($cart, $lineItem, $context);
+
+        $lineItem = $cart->getLineItems()->get($productId);
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertEquals(1, $lineItem->getQuantity());
+        static::assertTrue($lineItem->isStackable());
+        static::assertTrue($lineItem->isRemovable());
+
+        $cart = $cartService->update($cart, ['foo' => [
+            'id' => $productId,
+            'quantity' => 20,
+            'payload' => ['foo' => 'bar'],
+            'stackable' => false,
+            'removable' => false,
+        ]], $context);
+
+        static::assertEquals(20, $lineItem->getQuantity());
+        static::assertTrue($lineItem->isStackable());
+        static::assertTrue($lineItem->isRemovable());
+        static::assertEquals('bar', $lineItem->getPayloadValue('foo'));
+    }
+
+    public function testRemoveLineItems(): void
+    {
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $context = $this->getSalesChannelContext();
+
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
+        $productId3 = Uuid::randomHex();
+
+        $products = [];
+        foreach ([$productId1, $productId2, $productId3] as $productId) {
+            $products[] = [
+                'id' => $productId,
+                'productNumber' => $productId,
+                'name' => 'test',
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 5, 'linked' => false],
+                ],
+                'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
+                'manufacturer' => ['name' => 'test'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+        }
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, $context->getContext());
+
+        $lineItems = [];
+        foreach ($products as $product) {
+            $this->addTaxDataToSalesChannel($context, $product['tax']);
+
+            $lineItems[] = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $product['id'], 'referencedId' => $product['id']], $context);
+        }
+
+        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->add($cart, $lineItems, $context);
+
+        static::assertCount(3, $cart->getLineItems());
+
+        $cart = $cartService->removeItems($cart, [
+            $productId1,
+            $productId2,
+        ], $context);
+
+        static::assertCount(1, $cart->getLineItems());
+
+        $remainingLineItem = $cart->getLineItems()->get($productId3);
+        static::assertInstanceOf(LineItem::class, $remainingLineItem);
+        static::assertEquals($productId3, $remainingLineItem->getReferencedId());
     }
 
     public function testZeroPricedItemsCanBeAddedToCart(): void

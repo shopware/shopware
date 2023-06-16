@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
+namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @final
+ * @internal
  */
 class StaticEntityWriterGateway implements EntityWriteGatewayInterface
 {

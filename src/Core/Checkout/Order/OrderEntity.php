@@ -120,7 +120,7 @@ class OrderEntity extends Entity
     protected $languageId;
 
     /**
-     * @var LanguageEntity
+     * @var LanguageEntity|null
      */
     protected $language;
 
@@ -371,12 +371,12 @@ class OrderEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getLanguage(): LanguageEntity
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }
 
-    public function setLanguage(LanguageEntity $language): void
+    public function setLanguage(?LanguageEntity $language): void
     {
         $this->language = $language;
     }

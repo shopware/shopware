@@ -66,8 +66,10 @@ class ElasticsearchIndexer
 
     public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX') && $message instanceof ElasticsearchIndexingMessage) {
-            $this->newImplementation->__invoke($message);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            if ($message instanceof ElasticsearchIndexingMessage) {
+                $this->newImplementation->__invoke($message);
+            }
 
             return;
         }
@@ -135,21 +137,14 @@ class ElasticsearchIndexer
 
     /**
      * @param array<string> $ids
-     *
-     * @deprecated tag:v6.6.0 - Will be removed, use MultilingualEsIndexer::updateIds instead
      */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->helper->enabledMultilingualIndex()) {
             $this->newImplementation->updateIds($definition, $ids);
 
             return;
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'ES_MULTILINGUAL_INDEX',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
-        );
 
         if (!$this->helper->allowIndexing()) {
             return;

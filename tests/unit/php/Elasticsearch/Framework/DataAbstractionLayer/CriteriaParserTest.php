@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -51,7 +52,11 @@ class CriteriaParserTest extends TestCase
         $definition = $this->getDefinition();
 
         /** @var CompositeAggregation $esAgg */
-        $esAgg = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseAggregation($aggs, $definition, Context::createDefaultContext());
+        $esAgg = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $this->createMock(AbstractKeyValueStorage::class)
+        ))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
         static::assertInstanceOf(CompositeAggregation::class, $esAgg);
         static::assertSame([
@@ -92,7 +97,14 @@ class CriteriaParserTest extends TestCase
 
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class));
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $parser = new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $storage
+        );
 
         $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
@@ -116,7 +128,14 @@ class CriteriaParserTest extends TestCase
 
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class));
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $parser = new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $storage
+        );
 
         $context = new Context(
             new SystemSource(),
@@ -137,7 +156,10 @@ class CriteriaParserTest extends TestCase
         static::expectExceptionMessage(sprintf('Unsupported filter %s', CustomFilter::class));
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class));
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), $storage);
 
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
     }
@@ -148,8 +170,10 @@ class CriteriaParserTest extends TestCase
     public function testBuildAccessor(string $field, Context $context, string $expectedAccessor): void
     {
         $definition = $this->getDefinition();
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), $storage))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -539,7 +563,14 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $sorting = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseSorting($sorting, $definition, $context);
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $sorting = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $storage
+        ))->parseSorting($sorting, $definition, $context);
 
         $script = $sorting->getParameter('script');
 
@@ -563,7 +594,14 @@ class CriteriaParserTest extends TestCase
             $customFieldService->expects(static::once())->method('getCustomField')->willReturn($customField);
         }
 
-        $fieldSort = (new CriteriaParser(new EntityDefinitionQueryHelper(), $customFieldService))->parseSorting($sorting, $definition, Context::createDefaultContext());
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $fieldSort = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $customFieldService,
+            $storage
+        ))->parseSorting($sorting, $definition, Context::createDefaultContext());
 
         if ($scriptSorting) {
             static::assertTrue($fieldSort->hasParameter('script'));
@@ -849,7 +887,14 @@ class CriteriaParserTest extends TestCase
         $context = Context::createDefaultContext();
         $definition = $this->getDefinition();
 
-        $sortedFilter = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseFilter($filter, $definition, '', $context);
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $sortedFilter = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $storage
+        ))->parseFilter($filter, $definition, '', $context);
 
         static::assertEquals($expectedFilter, $sortedFilter->toArray());
     }

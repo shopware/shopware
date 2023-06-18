@@ -10397,6 +10397,36 @@ parameters:
 			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Script/Execution/TestHook.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:__construct\\(\\) has parameter \\$deprecatedServices with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Script/Execution/TestHook.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:getServiceIds\\(\\) should return list\\<class\\-string\\<object\\>\\> but returns array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Script/Execution/TestHook.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:\\$deprecatedServices type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Script/Execution/TestHook.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:\\$serviceIds type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Script/Execution/TestHook.php
+
+		-
+			message: "#^Cannot assign new offset to Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\.$#"
+			count: 6
+			path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+
+		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrl/SeoUrlRepositoryTest.php
@@ -12937,6 +12967,21 @@ parameters:
 			path: src/Storefront/Test/Framework/Routing/StorefrontRoutingTest.php
 
 		-
+			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\Api\\\\SeoActionControllerTest\\:\\:getSeoUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
+			count: 8
+			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
+
+		-
+			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
+			count: 4
+			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
+
+		-
 			message: "#^Anonymous variable in a `\\$canonicalUrl\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php
@@ -13975,16 +14020,6 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Storefront/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$node\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\CheckoutControllerTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/CheckoutControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"

@@ -558,10 +558,10 @@ class EsProductDefinitionTest extends TestCase
         $connection = $this->createMock(Connection::class);
 
         $connection
-            ->method('fetchAllAssociative')
+            ->method('fetchAllAssociativeIndexed')
             ->willReturnOnConsecutiveCalls(
                 [
-                    [
+                    $this->ids->get('product-1') => [
                         'id' => $this->ids->get('product-1'),
                         'parentId' => null,
                         'productNumber' => 1,
@@ -596,11 +596,6 @@ class EsProductDefinitionTest extends TestCase
                         'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     ],
                 ],
-            );
-
-        $connection
-            ->method('fetchAllAssociativeIndexed')
-            ->willReturn(
                 [
                     '809c1844f4734243b6aa04aba860cd45' => [
                         'id' => '809c1844f4734243b6aa04aba860cd45',
@@ -622,7 +617,7 @@ class EsProductDefinitionTest extends TestCase
                             ],
                         ]),
                     ],
-                ]
+                ],
             );
 
         return $connection;

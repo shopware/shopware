@@ -200,9 +200,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @param array<string> $ids
-     *
-     * @return array<mixed>
+     * {@inheritdoc}
      */
     public function fetch(array $ids, Context $context): array
     {

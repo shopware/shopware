@@ -105,29 +105,28 @@ class MultilingualEsIndexer
 
         $ids = $iterator->fetch();
 
-        if (!empty($ids)) {
-            // increment last id with iterator offset
-            $offset->setLastId($iterator->getOffset());
+        if (empty($ids)) {
+            if (!$offset->hasNextDefinition()) {
+                return null;
+            }
+            // increment definition offset
+            $offset->selectNextDefinition();
 
-            $alias = $this->helper->getIndexName($definition->getEntityDefinition());
+            // reset last id to start iterator at the beginning
+            $offset->setLastId(null);
 
-            $index = $alias . '_' . $offset->getTimestamp();
-
-            // return indexing message for current offset
-            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
+            return $this->createIndexingMessage($offset);
         }
 
-        if (!$offset->hasNextDefinition()) {
-            return null;
-        }
+        // increment last id with iterator offset
+        $offset->setLastId($iterator->getOffset());
 
-        // increment definition offset
-        $offset->selectNextDefinition();
+        $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
-        // reset last id to start iterator at the beginning
-        $offset->setLastId(null);
+        $index = $alias . '_' . $offset->getTimestamp();
 
-        return $this->createIndexingMessage($offset);
+        // return indexing message for current offset
+        return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
     }
 
     private function init(): IndexerOffset

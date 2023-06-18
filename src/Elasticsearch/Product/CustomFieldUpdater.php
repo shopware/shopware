@@ -5,7 +5,6 @@ namespace Shopware\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -15,8 +14,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @decrecated tag:v6.6.0 - reason:remove-subscriber - will be removed
  */
 #[Package('core')]
 class CustomFieldUpdater implements EventSubscriberInterface
@@ -41,10 +38,6 @@ class CustomFieldUpdater implements EventSubscriberInterface
 
     public function onNewCustomFieldCreated(EntityWrittenContainerEvent $containerEvent): void
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            return;
-        }
-
         $event = $containerEvent->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
 
         if ($event === null) {

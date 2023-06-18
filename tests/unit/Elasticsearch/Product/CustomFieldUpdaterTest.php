@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -27,11 +28,6 @@ use Shopware\Elasticsearch\Product\CustomFieldUpdater;
  */
 class CustomFieldUpdaterTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
-    }
-
     public function testSubscribedEvents(): void
     {
         static::assertSame([

@@ -83,7 +83,9 @@ class MultilingualEsIndexerTest extends TestCase
             ->expects(static::once())
             ->method('createIndex');
 
-        static::assertNull($indexer->iterate(null));
+        $msg = $indexer->iterate();
+
+        static::assertNull($msg);
     }
 
     public function testIterateNullCreatesIndicesAndIndexTaskInDB(): void
@@ -103,7 +105,9 @@ class MultilingualEsIndexerTest extends TestCase
             ->expects(static::once())
             ->method('createIndex');
 
-        static::assertNull($indexer->iterate(null));
+        $msg = $indexer->iterate();
+
+        static::assertNull($msg);
     }
 
     public function testIterateWithMessage(): void
@@ -154,7 +158,7 @@ class MultilingualEsIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $msg = $indexer->iterate(null);
+        $msg = $indexer->iterate();
 
         static::assertNull($msg);
     }
@@ -311,7 +315,7 @@ class MultilingualEsIndexerTest extends TestCase
             $this->iteratorFactory,
             $this->client,
             $logger,
-            1,
+            1
         );
     }
 

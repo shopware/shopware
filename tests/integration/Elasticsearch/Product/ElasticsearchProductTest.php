@@ -81,7 +81,6 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\EsProductDefinition;
@@ -134,7 +133,8 @@ class ElasticsearchProductTest extends TestCase
     protected function setUp(): void
     {
         $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
+
+        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
 
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
@@ -3555,14 +3555,14 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
+        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue(
             $this->definition,
             $customMapping
         );
 
         $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
 
-        ReflectionHelper::getProperty(EsProductDefinition::class, 'customMapping')->setValue(
+        ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue(
             $newImplementation,
             $customMapping
         );

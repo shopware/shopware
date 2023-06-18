@@ -48,22 +48,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="parameter_bag" />
-        </service>
-
-        <service id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder">
-            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader" />
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils" />
-            <argument>%elasticsearch.language_analyzer_mapping%</argument>
-        </service>
-
-        <service id="Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper">
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils" />
-        </service>
-
         <service id="OpenSearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
@@ -226,7 +210,6 @@
             <tag name="shopware.es.definition"/>
         </service>
 
-        <!-- @deprecated tag:v6.6.0.0 - ElasticsearchProductDefinition will be removed, EsProductDefinition will become standalone service with tag `shopware.es.definition` -->
         <service id="Shopware\Elasticsearch\Product\EsProductDefinition" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -241,6 +224,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">

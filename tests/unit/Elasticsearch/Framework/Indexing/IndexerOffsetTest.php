@@ -99,22 +99,14 @@ class IndexerOffsetTest extends TestCase
             ]
         );
 
-        $before = new IndexerOffset(
-            ['foo', 'bar'],
-            ['product', 'product_manufacturer'],
-            (new \DateTime())->getTimestamp()
-        );
-        $data = $serialize->serialize(
-            $before,
-            'json'
-        );
-
-        $after = $serialize->deserialize($data, IndexerOffset::class, 'json', [
-            AbstractNormalizer::DEFAULT_CONSTRUCTOR_ARGUMENTS => [
-                IndexerOffset::class => ['mappingDefinitions' => []],
-            ],
-        ]);
-
-        static::assertEquals($before, $after);
+    /**
+     * {@inheritDoc}
+     */
+    public function getMapping(Context $context): array
+    {
+        return [
+            '_source' => ['includes' => ['id']],
+            'properties' => [],
+        ];
     }
 }

@@ -65,7 +65,9 @@ class ElasticsearchHelper
      */
     public function getIndexName(EntityDefinition $definition/* , ?string $languageId = null */): string
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        $languageId = \func_get_args()[1] ?? '';
+
+        if ($languageId === '') {
             return $this->prefix . '_' . $definition->getEntityName();
         }
 
@@ -73,8 +75,6 @@ class ElasticsearchHelper
             'v6.6.0.0',
             'Second parameter `$languageId` will be removed in method `getIndexName()` in `ElasticsearchHelper` since v6.6.0.0'
         );
-
-        $languageId = \func_get_args()[1] ?? '';
 
         return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
     }

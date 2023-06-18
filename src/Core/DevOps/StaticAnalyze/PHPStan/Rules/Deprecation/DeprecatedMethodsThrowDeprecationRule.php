@@ -48,6 +48,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-exception',
         // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
         'reason:remove-getter-setter',
+        // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
+        'reason:blue-green-deployment',
     ];
 
     public function getNodeType(): string

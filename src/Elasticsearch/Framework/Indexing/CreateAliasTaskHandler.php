@@ -5,7 +5,9 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -32,7 +34,8 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         private readonly Connection $connection,
         private readonly ElasticsearchHelper $elasticsearchHelper,
         private readonly array $config,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractKeyValueStorage $keyValueStorage
     ) {
         parent::__construct($scheduledTaskRepository);
     }
@@ -76,6 +79,13 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private function handleQueue(): void
     {
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $this->keyValueStorage->set(ElasticsearchHelper::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
+        }
+
         $indices = $this->connection->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
         if (empty($indices)) {
             return;

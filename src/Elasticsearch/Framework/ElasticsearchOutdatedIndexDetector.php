@@ -6,7 +6,6 @@ use OpenSearch\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 
@@ -76,7 +75,7 @@ class ElasticsearchOutdatedIndexDetector
 
         $prefixes = [];
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->helper->enabledMultilingualIndex()) {
             foreach ($definitions as $definition) {
                 $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
             }

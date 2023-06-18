@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -46,7 +45,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, Feature::isActive('ES_MULTILINGUAL_INDEX') ? null : $context->getLanguageId()),
+                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
                 'body' => $search->toArray(),
             ]);
         } catch (\Throwable $e) {

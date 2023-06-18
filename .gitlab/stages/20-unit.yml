@@ -114,7 +114,6 @@ PHP unit Elasticsearch:
     matrix:
       - TESTSUITE: ["integration"]
         FEATURE_ALL: [ "false", "major" ]
-        ES_MULTILINGUAL_INDEX: ["0", "1"]
 
 PHP bench:
     extends: .base-no-setup

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -28,7 +29,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(2))
+            ->expects(static::exactly(Feature::isActive('ES_MULTILINGUAL_INDEX') ? 2 : 4))
             ->method('get')
             ->willReturnCallback(fn () => [
                 Uuid::randomHex() => [
@@ -70,11 +71,20 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 
         $esHelper = $this->createMock(ElasticsearchHelper::class);
 
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $esHelper->method('enabledMultilingualIndex')->willReturn(true);
+        }
+
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
         $arr = $detector->get();
         static::assertNotNull($arr);
-        static::assertCount(1, $arr);
-        static::assertCount(2, $detector->getAllUsedIndices());
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertCount(1, $arr);
+            static::assertCount(2, $detector->getAllUsedIndices());
+        } else {
+            static::assertCount(2, $arr);
+            static::assertCount(4, $detector->getAllUsedIndices());
+        }
     }
 
     public function testDoesNothingWithoutIndices(): void

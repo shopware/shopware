@@ -36,14 +36,14 @@ abstract class AbstractElasticsearchDefinition
     abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
-     * @return array<mixed>
+     * @return array{_source: array{includes: string[]}, properties: array<mixed>}
      */
     abstract public function getMapping(Context $context): array;
 
     /**
      * @param array<string> $ids
      *
-     * @return array<mixed>
+     * @return array<string, array<string, mixed>>
      */
     public function fetch(array $ids, Context $context): array
     {
@@ -119,5 +119,76 @@ abstract class AbstractElasticsearchDefinition
         }
 
         return $value;
+    }
+
+    /**
+     * @param array<int, array{id: string, languageId?: string}> $items
+     * @param string[] $translatedFields
+     *
+     * @return array<int, array<string, array<string, string>>>
+     */
+    protected function mapToManyAssociations(array $items, array $translatedFields): array
+    {
+        $result = [];
+
+        foreach ($items as $item) {
+            if (empty($item['languageId'])) {
+                continue;
+            }
+
+            $result[$item['id']] = $result[$item['id']] ?? array_merge([
+                'id' => $item['id'],
+                '_count' => 1,
+            ], $item);
+
+            foreach ($translatedFields as $field) {
+                if (empty($item[$field])) {
+                    continue;
+                }
+
+                if (!\is_array($result[$item['id']][$field])) {
+                    unset($result[$item['id']][$field]);
+                }
+
+                $result[$item['id']][$field][$item['languageId']] = $this->stripText($item[$field]);
+            }
+        }
+
+        return array_values($result);
+    }
+
+    /**
+     * @param array<int, array{id: string, languageId?: string}> $items
+     * @param string[] $translatedFields
+     *
+     * @return array<string, array<string, string>>
+     */
+    protected function mapToOneAssociations(array $items, array $translatedFields): array
+    {
+        $result = [];
+
+        foreach ($items as $item) {
+            if (empty($item['languageId'])) {
+                continue;
+            }
+
+            foreach ($translatedFields as $field) {
+                if (empty($item[$field])) {
+                    continue;
+                }
+
+                $result[$field][$item['languageId']] = $this->stripText($item[$field]);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected static function getTextFieldConfig(): array
+    {
+        return self::KEYWORD_FIELD + self::SEARCH_FIELD;
     }
 }

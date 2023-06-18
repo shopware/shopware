@@ -100,8 +100,14 @@ class MockElasticsearchDefinition extends AbstractElasticsearchDefinition
         return new ProductManufacturerDefinition();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getMapping(Context $context): array
     {
-        return [];
+        return [
+            '_source' => ['includes' => ['id']],
+            'properties' => [],
+        ];
     }
 }

@@ -17,11 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
+/**
+ * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
+ */
 #[Package('core')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 {
@@ -38,7 +41,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         private readonly EntityDefinitionQueryHelper $helper,
         private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly Tokenizer $tokenizer
+        private readonly Tokenizer $tokenizer,
+        private readonly ElasticsearchHelper $elasticsearchHelper
     ) {
     }
 
@@ -57,7 +61,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             $tokenBool = new BoolQuery();
 
             foreach ($searchConfig as $item) {
-                if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+                if ($this->elasticsearchHelper->enabledMultilingualIndex()) {
                     $config = new SearchFieldConfig((string) $item['field'], (int) $item['ranking'], (bool) $item['tokenize']);
                     $field = $this->helper->getField($config->getField(), $this->productDefinition, $this->productDefinition->getEntityName(), false);
                     $association = $this->helper->getAssociationPath($config->getField(), $this->productDefinition);
@@ -122,12 +126,12 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     }
 
     /**
-     * @return array<array{and_logic: string, field: string, tokenize: int, ranking: int}>
+     * @return array<SearchConfig>
      */
     private function fetchConfig(Context $context): array
     {
         foreach ($context->getLanguageIdChain() as $languageId) {
-            /** @var array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $config */
+            /** @var array<SearchConfig> $config */
             $config = $this->connection->fetchAllAssociative(
                 'SELECT
 product_search_config.and_logic,

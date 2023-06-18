@@ -8,7 +8,6 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -36,10 +35,10 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
      * @param array<string, string> $customMapping
      */
     public function __construct(
-        protected ProductDefinition $definition,
+        private readonly ProductDefinition $definition,
         private readonly Connection $connection,
-        private array $customMapping,
-        protected EventDispatcherInterface $eventDispatcher,
+        private readonly array $customMapping,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder
     ) {
     }
@@ -50,31 +49,36 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @return array{_source: array{includes: string[]}, properties: array<mixed>}
+     * {@inheritdoc}
      */
     public function getMapping(Context $context): array
     {
         $languageIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language');
 
+        $languageFields = [];
+        $customFieldsProperties = [];
+
+        foreach ($languageIds as $languageId) {
+            $languageFields[$languageId] = self::getTextFieldConfig();
+            $customFieldsProperties[$languageId] = $this->getCustomFieldsMapping($context);
+        }
+
         $properties = [
             'id' => self::KEYWORD_FIELD,
             'name' => [
-                'properties' => [],
+                'properties' => $languageFields,
             ],
             'description' => [
-                'properties' => [],
+                'properties' => $languageFields,
             ],
             'metaTitle' => [
-                'properties' => [],
+                'properties' => $languageFields,
             ],
             'metaDescription' => [
-                'properties' => [],
+                'properties' => $languageFields,
             ],
             'customSearchKeywords' => [
-                'properties' => [],
-            ],
-            'customFields' => [
-                'properties' => [],
+                'properties' => $languageFields,
             ],
             'categories' => [
                 'type' => 'nested',
@@ -82,7 +86,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                     'id' => self::KEYWORD_FIELD,
                     '_count' => self::INT_FIELD,
                     'name' => [
-                        'properties' => [],
+                        'properties' => $languageFields,
                     ],
                 ],
             ],
@@ -92,7 +96,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                     'id' => self::KEYWORD_FIELD,
                     '_count' => self::INT_FIELD,
                     'name' => [
-                        'properties' => [],
+                        'properties' => $languageFields,
                     ],
                 ],
             ],
@@ -103,7 +107,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                     'groupId' => self::KEYWORD_FIELD,
                     '_count' => self::INT_FIELD,
                     'name' => [
-                        'properties' => [],
+                        'properties' => $languageFields,
                     ],
                 ],
             ],
@@ -114,7 +118,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                     'groupId' => self::KEYWORD_FIELD,
                     '_count' => self::INT_FIELD,
                     'name' => [
-                        'properties' => [],
+                        'properties' => $languageFields,
                     ],
                 ],
             ],
@@ -132,13 +136,13 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             'childCount' => self::INT_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+            'manufacturerNumber' => self::getTextFieldConfig(),
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+            'ean' => self::getTextFieldConfig(),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+            'productNumber' => self::getTextFieldConfig(),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => [
                 'type' => 'date',
@@ -159,7 +163,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                 'type' => 'nested',
                 'properties' => [
                     'id' => self::KEYWORD_FIELD,
-                    'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
+                    'name' => self::getTextFieldConfig(),
                     '_count' => self::INT_FIELD,
                 ],
             ],
@@ -175,20 +179,10 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             'weight' => self::FLOAT_FIELD,
             'width' => self::FLOAT_FIELD,
             'states' => self::KEYWORD_FIELD,
+            'customFields' => [
+                'properties' => $customFieldsProperties,
+            ],
         ];
-
-        foreach ($languageIds as $languageId) {
-            $properties['categories']['properties']['name']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['manufacturer']['properties']['name']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['properties']['properties']['name']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['options']['properties']['name']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['name']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['description']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['metaTitle']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['metaDescription']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['customSearchKeywords']['properties'][$languageId] = self::KEYWORD_FIELD + self::SEARCH_FIELD;
-            $properties['customFields']['properties'][$languageId] = $this->getCustomFieldsMapping($context);
-        }
 
         return [
             '_source' => ['includes' => ['id', 'autoIncrement']],
@@ -240,7 +234,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             }
         }
 
-        $groups = $this->fetchPropertyGroups(\array_keys($groupIds));
+        $groups = $this->fetchProperties(\array_keys($groupIds));
 
         foreach ($data as $id => $item) {
             $visibilities = array_values(array_unique(array_filter(explode('|', $item['visibilities'] ?? ''))));
@@ -260,11 +254,11 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             $tagIds = json_decode($item['tagIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $states = json_decode($item['states'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
-            $tags = json_decode((string) $item['tags'], true, 512, \JSON_THROW_ON_ERROR);
-            $categories = json_decode((string) $item['categories'], true, 512, \JSON_THROW_ON_ERROR);
-            $manufacturers = json_decode((string) $item['manufacturer_translation'], true, 512, \JSON_THROW_ON_ERROR);
-            $translations = json_decode((string) $item['translation'], true, 512, \JSON_THROW_ON_ERROR);
-            $parentTranslations = json_decode((string) $item['translation_parent'], true, 512, \JSON_THROW_ON_ERROR);
+            $tags = json_decode($item['tags'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categories = json_decode($item['categories'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $manufacturers = json_decode($item['manufacturer_translation'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $translations = json_decode($item['translation'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $parentTranslations = json_decode($item['translation_parent'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
             $filteredTags = [];
 
@@ -312,11 +306,17 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
+                'categories' => $this->mapToManyAssociations($categories, ['name']),
+                'manufacturer' => [
+                    'id' => $item['productManufacturerId'],
+                    ...$this->mapToOneAssociations($manufacturers, ['name']),
+                    '_count' => 1,
+                ],
                 'states' => $states,
             ];
 
             if ($item['cheapest_price_accessor']) {
-                $cheapestPriceAccessor = json_decode((string) $item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);
+                $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
                 foreach ($cheapestPriceAccessor as $rule => $cheapestPriceCurrencies) {
                     foreach ($cheapestPriceCurrencies as $currency => $taxes) {
@@ -369,35 +369,6 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                 ], $groups[$propertyId]);
             }, $propertyIds));
 
-            $document['manufacturer'] = [
-                'id' => $item['productManufacturerId'],
-                '_count' => 1,
-            ];
-
-            foreach ($manufacturers as $manufacturer) {
-                if (empty($manufacturer['languageId'])) {
-                    continue;
-                }
-
-                $document['manufacturer']['name'][$manufacturer['languageId']] = $this->stripText($manufacturer['name'] ?? '');
-            }
-
-            $document['categories'] = [];
-            foreach ($categories as $category) {
-                if (empty($category['languageId']) || empty($category['name'])) {
-                    continue;
-                }
-
-                $document['categories'][$category['id']] = $document['categories'][$category['id']] ?? [
-                    'id' => $category['id'],
-                    '_count' => 1,
-                ];
-
-                $document['categories'][$category['id']]['name'][$category['languageId']] = $this->stripText($category['name'] ?? '');
-            }
-
-            $document['categories'] = array_values($document['categories']);
-
             $document['options'] = array_values(array_map(function (string $optionId) use ($groups) {
                 return array_merge([
                     'id' => $optionId,
@@ -414,7 +385,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
     /**
      * @param array<string> $ids
      *
-     * @return array<mixed>
+     * @return array<string, array<string, string>>
      */
     private function fetchProducts(array $ids, Context $context): array
     {
@@ -481,6 +452,7 @@ SELECT
             GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'name', product_manufacturer_translation.name,
+                    'id', LOWER(HEX(product_manufacturer_translation.product_manufacturer_id)),
                     'languageId', LOWER(HEX(product_manufacturer_translation.language_id))
                 )
             ),
@@ -529,14 +501,15 @@ FROM product p
     LEFT JOIN tag ON (tag.id = product_tag.tag_id)
 
     LEFT JOIN product_category ON (product_category.product_id = p.categories AND product_category.product_version_id = p.version_id)
-    LEFT JOIN category_translation ON category_translation.category_id = product_category.category_id AND category_translation.category_version_id = product_category.category_version_id
+    LEFT JOIN category_translation ON category_translation.category_id = product_category.category_id AND category_translation.category_version_id = product_category.category_version_id AND category_translation.name IS NOT NULL
 
 WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
 
 GROUP BY p.id
 SQL;
 
-        $data = $this->connection->fetchAllAssociative(
+        /** @var array<string, array<string, string>> $result */
+        $result = $this->connection->fetchAllAssociativeIndexed(
             $sql,
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
@@ -547,7 +520,7 @@ SQL;
             ]
         );
 
-        return FetchModeHelper::groupUnique($data);
+        return $result;
     }
 
     /**
@@ -605,8 +578,12 @@ SQL;
      *
      * @return array<string, array{id: string, groupId: string, translations?: string, name: array<int|string, string>}>
      */
-    private function fetchPropertyGroups(array $propertyIds): array
+    private function fetchProperties(array $propertyIds): array
     {
+        if (empty($propertyIds)) {
+            return [];
+        }
+
         $sql = <<<'SQL'
 SELECT
        LOWER(HEX(id)) as id,

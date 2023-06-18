@@ -44,16 +44,11 @@ class LanguageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @deprecated tag:v6.6.0 - method will be removed
+     * @deprecated tag:v6.6.0 - reason:remove-subscriber -  method will be removed
      */
     public function onSalesChannelWritten(EntityWrittenEvent $event): void
     {
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.6.0.0',
-                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
-            );
-
             return;
         }
 

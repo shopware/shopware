@@ -28,6 +28,24 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
+        $aliasHandler->expects(static::never())->method('run');
+
+        $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
+        $commandTester->execute([]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     */
+    public function testExecuteQueue(): void
+    {
+        $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
+
+        $bus = $this->createMock(MessageBusInterface::class);
+        $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
+        $aliasHandler->expects(static::once())->method('run');
 
         $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
         $commandTester->execute(['--no-queue' => true]);
@@ -44,6 +62,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
+        $aliasHandler->expects(static::never())->method('run');
 
         $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, false));
         $commandTester->execute(['--no-queue' => true], ['capture_stderr_separately' => true]);

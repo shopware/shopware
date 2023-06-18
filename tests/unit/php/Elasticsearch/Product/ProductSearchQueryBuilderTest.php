@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -44,7 +45,8 @@ class ProductSearchQueryBuilderTest extends TestCase
             new EntityDefinitionQueryHelper(),
             $this->getDefinition(),
             $this->createMock(TokenFilter::class),
-            new Tokenizer(2)
+            new Tokenizer(2),
+            $this->createMock(ElasticsearchHelper::class)
         );
 
         static::expectException(DecorationPatternException::class);
@@ -68,12 +70,16 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $helper = new EntityDefinitionQueryHelper();
 
+        $elasticsearchQueryHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchQueryHelper->method('enabledMultilingualIndex')->willReturn(Feature::isActive('ES_MULTILINGUAL_INDEX'));
+
         $builder = new ProductSearchQueryBuilder(
             $connection,
             $helper,
             $this->getDefinition(),
             $tokenFilter,
-            new Tokenizer(2)
+            new Tokenizer(2),
+            $elasticsearchQueryHelper
         );
 
         $criteria = new Criteria();
@@ -248,12 +254,16 @@ class ProductSearchQueryBuilderTest extends TestCase
             ->method('filter')
             ->willReturnArgument(0);
 
+        $elasticsearchQueryHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchQueryHelper->method('enabledMultilingualIndex')->willReturn(Feature::isActive('ES_MULTILINGUAL_INDEX'));
+
         $builder = new ProductSearchQueryBuilder(
             $connection,
             new EntityDefinitionQueryHelper(),
             $this->getDefinition(),
             $tokenFilter,
-            new Tokenizer(2)
+            new Tokenizer(2),
+            $elasticsearchQueryHelper
         );
 
         $criteria = new Criteria();
@@ -329,7 +339,8 @@ class ProductSearchQueryBuilderTest extends TestCase
             new EntityDefinitionQueryHelper(),
             $this->getDefinition(),
             $tokenFilter,
-            new Tokenizer(2)
+            new Tokenizer(2),
+            $this->createMock(ElasticsearchHelper::class)
         );
 
         $criteria = new Criteria();

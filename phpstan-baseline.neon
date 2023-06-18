@@ -12100,22 +12100,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Cache/CacheClearerTest.php
 
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Cache/CacheIdLoaderTest.php
-
-		-
-			message: "#^Cannot call method load\\(\\) on object\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Cache/CacheIdLoaderTest.php
-
-		-
-			message: "#^Cannot call method write\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Cache/CacheIdLoaderTest.php
-
-
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

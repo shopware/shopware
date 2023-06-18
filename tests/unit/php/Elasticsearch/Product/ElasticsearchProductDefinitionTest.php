@@ -519,7 +519,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         static::assertArrayHasKey($productId, $documents);
         static::assertArrayHasKey('customFields', $documents[$productId]);
-        static::assertArrayHasKey('bool', $documents['1']['customFields']);
+        static::assertArrayHasKey('bool', $documents[$productId]['customFields']);
         static::assertIsBool($documents[$productId]['customFields']['bool']);
         static::assertArrayHasKey('int', $documents[$productId]['customFields']);
         static::assertIsFloat($documents[$productId]['customFields']['int']);

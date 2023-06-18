@@ -7,10 +7,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -24,7 +26,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -54,6 +58,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
     }
 
     /**
@@ -425,5 +430,13 @@ class ProductSearchQueryBuilderTest extends TestCase
         $reflectionProperty = $class->getProperty('customFieldsTypes');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($definition, null);
+
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $definition = $this->getContainer()->get(EsProductDefinition::class);
+            $class = new \ReflectionClass($definition);
+            $reflectionProperty = $class->getProperty('customFieldsTypes');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($definition, null);
+        }
     }
 }

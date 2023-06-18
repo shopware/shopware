@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -34,7 +35,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         static::expectException(\RuntimeException::class);
@@ -55,7 +57,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $helper->logAndThrowException(new \RuntimeException('test'));
@@ -63,6 +66,8 @@ class ElasticsearchHelperTest extends TestCase
 
     public function testGetIndexName(): void
     {
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+
         $helper = new ElasticsearchHelper(
             'prod',
             true,
@@ -72,7 +77,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $storage
         );
 
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
@@ -99,7 +105,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $registry,
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $criteria = new Criteria();
@@ -118,5 +125,58 @@ class ElasticsearchHelperTest extends TestCase
         static::assertFalse(
             $helper->allowSearch(new ProductDefinition(), Context::createDefaultContext(), $criteria)
         );
+    }
+
+    /**
+     * @dataProvider enableMultilingualIndexCases
+     */
+    public function testEnableMultilingualIndex(?int $flag, bool $expected): void
+    {
+        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
+
+        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $registry->method('has')->willReturnMap([
+            ['product', true],
+            ['category', false],
+        ]);
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects(static::once())->method('get')->willReturn($flag);
+
+        $helper = new ElasticsearchHelper(
+            'prod',
+            true,
+            true,
+            'prefix',
+            true,
+            $this->createMock(Client::class),
+            $registry,
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(LoggerInterface::class),
+            $storage
+        );
+
+        static::assertEquals($expected, $helper->enabledMultilingualIndex());
+    }
+
+    /**
+     * @return iterable<string, array<string, mixed>>
+     */
+    public static function enableMultilingualIndexCases(): iterable
+    {
+        yield 'with flag not set' => [
+            'flag' => null,
+            'expected' => false,
+        ];
+
+        yield 'with flag disabled' => [
+            'flag' => 0,
+            'expected' => false,
+        ];
+
+        yield 'with flag enabled' => [
+            'flag' => 1,
+            'expected' => true,
+        ];
     }
 }

@@ -7,6 +7,7 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Search;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,12 +18,18 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 
 #[Package('core')]
 class ElasticsearchHelper
 {
     // max for default configuration
     final public const MAX_SIZE_VALUE = 10000;
+
+    /**
+     * @deprecated tag:v6.6.0 - will be removed
+     */
+    public const ENABLE_MULTILINGUAL_INDEX_KEY = 'enable-multilingual-index';
 
     /**
      * @internal
@@ -36,7 +43,8 @@ class ElasticsearchHelper
         private readonly Client $client,
         private readonly ElasticsearchRegistry $registry,
         private readonly CriteriaParser $parser,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly AbstractKeyValueStorage $keyValueStorage
     ) {
     }
 
@@ -58,7 +66,9 @@ class ElasticsearchHelper
      */
     public function getIndexName(EntityDefinition $definition/* , ?string $languageId = null */): string
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        $languageId = \func_get_args()[1] ?? '';
+
+        if ($languageId === '') {
             return $this->prefix . '_' . $definition->getEntityName();
         }
 
@@ -66,8 +76,6 @@ class ElasticsearchHelper
             'v6.6.0.0',
             'Second parameter `$languageId` will be removed in method `getIndexName()` in `ElasticsearchHelper` since v6.6.0.0'
         );
-
-        $languageId = \func_get_args()[1] ?? '';
 
         return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
     }
@@ -245,5 +253,13 @@ class ElasticsearchHelper
         $entityName = $definition->getEntityName();
 
         return $this->registry->has($entityName);
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:blue-green-deployment - will be removed as method always return true
+     */
+    public function enabledMultilingualIndex(): bool
+    {
+        return (bool) $this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false);
     }
 }

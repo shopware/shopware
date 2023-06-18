@@ -23,6 +23,7 @@ use OpenSearchDSL\Query\TermLevel\WildcardQuery;
 use OpenSearchDSL\Sort\FieldSort;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -62,12 +63,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Sort\CountSort;
 
 #[Package('core')]
@@ -78,7 +79,8 @@ class CriteriaParser
      */
     public function __construct(
         private readonly EntityDefinitionQueryHelper $helper,
-        private readonly CustomFieldService $customFieldService
+        private readonly CustomFieldService $customFieldService,
+        private readonly AbstractKeyValueStorage $keyValueStorage
     ) {
     }
 
@@ -147,7 +149,7 @@ class CriteriaParser
             ]);
         }
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
 
             if ($field instanceof TranslatedField) {
@@ -510,7 +512,7 @@ class CriteriaParser
 
     private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $fieldName);
 
             if ($field instanceof TranslatedField) {
@@ -536,7 +538,7 @@ class CriteriaParser
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
             $field = $this->getField($definition, $fieldName);
@@ -593,7 +595,7 @@ class CriteriaParser
     {
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $fieldName);
 
             $value = $this->parseValue($definition, $filter, \array_values($filter->getValue()));
@@ -631,7 +633,7 @@ class CriteriaParser
         /** @var string $value */
         $value = $filter->getValue();
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $filter->getField());
 
             $query = new WildcardQuery($accessor, '*' . $value . '*');
@@ -664,7 +666,7 @@ class CriteriaParser
 
         $value = $filter->getValue();
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $filter->getField());
 
             $query = new PrefixQuery($accessor, $value);
@@ -702,7 +704,7 @@ class CriteriaParser
 
         $value = $filter->getValue();
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $filter->getField());
 
             $query = new WildcardQuery($accessor, '*' . $value);
@@ -751,7 +753,7 @@ class CriteriaParser
 
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
             $field = $this->getField($definition, $filter->getField());
 
             $value = $this->parseValue($definition, $filter, $filter->getParameters());

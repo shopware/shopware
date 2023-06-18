@@ -48,7 +48,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @return array{_source: array{includes: string[]}, properties: array<mixed>}
+     * {@inheritdoc}
      */
     public function getMapping(Context $context): array
     {
@@ -186,9 +186,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @param array<string> $ids
-     *
-     * @return array<mixed>
+     * {@inheritdoc}
      */
     public function fetch(array $ids, Context $context): array
     {

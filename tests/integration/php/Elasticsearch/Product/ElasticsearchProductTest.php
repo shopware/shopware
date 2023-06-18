@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -80,6 +81,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
@@ -131,7 +133,8 @@ class ElasticsearchProductTest extends TestCase
     protected function setUp(): void
     {
         $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
+
+        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
 
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
@@ -256,14 +259,21 @@ class ElasticsearchProductTest extends TestCase
                 new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
             );
 
-            $languages = $this->languageRepository->searchIds($criteria, $context);
-
-            foreach ($languages->getIds() as $languageId) {
-                \assert(\is_string($languageId));
-                $index = $this->helper->getIndexName($this->productDefinition, $languageId);
+            if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+                $index = $this->helper->getIndexName($this->productDefinition);
 
                 $exists = $this->client->indices()->exists(['index' => $index]);
                 static::assertTrue($exists, 'Expected elasticsearch indices present');
+            } else {
+                $languages = $this->languageRepository->searchIds($criteria, $context);
+
+                foreach ($languages->getIds() as $languageId) {
+                    \assert(\is_string($languageId));
+                    $index = $this->helper->getIndexName($this->productDefinition, $languageId);
+
+                    $exists = $this->client->indices()->exists(['index' => $index]);
+                    static::assertTrue($exists, 'Expected elasticsearch indices present');
+                }
             }
 
             return $this->ids;
@@ -2889,11 +2899,6 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCustomFieldsGetMapped(IdsCollection $ids): void
     {
-        $ref = new \ReflectionClass($this->definition);
-        $property = $ref->getProperty('customFieldsTypes');
-        $property->setAccessible(true);
-        $property->setValue($this->definition, null);
-
         $mapping = $this->definition->getMapping($this->context);
 
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
@@ -3478,14 +3483,14 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
+        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue(
             $this->definition,
             $customMapping
         );
 
         $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
 
-        ReflectionHelper::getProperty(EsProductDefinition::class, 'customMapping')->setValue(
+        ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue(
             $newImplementation,
             $customMapping
         );

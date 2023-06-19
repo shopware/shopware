@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Content\Product\Exception\ProductLineItemPayloadException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -337,7 +338,7 @@ class CartLineItemController extends StorefrontController
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
                 }
-            } catch (ProductNotFoundException) {
+            } catch (ProductNotFoundException|ProductLineItemPayloadException) {
                 $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
             }
 
@@ -363,6 +364,15 @@ class CartLineItemController extends StorefrontController
      */
     private function getLineItemArray(RequestDataBag $lineItemData, ?array $defaultValues): array
     {
+        if ($lineItemData->has('payload')) {
+            $payload = $lineItemData->get('payload');
+
+            if (mb_strlen($payload, '8bit') > (1024 * 256)) {
+                throw new ProductLineItemPayloadException();
+            }
+
+            $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
+        }
         $lineItemArray = $lineItemData->all();
 
         if (isset($lineItemArray['quantity'])) {

@@ -5,11 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
-use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
-use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -24,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -41,16 +36,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -92,7 +82,7 @@ class ApiController extends AbstractController
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $missing = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
         if ($missing) {
-            throw new MissingPrivilegeException([$missing]);
+            throw ApiException::missingPrivileges([$missing]);
         }
 
         /** @var EntityWrittenContainerEvent $eventContainer */
@@ -105,7 +95,7 @@ class ApiController extends AbstractController
 
         $event = $eventContainer->getEventByEntityName($definition->getEntityName());
         if (!$event) {
-            throw new NoEntityClonedException($entity, $id);
+            throw ApiException::noEntityCloned($entity, $id);
         }
 
         $ids = $event->getIds();
@@ -123,17 +113,17 @@ class ApiController extends AbstractController
         $versionName = $request->request->has('versionName') ? (string) $request->request->get('versionName') : null;
 
         if ($versionId !== null && !Uuid::isValid($versionId)) {
-            throw new InvalidUuidException($versionId);
+            throw ApiException::invalidVersionId($versionId);
         }
 
         if ($versionName !== null && !ctype_alnum($versionName)) {
-            throw new InvalidVersionNameException();
+            throw ApiException::invalidVersionName();
         }
 
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($entity);
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         $versionId = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): string => $this->definitionRegistry->getRepository($entityDefinition->getEntityName())->createVersion($id, $context, $versionName, $versionId));
@@ -152,7 +142,7 @@ class ApiController extends AbstractController
         $entity = $this->urlToSnakeCase($entity);
 
         if (!Uuid::isValid($versionId)) {
-            throw new InvalidUuidException($versionId);
+            throw ApiException::invalidVersionId($versionId);
         }
 
         $entityDefinition = $this->getEntityDefinition($entity);
@@ -170,21 +160,21 @@ class ApiController extends AbstractController
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
         if (!Uuid::isValid($versionId)) {
-            throw new InvalidUuidException($versionId);
+            throw ApiException::invalidVersionId($versionId);
         }
 
         if ($versionId === Defaults::LIVE_VERSION) {
-            throw new LiveVersionDeleteException();
+            throw ApiException::deleteLiveVersion();
         }
 
         if (!Uuid::isValid($entityId)) {
-            throw new InvalidUuidException($entityId);
+            throw ApiException::invalidVersionId($versionId);
         }
 
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($this->urlToSnakeCase($entity));
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -238,13 +228,13 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException($permissions);
+            throw ApiException::missingPrivileges($permissions);
         }
 
         $entity = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): ?Entity => $repository->search($criteria, $context)->get($id));
 
         if ($entity === null) {
-            throw new ResourceNotFoundException($definition->getEntityName(), ['id' => $id]);
+            throw ApiException::resourceNotFound($definition->getEntityName(), ['id' => $id]);
         }
 
         return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context);
@@ -254,7 +244,7 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        /** @var EntitySearchResult $result */
+        /** @var IdSearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): IdSearchResult => $repository->searchIds($criteria, $context));
 
         return new JsonResponse([
@@ -398,7 +388,7 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+        throw ApiException::unsupportedAssociation($association->getPropertyName());
     }
 
     /**
@@ -425,7 +415,7 @@ class ApiController extends AbstractController
             $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
             if (!empty($permissions)) {
-                throw new MissingPrivilegeException($permissions);
+                throw ApiException::missingPrivileges($permissions);
             }
 
             return [$criteria, $repository];
@@ -460,7 +450,7 @@ class ApiController extends AbstractController
             /** @var ManyToManyAssociationField|null $reverse */
             $reverse = $reverses->first();
             if (!$reverse) {
-                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
+                throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
             $criteria->addFilter(
@@ -513,7 +503,7 @@ class ApiController extends AbstractController
             /** @var AssociationField|null $reverse */
             $reverse = $reverses->first();
             if (!$reverse) {
-                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
+                throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
             $criteria->addFilter(
@@ -537,7 +527,7 @@ class ApiController extends AbstractController
             /** @var OneToOneAssociationField|null $reverse */
             $reverse = $reverses->first();
             if (!$reverse) {
-                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
+                throw ApiException::missingReverseAssociation($definition->getEntityName(), $parentDefinition->getEntityName());
             }
 
             $criteria->addFilter(
@@ -555,7 +545,7 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException($permissions);
+            throw ApiException::missingPrivileges($permissions);
         }
 
         return [$criteria, $repository];
@@ -598,7 +588,7 @@ class ApiController extends AbstractController
         $appendLocationHeader = false;
 
         if ($this->isCollection($payload)) {
-            throw new BadRequestHttpException('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
+            throw ApiException::badRequest('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');
         }
 
         $pathSegments = $this->buildEntityPath($entityName, $path, $context, [WriteProtection::class]);
@@ -608,7 +598,7 @@ class ApiController extends AbstractController
         if ($type === self::WRITE_CREATE && !empty($last['value'])) {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
-            throw new MethodNotAllowedHttpException($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
+            throw ApiException::methodNotAllowed($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
         }
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
@@ -637,8 +627,10 @@ class ApiController extends AbstractController
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var EntityPathSegment $child */
@@ -678,8 +670,10 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
@@ -707,8 +701,10 @@ class ApiController extends AbstractController
 
             $criteria = new Criteria($event->getIds());
             $entities = $repository->search($criteria, $context);
+            $entity = $entities->first();
+            \assert($entity instanceof Entity);
 
-            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $manyToManyAssociation */
@@ -777,7 +773,7 @@ class ApiController extends AbstractController
                 $event = $repository->delete([$payload], $context);
 
                 if (!empty($event->getErrors())) {
-                    throw new ResourceNotFoundException($entity->getEntityName(), $payload);
+                    throw ApiException::resourceNotFound($entity->getEntityName(), $payload);
                 }
 
                 return $event;
@@ -787,7 +783,7 @@ class ApiController extends AbstractController
         });
 
         if (!$event) {
-            throw new \RuntimeException('Unsupported write operation.');
+            throw ApiException::unsupportedOperation('write');
         }
 
         return $event;
@@ -857,7 +853,7 @@ class ApiController extends AbstractController
         try {
             $root = $this->definitionRegistry->getByEntityName($first['entity']);
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         $entities = [
@@ -875,7 +871,7 @@ class ApiController extends AbstractController
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
 
-                throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
+                throw ApiException::notExistingRelation($path);
             }
 
             if ($field instanceof ManyToManyAssociationField) {
@@ -934,10 +930,10 @@ class ApiController extends AbstractController
                     return $request->request->all();
             }
         } catch (InvalidArgumentException|UnexpectedValueException $exception) {
-            throw new BadRequestHttpException($exception->getMessage());
+            throw ApiException::badRequest($exception->getMessage());
         }
 
-        throw new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
+        throw ApiException::unsupportedMediaType($contentType);
     }
 
     /**
@@ -953,7 +949,7 @@ class ApiController extends AbstractController
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($entityName);
         } catch (DefinitionNotFoundException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
+            throw ApiException::definitionNotFound($e);
         }
 
         return $entityDefinition;
@@ -977,7 +973,7 @@ class ApiController extends AbstractController
     /**
      * @param list<EntityPathSegment> $pathSegments
      *
-     * @return list<string>
+     * @return array<string|null>
      */
     private function validatePathSegments(Context $context, array $pathSegments, string $privilege): array
     {

@@ -38,6 +38,10 @@ class CartException extends HttpException
     public const CART_SURCHARGE_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_SURCHARGE_TYPE_NOT_SUPPORTED';
     public const CART_INVALID_PERCENTAGE_SURCHARGE_CODE = 'CHECKOUT__CART_INVALID_PERCENTAGE_SURCHARGE';
     public const CART_MISSING_BEHAVIOR_CODE = 'CHECKOUT__CART_MISSING_BEHAVIOR';
+    public const TAX_ID_NOT_FOUND = 'CHECKOUT__TAX_ID_NOT_FOUND';
+    public const TAX_ID_PARAMETER_IS_MISSING = 'CHECKOUT__TAX_ID_PARAMETER_IS_MISSING';
+    public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
+    public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
 
     public static function deserializeFailed(): self
     {
@@ -294,6 +298,43 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CART_MISSING_BEHAVIOR_CODE,
             'Cart instance of the cart facade were never calculated. Please call calculate() before using the cart facade.'
+        );
+    }
+
+    public static function taxRuleNotFound(string $taxId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::TAX_ID_NOT_FOUND,
+            'Tax rule with id "{{ taxId }}" not found.',
+            ['taxId' => $taxId]
+        );
+    }
+
+    public static function taxIdParameterIsMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TAX_ID_PARAMETER_IS_MISSING,
+            'Parameter "taxId" is missing.',
+        );
+    }
+
+    public static function priceParameterIsMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRICE_PARAMETER_IS_MISSING,
+            'Parameter "price" is missing.',
+        );
+    }
+
+    public static function pricesParameterIsMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRICES_PARAMETER_IS_MISSING,
+            'Parameter "prices" is missing.',
         );
     }
 }

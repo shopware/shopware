@@ -20,6 +20,10 @@ class PromotionException extends HttpException
 
     public const PATTERN_ALREADY_IN_USE = 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE';
 
+    public const PROMOTION_NOT_FOUND = 'CHECKOUT__PROMOTION__NOT_FOUND';
+
+    public const PROMOTION_DISCOUNT_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND';
+
     public static function codeAlreadyRedeemed(string $code): self
     {
         return new self(
@@ -63,6 +67,32 @@ class PromotionException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PATTERN_ALREADY_IN_USE,
             'Code pattern already exists in another promotion. Please provide a different pattern.'
+        );
+    }
+
+    /**
+     * @param string[] $ids
+     */
+    public static function promotionsNotFound(array $ids): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::PROMOTION_NOT_FOUND,
+            'These promotions "{{ ids }}" are not found',
+            ['ids' => implode(', ', $ids)]
+        );
+    }
+
+    /**
+     * @param string[] $ids
+     */
+    public static function discountsNotFound(array $ids): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::PROMOTION_DISCOUNT_NOT_FOUND,
+            'These promotion discounts "{{ ids }}" are not found',
+            ['ids' => implode(', ', $ids)]
         );
     }
 }

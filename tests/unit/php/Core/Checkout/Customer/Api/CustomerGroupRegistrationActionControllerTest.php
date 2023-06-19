@@ -113,13 +113,14 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     {
         $customer = self::createCustomer();
         $customerB = self::createCustomer();
+        $invalidCustomer = Uuid::randomHex();
         $customerWithoutRequest = self::createCustomer(false);
 
         return [
-            'without user' => [null, null, self::createRequest([Uuid::randomHex()]), 'Cannot find Customers'],
-            'without customer' => [null, null, self::createRequest([$customer->getId()]),  'Cannot find Customers'],
-            'without customerId' => [null, null, self::createRequest([]), 'customerId or customerIds parameter are missing'],
-            'without request group' => [null,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()]), 'User ' . $customerWithoutRequest->getId() . ' dont have approval'],
+            'without user' => [null, null, self::createRequest([$invalidCustomer]), sprintf('These customers "%s" are not found', $invalidCustomer)],
+            'without customer' => [null, null, self::createRequest([$customer->getId()]),  sprintf('These customers "%s" are not found', $customer->getId())],
+            'without customerId' => [null, null, self::createRequest([]), 'Parameter "customerIds" is missing.'],
+            'without request group' => [null,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()]), sprintf('Group request for customer "%s" is not found', $customerWithoutRequest->getId())],
             'accept/decline' => [204, [$customer], self::createRequest([$customer->getId()]),  null],
             'accept/decline silent' => [204,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()], true), null],
             'in batch' => [204, [$customer, $customerB], self::createRequest([$customer->getId(), $customerB->getId()]), null],

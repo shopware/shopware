@@ -233,7 +233,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidChannelId(): void
@@ -267,7 +267,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidCustomerId(): void
@@ -311,7 +311,6 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertIsString($salesChannel['id']);
         // assert customer is updated in database
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
     }
@@ -349,7 +348,6 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('permissions', $payload);
         static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
     }
@@ -367,7 +365,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testModifyShippingCostsWithoutShippingCosts(): void

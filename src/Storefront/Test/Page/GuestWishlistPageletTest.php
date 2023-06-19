@@ -12,6 +12,9 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -60,7 +63,12 @@ class GuestWishlistPageletTest extends TestCase
 
     public function testItThrowsExceptionWithInvalidProductIds(): void
     {
-        static::expectException(\InvalidArgumentException::class);
+        if (Feature::isActive('v6.6.0.0')) {
+            static::expectException(RoutingException::class);
+        } else {
+            static::expectException(MissingRequestParameterException::class);
+        }
+
         $request = new Request();
 
         $request->request->set('productIds', 'invalid value');
@@ -117,7 +125,6 @@ class GuestWishlistPageletTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        static::assertInstanceOf(ProductListResponse::class, $page->getSearchResult());
         $phpunit->assertEquals(3, $page->getSearchResult()->getProducts()->count());
         static::assertTrue($eventDidRun);
     }
@@ -174,7 +181,6 @@ class GuestWishlistPageletTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        static::assertInstanceOf(ProductListResponse::class, $page->getSearchResult());
         static::assertEquals(0, $page->getSearchResult()->getProducts()->count());
     }
 

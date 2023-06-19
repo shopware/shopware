@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
+use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,6 +19,9 @@ final class DocumentRendererRegistry
     {
     }
 
+    /**
+     * @param DocumentGenerateOperation[] $operations
+     */
     public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {
         foreach ($this->documentRenderers as $documentRenderer) {
@@ -28,6 +32,6 @@ final class DocumentRendererRegistry
             return $documentRenderer->render($operations, $context, $rendererConfig);
         }
 
-        throw new InvalidDocumentGeneratorTypeException($documentType);
+        throw DocumentException::invalidDocumentGeneratorType($documentType);
     }
 }

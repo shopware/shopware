@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -25,7 +26,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -48,7 +48,11 @@ class AdministrationControllerTest extends TestCase
 
     public function testCheckCustomerEmailValidThrowErrorWithNullEmailParameter(): void
     {
-        static::expectException(\InvalidArgumentException::class);
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->expectException(RoutingException::class);
+        } else {
+            $this->expectException(MissingRequestParameterException::class);
+        }
 
         $this->createInstance();
         $request = new Request();
@@ -62,7 +66,6 @@ class AdministrationControllerTest extends TestCase
         $request = new Request([], ['email' => 'random@email.com']);
 
         $response = $this->administrationController->checkCustomerEmailValid($request, $this->context);
-        static::assertInstanceOf(JsonResponse::class, $response);
         static::assertIsString($response->getContent());
         static::assertEquals(
             ['isValid' => true],
@@ -102,7 +105,6 @@ class AdministrationControllerTest extends TestCase
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => Uuid::randomHex()]);
 
         $response = $this->administrationController->checkCustomerEmailValid($request, $this->context);
-        static::assertInstanceOf(JsonResponse::class, $response);
         static::assertIsString($response->getContent());
         static::assertEquals(
             ['isValid' => true],

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
@@ -32,7 +33,7 @@ class CountryStateController extends StorefrontController
         $countryId = (string) $request->request->get('countryId');
 
         if (!$countryId) {
-            throw new \InvalidArgumentException('Parameter countryId is empty');
+            throw RoutingException::missingRequestParameter('countryId');
         }
 
         $countryStateDataPagelet = $this->countryStateDataPageletLoader->load($countryId, $request, $context);

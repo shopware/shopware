@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
+use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -210,7 +211,7 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
+        static::assertEquals(Response::HTTP_FORBIDDEN, $this->getBrowser()->getResponse()->getStatusCode());
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
         static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
@@ -414,6 +415,8 @@ class DocumentControllerTest extends TestCase
         ];
 
         static::assertNotNull($document = $this->createDocuments($order->getId(), $documentTypes, $this->context)->first());
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
         $documentId = $document->getId();
 
         $this->getBrowser()->request(
@@ -465,6 +468,7 @@ class DocumentControllerTest extends TestCase
         ];
 
         static::assertNotNull($document = $this->createDocuments($order->getId(), $documentTypes, $this->context)->first());
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
         $documentId = $document->getId();
 
         $this->getBrowser()->request(
@@ -540,9 +544,10 @@ class DocumentControllerTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
-        return $order->first();
+        return $order;
     }
 
     /**

@@ -4,15 +4,17 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -76,7 +78,7 @@ class UserController extends AbstractController
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
 
         if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
-            throw new MissingPrivilegeException(['user:update']);
+            throw ApiException::missingPrivileges(['user:update']);
         }
 
         return $this->upsertUser($userId, $request, $context, $responseFactory);
@@ -164,8 +166,10 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
+        /** @var EntityWrittenContainerEvent $events */
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
 
+        /** @var EntityWrittenEvent $event */
         $event = $events->getEventByEntityName(UserDefinition::ENTITY_NAME);
 
         $eventIds = $event->getIds();
@@ -193,8 +197,10 @@ class UserController extends AbstractController
             $data['id'] = $roleId ?? null;
         }
 
+        /** @var EntityWrittenContainerEvent $events */
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));
 
+        /** @var EntityWrittenEvent $event */
         $event = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME);
 
         $eventIds = $event->getIds();

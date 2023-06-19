@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -29,6 +30,9 @@ class CategoryBreadcrumbUpdater
     ) {
     }
 
+    /**
+     * @param string[] $ids
+     */
     public function update(array $ids, Context $context): void
     {
         if (empty($ids)) {
@@ -73,6 +77,10 @@ class CategoryBreadcrumbUpdater
         }
     }
 
+    /**
+     * @param string[] $ids
+     * @param string[] $all
+     */
     private function updateLanguage(array $ids, Context $context, array $all): void
     {
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
@@ -106,12 +114,15 @@ class CategoryBreadcrumbUpdater
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function buildBreadcrumb(string $id, CategoryCollection $categories): array
     {
         $category = $categories->get($id);
 
         if (!$category) {
-            throw new CategoryNotFoundException($id);
+            throw CategoryException::categoryNotFound($id);
         }
 
         $breadcrumb = [];

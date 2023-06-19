@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,7 +43,7 @@ class DownloadRoute extends AbstractDownloadRoute
         $orderId = $request->get('orderId', false);
 
         if (!$customer) {
-            throw CartException::customerNotLoggedIn();
+            throw CustomerException::customerNotLoggedIn();
         }
 
         if ($downloadId === false || $orderId === false) {
@@ -65,7 +64,7 @@ class DownloadRoute extends AbstractDownloadRoute
         $download = $this->downloadRepository->search($criteria, $context->getContext())->first();
 
         if (!$download instanceof OrderLineItemDownloadEntity || !$download->getMedia()) {
-            throw new FileNotFoundException($downloadId);
+            throw CustomerException::downloadFileNotFound($downloadId);
         }
 
         $media = $download->getMedia();

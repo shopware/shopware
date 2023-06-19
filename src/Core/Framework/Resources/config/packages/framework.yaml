@@ -144,3 +144,7 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
             log_level: notice
+        Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException:
+            log_level: notice
+        Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
+            log_level: notice

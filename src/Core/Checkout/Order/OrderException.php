@@ -18,6 +18,8 @@ class OrderException extends HttpException
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
     final public const ORDER_PAYMENT_METHOD_NOT_CHANGEABLE_CODE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE';
 
+    final public const ORDER_CUSTOMER_NOT_LOGGED_IN = 'CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN';
+
     public static function missingAssociation(string $association): self
     {
         return new self(
@@ -94,6 +96,15 @@ class OrderException extends HttpException
             self::ORDER_MISSING_ORDER_NUMBER_CODE,
             'Order with id {{ orderId }} has no order number.',
             ['orderId' => $orderId]
+        );
+    }
+
+    public static function customerNotLoggedIn(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::ORDER_CUSTOMER_NOT_LOGGED_IN,
+            'Customer is not logged in.',
         );
     }
 }

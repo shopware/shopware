@@ -59,6 +59,57 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->setContainer($this->container);
     }
 
+    public function testAddLineItemsCallsLineItemWithPayload(): void
+    {
+        $productId = Uuid::randomHex();
+        $lineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+            'payload' => '{"some": "value"}',
+        ];
+
+        $expectedLineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+            'payload' => ['some' => 'value'],
+        ];
+
+        $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+        $expectedLineItem = new LineItem($productId, 'product');
+
+        $this->lineItemFactory->expects(static::once())
+            ->method('create')
+            ->with($expectedLineItemData, $this->createMock(SalesChannelContext::class))
+            ->willReturn($expectedLineItem);
+
+        $stack = $this->createMock(RequestStack::class);
+        $stack->method('getSession')->willReturn(new Session(new MockArraySessionStorage()));
+        $this->container->method('get')
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
+
+        $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
+    }
+
     public function testAddLineItemsCallsLineItemFactory(): void
     {
         $productId = Uuid::randomHex();

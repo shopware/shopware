@@ -203,12 +203,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertInstanceOf(PaymentException::class, $return->getException());
 
+        /** @var PaymentException $exception */
         $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertEquals(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
 
         if (!Feature::isActive('v6.6.0.0')) {
             static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -229,11 +230,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertInstanceOf(PaymentException::class, $return->getException());
+        /** @var PaymentException $exception */
         $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertEquals(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
 
         if (!Feature::isActive('v6.6.0.0')) {
             static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -248,11 +250,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertInstanceOf(PaymentException::class, $return->getException());
+        /** @var PaymentException $exception */
         $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertEquals(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
 
         if (!Feature::isActive('v6.6.0.0')) {
             static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -312,11 +315,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertInstanceOf(PaymentException::class, $return->getException());
+        /** @var PaymentException $exception */
         $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL, $exception->getErrorCode());
+        static::assertEquals(PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL, $exception->getErrorCode());
 
         if (!Feature::isActive('v6.6.0.0')) {
             static::assertInstanceOf(CustomerCanceledAsyncPaymentException::class, $return->getException());
@@ -334,11 +338,12 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         static::assertInstanceOf(PaymentException::class, $return->getException());
+        /** @var PaymentException $exception */
         $exception = $return->getException();
-        static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
+        static::assertEquals(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
 
         if (!Feature::isActive('v6.6.0.0')) {
             static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());

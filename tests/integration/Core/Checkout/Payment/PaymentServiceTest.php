@@ -219,6 +219,13 @@ class PaymentServiceTest extends TestCase
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
 
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(InvalidTokenException::class);
+        }
+
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+
         $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
 
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));

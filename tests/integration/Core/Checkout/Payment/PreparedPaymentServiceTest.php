@@ -21,7 +21,6 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Defaults;
@@ -129,11 +128,7 @@ class PreparedPaymentServiceTest extends TestCase
             $this->expectException(UnknownPaymentMethodException::class);
         }
         $this->expectException(PaymentException::class);
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
-        } else {
-            $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
-        }
+        $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
         $this->paymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -200,11 +195,7 @@ class PreparedPaymentServiceTest extends TestCase
             $this->expectException(UnknownPaymentMethodException::class);
         }
         $this->expectException(PaymentException::class);
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
-        } else {
-            $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
-        }
+        $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
 

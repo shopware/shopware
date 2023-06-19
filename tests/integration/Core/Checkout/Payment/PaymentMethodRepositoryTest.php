@@ -49,6 +49,7 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
+        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
@@ -79,7 +80,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        /** @var PaymentMethodEntity $firstPaymentMethod */
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -99,7 +101,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        /** @var PaymentMethodEntity $firstPaymentMethod */
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -139,7 +142,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        /** @var PaymentMethodEntity $firstPaymentMethod */
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
@@ -207,7 +211,7 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
         $paymentMethod = $resultSet->filterByProperty('id', $this->paymentMethodId)->get($this->paymentMethodId);
         static::assertNotNull($paymentMethod);

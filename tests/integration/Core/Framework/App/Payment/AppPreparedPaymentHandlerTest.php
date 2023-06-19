@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
@@ -290,7 +291,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . sprintf('%s', self::ERROR_MESSAGE));
 
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectException(CapturePreparedPaymentException::class);
@@ -313,7 +314,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . sprintf('%s', self::ERROR_MESSAGE));
 
         if (!Feature::isActive('v6.6.0.0')) {
             $this->expectException(CapturePreparedPaymentException::class);

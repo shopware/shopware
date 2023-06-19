@@ -113,10 +113,10 @@ class OrderRouteTest extends TestCase
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
         $this->email = Uuid::randomHex() . '@example.com';
         $this->customerId = Uuid::randomHex();
-        $firstPaymentMethod = $this->getValidPaymentMethods()->first();
-        static::assertNotNull($firstPaymentMethod);
-        $this->defaultPaymentMethodId = $firstPaymentMethod->getId();
-        $this->orderId = $this->createOrder($this->customerId, $this->email);
+        /** @var PaymentMethodEntity|null $validPaymentMethods */
+        $validPaymentMethods = $this->getValidPaymentMethods()->first();
+        $this->defaultPaymentMethodId = $validPaymentMethods?->getId() ?? '';
+        $this->orderId = $this->createOrder($this->customerId, $this->email, $this->password);
 
         $this->browser
             ->request(
@@ -419,6 +419,7 @@ class OrderRouteTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
+        /** @var PaymentMethodEntity|null $newPaymentMethod */
         $newPaymentMethod = $this->getValidPaymentMethods()->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
         $newPaymentMethodId = $newPaymentMethod?->getId() ?? '';
 
@@ -570,6 +571,7 @@ class OrderRouteTest extends TestCase
         $ids = new IdsCollection();
 
         // get non default country id
+        /** @var CountryEntity|null $country */
         $country = $this->getValidCountries()->filter(fn (CountryEntity $country) => $country->getId() !== $this->defaultCountryId)->first();
         $countryId = $country?->getId() ?? '';
 
@@ -872,8 +874,7 @@ class OrderRouteTest extends TestCase
             ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
         );
 
-        $document = $this->getContainer()->get(DocumentGenerator::class)
-            ->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->getSuccess()->first();
+        $document = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->getSuccess()->first();
 
         static::assertNotNull($document);
 

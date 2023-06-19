@@ -74,6 +74,16 @@ class OrderException extends HttpException
         );
     }
 
+    public static function paymentMethodNotAvailable(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_PAYMENT_METHOD_UNAVAILABLE,
+            'The payment method with id {{ id }} is not available.',
+            ['id' => $id]
+        );
+    }
+
     public static function orderAlreadyPaid(string $orderId): self
     {
         return new self(

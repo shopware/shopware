@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
-use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -54,7 +54,8 @@ class AccountOrderPageLoader
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
-        $firstOrder = $page->getOrders()->getEntities()->first();
+        /** @var OrderEntity|null $firstOrder */
+        $firstOrder = $page->getOrders()->first();
         $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
         if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
             $this->accountService->loginById(

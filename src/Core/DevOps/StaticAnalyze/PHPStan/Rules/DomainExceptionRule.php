@@ -29,6 +29,12 @@ class DomainExceptionRule implements Rule
         ConstraintViolationException::class,
     ];
 
+    private const VALID_SUB_DOMAINS = [
+        'Cart',
+        'Payment',
+        'Order',
+    ];
+
     public function __construct(
         private ReflectionProvider $reflectionProvider
     ) {
@@ -98,6 +104,14 @@ class DomainExceptionRule implements Rule
         $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $parts[2], $parts[3], $parts[3]);
 
         if ($exceptionClass !== $expected && !$exception->isSubclassOf($expected)) {
+            // Is it in a subdomain?
+            if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
+                $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
+                if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
+                    return [];
+                }
+            }
+
             return [
                 RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $expected, $exceptionClass))->build(),
             ];

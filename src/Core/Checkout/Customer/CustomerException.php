@@ -56,6 +56,7 @@ class CustomerException extends HttpException
     public const WISHLIST_PRODUCT_NOT_FOUND = 'CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND';
     public const CUSTOMER_AUTH_THROTTLED = 'CHECKOUT__CUSTOMER_AUTH_THROTTLED';
     public const CUSTOMER_OPTIN_NOT_COMPLETED = 'CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED';
+    public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -115,6 +116,16 @@ class CustomerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CUSTOMER_IDS_PARAMETER_IS_MISSING,
             'Parameter "customerIds" is missing.',
+        );
+    }
+
+    public static function unknownPaymentMethod(string $paymentMethodId): ShopwareHttpException
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CUSTOMER_CHANGE_PAYMENT_ERROR,
+            'Change Payment to method {{ paymentMethodId }} not possible.',
+            ['paymentMethodId' => $paymentMethodId]
         );
     }
 

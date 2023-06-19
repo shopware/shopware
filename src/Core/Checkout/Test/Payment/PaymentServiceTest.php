@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -31,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -105,8 +107,13 @@ class PaymentServiceTest extends TestCase
     {
         $orderId = Uuid::randomHex();
         $salesChannelContext = Generator::createSalesChannelContext();
-        $this->expectException(InvalidOrderException::class);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(InvalidOrderException::class);
+        }
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(sprintf('The order with id %s is invalid or could not be found.', $orderId));
+
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -165,9 +172,12 @@ class PaymentServiceTest extends TestCase
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        static::assertNotNull($transactionEntity);
+        static::assertInstanceOf(OrderTransactionEntity::class, $transactionEntity);
         static::assertSame(
             OrderTransactionStates::STATE_PAID,
-            $transactionEntity->getStateMachineState()->getTechnicalName()
+            $transactionEntity->getStateMachineState()?->getTechnicalName()
         );
     }
 
@@ -194,7 +204,11 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
-        static::expectException(TokenInvalidatedException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(TokenInvalidatedException::class);
+        }
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('The provided token ' . $token . ' is invalidated and the payment could not be processed.');
 
         $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
         $this->paymentService->finalizeTransaction($token, new Request(), $salesChannelContext);
@@ -216,7 +230,13 @@ class PaymentServiceTest extends TestCase
     {
         $token = Uuid::randomHex();
         $request = new Request();
-        $this->expectException(InvalidTokenException::class);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(InvalidTokenException::class);
+        }
+
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
 
         $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
 
@@ -237,7 +257,11 @@ class PaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
 
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
-        static::assertInstanceof(TokenExpiredException::class, $response->getException());
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertInstanceof(TokenExpiredException::class, $response->getException());
+        }
+        static::assertInstanceof(PaymentException::class, $response->getException());
+        static::assertEquals('The provided token ' . $token . ' is expired and the payment could not be processed.', $response->getException()->getMessage());
     }
 
     public function testFinalizeTransactionCustomerCanceledV630(): void
@@ -266,7 +290,6 @@ class PaymentServiceTest extends TestCase
 
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 
-        static::assertNotNull($response);
         static::assertNotEmpty($response->getException());
 
         $criteria = new Criteria([$transactionId]);
@@ -274,9 +297,11 @@ class PaymentServiceTest extends TestCase
 
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
+        static::assertNotNull($transactionEntity);
+        static::assertInstanceOf(OrderTransactionEntity::class, $transactionEntity);
         static::assertSame(
             OrderTransactionStates::STATE_CANCELLED,
-            $transactionEntity->getStateMachineState()->getTechnicalName()
+            $transactionEntity->getStateMachineState()?->getTechnicalName()
         );
 
         // can fail again
@@ -290,9 +315,11 @@ class PaymentServiceTest extends TestCase
 
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
+        static::assertNotNull($transactionEntity);
+        static::assertInstanceOf(OrderTransactionEntity::class, $transactionEntity);
         static::assertSame(
             OrderTransactionStates::STATE_CANCELLED,
-            $transactionEntity->getStateMachineState()->getTechnicalName()
+            $transactionEntity->getStateMachineState()?->getTechnicalName()
         );
 
         // can success after cancelled
@@ -305,9 +332,11 @@ class PaymentServiceTest extends TestCase
 
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
+        static::assertNotNull($transactionEntity);
+        static::assertInstanceOf(OrderTransactionEntity::class, $transactionEntity);
         static::assertSame(
             OrderTransactionStates::STATE_PAID,
-            $transactionEntity->getStateMachineState()->getTechnicalName()
+            $transactionEntity->getStateMachineState()?->getTechnicalName()
         );
     }
 
@@ -349,6 +378,7 @@ class PaymentServiceTest extends TestCase
         );
 
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+        /** @var OrderTransactionEntity $transaction */
         $transaction = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
         static::assertNotNull($transaction);
         static::assertSame($transaction->getStateId(), $remindedStateId);

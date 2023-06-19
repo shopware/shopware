@@ -89,7 +89,7 @@ class SeoUrlGeneratorTest extends TestCase
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
-        /** @var SeoUrlEntity[] $urls */
+        /** @var \Traversable<SeoUrlEntity> $urls */
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
@@ -99,7 +99,7 @@ class SeoUrlGeneratorTest extends TestCase
         );
 
         static::assertIsIterable($urls);
-        static::assertCount($count, $urls);
+        static::assertCount($count, iterator_to_array($urls, false));
     }
 
     /**

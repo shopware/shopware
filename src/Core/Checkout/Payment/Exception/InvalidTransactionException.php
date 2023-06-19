@@ -2,18 +2,23 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-class InvalidTransactionException extends ShopwareHttpException
+/**
+ * @decrecated tag:v6.6.0 - use PaymentException::invalidTransaction instead
+ */
+class InvalidTransactionException extends PaymentException
 {
     public function __construct(
         string $transactionId,
         ?\Throwable $e = null
     ) {
         parent::__construct(
+            Response::HTTP_NOT_FOUND,
+            'CHECKOUT__INVALID_TRANSACTION_ID',
             'The transaction with id {{ transactionId }} is invalid or could not be found.',
             ['transactionId' => $transactionId],
             $e

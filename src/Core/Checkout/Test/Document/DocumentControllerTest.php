@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -174,7 +175,11 @@ class DocumentControllerTest extends TestCase
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__INVALID_ORDER_ID');
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
+        } else {
+            static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        }
 
         $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, 'wrong deep link code');
         $this->getBrowser()->request('GET', $endpoint);
@@ -182,7 +187,11 @@ class DocumentControllerTest extends TestCase
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__INVALID_ORDER_ID');
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
+        } else {
+            static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        }
 
         $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
 

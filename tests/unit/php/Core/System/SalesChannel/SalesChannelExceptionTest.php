@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,11 +86,20 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'The language "myCustomLanguage" was not found.',
         ];
 
-        yield 'payment method not found exception' => [
-            'exception' => SalesChannelException::unknownPaymentMethod('myCustomPaymentMethod'),
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => 'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
-            'message' => 'The payment method myCustomPaymentMethod could not be found.',
-        ];
+        if (!Feature::isActive('v6.6.0.0')) {
+            yield 'payment method not found exception' => [
+                'exception' => SalesChannelException::unknownPaymentMethod('myCustomPaymentMethod'),
+                'statusCode' => Response::HTTP_NOT_FOUND,
+                'errorCode' => 'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
+                'message' => 'The payment method myCustomPaymentMethod could not be found.',
+            ];
+        } else {
+            yield 'payment method not found exception' => [
+                'exception' => SalesChannelException::unknownPaymentMethod('myCustomPaymentMethod'),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => 'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
+                'message' => 'The payment method myCustomPaymentMethod could not be found.',
+            ];
+        }
     }
 }

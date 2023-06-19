@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -123,7 +122,6 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @throws InvalidOrderException
      * @throws InconsistentCriteriaIdsException
      */
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): string

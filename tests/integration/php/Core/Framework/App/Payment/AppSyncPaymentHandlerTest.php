@@ -6,8 +6,10 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
@@ -104,7 +106,12 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(SyncPaymentProcessException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(SyncPaymentProcessException::class);
+        }
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The synchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Payment was reported as failed');
+
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -121,7 +128,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(SyncPaymentProcessException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(SyncPaymentProcessException::class);
+        }
+        $this->expectException(PaymentException::class);
+
         $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
@@ -138,7 +149,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(SyncPaymentProcessException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(SyncPaymentProcessException::class);
+        }
+        $this->expectException(PaymentException::class);
+
         $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
@@ -156,7 +171,10 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $this->expectException(SyncPaymentProcessException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(SyncPaymentProcessException::class);
+        }
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
@@ -174,7 +192,10 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $this->expectException(SyncPaymentProcessException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(SyncPaymentProcessException::class);
+        }
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
@@ -188,7 +209,10 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        $this->expectException(SyncPaymentProcessException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(SyncPaymentProcessException::class);
+        }
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }

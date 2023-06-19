@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -67,10 +66,9 @@ trait PromotionIntegrationTestBehaviour
      */
     public function removePromotionCode(string $code, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart
     {
-        /** @var LineItem[] $promotions */
         $promotions = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
 
-        foreach ($promotions as $promotion) {
+        foreach ($promotions->getElements() as $promotion) {
             if ($promotion->getReferencedId() === $code) {
                 return $cartService->remove($cart, $promotion->getId(), $context);
             }

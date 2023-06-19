@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Exception\InvalidRefundTransitionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownRefundException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransaction\OrderTransactionBuilder;
 use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureBuilder;
 use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundBuilder;
@@ -19,6 +20,7 @@ use Shopware\Core\Checkout\Test\Order\OrderBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -61,7 +63,11 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        static::expectException(UnknownRefundException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(UnknownRefundException::class);
+        }
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund with id ' . $this->ids->get('refund') . '.');
 
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }
@@ -103,7 +109,11 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        static::expectException(UnknownRefundHandlerException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(UnknownRefundHandlerException::class);
+        }
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund handler for refund id ' . $this->ids->get('refund') . '.');
 
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }
@@ -138,7 +148,12 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        static::expectException(InvalidRefundTransitionException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(InvalidRefundTransitionException::class);
+        }
+
+        static::expectException(PaymentException::class);
+        static::expectExceptionMessage('The Refund process failed with following exception: Can not process refund with id ' . $refund['id'] . ' as refund has state ' . $stateMachineState . '.');
 
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }
@@ -202,6 +217,9 @@ class PaymentRefundProcessorTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<array<int, string>>
+     */
     public static function getInvalidStatesForTransitions(): iterable
     {
         yield [OrderTransactionCaptureRefundStates::STATE_CANCELLED];

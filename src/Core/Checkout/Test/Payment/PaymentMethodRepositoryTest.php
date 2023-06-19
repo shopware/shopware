@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Payment;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
@@ -47,7 +48,7 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria->addAssociation('availabilityRule');
 
         /** @var PaymentMethodCollection $resultSet */
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext)->getEntities();
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -77,8 +78,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        /** @var PaymentMethodEntity $firstPaymentMethod */
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -98,8 +99,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        /** @var PaymentMethodEntity $firstPaymentMethod */
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
 
@@ -139,8 +140,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $criteria = new Criteria([$this->paymentMethodId]);
         $criteria->addAssociation('availabilityRule');
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+        /** @var PaymentMethodEntity $firstPaymentMethod */
         $firstPaymentMethod = $resultSet->first();
         static::assertNotNull($firstPaymentMethod);
         static::assertNotNull($firstPaymentMethod->getAvailabilityRule());
@@ -164,7 +165,6 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
         static::assertCount(0, $resultSet);
@@ -185,12 +185,14 @@ class PaymentMethodRepositoryTest extends TestCase
         try {
             $this->paymentRepository->delete([$primaryKey], $defaultContext);
             static::fail('this should not be reached');
-        } catch (PluginPaymentMethodsDeleteRestrictionException) {
+        } catch (PluginPaymentMethodsDeleteRestrictionException|PaymentException $e) {
+            if ($e->getErrorCode() !== PaymentException::PAYMENT_PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION) {
+                throw $e;
+            }
         }
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
         static::assertCount(1, $resultSet);
@@ -207,7 +209,6 @@ class PaymentMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->paymentMethodId]);
 
-        /** @var PaymentMethodCollection $resultSet */
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
         /** @var PaymentMethodEntity $paymentMethod */
@@ -236,6 +237,9 @@ class PaymentMethodRepositoryTest extends TestCase
         }
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function createPaymentMethodDummyArray(): array
     {
         return [
@@ -252,6 +256,9 @@ class PaymentMethodRepositoryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function createPaymentMethodNoNamspaceHandlerDummyArray(): array
     {
         return [

@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -55,7 +54,6 @@ class RecalculationService
     }
 
     /**
-     * @throws InvalidOrderException
      * @throws CustomerNotLoggedInException
      * @throws CartException
      * @throws DeliveryWithoutAddressException
@@ -96,7 +94,6 @@ class RecalculationService
     /**
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidOrderException
      * @throws CartException
      * @throws ProductNotFoundException
      */
@@ -146,7 +143,6 @@ class RecalculationService
     /**
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidOrderException
      * @throws CartException
      */
     public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context): void
@@ -336,12 +332,11 @@ class RecalculationService
 
     /**
      * @throws OrderException
-     * @throws InvalidOrderException
      */
     private function validateOrder(?OrderEntity $order, string $orderId): void
     {
         if (!$order) {
-            throw new InvalidOrderException($orderId);
+            throw CartException::orderNotFound($orderId);
         }
 
         $this->checkVersion($order);

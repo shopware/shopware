@@ -16,6 +16,7 @@ class OrderException extends HttpException
     final public const ORDER_ORDER_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_NOT_FOUND';
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
     final public const ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_NOT_FOUND';
+    final public const ORDER_PAYMENT_METHOD_UNAVAILABLE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE';
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
     final public const ORDER_PAYMENT_METHOD_NOT_CHANGEABLE_CODE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE';
@@ -58,6 +59,16 @@ class OrderException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE,
             'Order transaction with id {{ id }} not found.',
+            ['id' => $id]
+        );
+    }
+
+    public static function paymentMethodNotAvailable(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_PAYMENT_METHOD_UNAVAILABLE,
+            'The payment method with id {{ id }} is not available.',
             ['id' => $id]
         );
     }

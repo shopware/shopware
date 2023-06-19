@@ -24,6 +24,8 @@ class CartException extends HttpException
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
     public const CART_PAYMENT_INVALID_ORDER_STORED_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_STORED';
+    public const CART_PAYMENT_INVALID_ORDER_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_NOT_STORED';
+    public const CART_ORDER_CONVERT_NOT_FOUND_CODE = 'CHECKOUT__CART_ORDER_CONVERT_NOT_FOUND';
     public const CART_LINE_ITEM_NOT_FOUND_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_FOUND';
     public const CART_LINE_ITEM_NOT_REMOVABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_REMOVABLE';
     public const CART_LINE_ITEM_NOT_STACKABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE';
@@ -84,6 +86,26 @@ class CartException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::CART_PAYMENT_INVALID_ORDER_STORED_CODE,
             'Order payment failed but order was stored with id {{ orderId }}.',
+            ['orderId' => $orderId]
+        );
+    }
+
+    public static function invalidPaymentOrderNotStored(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_PAYMENT_INVALID_ORDER_CODE,
+            'Order payment failed. The order was not stored.',
+            ['orderId' => $orderId]
+        );
+    }
+
+    public static function orderNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_ORDER_CONVERT_NOT_FOUND_CODE,
+            'Order {{ orderId }} could not be found.',
             ['orderId' => $orderId]
         );
     }

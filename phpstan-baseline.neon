@@ -718,11 +718,6 @@ parameters:
 			path: src/Core/Checkout/Document/Renderer/RendererResult.php
 
 		-
-			message: "#^Anonymous variable in a `\\$document\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: src/Core/Checkout/Document/Service/DocumentGenerator.php
-
-		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Service/DocumentMerger.php
@@ -911,31 +906,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentMethodCollection\\:\\:getPluginIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentMethodCollection.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getCurrencyId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Payment/PaymentService.php
-
-		-
-			message: "#^Parameter \\#1 \\$paymentMethodId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentHandlerById\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/PaymentService.php
-
-		-
-			message: "#^Parameter \\#1 \\$tokenId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\Token\\\\TokenFactoryInterfaceV2\\:\\:invalidateToken\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Payment/PaymentService.php
-
-		-
-			message: "#^Parameter \\#2 \\$order of class Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\AsyncPaymentTransactionStruct constructor expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity, Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/PaymentService.php
-
-		-
-			message: "#^Parameter \\#1 \\$appPaymentMethod of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentMethodEntity\\:\\:setAppPaymentMethod\\(\\) expects Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppPaymentMethod\\\\AppPaymentMethodEntity\\|null, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/PreparedPaymentService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeCollection\\:\\:getCodeArray\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -1288,31 +1258,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/PromotionFixtureBuilder.php
 
 		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionSetGroupCalculationTest.php
-
-		-
 			message: "#^Cannot call method getExclusionIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 11
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DataAbstractionLayer/Indexer/PromotionExclusionIndexerTest.php
@@ -1333,32 +1278,7 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DataAbstractionLayer/Indexer/PromotionExclusionIndexerTest.php
 
 		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
 			message: "#^PHPDoc tag @var with type array is not subtype of native type list\\<\\(int\\|string\\)\\>\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
 
@@ -1743,26 +1663,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createDefaultSalesChannelContext\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createProduct\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\> is not subtype of native type Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
 			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
 			count: 2
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderServiceTest.php
@@ -1773,11 +1673,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/SalesChannel/SetPaymentOrderRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Cart\\\\PaymentRefundProcessorTest\\:\\:getInvalidStatesForTransitions\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/Cart/PaymentRefundProcessorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Handler\\\\PaymentHandlerRegistryTest\\:\\:getPaymentMethod\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentMethodEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Handler/PaymentHandlerRegistryTest.php
@@ -1786,36 +1681,6 @@ parameters:
 			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Handler/V630/SyncTestPaymentHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\PaymentMethodRepositoryTest\\:\\:createPaymentMethodDummyArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/PaymentMethodRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\PaymentMethodRepositoryTest\\:\\:createPaymentMethodNoNamspaceHandlerDummyArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/PaymentMethodRepositoryTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentMethodCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
-			count: 7
-			path: src/Core/Checkout/Test/Payment/PaymentMethodRepositoryTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getStateId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/PaymentServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\Token\\\\TokenStruct will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/PaymentServiceTest.php
-
-		-
-			message: "#^Cannot call method getStateMachineState\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Payment/PaymentServiceTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\SalesChannel\\\\HandlePaymentMethodRouteResponseTest\\:\\:\\$customerRepository is never read, only written\\.$#"
@@ -8125,26 +7990,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/Webhooks.php
 
 		-
-			message: "#^Anonymous variable in a `\\$refund\\-\\>getTransactionCapture\\(\\)\\-\\>getTransaction\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/App/Payment/Handler/AppPaymentHandler.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 5
-			path: src/Core/Framework/App/Payment/Handler/AppPaymentHandler.php
-
-		-
-			message: "#^Cannot call method getTransactionCapture\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 5
-			path: src/Core/Framework/App/Payment/Handler/AppPaymentHandler.php
-
-		-
-			message: "#^Parameter \\#1 \\$refund of method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Handler\\\\AppPaymentHandler\\:\\:buildRefundPayload\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransactionCaptureRefund\\\\OrderTransactionCaptureRefundEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Handler/AppPaymentHandler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\AsyncFinalizePayload\\:\\:__construct\\(\\) has parameter \\$queryParameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Payment/Payload/Struct/AsyncFinalizePayload.php
@@ -13880,11 +13725,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Context/CachedSalesChannelContextFactory.php
 
 		-
-			message: "#^Parameter \\#6 \\$currentCustomerGroup of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextPermissionsChangedEvent\\:\\:__construct\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Event/SalesChannelContextPermissionsChangedEvent.php
@@ -15210,16 +15050,6 @@ parameters:
 			path: src/Storefront/Migration/V6_4/Migration1641476963ThemeDependentIds.php
 
 		-
-			message: "#^Anonymous variable in a `\\$page\\-\\>getOrders\\(\\)\\-\\>first\\(\\)\\-\\>getOrderCustomer\\(\\)\\-\\>getCustomer\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderCustomer\\(\\)\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Overview\\\\AccountOverviewPageLoader\\:\\:loadNewestOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Page/Account/Overview/AccountOverviewPageLoader.php
@@ -16493,66 +16323,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 2
 			path: tests/integration/php/Core/Checkout/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$media\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getConfig\\(\\)\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDeepLinkCode\\(\\)\\.$#"
-			count: 5
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDocumentMediaFileId\\(\\)\\.$#"
-			count: 3
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getFileType\\(\\)\\.$#"
-			count: 2
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderCustomer\\(\\)\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderId\\(\\)\\.$#"
-			count: 2
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getSalesChannelId\\(\\)\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Document\\\\\\\\Renderer\\\\\\\\RenderedDocument' and Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RenderedDocument will always evaluate to true\\.$#"
-			count: 5
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with string will always evaluate to true\\.$#"
-			count: 10
-			path: tests/integration/php/Core/Checkout/Document/Service/DocumentGeneratorTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\|null\\.$#"

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
@@ -53,7 +53,7 @@ class AsyncPayResponse extends AbstractResponse
             && !$this->message
             && $this->status !== StateMachineTransitionActions::ACTION_FAIL
         ) {
-            throw new AsyncPaymentProcessException($transactionId, 'No redirect URL provided by App');
+            throw PaymentException::asyncProcessInterrupted($transactionId, 'No redirect URL provided by App');
         }
     }
 }

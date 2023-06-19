@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrati
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -32,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -43,8 +43,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
@@ -113,7 +111,9 @@ class OrderRouteTest extends TestCase
         $this->email = Uuid::randomHex() . '@example.com';
         $this->password = 'shopware';
         $this->customerId = Uuid::randomHex();
-        $this->defaultPaymentMethodId = $this->getValidPaymentMethods()->first()->getId();
+        /** @var PaymentMethodEntity|null $validPaymentMethods */
+        $validPaymentMethods = $this->getValidPaymentMethods()->first();
+        $this->defaultPaymentMethodId = $validPaymentMethods?->getId() ?? '';
         $this->orderId = $this->createOrder($this->customerId, $this->email, $this->password);
 
         $this->browser
@@ -422,7 +422,9 @@ class OrderRouteTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
-        $newPaymentMethodId = $this->getValidPaymentMethods()->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first()->getId();
+        /** @var PaymentMethodEntity|null $newPaymentMethod */
+        $newPaymentMethod = $this->getValidPaymentMethods()->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
+        $newPaymentMethodId = $newPaymentMethod?->getId() ?? '';
 
         $this->browser
             ->request(
@@ -572,7 +574,9 @@ class OrderRouteTest extends TestCase
         $ids = new IdsCollection();
 
         // get non default country id
-        $countryId = $this->getValidCountries()->filter(fn (CountryEntity $country) => $country->getId() !== $this->defaultCountryId)->first()->getId();
+        /** @var CountryEntity|null $country */
+        $country = $this->getValidCountries()->filter(fn (CountryEntity $country) => $country->getId() !== $this->defaultCountryId)->first();
+        $countryId = $country?->getId() ?? '';
 
         // create rule for that country now, so it is set in the order
         $ruleId = Uuid::randomHex();
@@ -672,7 +676,11 @@ class OrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);
+        } else {
+            static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
+        }
     }
 
     protected function getValidPaymentMethods(): EntitySearchResult
@@ -871,13 +879,13 @@ class OrderRouteTest extends TestCase
             ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
         );
 
-        $doccument = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->getSuccess()->first();
+        $document = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->getSuccess()->first();
 
-        static::assertNotNull($doccument);
+        static::assertNotNull($document);
 
         $documentRepository->update([
             [
-                'id' => $doccument->getId(),
+                'id' => $document->getId(),
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
@@ -904,43 +912,5 @@ class OrderRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return $paymentId;
-    }
-
-    private function createProduct(): string
-    {
-        $productId = Uuid::randomHex();
-
-        $product = [
-            'id' => $productId,
-            'name' => 'Test product',
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 19.99, 'net' => 10, 'linked' => false],
-            ],
-            'manufacturer' => ['id' => $productId, 'name' => 'shopware AG'],
-            'tax' => ['id' => $this->getValidTaxId(), 'name' => 'testTaxRate', 'taxRate' => 15],
-            'categories' => [
-                ['id' => $productId, 'name' => 'Test category'],
-            ],
-            'visibilities' => [
-                [
-                    'id' => $productId,
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-
-        return $productId;
-    }
-
-    private function createDefaultSalesChannelContext(): SalesChannelContext
-    {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-
-        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
     }
 }

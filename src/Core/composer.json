@@ -66,7 +66,7 @@
         "guzzlehttp/guzzle": "~7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "lcobucci/jwt": "^4.2",
-        "league/flysystem": "~3.10.3",
+        "league/flysystem": "^3.10.3",
         "league/flysystem-async-aws-s3": "~3.10",
         "league/flysystem-google-cloud-storage": "~3.10",
         "league/flysystem-memory": "~3.10",

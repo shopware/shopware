@@ -4061,21 +4061,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterConfirmRoute\\:\\:getNewsletterRecipient\\(\\) should return Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Aggregate\\\\NewsletterRecipient\\\\NewsletterRecipientEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterConfirmRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRoute\\:\\:getNewsletterRecipient\\(\\) should return Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Aggregate\\\\NewsletterRecipient\\\\NewsletterRecipientEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterUnsubscribeRoute\\:\\:getNewsletterRecipient\\(\\) should return Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Aggregate\\\\NewsletterRecipient\\\\NewsletterRecipientEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterUnsubscribeRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\:\\:getProductIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductCrossSellingAssignedProducts/ProductCrossSellingAssignedProductsCollection.php
@@ -6179,21 +6164,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterConfirmRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\Service\\\\NewsletterRecipientServiceTest\\:\\:dataProvider_testSubscribeNewsletterExpectsConstraintViolationException\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\Service\\\\NewsletterRecipientServiceTest\\:\\:getRandomId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\Service\\\\NewsletterRecipientServiceTest\\:\\:testSubscribeNewsletterExpectsConstraintViolationException\\(\\) has parameter \\$testData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
 
 		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"

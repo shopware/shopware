@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class MessageQueueException extends HttpException
 {
     public const NO_VALID_RECEIVER_NAME_PROVIDED = 'FRAMEWORK__NO_VALID_RECEIVER_NAME_PROVIDED';
+    public const QUEUE_CANNOT_UNSERIALIZE_MESSAGE = 'FRAMEWORK__QUEUE_CANNOT_UNSERIALIZE_MESSAGE';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -17,6 +18,16 @@ class MessageQueueException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::NO_VALID_RECEIVER_NAME_PROVIDED,
             'No receiver name provided.',
+        );
+    }
+
+    public static function cannotUnserializeMessage(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::QUEUE_CANNOT_UNSERIALIZE_MESSAGE,
+            'Cannot unserialize message {{ message }}',
+            ['message' => $message]
         );
     }
 }

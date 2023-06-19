@@ -276,6 +276,9 @@ class CartLineItemController extends StorefrontController
      */
     private function getLineItemArray(RequestDataBag $lineItemData): array
     {
+        if ($lineItemData->has('payload')) {
+            $lineItemData->set('payload', json_decode($lineItemData->getString('payload'), true));
+        }
         $lineItemArray = $lineItemData->all();
         $lineItemArray['quantity'] = $lineItemData->getInt('quantity', 1);
         $lineItemArray['stackable'] = $lineItemData->getBoolean('stackable', true);

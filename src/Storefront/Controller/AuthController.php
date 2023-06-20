@@ -292,6 +292,10 @@ class AuthController extends StorefrontController
                 $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
             }
 
+            if ($formViolations->getViolations('newPassword')->count() === 1) {
+                $this->addFlash(self::DANGER, $this->trans('account.passwordNotIdentical'));
+            }
+
             return $this->forwardToRoute(
                 'frontend.account.recover.password.page',
                 ['hash' => $hash, 'formViolations' => $formViolations, 'passwordFormViolation' => true]

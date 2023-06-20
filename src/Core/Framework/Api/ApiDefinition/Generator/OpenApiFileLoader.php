@@ -30,7 +30,6 @@ class OpenApiFileLoader
         $spec = [
             'paths' => [],
             'components' => [],
-            'tags' => [],
         ];
 
         if (empty($this->paths)) {
@@ -51,10 +50,6 @@ class OpenApiFileLoader
             $spec['components'] = array_merge_recursive(
                 $spec['components'],
                 $data['components'] ?? []
-            );
-            $spec['tags'] = array_merge_recursive(
-                $spec['tags'],
-                $data['tags'] ?? []
             );
         }
 

@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -36,7 +37,8 @@ class ConsumeMessagesController extends AbstractController
         private readonly EarlyReturnMessagesListener $earlyReturnListener,
         private readonly MessageQueueStatsSubscriber $statsSubscriber,
         private readonly string $defaultTransportName,
-        private readonly string $memoryLimit
+        private readonly string $memoryLimit,
+        private readonly LockFactory $lockFactory
     ) {
     }
 
@@ -47,6 +49,12 @@ class ConsumeMessagesController extends AbstractController
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
             throw MessageQueueException::validReceiverNameNotProvided();
+        }
+
+        $consumerLock = $this->lockFactory->createLock('message_queue_consume_' . $receiverName);
+
+        if (!$consumerLock->acquire()) {
+            throw MessageQueueException::workerIsLocked($receiverName);
         }
 
         $receiver = $this->receiverLocator->get($receiverName);
@@ -66,7 +74,9 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run();
+        $worker->run(['sleep' => 50]);
+
+        $consumerLock->release();
 
         return new JsonResponse(['handledMessages' => $listener->getHandledMessages()]);
     }

@@ -39,7 +39,6 @@ class ConsumeMessagesController extends AbstractController
         private readonly MessageQueueStatsSubscriber $statsSubscriber,
         private readonly string $defaultTransportName,
         private readonly string $memoryLimit,
-        private readonly int $pollInterval,
         private readonly LockFactory $lockFactory
     ) {
     }
@@ -51,6 +50,12 @@ class ConsumeMessagesController extends AbstractController
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
             throw MessageQueueException::validReceiverNameNotProvided();
+        }
+
+        $consumerLock = $this->lockFactory->createLock('message_queue_consume_' . $receiverName);
+
+        if (!$consumerLock->acquire()) {
+            throw MessageQueueException::workerIsLocked($receiverName);
         }
 
         $receiver = $this->receiverLocator->get($receiverName);

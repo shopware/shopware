@@ -31,7 +31,6 @@ class ConsumeMessagesControllerTest extends TestCase
             $this->createMock(MessageQueueStatsSubscriber::class),
             'async',
             '128M',
-            20,
             $this->createMock(LockFactory::class)
         );
 
@@ -61,7 +60,6 @@ class ConsumeMessagesControllerTest extends TestCase
             $this->createMock(MessageQueueStatsSubscriber::class),
             'async',
             '128M',
-            20,
             $lockFactory
         );
 

@@ -26,11 +26,23 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 let themeFiles;
+let watchFilePaths = [];
 let features = {};
 
 if (isHotMode) {
     const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
     themeFiles = require(themeFilesConfigPath);
+
+    const pluginsConfigPath = path.resolve(projectRootPath, 'var/plugins.json');
+    const plugins = require(pluginsConfigPath);
+
+    Object.values(plugins).map((plugin) => {
+        if (plugin.views && plugin.views.length > 0) {
+            watchFilePaths.push(...plugin.views.map((viewEntry) => {
+                return path.resolve(projectRootPath, plugin.basePath, viewEntry).replace(projectRootPath + '/', '') + '/**/*.twig'; // resolve to normalize it and cut the root path to work with the cwd option of the devServer
+            }));
+        }
+    });
 }
 const featureConfigPath = path.resolve(projectRootPath, 'var/config_js_features.json');
 
@@ -89,7 +101,7 @@ let webpackConfig = {
                     'Access-Control-Allow-Origin': '*',
                 },
                 watchFiles: {
-                    paths: ['custom/**/*.twig'],
+                    paths: watchFilePaths,
                     options: {
                         persistent: true,
                         cwd: projectRootPath,

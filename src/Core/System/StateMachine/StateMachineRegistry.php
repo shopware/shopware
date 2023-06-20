@@ -23,9 +23,6 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -50,7 +47,7 @@ class StateMachineRegistry
     }
 
     /**
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws InconsistentCriteriaIdsException
      */
     public function getStateMachine(string $name, Context $context): StateMachineEntity
@@ -74,19 +71,18 @@ class StateMachineRegistry
 
         $results = $this->stateMachineRepository->search($criteria, $context);
 
-        if ($results->count() === 0) {
-            throw new StateMachineNotFoundException($name);
+        if ($stateMachine = $results->first()) {
+            /** @var StateMachineEntity $stateMachine */
+            return $this->stateMachines[$name] = $stateMachine;
         }
 
-        return $this->stateMachines[$name] = $results->first();
+        throw StateMachineException::stateMachineNotFound($name);
     }
 
     /**
      * @throws DefinitionNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      *
      * @return array<StateMachineTransitionEntity>
      */
@@ -104,11 +100,9 @@ class StateMachineRegistry
     }
 
     /**
+     * @throws StateMachineException
      * @throws IllegalTransitionException
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
-     * @throws StateMachineInvalidStateFieldException
-     * @throws StateMachineInvalidEntityIdException
      * @throws DefinitionNotFoundException
      */
     public function transition(Transition $transition, Context $context): StateMachineStateCollection
@@ -130,7 +124,7 @@ class StateMachineRegistry
             $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
             $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
-            throw new IllegalTransitionException($fromPlace->getId(), '', $transitionNames);
+            throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
         }
 
         try {
@@ -220,7 +214,7 @@ class StateMachineRegistry
     }
 
     /**
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws InconsistentCriteriaIdsException
      *
      * @return array<StateMachineTransitionEntity>
@@ -247,9 +241,10 @@ class StateMachineRegistry
     }
 
     /**
+     * @throws StateMachineException
      * @throws IllegalTransitionException
+     * @throws UnnecessaryTransitionException
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
      */
     private function getTransitionDestinationById(string $stateMachineName, string $fromStateId, string $transitionName, Context $context): StateMachineStateEntity
     {
@@ -273,7 +268,7 @@ class StateMachineRegistry
 
             // Already transitioned, this exception is handled by StateMachineRegistry::transition
             if ($toState->getId() === $fromStateId) {
-                throw new UnnecessaryTransitionException($transitionName);
+                throw StateMachineException::unnecessaryTransition($transitionName);
             }
 
             /** @var StateMachineStateEntity $fromState */
@@ -289,6 +284,7 @@ class StateMachineRegistry
             $criteria->addFilter(new EqualsFilter('technicalName', $transitionName));
             $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachine->getId()));
             if ($toPlace = $this->stateMachineStateRepository->search($criteria, $context)->first()) {
+                /** @var StateMachineStateEntity $toPlace */
                 return $toPlace;
             }
         }
@@ -296,7 +292,7 @@ class StateMachineRegistry
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
         $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
-        throw new IllegalTransitionException(
+        throw StateMachineException::illegalStateTransition(
             $fromStateId,
             $transitionName,
             $transitionNames
@@ -304,7 +300,7 @@ class StateMachineRegistry
     }
 
     /**
-     * @throws StateMachineInvalidStateFieldException
+     * @throws StateMachineException
      * @throws DefinitionNotFoundException
      */
     private function getStateField(string $stateFieldName, string $entityName): StateMachineStateField
@@ -313,7 +309,7 @@ class StateMachineRegistry
         $stateField = $definition->getFields()->get($stateFieldName);
 
         if (!$stateField || !$stateField instanceof StateMachineStateField) {
-            throw new StateMachineInvalidStateFieldException($stateFieldName);
+            throw StateMachineException::stateMachineInvalidStateField($stateFieldName);
         }
 
         return $stateField;
@@ -321,8 +317,7 @@ class StateMachineRegistry
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
+     * @throws StateMachineException
      */
     private function getFromPlace(
         string $entityName,
@@ -334,20 +329,20 @@ class StateMachineRegistry
         $entity = $repository->search(new Criteria([$entityId]), $context)->get($entityId);
 
         if (!$entity) {
-            throw new StateMachineInvalidEntityIdException($entityName, $entityId);
+            throw StateMachineException::stateMachineInvalidEntityId($entityName, $entityId);
         }
 
         $fromPlaceId = $entity->get($stateFieldName);
 
         if (!$fromPlaceId || !Uuid::isValid($fromPlaceId)) {
-            throw new StateMachineInvalidStateFieldException($stateFieldName);
+            throw StateMachineException::stateMachineInvalidStateField($stateFieldName);
         }
 
         /** @var StateMachineStateEntity|null $fromPlace */
         $fromPlace = $this->stateMachineStateRepository->search(new Criteria([$fromPlaceId]), $context)->get($fromPlaceId);
 
         if (!$fromPlace) {
-            throw new StateMachineInvalidStateFieldException($stateFieldName);
+            throw StateMachineException::stateMachineInvalidStateField($stateFieldName);
         }
 
         return $fromPlace;

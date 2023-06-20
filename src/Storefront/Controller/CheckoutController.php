@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
@@ -173,6 +174,14 @@ class CheckoutController extends StorefrontController
             $this->addCartErrors(
                 $this->cartService->getCart($context->getToken(), $context)
             );
+
+            return $this->forwardToRoute('frontend.checkout.confirm.page');
+        } catch (UnknownPaymentMethodException|CartException $e) {
+            if ($e->getErrorCode() === CartException::CART_PAYMENT_INVALID_ORDER_STORED_CODE && $e->getParameter('orderId')) {
+                return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $e->getParameter('orderId'), 'changedPayment' => false, 'paymentFailed' => true]);
+            }
+            $message = $this->trans('error.' . $e->getErrorCode());
+            $this->addFlash('danger', $message);
 
             return $this->forwardToRoute('frontend.checkout.confirm.page');
         }

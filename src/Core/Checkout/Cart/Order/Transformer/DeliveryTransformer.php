@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class DeliveryTransformer
 {
     /**
-     * @param array<string, array<string, int|boolean|string|array<string, int|boolean|string|array<string>>>> $lineItems
+     * @param array<string, array<string, mixed>> $lineItems
      * @param array<string, mixed> $addresses
      *
      * @return array<int, array<string, mixed>>
@@ -36,7 +36,7 @@ class DeliveryTransformer
     }
 
     /**
-     * @param array<string, array<string, int|boolean|string|array<string, int|boolean|string|array<string>>>> $lineItems
+     * @param array<string, array<string, mixed>> $lineItems
      * @param array<string, mixed> $addresses
      *
      * @return array<string, mixed>

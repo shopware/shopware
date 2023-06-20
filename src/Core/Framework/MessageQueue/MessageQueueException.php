@@ -11,6 +11,7 @@ class MessageQueueException extends HttpException
 {
     public const NO_VALID_RECEIVER_NAME_PROVIDED = 'FRAMEWORK__NO_VALID_RECEIVER_NAME_PROVIDED';
     public const QUEUE_CANNOT_UNSERIALIZE_MESSAGE = 'FRAMEWORK__QUEUE_CANNOT_UNSERIALIZE_MESSAGE';
+    public const WORKER_IS_LOCKED = 'FRAMEWORK__WORKER_IS_LOCKED';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -28,6 +29,16 @@ class MessageQueueException extends HttpException
             self::QUEUE_CANNOT_UNSERIALIZE_MESSAGE,
             'Cannot unserialize message {{ message }}',
             ['message' => $message]
+        );
+    }
+
+    public static function workerIsLocked(string $receiver): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::WORKER_IS_LOCKED,
+            'Another worker is already running for receiver: "{{ receiver }}"',
+            ['receiver' => $receiver]
         );
     }
 }

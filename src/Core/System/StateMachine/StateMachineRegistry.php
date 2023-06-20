@@ -114,12 +114,27 @@ class StateMachineRegistry implements ResetInterface
             $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
             $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
 
-            $fromPlace = $this->getFromPlace(
-                $transition->getEntityName(),
-                $transition->getEntityId(),
-                $transition->getStateFieldName(),
-                $context,
-                $repository
+        $fromPlace = $this->getFromPlace(
+            $transition->getEntityName(),
+            $transition->getEntityId(),
+            $transition->getStateFieldName(),
+            $context,
+            $repository
+        );
+
+        if (empty($transition->getTransitionName())) {
+            $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
+            $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+
+            throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
+        }
+
+        try {
+            $toPlace = $this->getTransitionDestinationById(
+                $stateMachine->getTechnicalName(),
+                $fromPlace->getId(),
+                $transition->getTransitionName(),
+                $context
             );
 
             if (empty($transition->getTransitionName())) {

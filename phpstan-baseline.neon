@@ -14847,11 +14847,6 @@ parameters:
 			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Exception\\\\IllegalTransitionException\\:\\:__construct\\(\\) has parameter \\$possibleTransitions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Exception/IllegalTransitionException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Loader\\\\InitialStateIdLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Loader/InitialStateIdLoader.php
@@ -14865,21 +14860,6 @@ parameters:
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/StateMachineEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:getStateMachine\\(\\) should return Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:getTransitionDestinationById\\(\\) should return Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:\\$stateMachines \\(array\\<Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineEntity\\>\\) does not accept array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\>\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -15430,16 +15410,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:\\$customFieldSet type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/StateMachine/StateMachineRegistryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\StateMachine\\\\StateMachineRegistryTest\\:\\:createStateMachineWithoutInitialState\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/System/Test/StateMachine/StateMachineRegistryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getCategoryPayload\\(\\) return type has no value type specified in iterable type array\\.$#"

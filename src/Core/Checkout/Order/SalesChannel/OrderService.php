@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -95,7 +95,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -125,7 +125,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -155,7 +155,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;

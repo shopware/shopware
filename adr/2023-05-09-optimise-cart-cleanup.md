@@ -7,7 +7,7 @@ tags: [performance]
 
 ## Context
 
-The existing SQL snippet to delete the outdated cart entries doesn't use any database indix to narrow down entries that can be deleted. 
+The existing SQL snippet to delete the outdated cart entries doesn't use any database index to narrow down entries that can be deleted. 
 On high traffic shops this leads to SQL query times larger than 30 seconds to find and remove these database entries.
 
 Running 

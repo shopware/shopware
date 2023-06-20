@@ -89,7 +89,7 @@ let webpackConfig = {
                     'Access-Control-Allow-Origin': '*',
                 },
                 watchFiles: {
-                    paths: [`${themeFiles.basePath}/**/*.twig`],
+                    paths: ['custom/**/*.twig'],
                     options: {
                         persistent: true,
                         cwd: projectRootPath,

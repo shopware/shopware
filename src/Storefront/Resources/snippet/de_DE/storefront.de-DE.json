@@ -182,6 +182,7 @@
     "emailChangeNoSuccess": "E-Mail-Adresse konnte nicht geändert werden.",
     "passwordChangeSuccess": "Passwort wurde geändert",
     "passwordChangeNoSuccess": "Passwort konnte nicht geändert werden.",
+    "passwordNotIdentical": "Die von Ihnen eingegebenen Passwörter stimmen nicht überein.",
     "passwordHashNotFound": "Der Link zum Zurücksetzen des Passworts scheint defekt zu sein.",
     "passwordHashExpired": "Der Link zum Zurücksetzen des Passworts ist nicht mehr gültig. Bitte fordern Sie einen neuen Link an.",
     "recoveryMailSend": "Wenn die angegebene E-Mail-Adresse registriert ist, wurde eine Bestätigungs-E-Mail mit einem Link versandt, mit dem Sie Ihr Passwort zurücksetzen können.",

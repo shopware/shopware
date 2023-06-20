@@ -10,15 +10,17 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -41,7 +43,6 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
@@ -49,11 +50,10 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
-use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedEvent;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Shopware\Tests\Integration\Storefront\Controller\fixtures\Helper\AuthTestSubscriber;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
@@ -273,7 +273,10 @@ class AuthControllerTest extends TestCase
 
     public function testMergedHintIsAdded(): void
     {
+        /** @var CustomerEntity|null $customer */
         $customer = $this->createCustomer();
+        static::assertNotNull($customer);
+
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -340,7 +343,9 @@ class AuthControllerTest extends TestCase
     {
         $controller = $this->getAuthController();
 
+        /** @var CustomerEntity|null $customer */
         $customer = $this->createCustomer();
+        static::assertNotNull($customer);
 
         $request = $this->createRequest(
             'frontend.account.login.page',
@@ -408,7 +413,9 @@ class AuthControllerTest extends TestCase
 
         $this->getContainer()->get('event_dispatcher')->addSubscriber($testSubscriber);
 
+        /** @var CustomerEntity|null $customer */
         $customer = $this->createCustomer();
+        static::assertNotNull($customer);
 
         $controller = $this->getAuthController($this->getContainer()->get(SendPasswordRecoveryMailRoute::class));
 
@@ -427,14 +434,16 @@ class AuthControllerTest extends TestCase
         $this->getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
 
         /** @var FlashBag $flashBag */
-        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        $flashBag = $this->getSession()->getBag('flashes');
+
         static::assertEquals(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get(StorefrontController::SUCCESS));
         static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
-        static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, AuthTestSubscriber::$customerRecoveryEvent);
 
         // excluded events and its mail events should not be logged
+        static::assertNotNull(AuthTestSubscriber::$customerRecoveryEvent);
         $originalEvent = AuthTestSubscriber::$customerRecoveryEvent->getName();
+
         $logCriteria = new Criteria();
         $logCriteria->addFilter(new OrFilter([
             new EqualsFilter('message', $originalEvent),
@@ -483,9 +492,15 @@ class AuthControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode());
         static::assertStringContainsString($recoveryCreated['hash'], (string) $response->getContent());
 
-        static::assertEquals($recoveryCreated['hash'], AuthTestSubscriber::$renderEvent->getParameters()['page']->getHash());
-        static::assertFalse(AuthTestSubscriber::$renderEvent->getParameters()['page']->isHashExpired());
-        static::assertInstanceOf(AccountRecoverPasswordPage::class, AuthTestSubscriber::$page);
+        static::assertNotNull(AuthTestSubscriber::$renderEvent);
+        $parameters = AuthTestSubscriber::$renderEvent->getParameters();
+
+        static::assertNotNull($parameters['page']);
+        /** @var AccountRecoverPasswordPage $page */
+        $page = $parameters['page'];
+
+        static::assertEquals($recoveryCreated['hash'], $page->getHash());
+        static::assertFalse($page->isHashExpired());
     }
 
     public function testAccountRecoveryPasswordExpired(): void
@@ -513,7 +528,8 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         /** @var FlashBag $flashBag */
-        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        $flashBag = $this->getSession()->getBag('flashes');
+
         static::assertEquals(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
         static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
@@ -535,7 +551,8 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         /** @var FlashBag $flashBag */
-        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        $flashBag = $this->getSession()->getBag('flashes');
+
         static::assertEquals(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
         static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
@@ -552,10 +569,38 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         /** @var FlashBag $flashBag */
-        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        $flashBag = $this->getSession()->getBag('flashes');
+
         static::assertEquals(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
         static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
+    }
+
+    public function testAccountRecoveryPasswordNotMatchingNewPasswords(): void
+    {
+        $controller = $this->getAuthController();
+
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.account.recover.password.reset');
+        $session = $this->getSession();
+        $request->setSession($session);
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $requestData = new RequestDataBag();
+        $passwordData = new RequestDataBag();
+        $passwordData->set('newPassword', 'kek12345');
+        $passwordData->set('newPasswordConfirm', 'kek12345!');
+        $requestData->set('password', $passwordData);
+
+        $controller->resetPassword($requestData, Generator::createSalesChannelContext());
+
+        /** @var FlashBag $flashBag */
+        $flashBag = $this->getSession()->getBag('flashes');
+
+        static::assertEquals(
+            ['account.passwordChangeNoSuccess', 'account.passwordNotIdentical'],
+            $flashBag->get('danger')
+        );
     }
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
@@ -596,7 +641,9 @@ class AuthControllerTest extends TestCase
 
     private function login(): KernelBrowser
     {
+        /** @var CustomerEntity|null $customer */
         $customer = $this->createCustomer();
+        static::assertNotNull($customer);
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
@@ -620,7 +667,7 @@ class AuthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): CustomerEntity
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): Entity|null
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -667,7 +714,7 @@ class AuthControllerTest extends TestCase
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
             $sendPasswordRecoveryMailRoute,
-            $this->createMock(AbstractResetPasswordRoute::class),
+            $this->getContainer()->get(ResetPasswordRoute::class),
             $this->getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
@@ -712,7 +759,9 @@ class AuthControllerTest extends TestCase
      */
     private function createRecovery(bool $expired = false): array
     {
+        /** @var CustomerEntity|null $customer */
         $customer = $this->createCustomer();
+        static::assertNotNull($customer);
 
         $hash = Random::getAlphanumericString(32);
         $hashId = Uuid::randomHex();
@@ -740,41 +789,5 @@ class AuthControllerTest extends TestCase
         }
 
         return ['customer' => $customer, 'hash' => $hash, 'hashId' => $hashId];
-    }
-}
-
-/**
- * @internal
- */
-class AuthTestSubscriber implements EventSubscriberInterface
-{
-    public static StorefrontRenderEvent $renderEvent;
-
-    public static AccountRecoverPasswordPage $page;
-
-    public static CustomerAccountRecoverRequestEvent $customerRecoveryEvent;
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            StorefrontRenderEvent::class => 'onRender',
-            AccountRecoverPasswordPageLoadedEvent::class => 'onPageLoad',
-            CustomerAccountRecoverRequestEvent::EVENT_NAME => 'onRecoverEvent',
-        ];
-    }
-
-    public function onRecoverEvent(CustomerAccountRecoverRequestEvent $event): void
-    {
-        self::$customerRecoveryEvent = $event;
-    }
-
-    public function onRender(StorefrontRenderEvent $event): void
-    {
-        self::$renderEvent = $event;
-    }
-
-    public function onPageLoad(AccountRecoverPasswordPageLoadedEvent $event): void
-    {
-        self::$page = $event->getPage();
     }
 }

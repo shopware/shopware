@@ -11689,7 +11689,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Cache/CacheClearerTest.php
 
-
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
@@ -17474,26 +17473,6 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Storefront/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\\\Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AuthTestSubscriber\\:\\:\\$renderEvent\\-\\>getParameters\\(\\)\\['page'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: tests/integration/php/Storefront/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\Event\\\\\\\\CustomerAccountRecoverRequestEvent' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerAccountRecoverRequestEvent will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Account\\\\\\\\RecoverPassword\\\\\\\\AccountRecoverPasswordPage' and Shopware\\\\Storefront\\\\Page\\\\Account\\\\RecoverPassword\\\\AccountRecoverPasswordPage will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AuthControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/AuthControllerTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$node\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

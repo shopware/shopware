@@ -143,10 +143,6 @@ class GetClassesPerAreaCommand extends Command
 
             $areaTrim = strstr($area, \PHP_EOL, true) ?: $area;
 
-            if (!\is_string($areaTrim)) {
-                continue;
-            }
-
             $areas[trim($areaTrim)][$class] = $path;
         }
 

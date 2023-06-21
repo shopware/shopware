@@ -57,16 +57,26 @@ Jest (Storefront):
 Jest Coverage per Area (Storefront):
   extends: Jest (Storefront)
   stage: unit
+  variables:
+    ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
   script:
     - !reference [ .scripts, init, composer ]
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$STOREFRONT_PATH/src" -r -p 'src' -i "$STOREFRONT_PATH/src/main.js")
-    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom="${JS_FILES}" --coverageThreshold={}
+    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom="${JS_FILES}" --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Storefront/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   parallel:
     matrix:
       - PRODUCT_AREA: [ "checkout", "content", "inventory", "merchant-services", "storefront", "unknown" ]
+  artifacts:
+    when: always
+    paths:
+      - coverage
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/js/Storefront/$PRODUCT_AREA/cobertura-coverage.xml
 
 Jest Coverage per Area (Administration):
   extends: Jest (Administration)
@@ -75,12 +85,19 @@ Jest Coverage per Area (Administration):
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
-    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom=${JS_FILES}
+    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Admnistration/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   parallel:
     matrix:
       - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "customer-order", "inventory", "merchant-services", "sales-channel", "system-settings", "unknown" ]
-
+  artifacts:
+    when: always
+    paths:
+      - coverage
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/js/Storefront/$PRODUCT_AREA
 
 PHP unit:
     extends: .base-no-setup
@@ -425,7 +442,7 @@ PHP unit per area:
         --testsuite unit
         --coverage-text
         --coverage-html phpunit/
-        --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
+        --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
     parallel:
       matrix:
         - PRODUCT_AREA: ["administration", "business-ops", "checkout", "content", "core", "customer-order", "inventory", "merchant-services", "sales-channel", "storefront", "system-settings", "unknown"]
@@ -433,9 +450,24 @@ PHP unit per area:
       when: always
       paths:
         - phpunit
-        - cobertura.xml
+        - coverage
       reports:
         junit: phpunit.junit.xml
         coverage_report:
           coverage_format: cobertura
-          path: cobertura.xml
+          path: coverage/php/$PRODUCT_AREA/cobertura.xml
+
+Coverage per Area summary:
+  extends: .base-no-setup
+  stage: unit
+  dependencies: ["PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)"]
+  needs: ["PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)"]
+  before_script:
+    - !reference [ .scripts, init, composer ]
+  script:
+    - bin/console coverage:summarize-coverage-reports
+  artifacts:
+    when: always
+    paths:
+      - coverageSummary.html
+    expose_as: 'Coverage Summary'

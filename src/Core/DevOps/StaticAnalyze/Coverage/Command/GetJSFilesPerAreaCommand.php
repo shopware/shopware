@@ -92,7 +92,7 @@ class GetJSFilesPerAreaCommand extends Command
 
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         /**
-         * @var \Symfony\Component\Finder\SplFileInfo[] $files
+         * @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator> $files
          * @var \Symfony\Component\Finder\SplFileInfo $file
          */
         foreach ($files as $file) {
@@ -111,9 +111,9 @@ class GetJSFilesPerAreaCommand extends Command
                     if (!\array_key_exists($matches[1], $areaToFile) || !\is_array($areaToFile[$matches[1]])) {
                         $areaToFile[$matches[1]] = [];
                     }
-                    array_push($areaToFile[$matches[1]], $filePath);
+                    $areaToFile[$matches[1]][] = $filePath;
                 } else {
-                    array_push($areaToFile['unknown'], $filePath);
+                    $areaToFile['unknown'][] = $filePath;
                 }
             }
         }

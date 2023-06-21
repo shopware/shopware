@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Address\Detail;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -122,7 +123,7 @@ class AddressDetailPageLoader
         $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
 
         if (!$address) {
-            throw new AddressNotFoundException($addressId);
+            throw CustomerException::addressNotFound($addressId);
         }
 
         return $address;

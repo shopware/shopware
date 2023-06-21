@@ -3,13 +3,12 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +33,7 @@ class CustomerGroupRegistrationTest extends TestCase
 
     public function test404(): void
     {
-        static::expectException(CustomerGroupRegistrationConfigurationNotFound::class);
+        static::expectException(CustomerException::class);
         $request = new Request();
         $request->attributes->set('customerGroupId', Defaults::LANGUAGE_SYSTEM);
 
@@ -58,7 +57,6 @@ class CustomerGroupRegistrationTest extends TestCase
         $request->attributes->set('customerGroupId', $this->ids->get('group'));
 
         $page = $this->getPageLoader()->load($request, $this->salesChannel);
-        static::assertInstanceOf(CustomerGroupRegistrationPage::class, $page);
         static::assertSame($this->ids->get('group'), $page->getGroup()->getId());
         static::assertSame('test', $page->getGroup()->getRegistrationTitle());
     }

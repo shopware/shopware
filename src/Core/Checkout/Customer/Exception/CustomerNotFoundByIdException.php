@@ -2,28 +2,20 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('customer-order')]
-class CustomerNotFoundByIdException extends ShopwareHttpException
+class CustomerNotFoundByIdException extends CustomerException
 {
     public function __construct(string $id)
     {
         parent::__construct(
+            Response::HTTP_NOT_FOUND,
+            self::CUSTOMER_NOT_FOUND_BY_ID,
             'No matching customer for the id "{{ id }}" was found.',
             ['id' => $id]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__CUSTOMER_NOT_FOUND_BY_ID';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
     }
 }

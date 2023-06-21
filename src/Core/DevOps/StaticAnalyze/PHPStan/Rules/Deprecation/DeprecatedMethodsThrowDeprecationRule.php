@@ -44,6 +44,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:class-hierarchy-change',
         // If we change the visibility of a method we can't know from where it was called and whether the call will be valid in the future, therefore they do not trigger deprecations.
         'reason:visibility-change',
+        // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
+        'reason:remove-exception',
     ];
 
     public function getNodeType(): string

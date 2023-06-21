@@ -3,11 +3,13 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Page\PageLoadedEvent;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedEvent;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
@@ -35,8 +37,12 @@ class WishlistPageTest extends TestCase
 
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
-        $this->expectException(CustomerWishlistNotActivatedException::class);
-        $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        $this->expectException(CustomerException::class);
+
+        $customer = $context->getCustomer();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $this->getPageLoader()->load($request, $context, $customer);
     }
 
     public function testWishlistNotFound(): void
@@ -60,13 +66,15 @@ class WishlistPageTest extends TestCase
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $product = $this->getRandomProduct($context);
-        $this->createCustomerWishlist($context->getCustomer()->getId(), $product->getId(), $context->getSalesChannel()->getId());
+        $customer = $context->getCustomer();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        $this->createCustomerWishlist($customer->getId(), $product->getId(), $context->getSalesChannel()->getId());
 
-        /** @var WishlistPageLoadedEvent $event */
         $event = null;
         $this->catchEvent(WishlistPageLoadedEvent::class, $event);
+        $page = $this->getPageLoader()->load($request, $context, $customer);
 
-        $page = $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        static::assertInstanceOf(PageLoadedEvent::class, $event);
 
         static::assertInstanceOf(WishlistPage::class, $page);
         static::assertSame(1, $page->getWishlist()->getProductListing()->getTotal());

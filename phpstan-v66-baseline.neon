@@ -87,7 +87,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
+            count: 1
             path: src/Core/Checkout/Cart/Order/OrderConverter.php
 
         -
@@ -102,7 +102,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 4
+            count: 2
             path: src/Core/Checkout/Cart/Order/RecalculationService.php
 
         -
@@ -139,11 +139,6 @@ parameters:
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Core/Checkout/Customer/Event/CustomerBeforeLoginEvent.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Checkout/Customer/Password/LegacyPasswordVerifier.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -202,12 +197,12 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 9
+            count: 2
             path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
+            count: 1
             path: src/Core/Checkout/Customer/SalesChannel/AddWishlistProductRoute.php
 
         -
@@ -216,74 +211,19 @@ parameters:
             path: src/Core/Checkout/Customer/SalesChannel/ChangePaymentMethodRoute.php
 
         -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Checkout/Customer/SalesChannel/CustomerGroupRegistrationSettingsRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Checkout/Customer/SalesChannel/CustomerRecoveryIsExpiredRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
-            path: src/Core/Checkout/Customer/SalesChannel/DeleteAddressRoute.php
-
-        -
             message: "#^Expected domain exception class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
             count: 1
             path: src/Core/Checkout/Customer/SalesChannel/DownloadRoute.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
-            path: src/Core/Checkout/Customer/SalesChannel/LoadWishlistRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 4
+            count: 1
             path: src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
-            path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
-            path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
             path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
-            path: src/Core/Checkout/Customer/SalesChannel/RemoveWishlistProductRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
-            path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Checkout/Customer/SalesChannel/SwitchDefaultAddressRoute.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Checkout/Customer/SalesChannel/UpsertAddressRoute.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -372,7 +312,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 4
+            count: 3
             path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
 
         -
@@ -2227,11 +2167,6 @@ parameters:
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
-            path: src/Core/System/SalesChannel/Context/SalesChannelContextRestorer.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
             path: src/Core/System/SalesChannel/Entity/SalesChannelDefinitionInstanceRegistry.php
 
         -
@@ -2356,7 +2291,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 4
+            count: 3
             path: src/Storefront/Controller/AddressController.php
 
         -
@@ -2471,12 +2406,12 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
+            count: 1
             path: src/Storefront/Page/Address/Detail/AddressDetailPageLoader.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
+            count: 1
             path: src/Storefront/Page/Checkout/Register/CheckoutRegisterPageLoader.php
 
         -

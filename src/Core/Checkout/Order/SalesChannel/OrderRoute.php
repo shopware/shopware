@@ -5,10 +5,10 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
-use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -84,7 +84,7 @@ class OrderRoute extends AbstractOrderRoute
 
                 $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
             } catch (RateLimitExceededException $exception) {
-                throw new CustomerAuthThrottledException($exception->getWaitTime(), $exception);
+                throw OrderException::customerAuthThrottledException($exception->getWaitTime(), $exception);
             }
 
             /** @var OrderEntity|null $order */
@@ -120,8 +120,8 @@ class OrderRoute extends AbstractOrderRoute
         $promotionIds = [];
         foreach ($order->getLineItems() ?? [] as $lineItem) {
             $payload = $lineItem->getPayload();
-            if (isset($payload['promotionId']) && $payload['promotionId'] !== null) {
-                $promotionIds[] = (string) $payload['promotionId'];
+            if (isset($payload['promotionId']) && \is_string($payload['promotionId'])) {
+                $promotionIds[] = $payload['promotionId'];
             }
         }
 

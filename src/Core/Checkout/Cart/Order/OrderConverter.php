@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -137,7 +136,7 @@ class OrderConverter
 
             $activeBillingAddress = $customer->getActiveBillingAddress();
             if ($activeBillingAddress === null) {
-                throw new AddressNotFoundException('');
+                throw CartException::addressNotFound('');
             }
             $customerAddressId = $activeBillingAddress->getId();
 
@@ -261,10 +260,9 @@ class OrderConverter
         }
 
         $billingAddressId = $order->getBillingAddressId();
-        /** @var OrderAddressEntity|null $billingAddress */
         $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->get($billingAddressId);
-        if ($billingAddress === null) {
-            throw new AddressNotFoundException($billingAddressId);
+        if (!$billingAddress instanceof OrderAddressEntity) {
+            throw CartException::addressNotFound($billingAddressId);
         }
 
         $options = [
@@ -283,17 +281,15 @@ class OrderConverter
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
         }
 
-        if ($order->getTransactions() !== null) {
-            foreach ($order->getTransactions() as $transaction) {
-                $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
-                if (
-                    $transaction->getStateMachineState() !== null
-                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
-                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
-                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_FAILED
-                ) {
-                    break;
-                }
+        foreach ($order->getTransactions() as $transaction) {
+            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
+            if (
+                $transaction->getStateMachineState() !== null
+                && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
+                && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED
+                && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_FAILED
+            ) {
+                break;
             }
         }
 

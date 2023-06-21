@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -57,8 +57,8 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
             $context->getContext()
         )->first();
 
-        if (!$customerRecovery) {
-            throw new CustomerNotFoundByHashException($hash);
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         return new CustomerRecoveryIsExpiredResponse($this->isExpired($customerRecovery));

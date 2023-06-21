@@ -184,7 +184,6 @@ default:
     - $CI_PROJECT_DIR/bin/install-extension-npm
     - '(cd $CI_PROJECT_DIR/src/Administration/Resources/app/administration/ && npm ci --no-audit --prefer-offline && npm run build)'
     - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci --no-audit --prefer-offline && npm run production && node copy-to-vendor.js)'
-    - $CI_PROJECT_DIR/bin/install-extension-npm
     - $CI_PROJECT_DIR/bin/console assets:install
 
 build and validate zip:

@@ -189,6 +189,7 @@
                     {% block sw_settings_user_list_delete_modal_confirm %}
                     <sw-button
                         :disabled="!confirmPassword"
+                        :is-loading="isConfirmingPassword"
                         variant="danger"
                         size="small"
                         @click="onConfirmDelete(item)"

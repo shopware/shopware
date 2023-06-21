@@ -116,7 +116,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $mediaIds = $ids->all();
 
-        foreach (['product', 'category'] as $entity) {
+        foreach (['product', 'category', 'order'] as $entity) {
             $this->createMediaCustomField($entity);
             $this->createMediaSelectCustomField($entity);
             $this->createMediaMultiSelectCustomField($entity);

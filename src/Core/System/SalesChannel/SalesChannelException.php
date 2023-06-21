@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;

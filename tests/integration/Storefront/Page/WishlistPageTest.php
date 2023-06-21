@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\PageLoadedEvent;
+use Shopware\Storefront\Page\Wishlist\WishlistPage;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedEvent;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
 use Symfony\Component\HttpFoundation\Request;

@@ -131,4 +131,12 @@ class OrderException extends HttpException
             'Customer is not logged in.',
         );
     }
+
+    public static function customerAuthThrottledException(int $waitTime, ?\Throwable $e = null): ShopwareHttpException
+    {
+        return new CustomerAuthThrottledException(
+            $waitTime,
+            $e
+        );
+    }
 }

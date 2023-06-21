@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerNotFoundException extends CustomerException
 {
     public function __construct(string $email)

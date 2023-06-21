@@ -548,6 +548,11 @@ parameters:
 			path: src/Core/Checkout/Customer/Event/WishlistMergedEvent.php
 
 		-
+			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getStatus\\(\\)\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AccountNewsletterRecipientRouteResponse.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
@@ -571,6 +576,16 @@ parameters:
 			message: "#^Parameter \\#1 \\$object of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerResponse constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/Subscriber/CustomerBeforeDeleteSubscriber.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerEmailUnique\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php
 
 		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
@@ -771,6 +786,31 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\:\\:getSalesChannelIs\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/OrderCollection.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getAmountNet\\(\\) should return float but returns float\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/OrderEntity.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getRuleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/OrderEntity.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:addPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:getPaymentsChangeable\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:setPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Aggregate\\\\PaymentMethodTranslation\\\\PaymentMethodTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -12572,6 +12612,21 @@ parameters:
 			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
 
 		-
+			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:createRequest\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
+
+		-
+			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:productNumbers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
+
+		-
+			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:promotions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
+
+		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/FormControllerTest.php
@@ -14127,11 +14182,6 @@ parameters:
 			message: "#^Cannot call method getMessageKey\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\Error\\|null\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/LineItem/LineItemValidatorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Order/OrderConverterTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$e\\-\\>getExceptions\\(\\)\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

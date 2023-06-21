@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - reason:remove-exception - will be removed, use CustomerException::noHashProvided instead
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class NoHashProvidedException extends CustomerException
 {
     public function __construct()

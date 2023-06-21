@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -350,5 +349,10 @@ class CartException extends HttpException
             self::PRICES_PARAMETER_IS_MISSING,
             'Parameter "prices" is missing.',
         );
+    }
+
+    public static function addressNotFound(string $id): ShopwareHttpException
+    {
+        return new AddressNotFoundException($id);
     }
 }

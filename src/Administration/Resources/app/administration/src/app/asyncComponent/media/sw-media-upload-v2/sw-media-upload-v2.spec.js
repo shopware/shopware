@@ -480,24 +480,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(isTypeAccepted).toBeTruthy();
     });
 
-    it('should allow wildcard in the chunck of the file type', async () => {
-        await wrapper.setProps({
-            fileAccept: '*/svg',
-        });
-
-        let isTypeAccepted = wrapper.vm.checkFileType({
-            name: 'dummy.png',
-            type: 'image/png',
-        });
-        expect(isTypeAccepted).toBeFalsy();
-
-        isTypeAccepted = wrapper.vm.checkFileType({
-            name: 'dummy.svg',
-            type: 'image/svg',
-        });
-        expect(isTypeAccepted).toBeTruthy();
-    });
-
     it('should upload a file when using the url upload feature', async () => {
         wrapper.vm.mediaRepository.save = jest.fn();
         wrapper.vm.mediaService.addUpload = jest.fn();
@@ -525,6 +507,43 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.vm.mediaRepository.save).toHaveBeenCalled();
         expect(wrapper.vm.mediaService.addUpload).toHaveBeenCalled();
+    });
+
+    it('should call extension check', async () => {
+        const file = {
+            name: 'dummy.pdf',
+            type: 'application/pdf',
+        };
+
+        await wrapper.setProps({
+            extensionAccept: 'pdf',
+            fileAccept: '*/*',
+        });
+
+        let isFileAccepted = wrapper.vm.checkFileType(file);
+        expect(isFileAccepted).toBe(true);
+
+        await wrapper.setProps({
+            fileAccept: 'image/*, application/pdf',
+        });
+
+        isFileAccepted = wrapper.vm.checkFileType(file);
+        expect(isFileAccepted).toBe(true);
+    });
+
+    it('should reject uploads when no fileAccept or extensionAccept is defined', async () => {
+        const file = {
+            name: 'dummy.pdf',
+            type: 'application/pdf',
+        };
+
+        await wrapper.setProps({
+            extensionAccept: null,
+            fileAccept: null,
+        });
+
+        const isFileAccepted = wrapper.vm.checkFileType(file);
+        expect(isFileAccepted).toBe(false);
     });
 });
 

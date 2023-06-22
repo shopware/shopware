@@ -44,7 +44,10 @@
                                 {% endif %}
 
                                 {% sw_thumbnails 'cms-image-thumbnails' with {
-                                    media: manufacturer.media
+                                    media: manufacturer.media,
+                                    sizes: {
+                                        'default': '200px'
+                                    }
                                 } %}
                             {% endblock %}
                         </div>

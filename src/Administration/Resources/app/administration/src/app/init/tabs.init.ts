@@ -26,13 +26,14 @@ function initializeTabsVue2(): void {
         const router = Shopware.Application.view?.router;
 
         // @ts-expect-error
-        const currentRoute = router.currentRoute;
+        // eslint-disable-next-line max-len
+        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
 
         /* istanbul ignore next */
         if (
             router &&
-            router.currentRoute.value.fullPath.includes(componentConfig.componentSectionId) &&
-            router.currentRoute.value.matched.length <= 0
+            currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
+            currentRoute.matched.length <= 0
         ) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
@@ -43,7 +44,11 @@ function initializeTabsVue2(): void {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const router = Shopware.Application.view!.router;
 
-        if (router && router.currentRoute.value.matched.length <= 0) {
+        // @ts-expect-error
+        // eslint-disable-next-line max-len
+        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+
+        if (router && currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
 

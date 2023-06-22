@@ -112,10 +112,18 @@ Component.register('sw-admin-menu-item', {
 
     methods: {
         hasAccessToRoute(path) {
-            const route = `/${path.replace(/\./g, '/')}`;
-            const match = this.$router.resolve({
-                path: route,
-            });
+            let route = '';
+            let match = false;
+
+            if (Shopware.Service('feature').isActive('VUE3')) {
+                route = `/${path.replace(/\./g, '/')}`;
+                match = this.$router.resolve({
+                    path: route,
+                });
+            } else {
+                route = path.replace(/\./g, '/');
+                match = this.$router.match(route);
+            }
 
             if (!match.meta) {
                 return true;

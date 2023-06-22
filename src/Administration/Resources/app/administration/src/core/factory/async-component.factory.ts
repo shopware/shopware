@@ -13,14 +13,15 @@ import type {
 // eslint-disable-next-line import/no-unresolved
 } from 'vue/types/options';
 import { defineComponent } from 'vue';
+import type { ComponentOptionsMixin } from 'vue/types/v3-component-options';
 
 /**
  * This method is just for adding TypeScript support to component configuration and provides a this context.
  *
  * Function overload to support all vue component object variations.
  */
-const wrapComponentConfig = defineComponent;
 
+const wrapComponentConfig = defineComponent;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -62,7 +62,7 @@ export default Component.wrapComponentConfig({
                 return taxProvider;
             });
 
-            this.taxProviderRepository.saveAll(this.sortedTaxProviders)
+            this.taxProviderRepository.saveAll(this.sortedTaxProviders as $TSFixMeData<EntityCollection<'tax_provider'>>)
                 .then(() => {
                     this.isSaving = false;
                     this.$emit('modal-close');

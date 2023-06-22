@@ -45,7 +45,7 @@ Component.register('sw-admin', {
             // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
             const currentRouteName = (this.feature.isActive('VUE3') ? this.$router.currentRoute.value.name : this.$router.currentRoute.name) as string;
             const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
-            if (!data.inactive || routeBlocklist.includes(this.$router.currentRoute.value.name || '')) {
+            if (!data.inactive || routeBlocklist.includes(currentRouteName || '')) {
                 return;
             }
 

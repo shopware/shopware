@@ -113,7 +113,11 @@ Component.register('sw-app-actions', {
         $route: {
             immediate: true,
             handler() {
-                this.matchedRoutes = this.$router.currentRoute.value.matched;
+                if (this.feature.isActive('VUE3')) {
+                    this.matchedRoutes = this.$router.currentRoute.value.matched;
+                } else {
+                    this.matchedRoutes = this.$router.currentRoute.matched;
+                }
                 this.loadActions();
             },
         },

@@ -73,7 +73,7 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
             },
-            'sw-switch-field': true,
+            'sw-field': true,
             'sw-search-bar': true,
             'sw-language-switch': true,
             'sw-icon': true,

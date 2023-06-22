@@ -81,8 +81,6 @@ import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
-import type PrivilegesService from './app/service/privileges.service';
-import type { UsageDataModuleState } from './app/state/usage-data.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -127,6 +125,9 @@ declare global {
      */
     type $TSFixMe = any;
     type $TSFixMeFunction = (...args: any[]) => any;
+
+    // TODO: remove with https://github.com/vuejs/core/issues/8611
+    type $TSFixMeData<T> = T;
 
     /**
      * Dangerous "unknown" types which are specific enough but do not provide type safety.

@@ -7,7 +7,7 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
-import { createRouterMock, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
+import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-button';
@@ -112,7 +112,7 @@ describe('sw-app-actions', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
@@ -126,7 +126,7 @@ describe('sw-app-actions', () => {
     });
 
     it('creates an sw-app-action-button per action', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
@@ -144,7 +144,7 @@ describe('sw-app-actions', () => {
     });
 
     it('is not rendered if action buttons is empty', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.list' });
@@ -154,7 +154,7 @@ describe('sw-app-actions', () => {
     });
 
     it('throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -171,7 +171,7 @@ describe('sw-app-actions', () => {
     });
 
     it('ignores pages where entity and view are not set', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -185,7 +185,7 @@ describe('sw-app-actions', () => {
     });
 
     it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
@@ -222,7 +222,7 @@ describe('sw-app-actions', () => {
     });
 
     it('calls appActionButtonService.runAction with correct response', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
@@ -248,7 +248,7 @@ describe('sw-app-actions', () => {
     });
 
     it('calls appActionButtonService.runAction with open modal response', async () => {
-        const router = createRouterMock();
+        const router = createRouter();
         const openModalResponseData = {
             data: {
                 actionType: 'openModal',

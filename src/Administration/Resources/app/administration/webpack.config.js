@@ -52,6 +52,12 @@ if (featureFlags?.VUE3) {
     console.log();
 }
 
+// https://regex101.com/r/OGpZFt/1
+const versionRegex = /18\.\d{1,2}\.\d{1,2}/;
+if (!versionRegex.test(process.versions.node)) {
+    console.log();
+}
+
 const nodeMajor = process.versions.node.split('.')[0];
 const supportedNodeVersions = ['18', '19', '20'];
 if (!supportedNodeVersions.includes(nodeMajor)) {
@@ -634,7 +640,7 @@ const coreConfig = {
         return {
             resolve: {
                 alias: {
-                    vue$: '@vue/compat/dist/vue.esm-bundler.js',
+                    vue$: vueAlias,
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },
@@ -679,8 +685,8 @@ const coreConfig = {
         }),
 
         ...(() => {
-            // TODO: NEXT-18182 remove true condition
-            if (true || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            // TODO: NEXT-18182 remove featureFlag condition
+            if (featureFlags.VUE3 || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 

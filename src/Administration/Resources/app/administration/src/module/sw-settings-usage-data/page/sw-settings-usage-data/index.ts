@@ -18,7 +18,19 @@ export default Shopware.Component.wrapComponentConfig({
         async createdComponent() {
             const consent = await this.usageDataService.getConsent();
 
-            Shopware.State.commit('usageData/updateConsent', consent);
+    computed: {
+        alertText(): string {
+            let alertText = this.$tc('sw-settings-usage-data.general.alertText');
+
+            if (!this.isAdmin) {
+                alertText += ` ${this.$tc('sw-settings-usage-data.general.alertTextOnlyAdmins')}`;
+            }
+
+            return alertText;
+        },
+
+        isAdmin(): boolean {
+            return this.acl.isAdmin();
         },
     },
 

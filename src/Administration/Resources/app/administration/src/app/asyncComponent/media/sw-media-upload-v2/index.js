@@ -127,6 +127,12 @@ export default {
             default: null,
         },
 
+        extensionAccept: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
         maxFileSize: {
             type: Number,
             required: false,

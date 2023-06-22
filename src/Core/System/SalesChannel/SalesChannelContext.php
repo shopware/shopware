@@ -104,8 +104,8 @@ class SalesChannelContext extends Struct
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
         ?CustomerEntity $customer,
-        private CashRoundingConfig $itemRounding,
-        private CashRoundingConfig $totalRounding,
+        protected CashRoundingConfig $itemRounding,
+        protected CashRoundingConfig $totalRounding,
         protected array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;

@@ -39,7 +39,6 @@ Component.register('sw-cms-el-location-renderer', {
 
     watch: {
         element(): void {
-            // @ts-expect-error
             this.$emit('element-update', this.element);
         },
     },
@@ -50,8 +49,6 @@ Component.register('sw-cms-el-location-renderer', {
 
     methods: {
         createdComponent(): void {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.initElementConfig(this.elementData.name);
 
             Shopware.ExtensionAPI.publishData({

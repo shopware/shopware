@@ -19,6 +19,7 @@ async function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-entity-listing': true,
             'sw-promotion-v2-empty-state-hero': true,
+            'sw-context-menu-item': true,
         },
         provide: {
             acl: {

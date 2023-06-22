@@ -100,6 +100,10 @@ async function createWrapper(privileges = []) {
             'sw-entity-multi-select': true,
             'sw-single-select': true,
             'sw-skeleton': true,
+            'sw-empty-state': true,
+            'sw-data-grid': true,
+            'sw-button': true,
+            'sw-context-menu-item': true,
         },
     });
 }

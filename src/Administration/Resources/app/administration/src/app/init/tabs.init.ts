@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line import/no-named-default
-import type { Route, RouteConfig, RawLocation, default as Router } from 'vue-router';
+import type { Route, RouteConfig, default as Router, RawLocation } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
 
 /**
@@ -16,11 +16,15 @@ export default function initializeTabs(): void {
         // if current route does not exist check if they exists after adding the route
         const router = Shopware.Application.view?.router;
 
+        // @ts-expect-error
+        // eslint-disable-next-line max-len
+        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+
         /* istanbul ignore next */
         if (
             router &&
-            router.currentRoute.value.fullPath.includes(componentConfig.componentSectionId) &&
-            router.currentRoute.value.matched.length <= 0
+            currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
+            currentRoute.matched.length <= 0
         ) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
@@ -31,22 +35,27 @@ export default function initializeTabs(): void {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const router = Shopware.Application.view!.router;
 
-        if (router && router.currentRoute.value.matched.length <= 0) {
+        // @ts-expect-error
+        // eslint-disable-next-line max-len
+        const currentRoute = (Shopware.Service('feature').isActive('VUE3') ? router.currentRoute.value : router.currentRoute) as Route;
+
+        if (router && currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
 
         /* istanbul ignore next */
+        // @ts-expect-error
         router.beforeEach((to, from, next) => {
             if (to.matched.length > 0) {
                 next();
                 return;
             }
 
-            const routeSuccess = createRouteForTabItem(to, router, next);
+            const routeSuccess = createRouteForTabItem(to, router as Router, next);
 
             // only resolve route if it was created
             if (routeSuccess) {
-                next(router.resolve(to.fullPath).route as RawLocation);
+                next((router as Router).resolve(to.fullPath).route as RawLocation);
             } else {
                 next();
             }

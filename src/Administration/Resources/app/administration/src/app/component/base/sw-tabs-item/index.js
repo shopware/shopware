@@ -162,7 +162,13 @@ Component.register('sw-tabs-item', {
                  * non existing route has always the class 'router-link-active'
                  */
                 const resolvedRoute = this.$router.resolve(this.route);
-                const routeExists = resolvedRoute.matched.length > 0;
+                let routeExists = false;
+                if (Shopware.Service('feature').isActive('VUE3')) {
+                    routeExists = resolvedRoute.matched.length > 0;
+                } else {
+                    routeExists = resolvedRoute.resolved.matched.length > 0;
+                }
+
                 if (!routeExists) {
                     return;
                 }

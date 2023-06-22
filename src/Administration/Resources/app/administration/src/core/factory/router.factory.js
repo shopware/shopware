@@ -17,6 +17,7 @@
 export default function createRouter(Router, View, moduleFactory, LoginService) {
     const allRoutes = [];
     const moduleRoutes = [];
+    const vue3 = !!window._features_?.vue3;
     let instance = null;
 
     return {
@@ -50,10 +51,18 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const mergedRoutes = registerModuleRoutesAsChildren(viewAllRoutes, viewModuleRoutes);
 
         // assign to view router options
-        const options = { ...opts, routes: mergedRoutes, history: Router.createWebHashHistory() };
+        const options = { ...opts, routes: mergedRoutes };
+        if (vue3) {
+            options.history = Router.createWebHashHistory();
+        }
 
         // create router
-        const router = Router.createRouter(options);
+        let router;
+        if (vue3) {
+            router = Router.createRouter(options);
+        } else {
+            router = new Router(options);
+        }
 
         beforeRouterInterceptor(router);
         instance = router;
@@ -367,7 +376,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Vue|null} - View component or null
      */
     function getViewComponent(componentName) {
-        return Shopware.Application.view.getComponentForRoute(componentName);
+        if (vue3) {
+            return Shopware.Application.view.getComponentForRoute(componentName);
+        }
+
+        return Shopware.Application.view.getComponent(componentName);
     }
 
     function getAssetPath() {

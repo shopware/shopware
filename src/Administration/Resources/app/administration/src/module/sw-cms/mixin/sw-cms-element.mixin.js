@@ -1,3 +1,5 @@
+import { defineComponent } from 'vue';
+
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 const { cloneDeep, merge } = Shopware.Utils.object;
@@ -6,7 +8,7 @@ const { cloneDeep, merge } = Shopware.Utils.object;
  * @private
  * @package content
  */
-Mixin.register('cms-element', {
+export default Mixin.register('cms-element', defineComponent({
     inject: ['cmsService'],
 
     model: {
@@ -62,6 +64,7 @@ Mixin.register('cms-element', {
                 fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
             }
 
+            // eslint-disable-next-line vue/no-mutating-props
             this.element.config = merge(
                 cloneDeep(defaultConfig),
                 this.element?.translated?.config || {},
@@ -99,4 +102,4 @@ Mixin.register('cms-element', {
             });
         },
     },
-});
+}));

@@ -45,6 +45,13 @@ if (fs.existsSync(flagsPath)) {
     global.featureFlags = featureFlags;
 }
 
+if (featureFlags?.VUE3) {
+    console.log(chalk.yellow('#########################################'));
+    console.log(chalk.yellow('# Experimental Vue 3 build is activated #'));
+    console.log(chalk.yellow('#########################################'));
+    console.log();
+}
+
 // https://regex101.com/r/OGpZFt/1
 const versionRegex = /18\.\d{1,2}\.\d{1,2}/;
 if (!versionRegex.test(process.versions.node)) {
@@ -556,10 +563,12 @@ const coreConfig = {
     },
 
     ...(() => {
+        const vueAlias = featureFlags.VUE3 ? '@vue/compat/dist/vue.esm-bundler.js' : 'vue/dist/vue.esm.js';
+
         return {
             resolve: {
                 alias: {
-                    vue$: '@vue/compat/dist/vue.esm-bundler.js',
+                    vue$: vueAlias,
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },
@@ -604,8 +613,8 @@ const coreConfig = {
         }),
 
         ...(() => {
-            // TODO: NEXT-18182 remove true condition
-            if (true || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            // TODO: NEXT-18182 remove featureFlag condition
+            if (featureFlags.VUE3 || isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 

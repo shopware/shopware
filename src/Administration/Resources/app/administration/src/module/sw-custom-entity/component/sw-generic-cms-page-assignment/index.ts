@@ -4,6 +4,7 @@ import type Repository from 'src/core/data/repository.data';
 import type { PropType } from 'vue';
 
 import Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import type EntityCollection from 'src/core/data/entity-collection.data';
 import template from './sw-generic-cms-page-assignment.html.twig';
 import './sw-generic-cms-page-assignment.scss';
 
@@ -227,7 +228,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (this.cmsPage.sections) {
-                this.deleteSpecificKeys(this.cmsPage.sections);
+                this.deleteSpecificKeys(this.cmsPage.sections as $TSFixMeData<EntityCollection<'cms_section'>>);
             }
 
             const { changes } = this.changesetGenerator.generate(this.cmsPage) as { changes: Entity<'cms_page'> };

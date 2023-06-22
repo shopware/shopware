@@ -62,21 +62,17 @@ export default Component.wrapComponentConfig({
                 return taxProvider;
             });
 
-            this.taxProviderRepository.saveAll(this.sortedTaxProviders)
+            this.taxProviderRepository.saveAll(this.sortedTaxProviders as $TSFixMeData<EntityCollection<'tax_provider'>>)
                 .then(() => {
                     this.isSaving = false;
                     this.$emit('modal-close');
                     this.$emit('modal-save');
 
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-tax.list.taxProvider.sorting-modal.saveSuccessful'),
                     });
                 })
                 .catch(() => {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
                         message: this.$tc('sw-settings-tax.list.taxProvider.sorting-modal.errorMessage'),
                     });

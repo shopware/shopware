@@ -127,12 +127,11 @@ export default Component.wrapComponentConfig({
                 return Promise.resolve();
             }
 
-            return this.taxProviderRepository.save(this.taxProvider).then(() => {
+            return this.taxProviderRepository.save(this.taxProvider as $TSFixMeData<Entity<'tax_provider'>>).then(() => {
                 this.isSaveSuccessful = true;
 
                 return this.loadTaxProvider();
             }).catch(() => {
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-settings-tax.detail.messageSaveError'),

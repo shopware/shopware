@@ -33,7 +33,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_code_editor_sanitize_info_content %}
         <div
-            v-if="contentWasSanitized"
+            v-if="contentWasSanitized && enableHtmlSanitizer"
             class="sw-code-editor__sanitized-hint"
             :class="{'sw-code-editor__sanitized-hint--visible': contentWasSanitized}"
         >
@@ -50,6 +50,7 @@
             {% endblock %}
         </div>
         <div
+            v-if="enableHtmlSanitizer"
             class="sw-code-editor__sanitize-info"
             :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
         >

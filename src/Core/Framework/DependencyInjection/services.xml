@@ -686,6 +686,7 @@ base-uri 'self';
             <argument>%shopware.html_sanitizer.cache_enabled%</argument>
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
+            <argument>%shopware.html_sanitizer.enabled%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">

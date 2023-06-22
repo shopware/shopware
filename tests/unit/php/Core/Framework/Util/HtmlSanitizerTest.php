@@ -12,6 +12,24 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
  */
 class HtmlSanitizerTest extends TestCase
 {
+    public function testAllowDisablingHtmlSanitizer(): void
+    {
+        $sets = $this->getDefaultSets();
+        $fieldSets = $this->getDefaultFieldsSets();
+
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets, false);
+
+        $unfilteredString = '<invalid-tag>Lorem Ipsum dolor sit amet</invalid-tag>';
+        $filteredString = $sanitizer->sanitize($unfilteredString, null);
+
+        static::assertSame($unfilteredString, $filteredString);
+
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets, true);
+        $filteredString = $sanitizer->sanitize($unfilteredString, null);
+
+        static::assertSame('Lorem Ipsum dolor sit amet', $filteredString);
+    }
+
     public function testAllowedByFieldSetConfig(): void
     {
         $sets = $this->getDefaultSets();

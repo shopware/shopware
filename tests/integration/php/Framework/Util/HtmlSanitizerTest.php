@@ -112,11 +112,11 @@ class HtmlSanitizerTest extends TestCase
 
         $filteredString = $this->sanitizer->sanitize($unfilteredString, [], false, 'test.script');
 
-        static::assertSame('<script type="text/javascript"></script><div>test</div>', $filteredString);
+        static::assertSame('<img alt="" src="#" /><script type="text/javascript"></script><div>test</div>', $filteredString);
 
         $filteredString = $this->sanitizer->sanitize($unfilteredString, [], false, 'test.custom');
 
-        static::assertSame('<input /><div>test</div>', $filteredString);
+        static::assertSame('<input /><img alt="" src="#" /><div>test</div>', $filteredString);
     }
 
     public function testConfigHasRightCachePermissions(): void

@@ -147,6 +147,10 @@ export default {
                 'has--error': !!this.error,
             };
         },
+
+        enableHtmlSanitizer() {
+            return Shopware.Context.app.config.settings.enableHtmlSanitizer;
+        },
     },
 
     watch: {
@@ -197,7 +201,9 @@ export default {
         },
 
         async onBlur() {
-            const value = await this.sanitizeEditorInput(this.editor.getValue());
+            const value = this.enableHtmlSanitizer
+                ? await this.sanitizeEditorInput(this.editor.getValue())
+                : this.editor.getValue();
 
             this.$emit('blur', value);
         },

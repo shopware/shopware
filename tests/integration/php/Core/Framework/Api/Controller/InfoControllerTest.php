@@ -60,6 +60,7 @@ class InfoControllerTest extends TestCase
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
                 'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
+                'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
             ],
         ];
 
@@ -146,6 +147,7 @@ class InfoControllerTest extends TestCase
             'bundles' => $bundle,
             'settings' => [
                 'enableUrlFeature' => true,
+                'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
             ],
         ];
 
@@ -314,6 +316,7 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.enable_notification_worker' => 'enable-notification-worker',
                 'shopware.admin_worker.transports' => 'transports',
                 'shopware.filesystem.private_allowed_extensions' => ['png'],
+                'shopware.html_sanitizer.enabled' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -370,6 +373,7 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.enable_notification_worker' => 'enable-notification-worker',
                 'shopware.admin_worker.transports' => 'transports',
                 'shopware.filesystem.private_allowed_extensions' => ['png'],
+                'shopware.html_sanitizer.enabled' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -427,6 +431,7 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.enable_notification_worker' => 'enable-notification-worker',
                 'shopware.admin_worker.transports' => 'transports',
                 'shopware.filesystem.private_allowed_extensions' => ['png'],
+                'shopware.html_sanitizer.enabled' => true,
             ]),
             $kernelMock,
             $this->getContainer()->get('assets.packages'),

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\StaticTranslator;
@@ -224,6 +225,11 @@ class StorefrontControllerTest extends TestCase
             ->method('getBundles')
             ->willReturn($bundles);
 
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->expects(static::any())
+            ->method('getScopes')
+            ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
@@ -233,10 +239,11 @@ class StorefrontControllerTest extends TestCase
                     $kernel,
                     $this->getContainer()->get(Connection::class)
                 ),
-            ])
+            ]),
+            $scopeDetector,
         );
 
-        $twig->addExtension(new NodeExtension($templateFinder));
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
         $twig->getExtension(NodeExtension::class)->getFinder();
 
         return $twig;

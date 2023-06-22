@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -42,7 +42,8 @@ class DeliveryBuilderTest extends TestCase
                 ])
             );
 
-        static::expectException(ShippingMethodNotFoundException::class);
+        static::expectException(ShippingException::class);
+        static::expectExceptionMessage('Shipping method with id "shipping-method-id" not found.');
         (new DeliveryBuilder())->build(
             new Cart('cart-token'),
             new CartDataCollection([]),

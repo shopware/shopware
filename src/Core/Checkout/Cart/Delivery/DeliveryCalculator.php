@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
-use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -94,7 +94,7 @@ class DeliveryCalculator
         $key = DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId());
 
         if (!$data->has($key)) {
-            throw new ShippingMethodNotFoundException($delivery->getShippingMethod()->getId());
+            throw ShippingException::shippingMethodNotFound($delivery->getShippingMethod()->getId());
         }
 
         /** @var ShippingMethodEntity $shippingMethod */

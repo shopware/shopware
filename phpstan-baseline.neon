@@ -13543,6 +13543,26 @@ parameters:
 			path: src/Storefront/Theme/ThemeLifecycleHandler.php
 
 		-
+			message: "#^Anonymous variable in a `\\$item\\['mediaFile'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 1
+			path: src/Storefront/Theme/ThemeLifecycleService.php
+
+		-
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: src/Storefront/Theme/ThemeLifecycleService.php
+
+		-
+			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleService\\:\\:getThemeByTechnicalName\\(\\) should return Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: src/Storefront/Theme/ThemeLifecycleService.php
+
+		-
+			message: "#^Anonymous variable in a `\\$parentTheme\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 3
+			path: src/Storefront/Theme/ThemeService.php
+
+		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php

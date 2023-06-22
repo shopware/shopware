@@ -148,3 +148,5 @@ framework:
             log_level: notice
         Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
             log_level: notice
+        Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
+            log_level: notice

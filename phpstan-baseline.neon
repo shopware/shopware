@@ -7385,16 +7385,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/Filter/CurrencyFilter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\BundleHierarchyBuilder\\:\\:getAppTemplateNamespaces\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilder.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$combinedApps has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\NamespaceHierarchyBuilder\\:\\:buildHierarchy\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/NamespaceHierarchyBuilder.php
@@ -17079,46 +17069,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$parentTheme\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 3
 			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:build\\(\\) has parameter \\$themes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) has parameter \\$themes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:injectPluginWildcard\\(\\) has parameter \\$inheritance with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:injectPluginWildcard\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"

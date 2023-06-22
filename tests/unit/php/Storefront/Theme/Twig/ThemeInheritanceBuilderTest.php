@@ -42,6 +42,29 @@ class ThemeInheritanceBuilderTest extends TestCase
             'Storefront' => [],
         ], $result);
     }
+
+    public function testSortBundlesByPriority(): void
+    {
+        $result = $this->builder->build([
+            'Profiling' => -2,
+            'Elasticsearch' => -1,
+            'Administration' => -1,
+            'Framework' => -1,
+            'ExtensionPlugin' => 0,
+            'Storefront' => 0,
+        ], [
+            'Storefront' => true,
+        ]);
+
+        static::assertSame([
+            'ExtensionPlugin' => 0,
+            'Elasticsearch' => -1,
+            'Administration' => -1,
+            'Framework' => -1,
+            'Profiling' => -2,
+            'Storefront' => 0,
+        ], $result);
+    }
 }
 
 /**

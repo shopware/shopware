@@ -36,8 +36,8 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
             $result = $this->connection->executeStatement(
                 <<<'SQL'
                 DELETE FROM cart
-                    WHERE (updated_at IS NULL AND created_at <= :timestamp)
-                        OR (updated_at IS NOT NULL AND updated_at <= :timestamp) LIMIT 1000;
+                    WHERE created_at <= :timestamp
+                        AND (updated_at IS NULL OR updated_at <= :timestamp) LIMIT 1000;
             SQL,
                 ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
             );

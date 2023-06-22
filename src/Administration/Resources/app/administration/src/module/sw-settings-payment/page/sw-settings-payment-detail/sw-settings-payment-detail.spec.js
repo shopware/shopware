@@ -68,6 +68,7 @@ async function createWrapper(privileges = []) {
             'sw-sidebar': true,
             'sw-sidebar-media-item': true,
             'sw-skeleton': true,
+            'sw-context-menu-item': true,
         },
     });
 }

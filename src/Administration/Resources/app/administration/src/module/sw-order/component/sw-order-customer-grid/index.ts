@@ -216,9 +216,7 @@ export default Component.wrapComponentConfig({
 
             // Refresh customer list if new customer is created successfully
             void this.getList();
-            // @ts-expect-error
             this.page = 1;
-            // @ts-expect-error
             this.term = '';
         },
 

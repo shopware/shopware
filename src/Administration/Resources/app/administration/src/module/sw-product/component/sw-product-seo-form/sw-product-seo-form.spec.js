@@ -15,6 +15,11 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/form/sw-field';
+import 'src/app/component/form/sw-text-field';
+import 'src/app/component/form/sw-textarea-field';
+import 'src/app/component/form/field-base/sw-contextual-field';
 
 Shopware.Component.register('sw-product-seo-form', swProductSeoForm);
 
@@ -53,6 +58,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                         },
                     }),
                 },
+                validationService: {},
             },
             mocks: {
                 $store: new Vuex.Store({
@@ -71,7 +77,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 }),
             },
             stubs: {
-                'sw-inherit-wrapper': true,
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': await Shopware.Component.build('sw-field-error'),
@@ -83,6 +89,12 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': true,
+                'sw-help-text': true,
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-textarea-field': await Shopware.Component.build('sw-textarea-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-inheritance-switch': true,
             },
         });
     }

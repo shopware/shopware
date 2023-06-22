@@ -26,7 +26,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        alertText() {
+        alertText(): string {
             let alertText = this.$tc('sw-settings-usage-data.general.alertText');
 
             if (!this.isAdmin) {
@@ -36,7 +36,7 @@ export default Shopware.Component.wrapComponentConfig({
             return alertText;
         },
 
-        isAdmin() {
+        isAdmin(): boolean {
             return this.acl.isAdmin();
         },
     },

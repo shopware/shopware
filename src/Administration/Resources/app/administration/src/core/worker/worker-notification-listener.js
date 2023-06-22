@@ -70,7 +70,7 @@ class WorkerNotificationListener {
             this.runNotificationMiddleware(res.data);
 
             if (this._isRunning) {
-                this._interval = this._getApplicationRootReference().$store.state.notification.workerProcessPollInterval;
+                this._interval = Shopware.State.get('notification').workerProcessPollInterval;
                 this._timeoutId = setTimeout(this._checkQueue.bind(this), this._interval);
             }
         });
@@ -103,13 +103,13 @@ class WorkerNotificationListener {
             $root: appRoot,
             notification: {
                 create: (notification) => {
-                    return appRoot.$store.dispatch(
+                    return Shopware.State.dispatch(
                         'notification/createNotification',
                         notification,
                     );
                 },
                 update: (notification) => {
-                    return appRoot.$store.dispatch(
+                    return Shopware.State.dispatch(
                         'notification/updateNotification',
                         notification,
                     );

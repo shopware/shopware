@@ -2,11 +2,11 @@
  * @package admin
  */
 
-import { createRouter } from 'vue-router';
+import VueRouter from 'vue-router';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function createRouterMock() {
-    return createRouter({
+export function createRouter() {
+    return new VueRouter({
         routes: [{
             name: 'sw.product.detail',
             path: '/sw/product/detail/:{id}',

@@ -80,7 +80,6 @@ export default Component.wrapComponentConfig({
 
                 this.isLoading = false;
             }).catch((error: { message: string }) => {
-                // @ts-expect-error - Mixin methods are not recognized
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc(error.message),
@@ -94,14 +93,13 @@ export default Component.wrapComponentConfig({
             }
 
             this.isLoading = true;
-            this.unitRepository.save(this.unit, Shopware.Context.api).then(() => {
+            this.unitRepository.save(this.unit as $TSFixMeData<Entity<'unit'>>, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
 
                 void this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit?.id ?? '' } });
 
                 this.isLoading = false;
             }).catch(() => {
-                // @ts-expect-error - Mixin methods are not recognized
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-settings-units.notification.errorMessage'),

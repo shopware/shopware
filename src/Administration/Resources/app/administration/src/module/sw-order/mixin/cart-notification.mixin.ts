@@ -1,3 +1,4 @@
+import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
 
 /**
@@ -6,9 +7,11 @@ import type { CartError } from '../order.types';
 
 const { State, Mixin } = Shopware;
 /**
+ * @private
+ *
  * Mixin to handle notification when receiving cart response.
  */
-Mixin.register('cart-notification', {
+export default Mixin.register('cart-notification', defineComponent({
     computed: {
         cartErrors(): CartError[] {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -33,6 +36,7 @@ Mixin.register('cart-notification', {
             Object.values(info).forEach((value) => {
                 switch (value.level) {
                     case 0: {
+                        // @ts-expect-error
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         this.createNotificationSuccess({
                             message: value.message,
@@ -41,6 +45,7 @@ Mixin.register('cart-notification', {
                     }
 
                     case 10: {
+                        // @ts-expect-error
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         this.createNotificationWarning({
                             message: value.message,
@@ -49,6 +54,7 @@ Mixin.register('cart-notification', {
                     }
 
                     default: {
+                        // @ts-expect-error
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         this.createNotificationError({
                             message: value.message,
@@ -59,4 +65,4 @@ Mixin.register('cart-notification', {
             });
         },
     },
-});
+}));

@@ -17,7 +17,11 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       size="default"
       type="number"
       value="123"
-    />
+    >
+      
+                $
+            
+    </sw-field-stub>
      
     <button
       class="sw-price-field__lock"
@@ -38,7 +42,11 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       size="default"
       type="number"
       value="250"
-    />
+    >
+      
+                $
+            
+    </sw-field-stub>
   </div>
    
   <!---->

@@ -66,6 +66,7 @@ async function createWrapper() {
             'sw-data-grid-skeleton': await Shopware.Component.build('sw-data-grid-skeleton'),
             'sw-context-button': true,
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-button': true,
         },
 
         propsData: {

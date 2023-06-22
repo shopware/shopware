@@ -220,9 +220,14 @@ class ShopwareClass {
     public Data = data;
 
     public get Snippet() {
+        if (Shopware.Service('feature').isActive('VUE3')) {
+            // @ts-expect-error - type is currently not available
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+            return Shopware.Application.view.i18n.global;
+        }
+
         // @ts-expect-error - type is currently not available
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-        return Shopware.Application.view.i18n.global;
+        return Shopware.Application.view.i18n;
     }
 
     public Classes = {

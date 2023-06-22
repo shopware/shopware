@@ -65,6 +65,10 @@ function enableAdminWorker(
     context: ApiContext,
     config: ContextState['app']['config']['adminWorker'],
 ) {
+    // @ts-expect-error
+    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+    const transports = (window._features_?.vue3 ? JSON.parse(JSON.stringify(config))?.transports || [] : config?.transports || []) as string[];
+
     const getMessage = () => {
         return {
             context: {
@@ -74,7 +78,7 @@ function enableAdminWorker(
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
             // Quick fix to lose the reference to the config object, this was causing issues with the worker
-            transports: JSON.parse(JSON.stringify(config))?.transports || [],
+            transports,
         };
     };
 

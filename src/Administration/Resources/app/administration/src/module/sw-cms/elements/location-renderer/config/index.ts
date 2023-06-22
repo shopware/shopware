@@ -38,7 +38,6 @@ Component.register('sw-cms-el-config-location-renderer', {
 
     watch: {
         element() {
-            // @ts-expect-error
             this.$emit('element-update', this.element);
         },
     },
@@ -49,8 +48,6 @@ Component.register('sw-cms-el-config-location-renderer', {
 
     methods: {
         createdComponent() {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             this.initElementConfig(this.elementData.name);
 
             Shopware.ExtensionAPI.publishData({
@@ -69,13 +66,11 @@ Component.register('sw-cms-el-config-location-renderer', {
         },
 
         emitChanges(content: unknown) {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (content !== this.element.config.content.value) {
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 this.element.config.content.value = content;
-                // @ts-expect-error
+
                 this.$emit('element-update', this.element);
             }
         },

@@ -223,6 +223,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $context->getRuleIds(),
             $context->getContext()->getVersionId(),
             $context->getCurrency()->getId(),
+            $context->getTaxState(),
             $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ], \JSON_THROW_ON_ERROR));
     }

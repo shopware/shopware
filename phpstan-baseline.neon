@@ -15592,21 +15592,6 @@ parameters:
 			path: src/Storefront/Controller/AccountProfileController.php
 
 		-
-			message: "#^Anonymous variable in a `\\$changeableAddresses\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Storefront/Controller/AddressController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$dataBag\\-\\>get\\('vatIds'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Storefront/Controller/AddressController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$selectedAddress\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Storefront/Controller/AddressController.php
-
-		-
 			message: "#^Anonymous variable in a `\\$session\\-\\>getFlashBag\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 3
 			path: src/Storefront/Controller/ErrorController.php

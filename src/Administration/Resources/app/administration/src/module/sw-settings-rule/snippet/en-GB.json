@@ -133,6 +133,7 @@
         "customers": "Customers",
         "promotions": "Marketing & promotions",
         "flow": "Flow Builder",
+        "orders": "Orders",
         "misc": "Miscellaneous"
       },
       "textUnsavedConditions": "There are unsaved changes in this rule. Save changes in order to add assignments."

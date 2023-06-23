@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
@@ -34,9 +35,22 @@ class FlowFactory
      */
     public function restore(string $name, Context $context, array $stored = [], array $data = []): StorableFlow
     {
+        $systemContext = new Context(
+            new SystemSource(),
+            $context->getRuleIds(),
+            $context->getCurrencyId(),
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+            $context->getCurrencyFactor(),
+            $context->considerInheritance(),
+            $context->getTaxState(),
+            $context->getRounding(),
+        );
+        $systemContext->setExtensions($context->getExtensions());
+
         // @deprecated tag:v6.6.0 - Remove `silent` call and keep inner function
-        return Feature::silent('v6.6.0.0', function () use ($name, $context, $stored, $data) {
-            $flow = new StorableFlow($name, $context, $stored, $data);
+        return Feature::silent('v6.6.0.0', function () use ($name, $systemContext, $stored, $data): StorableFlow {
+            $flow = new StorableFlow($name, $systemContext, $stored, $data);
 
             foreach ($this->storer as $storer) {
                 $storer->restore($flow);

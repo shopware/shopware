@@ -107,110 +107,111 @@ class StateMachineRegistry
      */
     public function transition(Transition $transition, Context $context): StateMachineStateCollection
     {
-        $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
+        return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($transition): StateMachineStateCollection {
+            $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
 
-        $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
-        $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
+            $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
+            $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
 
-        $fromPlace = $this->getFromPlace(
-            $transition->getEntityName(),
-            $transition->getEntityId(),
-            $transition->getStateFieldName(),
-            $context,
-            $repository
-        );
-
-        if (empty($transition->getTransitionName())) {
-            $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-            $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
-
-            throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
-        }
-
-        try {
-            $toPlace = $this->getTransitionDestinationById(
-                $stateMachine->getTechnicalName(),
-                $fromPlace->getId(),
-                $transition->getTransitionName(),
-                $context
+            $fromPlace = $this->getFromPlace(
+                $transition->getEntityName(),
+                $transition->getEntityId(),
+                $transition->getStateFieldName(),
+                $context,
+                $repository
             );
-        } catch (UnnecessaryTransitionException) {
-            // No transition needed, therefore don't create a history entry and return
+
+            if (empty($transition->getTransitionName())) {
+                $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
+                $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+
+                throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
+            }
+
+            try {
+                $toPlace = $this->getTransitionDestinationById(
+                    $stateMachine->getTechnicalName(),
+                    $fromPlace->getId(),
+                    $transition->getTransitionName(),
+                    $context
+                );
+            } catch (UnnecessaryTransitionException) {
+                // No transition needed, therefore don't create a history entry and return
+                $stateMachineStateCollection = new StateMachineStateCollection();
+
+                $stateMachineStateCollection->set('fromPlace', $fromPlace);
+                $stateMachineStateCollection->set('toPlace', $fromPlace);
+
+                return $stateMachineStateCollection;
+            }
+
+            $stateMachineHistoryEntity = [
+                'stateMachineId' => $toPlace->getStateMachineId(),
+                'entityName' => $transition->getEntityName(),
+                'fromStateId' => $fromPlace->getId(),
+                'toStateId' => $toPlace->getId(),
+                'transitionActionName' => $transition->getTransitionName(),
+                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+            ];
+
+            if (Feature::isActive('v6.6.0.0')) {
+                $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
+                $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
+            } else {
+                $stateMachineHistoryEntity['entityId'] = ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()];
+            }
+
+            $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
+
+            $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
+
+            $repository->upsert($data, $context);
+
+            $this->eventDispatcher->dispatch(
+                new StateMachineTransitionEvent(
+                    $transition->getEntityName(),
+                    $transition->getEntityId(),
+                    $fromPlace,
+                    $toPlace,
+                    $context
+                )
+            );
+
+            $leaveEvent = new StateMachineStateChangeEvent(
+                $context,
+                StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
+                $transition,
+                $stateMachine,
+                $fromPlace,
+                $toPlace
+            );
+
+            $this->eventDispatcher->dispatch(
+                $leaveEvent,
+                $leaveEvent->getName()
+            );
+
+            $enterEvent = new StateMachineStateChangeEvent(
+                $context,
+                StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
+                $transition,
+                $stateMachine,
+                $fromPlace,
+                $toPlace
+            );
+
+            $this->eventDispatcher->dispatch(
+                $enterEvent,
+                $enterEvent->getName()
+            );
+
             $stateMachineStateCollection = new StateMachineStateCollection();
 
             $stateMachineStateCollection->set('fromPlace', $fromPlace);
-            $stateMachineStateCollection->set('toPlace', $fromPlace);
+            $stateMachineStateCollection->set('toPlace', $toPlace);
 
             return $stateMachineStateCollection;
-        }
-
-        $stateMachineHistoryEntity = [
-            'stateMachineId' => $toPlace->getStateMachineId(),
-            'entityName' => $transition->getEntityName(),
-            'fromStateId' => $fromPlace->getId(),
-            'toStateId' => $toPlace->getId(),
-            'transitionActionName' => $transition->getTransitionName(),
-            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-        ];
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
-            $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
-        } else {
-            $stateMachineHistoryEntity['entityId'] = ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()];
-        }
-
-        $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
-
-        $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($repository, $data): void {
-            $repository->upsert($data, $context);
         });
-
-        $this->eventDispatcher->dispatch(
-            new StateMachineTransitionEvent(
-                $transition->getEntityName(),
-                $transition->getEntityId(),
-                $fromPlace,
-                $toPlace,
-                $context
-            )
-        );
-
-        $leaveEvent = new StateMachineStateChangeEvent(
-            $context,
-            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
-            $transition,
-            $stateMachine,
-            $fromPlace,
-            $toPlace
-        );
-
-        $this->eventDispatcher->dispatch(
-            $leaveEvent,
-            $leaveEvent->getName()
-        );
-
-        $enterEvent = new StateMachineStateChangeEvent(
-            $context,
-            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
-            $transition,
-            $stateMachine,
-            $fromPlace,
-            $toPlace
-        );
-
-        $this->eventDispatcher->dispatch(
-            $enterEvent,
-            $enterEvent->getName()
-        );
-
-        $stateMachineStateCollection = new StateMachineStateCollection();
-
-        $stateMachineStateCollection->set('fromPlace', $fromPlace);
-        $stateMachineStateCollection->set('toPlace', $toPlace);
-
-        return $stateMachineStateCollection;
     }
 
     /**

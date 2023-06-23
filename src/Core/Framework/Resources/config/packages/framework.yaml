@@ -150,3 +150,5 @@ framework:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
             log_level: notice
+        Shopware\Core\Framework\App\Exception\AppRegistrationException:
+            log_level: notice

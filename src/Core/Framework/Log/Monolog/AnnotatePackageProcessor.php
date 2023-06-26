@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Framework\Log\Monolog;
 
-use Monolog\Handler\AbstractHandler;
-use Monolog\Handler\HandlerInterface;
 use Monolog\LogRecord;
+use Monolog\Processor\ProcessorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,26 +13,27 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @internal
  */
 #[Package('core')]
-class AnnotatePackageHandler extends AbstractHandler
+class AnnotatePackageProcessor implements ProcessorInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly HandlerInterface $handler,
         private readonly RequestStack $requestStack,
         private readonly ContainerInterface $container,
     ) {
-        parent::__construct();
     }
 
-    public function handle(LogRecord $record): bool
+    /**
+     * {@inheritdoc}
+     */
+    public function __invoke(LogRecord $record)
     {
         $packages = [];
 
         $exception = $record->context['exception'] ?? null;
         if ($exception instanceof \ErrorException && str_starts_with($exception->getMessage(), 'User Deprecated:')) {
-            return $this->handler->handle($record);
+            return $record;
         }
 
         if ($controllerPackage = $this->getControllerPackage()) {
@@ -55,21 +55,10 @@ class AnnotatePackageHandler extends AbstractHandler
         }
 
         if ($packages !== []) {
-            $context = $record->context;
-            $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = $packages;
-
-            $record = new LogRecord(
-                $record->datetime,
-                $record->channel,
-                $record->level,
-                $record->message,
-                $context,
-                $record->extra,
-                $record->formatted
-            );
+            $record->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = $packages;
         }
 
-        return $this->handler->handle($record);
+        return $record;
     }
 
     private function getControllerPackage(): ?string

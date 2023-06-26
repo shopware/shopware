@@ -6,7 +6,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler;
+use Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\Console\Command\Command;
@@ -18,19 +18,19 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageHandler
+ * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor
  *
  * @internal
  */
 #[Package('cause')]
-class AnnotatePackageHandlerTest extends TestCase
+class AnnotatePackageProcessorTest extends TestCase
 {
     public function testOnlyController(): void
     {
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+        $handler = new AnnotatePackageProcessor($requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -43,22 +43,18 @@ class AnnotatePackageHandlerTest extends TestCase
             'Some message'
         );
 
-        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
-            'entrypoint' => 'controller',
-        ];
-
         $expected = new LogRecord(
             $record->datetime,
             $record->channel,
             $record->level,
             $record->message,
-            $context
+            []
         );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'controller',
+        ];
 
-        $inner->expects(static::once())
-            ->method('handle')
-            ->with($expected);
-        $handler->handle($record);
+        static::assertEquals($expected, $handler($record));
     }
 
     public function testOnlyControllerWithNonClassServiceId(): void
@@ -66,7 +62,7 @@ class AnnotatePackageHandlerTest extends TestCase
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+        $handler = new AnnotatePackageProcessor($requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
@@ -83,22 +79,18 @@ class AnnotatePackageHandlerTest extends TestCase
             'Some message'
         );
 
-        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
-            'entrypoint' => 'controller',
-        ];
-
         $expected = new LogRecord(
             $record->datetime,
             $record->channel,
             $record->level,
             $record->message,
-            $context
+            []
         );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'controller',
+        ];
 
-        $inner->expects(static::once())
-            ->method('handle')
-            ->with($expected);
-        $handler->handle($record);
+        static::assertEquals($expected, $handler($record));
     }
 
     public function testOnlyControllerWithInvalidServiceId(): void
@@ -106,7 +98,7 @@ class AnnotatePackageHandlerTest extends TestCase
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+        $handler = new AnnotatePackageProcessor($requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
@@ -123,10 +115,7 @@ class AnnotatePackageHandlerTest extends TestCase
             'Some message'
         );
 
-        $inner->expects(static::once())
-            ->method('handle')
-            ->with($record);
-        $handler->handle($record);
+        static::assertEquals($record, $handler($record));
     }
 
     public function testExceptionInController(): void
@@ -134,7 +123,7 @@ class AnnotatePackageHandlerTest extends TestCase
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+        $handler = new AnnotatePackageProcessor($requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', TestController::class . '::load');
@@ -158,12 +147,6 @@ class AnnotatePackageHandlerTest extends TestCase
             $context
         );
 
-        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
-            'entrypoint' => 'controller',
-            'exception' => 'exception',
-            'causingClass' => 'cause',
-        ];
-
         $expected = new LogRecord(
             $record->datetime,
             $record->channel,
@@ -171,11 +154,13 @@ class AnnotatePackageHandlerTest extends TestCase
             $record->message,
             $context
         );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'controller',
+            'exception' => 'exception',
+            'causingClass' => 'cause',
+        ];
 
-        $inner->expects(static::once())
-            ->method('handle')
-            ->with($expected);
-        $handler->handle($record);
+        static::assertEquals($expected, $handler($record));
     }
 
     public function testNoPackageAttributes(): void
@@ -183,7 +168,7 @@ class AnnotatePackageHandlerTest extends TestCase
         $requestStack = new RequestStack();
         $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageHandler($inner, $requestStack, $container);
+        $handler = new AnnotatePackageProcessor($requestStack, $container);
 
         $request = new Request();
         $request->attributes->set('_controller', TestControllerNoPackage::class . '::load');
@@ -207,10 +192,6 @@ class AnnotatePackageHandlerTest extends TestCase
             $context
         );
 
-        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
-            'causingClass' => 'cause',
-        ];
-
         $expected = new LogRecord(
             $record->datetime,
             $record->channel,
@@ -218,11 +199,11 @@ class AnnotatePackageHandlerTest extends TestCase
             $record->message,
             $context
         );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'causingClass' => 'cause',
+        ];
 
-        $inner->expects(static::once())
-            ->method('handle')
-            ->with($expected);
-        $handler->handle($record);
+        static::assertEquals($expected, $handler($record));
     }
 
     public function testAnnotateCommand(): void
@@ -238,7 +219,7 @@ class AnnotatePackageHandlerTest extends TestCase
 
         $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
-        $handler = new AnnotatePackageHandler($inner, $this->createMock(RequestStack::class), $container);
+        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
 
         $context = [
             'exception' => $exception,
@@ -252,12 +233,6 @@ class AnnotatePackageHandlerTest extends TestCase
             $context
         );
 
-        $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
-            'entrypoint' => 'command',
-            'exception' => 'exception',
-            'causingClass' => 'command',
-        ];
-
         $expected = new LogRecord(
             $record->datetime,
             $record->channel,
@@ -265,11 +240,13 @@ class AnnotatePackageHandlerTest extends TestCase
             $record->message,
             $context
         );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'command',
+            'exception' => 'exception',
+            'causingClass' => 'command',
+        ];
 
-        $inner->expects(static::once())
-            ->method('handle')
-            ->with($expected);
-        $handler->handle($record);
+        static::assertEquals($expected, $handler($record));
     }
 }
 

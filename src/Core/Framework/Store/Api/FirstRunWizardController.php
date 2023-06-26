@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,7 +28,8 @@ class FirstRunWizardController extends AbstractController
 {
     public function __construct(
         private readonly FirstRunWizardService $frwService,
-        private readonly EntityRepository $pluginRepo
+        private readonly EntityRepository $pluginRepo,
+        private readonly EntityRepository $appRepo,
     ) {
     }
 
@@ -48,9 +50,11 @@ class FirstRunWizardController extends AbstractController
     {
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        /** @var AppCollection $apps */
+        $apps = $this->appRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $languagePlugins = $this->frwService->getLanguagePlugins($plugins, $context);
+            $languagePlugins = $this->frwService->getLanguagePlugins($plugins, $apps, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -66,9 +70,11 @@ class FirstRunWizardController extends AbstractController
     {
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        /** @var AppCollection $apps */
+        $apps = $this->appRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $languagePlugins = $this->frwService->getDemoDataPlugins($plugins, $context);
+            $languagePlugins = $this->frwService->getDemoDataPlugins($plugins, $apps, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -102,9 +108,11 @@ class FirstRunWizardController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        /** @var AppCollection $apps */
+        $apps = $this->appRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $recommendations = $this->frwService->getRecommendations($plugins, $region, $category, $context);
+            $recommendations = $this->frwService->getRecommendations($plugins, $apps, $region, $category, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }

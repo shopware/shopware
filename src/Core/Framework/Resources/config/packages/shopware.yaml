@@ -298,6 +298,10 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        tagging:
+            each_snippet: true
+            each_config: true
+            each_theme_config: true
         invalidation:
             delay: 0
             count: 150

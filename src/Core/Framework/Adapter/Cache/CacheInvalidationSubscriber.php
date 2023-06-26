@@ -72,7 +72,7 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -85,7 +85,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly bool $fineGrainedCacheSnippet,
+        private readonly bool $fineGrainedCacheConfig
     ) {
     }
 
@@ -164,7 +166,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateRules', 2000],
                 ['invalidateConfig', 2001],
             ],
-            SystemConfigChangedEvent::class => [
+            SystemConfigChangedHook::class => [
                 ['invalidateConfigKey', 2000],
             ],
             SitemapGeneratedEvent::class => [
@@ -197,17 +199,35 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         ]);
     }
 
-    public function invalidateConfigKey(SystemConfigChangedEvent $event): void
+    public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
+        $keys = [];
+
+        if ($this->fineGrainedCacheConfig) {
+            /** @var list<string> $keys */
+            $keys = array_map(
+                static fn (string $key) => SystemConfigService::buildName($key),
+                $event->getWebhookPayload()['changes']
+            );
+        } else {
+            $keys[] = 'global.system.config';
+        }
+
         // invalidates the complete cached config and routes which access a specific key
         $this->cacheInvalidator->invalidate([
-            SystemConfigService::buildName($event->getKey()),
+            ...$keys,
             CachedSystemConfigLoader::CACHE_TAG,
         ]);
     }
 
     public function invalidateSnippets(EntityWrittenContainerEvent $event): void
     {
+        if (!$this->fineGrainedCacheSnippet) {
+            $this->cacheInvalidator->invalidate(['shopware.translator']);
+
+            return;
+        }
+
         // invalidates all http cache items where the snippets used
         $snippets = $event->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
 
@@ -251,49 +271,45 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
-        $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME))
-        );
+        /** @var list<string> $ids */
+        $ids = array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME));
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateProductIds(ProductChangedEventInterface $event): void
     {
         // invalidates all routes which loads products in nested unknown objects, like cms listing elements or cross selling elements
-        $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds())
-        );
+        $this->cacheInvalidator->invalidate(array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds()));
     }
 
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME))
-        );
+        /** @var list<string> $ids */
+        $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the category route cache when a category changed
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds())
-        );
+        /** @var list<string> $ids */
+        $ids = array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds());
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the product listing route each time a category changed
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds())
-        );
+        $this->cacheInvalidator->invalidate(array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds()));
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedLandingPageRoute::class, 'buildName'], $event->getIds())
-        );
+        /** @var list<string> $ids */
+        $ids = array_map([CachedLandingPageRoute::class, 'buildName'], $event->getIds());
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateCurrencyRoute(EntityWrittenContainerEvent $event): void
@@ -326,6 +342,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         if (empty($tags)) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
+            /** @var list<string> $tags */
             $tags = array_map(
                 [CachedCountryStateRoute::class, 'buildName'],
                 $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
@@ -381,9 +398,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         $ids = array_column($ids, 'categoryId');
 
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $ids)
-        );
+        $this->cacheInvalidator->invalidate(array_map([CachedProductListingRoute::class, 'buildName'], $ids));
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
@@ -421,6 +436,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
+        /** @var list<string> $keys */
         $keys = array_filter(array_unique($keys));
 
         if (empty($keys)) {
@@ -721,6 +737,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
+        /** @var list<string> $ids */
         $ids = array_map([CachedNavigationRoute::class, 'buildName'], $ids);
         $ids[] = CachedNavigationRoute::BASE_NAVIGATION_TAG;
 

@@ -34,7 +34,8 @@ class SystemConfigServiceTest extends TestCase
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(ConfigReader::class),
             $this->getContainer()->get(SystemConfigLoader::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            false
         );
     }
 
@@ -316,13 +317,13 @@ class SystemConfigServiceTest extends TestCase
         static::assertEquals(['foo.a' => 'a'], $actual);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteNonExisting(): void
     {
         $this->systemConfigService->delete('not.found');
         $this->systemConfigService->delete('not.found', TestDefaults::SALES_CHANNEL);
-
-        // does not throw
-        static::assertTrue(true);
     }
 
     public function testDelete(): void

@@ -50,7 +50,8 @@ class SystemConfigService implements ResetInterface
         private readonly Connection $connection,
         private readonly ConfigReader $configReader,
         private readonly AbstractSystemConfigLoader $loader,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly bool $fineGrainedCache
     ) {
     }
 
@@ -64,8 +65,14 @@ class SystemConfigService implements ResetInterface
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
-        foreach (array_keys($this->keys) as $trace) {
-            $this->traces[$trace][self::buildName($key)] = true;
+        if ($this->fineGrainedCache) {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace][self::buildName($key)] = true;
+            }
+        } else {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace]['global.system.config'] = true;
+            }
         }
 
         $config = $this->loader->load($salesChannelId);

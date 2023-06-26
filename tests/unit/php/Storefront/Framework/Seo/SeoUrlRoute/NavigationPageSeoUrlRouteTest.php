@@ -32,47 +32,29 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         $navigationPageSeoUrlRoute->prepareCriteria($criteria, $salesChannel);
 
         $filters = $criteria->getFilters();
-        /** @var MultiFilter $multiFilter */
-        $multiFilter = $filters[0];
-        static::assertInstanceOf(MultiFilter::class, $multiFilter);
-        static::assertEquals('AND', $multiFilter->getOperator());
-        $multiFilterQueries = $multiFilter->getQueries();
+        static::assertCount(2, $filters);
 
-        static::assertCount(2, $multiFilterQueries);
-        static::assertInstanceOf(EqualsFilter::class, $multiFilterQueries[0]);
-        $this->assertEqualsFilter(
-            $multiFilterQueries[0],
-            'active',
-            true
-        );
-
-        $notFilter = $multiFilterQueries[1];
+        $notFilter = $filters[0];
         static::assertInstanceOf(NotFilter::class, $notFilter);
-        static::assertEquals('OR', $notFilter->getOperator());
+
+        static::assertEquals(MultiFilter::CONNECTION_OR, $notFilter->getOperator());
 
         $notFilterQueries = $notFilter->getQueries();
         static::assertCount(2, $notFilterQueries);
-        static::assertInstanceOf(EqualsFilter::class, $notFilterQueries[0]);
-        $this->assertEqualsFilter(
-            $notFilterQueries[0],
-            'type',
-            'folder'
-        );
-        static::assertInstanceOf(EqualsFilter::class, $notFilterQueries[1]);
-        $this->assertEqualsFilter(
-            $notFilterQueries[1],
-            'type',
-            'link'
-        );
-    }
 
-    private function assertEqualsFilter(
-        EqualsFilter $equalsFilter,
-        string $field,
-        string|bool $value
-    ): void {
+        $equalsFilter = $notFilterQueries[0];
         static::assertInstanceOf(EqualsFilter::class, $equalsFilter);
-        static::assertEquals($field, $equalsFilter->getField());
-        static::assertEquals($value, $equalsFilter->getValue());
+        static::assertEquals('type', $equalsFilter->getField());
+        static::assertEquals(CategoryDefinition::TYPE_FOLDER, $equalsFilter->getValue());
+
+        $equalsFilter2 = $notFilterQueries[1];
+        static::assertInstanceOf(EqualsFilter::class, $equalsFilter2);
+        static::assertEquals('linkType', $equalsFilter2->getField());
+        static::assertEquals(CategoryDefinition::LINK_TYPE_EXTERNAL, $equalsFilter2->getValue());
+
+        $equalsFilterActive = $filters[1];
+        static::assertInstanceOf(EqualsFilter::class, $equalsFilterActive);
+        static::assertEquals('active', $equalsFilterActive->getField());
+        static::assertTrue($equalsFilterActive->getValue());
     }
 }

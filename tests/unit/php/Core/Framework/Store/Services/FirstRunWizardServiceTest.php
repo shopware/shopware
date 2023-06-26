@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -666,6 +667,7 @@ class FirstRunWizardServiceTest extends TestCase
 
         $recommendations = $frwService->getRecommendations(
             new PluginCollection(),
+            new AppCollection(),
             'us',
             'payment',
             $this->context
@@ -715,6 +717,7 @@ class FirstRunWizardServiceTest extends TestCase
 
         $recommendations = $frwService->getRecommendations(
             new PluginCollection(),
+            new AppCollection(),
             'us',
             'payment',
             $this->context
@@ -728,6 +731,7 @@ class FirstRunWizardServiceTest extends TestCase
         $recommendations = [
             [
                 'name' => 'SwagPaypal',
+                'type' => 'plugin',
                 'label' => 'PayPal',
                 'localizedInfo' => [
                     'name' => 'PayPal',
@@ -736,6 +740,7 @@ class FirstRunWizardServiceTest extends TestCase
             ],
             [
                 'name' => 'SwagMollie',
+                'type' => 'plugin',
                 'label' => 'Mollie',
                 'localizedInfo' => [
                     'name' => 'Mollie',
@@ -744,6 +749,7 @@ class FirstRunWizardServiceTest extends TestCase
             ],
             [
                 'name' => 'SwagKlarna',
+                'type' => 'app',
                 'label' => 'Klarna',
                 'localizedInfo' => [
                     'name' => 'Klarna',
@@ -771,6 +777,7 @@ class FirstRunWizardServiceTest extends TestCase
 
         $recommendations = $frwService->getRecommendations(
             new PluginCollection([$installedPlugin]),
+            new AppCollection(),
             'us',
             'payment',
             $this->context
@@ -854,7 +861,7 @@ class FirstRunWizardServiceTest extends TestCase
             frwClient: $frwClient,
         );
 
-        $languagePlugins = $frwService->getLanguagePlugins(new PluginCollection(), $this->context);
+        $languagePlugins = $frwService->getLanguagePlugins(new PluginCollection(), new AppCollection(), $this->context);
         static::assertCount(1, $languagePlugins);
     }
 
@@ -882,7 +889,7 @@ class FirstRunWizardServiceTest extends TestCase
             frwClient: $frwClient,
         );
 
-        $demodataPlugins = $frwService->getDemoDataPlugins(new PluginCollection(), $this->context);
+        $demodataPlugins = $frwService->getDemoDataPlugins(new PluginCollection(), new AppCollection(), $this->context);
         static::assertCount(1, $demodataPlugins);
     }
 

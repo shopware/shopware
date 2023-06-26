@@ -98,6 +98,8 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await this.shopwareExtensionService.updateExtensionData();
 
+                await this.shopwareExtensionService.updateExtensionData();
+
                 this.$emit('on-plugin-installed', this.plugin.name);
                 this.$emit('onPluginInstalled', this.plugin.name);
             }

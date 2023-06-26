@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
@@ -19,12 +20,12 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
  */
 class SqlQueryParserTest extends TestCase
 {
-
     use IntegrationTestBehaviour;
 
     private EntityRepository $repository;
 
     private Context $context;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -33,7 +34,6 @@ class SqlQueryParserTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
     }
-
 
     public function testParseEqualsFilterForListFieldsWithNullValues(): void
     {
@@ -46,9 +46,16 @@ class SqlQueryParserTest extends TestCase
         $expectedResult = new ParseResult();
         $expectedResult->addWhere('`product`.`category_ids` IS NULL');
 
-        $parseResult = $method->invoke($parser, $filter, $definition, $definition->getEntityName(), $this->context, false);
+        $parseResult = $method->invoke(
+            $parser,
+            $filter,
+            $definition,
+            $definition->getEntityName(),
+            $this->context,
+            false
+        );
 
-        $this->assertEquals($expectedResult, $parseResult);
+        static::assertEquals($expectedResult, $parseResult);
     }
 
     public function testParseEqualsFilterForListFields(): void
@@ -59,18 +66,23 @@ class SqlQueryParserTest extends TestCase
         $parser = new SqlQueryParser($queryHelper, $this->connection);
         $definition = $this->repository->getDefinition();
 
-        $filter = new EqualsFilter('categoryIds', "testvalue123");
-        $parseResult = $method->invoke($parser, $filter, $definition, $definition->getEntityName(), $this->context, false);
+        $filter = new EqualsFilter('categoryIds', 'testvalue123');
+        $parseResult = $method->invoke(
+            $parser,
+            $filter,
+            $definition,
+            $definition->getEntityName(),
+            $this->context,
+            false
+        );
 
-        $this->assertCount(1, $parseResult->getParameters());
+        static::assertCount(1, $parseResult->getParameters());
 
         $paramKey = array_keys($parseResult->getParameters())[0];
         $expectedResult = new ParseResult();
-        $expectedResult->addWhere('JSON_CONTAINS(`product`.`category_ids`, JSON_ARRAY(:'. $paramKey . '))');
+        $expectedResult->addWhere('JSON_CONTAINS(`product`.`category_ids`, JSON_ARRAY(:' . $paramKey . '))');
         $expectedResult->addParameter($paramKey, 'testvalue123');
 
-
-        $this->assertEquals($expectedResult, $parseResult);
+        static::assertEquals($expectedResult, $parseResult);
     }
-
 }

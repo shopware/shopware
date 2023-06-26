@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -10,6 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\ParseResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
@@ -67,6 +67,7 @@ class SqlQueryParserTest extends TestCase
         $definition = $this->repository->getDefinition();
 
         $filter = new EqualsFilter('categoryIds', 'testvalue123');
+        /** @var ParseResult $parseResult */
         $parseResult = $method->invoke(
             $parser,
             $filter,
@@ -76,9 +77,11 @@ class SqlQueryParserTest extends TestCase
             false
         );
 
-        static::assertCount(1, $parseResult->getParameters());
+        $parseResultParameterKeys = array_keys($parseResult->getParameters());
 
-        $paramKey = array_keys($parseResult->getParameters())[0];
+        static::assertCount(1, $parseResultParameterKeys);
+
+        $paramKey = (string)$parseResultParameterKeys[0];
         $expectedResult = new ParseResult();
         $expectedResult->addWhere('JSON_CONTAINS(`product`.`category_ids`, JSON_ARRAY(:' . $paramKey . '))');
         $expectedResult->addParameter($paramKey, 'testvalue123');

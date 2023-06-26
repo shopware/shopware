@@ -14816,7 +14816,7 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/Storefront/Framework/Routing/StorefrontResponseTest.php
+			path: tests/unit/php/Storefront/Framework/Routing/StorefrontResponseTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"

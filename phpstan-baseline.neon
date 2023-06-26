@@ -14867,7 +14867,9 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/Storefront/Controller/DownloadControllerTest.php
+			path: tests/unit/php/Storefront/Controller/DownloadControllerTest.php
+
+
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Framework\\\\\\\\Routing\\\\\\\\MaintenanceModeResolver' and Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\MaintenanceModeResolver will always evaluate to true\\.$#"

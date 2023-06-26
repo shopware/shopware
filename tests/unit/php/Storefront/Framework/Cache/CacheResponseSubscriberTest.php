@@ -67,7 +67,7 @@ class CacheResponseSubscriberTest extends TestCase
             null
         );
 
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
@@ -276,7 +276,7 @@ class CacheResponseSubscriberTest extends TestCase
             null
         );
 
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
@@ -344,6 +344,7 @@ class CacheResponseSubscriberTest extends TestCase
     public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
     {
         $response = new Response();
+        $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, 'foo');
 
         if ($beforeHeader) {
             $response->headers->set('cache-control', $beforeHeader);
@@ -362,6 +363,10 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber->updateCacheControlForBrowser(new BeforeSendResponseEvent(new Request(), $response));
 
         static::assertSame($afterHeader, $response->headers->get('cache-control'));
+
+        if (!$reverseProxyEnabled) {
+            static::assertFalse($response->headers->has(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
+        }
     }
 
     /**

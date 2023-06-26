@@ -18612,10 +18612,7 @@ parameters:
 			count: 1
 			path: tests/unit/php/Storefront/Controller/DownloadControllerTest.php
 
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
+
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Framework\\\\\\\\Routing\\\\\\\\MaintenanceModeResolver' and Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\MaintenanceModeResolver will always evaluate to true\\.$#"

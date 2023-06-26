@@ -67,8 +67,14 @@ class AssetService
 
     public function copyAssetsFromApp(string $appName, string $appPath): void
     {
+        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
+
+        if ($publicDirectory === null) {
+            return;
+        }
+
         $this->copyAssetsFromBundleOrApp(
-            $this->appLoader->getAssetPathForAppPath($appPath),
+            $publicDirectory,
             $appName
         );
     }

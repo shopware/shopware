@@ -7,13 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Framework\App\Lifecycle\AppLoader
+ * @covers \Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader
  */
 class AppLoaderTest extends TestCase
 {
@@ -37,6 +37,62 @@ class AppLoaderTest extends TestCase
         InstalledVersions::reload($this->packages);
     }
 
+    public function testGetConfigWhenNotExists(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('non-existing');
+
+        static::assertNull($appLoader->getConfiguration($appEntity));
+    }
+
+    public function testGetConfig(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('../_fixtures/');
+
+        static::assertNotNull($appLoader->getConfiguration($appEntity));
+    }
+
+    public function testGetCMSNotExistent(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('non-existing');
+
+        static::assertNull($appLoader->getCmsExtensions($appEntity));
+    }
+
+    public function testGetCMS(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('../_fixtures/');
+
+        static::assertNotNull($appLoader->getCmsExtensions($appEntity));
+    }
+
     public function testGetSnippets(): void
     {
         $expectedSnippet = [];
@@ -45,8 +101,7 @@ class AppLoaderTest extends TestCase
         $appLoader = new AppLoader(
             __DIR__,
             __DIR__,
-            new ConfigReader(),
-            new CustomEntityXmlSchemaValidator()
+            new ConfigReader()
         );
 
         $appEntity = new AppEntity();
@@ -54,6 +109,20 @@ class AppLoaderTest extends TestCase
 
         $snippets = $appLoader->getSnippets($appEntity);
         static::assertEquals($expectedSnippet, $snippets);
+    }
+
+    public function testSnippetsMissing(): void
+    {
+        $appLoader = new AppLoader(
+            __DIR__,
+            __DIR__,
+            new ConfigReader()
+        );
+
+        $appEntity = new AppEntity();
+        $appEntity->setPath('non-existing');
+
+        static::assertSame([], $appLoader->getSnippets($appEntity));
     }
 
     public function testLoadAppByComposer(): void
@@ -76,8 +145,7 @@ class AppLoaderTest extends TestCase
         $appLoader = new AppLoader(
             __DIR__,
             __DIR__,
-            new ConfigReader(),
-            new CustomEntityXmlSchemaValidator()
+            new ConfigReader()
         );
 
         $apps = $appLoader->load();
@@ -100,8 +168,7 @@ class AppLoaderTest extends TestCase
         $appLoader = new AppLoader(
             __DIR__,
             __DIR__,
-            new ConfigReader(),
-            new CustomEntityXmlSchemaValidator()
+            new ConfigReader()
         );
 
         $appEntity = new AppEntity();
@@ -117,8 +184,7 @@ class AppLoaderTest extends TestCase
         $appLoader = new AppLoader(
             __DIR__,
             __DIR__,
-            new ConfigReader(),
-            new CustomEntityXmlSchemaValidator()
+            new ConfigReader()
         );
 
         $appEntity = new AppEntity();
@@ -133,8 +199,7 @@ class AppLoaderTest extends TestCase
         $appLoader = new AppLoader(
             __DIR__,
             __DIR__,
-            new ConfigReader(),
-            new CustomEntityXmlSchemaValidator()
+            new ConfigReader()
         );
 
         $appEntity = new AppEntity();
@@ -158,12 +223,11 @@ class AppLoaderTest extends TestCase
         $appLoader = new AppLoader(
             __DIR__,
             __DIR__,
-            new ConfigReader(),
-            new CustomEntityXmlSchemaValidator()
+            new ConfigReader()
         );
 
         $appEntity = new AppEntity();
-        $appEntity->setPath('../_fixtures/flow/');
+        $appEntity->setPath(__DIR__ . '/../_fixtures/flow/');
 
         $events = $appLoader->getFlowEvents($appEntity);
         static::assertNull($events);

@@ -31,7 +31,8 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $this->createMock(AbstractAppLoader::class)
+            $this->createMock(AbstractAppLoader::class),
+            '/'
         );
 
         $expected = [
@@ -73,13 +74,14 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $appLoader
+            $appLoader,
+            \dirname($xmlFile, 2)
         );
 
         $expected = [
             [
                 'name' => 'test',
-                'path' => \dirname($xmlFile),
+                'path' => \basename(\dirname($xmlFile)),
                 'author' => 'shopware AG',
             ],
         ];
@@ -106,7 +108,8 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $appLoader
+            $appLoader,
+            '/'
         );
 
         static::assertEquals([], $activeAppsLoader->getActiveApps());

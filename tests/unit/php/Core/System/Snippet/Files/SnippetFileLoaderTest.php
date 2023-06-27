@@ -38,6 +38,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
+                '/'
             )
         );
 
@@ -101,6 +102,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
+                '/'
             )
         );
 
@@ -152,6 +154,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
+                '/'
             )
         );
 
@@ -203,6 +206,7 @@ class SnippetFileLoaderTest extends TestCase
             new ActiveAppsLoader(
                 $this->createMock(Connection::class),
                 $this->createMock(AppLoader::class),
+                '/'
             )
         );
 

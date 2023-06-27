@@ -21,7 +21,7 @@ class BoolFieldSerializer extends AbstractFieldSerializer
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof BoolField) {
-            throw throw DataAbstractionLayerException::invalidSerializerField(BoolField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(BoolField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

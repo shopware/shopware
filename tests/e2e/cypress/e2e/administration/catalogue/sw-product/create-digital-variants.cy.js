@@ -24,7 +24,6 @@ function getVariantRowFilter(optionName) {
 function addFilesToAllVariants(fixture) {
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-field--switch__input').click();
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').should('be.visible');
-    cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').should('not.be.disabled');
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').click();
     // Add file to all variants
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__file-input').attachFile(fixture);

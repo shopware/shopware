@@ -11,8 +11,8 @@ function addFileToVariant(optionName, index, fixture) {
     digitalVariant.parents('.sw-data-grid__cell--options').find('.sw-media-upload-v2__button').click();
     // Add file to variant
     digitalVariant.parents('.sw-data-grid__cell--options').find('.sw-media-upload-v2__file-input').attachFile(fixture);
-    digitalVariant.parents('.sw-data-grid__cell--options').find('.sw-media-preview-v2__item').should('exist');
     cy.awaitAndCheckNotification('File has been saved.');
+    digitalVariant.parents('.sw-data-grid__cell--options').find('.sw-media-preview-v2__item').should('exist');
 }
 
 function getVariantRowFilter(optionName) {
@@ -21,11 +21,12 @@ function getVariantRowFilter(optionName) {
 
 function addFilesToAllVariants(fixture) {
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-field--switch__input').click();
+    cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').should('be.visible');
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').click();
     // Add file to all variants
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__file-input').attachFile(fixture);
-    cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-preview-v2__item').should('exist');
     cy.awaitAndCheckNotification('File has been saved.');
+    cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-preview-v2__item').should('exist');
 }
 
 describe('Product: Test digital variants', () => {
@@ -53,7 +54,7 @@ describe('Product: Test digital variants', () => {
             });
     });
 
-    it('@base @catalogue: add digital variant to product', { tags: ['quarantined', 'pa-inventory'] }, () => {
+    it('@base @catalogue: add digital variant to product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const digitalIndicatorClass = '.sw-product-variants-overview__digital-indicator';
 
@@ -174,7 +175,7 @@ describe('Product: Test digital variants', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item:not(.sw-context-menu-item--danger)',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0 .sw-data-grid__cell--actions`,
         );
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -183,7 +184,7 @@ describe('Product: Test digital variants', () => {
         cy.get('.sw-product-download-form__row').should('have.length', 1);
     });
 
-    it('@base @catalogue: make all variants digital and add files', { tags: ['quarantined', 'pa-inventory'] }, () => {
+    it('@base @catalogue: make all variants digital and add files', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const digitalIndicatorClass = '.sw-product-variants-overview__digital-indicator';
 
@@ -234,16 +235,24 @@ describe('Product: Test digital variants', () => {
         cy.get('.sw-data-grid__body .sw-data-grid__row').should('have.length', 3);
         cy.get(`.sw-data-grid__body .sw-data-grid__row ${digitalIndicatorClass}`).should('have.length', 2);
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post',
+        }).as('searchCall');
+
         // Navigate to the variant with 2 files detail and check that it has both files
-        cy.get('.sw-simple-search-field--form input').typeAndCheck('Special');
+        cy.get('.sw-simple-search-field--form input').clearTypeCheckAndEnter('Special');
+        cy.wait('@searchCall').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-data-grid__body .sw-data-grid__row').should('have.length', 1);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item:not(.sw-context-menu-item--danger)',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0 .sw-data-grid__cell--actions`,
         );
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 

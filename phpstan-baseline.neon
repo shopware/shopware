@@ -8235,11 +8235,6 @@ parameters:
 			path: src/Core/Framework/App/Lifecycle/RefreshableAppDryRun.php
 
 		-
-			message: "#^Cannot call method getAccessKey\\(\\) on Shopware\\\\Core\\\\System\\\\Integration\\\\IntegrationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Exception\\\\UnallowedHostException\\:\\:__construct\\(\\) has parameter \\$allowedHosts with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Exception/UnallowedHostException.php
@@ -18176,21 +18171,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Framework/App/Manifest/Xml/AdminTest.php
-
-		-
-			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 3
-			path: tests/unit/php/Core/Framework/App/TaxProvider/Payload/TaxProviderPayloadServiceTest.php
-
-		-
-			message: "#^Cannot call method getTax\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 3
-			path: tests/unit/php/Core/Framework/App/TaxProvider/Payload/TaxProviderPayloadServiceTest.php
-
-		-
-			message: "#^Cannot call method getTaxRate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 3
-			path: tests/unit/php/Core/Framework/App/TaxProvider/Payload/TaxProviderPayloadServiceTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$structsWithWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('warehouse'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

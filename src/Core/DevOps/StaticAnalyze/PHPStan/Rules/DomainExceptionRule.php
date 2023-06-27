@@ -84,7 +84,7 @@ class DomainExceptionRule implements Rule
         $exception = $this->reflectionProvider->getClass($exceptionClass);
         if (!$exception->isSubclassOf(HttpException::class)) {
             return [
-                RuleErrorBuilder::message(\sprintf('Domain exception class %s has extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))->build(),
+                RuleErrorBuilder::message(\sprintf('Domain exception class %s has to extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))->build(),
             ];
         }
 
@@ -97,7 +97,7 @@ class DomainExceptionRule implements Rule
 
         $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $parts[2], $parts[3], $parts[3]);
 
-        if ($exceptionClass !== $expected) {
+        if ($exceptionClass !== $expected && !$exception->isSubclassOf($expected)) {
             return [
                 RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $expected, $exceptionClass))->build(),
             ];

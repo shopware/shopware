@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationEntity;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -40,6 +42,7 @@ class AppRegistrationService
         }
 
         try {
+            $appName = $manifest->getMetadata()->getName();
             $appResponse = $this->registerWithApp($manifest, $context);
 
             $secret = $appResponse['secret'];
@@ -54,13 +57,13 @@ class AppRegistrationService
                 $data = json_decode($response->getBody()->getContents(), true);
 
                 if (isset($data['error']) && \is_string($data['error'])) {
-                    throw new AppRegistrationException($data['error']);
+                    throw AppException::registrationFailed($appName, $data['error']);
                 }
             }
 
-            throw new AppRegistrationException($e->getMessage(), [], $e);
+            throw AppException::registrationFailed($appName, $e->getMessage(), $e);
         } catch (GuzzleException $e) {
-            throw new AppRegistrationException($e->getMessage(), [], $e);
+            throw AppException::registrationFailed($appName, $e->getMessage(), $e);
         }
     }
 
@@ -76,7 +79,7 @@ class AppRegistrationService
         $request = $handshake->assembleRequest();
         $response = $this->httpClient->send($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $context]);
 
-        return $this->parseResponse($handshake, $response);
+        return $this->parseResponse($manifest->getMetadata()->getName(), $handshake, $response);
     }
 
     private function saveAppSecret(string $id, Context $context, string $secret): void
@@ -112,22 +115,25 @@ class AppRegistrationService
     /**
      * @return array<string, string>
      */
-    private function parseResponse(AppHandshakeInterface $handshake, ResponseInterface $response): array
-    {
+    private function parseResponse(
+        string $appName,
+        AppHandshakeInterface $handshake,
+        ResponseInterface $response
+    ): array {
         $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (isset($data['error']) && \is_string($data['error'])) {
-            throw new AppRegistrationException($data['error']);
+            throw AppException::registrationFailed($appName, $data['error']);
         }
 
         $proof = $data['proof'] ?? '';
 
         if (!\is_string($proof)) {
-            throw new AppRegistrationException('The app provided an invalid response');
+            throw AppException::registrationFailed($appName, 'The app server provided no proof');
         }
 
         if (!hash_equals($handshake->fetchAppProof(), trim($proof))) {
-            throw new AppRegistrationException('The app provided an invalid response');
+            throw AppException::registrationFailed($appName, 'The app server provided an invalid signature');
         }
 
         return $data;
@@ -143,13 +149,19 @@ class AppRegistrationService
         try {
             $shopId = $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException) {
-            throw new AppRegistrationException(
+            throw AppRegistrationException::registrationFailed(
+                $app->getName(),
                 'The app url changed. Please resolve how the apps should handle this change.'
             );
         }
 
+        // We can safely assume that the app has an integration because it is created together with the app
+        // and explicitly fetched in the ::getApp() method below.
+        /** @var IntegrationEntity $integration */
+        $integration = $app->getIntegration();
+
         return [
-            'apiKey' => $app->getIntegration()->getAccessKey(),
+            'apiKey' => $integration->getAccessKey(),
             'secretKey' => $secretAccessKey,
             'timestamp' => (string) (new \DateTime())->getTimestamp(),
             'shopUrl' => $this->shopUrl,

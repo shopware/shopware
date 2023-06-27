@@ -6,7 +6,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Exception\AppLicenseCouldNotBeVerifiedException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -101,7 +101,8 @@ class StoreHandshakeTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
-        static::expectException(AppLicenseCouldNotBeVerifiedException::class);
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('License for app "TestApp" could not be verified');
 
         $handshake->assembleRequest();
     }

@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
@@ -134,26 +135,32 @@ class TaxProviderPayloadServiceTest extends TestCase
         static::assertNotNull($lineItemTaxes);
         static::assertArrayHasKey($this->ids->get('line-item-1'), $lineItemTaxes);
         $taxes = $lineItemTaxes[$this->ids->get('line-item-1')];
+        $tax = $taxes->first();
+        static::assertInstanceOf(CalculatedTax::class, $tax);
         static::assertCount(1, $taxes);
-        static::assertSame(19.0, $taxes->first()->getTax());
-        static::assertSame(19.0, $taxes->first()->getTaxRate());
-        static::assertSame(100.0, $taxes->first()->getPrice());
+        static::assertSame(19.0, $tax->getTax());
+        static::assertSame(19.0, $tax->getTaxRate());
+        static::assertSame(100.0, $tax->getPrice());
 
         $deliveryTaxes = $taxResponse->getDeliveryTaxes();
         static::assertNotNull($deliveryTaxes);
         static::assertArrayHasKey($this->ids->get('delivery-1'), $deliveryTaxes);
         $taxes = $deliveryTaxes[$this->ids->get('delivery-1')];
+        $tax = $taxes->first();
+        static::assertInstanceOf(CalculatedTax::class, $tax);
         static::assertCount(1, $taxes);
-        static::assertSame(7.0, $taxes->first()->getTax());
-        static::assertSame(7.0, $taxes->first()->getTaxRate());
-        static::assertSame(100.0, $taxes->first()->getPrice());
+        static::assertSame(7.0, $tax->getTax());
+        static::assertSame(7.0, $tax->getTaxRate());
+        static::assertSame(100.0, $tax->getPrice());
 
         $cartPriceTaxes = $taxResponse->getCartPriceTaxes();
         static::assertNotNull($cartPriceTaxes);
+        $cartPriceTax = $cartPriceTaxes->first();
+        static::assertInstanceOf(CalculatedTax::class, $cartPriceTax);
         static::assertCount(1, $cartPriceTaxes);
-        static::assertSame(26.0, $cartPriceTaxes->first()->getTax());
-        static::assertSame(13.0, $cartPriceTaxes->first()->getTaxRate());
-        static::assertSame(200.0, $cartPriceTaxes->first()->getPrice());
+        static::assertSame(26.0, $cartPriceTax->getTax());
+        static::assertSame(13.0, $cartPriceTax->getTaxRate());
+        static::assertSame(200.0, $cartPriceTax->getPrice());
     }
 
     public function testGuzzleException(): void
@@ -230,7 +237,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $payload = static::createMock(TaxProviderPayload::class);
 
         static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App secret missing');
+        static::expectExceptionMessage('App secret is missing');
 
         $taxProviderPayloadService->request(
             $url,

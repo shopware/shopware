@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 class RoutingException extends HttpException
 {
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__MISSING_REQUEST_PARAMETER';
-
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
+    public const APP_INTEGRATION_NOT_FOUND = 'FRAMEWORK__APP_INTEGRATION_NOT_FOUND';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -41,6 +41,16 @@ class RoutingException extends HttpException
             self::MISSING_REQUEST_PARAMETER_CODE,
             'Parameter "{{ parameterName }}" is missing.',
             ['parameterName' => $name, 'path' => $path]
+        );
+    }
+
+    public static function appIntegrationNotFound(string $integrationId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_INTEGRATION_NOT_FOUND,
+            'App integration "{{ integrationId }}" not found.',
+            ['integrationId' => $integrationId],
         );
     }
 }

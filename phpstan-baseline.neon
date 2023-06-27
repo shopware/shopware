@@ -14551,7 +14551,52 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\Admin will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/Core/Framework/App/Manifest/Xml/AdminTest.php
+			path: tests/unit/php/Core/Framework/App/Manifest/Xml/AdminTest.php
+
+		-
+			message: "#^Anonymous variable in a `\\$structsWithWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('warehouse'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 2
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Anonymous variable in a `\\$structsWithWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('zipcode'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 1
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Anonymous variable in a `\\$structsWithoutWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('warehouse'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 2
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Anonymous variable in a `\\$structsWithoutWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('zipcode'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 2
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Anonymous variable in a `\\$structsWithoutWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('zipcode'\\)\\-\\>get\\('country'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 1
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 2
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 12
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
+
+		-
+			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 4
+			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"

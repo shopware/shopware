@@ -23,9 +23,6 @@ class AppException extends HttpException
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
-    public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
-    public const FEATURES_REQUIRE_APP_SECRET = 'FRAMEWORK__APP_FEATURES_REQUIRE_APP_SECRET';
-    public const ACTION_BUTTON_PROCESS_EXCEPTION = 'FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED';
 
     public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
 
@@ -71,8 +68,8 @@ class AppException extends HttpException
         return new AppNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'app', 'field' => 'identifier', 'value' => $identifier]
+            'App with identifier "{{ identifier }}" not found',
+            ['identifier' => $identifier]
         );
     }
 
@@ -116,53 +113,6 @@ class AppException extends HttpException
             'Configuration of app "{{ appName }}" is invalid: {{ error }}',
             ['appName' => $appName, 'error' => $error->getMessage()],
             $previous
-        );
-    }
-
-    public static function jwtGenerationRequiresCustomerLoggedIn(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN,
-            'JWT generation requires customer to be logged in'
-        );
-    }
-
-    /**
-     * @param array<string> $features
-     */
-    public static function appSecretRequiredForFeatures(string $appName, array $features): self
-    {
-        $featuresAsString = \count($features) < 3
-            ? implode(' and ', $features)
-            : sprintf('%s and %s', implode(', ', \array_slice($features, 0, -1)), array_pop($features));
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::FEATURES_REQUIRE_APP_SECRET,
-            'App "{{ appName }}" could not be installed/updated because it uses features {{ features }} but has no secret',
-            ['appName' => $appName, 'features' => $featuresAsString],
-        );
-    }
-
-    public static function actionButtonProcessException(string $actionId, string $message, ?\Throwable $e = null): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::ACTION_BUTTON_PROCESS_EXCEPTION,
-            'The synchronous action (id: {{ actionId }}) process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
-            ['errorMessage' => $message, 'actionId' => $actionId],
-            $e
-        );
-    }
-
-    public static function installationFailed(string $appName, string $reason): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::INSTALLATION_FAILED,
-            'App installation for "{{ appName }}" failed: {{ reason }}',
-            ['appName' => $appName, 'reason' => $reason],
         );
     }
 }

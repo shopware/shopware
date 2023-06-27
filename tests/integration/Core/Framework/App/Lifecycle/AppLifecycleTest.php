@@ -302,8 +302,8 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
         $this->appLifecycle->install($manifest, true, $this->context);
     }
 

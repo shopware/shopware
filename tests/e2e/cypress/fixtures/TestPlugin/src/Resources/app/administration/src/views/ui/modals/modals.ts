@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import { ui } from '@shopware-ag/admin-extension-sdk';
 
+// make background color white
+document.body.style.backgroundColor = 'white';
+
 export default Vue.extend({
     template: `
 <div>

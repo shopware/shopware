@@ -108,7 +108,12 @@ config.mocks = {
     $store: Shopware.State._store,
 };
 
-global.allowedErrors = [];
+global.allowedErrors = [
+    {
+        method: 'warn',
+        msg: 'No extension found for origin ""',
+    },
+];
 
 global.flushPromises = flushPromises;
 
@@ -125,13 +130,21 @@ global.console.error = (...args) => {
 
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
-                silenceError = args[0].includes(allowedError.msg);
+                const shouldBeSilenced = args[0].includes(allowedError.msg);
+
+                if (shouldBeSilenced) {
+                    silenceError = true;
+                }
             }
 
             return;
         }
 
-        silenceError = allowedError.msg.test(args[0]);
+        const shouldBeSilenced = allowedError.msg.test(args[0]);
+
+        if (shouldBeSilenced) {
+            silenceError = true;
+        }
     });
 
     if (!silenceError) {
@@ -142,6 +155,7 @@ global.console.error = (...args) => {
 
 global.console.warn = (...args) => {
     let silenceWarn = false;
+
     // eslint-disable-next-line array-callback-return
     global.allowedErrors.some(allowedError => {
         if (allowedError.method !== 'warn') {
@@ -149,12 +163,20 @@ global.console.warn = (...args) => {
         }
 
         if (typeof allowedError.msg === 'string') {
-            silenceWarn = args[0].includes(allowedError.msg);
+            const shouldBeSilenced = args[0].includes(allowedError.msg);
+
+            if (shouldBeSilenced) {
+                silenceWarn = true;
+            }
 
             return;
         }
 
-        silenceWarn = allowedError.msg.test(args[0]);
+        const shouldBeSilenced = allowedError.msg.test(args[0]);
+
+        if (shouldBeSilenced) {
+            silenceWarn = true;
+        }
     });
 
     if (!silenceWarn) {

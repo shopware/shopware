@@ -2,6 +2,7 @@ import Vue from 'vue';
 import type { Module } from 'vuex';
 import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { extensions } from '@shopware-ag/admin-extension-sdk/es/channel';
+import { setExtensions } from '@shopware-ag/admin-extension-sdk/es/channel';
 
 /**
  * @package admin
@@ -43,6 +44,8 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
             Vue.set(state[name], 'type', type);
             Vue.set(state[name], 'integrationId', integrationId);
             Vue.set(state[name], 'active', active);
+
+            setExtensions(state);
         },
     },
 

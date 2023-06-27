@@ -27,12 +27,15 @@ const app = new Vue({
         'LocationIndex': () => import('./views/location/index'),
         'CardTab1': () => import('./views/card-tabs/tab-1'),
         'CardTab2': () => import('./views/card-tabs/tab-2'),
+        // data/dataset
+        'DataDataset': () => import('./views/data/dataset'),
     },
     template: `
         <LocationIndex v-if="location.is('location-index')"></LocationIndex>
         <CardTab1 v-else-if="location.is('card-tab-1')"></CardTab1>
         <CardTab2 v-else-if="location.is('card-tab-2')"></CardTab2>
         <UiModals v-else-if="location.is('ui-modals')"></UiModals>
+        <DataDataset v-else-if="location.is('data-dataset')"></DataDataset>
         <UiModalsModalContent v-else-if="location.is('ui-modals-modal-content')"></UiModalsModalContent>
         <UiMainModuleAddMainModule v-else-if="location.is('ui-main-module-add-main-module')"></UiMainModuleAddMainModule>
         <UiMenuItemAddMenuItem v-else-if="location.is('ui-menu-item-add-menu-item')"></UiMenuItemAddMenuItem>

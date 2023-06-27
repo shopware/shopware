@@ -699,6 +699,7 @@
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
+        "orderDocumentTypeRule": "Order with document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

@@ -164,7 +164,7 @@ class HttpKernel
         }
 
         $middlewares = [];
-        if (\PHP_SAPI !== 'cli' && $this->environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+        if ($this->environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
             $middlewares = [new ProfilingMiddleware()];
         }
 

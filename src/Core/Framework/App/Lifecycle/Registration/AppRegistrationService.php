@@ -133,7 +133,7 @@ class AppRegistrationService
         }
 
         if (!hash_equals($handshake->fetchAppProof(), trim($proof))) {
-            throw AppException::registrationFailed($appName, 'The app server provided an invalid signature');
+            throw AppException::registrationFailed($appName, 'The app server provided an invalid proof');
         }
 
         return $data;

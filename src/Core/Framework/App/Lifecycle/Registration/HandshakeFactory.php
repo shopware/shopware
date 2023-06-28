@@ -11,9 +11,11 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @final
  */
 #[Package('core')]
-final class HandshakeFactory
+class HandshakeFactory
 {
     public function __construct(
         private readonly string $shopUrl,

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
-use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,14 +29,6 @@ class AppExceptionTest extends TestCase
         $e = AppException::notCompatible('IncompatibleApp');
 
         static::assertEquals(AppException::NOT_COMPATIBLE, $e->getErrorCode());
-    }
-
-    public function testInvalidAppFlowActionVariable(): void
-    {
-        $e = AppException::invalidAppFlowActionVariable('appFlowActionId', 'invalidParameter', 'Parameter "invalidParameter" is invalid', 0);
-
-        static::assertInstanceOf(InvalidAppFlowActionVariableException::class, $e);
-        static::assertEquals(AppException::NOT_FOUND, $e->getErrorCode());
     }
 
     public function testNotFound(): void

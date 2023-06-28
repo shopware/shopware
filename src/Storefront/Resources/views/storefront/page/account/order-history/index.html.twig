@@ -69,3 +69,9 @@
         </div>
     {% endblock %}
 {% endblock %}
+
+{% block base_footer_inner %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' with {
+        showVatNotice: false
+    } %}
+{% endblock %}

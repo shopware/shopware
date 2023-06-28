@@ -200,6 +200,14 @@
                                 </div>
                             </div>
                         {% endblock %}
+
+                        {% block page_account_order_item_detail_table_footnote %}
+                            <div class="order-item-detail-footnote">
+                                {{ "footer.%s"|format(order.taxStatus == "gross" ? "includeVatText" : "excludeVatText")|trans({
+                                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                })|raw }}
+                            </div>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

@@ -202,8 +202,8 @@ class AssetServiceTest extends TestCase
 
         $appLoader = $this->createMock(AbstractAppLoader::class);
         $appLoader
-            ->method('getAssetPathForAppPath')
-            ->with(__DIR__ . '/_fixtures/ExampleBundle')
+            ->method('locatePath')
+            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
             ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
 
         $assetService = new AssetService(

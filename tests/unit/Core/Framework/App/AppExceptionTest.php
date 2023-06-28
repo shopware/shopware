@@ -6,9 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -30,6 +30,14 @@ class AppExceptionTest extends TestCase
         $e = AppException::notCompatible('IncompatibleApp');
 
         static::assertEquals(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+    }
+
+    public function testInvalidAppFlowActionVariable(): void
+    {
+        $e = AppException::invalidAppFlowActionVariable('appFlowActionId', 'invalidParameter', 'Parameter "invalidParameter" is invalid', 0);
+
+        static::assertInstanceOf(InvalidAppFlowActionVariableException::class, $e);
+        static::assertEquals(AppException::NOT_FOUND, $e->getErrorCode());
     }
 
     public function testNotFound(): void
@@ -68,27 +76,5 @@ class AppExceptionTest extends TestCase
         $e = AppException::invalidConfiguration('InvalidlyConfiguredApp', new AppNameError('InvalidlyConfiguredApp'));
 
         static::assertEquals(AppException::INVALID_CONFIGURATION, $e->getErrorCode());
-    }
-
-    public function testInstallationFailed(): void
-    {
-        $e = AppException::installationFailed('AnyAppName', 'reason');
-
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
-        static::assertEquals(AppException::INSTALLATION_FAILED, $e->getErrorCode());
-        static::assertEquals('App installation for "AnyAppName" failed: reason', $e->getMessage());
-    }
-
-    public function testAppSecretRequiredForFeatures(): void
-    {
-        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules']);
-
-        static::assertEquals(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
-        static::assertEquals('App "MyApp" could not be installed/updated because it uses features Modules but has no secret', $e->getMessage());
-
-        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules', 'Payments', 'Webhooks']);
-
-        static::assertEquals(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
-        static::assertEquals('App "MyApp" could not be installed/updated because it uses features Modules, Payments and Webhooks but has no secret', $e->getMessage());
     }
 }

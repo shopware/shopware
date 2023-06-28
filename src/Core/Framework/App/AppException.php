@@ -24,18 +24,13 @@ class AppException extends HttpException
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
 
-    public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
-     */
-    public static function cannotDeleteManaged(string $pluginName): self
+    public static function cannotDeleteManaged(string $appName): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CANNOT_DELETE_COMPOSER_MANAGED,
             'App {{ name }} is managed by Composer and cannot be deleted',
-            ['name' => $pluginName]
+            ['name' => $appName]
         );
     }
 
@@ -54,7 +49,7 @@ class AppException extends HttpException
         return new AppFlowException($xmlFile, $message);
     }
 
-    public static function invalidAppFlowActionVariableException(
+    public static function invalidAppFlowActionVariable(
         string $appFlowActionId,
         string $param,
         string $message = '',

@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -63,18 +63,19 @@ class FileLoader
     }
 
     /**
-     * @throws MediaNotFoundException
+     * @throws MediaException
      */
     private function findMediaById(string $mediaId, Context $context): MediaEntity
     {
         $criteria = new Criteria([$mediaId]);
         $criteria->addAssociation('mediaFolder');
+
         $currentMedia = $this->mediaRepository
             ->search($criteria, $context)
             ->get($mediaId);
 
-        if ($currentMedia === null) {
-            throw new MediaNotFoundException($mediaId);
+        if (!$currentMedia instanceof MediaEntity) {
+            throw MediaException::mediaNotFound($mediaId);
         }
 
         return $currentMedia;

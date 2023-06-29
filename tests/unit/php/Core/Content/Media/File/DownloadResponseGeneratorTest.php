@@ -10,12 +10,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,7 +85,8 @@ class DownloadResponseGeneratorTest extends TestCase
         $media->setFileName('foobar');
         $media->setPrivate(true);
 
-        $this->expectException(FileNotFoundException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('The file "foobar." does not exist');
         $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
     }
 

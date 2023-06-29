@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Media\Api;
 
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -40,6 +39,10 @@ class MediaUploadController extends AbstractController
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
+        if (!$tempFile) {
+            throw MediaException::cannotCreateTempFile();
+        }
+
         $destination = $request->query->get('fileName', $mediaId);
 
         try {
@@ -64,7 +67,7 @@ class MediaUploadController extends AbstractController
     {
         $destination = (string) $request->request->get('fileName');
         if ($destination === '') {
-            throw new EmptyMediaFilenameException();
+            throw MediaException::emptyMediaFilename();
         }
 
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
@@ -80,10 +83,10 @@ class MediaUploadController extends AbstractController
         $mediaId = $request->query->has('mediaId') ? (string) $request->query->get('mediaId') : null;
 
         if ($fileName === '') {
-            throw new EmptyMediaFilenameException();
+            throw MediaException::emptyMediaFilename();
         }
         if ($fileExtension === '') {
-            throw new MissingFileExtensionException();
+            throw MediaException::missingFileExtension();
         }
 
         $name = $this->fileNameProvider->provide($fileName, $fileExtension, $mediaId, $context);

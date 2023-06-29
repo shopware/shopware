@@ -1,8 +1,8 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import template from './index.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
-import Criteria from "@shopware-ag/admin-extension-sdk/es/data/Criteria";
 
 const { Component, Mixin } = Shopware;
 
@@ -16,13 +16,9 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('notification'),
     ],
 
+
     inject: ['repositoryFactory', 'acl'],
 
-    data() {
-        return {
-            customFieldSets: [],
-        };
-    },
 
     props: {
         /**
@@ -54,11 +50,17 @@ export default Component.wrapComponentConfig({
         ...mapPropertyErrors('unit', ['name', 'shortCode']),
     },
 
-    data(): { unit: Entity<'unit'>|null, isLoading: boolean, isSaveSuccessful: boolean } {
+    data(): {
+        unit: Entity<'unit'>|null,
+        isLoading: boolean,
+        isSaveSuccessful: boolean,
+        customFieldSets: Entity<'custom_field_set'>[]
+        } {
         return {
             unit: null,
             isLoading: true,
             isSaveSuccessful: false,
+            customFieldSets: [],
         };
     },
 
@@ -89,6 +91,13 @@ export default Component.wrapComponentConfig({
             }
 
             this.unit = this.unitRepository.create(Shopware.Context.api);
+            this.isLoading = false;
+        }).catch(() => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            this.createNotificationError({
+                message: this.$tc('sw-settings-units.notification.errorMessage'),
+            });
+
             this.isLoading = false;
         });
     },

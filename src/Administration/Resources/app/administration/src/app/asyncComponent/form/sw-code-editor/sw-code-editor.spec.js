@@ -29,6 +29,7 @@ async function createWrapper(options = {}) {
         provide: { userInputSanitizeService },
         stubs: {
             'sw-circle-icon': { template: '<i/>' },
+            'sw-base-field': true,
         },
         ...options,
     });

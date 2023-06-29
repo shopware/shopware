@@ -6,6 +6,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         viewer: {
             privileges: [
                 'unit:read',
+                'custom_field_set:read',
+                'custom_field:read',
+                'custom_field_set_relation:read',
             ],
             dependencies: [],
         },

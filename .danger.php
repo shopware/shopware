@@ -139,10 +139,7 @@ return (new Config())
                 if ($files->matches('src/**/*Route.php')->count() > 0) {
                     $labels[] = 'core__store-api';
                 }
-                if ($files->matches('src/Storefront/Migration/')->count() > 0) {
-                    $labels[] = 'core__migration';
-                }
-                if ($files->matches('src/Core/Migration/')->count() > 0) {
+                if ($files->matches('src/**/Migration/**/Migration*.php')->count() > 0) {
                     $labels[] = 'core__migration';
                 }
                 if ($files->matches('src/Elasticsearch/')->count() > 0) {

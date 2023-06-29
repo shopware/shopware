@@ -55,7 +55,7 @@ class ExportController
 
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
-            $this->logException(Context::createDefaultContext(), $exportNotFoundException);
+            $this->logException(Context::createDefaultContext(), $exportNotFoundException, Level::Warning);
 
             throw $exportNotFoundException;
         }
@@ -107,12 +107,13 @@ class ExportController
 
     private function logException(
         Context $context,
-        \Exception $exception
+        \Exception $exception,
+        Level $logLevel = Level::Error
     ): void {
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            Level::Error,
+            $logLevel,
             $exception
         );
 

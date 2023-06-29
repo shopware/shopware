@@ -279,7 +279,7 @@ class RefreshAppCommandTest extends TestCase
         // header
         static::assertMatchesRegularExpression('/.*App\s+Reason\s+\n.*/', $display);
         // content
-        static::assertMatchesRegularExpression('/.*registrationFailure\s+The app provided an invalid response\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*registrationFailure.*The app server provided an invalid proof/', $display);
 
         $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
         static::assertEquals(0, $registeredApps->getTotal());

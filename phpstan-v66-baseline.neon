@@ -1042,7 +1042,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
+            count: 1
             path: src/Core/Framework/App/AppStateService.php
 
         -
@@ -1107,26 +1107,6 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
-            path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 7
-            path: src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
-            path: src/Core/Framework/App/Lifecycle/Registration/HandshakeFactory.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
-            path: src/Core/Framework/App/Lifecycle/Registration/StoreHandshake.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Core/Framework/App/Lifecycle/ScriptFileReader.php
 
@@ -1167,12 +1147,12 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
+            count: 2
             path: src/Core/Framework/App/Payment/Payload/PayloadService.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 3
+            count: 2
             path: src/Core/Framework/App/Payment/Payload/PaymentPayloadService.php
 
         -
@@ -1192,7 +1172,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
+            count: 1
             path: src/Core/Framework/App/TaxProvider/Payload/TaxProviderPayloadService.php
 
         -
@@ -1761,7 +1741,7 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 5
+            count: 4
             path: src/Core/Framework/Routing/ApiRequestContextResolver.php
 
         -
@@ -1820,17 +1800,17 @@ parameters:
             path: src/Core/Framework/Script/Api/ScriptApiRoute.php
 
         -
-            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Script\\\\Exception\\\\HookMethodException has extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
+            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Script\\\\Exception\\\\HookMethodException has to extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
             count: 1
             path: src/Core/Framework/Script/Api/ScriptResponse.php
 
         -
-            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Script\\\\Exception\\\\HookMethodException has extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
+            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Script\\\\Exception\\\\HookMethodException has to extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
             count: 2
             path: src/Core/Framework/Script/Api/ScriptResponseFactoryFacade.php
 
         -
-            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Script\\\\Exception\\\\HookMethodException has extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
+            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Script\\\\Exception\\\\HookMethodException has to extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
             count: 1
             path: src/Core/Framework/Script/Api/StoreApiHook.php
 
@@ -1905,7 +1885,7 @@ parameters:
             path: src/Core/Framework/Store/Search/FilterStruct.php
 
         -
-            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionNotFoundException has extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
+            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionNotFoundException has to extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
             count: 2
             path: src/Core/Framework/Store/Services/ExtensionDataProvider.php
 
@@ -1935,12 +1915,12 @@ parameters:
             path: src/Core/Framework/Store/Services/ShopSecretInvalidMiddleware.php
 
         -
-            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionNotFoundException has extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
+            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionNotFoundException has to extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
             count: 1
             path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
 
         -
-            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionUpdateRequiresConsentAffirmationException has extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
+            message: "#^Domain exception class Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionUpdateRequiresConsentAffirmationException has to extend the \\\\Shopware\\\\Core\\\\Framework\\\\HttpException class$#"
             count: 1
             path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
 

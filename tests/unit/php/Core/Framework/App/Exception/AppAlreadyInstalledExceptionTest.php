@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,10 +17,12 @@ class AppAlreadyInstalledExceptionTest extends TestCase
     public function testException(): void
     {
         $appName = 'test_app';
-        $exception = new AppAlreadyInstalledException($appName);
+        $exception = AppException::alreadyInstalled($appName);
+
+        static::assertInstanceOf(AppAlreadyInstalledException::class, $exception);
 
         static::assertSame(
-            'App with name "test_app" is already installed.',
+            'App "test_app" is already installed',
             $exception->getMessage()
         );
 
@@ -34,7 +37,7 @@ class AppAlreadyInstalledExceptionTest extends TestCase
         );
 
         static::assertSame(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_CONFLICT,
             $exception->getStatusCode()
         );
     }

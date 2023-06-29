@@ -7,8 +7,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppPayloadServiceHelper;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
@@ -77,7 +77,7 @@ class PaymentPayloadService
 
         $secret = $app->getAppSecret();
         if ($secret === null) {
-            throw new AppRegistrationException('App secret missing');
+            throw AppException::registrationFailed($app->getName(), 'App secret is missing');
         }
 
         return [

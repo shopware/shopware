@@ -18,9 +18,7 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
-use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
@@ -107,7 +105,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
         if ($app) {
-            throw new AppAlreadyInstalledException($manifest->getMetadata()->getName());
+            throw AppException::alreadyInstalled($manifest->getMetadata()->getName());
         }
 
         $defaultLocale = $this->getDefaultLocale($context);
@@ -493,7 +491,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         if ($configError) {
             // only one error can be in the returned collection
-            throw new InvalidAppConfigurationException($configError);
+            throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
         }
 
         $this->systemConfigService->saveConfig($config, $app->getName() . '.config.', $install);

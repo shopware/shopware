@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -408,7 +407,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     /**
      * @throws MissingPrivilegeException
-     * @throws AppNotFoundException
+     * @throws RoutingException
      */
     private function userAppIntegrationHeaderPrivileged(string $userId, ?string $appIntegrationId): bool
     {
@@ -418,11 +417,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $appName = $this->fetchAppNameByIntegrationId($appIntegrationId);
         if ($appName === null) {
-            throw new AppNotFoundException($appIntegrationId);
+            throw RoutingException::appIntegrationNotFound($appIntegrationId);
         }
 
-        $isAdmin = $this->isAdmin($userId);
-        if ($isAdmin) {
+        if ($this->isAdmin($userId)) {
             return true;
         }
 

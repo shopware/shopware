@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -29,12 +31,14 @@ class FlowFactoryTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, TestDefaults::SALES_CHANNEL);
+        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(new AdminApiSource('test')), $order, TestDefaults::SALES_CHANNEL);
         $orderStorer = new OrderStorer($this->createMock(EntityRepository::class), $this->createMock(EventDispatcherInterface::class));
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
 
         static::assertEquals($ids->get('orderId'), $flow->getStore('orderId'));
+        static::assertInstanceOf(SystemSource::class, $flow->getContext()->getSource());
+        static::assertEquals(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
     }
 
     public function testRestore(): void
@@ -53,7 +57,7 @@ class FlowFactoryTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, TestDefaults::SALES_CHANNEL);
+        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(new AdminApiSource('test')), $order, TestDefaults::SALES_CHANNEL);
         $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
         $flowFactory = new FlowFactory([$orderStorer]);
 
@@ -65,5 +69,8 @@ class FlowFactoryTest extends TestCase
 
         static::assertInstanceOf(OrderEntity::class, $flow->getData('order'));
         static::assertEquals($ids->get('orderId'), $flow->getData('order')->getId());
+
+        static::assertInstanceOf(SystemSource::class, $flow->getContext()->getSource());
+        static::assertEquals(Context::SYSTEM_SCOPE, $flow->getContext()->getScope());
     }
 }

@@ -58,6 +58,8 @@ export default {
 
     computed: {
         ...mapPropertyErrors('mailTemplate', [
+            'contentHtml',
+            'contentPlain',
             'mailTemplateTypeId',
             'subject',
         ]),

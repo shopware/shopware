@@ -75,6 +75,8 @@
         :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-flow.modals.mail.placeholderPlain'))"
         :completer-function="outerCompleterFunction"
         :editor-config="editorConfig"
+        :error="mailTemplateContentPlainError"
+        required
     />
     {% endblock %}
 
@@ -91,6 +93,8 @@
         :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-flow.modals.mail.placeholderHtml'))"
         :completer-function="outerCompleterFunction"
         :editor-config="editorConfig"
+        :error="mailTemplateContentHtmlError"
+        required
     />
     {% endblock %}
     {% endblock %}

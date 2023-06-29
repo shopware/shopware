@@ -102,6 +102,12 @@ export default {
             default: false,
         },
 
+        required: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         sanitizeInput: {
             type: Boolean,
             required: false,

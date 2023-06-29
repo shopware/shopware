@@ -134,15 +134,14 @@ commercial trunk:
     project: shopware/6/product/commercial
     strategy: depend
 
-commercial tag:
+set fix versions:
   extends: .downstream-job
-  needs: [Prepare commercial release]
   rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
-      when: manual
+    - !reference [ .rules, skip ]
+    - if: '$CI_COMMIT_TAG'
+    - when: never
   variables:
-    PLATFORM_BRANCH: '$CI_COMMIT_TAG'
+    CI_ASSIGN_FIX_VERSIONS: 'true'
   trigger:
-    project: shopware/6/product/commercial
+    project: product-operations/maintenance
     strategy: depend
-    branch: $CI_COMMIT_TAG

@@ -1,0 +1,7 @@
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+the status of your order at {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}  has changed.
+The new status is as follows: {{ order.transactions.first.stateMachineState.translated.name }}.
+
+You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
+However, in case you have purchased without a registration or a customer account, you do not have this option.

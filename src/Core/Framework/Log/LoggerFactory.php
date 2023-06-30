@@ -31,11 +31,6 @@ class LoggerFactory
      */
     public function createRotating(string $filePrefix, ?int $fileRotationCount = null, int|Level $loggerLevel = Level::Debug): LoggerInterface
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'createRotating')
-        );
-
         $result = new Logger($filePrefix);
         $result->pushProcessor(new PsrLogMessageProcessor());
 

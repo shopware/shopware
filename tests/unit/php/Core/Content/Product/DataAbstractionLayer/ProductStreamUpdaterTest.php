@@ -3,19 +3,20 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -25,29 +26,40 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class ProductStreamUpdaterTest extends TestCase
 {
-    private Connection&MockObject $connection;
-
-    private MockObject&ProductDefinition $productDefinition;
-
-    private MockObject&EntityRepository $repository;
-
-    private ProductStreamUpdater $updater;
-
-    protected function setUp(): void
+    /**
+     * @dataProvider filterProvider
+     *
+     * @param string[] $ids
+     * @param array<int, array<string, bool|string>> $filters
+     */
+    public function testCriteriaWithUpdateProducts(array $ids, array $filters, Criteria $criteria): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->productDefinition = $this->createMock(ProductDefinition::class);
-        $this->repository = $this->createMock(EntityRepository::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $manyToManyIdFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $context = Context::createDefaultContext();
 
-        $this->updater = new ProductStreamUpdater(
-            $this->connection,
-            $this->productDefinition,
-            $this->repository,
-            $messageBus,
-            $manyToManyIdFieldUpdater
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects(static::once())
+            ->method('fetchAllAssociative')
+            ->willReturn($filters);
+
+        $repository = new StaticEntityRepository([
+            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
+                static::assertEquals($criteria, $actualCriteria);
+                static::assertEquals($context, $actualContext);
+
+                return $ids;
+            },
+        ]);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            new ProductDefinition(),
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(ManyToManyIdFieldUpdater::class)
         );
+
+        $updater->updateProducts($ids, $context);
     }
 
     /**
@@ -56,25 +68,53 @@ class ProductStreamUpdaterTest extends TestCase
      * @param string[] $ids
      * @param array<int, array<string, bool|string>> $filters
      */
-    public function testCriteria(array $ids, array $filters, Criteria $criteria): void
+    public function testCriteriaWithHandle(array $ids, array $filters, Criteria $criteria): void
     {
         $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
 
-        $this->productDefinition
-            ->method('getEntityName')
-            ->willReturn('product');
+        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
 
-        $this->connection
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects(static::once())
-            ->method('fetchAllAssociative')
-            ->willReturn($filters);
+            ->method('fetchOne')
+            ->willReturn(current(array_column($filters, 'api_filter')));
 
-        $this->repository
+        $criteria->setLimit(150);
+        $criteria->addSorting(new FieldSorting('autoIncrement'));
+        $filters = $criteria->getFilters();
+        array_pop($filters);
+        $criteria->resetFilters();
+        $criteria->addFilter(...$filters);
+        $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
+
+        $definition = new ProductDefinition();
+        $repository = new StaticEntityRepository([
+            function (Criteria $actualCriteria, Context $actualContext) use ($criteria, $context, $ids): array {
+                static::assertEquals($criteria, $actualCriteria);
+                static::assertEquals($context, $actualContext);
+
+                return $ids;
+            },
+            fn () => [],
+        ], $definition);
+
+        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $manyToManyFieldUpdater
             ->expects(static::once())
-            ->method('searchIds')
-            ->with($criteria, $context);
+            ->method('update')
+            ->with($definition->getEntityName(), $ids, Context::createDefaultContext(), 'streamIds');
 
-        $this->updater->updateProducts($ids, $context);
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            $this->createMock(MessageBusInterface::class),
+            $manyToManyFieldUpdater
+        );
+
+        $updater->handle($message);
     }
 
     /**
@@ -82,8 +122,10 @@ class ProductStreamUpdaterTest extends TestCase
      */
     public static function filterProvider(): iterable
     {
+        $id = Uuid::randomHex();
+
         yield 'Active filter' => [
-            ['foobar'],
+            [$id],
             [
                 [
                     'id' => Uuid::randomHex(),
@@ -96,12 +138,12 @@ class ProductStreamUpdaterTest extends TestCase
             ],
             (new Criteria())->addFilter(
                 new EqualsFilter('product.active', true),
-                new EqualsAnyFilter('id', ['foobar'])
+                new EqualsAnyFilter('id', [$id])
             ),
         ];
 
         yield 'Price filter' => [
-            ['foobar'],
+            [$id],
             [
                 [
                     'id' => Uuid::randomHex(),
@@ -119,12 +161,12 @@ class ProductStreamUpdaterTest extends TestCase
                     new RangeFilter('product.price', [RangeFilter::LTE => 50]),
                     new RangeFilter('product.prices.price', [RangeFilter::LTE => 50]),
                 ]),
-                new EqualsAnyFilter('id', ['foobar'])
+                new EqualsAnyFilter('id', [$id])
             ),
         ];
 
         yield 'Nested price filter' => [
-            ['foobar'],
+            [$id],
             [
                 [
                     'id' => Uuid::randomHex(),
@@ -148,12 +190,12 @@ class ProductStreamUpdaterTest extends TestCase
                         new RangeFilter('product.prices.price', [RangeFilter::LTE => 50]),
                     ]),
                 ]),
-                new EqualsAnyFilter('id', ['foobar'])
+                new EqualsAnyFilter('id', [$id])
             ),
         ];
 
         yield 'Nested price percentage filter' => [
-            ['foobar'],
+            [$id],
             [
                 [
                     'id' => Uuid::randomHex(),
@@ -177,7 +219,7 @@ class ProductStreamUpdaterTest extends TestCase
                         new RangeFilter('product.prices.price.percentage', [RangeFilter::LTE => 50]),
                     ]),
                 ]),
-                new EqualsAnyFilter('id', ['foobar'])
+                new EqualsAnyFilter('id', [$id])
             ),
         ];
     }

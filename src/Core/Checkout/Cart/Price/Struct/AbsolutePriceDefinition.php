@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * the taxes of other price definitions. This can, for example, be used to create vouchers with a fixed amount.
  */
 #[Package('checkout')]
-class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
+class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface, FilterableInterface
 {
     final public const TYPE = 'absolute';
     final public const SORTING_PRIORITY = 75;
@@ -65,6 +66,9 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
         return $data;
     }
 
+    /**
+     * @return array<string, Constraint[]>
+     */
     public static function getConstraints(): array
     {
         return [

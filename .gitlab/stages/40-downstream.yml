@@ -67,6 +67,12 @@ rufus target branch:
     - !reference [ .rule_deployment_branch ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    PLUGIN_DEPENDENCIES:
+      value: >
+        [
+          { "name": "SwagExtensionStore", "url": "gitlab.shopware.com/shopware/6/product/SwagExtensionStore", "branch": "trunk" },
+          { "name": "SwagCommercial", "url": "gitlab.shopware.com/shopware/6/product/commercial", "branch": "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" }
+        ]
   trigger:
     project: shopware/6/product/rufus
     branch: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'

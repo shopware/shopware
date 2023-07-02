@@ -31,21 +31,20 @@ class CurrencyFormatter
     {
         $decimals ??= $context->getRounding()->getDecimals();
 
-        $locale = $this->languageLocaleProvider->getLocaleForLanguageId($languageId);
-        $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
+        $formatter = $this->getFormatter(
+            $this->languageLocaleProvider->getLocaleForLanguageId($languageId)
+        );
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
         return (string) $formatter->formatCurrency($price, $currency);
     }
 
-    private function getFormatter(string $locale, int $format): \NumberFormatter
+    private function getFormatter(string $locale): \NumberFormatter
     {
-        $hash = md5(json_encode([$locale, $format], \JSON_THROW_ON_ERROR));
-
-        if (isset($this->formatter[$hash])) {
-            return $this->formatter[$hash];
+        if (isset($this->formatter[$locale])) {
+            return $this->formatter[$locale];
         }
 
-        return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
+        return $this->formatter[$locale] = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
     }
 }

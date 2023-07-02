@@ -7,9 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('inventory')]
-class CurrencyFormatter
+class CurrencyFormatter implements ResetInterface
 {
     /**
      * @var \NumberFormatter[]
@@ -37,6 +38,11 @@ class CurrencyFormatter
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
         return (string) $formatter->formatCurrency($price, $currency);
+    }
+
+    public function reset(): void
+    {
+        $this->formatter = [];
     }
 
     private function getFormatter(string $locale): \NumberFormatter

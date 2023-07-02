@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class CurrencyFormatter implements ResetInterface
 {
     /**

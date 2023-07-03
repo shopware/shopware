@@ -163,7 +163,7 @@ class InvoiceRendererTest extends TestCase
                 );
 
                 static::assertStringContainsString(
-                    sprintf('Date %s', (new \DateTime())->format('d M Y')),
+                    sprintf('Date %s', (new \DateTime())->format('j M Y')),
                     $rendered->getHtml()
                 );
             },

@@ -77,7 +77,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
             $esHelper->method('enabledMultilingualIndex')->willReturn(true);
         }
 
-        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper, $this->createMock(ElasticsearchLanguageProvider::class));
         $arr = $detector->get();
         static::assertNotNull($arr);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {

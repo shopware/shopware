@@ -501,7 +501,8 @@ class ElasticsearchIndexerTest extends TestCase
             $this->languageRepository,
             1,
             $this->bus,
-            $this->newEsIndexer
+            $this->newEsIndexer,
+            new ElasticsearchLanguageProvider($this->languageRepository, new EventDispatcher())
         );
     }
 

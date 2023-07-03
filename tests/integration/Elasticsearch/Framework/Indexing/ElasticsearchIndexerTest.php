@@ -15,9 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
-use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
-use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
-use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -119,41 +116,6 @@ class ElasticsearchIndexerTest extends TestCase
             static::assertArrayHasKey('alias', $index);
             static::assertStringNotContainsString($languageId, $index['alias']);
         }
-    }
-
-    public function testIterateDispatchesElasticsearchIndexerLanguageCriteriaEvent(): void
-    {
-        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
-
-        $container = $this->getContainer();
-        $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcherMock
-            ->expects(static::atLeast(1))
-            ->method('dispatch')
-            ->willReturnCallback(
-                static function (ElasticsearchIndexerLanguageCriteriaEvent $event): void {
-                    static::assertCount(1, $event->getCriteria()->getFilters());
-                    static::assertInstanceOf(NandFilter::class, $event->getCriteria()->getFilters()[0]);
-                }
-            );
-
-        $indexer = new ElasticsearchIndexer(
-            $container->get(Connection::class),
-            $container->get(ElasticsearchHelper::class),
-            $container->get(ElasticsearchRegistry::class),
-            $container->get(IndexCreator::class),
-            $container->get(IteratorFactory::class),
-            $container->get(Client::class),
-            new NullLogger(),
-            $container->get(\sprintf('%s.repository', CurrencyDefinition::ENTITY_NAME)),
-            $container->get(\sprintf('%s.repository', LanguageDefinition::ENTITY_NAME)),
-            $eventDispatcherMock,
-            $container->getParameter('elasticsearch.indexing_batch_size'),
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(MultilingualEsIndexer::class)
-        );
-
-        $indexer->iterate(null);
     }
 
     protected function getDiContainer(): ContainerInterface

@@ -56,17 +56,7 @@ class IndexCreatorTest extends TestCase
             [
                 'settings' => $constructorConfig,
             ],
-            [
-                'properties' => [
-                    'fullText' => [
-                        'type' => 'text',
-                        'fields' => [
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'fullTextBoosted' => ['type' => 'text'],
-                ],
-            ],
+            $this->createMock(IndexMappingProvider::class),
             new EventDispatcher()
         );
 
@@ -168,20 +158,6 @@ class IndexCreatorTest extends TestCase
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
-        $definition->method('getMapping')->willReturn([
-            'properties' => [
-                'fullText' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
-                'fullTextBoosted' => ['type' => 'text'],
-            ],
-            '_source' => [
-                'includes' => ['foo', 'fullText', 'fullTextBoosted'],
-            ],
-        ]);
 
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
     }
@@ -213,17 +189,7 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            [
-                'properties' => [
-                    'fullText' => [
-                        'type' => 'text',
-                        'fields' => [
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'fullTextBoosted' => ['type' => 'text'],
-                ],
-            ],
+            $this->createMock(IndexMappingProvider::class),
             new EventDispatcher()
         );
 

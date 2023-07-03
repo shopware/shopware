@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminUpdateMappingCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -17,7 +16,7 @@ class ElasticsearchAdminUpdateMappingCommandTest extends TestCase
 {
     public function testUpdate(): void
     {
-        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry = $this->createMock(\Shopware\Elasticsearch\Admin\AdminSearchRegistry::class);
         $registry
             ->expects(static::once())
             ->method('updateMappings');

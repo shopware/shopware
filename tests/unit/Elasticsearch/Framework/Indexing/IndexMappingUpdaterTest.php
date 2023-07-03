@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
-use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,7 +40,7 @@ class IndexMappingUpdaterTest extends TestCase
         ]);
 
         $client = $this->createMock(Client::class);
-        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace = $this->createMock(\OpenSearch\Namespaces\IndicesNamespace::class);
         $indicesNamespace
             ->expects(static::once())
             ->method('putMapping')

@@ -245,13 +245,17 @@
                     "type": "string"
                   },
                   "title": {
-                    "description": "The title of the review."
+                    "description": "The title of the review.",
+                    "type": "string"
                   },
                   "content": {
-                    "description": "The content of review."
+                    "description": "The content of review.",
+                    "type": "string"
                   },
                   "points": {
-                    "description": "The review rating for the product."
+                    "description": "The review rating for the product.",
+                    "type": "number",
+                    "format": "double"
                   }
                 },
                 "type": "object"

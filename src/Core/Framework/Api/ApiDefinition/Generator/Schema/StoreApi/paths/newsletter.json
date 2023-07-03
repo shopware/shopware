@@ -70,14 +70,17 @@
                                         "type": "string"
                                     },
                                     "option": {
-                                        "description": "Defines what should be done."
+                                        "description": "Defines what should be done.",
+                                        "type": "string"
                                     },
                                     "storefrontUrl": {
                                         "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email.",
                                         "type": "string"
                                     },
                                     "salutationId": {
-                                        "description": "Identifier of the salutation."
+                                        "description": "Identifier of the salutation.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "firstName": {
                                         "description": "First name",
@@ -104,7 +107,9 @@
                                         "type": "string"
                                     },
                                     "languageId": {
-                                        "description": "Identifier of the language."
+                                        "description": "Identifier of the language.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "customFields": {
                                         "description": "Custom field data that should be added to the subscription.",

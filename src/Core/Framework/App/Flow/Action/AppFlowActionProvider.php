@@ -78,7 +78,7 @@ class AppFlowActionProvider
             try {
                 $paramData[$key] = $this->templateRenderer->render($param, $data, $context);
             } catch (\Throwable $e) {
-                throw AppException::invalidAppFlowActionVariable($appFlowActionId, $param, $e->getMessage(), $e->getCode());
+                throw AppException::invalidAppFlowActionVariableException($appFlowActionId, $param, $e->getMessage(), $e->getCode());
             }
         }
 

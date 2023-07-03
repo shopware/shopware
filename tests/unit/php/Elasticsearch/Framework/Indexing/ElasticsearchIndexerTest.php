@@ -25,6 +25,7 @@ use Shopware\Core\Test\CollectingMessageBus;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
@@ -413,10 +414,10 @@ class ElasticsearchIndexerTest extends TestCase
             $logger,
             $this->currencyRepository,
             $this->languageRepository,
-            new EventDispatcher(),
             1,
             $this->bus,
-            $this->newEsIndexer
+            $this->newEsIndexer,
+            new ElasticsearchLanguageProvider($this->languageRepository, new EventDispatcher())
         );
     }
 

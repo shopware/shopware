@@ -4,10 +4,7 @@ namespace Shopware\Elasticsearch\Framework;
 
 use OpenSearch\Client;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageCollection;
 
 #[Package('core')]
 class ElasticsearchOutdatedIndexDetector
@@ -18,8 +15,8 @@ class ElasticsearchOutdatedIndexDetector
     public function __construct(
         private readonly Client $client,
         private readonly ElasticsearchRegistry $registry,
-        private readonly EntityRepository $languageRepository,
-        private readonly ElasticsearchHelper $helper
+        private readonly ElasticsearchHelper $helper,
+        private readonly ElasticsearchLanguageProvider $languageProvider
     ) {
     }
 
@@ -56,16 +53,6 @@ class ElasticsearchOutdatedIndexDetector
         return array_map(fn (array $index) => $index['settings']['index']['provided_name'], $allIndices);
     }
 
-    private function getLanguages(): LanguageCollection
-    {
-        /** @var LanguageCollection $entities */
-        $entities = $this->languageRepository
-            ->search(new Criteria(), Context::createDefaultContext())
-            ->getEntities();
-
-        return $entities;
-    }
-
     /**
      * @return array<string>
      */
@@ -83,8 +70,7 @@ class ElasticsearchOutdatedIndexDetector
             return $prefixes;
         }
 
-        /** @var LanguageCollection $languages */
-        $languages = $this->getLanguages();
+        $languages = $this->languageProvider->getLanguages(Context::createDefaultContext());
 
         foreach ($languages as $language) {
             foreach ($definitions as $definition) {

@@ -68,6 +68,35 @@ class AdminSearchRegistryTest extends TestCase
         static::assertSame(['promotion' => $this->indexer], $indexers);
     }
 
+    public function testUpdateMapping(): void
+    {
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
+        $client = $this->createMock(Client::class);
+
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices->expects(static::once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'sw-admin-',
+                'body' => [],
+            ]);
+
+        $client->method('indices')->willReturn($indices);
+
+        $registry = new AdminSearchRegistry(
+            ['promotion' => $this->indexer],
+            $this->createMock(Connection::class),
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            [],
+            []
+        );
+
+        $registry->updateMappings();
+    }
+
     public function testGetIndexerWithInvalidName(): void
     {
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');

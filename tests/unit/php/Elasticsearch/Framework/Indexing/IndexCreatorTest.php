@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
+use Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -37,15 +38,6 @@ class IndexCreatorTest extends TestCase
                 'body' => [
                     'settings' => $expectedConfig,
                     'mappings' => [
-                        'properties' => [
-                            'fullText' => [
-                                'type' => 'text',
-                                'fields' => [
-                                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                                ],
-                            ],
-                            'fullTextBoosted' => ['type' => 'text'],
-                        ],
                     ],
                 ],
             ]);
@@ -64,17 +56,7 @@ class IndexCreatorTest extends TestCase
             [
                 'settings' => $constructorConfig,
             ],
-            [
-                'properties' => [
-                    'fullText' => [
-                        'type' => 'text',
-                        'fields' => [
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'fullTextBoosted' => ['type' => 'text'],
-                ],
-            ],
+            $this->createMock(IndexMappingProvider::class),
             new EventDispatcher()
         );
 
@@ -110,7 +92,7 @@ class IndexCreatorTest extends TestCase
             [
                 'settings' => [],
             ],
-            [],
+            $this->createMock(IndexMappingProvider::class),
             $eventDispatcher
         );
 
@@ -147,13 +129,6 @@ class IndexCreatorTest extends TestCase
                 'body' => [
                     'mappings' => [
                         'properties' => [
-                            'fullText' => [
-                                'type' => 'text',
-                                'fields' => [
-                                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                                ],
-                            ],
-                            'fullTextBoosted' => ['type' => 'text'],
                         ],
                         '_source' => ['includes' => ['foo', 'fullText', 'fullTextBoosted']],
                     ],
@@ -164,28 +139,25 @@ class IndexCreatorTest extends TestCase
             ->method('indices')
             ->willReturn($indices);
 
+        $mappingProvider = $this->createMock(IndexMappingProvider::class);
+        $mappingProvider
+            ->method('build')
+            ->willReturn([
+                'properties' => [
+                ],
+                '_source' => [
+                    'includes' => ['foo', 'fullText', 'fullTextBoosted'],
+                ],
+            ]);
+
         $index = new IndexCreator(
             $client,
             [],
-            [],
+            $mappingProvider,
             new EventDispatcher()
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
-        $definition->method('getMapping')->willReturn([
-            'properties' => [
-                'fullText' => [
-                    'type' => 'text',
-                    'fields' => [
-                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                    ],
-                ],
-                'fullTextBoosted' => ['type' => 'text'],
-            ],
-            '_source' => [
-                'includes' => ['foo', 'fullText', 'fullTextBoosted'],
-            ],
-        ]);
 
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
     }
@@ -201,15 +173,6 @@ class IndexCreatorTest extends TestCase
                 'index' => 'foo',
                 'body' => [
                     'mappings' => [
-                        'properties' => [
-                            'fullText' => [
-                                'type' => 'text',
-                                'fields' => [
-                                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                                ],
-                            ],
-                            'fullTextBoosted' => ['type' => 'text'],
-                        ],
                     ],
                 ],
             ]);
@@ -226,17 +189,7 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            [
-                'properties' => [
-                    'fullText' => [
-                        'type' => 'text',
-                        'fields' => [
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'fullTextBoosted' => ['type' => 'text'],
-                ],
-            ],
+            $this->createMock(IndexMappingProvider::class),
             new EventDispatcher()
         );
 
@@ -258,7 +211,7 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            [],
+            $this->createMock(IndexMappingProvider::class),
             new EventDispatcher()
         );
 

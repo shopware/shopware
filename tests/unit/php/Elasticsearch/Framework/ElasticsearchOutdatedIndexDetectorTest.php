@@ -14,9 +14,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -75,7 +77,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
             $esHelper->method('enabledMultilingualIndex')->willReturn(true);
         }
 
-        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper, $this->createMock(ElasticsearchLanguageProvider::class));
         $arr = $detector->get();
         static::assertNotNull($arr);
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
@@ -105,7 +107,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
             ->willReturn(new EntitySearchResult('test', 0, new LanguageCollection(), null, new Criteria(), Context::createDefaultContext()));
         $esHelper = $this->createMock(ElasticsearchHelper::class);
 
-        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper, new ElasticsearchLanguageProvider($repository, new EventDispatcher()));
         static::assertEmpty($detector->get());
     }
 }

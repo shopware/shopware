@@ -22,12 +22,11 @@ class IndexCreator
      * @internal
      *
      * @param array<mixed> $config
-     * @param array<mixed> $mapping
      */
     public function __construct(
         private readonly Client $client,
         array $config,
-        private readonly array $mapping,
+        private readonly IndexMappingProvider $mappingProvider,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
         if (isset($config['settings']['index'])) {
@@ -52,9 +51,7 @@ class IndexCreator
         }
         // @codeCoverageIgnoreEnd
 
-        $mapping = $definition->getMapping($context);
-
-        $mapping = array_merge_recursive($mapping, $this->mapping);
+        $mapping = $this->mappingProvider->build($definition, $context);
 
         $body = array_merge(
             $this->config,

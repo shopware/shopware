@@ -67,8 +67,20 @@
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="OpenSearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
-            <argument>%elasticsearch.index.mapping%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider">
+            <argument>%elasticsearch.index.mapping%</argument>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
+            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
@@ -97,6 +109,17 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.increment.gateway.registry"/>
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchUpdateMappingCommand">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider">
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\ProductUpdater">
@@ -243,11 +266,17 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminUpdateMappingCommand">
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry" />
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector">
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer">
@@ -260,11 +289,10 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer"/>
-
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
             <tag name="messenger.message_handler"/>
         </service>
 

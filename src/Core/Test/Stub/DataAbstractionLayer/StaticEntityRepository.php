@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,7 +22,9 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  *
- * @phpstan-type ResultTypes = EntitySearchResult|AggregationResultCollection|mixed|EntityCollection<Entity>|IdSearchResult
+ * @template TEntityCollection of EntityCollection
+ *
+ * @phpstan-type ResultTypes = EntitySearchResult|AggregationResultCollection|mixed|TEntityCollection|IdSearchResult
  */
 class StaticEntityRepository extends EntityRepository
 {
@@ -70,13 +71,16 @@ class StaticEntityRepository extends EntityRepository
         }
     }
 
+    /**
+     * @return EntitySearchResult<TEntityCollection>
+     */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         $result = \array_shift($this->searches);
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context, StaticEntityRepository): ResultTypes $callable */
+            /** @var callable(Criteria, Context, StaticEntityRepository<TEntityCollection>): ResultTypes $callable */
             $result = $callable($criteria, $context, $this);
         }
 
@@ -85,11 +89,15 @@ class StaticEntityRepository extends EntityRepository
         }
 
         if ($result instanceof EntityCollection) {
+            /** @var TEntityCollection $result */
             return new EntitySearchResult($this->getDummyEntityName(), $result->count(), $result, null, $criteria, $context);
         }
 
         if ($result instanceof AggregationResultCollection) {
-            return new EntitySearchResult($this->getDummyEntityName(), 0, new EntityCollection(), $result, $criteria, $context);
+            /** @var TEntityCollection $collection */
+            $collection = new EntityCollection();
+
+            return new EntitySearchResult($this->getDummyEntityName(), 0, $collection, $result, $criteria, $context);
         }
 
         throw new \RuntimeException('Invalid mock repository configuration');

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -115,7 +114,7 @@ class ThemeService implements ResetInterface
         $theme = $this->themeRepository->search($criteria, $context)->getEntities()->get($themeId);
 
         if ($theme === null) {
-            throw ThemeException::couldNotFindThemeById($themeId);
+            throw new InvalidThemeException($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -204,12 +203,12 @@ class ThemeService implements ResetInterface
         $theme = $themes->get($themeId);
 
         if ($theme === null) {
-            throw ThemeException::couldNotFindThemeById($themeId);
+            throw new InvalidThemeException($themeId);
         }
 
         $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
         if ($baseTheme === null) {
-            throw ThemeException::couldNotFindThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME);
+            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
         }
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
@@ -579,7 +578,7 @@ class ThemeService implements ResetInterface
     {
         $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->get($themeId);
         if ($theme === null) {
-            throw ThemeException::couldNotFindThemeById($themeId);
+            throw new InvalidThemeException($themeId);
         }
 
         $translations = $theme->getLabels() ?: [];

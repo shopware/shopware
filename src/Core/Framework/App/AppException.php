@@ -49,7 +49,7 @@ class AppException extends HttpException
         return new AppFlowException($xmlFile, $message);
     }
 
-    public static function invalidAppFlowActionVariable(
+    public static function invalidAppFlowActionVariableException(
         string $appFlowActionId,
         string $param,
         string $message = '',

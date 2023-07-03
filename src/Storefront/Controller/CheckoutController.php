@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
@@ -136,7 +137,13 @@ class CheckoutController extends StorefrontController
             return $this->redirectToRoute('frontend.checkout.register.page');
         }
 
-        $page = $this->finishPageLoader->load($request, $context);
+        try {
+            $page = $this->finishPageLoader->load($request, $context);
+        } catch (OrderException $exception) {
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
+
+            return $this->redirectToRoute('frontend.checkout.cart.page');
+        }
 
         $this->hook(new CheckoutFinishPageLoadedHook($page, $context));
 

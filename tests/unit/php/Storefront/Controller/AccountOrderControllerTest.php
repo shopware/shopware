@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestSessionStorage;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -33,13 +33,10 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -75,6 +72,57 @@ class AccountOrderControllerTest extends TestCase
         );
     }
 
+    public function testEditOrderNotFound(): void
+    {
+        $ids = new IdsCollection();
+
+        // Ensure it redirects to the correct route
+        $router = static::createMock(RouterInterface::class);
+        $router
+            ->expects(static::once())
+            ->method('generate')
+            ->with('frontend.account.order.page')
+            ->willReturn('http://localhost/account/order');
+
+        $container = new ContainerBuilder();
+        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
+        $container->set('router', $router);
+
+        $this->controller->setContainer($container);
+
+        $response = $this->controller->editOrder($ids->get('order'), new Request(), Generator::createSalesChannelContext());
+
+        // Ensure flash massage is shown
+        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
+        static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
+    }
+
+    public function testEditOrderInvalidUuid(): void
+    {
+        // Ensure it redirects to the correct route
+        $router = static::createMock(RouterInterface::class);
+        $router
+            ->expects(static::once())
+            ->method('generate')
+            ->with('frontend.account.order.page')
+            ->willReturn('http://localhost/account/order');
+
+        $container = new ContainerBuilder();
+        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
+        $container->set('router', $router);
+
+        $this->controller->setContainer($container);
+
+        // Ensure invalid uuid exception is thrown
+        $this->orderRouteMock->method('load')->willThrowException(new InvalidUuidException('invalid-id'));
+
+        $response = $this->controller->editOrder('invalid-id', new Request(), Generator::createSalesChannelContext());
+
+        // Ensure flash massage is shown
+        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
+        static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
+    }
+
     public function testOrderAlreadyPaid(): void
     {
         $ids = new IdsCollection();
@@ -104,20 +152,6 @@ class AccountOrderControllerTest extends TestCase
             )
         );
 
-        $request = new Request();
-        $session = new Session(new TestSessionStorage());
-        $request->setSession($session);
-
-        $stack = new RequestStack();
-        $stack->push($request);
-
-        // Ensure correct translation is used
-        $translator = static::createMock(TranslatorInterface::class);
-        $translator
-            ->expects(static::once())
-            ->method('trans')
-            ->with('error.CHECKOUT__ORDER_ORDER_ALREADY_PAID', ['%orderNumber%' => null]);
-
         // Ensure it redirects to the correct route
         $router = static::createMock(RouterInterface::class);
         $router
@@ -129,29 +163,19 @@ class AccountOrderControllerTest extends TestCase
         $dispatcher = static::createMock(EventDispatcherInterface::class);
 
         $container = new ContainerBuilder();
-        $container->set('request_stack', $stack);
-        $container->set('translator', $translator);
         $container->set('router', $router);
         $container->set('event_dispatcher', $dispatcher);
-
-        /** @var Request $updatedRequest */
-        $updatedRequest = $stack->getMainRequest();
 
         $this->controller->setContainer($container);
 
         $this->orderRouteMock->method('load')->willReturn($accountRouteResponse);
         $this->accountEditOrderPageLoaderMock->method('load')->willThrowException(OrderException::orderAlreadyPaid($ids->get('order')));
 
-        $this->controller->editOrder($ids->get('order'), $updatedRequest, $salesChannelContext);
-
-        /** @var FlashBagInterface $flashBag */
-        $flashBag = $updatedRequest->getSession()->getBag('flashes');
-        $flashes = $flashBag->all();
+        $response = $this->controller->editOrder($ids->get('order'), new Request(), $salesChannelContext);
 
         // Ensure flash massage is shown
-        static::assertCount(1, $flashes);
-        static::assertArrayHasKey('danger', $flashes);
-        static::assertCount(1, $flashes['danger']);
+        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_ALREADY_PAID', $this->controller->flash);
+        static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
     }
 }
 
@@ -161,6 +185,8 @@ class AccountOrderControllerTest extends TestCase
 class AccountOrderControllerTestClass extends AccountOrderController
 {
     public string $renderStorefrontView;
+
+    public string $flash;
 
     /**
      * @var array<array-key, mixed>
@@ -178,8 +204,21 @@ class AccountOrderControllerTestClass extends AccountOrderController
         return new Response();
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function trans(string $snippet, array $parameters = []): string
+    {
+        return $snippet;
+    }
+
     protected function hook(Hook $hook): void
     {
         // nothing
+    }
+
+    protected function addFlash(string $type, mixed $message): void
+    {
+        $this->flash = $type . ' ' . $message;
     }
 }

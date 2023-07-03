@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
@@ -23,6 +24,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CmsPageCollection> $cmsPageRepository
      */
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
@@ -31,6 +34,11 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     ) {
     }
 
+    /**
+     * @param array<string, mixed>|null $config
+     *
+     * @return EntitySearchResult<CmsPageCollection>
+     */
     public function load(
         Request $request,
         Criteria $criteria,
@@ -47,7 +55,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         $criteria->addAssociation('sections.blocks.slots');
 
         // step 1, load cms pages with blocks and slots
-        $pages = $this->cmsPageRepository->search($criteria, $context->getContext());
+        $result = $this->cmsPageRepository->search($criteria, $context->getContext());
+        $pages = $result->getEntities();
 
         foreach ($pages as $page) {
             if ($page->getSections() === null) {
@@ -62,10 +71,18 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
             // step 2, sort blocks into sectionPositions
             foreach ($page->getSections() as $section) {
-                $section->getBlocks()->sort(fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
+                $blocks = $section->getBlocks();
+                if ($blocks === null) {
+                    continue;
+                }
+                $blocks->sort(fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
 
-                foreach ($section->getBlocks() as $block) {
-                    $block->getSlots()->sort(fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
+                foreach ($blocks as $block) {
+                    $slots = $block->getSlots();
+                    if ($slots === null) {
+                        continue;
+                    }
+                    $slots->sort(fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
                 }
             }
 
@@ -79,21 +96,35 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             $this->loadSlotData($page, $resolverContext);
         }
 
-        $this->eventDispatcher->dispatch(new CmsPageLoadedEvent($request, $pages->getEntities(), $context));
+        $this->eventDispatcher->dispatch(new CmsPageLoadedEvent($request, $pages, $context));
 
-        return $pages;
+        return $result;
     }
 
     private function loadSlotData(CmsPageEntity $page, ResolverContext $resolverContext): void
     {
-        $slots = $this->slotDataResolver->resolve($page->getSections()->getBlocks()->getSlots(), $resolverContext);
+        $sections = $page->getSections();
+        if ($sections === null) {
+            return;
+        }
 
-        $page->getSections()->getBlocks()->setSlots($slots);
+        $blocks = $sections->getBlocks();
+        $slots = $this->slotDataResolver->resolve($blocks->getSlots(), $resolverContext);
+
+        $blocks->setSlots($slots);
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function overwriteSlotConfig(CmsPageEntity $page, array $config): void
     {
-        foreach ($page->getSections()->getBlocks()->getSlots() as $slot) {
+        $sections = $page->getSections();
+        if ($sections === null) {
+            return;
+        }
+
+        foreach ($sections->getBlocks()->getSlots() as $slot) {
             if ($slot->getConfig() === null && $slot->getTranslation('config') !== null) {
                 $slot->setConfig($slot->getTranslation('config'));
             }

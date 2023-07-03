@@ -1149,7 +1149,6 @@ class EntityReader implements EntityReaderInterface
 
         $this->fetchAssociations($associationCriteria, $referenceDefinition, $context, $relatedCollection, $fields, $partial);
 
-        /** @var Entity $entity */
         foreach ($collection as $entity) {
             if ($association->is(Extension::class)) {
                 $item = $entity->getExtension($association->getPropertyName());
@@ -1157,13 +1156,15 @@ class EntityReader implements EntityReaderInterface
                 $item = $entity->get($association->getPropertyName());
             }
 
-            /** @var Entity|null $item */
-            if ($item === null) {
+            if (!$item instanceof Entity) {
                 continue;
             }
 
             if ($association->is(Extension::class)) {
-                $entity->addExtension($association->getPropertyName(), $relatedCollection->get($item->getUniqueIdentifier()));
+                $extension = $relatedCollection->get($item->getUniqueIdentifier());
+                if ($extension !== null) {
+                    $entity->addExtension($association->getPropertyName(), $extension);
+                }
 
                 continue;
             }

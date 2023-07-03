@@ -24,7 +24,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<mixed> $entities
      */
     public function create(array $entities, Context $context): EntityLoadedContainerEvent
     {
@@ -36,7 +36,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<mixed> $entities
      */
     public function createPartial(array $entities, Context $context): EntityLoadedContainerEvent
     {
@@ -48,7 +48,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<mixed> $entities
      *
      * @return EntityLoadedContainerEvent[]
      */
@@ -67,7 +67,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<mixed> $entities
      *
      * @return EntityLoadedContainerEvent[]
      */
@@ -101,7 +101,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<mixed> $entities
      * @param array<string, list<Entity>> $mapping
      *
      * @return array<string, list<Entity>>

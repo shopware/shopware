@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
@@ -26,6 +25,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
+ *
+ * @template TEntityCollection of EntityCollection
  */
 #[Package('sales-channel')]
 class SalesChannelRepository
@@ -45,6 +46,8 @@ class SalesChannelRepository
 
     /**
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return EntitySearchResult<TEntityCollection>
      */
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
@@ -65,7 +68,7 @@ class SalesChannelRepository
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
         if (empty($ids->getIds())) {
-            /** @var EntityCollection<Entity> $collection */
+            /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
             return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
@@ -77,7 +80,6 @@ class SalesChannelRepository
 
         $search = $ids->getData();
 
-        /** @var Entity $element */
         foreach ($entities as $element) {
             if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
@@ -129,12 +131,13 @@ class SalesChannelRepository
     }
 
     /**
-     * @return EntityCollection<Entity>
+     * @return TEntityCollection
      */
     private function read(Criteria $criteria, SalesChannelContext $salesChannelContext): EntityCollection
     {
         $criteria = clone $criteria;
 
+        /** @var TEntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
         if ($criteria->getFields() === []) {

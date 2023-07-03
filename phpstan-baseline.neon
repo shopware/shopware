@@ -2153,61 +2153,6 @@ parameters:
 			path: src/Core/Content/Cms/SalesChannel/CmsRoute.php
 
 		-
-			message: "#^Anonymous variable in a `\\$block\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Anonymous variable in a `\\$block\\-\\>getSlots\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Anonymous variable in a `\\$section\\-\\>getBlocks\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getSections\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\SalesChannelCmsPageLoader\\:\\:load\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\SalesChannelCmsPageLoader\\:\\:overwriteSlotConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$page of method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\SalesChannelCmsPageLoader\\:\\:loadSlotData\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$page of method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\SalesChannelCmsPageLoader\\:\\:overwriteSlotConfig\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Parameter \\#2 \\$result of class Shopware\\\\Core\\\\Content\\\\Cms\\\\Events\\\\CmsPageLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\SalesChannelCmsPageLoaderInterface\\:\\:load\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoaderInterface.php
@@ -4741,11 +4686,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$navigationCategoryId of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:setNavigationCategoryId\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Category/Service/CategoryUrlGeneratorTest.php
-
-		-
-			message: "#^Unsafe access to private property Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CountingEntityReader\\:\\:\\$count through static\\:\\:\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Category/Service/CountingEntityReader.php
 
 		-
 			message: "#^Unsafe access to private property Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CountingEntitySearcher\\:\\:\\$count through static\\:\\:\\.$#"
@@ -8285,21 +8225,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Command/CreateHydratorCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\CompiledFieldCollection\\:\\:getExtensionFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\CompiledFieldCollection\\:\\:getMappedByStorageName\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\CompiledFieldCollection\\:\\:getTranslatedFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
-
-		-
 			message: "#^Instanceof between Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IteratorFactory.php
@@ -8413,16 +8338,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityForeignKeyResolver\\:\\:getAllReverseInherited\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> is not subtype of native type string\\.$#"
-			count: 5
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Parameter \\#2 \\$extension of method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:addExtension\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntitySearcher\\:\\:getTotalCount\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -8600,31 +8515,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Entity.php
 
 		-
-			message: "#^Parameter \\#1 \\$object_or_class of function class_uses expects object\\|string, \\(TElement of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\)\\|null given\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\:\\:getBaseFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\:\\:getChildDefaults\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\:\\:getExtensionFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\:\\:getTranslatedFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
@@ -8663,26 +8553,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityProtection\\\\WriteProtection\\:\\:getAllowedScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityProtection/WriteProtection.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> is not subtype of native type string\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:create\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createPartial\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityTranslationDefinition\\:\\:getParentDefinition\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityTranslationDefinition.php
 
 		-
 			message: "#^Anonymous variable in a `\\$definition\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -8738,16 +8608,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedContainerEvent\\:\\:__construct\\(\\) has parameter \\$events with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedContainerEvent.php
-
-		-
-			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:recursion\\(\\) expects list\\<mixed\\>, array given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:recursion\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent\\:\\:__construct\\(\\) has parameter \\$errors with no value type specified in iterable type array\\.$#"
@@ -9318,11 +9178,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdaterBag\\:\\:\\$updated type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdaterBag.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\MappingEntityDefinition\\:\\:getBaseFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/MappingEntityDefinition.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\:\\:__construct\\(\\) has parameter \\$percentage with no value type specified in iterable type array\\.$#"
@@ -14030,21 +13885,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> is not subtype of native type string\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createForSalesChannel\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createPartialForSalesChannel\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextPermissionsChangedEvent\\:\\:__construct\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Event/SalesChannelContextPermissionsChangedEvent.php
@@ -16615,11 +16455,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeLifecycleHandler.php
 
 		-
-			message: "#^Anonymous variable in a `\\$parentTheme\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
@@ -17650,51 +17485,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Framework/App/Manifest/Xml/AdminTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$structsWithWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('warehouse'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$structsWithWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('zipcode'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$structsWithoutWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('warehouse'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$structsWithoutWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('zipcode'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$structsWithoutWarehouseZipcodeHydration\\-\\>first\\(\\)\\-\\>get\\('zipcode'\\)\\-\\>get\\('country'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 12
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
-
-		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 4
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/Dbal/EntityHydratorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"

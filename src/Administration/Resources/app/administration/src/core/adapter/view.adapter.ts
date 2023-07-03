@@ -71,6 +71,12 @@ export default abstract class ViewAdapter {
     abstract getComponent(componentName: string): Vue | null
 
     /**
+     * Returns a final Vue component by its name without defineAsyncComponent
+     * which cannot be used in the router.
+     */
+    abstract getComponentForRoute(componentName: string): Vue | null
+
+    /**
      * Returns the complete set of available Vue components.
      */
     abstract getComponents(): { [componentName: string]: Vue }

@@ -44,6 +44,7 @@ async function createWrapper(privileges = []) {
             },
             'sw-icon': true,
             'sw-tabs': true,
+            'sw-tabs-item': true,
             'sw-settings-search-example-modal': await Shopware.Component.build('sw-settings-search-example-modal'),
             'sw-modal': true,
             'router-link': true,

@@ -64,6 +64,7 @@ async function createWrapper(
             'sw-users-permissions-additional-permissions': true,
             'sw-verify-user-modal': true,
             'sw-tabs': true,
+            'sw-tabs-item': true,
             'router-view': true,
             'sw-skeleton': true,
             'sw-loader': true,

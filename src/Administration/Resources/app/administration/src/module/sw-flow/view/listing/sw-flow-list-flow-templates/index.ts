@@ -111,9 +111,7 @@ export default Shopware.Component.wrapComponentConfig({
     watch: {
         searchTerm: {
             immediate: true,
-            handler(value): void {
-                // @ts-expect-error - Mixin methods are not recognized
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            handler(value: string): void {
                 this.onSearch(value);
             },
         },

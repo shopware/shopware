@@ -75,6 +75,7 @@ async function createWrapper(privileges = []) {
             'sw-language-switch': true,
             'sw-empty-state': true,
             'sw-context-menu-item': true,
+            'router-link': true,
         },
     });
 }

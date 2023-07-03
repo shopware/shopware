@@ -63,6 +63,22 @@ import type MetricsApiService from './core/service/api/metrics.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
+import type NotificationMixin from './app/mixin/notification.mixin';
+import type ValidationMixin from './app/mixin/validation.mixin';
+import type UserSettingsMixin from './app/mixin/user-settings.mixin';
+import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type SalutationMixin from './app/mixin/salutation.mixin';
+import type RuleContainerMixin from './app/mixin/rule-container.mixin';
+import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
+import type PositionMixin from './app/mixin/position.mixin';
+import type PlaceholderMixin from './app/mixin/placeholder.mixin';
+import type ListingMixin from './app/mixin/listing.mixin';
+import type CartNotificationMixin from './module/sw-order/mixin/cart-notification.mixin';
+import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension-error.mixin';
+import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
+import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type SwFormFieldMixin from './app/mixin/form-field.mixin';
+import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 
 // trick to make it an "external module" to support global type extension
 
@@ -106,6 +122,9 @@ declare global {
      */
     type $TSFixMe = any;
     type $TSFixMeFunction = (...args: any[]) => any;
+
+    // TODO: remove with https://github.com/vuejs/core/issues/8611
+    type $TSFixMeData<T> = T;
 
     /**
      * Dangerous "unknown" types which are specific enough but do not provide type safety.
@@ -182,6 +201,27 @@ declare global {
         configService: ConfigApiService,
         importExport: ImportExportService,
     }
+
+    interface MixinContainer {
+        notification: typeof NotificationMixin,
+        validation: typeof ValidationMixin,
+        'user-settings': typeof UserSettingsMixin,
+        'sw-inline-snippet': typeof SwInlineSnippetMixin,
+        salutation: typeof SalutationMixin,
+        ruleContainer: typeof RuleContainerMixin,
+        'remove-api-error': typeof RemoveApiErrorMixin,
+        position: typeof PositionMixin,
+        placeholder: typeof PlaceholderMixin,
+        listing: typeof ListingMixin,
+        'cart-notification': typeof CartNotificationMixin,
+        // @ts-expect-error
+        'sw-extension-error': typeof SwExtensionErrorMixin,
+        'cms-element': typeof CmsElementMixin,
+        'generic-condition': typeof GenericConditionMixin,
+        'sw-form-field': typeof SwFormFieldMixin,
+        'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin,
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{
         state: $TSFixMe,

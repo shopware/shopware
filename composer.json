@@ -289,6 +289,7 @@
         ],
         "build:js:admin": [
             "@php bin/console bundle:dump",
+            "@php bin/console feature:dump",
             "@admin:generate-entity-schema-types",
             "@npm:admin run build",
             "@php bin/console assets:install"

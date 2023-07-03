@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Controller\TriggerFlowController;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -28,9 +29,9 @@ class TriggerFlowControllerTest extends TestCase
     private TriggerFlowController $triggerFlowController;
 
     /**
-     * @var StaticEntityRepository
+     * @var StaticEntityRepository<AppFlowEventCollection>
      */
-    private $appFlowEventRepository;
+    private StaticEntityRepository $appFlowEventRepository;
 
     protected function setUp(): void
     {
@@ -43,7 +44,7 @@ class TriggerFlowControllerTest extends TestCase
             new EntitySearchResult(
                 'app_flow_event',
                 1,
-                new EntityCollection([$appFlowEvent]),
+                new AppFlowEventCollection([$appFlowEvent]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -55,7 +56,7 @@ class TriggerFlowControllerTest extends TestCase
 
     public function testTriggerWithWrongEventName(): void
     {
-        static::expectExceptionObject(new CustomTriggerByNameNotFoundException('custom.checkout.event'));
+        $this->expectExceptionObject(new CustomTriggerByNameNotFoundException('custom.checkout.event'));
 
         $request = new Request();
         $request->setMethod('POST');

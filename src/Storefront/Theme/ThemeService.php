@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
@@ -24,6 +23,8 @@ class ThemeService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $extensionRegistry,
@@ -71,7 +72,6 @@ class ThemeService
         $mappings = $this->getThemeDependencyMapping($themeId);
 
         $compiledThemeIds = [];
-        /** @var ThemeSalesChannel $mapping */
         foreach ($mappings as $mapping) {
             $this->themeCompiler->compileTheme(
                 $mapping->getSalesChannelId(),
@@ -95,10 +95,9 @@ class ThemeService
     {
         $criteria = new Criteria([$themeId]);
         $criteria->addAssociation('salesChannels');
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
+        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->get($themeId);
 
-        if (!$theme) {
+        if ($theme === null) {
             throw new InvalidThemeException($themeId);
         }
 
@@ -183,17 +182,18 @@ class ThemeService
         $criteria = new Criteria();
         $criteria->setTitle('theme-service::load-config');
 
-        $themes = $this->themeRepository->search($criteria, $context);
+        $themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $themes->get($themeId);
 
-        /** @var ThemeEntity|null $theme */
-        if (!$theme) {
+        if ($theme === null) {
             throw new InvalidThemeException($themeId);
         }
 
-        /** @var ThemeEntity $baseTheme */
         $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
+        if ($baseTheme === null) {
+            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
+        }
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
@@ -203,9 +203,7 @@ class ThemeService
         $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
 
         if ($theme->getParentThemeId()) {
-            $parentThemes = $this->getParentThemeIds($themes, $theme);
-
-            foreach ($parentThemes as $parentTheme) {
+            foreach ($this->getParentThemes($themes, $theme) as $parentTheme) {
                 $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
                 $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
                 $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
@@ -216,11 +214,10 @@ class ThemeService
         $configuredTheme = $this->mergeStaticConfig($theme);
         $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
 
-        foreach ($themeConfig['fields'] ?? [] as $name => &$item) {
+        foreach ($themeConfig['fields'] ?? [] as $name => $item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
             if (
-                isset($item['value'])
-                && isset($configuredTheme['fields'])
+                isset($item['value'], $configuredTheme['fields'])
                 && \is_array($item['value'])
                 && \array_key_exists($name, $configuredTheme['fields'])
             ) {
@@ -337,11 +334,11 @@ class ThemeService
     }
 
     /**
-     * @param array<string, mixed> $parentThemes
+     * @param array<string, ThemeEntity> $parentThemes
      *
-     * @return array<string, mixed>
+     * @return array<string, ThemeEntity>
      */
-    private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
+    private function getParentThemes(ThemeCollection $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
             $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
@@ -350,7 +347,7 @@ class ThemeService
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
 
                 if ($parentTheme->getParentThemeId()) {
-                    $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
+                    $parentThemes = $this->getParentThemes($themes, $mainTheme, $parentThemes);
                 }
             }
         }
@@ -361,7 +358,7 @@ class ThemeService
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
                 if ($parentTheme->getParentThemeId()) {
-                    $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
+                    $parentThemes = $this->getParentThemes($themes, $mainTheme, $parentThemes);
                 }
             }
         }
@@ -529,18 +526,19 @@ class ThemeService
      */
     private function getTranslations(string $themeId, Context $context): array
     {
-        /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->get($themeId);
+        if ($theme === null) {
+            throw new InvalidThemeException($themeId);
+        }
+
         $translations = $theme->getLabels() ?: [];
 
         if ($theme->getParentThemeId()) {
             $criteria = new Criteria();
             $criteria->setTitle('theme-service::load-translations');
 
-            $themes = $this->themeRepository->search($criteria, $context);
-            $parentThemes = $this->getParentThemeIds($themes, $theme);
-
-            foreach ($parentThemes as $parentTheme) {
+            $themes = $this->themeRepository->search($criteria, $context)->getEntities();
+            foreach ($this->getParentThemes($themes, $theme) as $parentTheme) {
                 $parentTranslations = $parentTheme->getLabels() ?: [];
                 $translations = array_replace_recursive($parentTranslations, $translations);
             }

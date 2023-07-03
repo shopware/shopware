@@ -1,3 +1,71 @@
+# 6.5.3.0
+## The app custom trigger and the app action can be defined in one xml file.
+Since v6.5.2.0, we can define the flow custom trigger and the flow app action in one XML file.
+To do that, we add the `Shopware\Core\Framework\App\Flow\Schema\flow-1.0.xsd` to support defining both of them.
+
+* ***Example***
+```xml
+<flow-extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flow-1.0.xsd">
+    <flow-events>
+        <flow-event>...</flow-event>
+    </flow-events>
+    <flow-actions>
+        <flow-action>...</flow-action>
+    </flow-actions>
+</flow-extensions>
+```
+## Deprecation of `ProductListingFeaturesSubscriber`
+With 6.6 the `ProductListingFeaturesSubscriber` is removed. This is currently responsible for evaluating the listing request parameters and applying them to the criteria.
+
+In the future this will no longer happen via the corresponding events but via the `AbstractListingProcessor`, which follows a more service oriented approach.
+
+If you dispatch one of the following events yourself, and expect the subscriber to process the corresponding data, you should now call the `CompositeProcessor` instead:
+
+```php
+// before
+class MyClass
+{
+    public function load(Criteria $criteria, SalesChannelContext $context) {
+        $this->dispatcher->dispatch(
+            new ProductListingCriteriaEvent($criteria, $context, $request)
+        );
+        
+        $result = $this->loadListing($request, $criteria, $context);
+        
+        $this->dispatcher->dispatch(
+            new ProductListingResultEvent($result, $context, $request)
+        );
+        
+        return $result;
+    }
+}
+
+// after
+class MyClass
+{
+    public function __construct(private readonly CompositeProcessor $listingProcessor) {}
+    
+    public function load(Criteria $criteria, SalesChannelContext $context) 
+    {
+        $this->listingProcessor->prepare($request, $criteria, $context);
+        
+        $result = $this->loadListing($request, $criteria, $context);
+        
+        $this->listingProcessor->process($request, $result, $context);
+        
+        return $result;
+    }
+}
+```
+## MediaSerializer
+### deserialize
+The deserialize method of src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php was changed such that the filename will be urldecoded before saving it to the cacheMediaFiles.
+Previously, encoded url raised an error during validateFileNameDoesNotContainForbiddenCharacter when importing them, because they contained % signs. 
+On the other hand, not encoding urls raised an "Invalid media url" exception.
+
+This change allows importing medias with filenames that contain special characters by supplying an encoded url in the import file.
+* Changed behavior of text block element, which is able to switch between languages in product detail page
+
 # 6.5.2.0
 The `context` property is used instead of `contextData` property in `src/Core/Content/Media/Message/GenerateThumbnailsMessage` due to the `context` data is serialized in context source
 ## Introduce BeforeLoadStorableFlowDataEvent

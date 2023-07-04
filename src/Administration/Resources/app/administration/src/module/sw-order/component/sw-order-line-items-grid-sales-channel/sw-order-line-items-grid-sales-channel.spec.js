@@ -261,8 +261,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const showProductButton1 = productItem.find('.sw-context-menu-item');
 
         expect(productLabel.find('router-link-stub').exists()).toBeTruthy();
+        expect(productLabel.find('router-link-stub').attributes().target).toBe('_blank');
         expect(showProductButton1.attributes().disabled).toBeUndefined();
-
 
         const customItem = wrapper.find('.sw-data-grid__row--1');
         const customLabel = customItem.find('.sw-data-grid__cell--label');

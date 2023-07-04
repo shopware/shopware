@@ -153,9 +153,10 @@
                 {% block sw_order_line_items_grid_column_payload_options %}
                 <router-link
                     v-if="item.payload && item.payload.options"
+                    target="_blank"
                     class="sw-order-line-items-grid-sales-channel__item-payload-options"
                     :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                    :to="{ name: 'sw.product.detail', params: { id: item.productId } }"
+                    :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
                         <div class="sw-order-line-items-grid__item-label">

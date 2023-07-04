@@ -386,6 +386,8 @@ class AppLifecycleTest extends TestCase
 
     /**
      * @param array<int, array<int, array<string, mixed>>> $appEntities
+     *
+     * @return StaticEntityRepository<AppCollection>
      */
     private function getAppRepositoryMock(array $appEntities): StaticEntityRepository
     {
@@ -394,7 +396,10 @@ class AppLifecycleTest extends TestCase
             $searchResults[] = $this->getAppCollection($entity);
         }
 
-        return new StaticEntityRepository($searchResults);
+        /** @var StaticEntityRepository<AppCollection> $repo */
+        $repo = new StaticEntityRepository($searchResults);
+
+        return $repo;
     }
 
     /**

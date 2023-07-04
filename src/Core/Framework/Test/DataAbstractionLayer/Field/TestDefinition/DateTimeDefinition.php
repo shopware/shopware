@@ -30,6 +30,11 @@ class DateTimeDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()), new StringField('name', 'name'), new CreatedAtField(), new UpdatedAtField()]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+            new StringField('name', 'name'),
+            new CreatedAtField(),
+            new UpdatedAtField(),
+        ]);
     }
 }

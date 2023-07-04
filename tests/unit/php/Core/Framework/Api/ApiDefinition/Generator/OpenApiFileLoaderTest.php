@@ -35,9 +35,7 @@ class OpenApiFileLoaderTest extends TestCase
         static::assertSame(
             [
                 'paths' => [],
-                'components' => [
-                    'schemas' => [],
-                ],
+                'components' => [],
             ],
             $spec
         );

@@ -18,7 +18,8 @@
                                 "properties": {
                                     "orderId": {
                                         "description": "The identifier of the order to be canceled.",
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     }
                                 },
                                 "type": "object"
@@ -117,11 +118,13 @@
                                 "properties": {
                                     "paymentMethodId": {
                                         "description": "The identifier of the paymentMethod to be set",
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "orderId": {
                                         "description": "The identifier of the order.",
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     }
                                 },
                                 "type": "object"

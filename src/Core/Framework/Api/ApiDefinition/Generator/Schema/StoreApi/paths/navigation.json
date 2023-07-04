@@ -54,10 +54,16 @@
                                     {
                                         "properties": {
                                             "depth": {
-                                                "description": "Determines the depth of fetched navigation levels."
+                                                "description": "Determines the depth of fetched navigation levels.",
+                                                "type": "integer",
+                                                "format": "int32"
                                             },
                                             "buildTree": {
-                                                "description": "Return the categories as a tree or as a flat list."
+                                                "description": "Return the categories as a tree or as a flat list.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object"
+                                                }
                                             }
                                         },
                                         "type": "object"

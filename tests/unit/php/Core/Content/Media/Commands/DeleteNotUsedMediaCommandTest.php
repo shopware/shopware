@@ -209,6 +209,77 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         );
     }
 
+    public function testErrorIsReportedIfIncompatibleOptionsPassed(): void
+    {
+        $service = $this->createMock(UnusedMediaPurger::class);
+        $connection = $this->createMock(Connection::class);
+
+        $command = new DeleteNotUsedMediaCommand($service, $connection);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--dry-run' => true, '--report' => true]);
+
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+        $io = new \Symfony\Component\Console\Style\SymfonyStyle(
+            new \Symfony\Component\Console\Input\ArrayInput([]),
+            $output,
+        );
+
+        $io->error('The options --report and --dry-run cannot be used together, pick one or the other.');
+
+        static::assertStringContainsString($output->fetch(), $commandTester->getDisplay());
+    }
+
+    public function testCsvOutput(): void
+    {
+        $service = $this->createMock(UnusedMediaPurger::class);
+
+        $result = function (): \Generator {
+            yield [$this->createMedia('File 1')];
+            yield [$this->createMedia('File 2')];
+        };
+
+        $service->expects(static::once())
+            ->method('getNotUsedMedia')
+            ->willReturnCallback($result);
+
+        $service->expects(static::never())
+            ->method('deleteNotUsedMedia');
+
+        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(Connection::class));
+
+        $commandTester = new CommandTester($command);
+        $commandTester->setInputs(['yes']);
+        $commandTester->execute(['--report' => true]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        static::assertSame(
+            [
+                [
+                    'Filename',
+                    'Title',
+                    'Uploaded At',
+                    'File Size',
+                ],
+                [
+                    'File 1.jpg',
+                    'File 1 title',
+                    'February 16th, 2023',
+                    '1 MB',
+                ],
+                [
+                    'File 2.jpg',
+                    'File 2 title',
+                    'February 16th, 2023',
+                    '1 MB',
+                ],
+            ],
+            array_map(str_getcsv(...), explode("\n", $commandTester->getDisplay(true)))
+        );
+    }
+
     /**
      * This method builds a naive regex to check that each table contains the correct amount of files
      *  and whether the continue/abort behaviour works.

@@ -4,8 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,7 +61,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         $hash = $data->get('hash');
 
         if (!$this->checkHash($hash, $context->getContext())) {
-            throw new CustomerRecoveryHashExpiredException($hash);
+            throw CustomerException::customerRecoveryHashExpired($hash);
         }
 
         $customerHashCriteria = new Criteria();
@@ -71,14 +70,14 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context->getContext())->first();
 
-        if (!$customerRecovery) {
-            throw new CustomerNotFoundByHashException($hash);
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         $customer = $customerRecovery->getCustomer();
 
         if (!$customer) {
-            throw new CustomerNotFoundByHashException($hash);
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         // reset login and pw-reset limit when password was changed
@@ -127,6 +126,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     }
 
     /**
+     * @param array<string|int, string> $data
+     *
      * @throws ConstraintViolationException
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
@@ -137,13 +138,12 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        /** @var array $fieldValidations */
+        /** @var array<ConstraintInterface> $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
-        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;
@@ -161,7 +161,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

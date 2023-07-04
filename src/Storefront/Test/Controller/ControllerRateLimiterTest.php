@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
@@ -184,7 +184,7 @@ class ControllerRateLimiterTest extends TestCase
     public function testAuthControllerLoginShowsRateLimit(): void
     {
         $loginRoute = $this->createMock(LoginRoute::class);
-        $loginRoute->method('login')->willThrowException(new CustomerAuthThrottledException(5));
+        $loginRoute->method('login')->willThrowException(CustomerException::customerAuthThrottledException(5));
 
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
@@ -364,6 +364,7 @@ class ControllerRateLimiterTest extends TestCase
         $order = $orderRepsitory->search(new Criteria([$orderId]), $this->context)->first();
 
         static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         return $order;
     }
@@ -374,6 +375,10 @@ class ControllerRateLimiterTest extends TestCase
         static::assertIsString($rawParams);
 
         \parse_str($rawParams, $params);
+
+        static::assertIsArray($params);
+        static::assertArrayHasKey($param, $params);
+        static::assertIsString($params[$param]);
 
         return $params[$param];
     }

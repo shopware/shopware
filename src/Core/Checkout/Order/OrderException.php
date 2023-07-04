@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('customer-order')]
@@ -105,6 +107,14 @@ class OrderException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::ORDER_CUSTOMER_NOT_LOGGED_IN,
             'Customer is not logged in.',
+        );
+    }
+
+    public static function customerAuthThrottledException(int $waitTime, ?\Throwable $e = null): ShopwareHttpException
+    {
+        return new CustomerAuthThrottledException(
+            $waitTime,
+            $e
         );
     }
 }

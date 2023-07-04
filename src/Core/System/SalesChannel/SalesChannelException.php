@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -59,6 +60,11 @@ class SalesChannelException extends HttpException
             'Country state with id "{{ countryStateId }}" not found!.',
             ['countryStateId' => $countryStateId]
         );
+    }
+
+    public static function customerNotFoundByIdException(string $customerId): ShopwareHttpException
+    {
+        return new CustomerNotFoundByIdException($customerId);
     }
 
     public static function countryNotFound(string $countryId): self

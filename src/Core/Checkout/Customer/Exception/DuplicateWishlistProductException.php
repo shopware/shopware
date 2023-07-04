@@ -2,25 +2,19 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('customer-order')]
-class DuplicateWishlistProductException extends ShopwareHttpException
+class DuplicateWishlistProductException extends CustomerException
 {
     public function __construct()
     {
-        parent::__construct('Product already added in wishlist');
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__DUPLICATE_WISHLIST_PRODUCT';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::DUPLICATE_WISHLIST_PRODUCT,
+            'Product already added in wishlist'
+        );
     }
 }

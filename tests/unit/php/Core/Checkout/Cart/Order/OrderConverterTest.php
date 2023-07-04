@@ -486,7 +486,7 @@ class OrderConverterTest extends TestCase
 
         $order = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
 
-        static::assertIsArray($order);
+        static::assertArrayHasKey('lineItems', $order);
         static::assertIsArray($order['lineItems']);
         static::assertCount(2, $order['lineItems']);
 

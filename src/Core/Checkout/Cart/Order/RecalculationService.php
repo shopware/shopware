@@ -286,10 +286,9 @@ class RecalculationService
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
 
-        /** @var ?CustomerAddressEntity $customerAddress */
         $customerAddress = $this->customerAddressRepository->search($criteria, $context)->get($customerAddressId);
-        if ($customerAddress === null) {
-            throw new AddressNotFoundException($customerAddressId);
+        if (!$customerAddress instanceof CustomerAddressEntity) {
+            throw CartException::addressNotFound($customerAddressId);
         }
 
         $newOrderAddress = AddressTransformer::transform($customerAddress);
@@ -377,7 +376,7 @@ class RecalculationService
     {
         $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->get($orderAddressId);
         if (!$address) {
-            throw new AddressNotFoundException($orderAddressId);
+            throw CartException::addressNotFound($orderAddressId);
         }
 
         $this->checkVersion($address);

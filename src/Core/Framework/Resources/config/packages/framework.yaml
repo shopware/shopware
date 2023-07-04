@@ -92,6 +92,12 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException:
             log_level: notice
+        Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException:
+            log_level: notice
         Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:

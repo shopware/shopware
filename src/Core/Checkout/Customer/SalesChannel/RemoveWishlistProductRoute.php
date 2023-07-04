@@ -3,10 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
-use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -44,7 +42,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw new CustomerWishlistNotActivatedException();
+            throw CustomerException::customerWishlistNotActivated();
         }
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
@@ -74,7 +72,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
 
         if ($wishlistIds->firstId() === null) {
-            throw new CustomerWishlistNotFoundException();
+            throw CustomerException::customerWishlistNotFound();
         }
 
         return $wishlistIds->firstId();
@@ -92,7 +90,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         $wishlistProductIds = $this->productRepository->searchIds($criteria, $context->getContext());
 
         if ($wishlistProductIds->firstId() === null) {
-            throw new WishlistProductNotFoundException($productId);
+            throw CustomerException::wishlistProductNotFound($productId);
         }
 
         return $wishlistProductIds->firstId();

@@ -378,11 +378,6 @@ parameters:
 			path: src/Core/Checkout/Cart/LineItemFactoryHandler/PromotionLineItemFactory.php
 
 		-
-			message: "#^Strict comparison using \\!\\=\\= between Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionCollection and null will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/OrderConverter.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\Transformer\\\\AddressTransformer\\:\\:transform\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/Transformer/AddressTransformer.php
@@ -563,24 +558,9 @@ parameters:
 			path: src/Core/Checkout/Customer/Event/WishlistMergedEvent.php
 
 		-
-			message: "#^Parameter \\#1 \\$encoder of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Exception\\\\LegacyPasswordEncoderNotFoundException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Password/LegacyPasswordVerifier.php
-
-		-
-			message: "#^Parameter \\#2 \\$hash of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Password\\\\LegacyEncoder\\\\LegacyEncoderInterface\\:\\:isPasswordValid\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Password/LegacyPasswordVerifier.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getStatus\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/AccountNewsletterRecipientRouteResponse.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AccountService\\:\\:fetchCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -603,134 +583,9 @@ parameters:
 			path: src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
 
 		-
-			message: "#^Parameter \\#1 \\$object of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerGroupRegistrationSettingsRouteResponse constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/CustomerGroupRegistrationSettingsRoute.php
-
-		-
-			message: "#^Parameter \\#1 \\$customerRecovery of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerRecoveryIsExpiredRoute\\:\\:isExpired\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerRecovery\\\\CustomerRecoveryEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/CustomerRecoveryIsExpiredRoute.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerResponse constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LoadWishlistRoute\\:\\:loadWishlist\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerWishlist\\\\CustomerWishlistEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/LoadWishlistRoute.php
-
-		-
-			message: "#^Anonymous variable in a `\\$data\\-\\>get\\('productIds'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getActive\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDoubleOptInConfirmDate\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDoubleOptInRegistration\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getEmail\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getGuest\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 6
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Parameter \\#2 \\$customer of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerRegisterEvent constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Parameter \\#2 \\$customer of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\GuestCustomerRegisterEvent constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getCustomer\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ResetPasswordRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$fieldValidations has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
-
-		-
-			message: "#^Parameter \\#1 \\$existingRecovery of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ResetPasswordRoute\\:\\:deleteRecoveryForCustomer\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerRecovery\\\\CustomerRecoveryEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\SendPasswordRecoveryMailRoute\\:\\:getCustomerByEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\SendPasswordRecoveryMailRoute\\:\\:getDomainUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\SendPasswordRecoveryMailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$fieldValidations has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Parameter \\#1 \\$existingRecovery of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\SendPasswordRecoveryMailRoute\\:\\:deleteRecoveryForCustomer\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerRecovery\\\\CustomerRecoveryEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Parameter \\#2 \\$customerRecovery of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerAccountRecoverRequestEvent constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerRecovery\\\\CustomerRecoveryEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
-
-		-
-			message: "#^Parameter \\#4 \\$customerRecovery of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\SendPasswordRecoveryMailRoute\\:\\:getRecoverUrl\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerRecovery\\\\CustomerRecoveryEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
 
 		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
@@ -986,11 +841,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getRuleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/OrderEntity.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:addPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
@@ -15605,16 +15455,6 @@ parameters:
 			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:createCustomerWithOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:queryFromString\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/FormControllerTest.php
@@ -16100,11 +15940,6 @@ parameters:
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Account\\\\\\\\CustomerGroupRegistration\\\\\\\\CustomerGroupRegistrationPage' and Shopware\\\\Storefront\\\\Page\\\\Account\\\\CustomerGroupRegistration\\\\CustomerGroupRegistrationPage will always evaluate to true\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Account\\\\\\\\Order\\\\\\\\AccountEditOrderPage' and Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountEditOrderPage will always evaluate to true\\.$#"
 			count: 4
 			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
@@ -16303,21 +16138,6 @@ parameters:
 			message: "#^PHPDoc tag @var with type Shopware\\\\Storefront\\\\Page\\\\Search\\\\SearchPageLoadedEvent is not subtype of native type null\\.$#"
 			count: 3
 			path: src/Storefront/Test/Page/SearchPageTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/WishlistPageTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\WishlistPageLoadedEvent is not subtype of native type null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/WishlistPageTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$customer of method Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\WishlistPageLoader\\:\\:load\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Page/WishlistPageTest.php
 
 		-
 			message: "#^Cannot call method getLanguages\\(\\) on Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\HeaderPagelet\\|null\\.$#"
@@ -17380,11 +17200,6 @@ parameters:
 			message: "#^Cannot call method getMessageKey\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\Error\\|null\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/LineItem/LineItemValidatorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Order/OrderConverterTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$e\\-\\>getExceptions\\(\\)\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

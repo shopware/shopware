@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -66,6 +68,10 @@ class DocumentGenerator
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
         if (!$document instanceof DocumentEntity) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw DocumentException::documentNotFound($documentId);
+            }
+
             throw new InvalidDocumentException($documentId);
         }
 
@@ -105,10 +111,18 @@ class DocumentGenerator
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
 
         if (!\array_key_exists($operation->getOrderId(), $rendered->getSuccess())) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw DocumentException::generationError();
+            }
+
             throw new InvalidOrderException($operation->getOrderId());
         }
 
         $document = $rendered->getSuccess()[$operation->getOrderId()];
+
+        if (!($document instanceof RenderedDocument)) {
+            throw DocumentException::generationError();
+        }
 
         $document->setContent($this->pdfRenderer->render($document));
 
@@ -142,7 +156,7 @@ class DocumentGenerator
             try {
                 $document = $success[$orderId] ?? null;
 
-                if ($document === null) {
+                if (!($document instanceof RenderedDocument)) {
                     continue;
                 }
 
@@ -181,6 +195,10 @@ class DocumentGenerator
     {
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
+
+        if (!($document instanceof DocumentEntity)) {
+            throw DocumentException::documentNotFound($documentId);
+        }
 
         if ($document->getDocumentMediaFileId() !== null) {
             throw new DocumentGenerationException('Document already exists');

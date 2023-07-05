@@ -9,9 +9,8 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -41,9 +40,7 @@ class PaymentTransactionChainProcessor
     }
 
     /**
-     * @throws InvalidOrderException
      * @throws PaymentProcessException
-     * @throws UnknownPaymentMethodException
      */
     public function process(
         string $orderId,
@@ -69,12 +66,12 @@ class PaymentTransactionChainProcessor
         $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         if (!$order) {
-            throw new InvalidOrderException($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            throw new InvalidOrderException($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         $transactions = $transactions->filterByStateId(
@@ -88,13 +85,13 @@ class PaymentTransactionChainProcessor
 
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
-            throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
+            throw PaymentException::unknownPaymentMethod($transaction->getPaymentMethodId());
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
 
         if (!$paymentHandler) {
-            throw new UnknownPaymentMethodException($paymentMethod->getHandlerIdentifier());
+            throw PaymentException::unknownPaymentMethod($paymentMethod->getHandlerIdentifier());
         }
 
         if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {

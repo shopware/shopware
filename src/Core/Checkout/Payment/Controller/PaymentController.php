@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -95,7 +95,7 @@ class PaymentController extends AbstractController
 
         $transactionId = $this->tokenFactoryInterfaceV2->parseToken($paymentToken)->getTransactionId();
         if ($transactionId === null) {
-            throw new InvalidTokenException($paymentToken);
+            throw PaymentException::invalidToken($paymentToken);
         }
 
         $criteria = new Criteria();
@@ -107,7 +107,7 @@ class PaymentController extends AbstractController
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if ($order === null) {
-            throw new InvalidTokenException($paymentToken);
+            throw PaymentException::invalidToken($paymentToken);
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);

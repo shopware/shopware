@@ -4,9 +4,12 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamInterface;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
@@ -34,6 +37,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -140,7 +144,11 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        self::expectException(InvalidOrderException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(InvalidOrderException::class);
+        } else {
+            $this->expectException(DocumentException::class);
+        }
 
         /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
@@ -151,7 +159,6 @@ class DocumentGeneratorTest extends TestCase
         ]);
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, $order->getDeepLinkCode() ?? '', $this->context);
 
-        static::assertInstanceOf(RenderedDocument::class, $documentStruct);
         static::assertNotEmpty($documentStruct->getContent());
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
@@ -163,12 +170,12 @@ class DocumentGeneratorTest extends TestCase
     {
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
         static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         $operation = new DocumentGenerateOperation($this->orderId);
 
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertInstanceOf(RenderedDocument::class, $documentStruct);
         static::assertNotEmpty($documentStruct->getContent());
     }
 
@@ -194,12 +201,12 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($themeId);
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
         static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         $operation = new DocumentGenerateOperation($this->orderId);
 
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertInstanceOf(RenderedDocument::class, $documentStruct);
         static::assertNotEmpty($documentStruct->getContent());
         static::assertNotEmpty($documentStruct->getHtml());
         static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $documentStruct->getHtml());
@@ -217,6 +224,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
         static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
         $orderCustomer = $order->getOrderCustomer();
         static::assertNotNull($orderCustomer);
         $customerNo = (string) $orderCustomer->getCustomerNumber();
@@ -257,7 +265,6 @@ class DocumentGeneratorTest extends TestCase
 
         $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
         static::assertNotEmpty($stornoStruct->getContent());
         static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
@@ -269,7 +276,6 @@ class DocumentGeneratorTest extends TestCase
 
         $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
         static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
@@ -452,7 +458,12 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        static::expectException(InvalidDocumentException::class);
+        // Remove if branch and keep else branch in v6.6 release
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(InvalidDocumentException::class);
+        } else {
+            static::expectException(DocumentException::class);
+        }
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         $this->documentGenerator->readDocument($documentId, $this->context);
@@ -462,7 +473,11 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        static::expectException(InvalidDocumentException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(InvalidDocumentException::class);
+        } else {
+            static::expectException(DocumentException::class);
+        }
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         /** @var FilesystemOperator $fileSystem */
@@ -479,6 +494,8 @@ class DocumentGeneratorTest extends TestCase
         $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
 
         static::assertNotNull($documentType);
+        static::assertInstanceOf(DocumentTypeEntity::class, $documentType);
+
         $mediaId = Uuid::randomHex();
         $this->documentRepository->create(
             [
@@ -582,6 +599,7 @@ class DocumentGeneratorTest extends TestCase
 
         $document = $this->documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
         static::assertNotNull($document);
+        static::assertInstanceOf(DocumentEntity::class, $document);
 
         $expectedConfig = array_merge($globalConfig, $salesChannelConfig, $overrides);
 
@@ -667,6 +685,7 @@ class DocumentGeneratorTest extends TestCase
         })->first();
 
         static::assertNotNull($invoiceDoc);
+        static::assertInstanceOf(DocumentEntity::class, $invoiceDoc);
         static::assertSame($orderId, $invoiceDoc->getOrderId());
         static::assertSame(FileTypes::PDF, $invoiceDoc->getFileType());
 
@@ -677,6 +696,7 @@ class DocumentGeneratorTest extends TestCase
         })->first();
 
         static::assertNotNull($deliveryDoc);
+        static::assertInstanceOf(DocumentEntity::class, $deliveryDoc);
         static::assertSame($orderId, $deliveryDoc->getOrderId());
         static::assertSame(FileTypes::PDF, $deliveryDoc->getFileType());
     }
@@ -744,8 +764,6 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $generatedDocument);
-        static::assertNotNull($generatedDocument->getId());
-        static::assertNotNull($generatedDocument->getDeepLinkCode());
         static::assertNull($generatedDocument->getMediaId());
     }
 
@@ -756,8 +774,6 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $generatedDocument);
-        static::assertNotNull($generatedDocument->getId());
-        static::assertNotNull($generatedDocument->getDeepLinkCode());
         static::assertNotNull($generatedDocument->getMediaId());
     }
 
@@ -770,8 +786,6 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
-        static::assertNotNull($generatedDocument->getHtml());
-        static::assertNotNull($generatedDocument->getContent());
         static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
 
         $document = $this->documentRepository->search(
@@ -780,10 +794,14 @@ class DocumentGeneratorTest extends TestCase
         )->first();
 
         static::assertNotNull($document);
+        static::assertInstanceOf(DocumentEntity::class, $document);
         $mediaId = $document->getDocumentMediaFileId();
+
+        static::assertNotNull($mediaId);
 
         $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
+        static::assertInstanceOf(StreamInterface::class, $media);
         static::assertNotNull($media->getContents());
     }
 
@@ -817,8 +835,6 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
-        static::assertNotNull($generatedDocument->getHtml());
-        static::assertNotNull($generatedDocument->getContent());
         static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
 
         $document = $this->documentRepository->search(
@@ -827,7 +843,9 @@ class DocumentGeneratorTest extends TestCase
         )->first();
 
         static::assertNotNull($document);
+        static::assertInstanceOf(DocumentEntity::class, $document);
         $mediaId = $document->getDocumentMediaFileId();
+        static::assertNotNull($mediaId);
 
         $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
@@ -843,6 +861,7 @@ class DocumentGeneratorTest extends TestCase
 
         $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($invoiceStruct);
+        static::assertInstanceOf(DocumentIdStruct::class, $invoiceStruct);
         $documentMediaFileId = $invoiceStruct->getMediaId();
         $documentId = $invoiceStruct->getId();
 
@@ -867,9 +886,8 @@ class DocumentGeneratorTest extends TestCase
             ], $staticFileContent);
 
             $documentMediaFileStruct = $this->documentGenerator->upload($invoiceStruct->getId(), $this->context, $uploadFileRequest);
-            static::assertNotNull($documentMediaFileStruct);
+
             $documentMediaFileId = $documentMediaFileStruct->getMediaId();
-            $documentId = $invoiceStruct->getId();
         }
 
         static::assertNotNull($documentMediaFileId);
@@ -901,8 +919,6 @@ class DocumentGeneratorTest extends TestCase
         $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
-        static::assertNotNull($generatedDocument->getHtml());
-        static::assertNotNull($generatedDocument->getContent());
 
         if ($staticFileContent) {
             static::assertEquals($staticFileContent, $generatedDocument->getContent());
@@ -914,8 +930,11 @@ class DocumentGeneratorTest extends TestCase
         )->first();
 
         static::assertNotNull($document);
+        static::assertInstanceOf(DocumentEntity::class, $document);
 
         $mediaId = $document->getDocumentMediaFileId();
+
+        static::assertNotNull($mediaId);
 
         $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 

@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::illegalFileName instead
  */
 #[Package('content')]
-class IllegalFileNameException extends ShopwareHttpException
+class IllegalFileNameException extends MediaException
 {
     public function __construct(
         string $filename,
@@ -22,6 +23,8 @@ class IllegalFileNameException extends ShopwareHttpException
         );
 
         parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_ILLEGAL_FILE_NAME,
             'Provided filename "{{ fileName }}" is not permitted: {{ cause }}',
             ['fileName' => $filename, 'cause' => $cause]
         );

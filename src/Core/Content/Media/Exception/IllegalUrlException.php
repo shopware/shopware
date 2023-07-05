@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::illegalUrl instead
  */
 #[Package('content')]
-class IllegalUrlException extends ShopwareHttpException
+class IllegalUrlException extends MediaException
 {
     public function __construct(string $url)
     {
@@ -20,6 +21,8 @@ class IllegalUrlException extends ShopwareHttpException
         );
 
         parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_ILLEGAL_URL,
             'Provided URL "{{ url }}" is not allowed.',
             ['url' => $url]
         );

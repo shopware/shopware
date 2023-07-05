@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::duplicatedMediaFileName instead
  */
 #[Package('content')]
-class DuplicatedMediaFileNameException extends ShopwareHttpException
+class DuplicatedMediaFileNameException extends MediaException
 {
     public function __construct(
         string $fileName,
@@ -22,6 +23,8 @@ class DuplicatedMediaFileNameException extends ShopwareHttpException
         );
 
         parent::__construct(
+            Response::HTTP_CONFLICT,
+            self::MEDIA_DUPLICATED_FILE_NAME,
             'A file with the name "{{ fileName }}.{{ fileExtension }}" already exists.',
             ['fileName' => $fileName, 'fileExtension' => $fileExtension]
         );

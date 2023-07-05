@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::couldNotRenameFile instead
  */
 #[Package('content')]
-class CouldNotRenameFileException extends ShopwareHttpException
+class CouldNotRenameFileException extends MediaException
 {
     public function __construct(
         string $mediaId,
@@ -22,6 +23,8 @@ class CouldNotRenameFileException extends ShopwareHttpException
         );
 
         parent::__construct(
+            Response::HTTP_CONFLICT,
+            self::MEDIA_COULD_NOT_RENAME_FILE,
             'Could not rename file for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
             ['mediaId' => $mediaId, 'oldFileName' => $oldFileName]
         );

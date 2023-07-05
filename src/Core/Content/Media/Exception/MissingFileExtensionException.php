@@ -18,6 +18,8 @@ class MissingFileExtensionException extends UploadException
             Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use MediaException::missingFileExtension instead')
         );
 
-        parent::__construct('No file extension provided. Please use the "extension" query parameter to specify the extension of the uploaded file');
+        parent::__construct(
+            'No file extension provided. Please use the "extension" query parameter to specify the extension of the uploaded file.'
+        );
     }
 }

@@ -1,30 +1,41 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
+namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\AppNameValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\App\Validation\AppNameValidator
  */
 class AppNameValidatorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private AppNameValidator $appNameValidator;
+
+    private string $testAppDir;
 
     protected function setUp(): void
     {
-        $this->appNameValidator = $this->getContainer()->get(AppNameValidator::class);
+        $this->appNameValidator = new AppNameValidator();
+        $this->testAppDir = __DIR__ . '/../../../../../../integration/php/Core/Framework/App/Manifest/_fixtures';
     }
 
     public function testValidate(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile($this->testAppDir . '/test/manifest.xml');
+
+        $violations = $this->appNameValidator->validate($manifest, null);
+        static::assertCount(0, $violations->getElements());
+    }
+
+    public function testValidateNonCaseSensitive(): void
+    {
+        $manifest = Manifest::createFromXmlFile($this->testAppDir . '/test/manifest.xml');
+        $manifest->getMetadata()->assign(['name' => 'TeSt']);
 
         $violations = $this->appNameValidator->validate($manifest, null);
         static::assertCount(0, $violations->getElements());
@@ -32,7 +43,7 @@ class AppNameValidatorTest extends TestCase
 
     public function testValidateReturnsErrors(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidAppName/manifest.xml');
+        $manifest = Manifest::createFromXmlFile($this->testAppDir . '/invalidAppName/manifest.xml');
 
         $violations = $this->appNameValidator->validate($manifest, null);
 

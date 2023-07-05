@@ -35,13 +35,13 @@ return [
         // Removed boot method from Bundle
         'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
 
-        // Internal flag added
-        'The number of required arguments for Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator#generate\(\) increased from 3 to 4',
-        'Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator was marked \"@internal\"',
-        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront',
-        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\MainModule',
+        // __set cannot have a return value
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration#__set\(\) changed from no type to void',
 
-        // Removed property, which was unintentionally added
-        'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
+        // Should be removed with NEXT-29044
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
     ],
 ];

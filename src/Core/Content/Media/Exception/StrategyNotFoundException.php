@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::strategyNotFound instead
  */
 #[Package('content')]
-class StrategyNotFoundException extends ShopwareHttpException
+class StrategyNotFoundException extends MediaException
 {
     public function __construct(string $strategyName)
     {

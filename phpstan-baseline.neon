@@ -13358,6 +13358,11 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
 
 		-
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 2
+			path: src/Storefront/Test/Theme/ThemeTest.php
+
+		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php

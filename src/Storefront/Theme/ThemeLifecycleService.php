@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -390,7 +391,7 @@ class ThemeLifecycleService
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
-                if ($this->hasOldMedia($field) === false) {
+                if (!\array_key_exists('type', $field) || $field['type'] !== 'media' || !Uuid::isValid($field['value'])) {
                     continue;
                 }
                 $currentMediaIds[$key] = $field['value'];
@@ -413,6 +414,13 @@ class ThemeLifecycleService
                 ) {
                     $baseConfig['fields'][$key]['value'] = $currentMediaIds[$key] ?? $baseConfig['fields'][$key]['value'];
 
+                    continue;
+                }
+
+                if (
+                    isset($installedBaseConfig['fields'][$key]['value'])
+                    && $field['value'] === $installedBaseConfig['fields'][$key]['value']
+                ) {
                     continue;
                 }
 

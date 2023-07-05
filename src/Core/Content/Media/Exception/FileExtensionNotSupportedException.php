@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed, use MediaException::fileExtensionNotSupported instead
  */
 #[Package('content')]
-class FileExtensionNotSupportedException extends ShopwareHttpException
+class FileExtensionNotSupportedException extends MediaException
 {
     public function __construct(
         string $mediaId,
@@ -23,6 +23,8 @@ class FileExtensionNotSupportedException extends ShopwareHttpException
         );
 
         parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_FILE_TYPE_NOT_SUPPORTED,
             'The file extension "{{ extension }}" for media object with id {{ mediaId }} is not supported.',
             ['mediaId' => $mediaId, 'extension' => $extension]
         );

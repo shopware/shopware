@@ -100,6 +100,7 @@ class OrderStorer extends FlowStorer
             'currency',
             'addresses.country',
             'tags',
+            'documents',
         ]);
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));

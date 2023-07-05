@@ -2,7 +2,8 @@
 
 namespace Shopware\Storefront\Page\Account\RecoverPassword;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRecoveryIsExpiredRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,7 +29,7 @@ class AccountRecoverPasswordPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
+        private readonly AbstractCustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
     ) {
     }
 
@@ -37,6 +38,7 @@ class AccountRecoverPasswordPageLoader
      * @throws InconsistentCriteriaIdsException
      * @throws RoutingException
      * @throws ConstraintViolationException
+     * @throws CustomerNotFoundByHashException
      */
     public function load(Request $request, SalesChannelContext $context, string $hash): AccountRecoverPasswordPage
     {

@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('customer-order')]
 abstract class AbstractCustomerRecoveryIsExpiredRoute
 {
-    abstract public function getDecorated(): AbstractResetPasswordRoute;
+    abstract public function getDecorated(): AbstractCustomerRecoveryIsExpiredRoute;
 
     abstract public function load(RequestDataBag $data, SalesChannelContext $context): CustomerRecoveryIsExpiredResponse;
 }

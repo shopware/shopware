@@ -101,6 +101,36 @@ class CartRestorerTest extends TestCase
         );
     }
 
+    public function testRestoreByToken(): void
+    {
+        $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
+
+        $this->contextPersister->save($currentContext->getToken(), [], $currentContext->getSalesChannel()->getId());
+
+        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+
+        $restoredContext = $this->cartRestorer->restoreByToken($currentContext->getToken(), $this->customerId, $currentContext);
+
+        static::assertSame($currentContext->getToken(), $restoredContext->getToken());
+
+        static::assertArrayHasKey(SalesChannelContextRestoredEvent::class, $this->events);
+        $salesChannelRestoredEvent = $this->events[SalesChannelContextRestoredEvent::class];
+        static::assertInstanceOf(SalesChannelContextRestoredEvent::class, $salesChannelRestoredEvent);
+    }
+
+    public function testRestoreByTokenWithNotExistingToken(): void
+    {
+        $currentContext = $this->createSalesChannelContext('currentToken', $this->customerId);
+
+        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+
+        $restoredContext = $this->cartRestorer->restoreByToken($currentContext->getToken(), $this->customerId, $currentContext);
+
+        static::assertSame($currentContext->getToken(), $restoredContext->getToken());
+
+        static::assertArrayNotHasKey(SalesChannelContextRestoredEvent::class, $this->events);
+    }
+
     public function testRestore(): void
     {
         $expectedToken = Uuid::randomHex();
@@ -318,7 +348,7 @@ class CartRestorerTest extends TestCase
         static::assertEquals(5, $p2->getQuantity());
     }
 
-    public function testPermissionsAreIgnoredOnRestoer(): void
+    public function testPermissionsAreIgnoredOnRestore(): void
     {
         $currentContextToken = Random::getAlphanumericString(32);
 

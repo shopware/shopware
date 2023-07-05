@@ -55,7 +55,9 @@ class Generator extends TestCase
         ?CustomerAddressEntity $shipping = null,
         ?PaymentMethodEntity $paymentMethod = null,
         ?ShippingMethodEntity $shippingMethod = null,
-        ?CustomerEntity $customer = null
+        ?CustomerEntity $customer = null,
+        ?string $token = null,
+        ?string $domainId = null,
     ): SalesChannelContext {
         if (!$baseContext) {
             $baseContext = Context::createDefaultContext();
@@ -138,8 +140,8 @@ class Generator extends TestCase
 
         return new SalesChannelContext(
             $baseContext,
-            Uuid::randomHex(),
-            Uuid::randomHex(),
+            $token ?? Uuid::randomHex(),
+            $domainId ?? Uuid::randomHex(),
             $salesChannel,
             $currency,
             $currentCustomerGroup,

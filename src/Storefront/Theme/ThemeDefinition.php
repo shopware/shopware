@@ -63,6 +63,7 @@ class ThemeDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('parent_theme_id', 'parentThemeId', self::class))->addFlags(new ApiAware()),
+            new JsonField('theme_json', 'themeJson'),
             (new JsonField('base_config', 'baseConfig'))->addFlags(new ApiAware()),
             (new JsonField('config_values', 'configValues'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Required()),

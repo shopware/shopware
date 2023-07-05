@@ -53,6 +53,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="theme_child.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">

@@ -15216,16 +15216,6 @@ parameters:
 			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Command\\\\ThemeChangeCommandTest\\:\\:getSalesChannelData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Command/ThemeChangeCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Command\\\\ThemeChangeCommandTest\\:\\:getThemeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Command/ThemeChangeCommandTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Command\\\\ThemeCreateCommandTest\\:\\:commandFailsWithWrongNameDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/Command/ThemeCreateCommandTest.php
@@ -15234,16 +15224,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
 			count: 3
 			path: src/Storefront/Test/Theme/Command/ThemeCreateCommandTest.php
-
-		-
-			message: "#^Offset 0 might not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Command/ThemeDumpCommandTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Theme\\\\\\\\StorefrontPluginConfiguration\\\\\\\\StorefrontPluginConfiguration' and Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration will always evaluate to true\\.$#"
-			count: 4
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Theme\\\\\\\\StorefrontPluginConfiguration\\\\\\\\FileCollection' and Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection will always evaluate to true\\.$#"
@@ -15299,41 +15279,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$filePath of method Shopware\\\\Storefront\\\\Theme\\\\ThemeFileImporter\\:\\:getRealPath\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
-
-		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getHelpTexts\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getLabels\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getLanguage\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeLifecycleServiceTest\\:\\:getTranslationByLocale\\(\\) should return Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity but returns Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -15504,51 +15449,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:getResolveMappings\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:getAssetPaths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:getBasePath\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:getConfigInheritance\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:getThemeConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:setAssetPaths\\(\\) has parameter \\$assetPaths with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:setConfigInheritance\\(\\) has parameter \\$configInheritance with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:setThemeConfig\\(\\) has parameter \\$themeConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:\\$assetPaths type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:\\$themeConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"

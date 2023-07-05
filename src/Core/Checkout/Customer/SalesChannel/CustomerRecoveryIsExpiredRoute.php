@@ -37,7 +37,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
     ) {
     }
 
-    public function getDecorated(): AbstractResetPasswordRoute
+    public function getDecorated(): AbstractCustomerRecoveryIsExpiredRoute
     {
         throw new DecorationPatternException(self::class);
     }
@@ -52,6 +52,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
         $customerHashCriteria = new Criteria();
         $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
 
+        /** @var CustomerRecoveryEntity|null $customerRecovery */
         $customerRecovery = $this->customerRecoveryRepository->search(
             $customerHashCriteria,
             $context->getContext()

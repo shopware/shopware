@@ -65,6 +65,8 @@ export default {
         },
 
         ...mapPropertyErrors('mailTemplate', [
+            'contentHtml',
+            'contentPlain',
             'mailTemplateTypeId',
             'subject',
         ]),

@@ -259,6 +259,8 @@
                         :completer-function="outerCompleterFunction"
                         :editor-config="editorConfig"
                         :disabled="!acl.can('mail_templates.editor')"
+                        :error="mailTemplateContentPlainError"
+                        required
                     />
                     {% endblock %}
 
@@ -275,6 +277,8 @@
                         :completer-function="outerCompleterFunction"
                         :editor-config="editorConfig"
                         :disabled="!acl.can('mail_templates.editor')"
+                        :error="mailTemplateContentHtmlError"
+                        required
                     />
                     {% endblock %}
                 </sw-card>

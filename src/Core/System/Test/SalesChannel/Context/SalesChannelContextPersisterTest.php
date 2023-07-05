@@ -47,6 +47,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Random::getAlphanumericString(32);
         $expected = [
             'key' => 'value',
+            'token' => $token,
             'expired' => false,
         ];
 
@@ -90,6 +91,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $expected = [
             'key' => 'value',
             'expired' => false,
+            'token' => $token,
         ];
 
         $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL);
@@ -145,6 +147,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'first' => 'test',
             'second' => 'overwritten',
             'third' => 'third test',
+            'token' => $token,
         ];
 
         $actual = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL);

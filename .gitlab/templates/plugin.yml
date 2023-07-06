@@ -91,7 +91,7 @@ workflow:
   - tar -czf /tmp/plugin.tar.gz .
   - rm -Rf .* * || true
   - echo "Checkout platform branch $PLATFORM_BRANCH"
-  - git clone --depth=1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
   - >
       if ! [[ -z "${MERGE_REF_PATH}" ]]; then
         echo '$MERGE_REF_PATH is set, checking out merged result'
@@ -100,10 +100,6 @@ workflow:
         echo "Checking out ${MERGE_REF_PATH::-4}merge"
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
-  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
-  - PLATFORM_VERSION="${LATEST_TAG#"v"}"
-  - composer config version "$PLATFORM_VERSION"
-  - composer update
   - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
   - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
 

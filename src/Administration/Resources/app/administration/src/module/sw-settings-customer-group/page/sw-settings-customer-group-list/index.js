@@ -102,7 +102,7 @@ export default {
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, this.limit);
 
             criteria.addFilter(
                 Criteria.equalsAny('id', idsOfSelectedCustomerGroups),

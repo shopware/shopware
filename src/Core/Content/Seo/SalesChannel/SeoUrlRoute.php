@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -16,6 +17,8 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SeoUrlCollection> $salesChannelRepository
      */
     public function __construct(private readonly SalesChannelRepository $salesChannelRepository)
     {

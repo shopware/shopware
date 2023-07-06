@@ -3,12 +3,13 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,10 +27,16 @@ class MediaFolderRepositoryTest extends TestCase
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<MediaFolderCollection>
+     */
     private EntityRepository $folderRepository;
 
     protected function setUp(): void
@@ -56,7 +63,6 @@ class MediaFolderRepositoryTest extends TestCase
         ], $this->context);
 
         $folderRepository = $this->folderRepository;
-        /** @var EntitySearchResult|null $media */
         $media = null;
         $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$media, $folderId, $folderRepository): void {
             $media = $folderRepository->search(new Criteria([$folderId]), $context);

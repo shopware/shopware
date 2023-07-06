@@ -449,6 +449,8 @@ class FirstRunWizardControllerTest extends TestCase
 
     /**
      * @param array<string, mixed>[] $pluginData
+     *
+     * @return EntitySearchResult<PluginCollection>
      */
     private function createPluginSearchResult(Context $context, array $pluginData): EntitySearchResult
     {

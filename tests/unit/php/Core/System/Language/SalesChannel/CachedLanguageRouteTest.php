@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheKeyEvent;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\LanguageRouteResponse;
@@ -77,7 +77,7 @@ class CachedLanguageRouteTest extends TestCase
             new EntitySearchResult(
                 'entity',
                 1,
-                new EntityCollection(),
+                new LanguageCollection(),
                 null,
                 new Criteria(),
                 Context::createDefaultContext()

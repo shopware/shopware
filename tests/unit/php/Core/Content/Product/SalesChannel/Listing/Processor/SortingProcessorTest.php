@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -60,7 +60,7 @@ class SortingProcessorTest extends TestCase
             ])
         );
 
-        $result = new ProductListingResult('foo', 1, new EntityCollection(), null, new Criteria(), Context::createDefaultContext());
+        $result = new ProductListingResult('foo', 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
         $result->getCriteria()->addExtension('sortings', $sortings);
 
         $processor->process(

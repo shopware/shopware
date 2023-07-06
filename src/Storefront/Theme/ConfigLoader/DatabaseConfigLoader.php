@@ -6,7 +6,6 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -15,6 +14,7 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeConfigField;
 use Shopware\Storefront\Theme\ThemeEntity;
 
@@ -23,6 +23,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $themeRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly EntityRepository $themeRepository,
@@ -83,19 +86,17 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         $criteria = new Criteria();
         $criteria->setTitle('theme-service::load-config');
 
-        $themes = $this->themeRepository->search($criteria, $context);
+        $themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $themes->get($themeId);
-
-        /** @var ThemeEntity|null $theme */
         if (!$theme) {
             throw new InvalidThemeException($themeId);
         }
         $baseThemeConfig = [];
 
         if ($withBase) {
-            /** @var ThemeEntity $baseTheme */
             $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === $this->baseTheme)->first();
+            \assert($baseTheme !== null);
 
             $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
         }
@@ -119,7 +120,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
      *
      * @return array<string, ThemeEntity>
      */
-    private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
+    private function getParentThemeIds(ThemeCollection $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         // add configured parent themes
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
@@ -275,7 +276,6 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         $criteria = new Criteria($ids);
 
-        /** @var MediaCollection $mediaResult */
         $mediaResult = $this->mediaRepository->search($criteria, $context)->getEntities();
 
         // Replace all ids with the actual url
@@ -294,11 +294,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
                 continue;
             }
 
-            $media = $mediaResult->get($data['value']);
-
-            if ($media !== null) {
-                $config['fields'][$key]['value'] = $media->getUrl();
-            }
+            $config['fields'][$key]['value'] = $mediaResult->get($data['value'])->getUrl();
         }
 
         $pluginConfig->setThemeConfig($config);

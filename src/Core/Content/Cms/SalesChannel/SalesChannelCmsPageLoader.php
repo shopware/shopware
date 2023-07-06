@@ -34,11 +34,6 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     ) {
     }
 
-    /**
-     * @param array<string, mixed>|null $config
-     *
-     * @return EntitySearchResult<CmsPageCollection>
-     */
     public function load(
         Request $request,
         Criteria $criteria,

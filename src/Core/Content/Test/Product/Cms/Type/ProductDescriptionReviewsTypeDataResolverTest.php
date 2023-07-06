@@ -7,11 +7,11 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -32,7 +32,7 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
         $productReviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
         $productReviewRouteMock->method('load')->willReturn(
             new ProductReviewRouteResponse(
-                new EntitySearchResult('product', 0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+                new EntitySearchResult('product', 0, new ProductReviewCollection(), null, new Criteria(), Context::createDefaultContext())
             )
         );
 

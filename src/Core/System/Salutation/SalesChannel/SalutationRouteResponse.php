@@ -11,10 +11,13 @@ use Shopware\Core\System\Salutation\SalutationCollection;
 class SalutationRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<SalutationCollection>
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<SalutationCollection> $object
+     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -22,9 +25,6 @@ class SalutationRouteResponse extends StoreApiResponse
 
     public function getSalutations(): SalutationCollection
     {
-        /** @var SalutationCollection $collection */
-        $collection = $this->object->getEntities();
-
-        return $collection;
+        return $this->object->getEntities();
     }
 }

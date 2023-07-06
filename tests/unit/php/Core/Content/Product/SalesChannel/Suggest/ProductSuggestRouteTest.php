@@ -6,16 +6,15 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
-use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteResponse;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -79,7 +78,7 @@ class ProductSuggestRouteTest extends TestCase
             ->willReturn(new ProductListingResult(
                 ProductDefinition::ENTITY_NAME,
                 1,
-                new EntityCollection([]),
+                new ProductCollection([]),
                 null,
                 $criteria,
                 Context::createDefaultContext()
@@ -121,8 +120,6 @@ class ProductSuggestRouteTest extends TestCase
             $salesChannelContext,
             $criteria
         );
-
-        static::assertInstanceOf(ProductSuggestRouteResponse::class, $result);
 
         static::assertTrue(
             $suggestCriteriaEventFired,

@@ -11,10 +11,13 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class ProductListResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<ProductCollection>
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $object
+     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -22,9 +25,6 @@ class ProductListResponse extends StoreApiResponse
 
     public function getProducts(): ProductCollection
     {
-        /** @var ProductCollection $collection */
-        $collection = $this->object->getEntities();
-
-        return $collection;
+        return $this->object->getEntities();
     }
 }

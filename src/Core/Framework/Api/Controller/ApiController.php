@@ -87,7 +87,6 @@ class ApiController extends AbstractController
 
         /** @var EntityWrittenContainerEvent $eventContainer */
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
-            /** @var EntityRepository $entityRepo */
             $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
 
             return $entityRepo->clone($id, $context, null, $behavior);
@@ -197,8 +196,9 @@ class ApiController extends AbstractController
         $permissions = $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
         $root = $pathSegments[0]['entity'];
-        /** @var string $id id is always set, otherwise the route would not match */
+        /* id is always set, otherwise the route would not match */
         $id = $pathSegments[\count($pathSegments) - 1]['value'];
+        \assert(\is_string($id));
 
         $definition = $this->definitionRegistry->getByEntityName($root);
 
@@ -244,7 +244,6 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        /** @var IdSearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): IdSearchResult => $repository->searchIds($criteria, $context));
 
         return new JsonResponse([
@@ -257,7 +256,6 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        /** @var EntitySearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): EntitySearchResult => $repository->search($criteria, $context));
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);

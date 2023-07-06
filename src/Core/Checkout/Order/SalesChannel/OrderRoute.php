@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -15,7 +16,6 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Log\Package;
@@ -33,6 +33,9 @@ class OrderRoute extends AbstractOrderRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<PromotionCollection> $promotionRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
@@ -60,7 +63,6 @@ class OrderRoute extends AbstractOrderRoute
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('orderCustomer.customer');
 
-        /** @var EqualsFilter|null $deepLinkFilter */
         $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
             || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
 
@@ -70,7 +72,8 @@ class OrderRoute extends AbstractOrderRoute
             throw CartException::customerNotLoggedIn();
         }
 
-        $orders = $this->orderRepository->search($criteria, $context->getContext());
+        $orderResult = $this->orderRepository->search($criteria, $context->getContext());
+        $orders = $orderResult->getEntities();
 
         // remove old orders only if there is a deeplink filter
         if ($deepLinkFilter !== null) {
@@ -78,7 +81,7 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         // Handle guest authentication if deeplink is set
-        if (!$context->getCustomer() && $deepLinkFilter !== null) {
+        if (!$context->getCustomer() && $deepLinkFilter instanceof EqualsFilter) {
             try {
                 $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
@@ -87,7 +90,6 @@ class OrderRoute extends AbstractOrderRoute
                 throw OrderException::customerAuthThrottledException($exception->getWaitTime(), $exception);
             }
 
-            /** @var OrderEntity|null $order */
             $order = $orders->first();
             $this->checkGuestAuth($order, $request);
         }
@@ -96,9 +98,8 @@ class OrderRoute extends AbstractOrderRoute
             $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
         }
 
-        $response = new OrderRouteResponse($orders);
+        $response = new OrderRouteResponse($orderResult);
         if ($request->get('checkPromotion') === true) {
-            /** @var OrderEntity $order */
             foreach ($orders as $order) {
                 $promotions = $this->getActivePromotions($order, $context);
                 $changeable = true;
@@ -130,7 +131,6 @@ class OrderRoute extends AbstractOrderRoute
         if (!empty($promotionIds)) {
             $criteria = new Criteria($promotionIds);
             $criteria->addAssociation('cartRules');
-            /** @var PromotionCollection $promotions */
             $promotions = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
         }
 
@@ -168,7 +168,6 @@ class OrderRoute extends AbstractOrderRoute
 
     private function checkCartRule(RuleEntity $cartRule): bool
     {
-        /** @var Container $payload */
         $payload = $cartRule->getPayload();
         if (!$payload instanceof Container) {
             return true;
@@ -183,13 +182,12 @@ class OrderRoute extends AbstractOrderRoute
         return true;
     }
 
-    private function filterOldOrders(EntitySearchResult $orders): EntitySearchResult
+    private function filterOldOrders(OrderCollection $orders): OrderCollection
     {
         // Search with deepLinkCode needs updatedAt Filter
         $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
-        $orders = $orders->filter(fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
 
-        return $orders;
+        return $orders->filter(fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
     }
 
     /**

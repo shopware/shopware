@@ -12,6 +12,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -58,7 +59,7 @@ class SendMailActionTest extends TestCase
     private Translator $translator;
 
     /**
-     * @var EntitySearchResult&MockObject
+     * @var EntitySearchResult<MailTemplateCollection>&MockObject
      */
     private EntitySearchResult $entitySearchResult;
 

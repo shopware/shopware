@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
@@ -242,7 +243,7 @@ class PropertyFilterHandlerTest extends TestCase
         $result = new ProductListingResult(
             'test',
             1,
-            new EntityCollection(),
+            new ProductCollection(),
             new AggregationResultCollection([
                 new TermsResult('properties', [
                     new Bucket('red', 1, null),

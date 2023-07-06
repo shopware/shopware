@@ -138,9 +138,11 @@ class Context extends Struct
     }
 
     /**
-     * @param callable(Context): mixed $callback
+     * @template TReturn of mixed
      *
-     * @return mixed the return value of the provided callback function
+     * @param callable(Context): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
      */
     public function scope(string $scope, callable $callback)
     {

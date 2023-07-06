@@ -85,8 +85,8 @@ trait PromotionIntegrationTestBehaviour
      */
     public function getSessionCodes(): array
     {
-        /** @var SessionStorageInterface $mockFileSessionStorage */
         $mockFileSessionStorage = $this->getContainer()->get('session.storage.mock_file');
+        static::assertInstanceOf(SessionStorageInterface::class, $mockFileSessionStorage);
         $session = new Session($mockFileSessionStorage);
 
         if (!$session->has(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES)) {

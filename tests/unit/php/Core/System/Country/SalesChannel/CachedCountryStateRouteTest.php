@@ -14,11 +14,11 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheKeyEvent;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryStateRoute;
@@ -77,7 +77,7 @@ class CachedCountryStateRouteTest extends TestCase
             new EntitySearchResult(
                 'entity',
                 1,
-                new EntityCollection(),
+                new CountryStateCollection(),
                 null,
                 new Criteria(),
                 Context::createDefaultContext()

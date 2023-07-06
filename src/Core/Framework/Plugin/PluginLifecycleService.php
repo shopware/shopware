@@ -46,7 +46,6 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -63,6 +62,9 @@ class PluginLifecycleService
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     */
     public function __construct(
         private readonly EntityRepository $pluginRepo,
         private EventDispatcherInterface $eventDispatcher,
@@ -386,8 +388,7 @@ class PluginLifecycleService
             throw new PluginNotActivatedException($plugin->getName());
         }
 
-        /** @var PluginEntity[] $dependantPlugins */
-        $dependantPlugins = $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getElements();
+        $dependantPlugins = $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getEntities()->getElements();
 
         $dependants = $this->requirementValidator->resolveActiveDependants(
             $plugin,
@@ -532,7 +533,6 @@ class PluginLifecycleService
 
     private function rebuildContainerWithNewPluginState(PluginEntity $plugin): void
     {
-        /** @var Kernel $kernel */
         $kernel = $this->container->get('kernel');
 
         $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');
@@ -593,6 +593,8 @@ class PluginLifecycleService
      * Takes plugin base classes and returns the corresponding entities.
      *
      * @param Plugin[] $plugins
+     *
+     * @return EntitySearchResult<PluginCollection>
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {

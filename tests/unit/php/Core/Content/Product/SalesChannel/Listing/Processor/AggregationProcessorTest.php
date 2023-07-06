@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AggregationListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,7 +52,7 @@ class AggregationProcessorTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $result = new ProductListingResult('test', 0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext());
+        $result = new ProductListingResult('test', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
 
         $processor->process(new Request(), $result, $context);
 
@@ -71,7 +71,7 @@ class AggregationProcessorTest extends TestCase
 
         $processor->prepare(new Request(), $criteria, $context);
 
-        $result = new ProductListingResult('test', 0, new EntityCollection(), null, $criteria, Context::createDefaultContext());
+        $result = new ProductListingResult('test', 0, new ProductCollection(), null, $criteria, Context::createDefaultContext());
 
         $processor->process(new Request(), $result, $context);
 

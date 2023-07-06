@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -9,9 +10,17 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @template TEntityCollection of EntityCollection
+ *
+ * @extends EntitySearchResultLoadedEvent<TEntityCollection>
+ */
 #[Package('sales-channel')]
 class SalesChannelEntitySearchResultLoadedEvent extends EntitySearchResultLoadedEvent implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param EntitySearchResult<TEntityCollection> $result
+     */
     public function __construct(
         EntityDefinition $definition,
         EntitySearchResult $result,

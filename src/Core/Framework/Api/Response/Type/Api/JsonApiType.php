@@ -35,8 +35,14 @@ class JsonApiType extends JsonFactoryBase
         return $contentType === 'application/vnd.api+json' && $origin instanceof AdminApiSource;
     }
 
-    public function createDetailResponse(Criteria $criteria, Entity $entity, EntityDefinition $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
-    {
+    public function createDetailResponse(
+        Criteria $criteria,
+        Entity $entity,
+        EntityDefinition $definition,
+        Request $request,
+        Context $context,
+        bool $setLocationHeader = false
+    ): Response {
         $headers = [];
 
         $entityBaseUrl = $this->getEntityBaseUrl($request, $definition);
@@ -61,8 +67,13 @@ class JsonApiType extends JsonFactoryBase
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, $headers, true);
     }
 
-    public function createListingResponse(Criteria $criteria, EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
-    {
+    public function createListingResponse(
+        Criteria $criteria,
+        EntitySearchResult $searchResult,
+        EntityDefinition $definition,
+        Request $request,
+        Context $context
+    ): Response {
         $baseUrl = $this->getBaseUrl($request);
         $uri = $baseUrl . $request->getPathInfo();
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -18,6 +19,8 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
     public function __construct(private readonly SalesChannelRepository $newsletterRecipientRepository)
     {

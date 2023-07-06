@@ -11,10 +11,13 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class CountryStateRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<CountryStateCollection>
      */
     protected $object;
 
+    /**
+     * @param EntitySearchResult<CountryStateCollection> $object
+     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -22,9 +25,6 @@ class CountryStateRouteResponse extends StoreApiResponse
 
     public function getStates(): CountryStateCollection
     {
-        /** @var CountryStateCollection $countryStateCollection */
-        $countryStateCollection = $this->object->getEntities();
-
-        return $countryStateCollection;
+        return $this->object->getEntities();
     }
 }

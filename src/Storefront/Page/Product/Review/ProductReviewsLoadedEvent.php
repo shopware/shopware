@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var StorefrontSearchResult
+     * @var StorefrontSearchResult<ProductReviewCollection>
      */
     protected $searchResult;
 
@@ -28,6 +29,9 @@ class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChan
      */
     protected $request;
 
+    /**
+     * @param StorefrontSearchResult<ProductReviewCollection> $searchResult
+     */
     public function __construct(
         StorefrontSearchResult $searchResult,
         SalesChannelContext $salesChannelContext,
@@ -38,6 +42,9 @@ class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChan
         $this->request = $request;
     }
 
+    /**
+     * @return StorefrontSearchResult<ProductReviewCollection>
+     */
     public function getSearchResult(): StorefrontSearchResult
     {
         return $this->searchResult;

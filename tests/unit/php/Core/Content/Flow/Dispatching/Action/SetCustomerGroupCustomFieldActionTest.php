@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
@@ -26,11 +28,12 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
+    /**
+     * @var MockObject&EntitySearchResult<CustomerGroupCollection>
+     */
     private MockObject&EntitySearchResult $entitySearchResult;
 
     private SetCustomerGroupCustomFieldAction $action;
-
-    private MockObject&StorableFlow $flow;
 
     protected function setUp(): void
     {
@@ -39,8 +42,6 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetCustomerGroupCustomFieldAction($this->connection, $this->repository);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -68,11 +69,10 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setCustomFields($existsData);
 
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
-
-        $customerGroupId = $this->flow->getData('customerGroupId');
+        $context = Context::createDefaultContext();
+        $customerGroupId = Uuid::randomHex();
+        $flow = new StorableFlow('', $context, [], [CustomerGroupAware::CUSTOMER_GROUP_ID => $customerGroupId]);
+        $flow->setConfig($config);
 
         $this->entitySearchResult->expects(static::once())
             ->method('first')
@@ -90,16 +90,15 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
             ->method('update')
             ->with([['id' => $customerGroupId, 'customFields' => $expected['custom_field_test'] ? $expected : null]]);
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
+        $flow = new StorableFlow('', Context::createDefaultContext(), [], []);
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator

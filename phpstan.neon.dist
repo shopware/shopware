@@ -235,7 +235,14 @@ parameters:
         # NEXT-29041 - Needs to be fixed with a script, rest goes to baseline
         - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
         - '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
-        - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
+
+        - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
+            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
+                - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
+                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
+                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
@@ -243,6 +250,13 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
                 - src/Core/Framework/DataAbstractionLayer/EntityRepository.php
                 - src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+        - # It is not possible to specify the type of the EntitySearchResult, as the CmsSlotDataResolver and the ElementDataCollection are used for multiple entities at the same time
+            message: '#.* with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.*not specify its types: TElement#'
+            paths:
+                - src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
+                - src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
+        - '#Parameter \#2 \$entitySearchResult of method Shopware\\Core\\Content\\Cms\\DataResolver\\Element\\ElementDataCollection::add\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\.*Collection> given#'
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

@@ -80,7 +80,6 @@ class MediaRepositoryTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        /** @var EntitySearchResult|null $media */
         $media = null;
         $this->context->scope(Context::USER_SCOPE, function () use ($mediaId, &$media, $mediaRepository): void {
             $media = $mediaRepository->search(new Criteria([$mediaId]), $this->context);
@@ -200,7 +199,6 @@ class MediaRepositoryTest extends TestCase
         static::assertEquals(0, $media->count());
 
         $documentRepository = $this->documentRepository;
-        /** @var EntitySearchResult|null $document */
         $document = null;
         $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository): void {
             $criteria = new Criteria([$documentId]);

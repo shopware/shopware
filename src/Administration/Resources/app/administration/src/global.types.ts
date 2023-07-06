@@ -123,9 +123,6 @@ declare global {
     type $TSFixMe = any;
     type $TSFixMeFunction = (...args: any[]) => any;
 
-    // TODO: remove with https://github.com/vuejs/core/issues/8611
-    type $TSFixMeData<T> = T;
-
     /**
      * Dangerous "unknown" types which are specific enough but do not provide type safety.
      * You should avoid using these.

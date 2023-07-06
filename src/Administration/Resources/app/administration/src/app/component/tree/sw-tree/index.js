@@ -46,6 +46,8 @@ const { debounce, sort } = Shopware.Utils;
 Component.register('sw-tree', {
     template,
 
+    inject: ['feature'],
+
     props: {
         items: {
             type: Array,
@@ -504,7 +506,12 @@ Component.register('sw-tree', {
                 return;
             }
 
-            const newElem = this.$parent.createNewElement(null, null, name);
+            let newElem = null;
+            if (this.feature.isActive('VUE3')) {
+                newElem = this.$parent.$parent.createNewElement(null, null, name);
+            } else {
+                newElem = this.$parent.createNewElement(null, null, name);
+            }
 
             this.saveItems();
 
@@ -523,6 +530,21 @@ Component.register('sw-tree', {
             }
             this.currentEditMode = this.addSubElement;
 
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.getChildrenFromParent(contextItem.id).then(() => {
+                    const parentElement = contextItem;
+                    const newElem = this.$parent.$parent.createNewElement(contextItem, contextItem.id);
+                    const newTreeItem = this.getNewTreeItem(newElem);
+
+                    parentElement.childCount += 1;
+                    parentElement.data.childCount += 1;
+                    this.newElementId = newElem.id;
+                    this.createdItem = newTreeItem;
+                });
+
+                return;
+            }
+
             this.$parent.getChildrenFromParent(contextItem.id).then(() => {
                 const parentElement = contextItem;
                 const newElem = this.$parent.createNewElement(contextItem, contextItem.id);
@@ -536,11 +558,22 @@ Component.register('sw-tree', {
         },
 
         duplicateElement(contextItem) {
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.duplicateElement(contextItem);
+
+                return;
+            }
+
             this.$parent.duplicateElement(contextItem);
         },
 
         addElement(contextItem, pos) {
-            const newElem = this.$parent.createNewElement(contextItem);
+            let newElem = null;
+            if (this.feature.isActive('VUE3')) {
+                newElem = this.$parent.$parent.createNewElement(contextItem);
+            } else {
+                newElem = this.$parent.createNewElement(contextItem);
+            }
 
             const newTreeItem = this.getNewTreeItem(newElem);
 

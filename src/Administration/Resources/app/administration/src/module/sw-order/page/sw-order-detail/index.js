@@ -130,6 +130,8 @@ export default {
                 .addAssociation('stateMachineState')
                 .addSorting(Criteria.sort('createdAt'));
 
+            criteria.addAssociation('billingAddress');
+
             return criteria;
         },
     },

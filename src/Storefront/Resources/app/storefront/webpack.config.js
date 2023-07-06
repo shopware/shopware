@@ -324,6 +324,9 @@ let webpackConfig = {
     ],
     resolve: {
         extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
+        extensionAlias: {
+            '.js': ['.ts', '.js'],
+        },
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
             path.resolve(__dirname, 'node_modules'),

@@ -166,6 +166,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'transactions',
             'documents',
             'tags',
+            'billingAddress',
         ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
     });
 

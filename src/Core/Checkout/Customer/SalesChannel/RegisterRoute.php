@@ -46,6 +46,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -74,7 +75,8 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly SalesChannelRepository $countryRepository,
         protected Connection $connection,
         private readonly SalesChannelContextServiceInterface $contextService,
-        private readonly StoreApiCustomFieldMapper $customFieldMapper
+        private readonly StoreApiCustomFieldMapper $customFieldMapper,
+        private readonly EntityRepository $salutationRepository,
     ) {
     }
 
@@ -90,6 +92,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($data->has('accountType') && empty($data->get('accountType'))) {
             $data->remove('accountType');
+        }
+
+        if (!$data->get('salutationId')) {
+            $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
@@ -565,5 +571,19 @@ class RegisterRoute extends AbstractRegisterRoute
             [$emailHash, $customer->getHash()],
             $urlEvent->getConfirmUrl()
         );
+    }
+
+    private function getDefaultSalutationId(SalesChannelContext $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
+        );
+
+        /** @var array<string> $ids */
+        $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
+
+        return $ids[0] ?? '';
     }
 }

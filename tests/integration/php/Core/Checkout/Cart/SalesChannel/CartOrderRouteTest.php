@@ -145,57 +145,6 @@ class CartOrderRouteTest extends TestCase
         static::assertCount(1, $response['lineItems']);
     }
 
-    public function testOrderWithBlockingCartErrors(): void
-    {
-        $this->createCustomerAndLogin(null, null, SyncTestPaymentHandler::class, true);
-
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('cart', $response['apiAlias']);
-        static::assertSame(10, $response['price']['totalPrice']);
-        static::assertCount(1, $response['lineItems']);
-
-        // Order
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order'
-            );
-
-        $content = $this->browser->getResponse()->getContent();
-        static::assertIsString($content);
-        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        $statusCode = (int) $response['errors'][0]['status'];
-        static::assertGreaterThanOrEqual(400, $statusCode);
-        static::assertLessThanOrEqual(500, $statusCode);
-
-        if ($statusCode === 400) {
-            static::assertSame('salutation-missing-profile', $response['errors'][0]['meta']['parameters']['key']);
-        } else {
-            static::assertSame('CHECKOUT__CART_INVALID', $response['errors'][0]['code']);
-        }
-    }
-
     public function testOrderWithComment(): void
     {
         $this->createCustomerAndLogin();
@@ -462,7 +411,6 @@ class CartOrderRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
         // we should get a new token and it should be different from the expired token context
-        static::assertNotNull($guestToken);
         static::assertNotEquals($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 

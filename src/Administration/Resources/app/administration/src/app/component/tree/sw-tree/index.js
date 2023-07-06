@@ -48,12 +48,6 @@ Component.register('sw-tree', {
 
     inject: ['feature'],
 
-    provide() {
-        return {
-            getItems: this.getItems,
-        };
-    },
-
     props: {
         items: {
             type: Array,

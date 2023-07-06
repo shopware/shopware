@@ -266,7 +266,7 @@ function applyTemplateOverrides(name) {
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render(templateVars);
+        const finalHtml = item.template.render({ VUE3: !!window._features_?.VUE3 });
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -300,7 +300,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render(templateVars);
+    const finalHtml = updatedTemplate.template.render({ VUE3: !!window._features_?.VUE3 });
 
     // Update item which will written to the registry
     updatedTemplate = {

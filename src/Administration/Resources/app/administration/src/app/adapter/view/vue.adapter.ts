@@ -54,7 +54,7 @@ export default class VueAdapter extends ViewAdapter {
 
         if (this.vue3) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app = createApp({ template: '<sw-admin />' }) as Vue;
+            this.app = createApp({ name: 'ShopwareAdministration', template: '<sw-admin />' }) as Vue;
         }
     }
 

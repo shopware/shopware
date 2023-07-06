@@ -11,7 +11,7 @@ const { Component } = Shopware;
 Component.register('sw-tree-item', {
     template,
 
-    inject: ['feature', 'getItems'],
+    inject: ['feature'],
 
     props: {
         item: {
@@ -378,6 +378,14 @@ Component.register('sw-tree-item', {
 
                 this.getItems(treeItem.data.id, treeItem.data.schema);
             }
+        },
+
+        getItems(args, schema) {
+            if (this.feature.isActive('VUE3')) {
+                return this.$parent.$parent.getItems(args, schema);
+            }
+
+            return this.$parent.getItems(args, schema);
         },
 
         dragStart(config, element, dragElement) {

@@ -50,8 +50,6 @@ parameters:
 			count: 1
 			path: src/Administration/Service/AdminSearcher.php
 
-
-
 		-
 			message: "#^Parameter \\#1 \\$duplicatedKeys of static method Shopware\\\\Administration\\\\Snippet\\\\SnippetException\\:\\:duplicatedFirstLevelKey\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, string\\> given\\.$#"
 			count: 1
@@ -548,11 +546,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Event/WishlistMergedEvent.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getStatus\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/AccountNewsletterRecipientRouteResponse.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
@@ -796,21 +789,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getRuleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/OrderEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:addPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:getPaymentsChangeable\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:setPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Aggregate\\\\PaymentMethodTranslation\\\\PaymentMethodTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -1901,11 +1879,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$object of class Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\CmsRouteResponse constructor expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/SalesChannel/CmsRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\SalesChannelCmsPageLoaderInterface\\:\\:load\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoaderInterface.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageSliderStruct\\:\\:getNavigation\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -4003,6 +3976,36 @@ parameters:
 			path: src/Core/Content/Test/Cms/SalesChannel/CmsRouteTest.php
 
 		-
+			message: "#^Anonymous variable in a `\\$flow\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			count: 4
+			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
+
+		-
+			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getPayload\\(\\)\\.$#"
+			count: 1
+			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false will always evaluate to false\\.$#"
+			count: 1
+			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
+
+		-
+			message: "#^Cannot call method getPayload\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 3
+			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
+
+		-
+			message: "#^Cannot call method getSequences\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 2
+			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
+
+		-
+			message: "#^Instanceof between Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\IfSequence and Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\ActionSequence will always evaluate to false\\.$#"
+			count: 1
+			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
+
+		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Flow/Dispatching/FlowBuilderTest.php
@@ -4591,11 +4594,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int\\|string, array\\<int\\|string, int\\|string\\>\\|int\\|string\\>\\|string given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$me\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 4
-			path: src/Core/Content/Test/Newsletter/DataAbstractionLayer/Indexing/CustomerNewsletterSalesChannelsUpdaterTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -5248,6 +5246,11 @@ parameters:
 			path: src/Core/Content/Test/ProductStream/ProductStreamRepositoryTest.php
 
 		-
+			message: "#^Cannot call method getOptions\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null\\.$#"
+			count: 6
+			path: src/Core/Content/Test/Property/PropertySortTest.php
+
+		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Rule/DataAbstractionLayer/RulePayloadIndexerTest.php
@@ -5835,16 +5838,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$skip of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:sendIndexingMessage\\(\\) expects list\\<string\\>, array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/IndexingController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$event\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/IntegrationController.php
-
-		-
-			message: "#^Anonymous variable in a `\\$events\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/IntegrationController.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:convert\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
@@ -9907,6 +9900,51 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
 
 		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\TermsResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 9
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\AvgResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\CountResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 5
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\EntityResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 2
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MaxResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MinResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 2
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
+			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\SumResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\TestData\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/GroupByTest.php
@@ -12532,6 +12570,11 @@ parameters:
 			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
 
 		-
+			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\MaintenanceModeResolver\\:\\:getMaintenanceWhitelist\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Framework/Routing/MaintenanceModeResolver.php
+
+		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/Router.php
@@ -13882,26 +13925,6 @@ parameters:
 			path: tests/integration/php/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 9
-			path: tests/integration/php/Core/Content/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
-			message: "#^Cannot call method getOptionIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: tests/integration/php/Core/Content/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
-			message: "#^Cannot call method getVariantListingConfig\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
-			message: "#^Cannot call method hasExtension\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 8
-			path: tests/integration/php/Core/Content/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getDeSearchConfig\\(\\) is unused\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
@@ -14376,37 +14399,7 @@ parameters:
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/SetOrderStateActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ConfirmUrlStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContactFormDataStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContentsStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContextTokenStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/DataStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/EmailStorerTest.php
+			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/SetOrderStateActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
@@ -14541,7 +14534,12 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SalesChannel\\\\\\\\NoContentResponse' and Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRouteTest.php
+			path: tests/unit/php/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRouteTest.php
+
+		-
+			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceContainer is not allowed\\. The object is very basic and can be constructed$#"
+			count: 1
+			path: tests/unit/php/Core/Content/Product/Subscriber/ProductSubscriberTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult is not allowed\\. The object is very basic and can be constructed$#"

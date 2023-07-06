@@ -244,7 +244,6 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        /** @var IdSearchResult $result */
         $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): IdSearchResult => $repository->searchIds($criteria, $context));
 
         return new JsonResponse([

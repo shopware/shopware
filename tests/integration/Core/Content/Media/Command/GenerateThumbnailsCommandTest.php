@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
@@ -43,6 +44,8 @@ class GenerateThumbnailsCommandTest extends TestCase
     private EntityRepository $mediaFolderRepository;
 
     private GenerateThumbnailsCommand $thumbnailCommand;
+
+    private UrlGeneratorInterface $urlGenerator;
 
     private Context $context;
 

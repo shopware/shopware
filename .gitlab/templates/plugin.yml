@@ -86,6 +86,14 @@ workflow:
   - rm -Rf .* * || true
   - echo "Checkout platform branch $PLATFORM_BRANCH"
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+  - >
+      if ! [[ -z "${MERGE_REF_PATH}" ]]; then
+        echo '$MERGE_REF_PATH is set, checking out merged result'
+        git config remote.origin.fetch '+refs/merge-requests/*:refs/merge-requests/*'
+        git fetch origin ${MERGE_REF_PATH::-4}merge
+        echo "Checking out ${MERGE_REF_PATH::-4}merge"
+        git checkout ${MERGE_REF_PATH::-4}merge
+      fi
   - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
   - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
 

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
+use Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -56,6 +58,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
 
         $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
+        static::assertNotNull($indexer);
         $indexer->iterate(null);
 
         static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
@@ -68,6 +71,8 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertEmpty($before);
 
         $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
+        static::assertNotNull($indexer);
+
         $indexer->iterate(null);
         $indexer->iterate(null);
 
@@ -77,6 +82,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testItSkipsIndexGenerationForUnusedLanguages(): void
     {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
         $container = $this->getContainer();
         $connection = $container->get(Connection::class);
         $languageRepository = $container->get(\sprintf('%s.repository', LanguageDefinition::ENTITY_NAME));
@@ -98,6 +105,8 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
+
+        static::assertNotNull($indexer);
         // First index will not create indexes
         $indexer->iterate(null);
         $indexer->iterate(null);
@@ -122,6 +131,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateDispatchesElasticsearchIndexerLanguageCriteriaEvent(): void
     {
+        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
+
         $container = $this->getContainer();
         $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcherMock
@@ -146,8 +157,10 @@ class ElasticsearchIndexerTest extends TestCase
             $container->get(\sprintf('%s.repository', LanguageDefinition::ENTITY_NAME)),
             $eventDispatcherMock,
             $container->getParameter('elasticsearch.indexing_batch_size'),
-            $this->createMock(MessageBusInterface::class)
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(MultilingualEsIndexer::class)
         );
+
         $indexer->iterate(null);
     }
 

@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -54,6 +56,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -74,10 +77,13 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -120,14 +126,15 @@ class ElasticsearchProductTest extends TestCase
 
     private string $anotherCurrencyId = '2c962ddb7b3346f29c748a9d3b884302';
 
-    private ElasticsearchProductDefinition $definition;
+    private AbstractElasticsearchDefinition $definition;
 
     private Context $context;
 
     protected function setUp(): void
     {
         $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue($this->definition, null);
+
+        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
 
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
@@ -252,14 +259,21 @@ class ElasticsearchProductTest extends TestCase
                 new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
             );
 
-            $languages = $this->languageRepository->searchIds($criteria, $context);
-
-            foreach ($languages->getIds() as $languageId) {
-                \assert(\is_string($languageId));
-                $index = $this->helper->getIndexName($this->productDefinition, $languageId);
+            if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+                $index = $this->helper->getIndexName($this->productDefinition);
 
                 $exists = $this->client->indices()->exists(['index' => $index]);
                 static::assertTrue($exists, 'Expected elasticsearch indices present');
+            } else {
+                $languages = $this->languageRepository->searchIds($criteria, $context);
+
+                foreach ($languages->getIds() as $languageId) {
+                    \assert(\is_string($languageId));
+                    $index = $this->helper->getIndexName($this->productDefinition, $languageId);
+
+                    $exists = $this->client->indices()->exists(['index' => $index]);
+                    static::assertTrue($exists, 'Expected elasticsearch indices present');
+                }
             }
 
             return $this->ids;
@@ -813,7 +827,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('avg-stock'));
 
-            /** @var AvgResult $result */
             $result = $aggregations->get('avg-stock');
             static::assertInstanceOf(AvgResult::class, $result);
 
@@ -844,7 +857,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -893,9 +905,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
-
             static::assertInstanceOf(TermsResult::class, $result);
 
             static::assertCount(3, $result->getBuckets());
@@ -908,7 +918,6 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
 
-            /** @var AvgResult $price */
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
             static::assertEquals(2, $price->getAvg());
@@ -953,7 +962,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -1000,7 +1008,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('sum-stock'));
 
-            /** @var SumResult $result */
             $result = $aggregations->get('sum-stock');
             static::assertInstanceOf(SumResult::class, $result);
 
@@ -1033,7 +1040,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -1046,7 +1052,6 @@ class ElasticsearchProductTest extends TestCase
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
-            /** @var SumResult $price */
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
             static::assertEquals(0, $price->getSum());
@@ -1090,7 +1095,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('max-stock'));
 
-            /** @var MaxResult $result */
             $result = $aggregations->get('max-stock');
             static::assertInstanceOf(MaxResult::class, $result);
 
@@ -1123,7 +1127,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -1136,7 +1139,6 @@ class ElasticsearchProductTest extends TestCase
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
-            /** @var MaxResult $price */
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
             static::assertEquals(2, $price->getMax());
@@ -1180,7 +1182,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('min-stock'));
 
-            /** @var MinResult $result */
             $result = $aggregations->get('min-stock');
             static::assertInstanceOf(MinResult::class, $result);
 
@@ -1213,7 +1214,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -1226,7 +1226,6 @@ class ElasticsearchProductTest extends TestCase
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
-            /** @var MinResult $stock */
             $stock = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $stock);
             static::assertEquals(2, $stock->getMin());
@@ -1270,7 +1269,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-count'));
 
-            /** @var CountResult $result */
             $result = $aggregations->get('manufacturer-count');
             static::assertInstanceOf(CountResult::class, $result);
 
@@ -1303,7 +1301,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -1316,7 +1313,6 @@ class ElasticsearchProductTest extends TestCase
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
-            /** @var CountResult $stock */
             $stock = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $stock);
             static::assertEquals(1, $stock->getCount());
@@ -1360,7 +1356,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('price-stats'));
 
-            /** @var StatsResult $result */
             $result = $aggregations->get('price-stats');
             static::assertInstanceOf(StatsResult::class, $result);
 
@@ -1397,7 +1392,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturer-ids'));
 
-            /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             static::assertInstanceOf(TermsResult::class, $result);
 
@@ -1410,7 +1404,6 @@ class ElasticsearchProductTest extends TestCase
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
-            /** @var StatsResult $price */
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
             static::assertEquals(50, $price->getSum());
@@ -1463,7 +1456,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturers'));
 
-            /** @var EntityResult $result */
             $result = $aggregations->get('manufacturers');
             static::assertInstanceOf(EntityResult::class, $result);
 
@@ -1498,7 +1490,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('manufacturers'));
 
-            /** @var EntityResult $result */
             $result = $aggregations->get('manufacturers');
             static::assertInstanceOf(EntityResult::class, $result);
 
@@ -1575,7 +1566,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($aggregations->has('avg-stock'));
 
-            /** @var AvgResult $result */
             $result = $aggregations->get('avg-stock');
             static::assertInstanceOf(AvgResult::class, $result);
 
@@ -1617,7 +1607,7 @@ class ElasticsearchProductTest extends TestCase
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
             $result = $aggregations->get('properties');
-            /** @var TermsResult $result */
+            static::assertInstanceOf(TermsResult::class, $result);
             static::assertNotContains($data->get('green'), $result->getKeys());
             static::assertNotContains($data->get('xl'), $result->getKeys());
             static::assertNotContains($data->get('l'), $result->getKeys());
@@ -1647,7 +1637,7 @@ class ElasticsearchProductTest extends TestCase
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
             $result = $aggregations->get('properties');
 
-            /** @var TermsResult $result */
+            static::assertInstanceOf(TermsResult::class, $result);
             static::assertContains($data->get('red'), $result->getKeys());
             static::assertContains($data->get('green'), $result->getKeys());
             static::assertNotContains($data->get('xl'), $result->getKeys());
@@ -1712,8 +1702,8 @@ class ElasticsearchProductTest extends TestCase
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
 
-            /** @var BucketResult $result */
             $result = $aggregations->get('properties');
+            static::assertInstanceOf(BucketResult::class, $result);
             static::assertContains($data->get('xl'), $result->getKeys());
             static::assertContains($data->get('red'), $result->getKeys());
 
@@ -1752,8 +1742,8 @@ class ElasticsearchProductTest extends TestCase
             );
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
 
-            /** @var BucketResult $result */
             $result = $aggregations->get('properties');
+            static::assertInstanceOf(BucketResult::class, $result);
             static::assertNotContains($data->get('xl'), $result->getKeys());
             static::assertNotContains($data->get('red'), $result->getKeys());
 
@@ -1798,7 +1788,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($result->has('release-histogram'));
 
-            /** @var DateHistogramResult|null $histogram */
             $histogram = $result->get('release-histogram');
             static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
@@ -1952,7 +1941,6 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue($result->has('release-histogram'));
 
-            /** @var DateHistogramResult|null $histogram */
             $histogram = $result->get('release-histogram');
             static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
@@ -1960,7 +1948,6 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $histogram->get('2019-01-01 00:00:00');
             static::assertInstanceOf(Bucket::class, $bucket);
-            /** @var AvgResult $price */
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
             static::assertEquals(6, $price->getAvg());
@@ -2716,94 +2703,144 @@ class ElasticsearchProductTest extends TestCase
     {
         $context = $this->createIndexingContext();
 
+        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+
         // Fetch: Default language
-        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $context);
+        $esProducts = $this->definition->fetch([$dal1], $context);
 
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $context)->first();
+        $dalProduct = $this->productRepository->search($criteria, $context)->first();
 
-        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
+        } else {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        }
 
         // Fetch: Second language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
         $languageContext->addExtensions($context->getExtensions());
-        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+        $esProducts = $this->definition->fetch([$dal1], $languageContext);
 
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->getContainer()->get('product.repository')
-            ->search($criteria, $languageContext)
-            ->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
-        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
+        } else {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        }
 
         // Fetch: Third language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
         $languageContext->addExtensions($context->getExtensions());
-        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+        $esProducts = $this->definition->fetch([$dal1], $languageContext);
 
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->getContainer()->get('product.repository')
-            ->search($criteria, $languageContext)
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)
             ->first();
 
-        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
+        } else {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        }
 
         // Fetch: Second language variant fallback to parent
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
         $languageContext->addExtensions($context->getExtensions());
         $languageContext->setConsiderInheritance(true);
-        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.1')], $languageContext);
+
+        $dal21 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-2.1') : $ids->getBytes('dal-2.1');
+
+        $esProducts = $this->definition->fetch([$dal21], $languageContext);
 
         $esProduct = $esProducts[$ids->get('dal-2.1')];
 
         $criteria = new Criteria([$ids->get('dal-2.1')]);
-        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
-        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
+        } else {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        }
 
         // Fetch: Fallback through parent to variant in other language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2'), Defaults::LANGUAGE_SYSTEM]);
         $languageContext->addExtensions($context->getExtensions());
         $languageContext->setConsiderInheritance(true);
-        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.2')], $languageContext);
+
+        $dal22 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-2.2') : $ids->getBytes('dal-2.2');
+
+        $esProducts = $this->definition->fetch([$dal22], $languageContext);
 
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
-        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
+        } else {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        }
 
         // Fetch: Fallback to parent on null-entry
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
         $languageContext->addExtensions($context->getExtensions());
         $languageContext->setConsiderInheritance(true);
-        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.2')], $languageContext);
+
+        $dal22 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-2.2') : $ids->getBytes('dal-2.2');
+
+        $esProducts = $this->definition->fetch([$dal22], $languageContext);
 
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
-        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        static::assertInstanceOf(ProductEntity::class, $dalProduct);
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
+        } else {
+            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+        }
     }
 
     /**
@@ -2811,7 +2848,9 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testReleaseDate(IdsCollection $ids): void
     {
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
+        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+
+        $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
 
@@ -2823,7 +2862,9 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
     {
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
+        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+
+        $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
 
@@ -2839,7 +2880,9 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCategoriesProperties(IdsCollection $ids): void
     {
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
+        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+
+        $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
         $categoryIds = \array_column($product['categoriesRo'], 'id');
@@ -2856,55 +2899,104 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCustomFieldsGetMapped(IdsCollection $ids): void
     {
-        $ref = new \ReflectionClass($this->definition);
-        $property = $ref->getProperty('customFieldsTypes');
-        $property->setAccessible(true);
-        $property->setValue($this->definition, null);
-
         $mapping = $this->definition->getMapping($this->context);
 
-        $expected = [
-            'type' => 'object',
-            'dynamic' => true,
-            'properties' => [
-                'test_bool' => [
-                    'type' => 'boolean',
-                ],
-                'test_date' => [
-                    'type' => 'date',
-                    'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
-                    'ignore_malformed' => true,
-                ],
-                'test_float' => [
-                    'type' => 'double',
-                ],
-                'test_int' => [
-                    'type' => 'long',
-                ],
-                'test_object' => [
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            /** @var list<string> $languages */
+            $languages = $this->languageRepository->searchIds(new Criteria(), $this->context)->getIds();
+
+            $expected = [
+                'properties' => [],
+            ];
+
+            foreach ($languages as $language) {
+                $expected['properties'][$language] = [
                     'type' => 'object',
                     'dynamic' => true,
+                    'properties' => [
+                        'test_bool' => [
+                            'type' => 'boolean',
+                        ],
+                        'test_date' => [
+                            'type' => 'date',
+                            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                            'ignore_malformed' => true,
+                        ],
+                        'test_float' => [
+                            'type' => 'double',
+                        ],
+                        'test_int' => [
+                            'type' => 'long',
+                        ],
+                        'test_object' => [
+                            'type' => 'object',
+                            'dynamic' => true,
+                        ],
+                        'test_select' => [
+                            'type' => 'keyword',
+                        ],
+                        'test_html' => [
+                            'type' => 'text',
+                        ],
+                        'test_text' => [
+                            'type' => 'text',
+                        ],
+                        'test_unmapped' => [
+                            'type' => 'keyword',
+                        ],
+                        'testFloatingField' => [
+                            'type' => 'double',
+                        ],
+                        'testField' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                ];
+            }
+        } else {
+            $expected = [
+                'type' => 'object',
+                'dynamic' => true,
+                'properties' => [
+                    'test_bool' => [
+                        'type' => 'boolean',
+                    ],
+                    'test_date' => [
+                        'type' => 'date',
+                        'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                        'ignore_malformed' => true,
+                    ],
+                    'test_float' => [
+                        'type' => 'double',
+                    ],
+                    'test_int' => [
+                        'type' => 'long',
+                    ],
+                    'test_object' => [
+                        'type' => 'object',
+                        'dynamic' => true,
+                    ],
+                    'test_select' => [
+                        'type' => 'keyword',
+                    ],
+                    'test_html' => [
+                        'type' => 'text',
+                    ],
+                    'test_text' => [
+                        'type' => 'text',
+                    ],
+                    'test_unmapped' => [
+                        'type' => 'keyword',
+                    ],
+                    'testFloatingField' => [
+                        'type' => 'double',
+                    ],
+                    'testField' => [
+                        'type' => 'text',
+                    ],
                 ],
-                'test_select' => [
-                    'type' => 'keyword',
-                ],
-                'test_html' => [
-                    'type' => 'text',
-                ],
-                'test_text' => [
-                    'type' => 'text',
-                ],
-                'test_unmapped' => [
-                    'type' => 'keyword',
-                ],
-                'testFloatingField' => [
-                    'type' => 'double',
-                ],
-                'testField' => [
-                    'type' => 'text',
-                ],
-            ],
-        ];
+            ];
+        }
 
         static::assertEquals($expected, $mapping['properties']['customFields']);
     }
@@ -3039,9 +3131,9 @@ class ElasticsearchProductTest extends TestCase
 
             $aggregator = $this->createEntityAggregator();
 
-            /** @var TermsResult $result */
             $result = $aggregator->aggregate($this->productDefinition, $criteria, $context)->get('testFloatingField');
 
+            static::assertInstanceOf(TermsResult::class, $result);
             static::assertContains('1', $result->getKeys());
             static::assertContains('1.5', $result->getKeys());
         } catch (\Exception $e) {
@@ -3112,7 +3204,6 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertTrue($result->has('manufacturer'));
         static::assertInstanceOf(EntityResult::class, $result->get('manufacturer'));
-        /** @var EntityResult $agg */
         $agg = $result->get('manufacturer');
         static::assertNotEmpty($agg->getEntities());
 
@@ -3126,7 +3217,6 @@ class ElasticsearchProductTest extends TestCase
         static::assertTrue($result->has('manufacturer'));
         static::assertInstanceOf(EntityResult::class, $result->get('manufacturer'));
 
-        /** @var EntityResult $agg */
         $agg = $result->get('manufacturer');
         static::assertEmpty($agg->getEntities());
     }
@@ -3391,9 +3481,18 @@ class ElasticsearchProductTest extends TestCase
             ],
         ], $this->context);
 
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue(
+        $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
+
+        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue(
             $this->definition,
-            \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'))
+            $customMapping
+        );
+
+        $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
+
+        ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue(
+            $newImplementation,
+            $customMapping
         );
 
         $products = [
@@ -3989,8 +4088,7 @@ class ElasticsearchProductTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
-            ->create($products, $this->context);
+        $this->productRepository->create($products, $this->context);
 
         $products = [
             [
@@ -4009,8 +4107,7 @@ class ElasticsearchProductTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
-            ->update($products, $this->context);
+        $this->productRepository->update($products, $this->context);
     }
 
     private function createLanguage(?string $parentId = null): string

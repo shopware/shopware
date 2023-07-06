@@ -6418,11 +6418,6 @@ parameters:
 			path: src/Core/Content/Test/Seo/SeoUrlUpdaterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Provider\\\\CategoryUrlProviderTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/Provider/CategoryUrlProviderTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Provider\\\\CategoryUrlProviderTest\\:\\:\\$categorySalesChannelRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Provider/CategoryUrlProviderTest.php
@@ -6444,11 +6439,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/Provider/ProductUrlProviderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Provider\\\\ProductUrlProviderTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Provider/ProductUrlProviderTest.php
 
@@ -6481,11 +6471,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Sitemap/SalesChannel/SitemapRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\ScheduledTask\\\\SitemapGenerateTaskHandlerTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/ScheduledTask/SitemapGenerateTaskHandlerTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$domain\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -6524,11 +6509,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Service\\\\SitemapExporterTest\\:\\:createCacheItem\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/Service/SitemapExporterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Service\\\\SitemapExporterTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Service/SitemapExporterTest.php
 
@@ -12520,11 +12500,6 @@ parameters:
 			path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Seo\\\\SeoResolverTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Seo/SeoResolverTest.php
-
-		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrl/SeoUrlRepositoryTest.php
@@ -12542,11 +12517,6 @@ parameters:
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 4
-			path: src/Core/Framework/Test/Seo/SeoUrl/StorefrontSeoUrlRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Seo\\\\SeoUrl\\\\StorefrontSeoUrlRepositoryTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrl/StorefrontSeoUrlRepositoryTest.php
 
 		-
@@ -12575,11 +12545,6 @@ parameters:
 			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Seo\\\\SeoUrlPersisterTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Seo\\\\SeoUrlPersisterTest\\:\\:generateSeoUrls\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
@@ -12603,11 +12568,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Seo\\\\SeoUrlPersisterTest\\:\\:\\$salesChannel \\(Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\) does not accept Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Seo\\\\SeoUrlPlaceholderHandlerTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Seo/SeoUrlPlaceholderHandlerTest.php
 
 		-
 			message: "#^Call to an undefined method object\\:\\:get\\(\\)\\.$#"
@@ -14710,21 +14670,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/AbstractElasticsearchSearchHydrator.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:getCheapestPriceAccessors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:getCheapestPriceParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:getRangeParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntityAggregatorHydrator\\:\\:hydrate\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
@@ -14798,11 +14743,6 @@ parameters:
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchDateHistogramAggregation\\:\\:getArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexingDto\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -15410,11 +15350,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Routing/StorefrontRoutingTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\Api\\\\SeoActionControllerTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\Api\\\\SeoActionControllerTest\\:\\:getSeoUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
@@ -15450,11 +15385,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\DataAbstractionLayer\\\\Indexing\\\\SeoUrlIndexerTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$mainCategories\\-\\>filterBySalesChannelId\\(\\$salesChannelId\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
@@ -15462,11 +15392,6 @@ parameters:
 		-
 			message: "#^Cannot call method getMainCategories\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 3
-			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\MainCategory\\\\MainCategoryExtensionTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
 			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
 
 		-
@@ -15491,11 +15416,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getType\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
 
@@ -16610,34 +16530,9 @@ parameters:
 			path: tests/integration/php/Core/System/User/Api/UserRecoveryControllerTest.php
 
 		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 18
-			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 2
-			path: tests/integration/php/Elasticsearch/Product/ElasticsearchProductTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Elasticsearch/Product/ProductSearchQueryBuilderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Storefront/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$node\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\CheckoutControllerTest\\:\\:createCustomerWithEmail\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Storefront/Controller/CheckoutControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
@@ -17620,11 +17515,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Elasticsearch\\\\\\\\Framework\\\\\\\\AbstractElasticsearchDefinition' and Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexCreatedEventTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$boolQuery\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/unit/php/Elasticsearch/Product/ProductSearchQueryBuilderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"

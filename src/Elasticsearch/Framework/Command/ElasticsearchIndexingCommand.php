@@ -13,6 +13,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 #[AsCommand(
     name: 'es:index',
@@ -45,6 +46,8 @@ class ElasticsearchIndexingCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $stopwatch = new Stopwatch();
+        $stopwatch->start('es-indexing');
         $this->io = new ShopwareStyle($input, $output);
 
         if (!$this->enabled) {
@@ -80,6 +83,10 @@ class ElasticsearchIndexingCommand extends Command
         if ($input->getOption('no-queue')) {
             $this->aliasHandler->run();
         }
+
+        $event = (string) $stopwatch->stop('es-indexing');
+
+        $this->io->info($event);
 
         return self::SUCCESS;
     }

@@ -73,10 +73,19 @@ class ElasticsearchOutdatedIndexDetector
     {
         $definitions = $this->registry->getDefinitions();
 
+        $prefixes = [];
+
+        if ($this->helper->enabledMultilingualIndex()) {
+            foreach ($definitions as $definition) {
+                $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
+            }
+
+            return $prefixes;
+        }
+
         /** @var LanguageCollection $languages */
         $languages = $this->getLanguages();
 
-        $prefixes = [];
         foreach ($languages as $language) {
             foreach ($definitions as $definition) {
                 $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId()));

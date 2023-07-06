@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,6 +38,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
@@ -77,6 +79,11 @@ class CheckoutControllerTest extends TestCase
     private string $failedPaymentMethodId;
 
     private ?string $customerId = null;
+
+    protected function setUp(): void
+    {
+        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
+    }
 
     /**
      * @dataProvider customerComments
@@ -305,7 +312,8 @@ class CheckoutControllerTest extends TestCase
 
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
-        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn ($node) => $node->text()));
+
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn (Crawler $node) => $node->text()));
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }

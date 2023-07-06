@@ -64,7 +64,17 @@ class IndexCreatorTest extends TestCase
             [
                 'settings' => $constructorConfig,
             ],
-            [],
+            [
+                'properties' => [
+                    'fullText' => [
+                        'type' => 'text',
+                        'fields' => [
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
+                    ],
+                    'fullTextBoosted' => ['type' => 'text'],
+                ],
+            ],
             new EventDispatcher()
         );
 
@@ -163,8 +173,17 @@ class IndexCreatorTest extends TestCase
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
         $definition->method('getMapping')->willReturn([
+            'properties' => [
+                'fullText' => [
+                    'type' => 'text',
+                    'fields' => [
+                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                    ],
+                ],
+                'fullTextBoosted' => ['type' => 'text'],
+            ],
             '_source' => [
-                'includes' => ['foo'],
+                'includes' => ['foo', 'fullText', 'fullTextBoosted'],
             ],
         ]);
 
@@ -207,7 +226,17 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            [],
+            [
+                'properties' => [
+                    'fullText' => [
+                        'type' => 'text',
+                        'fields' => [
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
+                    ],
+                    'fullTextBoosted' => ['type' => 'text'],
+                ],
+            ],
             new EventDispatcher()
         );
 

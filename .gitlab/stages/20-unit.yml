@@ -113,6 +113,7 @@ PHP unit Elasticsearch:
   parallel:
     matrix:
       - TESTSUITE: ["integration"]
+        FEATURE_ALL: [ "false", "major" ]
 
 PHP bench:
     extends: .base-no-setup

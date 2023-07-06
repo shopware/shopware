@@ -63,7 +63,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
+                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
                 'track_total_hits' => true,
                 'body' => $search,
             ]);
@@ -113,7 +113,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
         $search->addAggregation($aggregation);
-
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
 

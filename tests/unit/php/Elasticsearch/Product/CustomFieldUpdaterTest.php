@@ -2,15 +2,19 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
+use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -38,10 +42,13 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects(static::never())
             ->method('allowIndexing');
 
+        $connection = $this->createMock(Connection::class);
+
         $customFieldUpdater = new CustomFieldUpdater(
             $this->createMock(ElasticsearchOutdatedIndexDetector::class),
             $this->createMock(Client::class),
-            $elasticsearchHelper
+            $elasticsearchHelper,
+            $connection
         );
 
         $containerEvent = new EntityWrittenContainerEvent(
@@ -65,10 +72,13 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects(static::never())
             ->method('getAllUsedIndices');
 
+        $connection = $this->createMock(Connection::class);
+
         $customFieldUpdater = new CustomFieldUpdater(
             $indexDetector,
             $this->createMock(Client::class),
-            $elasticsearchHelper
+            $elasticsearchHelper,
+            $connection
         );
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, [], Context::createDefaultContext());
@@ -94,10 +104,13 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects(static::never())
             ->method('getAllUsedIndices');
 
+        $connection = $this->createMock(Connection::class);
+
         $customFieldUpdater = new CustomFieldUpdater(
             $indexDetector,
             $this->createMock(Client::class),
-            $elasticsearchHelper
+            $elasticsearchHelper,
+            $connection
         );
 
         $writeResults = [
@@ -128,6 +141,47 @@ class CustomFieldUpdaterTest extends TestCase
             ->willReturn(['test']);
 
         $indices = $this->createMock(IndicesNamespace::class);
+        $connection = $this->createMock(Connection::class);
+
+        $customFields = [
+            'properties' => [
+                'test' => [
+                    'type' => 'text',
+                ],
+            ],
+        ];
+
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            $elasticsearchHelper->expects(static::once())->method('enabledMultilingualIndex')->willReturn(true);
+            $deLang = Uuid::randomHex();
+            $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
+                Defaults::LANGUAGE_SYSTEM,
+                $deLang,
+            ]);
+
+            $customFields = [
+                'properties' => [
+                    $deLang => [
+                        'type' => 'object',
+                        'dynamic' => true,
+                        'properties' => [
+                            'test' => [
+                                'type' => 'text',
+                            ],
+                        ],
+                    ],
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'type' => 'object',
+                        'dynamic' => true,
+                        'properties' => [
+                            'test' => [
+                                'type' => 'text',
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
         $indices
             ->expects(static::once())
             ->method('putMapping')
@@ -135,13 +189,7 @@ class CustomFieldUpdaterTest extends TestCase
                 'index' => 'test',
                 'body' => [
                     'properties' => [
-                        'customFields' => [
-                            'properties' => [
-                                'test' => [
-                                    'type' => 'text',
-                                ],
-                            ],
-                        ],
+                        'customFields' => $customFields,
                     ],
                     '_source' => [
                         'includes' => [
@@ -169,7 +217,8 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldUpdater = new CustomFieldUpdater(
             $indexDetector,
             $client,
-            $elasticsearchHelper
+            $elasticsearchHelper,
+            $connection
         );
 
         $writeResults = [

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -38,6 +39,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ElasticsearchIndexer
 {
     /**
+     * @deprecated tag:v6.6.0 - reason:blue-green-deployment - will be removed
+     */
+    public const ENABLE_MULTILINGUAL_INDEX_KEY = 'enable-multilingual-index';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -52,12 +58,21 @@ class ElasticsearchIndexer
         private readonly EntityRepository $languageRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly int $indexingBatchSize,
-        private readonly MessageBusInterface $bus
+        private readonly MessageBusInterface $bus,
+        private readonly MultilingualEsIndexer $newImplementation
     ) {
     }
 
     public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            if ($message instanceof ElasticsearchIndexingMessage) {
+                $this->newImplementation->__invoke($message);
+            }
+
+            return;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return;
         }
@@ -76,6 +91,10 @@ class ElasticsearchIndexer
      */
     public function iterate($offset): ?ElasticsearchIndexingMessage
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->iterate($offset);
+        }
+
         if (!$this->helper->allowIndexing()) {
             return null;
         }
@@ -120,6 +139,12 @@ class ElasticsearchIndexer
      */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
+        if ($this->helper->enabledMultilingualIndex()) {
+            $this->newImplementation->updateIds($definition, $ids);
+
+            return;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return;
         }
@@ -262,9 +287,7 @@ class ElasticsearchIndexer
         $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));
 
         /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context)
-            ->getEntities();
+        $languages = $this->languageRepository->search($criteria, $context)->getEntities();
 
         return $languages;
     }
@@ -285,8 +308,7 @@ class ElasticsearchIndexer
         $criteria = new Criteria([$languageId]);
 
         /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context);
+        $languages = $this->languageRepository->search($criteria, $context)->getEntities();
 
         return $languages->get($languageId);
     }

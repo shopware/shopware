@@ -123,6 +123,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%elasticsearch.search.timeout%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"
@@ -134,6 +135,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%elasticsearch.search.timeout%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\SearchKeywordReplacement"
@@ -151,6 +153,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\ProductSearchBuilder.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument>%elasticsearch.search.term_max_length%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">
@@ -336,6 +339,8 @@
             <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
+            <argument>%elasticsearch.administration.search.timeout%</argument>
+            <argument>%elasticsearch.administration.search.term_max_length%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchRegistry">

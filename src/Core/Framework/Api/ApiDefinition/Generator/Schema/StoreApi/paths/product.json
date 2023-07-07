@@ -108,7 +108,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
                   "allOf": [
                     {
                       "properties": {
@@ -177,7 +176,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
                   "allOf": [
                     {
                       "properties": {

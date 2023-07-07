@@ -8,7 +8,7 @@
                 "type": "object",
                 "properties": {
                     "orders": {
-                        "type": "object",
+                        "type": "array",
                         "items": {
                             "$ref": "#\/components\/schemas\/Order"
                         }

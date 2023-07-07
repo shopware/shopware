@@ -164,6 +164,7 @@ class Tooltip {
 
             this._vue?.$destroy();
             this._vue = new Vue({
+                name: `sw-tooltip-${this._id || 'undefined'}`,
                 el: this._DOMElement!,
                 // @ts-expect-error
                 parent: this._vue?.$parent,
@@ -240,6 +241,7 @@ class Tooltip {
         }
 
         this._vue = new Vue({
+            name: `sw-tooltip-${this._id || 'undefined'}`,
             el: element,
             parent: node.context,
             template: element.outerHTML,
@@ -316,8 +318,8 @@ class Tooltip {
         if (this._disabled) {
             return;
         }
-        this._DOMElement!.remove();
         this._vue!.$destroy();
+        this._DOMElement!.remove();
         this._isShown = false;
     }
 

@@ -36,7 +36,7 @@ let TwigTemplates = null;
 Twig.extend(TwigCore => {
     /**
      * Remove tokens output_whitespace_pre, output_whitespace_post, output_whitespace_both and output.
-     * This tokens are used for functions and data output.
+     * These tokens are used for functions and data output.
      * Since the data binding is done in Vue this could lead to syntax issues.
      * We are only using the block system for template inheritance.
      *
@@ -262,9 +262,9 @@ function applyTemplateOverrides(name) {
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render({});
+        const finalHtml = item.template.render({ VUE3: !!window._features_?.VUE3 });
 
-        // Update item which will written to the registry
+        // Update item which will be written to the registry
         const updatedTemplate = {
             ...item,
             html: finalHtml,
@@ -296,7 +296,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render({});
+    const finalHtml = updatedTemplate.template.render({ VUE3: !!window._features_?.VUE3 });
 
     // Update item which will written to the registry
     updatedTemplate = {

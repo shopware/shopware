@@ -246,7 +246,7 @@ class RegisterRoute extends AbstractRegisterRoute
             : 'core.loginRegistration.doubleOptInRegistration';
 
         $doubleOptInRequired = $this->systemConfigService
-            ->get($configKey, $context->getSalesChannel()->getId());
+            ->get($configKey, $context->getSalesChannelId());
 
         if (!$doubleOptInRequired) {
             return $customer;
@@ -284,13 +284,13 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, true, $context));
+        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $data->get('billingAddress'), $context));
 
         if ($data->has('shippingAddress')) {
             /** @var DataBag $shippingAddress */
             $shippingAddress = $data->get('shippingAddress');
             $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, true, $context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, $context));
         }
 
         $billingAddress = $addressData->all();
@@ -310,7 +310,7 @@ class RegisterRoute extends AbstractRegisterRoute
             ));
         }
 
-        if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannel()->getId())) {
+        if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {
             $definition->add('acceptedDataProtection', new NotBlank());
         }
 
@@ -423,19 +423,16 @@ class RegisterRoute extends AbstractRegisterRoute
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(DataBag $data, ?string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
+    private function getCreateAddressValidationDefinition(DataBag $data, ?string $accountType, DataBag $address, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->addressValidationFactory->create($context);
 
-        if ($isBillingAddress
-            && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannel()->getId())) {
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
             $validation->add('company', new NotBlank());
         }
 
-        /** @var DataBag $billing */
-        $billing = $data->get('billingAddress');
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $billing->get('countryId')]));
+        $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -457,7 +454,7 @@ class RegisterRoute extends AbstractRegisterRoute
         ]));
 
         if (!$isGuest) {
-            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
+            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
             $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));

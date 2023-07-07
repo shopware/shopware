@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -27,6 +26,7 @@ use Shopware\Core\System\Salutation\Event\SalutationRouteCacheKeyEvent;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,7 +88,7 @@ class CachedSalutationRouteTest extends TestCase
             ->willReturn(new SalutationRouteResponse(new EntitySearchResult(
                 'entity',
                 1,
-                new EntityCollection(),
+                new SalutationCollection(),
                 null,
                 new Criteria(),
                 Context::createDefaultContext()
@@ -117,7 +117,7 @@ class CachedSalutationRouteTest extends TestCase
                     new SalutationRouteResponse(new EntitySearchResult(
                         'entity',
                         1,
-                        new EntityCollection(),
+                        new SalutationCollection(),
                         null,
                         new Criteria(),
                         Context::createDefaultContext()

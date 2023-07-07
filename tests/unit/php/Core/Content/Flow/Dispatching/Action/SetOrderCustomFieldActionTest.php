@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -26,9 +28,10 @@ class SetOrderCustomFieldActionTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
+    /**
+     * @var EntitySearchResult<OrderCollection>&MockObject
+     */
     private MockObject&EntitySearchResult $entitySearchResult;
-
-    private MockObject&StorableFlow $flow;
 
     private SetOrderCustomFieldAction $action;
 
@@ -39,8 +42,6 @@ class SetOrderCustomFieldActionTest extends TestCase
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetOrderCustomFieldAction($this->connection, $this->repository);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -68,11 +69,11 @@ class SetOrderCustomFieldActionTest extends TestCase
         $order = new OrderEntity();
         $order->setCustomFields($existsData);
 
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
+        $context = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        $flow = new StorableFlow('', $context, [], [OrderAware::ORDER_ID => $orderId]);
+        $flow->setConfig($config);
 
-        $orderId = $this->flow->getData(OrderAware::ORDER_ID);
         $this->entitySearchResult->expects(static::once())
             ->method('first')
             ->willReturn($order);
@@ -88,16 +89,15 @@ class SetOrderCustomFieldActionTest extends TestCase
             ->method('update')
             ->with([['id' => $orderId, 'customFields' => $expected['custom_field_test'] ? $expected : null]]);
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
+        $flow = new StorableFlow('', Context::createDefaultContext(), [], []);
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator

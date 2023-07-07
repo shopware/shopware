@@ -233,6 +233,8 @@ class TaxProviderPersisterTest extends TestCase
 
     /**
      * @param array<TaxProvider> $providers
+     *
+     * @return EntitySearchResult<TaxProviderCollection>
      */
     private function existingProviders(array $providers = [], ?string $appId = null, ?string $appName = null): EntitySearchResult
     {

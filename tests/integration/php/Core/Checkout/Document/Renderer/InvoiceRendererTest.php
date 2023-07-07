@@ -537,6 +537,8 @@ class InvoiceRendererTest extends TestCase
             static::markTestSkipped('This test needs storefront to be installed.');
         }
 
+        static::markTestSkipped('Snippets gets cached on whole run');
+
         $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 

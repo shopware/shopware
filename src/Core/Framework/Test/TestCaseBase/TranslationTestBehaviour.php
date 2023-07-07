@@ -18,7 +18,7 @@ trait TranslationTestBehaviour
         $translator = $this->getContainer()->get(Translator::class);
 
         // reset injected settings to make tests deterministic
-        $translator->resetInjection();
+        $translator->reset();
     }
 
     abstract protected static function getContainer(): ContainerInterface;

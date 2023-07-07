@@ -27,7 +27,8 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         private readonly Client $client,
         private readonly EntityAggregatorInterface $decorated,
         private readonly AbstractElasticsearchAggregationHydrator $hydrator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $timeout = '5s'
     ) {
     }
 
@@ -43,10 +44,13 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
             new ElasticsearchEntityAggregatorSearchEvent($search, $definition, $criteria, $context)
         );
 
+        $searchArray = $search->toArray();
+        $searchArray['timeout'] = $this->timeout;
+
         try {
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
-                'body' => $search->toArray(),
+                'body' => $searchArray,
             ]);
         } catch (\Throwable $e) {
             $this->helper->logAndThrowException($e);

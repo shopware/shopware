@@ -62,6 +62,50 @@ class ElasticsearchEntitySearcherTest extends TestCase
         static::assertEquals(0, $result->getTotal());
     }
 
+    public function testSearchWithTimeout(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(10);
+
+        $client = $this->createMock(Client::class);
+
+        $client->expects(static::once())
+            ->method('search')->with([
+                'index' => '',
+                'track_total_hits' => true,
+                'body' => [
+                    'timeout' => '10s',
+                    'from' => 0,
+                    'size' => 10,
+                ],
+            ])->willReturn([]);
+
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper
+            ->method('allowSearch')
+            ->willReturn(true);
+
+        $searcher = new ElasticsearchEntitySearcher(
+            $client,
+            $this->createMock(EntitySearcherInterface::class),
+            $helper,
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
+            '10s'
+        );
+
+        $context = Context::createDefaultContext();
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher->search(
+            new ProductDefinition(),
+            $criteria,
+            $context
+        );
+    }
+
     public function testExceptionsGetLogged(): void
     {
         $criteria = new Criteria();

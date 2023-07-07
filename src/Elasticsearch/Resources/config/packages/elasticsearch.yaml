@@ -5,11 +5,17 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    search:
+        timeout: 5s
+        term_max_length: 300
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
         refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
         index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
+        search:
+            timeout: 5s
+            term_max_length: 300
         index_settings:
             number_of_shards: 3
             number_of_replicas: 3

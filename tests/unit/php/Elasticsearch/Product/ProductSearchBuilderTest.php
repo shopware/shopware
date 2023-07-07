@@ -122,4 +122,32 @@ class ProductSearchBuilderTest extends TestCase
 
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
     }
+
+    public function testSearchTermMaxLengthReached(): void
+    {
+        $mockProductSearchBuilder = $this->createMock(ProductSearchBuilder::class);
+        $mockProductSearchBuilder->method('build')->willThrowException(new \Exception('Should not be called'));
+
+        $mockElasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $mockElasticsearchHelper->method('allowSearch')->willReturn(true);
+
+        $searchBuilder = new ProductSearchBuilder(
+            $mockProductSearchBuilder,
+            $mockElasticsearchHelper,
+            new ProductDefinition(),
+            20
+        );
+
+        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $request = new Request();
+
+        $request->query->set('search', 'This search term\'s length is over 10 characters');
+
+        $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
+
+        static::assertSame($criteria->getTerm(), 'This search term\'s l');
+    }
 }

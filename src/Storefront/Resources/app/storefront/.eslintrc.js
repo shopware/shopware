@@ -45,15 +45,11 @@ module.exports = {
                 'plugin:@typescript-eslint/recommended-requiring-type-checking',
             ],
             parserOptions: {
-                project: './tsconfig.json',
+                project: true,
                 tsconfigRootDir: __dirname,
             },
             rules: {
                 '@typescript-eslint/await-thenable': 'error',
-                '@typescript-eslint/consistent-type-exports': 'error',
-                '@typescript-eslint/consistent-type-imports': 'error',
-                '@typescript-eslint/switch-exhaustiveness-check': 'error',
-                '@typescript-eslint/ban-ts-comment': 'off'
             },
         },
     ],

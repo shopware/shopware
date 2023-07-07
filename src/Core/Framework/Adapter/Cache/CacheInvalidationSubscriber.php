@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefin
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
@@ -161,6 +162,9 @@ class CacheInvalidationSubscriber
             ],
             SitemapGeneratedEvent::class => [
                 ['invalidateSitemap', 2000],
+            ],
+            ProductSearchConfigDefinition::ENTITY_NAME . '.written' => [
+                ['invalidateSearch', 2002],
             ],
         ];
     }

@@ -15,7 +15,6 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
                                 "allOf": [
                                     {
                                         "required": [

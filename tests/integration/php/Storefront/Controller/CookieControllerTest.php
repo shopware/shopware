@@ -23,7 +23,6 @@ class CookieControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        static::markTestSkipped('This test is skipped because it is not working on CI, see NEXT-29090');
     }
 
     public function testCookieGroupIncludeComfortFeatures(): void

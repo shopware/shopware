@@ -37,7 +37,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
@@ -544,87 +543,6 @@ class InvoiceRendererTest extends TestCase
 
         static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-    }
-
-    public function testRenderWithThemeSnippet(): void
-    {
-        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
-            static::markTestSkipped('This test needs storefront to be installed.');
-        }
-
-        static::markTestSkipped('Snippets gets cached on whole run');
-
-        $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
-
-        $themeService = $this->getContainer()->get(ThemeService::class);
-        $themeRepo = $this->getContainer()->get('theme.repository');
-
-        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme');
-        $this->reloadAppSnippets();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
-        $themeId = $themeRepo->searchIds($criteria, $this->context)->firstId();
-
-        static::assertNotNull($themeId);
-
-        $cart = $this->generateDemoCart([7]);
-        $orderId = $this->persistCart($cart);
-
-        $operationInvoice = new DocumentGenerateOperation($orderId);
-
-        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
-        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-
-        $result = $this->invoiceRenderer->render(
-            [$orderId => $operationInvoice],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        /** @var RenderedDocument $rendered */
-        $rendered = $result->getSuccess()[$orderId];
-
-        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
-        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
-
-        $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
-        $themeService->assignTheme($themeId, $this->salesChannelContext->getSalesChannelId(), $this->context, true);
-
-        $result = $this->invoiceRenderer->render(
-            [$orderId => $operationInvoice],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        /** @var RenderedDocument $rendered */
-        $rendered = $result->getSuccess()[$orderId];
-
-        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
-    }
-
-    private function initServices(): void
-    {
-        $this->context = Context::createDefaultContext();
-
-        $priceRuleId = Uuid::randomHex();
-
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
-            ]
-        );
-
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
     /**

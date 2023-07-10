@@ -43,7 +43,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -174,47 +173,6 @@ class DocumentGeneratorTest extends TestCase
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
         static::assertNotEmpty($documentStruct->getContent());
-    }
-
-    public function testPreviewInvoiceWithThemeSnippet(): void
-    {
-        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
-            static::markTestSkipped('This test needs storefront to be installed.');
-        }
-
-        $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
-
-        $themeService = $this->getContainer()->get(ThemeService::class);
-        $themeRepo = $this->getContainer()->get('theme.repository');
-
-        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme');
-        $this->reloadAppSnippets();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
-        $themeId = $themeRepo->searchIds($criteria, $this->context)->firstId();
-
-        static::assertNotNull($themeId);
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
-        static::assertNotNull($order);
-        static::assertInstanceOf(OrderEntity::class, $order);
-
-        $operation = new DocumentGenerateOperation($this->orderId);
-
-        $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
-
-        static::assertNotEmpty($documentStruct->getContent());
-        static::assertNotEmpty($documentStruct->getHtml());
-        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $documentStruct->getHtml());
-
-        $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
-        $themeService->assignTheme($themeId, $order->getSalesChannelId(), $this->context, true);
-
-        $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
-        static::assertNotEmpty($documentStruct->getHtml());
-        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $documentStruct->getHtml());
     }
 
     public function testPreviewStorno(): void

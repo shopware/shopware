@@ -129,7 +129,7 @@
             :label="$tc('sw-customer.addressForm.labelZipcode')"
             :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
             validation="required"
-            required
+            :required="country && country.postalCodeRequired"
             :error="disabled ? null : addressZipcodeError"
             :disabled="disabled"
         />

@@ -5,6 +5,8 @@ import swCustomerDetailAddresses from 'src/module/sw-customer/view/sw-customer-d
  * @package customer-order
  */
 
+const { ShopwareError } = Shopware.Classes;
+
 Shopware.Component.register('sw-customer-detail-addresses', swCustomerDetailAddresses);
 
 async function createWrapper() {
@@ -24,6 +26,7 @@ async function createWrapper() {
         propsData: {
             customerEditMode: false,
             customer: {
+                id: '1',
                 addresses: [
                     {
                         id: '1',
@@ -115,5 +118,28 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         await flushPromises();
 
         expect(wrapper.vm.currentAddress.salutationId).toBe('1');
+    });
+
+    it('should dispatch error/addApiError when the form has invalid field errors', async () => {
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '1',
+        };
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeNull();
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeInstanceOf(ShopwareError);
     });
 });

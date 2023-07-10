@@ -25,11 +25,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -40,8 +37,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
-use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
@@ -69,7 +64,23 @@ class InvoiceRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->initServices();
+        $this->context = Context::createDefaultContext();
+
+        $priceRuleId = Uuid::randomHex();
+
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            ]
+        );
+
+        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
+        $this->cartService = $this->getContainer()->get(CartService::class);
+        self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
     protected function tearDown(): void
@@ -529,87 +540,6 @@ class InvoiceRendererTest extends TestCase
 
         static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-    }
-
-    public function testRenderWithThemeSnippet(): void
-    {
-        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
-            static::markTestSkipped('This test needs storefront to be installed.');
-        }
-
-        static::markTestSkipped('Snippets gets cached on whole run');
-
-        $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
-
-        $themeService = $this->getContainer()->get(ThemeService::class);
-        $themeRepo = $this->getContainer()->get('theme.repository');
-
-        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme');
-        $this->reloadAppSnippets();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
-        $themeId = $themeRepo->searchIds($criteria, $this->context)->firstId();
-
-        static::assertNotNull($themeId);
-
-        $cart = $this->generateDemoCart([7]);
-        $orderId = $this->persistCart($cart);
-
-        $operationInvoice = new DocumentGenerateOperation($orderId);
-
-        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
-        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-
-        $result = $this->invoiceRenderer->render(
-            [$orderId => $operationInvoice],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        /** @var RenderedDocument $rendered */
-        $rendered = $result->getSuccess()[$orderId];
-
-        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
-        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
-
-        $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
-        $themeService->assignTheme($themeId, $this->salesChannelContext->getSalesChannelId(), $this->context, true);
-
-        $result = $this->invoiceRenderer->render(
-            [$orderId => $operationInvoice],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        /** @var RenderedDocument $rendered */
-        $rendered = $result->getSuccess()[$orderId];
-
-        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
-    }
-
-    private function initServices(): void
-    {
-        $this->context = Context::createDefaultContext();
-
-        $priceRuleId = Uuid::randomHex();
-
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
-            ]
-        );
-
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
-        self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
     /**

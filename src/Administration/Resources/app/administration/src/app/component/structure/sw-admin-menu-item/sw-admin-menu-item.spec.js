@@ -99,6 +99,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeEach(async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [];
         Shopware.State.get('settingsItems').settingsGroups.system = [];
+        Shopware.State.get('adminMenu').expandedEntries = [];
     });
 
     it('should be a Vue.js component', async () => {
@@ -279,6 +280,55 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
         expect(navigationLink.element.tagName).toBe('SPAN');
+    });
+
+    it('should expand the sub menu entries when the parent is active', async () => {
+        const children = {
+            id: 'sw-product',
+            label: 'sw-product.general.mainMenuItemGeneral',
+            color: '#57D9A3',
+            path: 'sw.product.index',
+            icon: 'default-symbol-products',
+            parent: 'sw-catalogue',
+            position: 10,
+            level: 2,
+            moduleType: 'core',
+            children: [
+                {
+                    id: 'sw-review',
+                    label: 'sw-review.general.mainMenuItemList',
+                    color: '#57D9A3',
+                    path: 'sw.review.index',
+                    icon: 'default-symbol-products',
+                    parent: 'sw-catalogue',
+                    position: 20,
+                    level: 3,
+                    moduleType: 'core',
+                    children: [],
+                },
+            ],
+        };
+        Shopware.State.get('adminMenu').expandedEntries = [children];
+        const wrapper = await createWrapper({
+            privileges: [],
+            propsData: {
+                entry: {
+                    id: 'sw-catalogue',
+                    moduleType: 'core',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+                    color: '#57D9A3',
+                    icon: 'default-symbol-products',
+                    position: 20,
+                    level: 1,
+                    children: [children],
+                },
+            },
+        });
+
+        const subMenu = wrapper.find('.navigation-list-item__sw-product');
+        await wrapper.vm.$nextTick();
+
+        expect(subMenu.classes()).toContain('is--entry-expanded');
     });
 
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {

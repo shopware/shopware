@@ -162,6 +162,7 @@
             </li>
 
             <sw-admin-menu-item
+                :class="{ 'is--entry-expanded': expandedMenuEntries.includes(entry) }"
                 :key="getCustomKey(entry.id || entryPath)"
                 :entry="entry"
                 :border-color="borderColor"

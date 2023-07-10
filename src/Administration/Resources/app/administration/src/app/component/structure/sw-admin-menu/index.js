@@ -424,6 +424,11 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
+            let parentEntry;
+            if (target.classList.contains('navigation-list-item__level-2')) {
+                parentEntry = entry.children.find((child) => target.classList.contains(child.id));
+            }
+
             const firstChild = target.firstChild;
             this.removeClassesFromElements(
                 Array.from(this.$el.querySelectorAll(
@@ -442,12 +447,19 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             if (isEntryExpanded) {
-                Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
+                Shopware.State.commit(
+                    'adminMenu/collapseMenuEntry',
+                    parentEntry || entry,
+                );
 
                 firstChild.classList.remove('router-link-active');
-                firstChild.classList.remove('is--entry-expanded');
+                if (parentEntry) {
+                    target.classList.remove('is--entry-expanded');
+                } else {
+                    firstChild.classList.remove('is--entry-expanded');
+                }
             } else {
-                Shopware.State.commit('adminMenu/expandMenuEntry', entry);
+                Shopware.State.commit('adminMenu/expandMenuEntry', parentEntry || entry);
 
                 firstChild.classList.add('router-link-active');
                 target.classList.add('is--entry-expanded');
@@ -513,7 +525,10 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
-            target.classList.add('is--flyout-enabled');
+            if (!target.classList.contains('navigation-list-item__level-2')) {
+                target.classList.add('is--flyout-enabled');
+            }
+
             this.flyoutStyle = {
                 top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };

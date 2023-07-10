@@ -188,7 +188,7 @@ class MailServiceTest extends TestCase
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
 
-        $this->logger->expects(static::once())->method('error');
+        $this->logger->expects(static::once())->method('warning');
         $this->eventDispatcher->expects(static::exactly(2))
             ->method('dispatch')
             ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
@@ -210,7 +210,7 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Level::Error->value, $mailErrorEvent->getLogLevel());
+        static::assertEquals(Level::Warning->value, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
         $message = 'Could not render Mail-Template with error message: cannot render';

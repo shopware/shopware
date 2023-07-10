@@ -9,7 +9,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -129,14 +129,14 @@ class MailService extends AbstractMailService
         } catch (\Throwable $e) {
             $event = new MailErrorEvent(
                 $context,
-                Level::Error,
+                Level::Warning,
                 $e,
                 'Could not render Mail-Template with error message: ' . $e->getMessage(),
                 $template,
                 $templateData
             );
             $this->eventDispatcher->dispatch($event);
-            $this->logger->error(
+            $this->logger->warning(
                 'Could not render Mail-Template with error message: ' . $e->getMessage(),
                 array_merge([
                     'template' => $template,
@@ -291,7 +291,7 @@ class MailService extends AbstractMailService
         $media = null;
         $mediaRepository = $this->mediaRepository;
         $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
-            /** @var MediaCollection $media */
+            /** @var MediaEntity[] $media */
             $media = $mediaRepository->search($criteria, $context)->getElements();
         });
 

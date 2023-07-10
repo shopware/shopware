@@ -207,7 +207,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } catch (\Exception $e) {
             $e = new RenderProductException($e->getMessage());
 
-            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Error, $e);
+            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Warning, $e);
 
             $this->eventDispatcher->dispatch($loggingEvent);
 

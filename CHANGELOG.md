@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.3.1
+*  [NEXT-29077 - Missing product cover images when no version id is filled](./changelog/release-6-5-3-1/2023-07-05-missing-product-cover-images-when-no-version-id-is-filled.md)
+
 ## 6.5.3.0
 *  [NEXT-21815 - Create app manifest xsd for flow custom event](./changelog/release-6-5-3-0/2022-06-08-create-app-manifest-xsd-for-flow-custom-event.md)
 *  [NEXT-21814 - DAL for App flow event.](./changelog/release-6-5-3-0/2022-06-20-dal-for-app-flow-event.md)

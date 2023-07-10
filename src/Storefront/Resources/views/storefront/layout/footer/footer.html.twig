@@ -1,7 +1,3 @@
-{% if showVatNotice is not defined %}
-    {% set showVatNotice = true %}
-{% endif %}
-
 {% block layout_footer_inner_container %}
     <div class="container">
 
@@ -207,7 +203,7 @@
             {% endblock %}
 
             {% block layout_footer_vat %}
-                {% if showVatNotice %}
+                {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
                         {% if context.taxState == "gross" %}
                             <p>

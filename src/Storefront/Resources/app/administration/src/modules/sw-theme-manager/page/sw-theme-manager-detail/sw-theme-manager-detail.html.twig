@@ -2,7 +2,7 @@
     <sw-page class="sw-theme-manager-detail">
 
         {% block sw_theme_manager_detail_search_bar %}
-            <template slot="search-bar">
+            <template #search-bar>
                 <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
                                :entityService="themeRepository"
                                @search="onSearch">
@@ -11,7 +11,7 @@
         {% endblock %}
 
         {% block sw_theme_manager_detail_smart_bar_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
 
                 {% block sw_theme_manager_detail_smart_bar_header_title %}
                     <h2 v-if="theme">
@@ -30,7 +30,7 @@
         {% endblock %}
 
         {% block sw_theme_manager_detail_smart_bar_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 <sw-button-group
                     v-tooltip.bottom="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -61,7 +61,7 @@
 
                     {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu %}
                         <sw-context-button>
-                            <template slot="button">
+                            <template #button>
                                 <sw-button
                                     class="sw_theme_manager_detail__button-context-menu"
                                     square
@@ -98,7 +98,7 @@
         {% endblock %}
 
         {% block sw_theme_manager_detail_content %}
-            <template slot="content">
+            <template #content>
                 <div
                     v-if="!shouldShowContent"
                     class="sw-theme-manager-detail__content-skeleton"
@@ -419,7 +419,7 @@
                     {% endblock %}
 
                     {% block sw_theme_manager_reset_modal_footer %}
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             {% block sw_theme_manager_reset_modal_cancel %}
                                 <sw-button @click="onCloseResetModal"
                                            size="small">
@@ -453,7 +453,7 @@
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_delete_modal_footer %}
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             {% block sw_theme_manager_detail_delete_modal_cancel %}
                                 <sw-button @click="onCloseDeleteModal"
                                            size="small">
@@ -525,7 +525,7 @@
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_save_modal_footer %}
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             {% block sw_theme_manager_detail_save_modal_cancel %}
                                 <sw-button @click="onCloseSaveModal"
                                            size="small">
@@ -565,7 +565,7 @@
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_duplicate_modal_footer %}
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             {% block sw_theme_manager_detail_duplicate_modal_cancel %}
                                 <sw-button @click="onCloseDuplicateModal"
                                            size="small">
@@ -606,7 +606,7 @@
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_rename_modal_footer %}
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             {% block sw_theme_manager_detail_rename_modal_cancel %}
                                 <sw-button @click="onCloseRenameModal"
                                            size="small">
@@ -638,7 +638,7 @@
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_error_modal_footer %}
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             {% block sw_theme_manager_detail_error_modal_close %}
                                 <sw-button @click="onCloseErrorModal" size="small">
                                     {{ $tc('sw-theme-manager.modal.buttonClose') }}

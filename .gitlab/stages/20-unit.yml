@@ -323,25 +323,7 @@ PHP Full:
                 DEPENDENCY_DEV: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
-                MYSQL_IMAGE: mysql:8.0.33
-                MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-            -   MYSQL_IMAGE: mariadb:10.4
-            -   MYSQL_IMAGE: mariadb:10.5
-                PREFER_LOWEST: 'prefer lowest'
-            -   MYSQL_IMAGE: mariadb:10.11
-                ONLY_CORE: 'only core'
-                TEST_SUITES: "content framework profiling system integration migration"
-            -   MYSQL_IMAGE: mariadb:11.0
-                DEPENDENCY_DEV: 'dev dependencies'
-                ALLOW_FAILURE: 'true'
                 MYSQL_CMD: 'mariadbd'
-                TEST_SUITES: "content framework profiling system integration migration"
-    before_script:
-        - !reference [ .scripts, init, composer ]
-        - mkdir -p config/jwt || true
-        - 'rm -Rf /var/www/html/public || true'
-        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
     script:
         - 'bin/console plugin:deactivate TestPlugin || true'
         - 'rm -Rf custom/plugins/* || true'

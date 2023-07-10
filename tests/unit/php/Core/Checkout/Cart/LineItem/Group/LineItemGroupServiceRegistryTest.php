@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry
  */
 #[Package('checkout')]
 class LineItemGroupServiceRegistryTest extends TestCase
@@ -19,8 +21,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
     /**
      * This test verifies that our packagers are
      * correctly registered in our registry.
-     *
-     * @group lineitemgroup
      */
     public function testPackagersAreRegistered(): void
     {
@@ -32,14 +32,13 @@ class LineItemGroupServiceRegistryTest extends TestCase
 
         $registry = new LineItemGroupServiceRegistry($packagers, $sorters);
 
-        static::assertCount(2, $registry->getPackagers());
+        $generator = iterator_to_array($registry->getPackagers());
+        static::assertCount(2, $generator);
     }
 
     /**
      * This test verifies that our sorters are
      * correctly registered in our registry.
-     *
-     * @group lineitemgroup
      */
     public function testSortersAreRegistered(): void
     {
@@ -50,7 +49,8 @@ class LineItemGroupServiceRegistryTest extends TestCase
 
         $registry = new LineItemGroupServiceRegistry($packagers, $sorters);
 
-        static::assertCount(1, $registry->getSorters());
+        $generator = iterator_to_array($registry->getSorters());
+        static::assertCount(1, $generator);
     }
 
     /**

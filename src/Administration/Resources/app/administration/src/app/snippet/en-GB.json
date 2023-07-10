@@ -1029,7 +1029,8 @@
       "flow": "Flow Builder",
       "module": "Module",
       "frequently_used": "Frequently used",
-      "recently_searched": "Recently searched"
+      "recently_searched": "Recently searched",
+      "flow_sequence": "Flow"
     },
     "day-of-week": {
       "monday": "Monday",

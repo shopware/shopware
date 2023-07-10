@@ -9,12 +9,19 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\SnippetFile_UnitTest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -25,6 +32,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
  */
 class TranslatorTest extends TestCase
 {
+    use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
     private Connection $connection;
@@ -278,6 +286,90 @@ class TranslatorTest extends TestCase
     public function testItReplacesReservedCharacter(): void
     {
         static::assertEquals('translator.<_r_strong>', Translator::buildName('</strong>'));
+    }
+
+    public function testThemeSnippetsGetsMergedWithOverride(): void
+    {
+        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
+            static::markTestSkipped('This test needs storefront to be installed.');
+        }
+
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL
+        );
+
+        $translator = $this->getContainer()->get(Translator::class);
+        $themeService = $this->getContainer()->get(ThemeService::class);
+        $themeRepo = $this->getContainer()->get('theme.repository');
+        $themeLoader = $this->getContainer()->get(SalesChannelThemeLoader::class);
+
+        // Install the app
+        $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
+        $this->reloadAppSnippets();
+
+        // Ensure the default Storefront theme is active
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
+        $defaultThemeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
+        static::assertNotNull($defaultThemeId, 'Default theme not found');
+        $themeService->assignTheme($defaultThemeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
+
+        // Inject the sales channel and assert that the original snippet is used
+        $translator->injectSettings(
+            $salesChannelContext->getSalesChannelId(),
+            $salesChannelContext->getLanguageId(),
+            'en-GB',
+            $salesChannelContext->getContext()
+        );
+
+        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
+
+        $translator->reset();
+        $themeLoader->reset();
+
+        // Assign the SwagTheme and assert that the snippet is overwritten
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        $themeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
+
+        static::assertNotNull($themeId);
+
+        $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
+
+        $translator->injectSettings(
+            $salesChannelContext->getSalesChannelId(),
+            $salesChannelContext->getLanguageId(),
+            'en-GB',
+            $salesChannelContext->getContext()
+        );
+
+        static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
+
+        $translator->reset();
+
+        // In reset, we ignore all theme snippets and use the default ones
+        static::assertEquals('document.serviceDateNotice', $translator->trans('document.serviceDateNotice'));
+
+        // Assign the Storefront theme again and assert that the original snippet is used again
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
+        $themeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
+        static::assertNotNull($themeId);
+
+        $themeLoader->reset();
+        $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
+
+        $translator->reset();
+
+        $translator->injectSettings(
+            $salesChannelContext->getSalesChannelId(),
+            $salesChannelContext->getLanguageId(),
+            'en-GB',
+            $salesChannelContext->getContext()
+        );
+
+        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
     }
 
     private function switchDefaultLanguage(): void

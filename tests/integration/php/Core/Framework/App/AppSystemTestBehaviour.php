@@ -53,6 +53,7 @@ trait AppSystemTestBehaviour
     protected function reloadAppSnippets(): void
     {
         $collection = $this->getContainer()->get(SnippetFileCollection::class);
+        $collection->clear();
         $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
     }
 

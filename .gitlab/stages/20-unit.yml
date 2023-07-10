@@ -314,6 +314,7 @@ PHP Full:
                 DEPENDENCY_DEV: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
+                MYSQL_CMD: 'mariadbd'
     script:
         - 'bin/console plugin:deactivate TestPlugin || true'
         - 'rm -Rf custom/plugins/* || true'

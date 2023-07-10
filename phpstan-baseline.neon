@@ -3293,11 +3293,6 @@ parameters:
 			path: src/Core/Content/Mail/Service/MailAttachmentsBuilder.php
 
 		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection is not subtype of native type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Aggregate\\\\MailHeaderFooterTranslation\\\\MailHeaderFooterTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Content/MailTemplate/Aggregate/MailHeaderFooterTranslation/MailHeaderFooterTranslationCollection.php

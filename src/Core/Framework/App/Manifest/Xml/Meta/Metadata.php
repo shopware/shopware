@@ -63,6 +63,9 @@ class Metadata extends XmlElement
      */
     protected array $privacyPolicyExtensions = [];
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, as it was never specified in the official mainfest.xsd
+     */
     protected ?string $url = null;
 
     /**
@@ -175,6 +178,9 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, as it was never specified in the official mainfest.xsd
+     */
     public function getUrl(): ?string
     {
         return $this->url;

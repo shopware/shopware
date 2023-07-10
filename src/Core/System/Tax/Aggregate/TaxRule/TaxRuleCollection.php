@@ -16,6 +16,11 @@ class TaxRuleCollection extends EntityCollection
         $this->sort(fn (TaxRuleEntity $entityA, TaxRuleEntity $entityB) => $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition());
     }
 
+    public function newestTaxRule(): ?TaxRuleEntity
+    {
+        return $this->reduce(fn ($result, $item) => $result === null || $item->getActiveFrom() > $result->getActiveFrom() ? $item : $result);
+    }
+
     public function getApiAlias(): string
     {
         return 'tax_rule_collection';

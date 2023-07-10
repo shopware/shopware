@@ -54,6 +54,11 @@ class TaxRuleEntity extends Entity
      */
     protected $data;
 
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $activeFrom;
+
     public function getTaxId(): string
     {
         return $this->taxId;
@@ -135,5 +140,15 @@ class TaxRuleEntity extends Entity
     public function setData(?array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getActiveFrom(): ?\DateTimeInterface
+    {
+        return $this->activeFrom;
+    }
+
+    public function setActiveFrom(?\DateTimeInterface $activeFrom): void
+    {
+        $this->activeFrom = $activeFrom;
     }
 }

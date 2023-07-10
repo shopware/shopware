@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
 #[Package('customer-order')]
-class ZipCodeRuleTypeFilter implements TaxRuleTypeFilterInterface
+class ZipCodeRuleTypeFilter extends AbstractTaxRuleTypeFilter
 {
     final public const TECHNICAL_NAME = 'zip_code';
 
@@ -26,6 +26,10 @@ class ZipCodeRuleTypeFilter implements TaxRuleTypeFilterInterface
 
         if ($shippingZipCode !== $zipCode) {
             return false;
+        }
+
+        if($taxRuleEntity->getActiveFrom() !== null ) {
+            return $this->isTaxActive($taxRuleEntity);
         }
 
         return true;

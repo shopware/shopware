@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
 #[Package('customer-order')]
-class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
+class IndividualStatesRuleTypeFilter extends AbstractTaxRuleTypeFilter
 {
     final public const TECHNICAL_NAME = 'individual_states';
 
@@ -25,6 +25,10 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
 
         if (!\in_array($stateId, $states, true)) {
             return false;
+        }
+
+        if($taxRuleEntity->getActiveFrom() !== null ) {
+            return $this->isTaxActive($taxRuleEntity);
         }
 
         return true;

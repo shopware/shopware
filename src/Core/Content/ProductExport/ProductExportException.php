@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
-use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
@@ -12,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportException extends HttpException
 {
     public const TEMPLATE_BODY_NOT_SET = 'PRODUCT_EXPORT__TEMPLATE_BODY_NOT_SET';
@@ -22,8 +21,6 @@ class ProductExportException extends HttpException
     public const RENDER_HEADER_EXCEPTION = 'PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION';
 
     public const RENDER_PRODUCT_EXCEPTION = 'PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION';
-
-    public const PRODUCT_EXPORT_NOT_FOUND = 'CONTENT__PRODUCT_EXPORT_EMPTY';
 
     public static function templateBodyNotSet(): ProductExportException
     {
@@ -55,28 +52,6 @@ class ProductExportException extends HttpException
         }
 
         return new self(Response::HTTP_BAD_REQUEST, self::RENDER_PRODUCT_EXCEPTION, self::getErrorMessage($message));
-    }
-
-    public static function productExportNotFound(?string $id = null): self
-    {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new EmptyExportException($id);
-        }
-
-        if ($id) {
-            return new self(
-                Response::HTTP_NOT_FOUND,
-                self::PRODUCT_EXPORT_NOT_FOUND,
-                self::$couldNotFindMessage,
-                ['entity' => 'products for export', 'field' => 'id', 'value' => $id],
-            );
-        }
-
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::PRODUCT_EXPORT_NOT_FOUND,
-            'No products for export found'
-        );
     }
 
     private static function getErrorMessage(string $message): string

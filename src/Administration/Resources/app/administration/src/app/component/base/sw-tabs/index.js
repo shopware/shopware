@@ -28,6 +28,8 @@ const dom = Shopware.Utils.dom;
 Component.register('sw-tabs', {
     template,
 
+    inject: ['feature'],
+
     extensionApiDevtoolInformation: {
         property: 'ui.tabs',
         positionId: (currentComponent) => currentComponent.positionIdentifier,
@@ -228,7 +230,20 @@ Component.register('sw-tabs', {
             });
             this.recalculateSlider();
 
-            // check if tab bar contains items with url routes
+            // Vue 3 check if tab bar contains items with url routes
+            if (this.feature.isActive('VUE3') &&
+                this.$slots.default &&
+                this.$slots.default({ active: this.active })?.[0]?.componentOptions?.propsData?.route
+            ) {
+                this.hasRoutes = true;
+            }
+
+            // The evaluation of the last if statement breaks the vue3 build therefore we need to early return here
+            if (this.feature.isActive('VUE3')) {
+                return;
+            }
+
+            // Vue 2 check if tab bar contains items with url routes
             if (this.$scopedSlots.default && this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
                 this.hasRoutes = true;
             }

@@ -6,6 +6,7 @@ import './sw-customer-detail-addresses.scss';
  * @package customer-order
  */
 
+const { ShopwareError } = Shopware.Classes;
 const { Mixin, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -206,14 +207,7 @@ export default {
         },
 
         onSaveAddress() {
-            if (this.currentAddress === null) {
-                return;
-            }
-
-            if (!this.isValidAddress(this.currentAddress)) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
-                });
+            if (this.currentAddress === null || !this.isValidAddress(this.currentAddress)) {
                 return;
             }
 
@@ -239,8 +233,24 @@ export default {
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
             let isValid = true;
 
-            isValid = requiredAddressFields.every(field => {
-                return (ignoreFields.indexOf(field) !== -1) || required(address[field]);
+            requiredAddressFields.forEach(field => {
+                if ((ignoreFields.indexOf(field) !== -1) || required(address[field])) {
+                    return;
+                }
+
+                isValid = false;
+
+                Shopware.State.dispatch(
+                    'error/addApiError',
+                    {
+                        expression: `customer_address.${this.currentAddress.id}.${field}`,
+                        error: new ShopwareError(
+                            {
+                                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                            },
+                        ),
+                    },
+                );
             });
 
             return isValid;

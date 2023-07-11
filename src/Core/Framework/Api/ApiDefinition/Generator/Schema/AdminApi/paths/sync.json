@@ -8,7 +8,7 @@
                     "Bulk Operations"
                 ],
                 "summary": "Bulk edit entities",
-                "description": "Starts a sync process for the list of provided actions. This can be inserts, upserts, updates and deletes on different entities. to an asynchronous process in the background. You can control the behaviour with the `single-operation` and `indexing-behavior` header.",
+                "description": "Starts a sync process for the list of provided actions. This can be upserts and deletes on different entities to an asynchronous process in the background. You can control the behaviour with the `indexing-behavior` header.",
                 "operationId": "sync",
                 "parameters": [
                     {
@@ -18,15 +18,6 @@
                         "schema": {
                             "type": "boolean",
                             "default": true
-                        }
-                    },
-                    {
-                        "name": "single-operation",
-                        "in": "header",
-                        "description": "Controls weather the data is written at once or in seperate transactions.\n    - `true`: Data will be written in a single transaction",
-                        "schema": {
-                            "type": "boolean",
-                            "default": false
                         }
                     },
                     {

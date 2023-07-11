@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class TestHook extends Hook
 {
     private static array $serviceIds;

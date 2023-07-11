@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class SalesChannelTestHook extends Hook implements SalesChannelContextAware
 {
     use SalesChannelContextAwareTrait;

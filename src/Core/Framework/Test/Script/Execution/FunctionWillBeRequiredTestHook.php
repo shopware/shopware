@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class FunctionWillBeRequiredTestHook extends OptionalFunctionHook
 {
     public function __construct(

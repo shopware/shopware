@@ -143,7 +143,7 @@ class MigrationRuntime
         $this->connection->update(
             'migration',
             [
-                '`message`' => utf8_encode($message),
+                '`message`' => mb_convert_encoding($message, 'UTF-8', 'ISO-8859-1'),
             ],
             [
                 '`class`' => $migration::class,

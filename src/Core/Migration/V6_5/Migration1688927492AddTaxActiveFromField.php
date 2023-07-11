@@ -3,8 +3,10 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+#[Package('core')]
 class Migration1688927492AddTaxActiveFromField extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -50,6 +50,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-getter-setter',
         // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
         'reason:blue-green-deployment',
+        // The constraint can still be used, just not via an annotation
+        'reason:remove-constraint-annotation',
     ];
 
     public function getNodeType(): string

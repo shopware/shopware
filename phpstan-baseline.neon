@@ -581,11 +581,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Subscriber/CustomerBeforeDeleteSubscriber.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerEmailUnique\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php
-
-		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatchesValidator.php
@@ -9096,11 +9091,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Util\\\\AfterSort\\:\\:sort\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityNotExists\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Version\\\\Aggregate\\\\VersionCommit\\\\VersionCommitCollection\\:\\:getUserIds\\(\\) should return list\\<string\\> but returns array\\.$#"

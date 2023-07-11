@@ -68,6 +68,10 @@ This change allows importing medias with filenames that contain special characte
 
 # 6.5.2.0
 The `context` property is used instead of `contextData` property in `src/Core/Content/Media/Message/GenerateThumbnailsMessage` due to the `context` data is serialized in context source
+
+## Update to Symfony 6.3
+Shopware now uses Symfony version 6.3, please make sure your plugins are compatible.
+
 ## Introduce BeforeLoadStorableFlowDataEvent
 The event is dispatched before the flow storer restores the data, so you can customize the criteria before passing it to the entity repository
 

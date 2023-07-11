@@ -12,6 +12,8 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  * @Annotation
  *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
+ *
+ * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
  */
 #[Package('customer-order')]
 class CustomerEmailUnique extends Constraint
@@ -32,6 +34,8 @@ class CustomerEmailUnique extends Constraint
     ];
 
     /**
+     * @param array{context: Context, salesChannelContext: SalesChannelContext} $options
+     *
      * @internal
      */
     public function __construct(array $options)

@@ -576,11 +576,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Subscriber/CustomerBeforeDeleteSubscriber.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerEmailUnique\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php
-
-		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatchesValidator.php

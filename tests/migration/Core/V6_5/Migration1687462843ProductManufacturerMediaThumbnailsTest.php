@@ -63,7 +63,7 @@ class Migration1687462843ProductManufacturerMediaThumbnailsTest extends TestCase
         }
 
         /*
-         * There is an existing entry fpr 1920px thumbnail, which we should not remove generally!
+         * There is an existing entry for 1920px thumbnail, which we should not remove generally!
          * We should just remove it from the specific mediaFolder
          */
         $id_1920px = $connection->fetchOne(

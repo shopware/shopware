@@ -104,7 +104,7 @@ class ErrorResponseFactory
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
                 } elseif (!mb_detect_encoding($value, $encodings, true)) {
-                    $array[$key] = utf8_encode($value);
+                    $array[$key] = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
                 }
             }
             // @codeCoverageIgnoreEnd

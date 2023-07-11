@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
@@ -38,6 +39,7 @@ class ConsumeMessagesController extends AbstractController
         private readonly MessageQueueStatsSubscriber $statsSubscriber,
         private readonly string $defaultTransportName,
         private readonly string $memoryLimit,
+        private readonly int $pollInterval,
         private readonly LockFactory $lockFactory
     ) {
     }
@@ -61,6 +63,7 @@ class ConsumeMessagesController extends AbstractController
 
         $workerDispatcher = new EventDispatcher();
         $listener = new CountHandledMessagesListener();
+        $workerDispatcher->addSubscriber(new StopWorkerOnTimeLimitListener($this->pollInterval));
         $workerDispatcher->addSubscriber($listener);
         $workerDispatcher->addSubscriber($this->statsSubscriber);
         $workerDispatcher->addSubscriber($this->stopWorkerOnRestartSignalListener);

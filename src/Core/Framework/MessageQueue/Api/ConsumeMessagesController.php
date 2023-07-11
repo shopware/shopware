@@ -39,6 +39,7 @@ class ConsumeMessagesController extends AbstractController
         private readonly MessageQueueStatsSubscriber $statsSubscriber,
         private readonly string $defaultTransportName,
         private readonly string $memoryLimit,
+        private readonly int $pollInterval,
         private readonly LockFactory $lockFactory
     ) {
     }

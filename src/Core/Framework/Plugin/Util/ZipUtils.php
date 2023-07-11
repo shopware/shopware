@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
-use ZipArchive;
 
 #[Package('core')]
 class ZipUtils
@@ -13,7 +12,7 @@ class ZipUtils
     {
         $stream = new \ZipArchive();
 
-        if (($retVal = $stream->open($filename, ZipArchive::OVERWRITE)) !== true) {
+        if (($retVal = $stream->open($filename, \ZipArchive::OVERWRITE)) !== true) {
             throw new PluginExtractionException(self::getErrorMessage($retVal, $filename));
         }
 

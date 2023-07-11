@@ -32,7 +32,17 @@ export default {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.cmsPageState.selectedSection) {
+                this.$store.dispatch('cmsPageState/setSection', this.section);
+            }
+        },
+
         selectSection() {
             if (this.disabled) {
                 return;

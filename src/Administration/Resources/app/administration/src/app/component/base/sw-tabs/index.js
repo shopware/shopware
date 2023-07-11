@@ -165,6 +165,11 @@ Component.register('sw-tabs', {
             this.updateActiveItem();
         },
 
+        defaultItem() {
+            this.active = this.defaultItem;
+            this.updateActiveItem();
+        },
+
         activeTabHasErrors() {
             this.recalculateSlider();
         },

@@ -6,6 +6,8 @@ use GuzzleHttp\Exception\ClientException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToWriteFile;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\DomainVerificationRequestStruct;
+use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Store\Struct\FrwState;
 use Shopware\Core\Framework\Store\Struct\LicenseDomainCollection;
 use Shopware\Core\Framework\Store\Struct\LicenseDomainStruct;
@@ -125,11 +128,14 @@ class FirstRunWizardService
      *
      * @return StorePluginStruct[]
      */
-    public function getLanguagePlugins(PluginCollection $pluginCollection, Context $context): array
-    {
+    public function getLanguagePlugins(
+        PluginCollection $pluginCollection,
+        AppCollection $appCollection,
+        Context $context,
+    ): array {
         $languagePlugins = $this->frwClient->getLanguagePlugins($context);
 
-        return $this->mapPluginData($languagePlugins, $pluginCollection);
+        return $this->mapExtensionData($languagePlugins, $pluginCollection, $appCollection);
     }
 
     /**
@@ -138,11 +144,14 @@ class FirstRunWizardService
      *
      * @return StorePluginStruct[]
      */
-    public function getDemoDataPlugins(PluginCollection $pluginCollection, Context $context): array
-    {
+    public function getDemoDataPlugins(
+        PluginCollection $pluginCollection,
+        AppCollection $appCollection,
+        Context $context,
+    ): array {
         $demodataPlugins = $this->frwClient->getDemoDataPlugins($context);
 
-        return $this->mapPluginData($demodataPlugins, $pluginCollection);
+        return $this->mapExtensionData($demodataPlugins, $pluginCollection, $appCollection);
     }
 
     /**
@@ -172,13 +181,16 @@ class FirstRunWizardService
 
     public function getRecommendations(
         PluginCollection $pluginCollection,
+        AppCollection $appCollection,
         ?string $region,
         ?string $category,
         Context $context
     ): PluginRecommendationCollection {
         $recommendations = $this->frwClient->getRecommendations($region, $category, $context);
 
-        return new PluginRecommendationCollection($this->mapPluginData($recommendations, $pluginCollection));
+        return new PluginRecommendationCollection(
+            $this->mapExtensionData($recommendations, $pluginCollection, $appCollection)
+        );
     }
 
     public function getLicenseDomains(Context $context): LicenseDomainCollection
@@ -248,42 +260,65 @@ class FirstRunWizardService
     }
 
     /**
-     * @param array<string, mixed> $plugins
+     * @param array<string, mixed> $extensions
      *
      * @return StorePluginStruct[]
      */
-    private function mapPluginData(array $plugins, PluginCollection $pluginCollection): array
-    {
-        /** @var StorePluginStruct[] $mappedPlugins */
-        $mappedPlugins = [];
-        foreach ($plugins as $plugin) {
-            if (empty($plugin['name']) || empty($plugin['localizedInfo']['name'])) {
+    private function mapExtensionData(
+        array $extensions,
+        PluginCollection $pluginCollection,
+        AppCollection $appCollection,
+    ): array {
+        /** @var StorePluginStruct[] $mappedExtensions */
+        $mappedExtensions = [];
+        foreach ($extensions as $extension) {
+            if (empty($extension['name']) || empty($extension['localizedInfo']['name'])) {
                 continue;
             }
-            $mappedPlugins[] = (new StorePluginStruct())->assign([
-                'name' => $plugin['name'],
-                'label' => $plugin['localizedInfo']['name'],
-                'shortDescription' => $plugin['localizedInfo']['shortDescription'] ?? '',
 
-                'iconPath' => $plugin['iconPath'] ?? null,
-                'category' => $plugin['language'] ?? null,
-                'region' => $plugin['region'] ?? null,
-                'manufacturer' => $plugin['producer']['name'] ?? null,
-                'position' => $plugin['priority'] ?? null,
-                'isCategoryLead' => $plugin['isCategoryLead'] ?? false,
+            $mappedExtensions[] = (new StorePluginStruct())->assign([
+                'name' => $extension['name'],
+                'type' => $extension['type'] ?? 'plugin',
+                'label' => $extension['localizedInfo']['name'],
+                'shortDescription' => $extension['localizedInfo']['shortDescription'] ?? '',
+
+                'iconPath' => $extension['iconPath'] ?? null,
+                'category' => $extension['language'] ?? null,
+                'region' => $extension['region'] ?? null,
+                'manufacturer' => $extension['producer']['name'] ?? null,
+                'position' => $extension['priority'] ?? null,
+                'isCategoryLead' => $extension['isCategoryLead'] ?? false,
             ]);
         }
 
-        foreach ($mappedPlugins as $storePlugin) {
+        foreach ($mappedExtensions as $storeExtension) {
+            if ($storeExtension->getType() !== ExtensionStruct::EXTENSION_TYPE_PLUGIN) {
+                continue;
+            }
+
             /** @var PluginEntity|null $plugin */
-            $plugin = $pluginCollection->filterByProperty('name', $storePlugin->getName())->first();
-            $storePlugin->assign([
+            $plugin = $pluginCollection->filterByProperty('name', $storeExtension->getName())->first();
+            $storeExtension->assign([
                 'active' => $plugin ? $plugin->getActive() : false,
                 'installed' => $plugin ? ((bool) $plugin->getInstalledAt()) : false,
             ]);
         }
 
-        return $mappedPlugins;
+        foreach ($mappedExtensions as $storeExtension) {
+            if ($storeExtension->getType() !== ExtensionStruct::EXTENSION_TYPE_APP) {
+                continue;
+            }
+
+            /** @var AppEntity|null $app */
+            $app = $appCollection->filterByProperty('name', $storeExtension->getName())->first();
+
+            $storeExtension->assign([
+                'active' => (bool) $app,
+                'installed' => (bool) $app,
+            ]);
+        }
+
+        return $mappedExtensions;
     }
 
     private function storeVerificationSecret(string $domain, DomainVerificationRequestStruct $validationRequest): void

@@ -1,14 +1,13 @@
 /*
-Offcanvas
+OffCanvas
 ==============================================
-Move page content like the navigation menu in a sliding offcanvas menu.
+Move page content like the navigation menu in a sliding OffCanvas menu.
 The sliding direction can be left or right.
 
 @see https://getbootstrap.com/docs/5.2/components/offcanvas
 */
 
 .offcanvas {
-    border: 0 none;
     transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
 
     &.offcanvas-start .offcanvas-close {
@@ -61,7 +60,7 @@ The sliding direction can be left or right.
     }
 
     &,
-    .offcanvas-content-container {
+    .offcanvas-body {
         > .loader {
             position: absolute;
             left: 50%;
@@ -71,9 +70,12 @@ The sliding direction can be left or right.
         }
     }
 
-    .offcanvas-content-container,
-    .offcanvas-body {
-        padding: $grid-gutter-width / 2;
-        width: 100%;
+    // For horizontal OffCanvas, always reserve some space when the mobile viewport
+    // reaches the width of the OffCanvas itself, so it does not cover the whole viewport.
+    &.offcanvas-end,
+    &.offcanvas-start {
+        @media (max-width: $offcanvas-horizontal-width + ($grid-gutter-width / 2)) {
+            width: calc(100% - #{$grid-gutter-width / 2});
+        }
     }
 }

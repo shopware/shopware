@@ -192,6 +192,7 @@ class SalesChannelContextTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'countryId' => $shippingCountryId,
                     'taxRate' => 9,
+                    'activeFrom' => (new \DateTime())->modify("-2 days"),
                     'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME)->getId(),
                     'data' => [
                         'states' => [$countryStateId],
@@ -201,6 +202,7 @@ class SalesChannelContextTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'countryId' => $shippingCountryId,
                     'taxRate' => 8,
+                    'activeFrom' => (new \DateTime())->modify("-3 days"),
                     'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME)->getId(),
                     'data' => [
                         'fromZipCode' => '12000',

@@ -24,7 +24,6 @@ class TaxRuleCollection extends EntityCollection
 
     public function highestTypePosition(): ?TaxRuleEntity
     {
-        $higher = '';
         return $this->reduce(fn ($result, $item) => $result === null || $item->getType()->getPosition() < $result->getType()->getPosition() ? $item : $result);
     }
 

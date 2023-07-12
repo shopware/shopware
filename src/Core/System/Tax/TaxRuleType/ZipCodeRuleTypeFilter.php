@@ -28,7 +28,7 @@ class ZipCodeRuleTypeFilter extends AbstractTaxRuleTypeFilter
             return false;
         }
 
-        if($taxRuleEntity->getActiveFrom() !== null ) {
+        if ($taxRuleEntity->getActiveFrom() !== null) {
             return $this->isTaxActive($taxRuleEntity);
         }
 

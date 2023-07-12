@@ -155,8 +155,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
             $matchingRules = new TaxRuleCollection();
 
-            if($taxRules->count() === 0) {
+            if ($taxRules->count() === 0) {
                 $tax->setRules($matchingRules);
+
                 continue;
             }
 

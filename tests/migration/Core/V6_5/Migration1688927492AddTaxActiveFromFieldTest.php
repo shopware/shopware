@@ -24,7 +24,9 @@ class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
     use KernelTestBehaviour;
 
     private EntityRepository $taxRepository;
+
     private EntityRepository $taxRuleRepository;
+
     private TaxRuleTypeCollection $taxRuleTypes;
 
     protected function setUp(): void
@@ -51,11 +53,11 @@ class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
                     'taxRate' => 10,
                     'activeFrom' => $activeFrom,
                     'country' => [
-                        'name' => 'test'
+                        'name' => 'test',
                     ],
                     'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME)->getId(),
-                ]
-            ]
+                ],
+            ],
         ];
 
         // THEN
@@ -64,7 +66,7 @@ class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
         $taxRule = $this->taxRuleRepository->search(new Criteria([$taxRuleId]), $context)->first();
 
         // THEN
-        $this->assertEquals($activeFrom->getTimestamp(), $taxRule->getActiveFrom()->getTimestamp());
+        static::assertEquals($activeFrom->getTimestamp(), $taxRule->getActiveFrom()->getTimestamp());
     }
 
     private function loadTaxRuleTypes(): TaxRuleTypeCollection

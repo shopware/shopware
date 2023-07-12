@@ -152,12 +152,13 @@ class SalesChannelContext extends Struct
             throw new TaxNotFoundException($taxId);
         }
 
-        $newestTaxRule = $tax->getRules()->newestTaxRule();
-
-        if ($newestTaxRule !== null) {
+        if ($tax->getRules()->first() !== null) {
+            // NEXT-21735 - This is covered randomly
+            // @codeCoverageIgnoreStart
             return new TaxRuleCollection([
-                new TaxRule($newestTaxRule->getTaxRate(), 100),
+                new TaxRule($tax->getRules()->first()->getTaxRate(), 100),
             ]);
+            // @codeCoverageIgnoreEnd
         }
 
         return new TaxRuleCollection([

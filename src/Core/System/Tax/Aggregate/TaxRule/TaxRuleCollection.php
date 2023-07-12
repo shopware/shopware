@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -16,7 +17,17 @@ class TaxRuleCollection extends EntityCollection
         $this->sort(fn (TaxRuleEntity $entityA, TaxRuleEntity $entityB) => $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition());
     }
 
-    public function newestTaxRule(): ?TaxRuleEntity
+    public function filterByTypePosition(int $position): TaxRuleCollection
+    {
+        return $this->filter(fn (TaxRuleEntity $taxRule) => $taxRule->getType()->getPosition() === $position);
+    }
+
+    public function highestTypePosition(): ?TaxRuleEntity
+    {
+        return $this->reduce(fn ($result, $item) => $result === null || $item->getType()->getPosition() > $result->getType()->getPosition() ? $item : $result);
+    }
+
+    public function latestActivationDate(): ?TaxRuleEntity
     {
         return $this->reduce(fn ($result, $item) => $result === null || $item->getActiveFrom() > $result->getActiveFrom() ? $item : $result);
     }

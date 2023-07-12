@@ -10,6 +10,6 @@ abstract class AbstractTaxRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
     protected function isTaxActive(TaxRuleEntity $taxRuleEntity): bool
     {
-        return $taxRuleEntity->getActiveFrom() > (new \DateTime())->setTimezone(new \DateTimeZone('UTC'));
+        return $taxRuleEntity->getActiveFrom() < (new \DateTime())->setTimezone(new \DateTimeZone('UTC'));
     }
 }

@@ -39,7 +39,7 @@ export default Component.wrapComponentConfig({
             taxProvider?: Entity<'tax_provider'> | undefined,
             } {
         return {
-            taxProvider: undefined as Entity<'tax_provider'> | undefined,
+            taxProvider: undefined,
             isLoading: false,
             isSaveSuccessful: false,
         };
@@ -127,7 +127,7 @@ export default Component.wrapComponentConfig({
                 return Promise.resolve();
             }
 
-            return this.taxProviderRepository.save(this.taxProvider as $TSFixMeData<Entity<'tax_provider'>>).then(() => {
+            return this.taxProviderRepository.save(this.taxProvider).then(() => {
                 this.isSaveSuccessful = true;
 
                 return this.loadTaxProvider();

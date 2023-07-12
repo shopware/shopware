@@ -93,7 +93,7 @@ export default Component.wrapComponentConfig({
             }
 
             this.isLoading = true;
-            this.unitRepository.save(this.unit as $TSFixMeData<Entity<'unit'>>, Shopware.Context.api).then(() => {
+            this.unitRepository.save(this.unit).then(() => {
                 this.isSaveSuccessful = true;
 
                 void this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit?.id ?? '' } });

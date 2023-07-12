@@ -12,7 +12,7 @@ class ZipUtils
     {
         $stream = new \ZipArchive();
 
-        if (($retVal = $stream->open($filename, \ZipArchive::OVERWRITE)) !== true) {
+        if (($retVal = $stream->open($filename)) !== true) {
             throw new PluginExtractionException(self::getErrorMessage($retVal, $filename));
         }
 

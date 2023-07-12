@@ -1,13 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,7 +13,11 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 
-#[Package('core')]
+/**
+ * @internal
+ *
+ * @covers \Shopware\Core\Migration\V6_5\Migration1688927492AddTaxActiveFromField
+ */
 class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

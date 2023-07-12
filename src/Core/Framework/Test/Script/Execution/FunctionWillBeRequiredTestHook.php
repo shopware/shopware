@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 #[\AllowDynamicProperties]
 class FunctionWillBeRequiredTestHook extends OptionalFunctionHook
 {
+    /**
+     * @param array<mixed> $data
+     */
     public function __construct(
         private readonly string $name,
         Context $context,

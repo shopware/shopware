@@ -66,9 +66,9 @@ class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
         $this->taxRepository->create([$taxData], $context);
         /** @var TaxRuleEntity $taxRule */
         $taxRule = $this->taxRuleRepository->search(new Criteria([$taxRuleId]), $context)->first();
-        static::assertInstanceOf(\DateTime::class, $taxRule->getActiveFrom());
 
         // THEN
+        static::assertInstanceOf(\DateTimeInterface::class, $taxRule->getActiveFrom());
         static::assertEquals($activeFrom->getTimestamp(), $taxRule->getActiveFrom()->getTimestamp());
     }
 

@@ -90,7 +90,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(9.0, $taxRuleCollection->first()?->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 

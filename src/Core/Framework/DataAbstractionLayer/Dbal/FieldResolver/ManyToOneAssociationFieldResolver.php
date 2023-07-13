@@ -122,26 +122,25 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 
     /**
      * Builds a versioning string to append in the where condition based on the available fields
-     *
-     * @param ManyToOneAssociationField|OneToOneAssociationField $field
      */
-    private function buildVersionWhere(FieldResolverContext $context, AssociationField $field): string
+    private function buildVersionWhere(FieldResolverContext $context, ManyToOneAssociationField|OneToOneAssociationField $field): string
     {
         if (!$field->getReferenceDefinition()->isVersionAware()) {
             return '';
         }
 
-        $fkVersionId = $field->getReferenceDefinition()->getEntityName() . '_version_id';
-        if ($context->getDefinition()->getFields()->getByStorageName($fkVersionId)) {
-            return sprintf(
-                ' AND #root#.%s = #alias#.%s',
-                EntityDefinitionQueryHelper::escape($fkVersionId),
-                EntityDefinitionQueryHelper::escape('version_id'),
-            );
-        }
+        $fkVersionId = $this->getVersionField($context, $field);
+        if ($fkVersionId) {
+            if ($field->is(Inherited::class) && $context->getContext()->considerInheritance()) {
+                return sprintf(
+                    ' AND IFNULL(#root#.%s, %s.%s) = #alias#.%s',
+                    EntityDefinitionQueryHelper::escape($fkVersionId),
+                    EntityDefinitionQueryHelper::escape($context->getAlias() . '.parent'),
+                    EntityDefinitionQueryHelper::escape($fkVersionId),
+                    EntityDefinitionQueryHelper::escape('version_id'),
+                );
+            }
 
-        $fkVersionId = \substr($field->getStorageName(), 0, -3) . '_version_id';
-        if ($context->getDefinition()->getFields()->getByStorageName($fkVersionId)) {
             return sprintf(
                 ' AND #root#.%s = #alias#.%s',
                 EntityDefinitionQueryHelper::escape($fkVersionId),
@@ -167,6 +166,22 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
             EntityDefinitionQueryHelper::escape('version_id'),
             Defaults::LIVE_VERSION,
         );
+    }
+
+    private function getVersionField(FieldResolverContext $context, ManyToOneAssociationField|OneToOneAssociationField $field): ?string
+    {
+        $variants = [
+            $field->getReferenceDefinition()->getEntityName() . '_version_id',
+            \substr($field->getStorageName(), 0, -3) . '_version_id',
+        ];
+
+        foreach ($variants as $variant) {
+            if ($context->getDefinition()->getFields()->getByStorageName($variant)) {
+                return $variant;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -9521,21 +9521,6 @@ parameters:
 			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
 
 		-
-			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
-			count: 3
-			path: src/Core/Framework/Plugin/PluginExtractor.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between non\\-empty\\-string and '' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginExtractor.php
-
-		-
-			message: "#^PHPDoc tag @var with type string is not subtype of native type non\\-empty\\-string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginManagementService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\VersionSanitizer\\:\\:sanitizePluginVersion\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/VersionSanitizer.php
@@ -11544,11 +11529,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginAclTest\\:\\:\\$plugins \\(array\\<Shopware\\\\Core\\\\Framework\\\\Plugin\\>\\) does not accept array\\<object\\>\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/Plugin/PluginAclTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginExtractorTest\\:\\:\\$container \\(Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginCollection\\) does not accept Symfony\\\\Component\\\\DependencyInjection\\\\ContainerInterface\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginExtractorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginFromFileSystemStructTest\\:\\:dataProviderTestGetName\\(\\) return type has no value type specified in iterable type array\\.$#"

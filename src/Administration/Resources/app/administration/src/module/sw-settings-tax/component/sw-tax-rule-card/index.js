@@ -97,6 +97,10 @@ export default {
                 dataIndex: 'type.typeName',
                 label: 'sw-settings-tax.taxRuleCard.labelAppliesOn',
             }, {
+                property: 'activeFrom',
+                dataIndex: 'activeFrom',
+                label: 'sw-settings-tax.taxRuleCard.labelActiveFrom',
+            }, {
                 property: 'taxRate',
                 dataIndex: 'taxRate',
                 label: 'sw-settings-tax.taxRuleCard.labelTaxRate',

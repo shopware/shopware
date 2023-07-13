@@ -69,6 +69,19 @@ class SalesChannelContextTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'countryId' => $shippingCountryId,
                     'taxRate' => 10,
+                    'activeFrom' => (new \DateTime())->modify('-3 days'),
+                    'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME)->getId(),
+                ], [
+                    'id' => Uuid::randomHex(),
+                    'countryId' => $shippingCountryId,
+                    'taxRate' => 9,
+                    'activeFrom' => (new \DateTime())->modify('-2 days'),
+                    'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME)->getId(),
+                ], [
+                    'id' => Uuid::randomHex(),
+                    'countryId' => $shippingCountryId,
+                    'taxRate' => 8,
+                    'activeFrom' => (new \DateTime())->modify('+3 days'),
                     'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME)->getId(),
                 ],
             ],
@@ -77,7 +90,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(10.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -179,6 +192,7 @@ class SalesChannelContextTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'countryId' => $shippingCountryId,
                     'taxRate' => 9,
+                    'activeFrom' => (new \DateTime())->modify('-2 days'),
                     'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME)->getId(),
                     'data' => [
                         'states' => [$countryStateId],
@@ -188,6 +202,7 @@ class SalesChannelContextTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'countryId' => $shippingCountryId,
                     'taxRate' => 8,
+                    'activeFrom' => (new \DateTime())->modify('-3 days'),
                     'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME)->getId(),
                     'data' => [
                         'fromZipCode' => '12000',

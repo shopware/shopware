@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_4;
+namespace Shopware\Tests\Migration\Elasticsearch\V6_5;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_4\Migration1667731399AdminElasticsearchIndexTask;
+use Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchIndexTask;
 
 /**
  * @package core
  *
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_4\Migration1667731399AdminElasticsearchIndexTask
+ * @covers \Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchIndexTask
  */
-class Migration1667731399AdminElasticsearchIndexTaskTest extends TestCase
+class Migration1689084023AdminElasticsearchIndexTaskTest extends TestCase
 {
     private Connection $connection;
 
@@ -28,7 +28,7 @@ class Migration1667731399AdminElasticsearchIndexTaskTest extends TestCase
 
     public function testMigration(): void
     {
-        $migration = new Migration1667731399AdminElasticsearchIndexTask();
+        $migration = new Migration1689084023AdminElasticsearchIndexTask();
         $migration->update($this->connection);
 
         $schemaManager = $this->connection->createSchemaManager();

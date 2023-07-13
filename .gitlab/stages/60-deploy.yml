@@ -27,6 +27,7 @@ Upload Component Library:
 Publish entity-schema-types NPM package:
     extends: .base
     stage: deploy
+    needs: []
     rules:
       - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
     before_script:
@@ -42,28 +43,6 @@ Publish entity-schema-types NPM package:
       - cd ./entity-schema-types
       - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
       - npm publish --access public
-
-github sync:
-    extends: .long-running-no-setup
-    stage: deploy
-    image: ubuntu:rolling
-    needs: []
-    rules:
-      # only sync on protected branches
-      - if: '$CI_COMMIT_REF_PROTECTED == "true"'
-    environment:
-        name: Github
-        url: https://github.com/shopware
-    variables:
-        GIT_STRATEGY: clone
-        GIT_DEPTH: "0"  # Tells git to fetch all commits
-    script:
-      - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Kgit preparation"
-      - apt update && apt install -y git
-      - git remote add github https://${GITHUB_SYNC_USER}:${GITHUB_SYNC_TOKEN}@github.com/shopware/platform
-      - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
-      - git fetch github
-      - .gitlab/bin/git_sync.bash origin github
 
 .push split repositories:
   stage: deploy

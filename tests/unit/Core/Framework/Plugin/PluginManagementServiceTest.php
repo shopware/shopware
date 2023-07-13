@@ -33,10 +33,14 @@ class PluginManagementServiceTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects(static::once())->method('refreshPlugins');
 
+        $extractor = $this->createMock(PluginExtractor::class);
+        $extractor->expects(static::once())
+            ->method('extract');
+
         $pluginManagementService = new PluginManagementService(
             '',
             $this->createMock(PluginZipDetector::class),
-            $this->createMock(PluginExtractor::class),
+            $extractor,
             $pluginService,
             $this->createMock(Filesystem::class),
             $this->createMock(CacheClearer::class),
@@ -46,6 +50,74 @@ class PluginManagementServiceTest extends TestCase
         $pluginManagementService->downloadStorePlugin(
             $this->createPluginDownloadDataStruct('location', 'plugin'),
             Context::createDefaultContext()
+        );
+    }
+
+    public function testExtractPluginWithDetectedPlugin(): void
+    {
+        $client = $this->createClient([new Response()]);
+
+        $pluginService = $this->createMock(PluginService::class);
+
+        $pluginZipDetector = $this->createMock(PluginZipDetector::class);
+        $pluginZipDetector->expects(static::once())
+            ->method('detect')
+            ->with('/some/zip/file.zip')
+            ->willReturn(PluginManagementService::PLUGIN);
+
+        $extractor = $this->createMock(PluginExtractor::class);
+        $extractor->expects(static::once())
+            ->method('extract')
+            ->with('/some/zip/file.zip');
+
+        $cacheClearer = $this->createMock(CacheClearer::class);
+        $cacheClearer->expects(static::once())
+            ->method('clearContainerCache');
+
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $pluginZipDetector,
+            $extractor,
+            $pluginService,
+            $this->createMock(Filesystem::class),
+            $cacheClearer,
+            $client
+        );
+
+        $pluginManagementService->extractPluginZip(
+            '/some/zip/file.zip',
+        );
+    }
+
+    public function testExtractPluginWithDetectedApp(): void
+    {
+        $client = $this->createClient([new Response()]);
+
+        $pluginService = $this->createMock(PluginService::class);
+
+        $pluginZipDetector = $this->createMock(PluginZipDetector::class);
+        $pluginZipDetector->expects(static::once())
+            ->method('detect')
+            ->with('/some/zip/file.zip')
+            ->willReturn(PluginManagementService::APP);
+
+        $extractor = $this->createMock(PluginExtractor::class);
+        $extractor->expects(static::once())
+            ->method('extract')
+            ->with('/some/zip/file.zip');
+
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $pluginZipDetector,
+            $extractor,
+            $pluginService,
+            $this->createMock(Filesystem::class),
+            $this->createMock(CacheClearer::class),
+            $client
+        );
+
+        $pluginManagementService->extractPluginZip(
+            '/some/zip/file.zip',
         );
     }
 

@@ -1,10 +1,8 @@
 { pkgs, lib, config, ... }:
 
 let
-  inherit (lib.attrsets) attrValues genAttrs;
-  pcovExtensions = lib.filter(e: e != "blackfire") (config.languages.php.extensions ++ [ "pcov" ]);
-  pcov = pkgs.php81.buildEnv {
-    extensions = { all, enabled }: with all; enabled ++ attrValues (lib.getAttrs pcovExtensions config.languages.php.package.extensions);
+  pcov = config.languages.php.package.buildEnv {
+    extensions = { all, enabled }: with all; (builtins.filter (e: e.extensionName != "blackfire" && e.extensionName != "xdebug") enabled) ++ [config.languages.php.package.extensions.pcov];
     extraConfig = config.languages.php.ini;
   };
 in {

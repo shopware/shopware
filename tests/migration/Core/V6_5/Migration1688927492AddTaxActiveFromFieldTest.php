@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
+use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 
 /**
  * @internal
@@ -43,6 +45,7 @@ class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
         $taxRuleId = Uuid::randomHex();
         $activeFrom = new \DateTime();
         $context = Context::createDefaultContext();
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => $taxId,
             'name' => 'test',
@@ -64,6 +67,7 @@ class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
         $this->taxRepository->create([$taxData], $context);
         /** @var TaxRuleEntity $taxRule */
         $taxRule = $this->taxRuleRepository->search(new Criteria([$taxRuleId]), $context)->first();
+        static::assertInstanceOf(\DateTime::class, $taxRule->getActiveFrom());
 
         // THEN
         static::assertEquals($activeFrom->getTimestamp(), $taxRule->getActiveFrom()->getTimestamp());

@@ -154,14 +154,13 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             });
 
             $matchingRules = new TaxRuleCollection();
+            $taxRule = $taxRules->highestTypePosition();
 
-            if ($taxRules->count() === 0) {
+            if (!$taxRule) {
                 $tax->setRules($matchingRules);
-
                 continue;
             }
 
-            $taxRule = $taxRules->highestTypePosition();
             $taxRules = $taxRules->filterByTypePosition($taxRule->getType()->getPosition());
             $taxRule = $taxRules->latestActivationDate();
 

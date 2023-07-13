@@ -14403,16 +14403,6 @@ parameters:
 			path: src/Core/Test/Integration/Helper/MailEventListener.php
 
 		-
-			message: "#^Anonymous variable in a `\\$indexer\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 7
-			path: src/Elasticsearch/Admin/AdminSearchRegistry.php
-
-		-
-			message: "#^Anonymous variable in a `\\$iterator\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Elasticsearch/Admin/AdminSearchRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\DependencyInjection\\\\ElasticsearchExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/DependencyInjection/ElasticsearchExtension.php

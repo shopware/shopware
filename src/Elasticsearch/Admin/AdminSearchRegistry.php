@@ -29,7 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AdminSearchRegistry implements EventSubscriberInterface
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, AbstractAdminIndexer>
      */
     private readonly array $indexer;
 
@@ -171,6 +171,18 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
 
         throw new ElasticsearchIndexingException([\sprintf('Indexer for name %s not found', $name)]);
+    }
+
+    public function updateMappings(): void
+    {
+        foreach ($this->indexer as $indexer) {
+            $mapping = $this->buildMapping($indexer);
+
+            $this->client->indices()->putMapping([
+                'index' => $this->adminEsHelper->getIndex($indexer->getName()),
+                'body' => $mapping,
+            ]);
+        }
     }
 
     private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
@@ -315,17 +327,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function create(AbstractAdminIndexer $indexer, string $index, string $alias): void
     {
-        $mapping = $indexer->mapping([
-            'properties' => [
-                'id' => ['type' => 'keyword'],
-                'textBoosted' => ['type' => 'text'],
-                'text' => ['type' => 'text'],
-                'entityName' => ['type' => 'keyword'],
-                'parameters' => ['type' => 'keyword'],
-            ],
-        ]);
-
-        $mapping = array_merge_recursive($mapping, $this->mapping);
+        $mapping = $this->buildMapping($indexer);
 
         $body = array_merge(
             $this->config,
@@ -408,5 +410,23 @@ class AdminSearchRegistry implements EventSubscriberInterface
             'index' => $index,
         ]);
         $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function buildMapping(AbstractAdminIndexer $indexer): array
+    {
+        $mapping = $indexer->mapping([
+            'properties' => [
+                'id' => ['type' => 'keyword'],
+                'textBoosted' => ['type' => 'text'],
+                'text' => ['type' => 'text'],
+                'entityName' => ['type' => 'keyword'],
+                'parameters' => ['type' => 'keyword'],
+            ],
+        ]);
+
+        return array_merge_recursive($mapping, $this->mapping);
     }
 }

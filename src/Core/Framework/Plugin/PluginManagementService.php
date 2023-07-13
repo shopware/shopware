@@ -56,9 +56,6 @@ class PluginManagementService
     public function uploadPlugin(UploadedFile $file, Context $context): void
     {
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
-        if (!\is_string($tempFileName)) {
-            throw PluginException::cannotCreateTemporaryDirectory(sys_get_temp_dir(), $file->getClientOriginalName());
-        }
         $tempRealPath = realpath($tempFileName);
         \assert(\is_string($tempRealPath));
         $tempDirectory = \dirname($tempRealPath);

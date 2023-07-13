@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
+use Shopware\Core\Framework\Plugin\PluginException;
 
 #[Package('core')]
 class ZipUtils
@@ -14,8 +14,16 @@ class ZipUtils
     {
         $stream = new \ZipArchive();
 
+        if (!file_exists($filename)) {
+            throw PluginException::cannotExtractNoSuchFile($filename);
+        }
+
+        if (!self::validateFileIsZip($filename)) {
+            throw PluginException::cannotExtractInvalidZipFile($filename);
+        }
+
         if (($retVal = $stream->open($filename)) !== true) {
-            throw new PluginExtractionException(self::getErrorMessage($retVal, $filename));
+            throw PluginException::cannotExtractZipOpenError(self::getErrorMessage($retVal, $filename));
         }
 
         return $stream;

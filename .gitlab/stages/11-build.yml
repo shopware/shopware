@@ -66,3 +66,26 @@ Component Library:
   artifacts:
     paths:
       - build/artifacts/component-library/
+
+Prepare commercial release:
+  extends: .base-no-setup
+  stage: lint
+  image: alpine:latest
+  needs: []
+  variables:
+    GIT_USER: shopwareBot
+    GIT_EMAIL: shopwareBot@shopware.com
+  rules:
+      - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  before_script:
+    - apk add composer git bash
+    - git config --global user.email $GIT_EMAIL
+    - git config --global user.name $GIT_USER
+    # fetch saas branches
+    - git fetch --tags origin 'refs/heads/saas/*:refs/remotes/origin/saas/*'
+    # track saas branches
+    - 'git branch --all | grep remotes/origin/saas/ | sort | sed -e "s|remotes/origin/||" | xargs -n1 -i{} git fetch origin "{}:{}"'
+  script:
+    - '.gitlab/bin/commercial_release.bash "$CI_COMMIT_TAG"'
+    - git -C commercial log -n 2
+    - git -C commercial diff @^..

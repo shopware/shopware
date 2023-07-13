@@ -158,6 +158,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
             if (!$taxRule) {
                 $tax->setRules($matchingRules);
+
                 continue;
             }
 

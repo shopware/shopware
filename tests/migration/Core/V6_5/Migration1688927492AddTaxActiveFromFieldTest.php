@@ -13,7 +13,6 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
-use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 
 /**
  * @internal

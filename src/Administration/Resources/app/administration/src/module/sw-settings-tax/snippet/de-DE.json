@@ -78,7 +78,8 @@
       "cardTitleAvailability": "Verfügbarkeit",
       "labelPriority": "Priorität",
       "labelActive": "Aktiv",
-      "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ..."
+      "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
+      "labelActiveFrom": "Aktiv von"
     }
   },
   "sw-privileges": {

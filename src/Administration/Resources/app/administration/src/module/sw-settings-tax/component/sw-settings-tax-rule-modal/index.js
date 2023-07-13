@@ -61,7 +61,7 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate']),
+        ...mapPropertyErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate', 'activeFrom']),
     },
 
     created() {

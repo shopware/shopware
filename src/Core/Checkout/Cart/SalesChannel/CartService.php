@@ -107,7 +107,7 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @param array<string, mixed>[] $items
+     * @param array<string|int, mixed>[] $items
      *
      * @throws CartException
      */

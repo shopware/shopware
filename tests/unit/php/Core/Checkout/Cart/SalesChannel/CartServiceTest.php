@@ -53,68 +53,85 @@ class CartServiceTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider providerCartServiceRoutes
-     */
-    public function testRouteCalled(
-        string $routeName,
-        string $routeMethodName,
-        array $routeMethodArgumentsValidator,
-        string $cartServiceMethod,
-        array $cartServiceMethodArgs,
-    ): void {
-        $this->{$routeName}->expects(static::once())
-            ->method($routeMethodName)
-            ->with(...$routeMethodArgumentsValidator);
-
-        $this->cartService->{$cartServiceMethod}(...$cartServiceMethodArgs);
-    }
-
-    public function providerCartServiceRoutes()
+    public function testDeleteCartCallsDeleteRoute(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        yield 'testDeleteCartCallsDeleteRoute' => ['cartDeleteRoute', 'delete', [$context], 'deleteCart', [$context]];
 
+        $this->cartDeleteRoute->expects(static::once())
+            ->method('delete')
+            ->with($context)
+        ;
+
+        $this->cartService->deleteCart($context);
+    }
+
+    public function testRemoveItemsCallsRemoveRoute(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
         $cart = new Cart(Uuid::randomHex());
 
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $ids = [$id1, $id2];
 
-        yield 'testRemoveItemsCallsRemoveRoute' => ['cartItemRemoveRoute', 'remove', [
-            static::callback(function (Request $actualRequest) use ($ids) {
+        $this->cartItemRemoveRoute->expects(static::once())
+            ->method('remove')
+            ->with(static::callback(function (Request $actualRequest) use ($ids) {
                 static::assertEquals($ids, $actualRequest->request->all('ids'));
 
                 return true;
-            }),
-            $cart,
-            $context,
-        ], 'removeItems', [$cart, $ids, $context]];
+            }), $cart, $context);
 
-        yield 'testRemoveCallsRemoveRoute' => ['cartItemRemoveRoute', 'remove', [
-            static::callback(function (Request $actualRequest) use ($id1) {
-                static::assertEquals([$id1], $actualRequest->request->all('ids'));
+        $this->cartService->removeItems($cart, $ids, $context);
+    }
+
+    public function testRemoveCallsRemoveRoute(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $cart = new Cart(Uuid::randomHex());
+
+        $id = Uuid::randomHex();
+
+        $this->cartItemRemoveRoute->expects(static::once())
+            ->method('remove')
+            ->with(static::callback(function (Request $actualRequest) use ($id) {
+                static::assertEquals([$id], $actualRequest->request->all('ids'));
 
                 return true;
-            }),
-            $cart,
-            $context,
-        ], 'remove', [$cart, $id1, $context]];
+            }), $cart, $context);
 
-        yield 'testChangeQuantityCallsItemUpdateRoute' => ['cartItemUpdateRoute', 'change', [
-            static::callback(function (Request $actualRequest) use ($id1) {
+        $this->cartService->remove($cart, $id, $context);
+    }
+
+    public function testChangeQuantityCallsItemUpdateRoute(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $cart = new Cart(Uuid::randomHex());
+
+        $id = Uuid::randomHex();
+
+        $this->cartItemUpdateRoute->expects(static::once())
+            ->method('change')
+            ->with(static::callback(function (Request $actualRequest) use ($id) {
                 $items = $actualRequest->request->all('items');
                 static::assertIsArray($items);
                 static::assertCount(1, $items);
-                static::assertEquals($id1, $items[0]['id']);
+                static::assertEquals($id, $items[0]['id']);
                 static::assertEquals(5, $items[0]['quantity']);
 
                 return true;
-            }),
-            $cart,
-            $context,
-        ], 'changeQuantity', [$cart, $id1, 5, $context]];
+            }), $cart, $context);
 
+        $this->cartService->changeQuantity($cart, $id, 5, $context);
+    }
+
+    public function testUpdateMethodCallsUpdateRoute(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $cart = new Cart(Uuid::randomHex());
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $items = [
             [
                 'id' => $id1,
@@ -126,14 +143,14 @@ class CartServiceTest extends TestCase
             ],
         ];
 
-        yield 'testUpdateMethodCallsUpdateRoute' => ['cartItemUpdateRoute', 'change', [
-            static::callback(function (Request $actualRequest) use ($items) {
+        $this->cartItemUpdateRoute->expects(static::once())
+            ->method('change')
+            ->with(static::callback(function (Request $actualRequest) use ($items) {
                 static::assertEquals($items, $actualRequest->request->all('items'));
 
                 return true;
-            }),
-            $cart,
-            $context,
-        ], 'update', [$cart, $items, $context]];
+            }), $cart, $context);
+
+        $this->cartService->update($cart, $items, $context);
     }
 }

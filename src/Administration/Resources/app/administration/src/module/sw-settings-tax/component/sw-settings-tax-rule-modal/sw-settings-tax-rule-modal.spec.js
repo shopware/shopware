@@ -20,6 +20,7 @@ async function createWrapper() {
             'sw-container': true,
             'sw-entity-single-select': true,
             'sw-number-field': true,
+            'sw-datepicker': true,
         },
         provide: {
             shortcutService: {

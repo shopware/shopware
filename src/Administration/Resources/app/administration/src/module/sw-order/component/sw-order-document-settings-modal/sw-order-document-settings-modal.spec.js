@@ -74,7 +74,7 @@ async function createWrapper() {
                             {
                                 id,
                                 fileSize: 10000,
-                                mimeType: 'application/pdf',
+                                type: 'application/pdf',
                             },
                         );
                     },
@@ -172,7 +172,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
             {
                 id: 'media1',
                 fileSize: 10000,
-                mimeType: 'application/pdf',
+                name: 'test.pdf',
+                type: 'application/pdf',
             },
         ]);
 

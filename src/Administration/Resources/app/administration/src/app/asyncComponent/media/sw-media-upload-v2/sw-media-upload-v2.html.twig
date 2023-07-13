@@ -269,7 +269,7 @@
             ref="fileInput"
             class="sw-media-upload-v2__file-input"
             type="file"
-            :accept="fileAccept"
+            :accept="extensionAccept ? '*/*' : fileAccept"
             :multiple="multiSelect"
             @change="onFileInputChange"
         >

@@ -21,6 +21,8 @@ in {
     '')
   ];
 
+  dotenv.disableHint = true;
+
   languages.javascript = {
     enable = lib.mkDefault true;
     package = lib.mkDefault pkgs.nodejs-18_x;
@@ -104,7 +106,7 @@ in {
   services.redis.enable = lib.mkDefault true;
   services.adminer.enable = lib.mkDefault true;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
-  services.mailhog.enable = lib.mkDefault true;
+  services.mailpit.enable = lib.mkDefault true;
 
   # services.elasticsearch.enable = true;
   # services.rabbitmq.enable = true;
@@ -116,6 +118,10 @@ in {
   env.APP_SECRET = lib.mkDefault "devsecret";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
+
+  # Elasticsearch
+  env.OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
+  env.ADMIN_OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
 
   # General cypress
   env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";

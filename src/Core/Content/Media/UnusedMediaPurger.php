@@ -116,8 +116,7 @@ class UnusedMediaPurger
      */
     public function searchMedia(array $ids, Context $context): array
     {
-        /** @var array<MediaEntity> $media */
-        $media = $this->mediaRepo->search(new Criteria($ids), $context)->getElements();
+        $media = $this->mediaRepo->search(new Criteria($ids), $context)->getEntities()->getElements();
 
         return array_values($media);
     }

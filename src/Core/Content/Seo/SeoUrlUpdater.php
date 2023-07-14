@@ -142,6 +142,8 @@ class SeoUrlUpdater
     }
 
     /**
+     * @param list<LanguageEntity> $languages
+     *
      * @return array<string, array<string>>
      */
     private function fetchLanguageChains(Context $context): array

@@ -1856,6 +1856,11 @@ parameters:
 			path: src/Core/Content/Cms/CmsPageEntity.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CmsSlotsDataResolver\\:\\:optimizeCriteriaObjects\\(\\) should return array\\{array\\<string, array\\<string\\>\\>, array\\<string, array\\<string, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\>\\>\\} but returns array\\{array\\<string, non\\-empty\\-array\\<array\\<array\\<string\\>\\|string\\>\\|string\\>\\>, array\\<string, non\\-empty\\-array\\<string, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\>\\>\\}\\.$#"
+			count: 1
+			path: src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\FieldConfig\\:\\:__construct\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/FieldConfig.php
@@ -3534,6 +3539,11 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\Filter\\:\\:getValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/Filter.php
+
+		-
+			message: "#^Parameter \\#2 \\$entities of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\EntityResult constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection given\\.$#"
+			count: 1
+			path: src/Core/Content/Product/SalesChannel/Listing/Filter/PropertyListingFilterHandler.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\FilterCollection\\:\\:getFilters\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -5442,8 +5452,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
 
-
-
 		-
 			message: "#^Parameter \\#1 \\$keys of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:purge\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
 			count: 1
@@ -6410,52 +6418,7 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Exception/UnallowedHostException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\Admin\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Administration/Admin.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\Admin\\:\\:parseChilds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Administration/Admin.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\MainModule\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Administration/MainModule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Administration\\\\MainModule\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Administration/MainModule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:__construct\\(\\) has parameter \\$allowedHosts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:fromArray\\(\\) has parameter \\$allowedHosts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:getHosts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\AllowedHost\\\\AllowedHosts\\:\\:parseAllowedHosts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/AllowedHost/AllowedHosts.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Cookie\\\\Cookies\\:\\:__construct\\(\\) has parameter \\$cookies with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Cookie/Cookies.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Cookie\\\\Cookies\\:\\:parseChild\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/Cookie/Cookies.php
 
@@ -9838,51 +9801,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Pricing\\\\\\\\Price' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\DateHistogramResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\TermsResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 9
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\AvgResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\CountResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\EntityResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MaxResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MinResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\SumResult\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\TestData\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -13865,26 +13783,6 @@ parameters:
 			path: tests/integration/php/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getDeSearchConfig\\(\\) is unused\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getDeSearchConfig\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchConfig\\\\ProductSearchConfigEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getEnSearchConfig\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchConfig\\\\ProductSearchConfigEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getProduct\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\MoveShopPermanentlyStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/MoveShopPermanentlyStrategyTest.php
@@ -14048,8 +13946,6 @@ parameters:
 			message: "#^PHPDoc tag @var with type array\\<string\\> is not subtype of native type list\\<string\\>\\|false\\.$#"
 			count: 1
 			path: tests/performance/bench/BenchExtension.php
-
-
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\ShopwareHttpException' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Exception\\\\TaxProviderExceptions will always evaluate to true\\.$#"
@@ -14851,8 +14747,6 @@ parameters:
 			count: 1
 			path: tests/unit/php/Storefront/Controller/DownloadControllerTest.php
 
-
-
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Framework\\\\\\\\Routing\\\\\\\\MaintenanceModeResolver' and Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\MaintenanceModeResolver will always evaluate to true\\.$#"
 			count: 1
@@ -14897,8 +14791,3 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Storefront/Theme/ThemeServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$entities of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\EntityResult constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/Filter/PropertyListingFilterHandler.php

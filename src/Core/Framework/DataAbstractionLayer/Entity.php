@@ -22,7 +22,7 @@ class Entity extends Struct
     protected $versionId;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $translated = [];
 
@@ -127,6 +127,9 @@ class Entity extends Struct
         return property_exists($this, $property);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getTranslated(): array
     {
         return $this->translated;
@@ -140,6 +143,9 @@ class Entity extends Struct
         return $this->translated[$field] ?? null;
     }
 
+    /**
+     * @param array<string, mixed> $translated
+     */
     public function setTranslated(array $translated): void
     {
         $this->translated = $translated;
@@ -252,6 +258,10 @@ class Entity extends Struct
 
     /**
      * @internal
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
      */
     protected function filterInvisibleFields(array $data): array
     {

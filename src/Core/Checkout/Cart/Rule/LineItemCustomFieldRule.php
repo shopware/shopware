@@ -126,7 +126,7 @@ class LineItemCustomFieldRule extends Rule
     {
         $constraints = [];
 
-        if (!\is_array($this->renderedField) || !\array_key_exists('type', $this->renderedField)) {
+        if (!\array_key_exists('type', $this->renderedField)) {
             return [new NotBlank()];
         }
 

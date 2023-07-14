@@ -83,6 +83,8 @@ class Metadata extends XmlElement
      */
     protected $privacyPolicyExtensions = [];
 
+    protected ?string $url = null;
+
     /**
      * @param array<int|string, mixed> $data
      */

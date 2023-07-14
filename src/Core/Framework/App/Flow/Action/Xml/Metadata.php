@@ -55,6 +55,8 @@ class Metadata extends XmlElement
 
     protected bool $delayable = false;
 
+    protected ?string $badge = null;
+
     /**
      * @param array<string, mixed> $data
      */

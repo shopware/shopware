@@ -47,6 +47,8 @@ class InputField extends XmlElement
 
     protected ?string $type = null;
 
+    protected string $id;
+
     /**
      * @param array<int|string, mixed> $data
      */

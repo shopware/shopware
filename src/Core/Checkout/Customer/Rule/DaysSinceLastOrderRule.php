@@ -12,6 +12,8 @@ class DaysSinceLastOrderRule extends DaysSinceRule
 {
     final public const RULE_NAME = 'customerDaysSinceLastOrder';
 
+    public int $count;
+
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {

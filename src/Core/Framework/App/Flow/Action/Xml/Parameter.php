@@ -18,6 +18,8 @@ class Parameter extends XmlElement
 
     protected string $value;
 
+    protected string $id;
+
     /**
      * @param array<int|string, mixed> $data
      */

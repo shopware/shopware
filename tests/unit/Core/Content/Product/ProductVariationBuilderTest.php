@@ -10,6 +10,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -73,13 +74,14 @@ class ProductVariationBuilderTest extends TestCase
         ];
 
         yield 'Test with partial entity' => [
-            (new Entity())->assign([
+            (new PartialEntity())->assign([
                 '_uniqueIdentifier' => Uuid::randomHex(),
                 'options' => new EntityCollection([
-                    (new Entity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'translated' => ['name' => 'red'],
-                        'group' => (new Entity())->assign([
+                        'group' => (new PartialEntity())->assign([
                             '_uniqueIdentifier' => Uuid::randomHex(),
                             'translated' => ['name' => 'color'],
                         ]),
@@ -92,22 +94,24 @@ class ProductVariationBuilderTest extends TestCase
         ];
 
         yield 'Test with multiple options, sorted by position' => [
-            (new Entity())->assign([
+            (new PartialEntity())->assign([
                 '_uniqueIdentifier' => Uuid::randomHex(),
                 'options' => new EntityCollection([
-                    (new Entity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'translated' => ['name' => 'red'],
-                        'group' => (new Entity())->assign([
+                        'group' => (new PartialEntity())->assign([
                             '_uniqueIdentifier' => Uuid::randomHex(),
                             'translated' => ['name' => 'color'],
                             'position' => 2,
                         ]),
                     ]),
-                    (new Entity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'translated' => ['name' => 'xl'],
-                        'group' => (new Entity())->assign([
+                        'group' => (new PartialEntity())->assign([
                             '_uniqueIdentifier' => Uuid::randomHex(),
                             'translated' => ['name' => 'size'],
                             'position' => 1,
@@ -122,22 +126,24 @@ class ProductVariationBuilderTest extends TestCase
         ];
 
         yield 'Test with multiple options, sorted by group name' => [
-            (new Entity())->assign([
+            (new PartialEntity())->assign([
                 '_uniqueIdentifier' => Uuid::randomHex(),
                 'options' => new EntityCollection([
-                    (new Entity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'translated' => ['name' => 'xl'],
-                        'group' => (new Entity())->assign([
+                        'group' => (new PartialEntity())->assign([
                             '_uniqueIdentifier' => Uuid::randomHex(),
                             'translated' => ['name' => 'size'],
                             'position' => 1,
                         ]),
                     ]),
-                    (new Entity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'translated' => ['name' => 'red'],
-                        'group' => (new Entity())->assign([
+                        'group' => (new PartialEntity())->assign([
                             '_uniqueIdentifier' => Uuid::randomHex(),
                             'translated' => ['name' => 'color'],
                             'position' => 1,

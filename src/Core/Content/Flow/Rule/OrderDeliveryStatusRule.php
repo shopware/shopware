@@ -17,6 +17,11 @@ class OrderDeliveryStatusRule extends FlowRule
     public const RULE_NAME = 'orderDeliveryStatus';
 
     /**
+     * @var array<string>
+     */
+    public array $salutationIds = [];
+
+    /**
      * @internal
      *
      * @param list<string> $stateIds

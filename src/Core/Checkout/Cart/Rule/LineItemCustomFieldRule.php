@@ -23,6 +23,10 @@ class LineItemCustomFieldRule extends Rule
      */
     protected $renderedFieldValue;
 
+    protected ?string $selectedField = null;
+
+    protected ?string $selectedFieldSet = null;
+
     /**
      * @param array<string, mixed> $renderedField
      *

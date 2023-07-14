@@ -229,6 +229,11 @@ parameters:
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
 
+        - # Hard to fix, as no proper var annotation could be used within the while loop
+            message: "#^Parameter \\#1 \\$mediaIds of method Shopware\\\\Core\\\\Content\\\\Media\\\\UnusedMediaPurger\\:\\:filterOutNewMedia\\(\\) expects array\\<string\\>, array\\<int, array\\<string, string\\>\\|string\\> given\\.$#"
+            count: 1
+            path: src/Core/Content/Media/UnusedMediaPurger.php
+
         # NEXT-29041 - Needs to be fixed with a script, rest goes to baseline
         - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
         - '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
@@ -238,8 +243,11 @@ parameters:
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
                 - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
-                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
                 - src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
+        - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
+            message: '#Parameter \#2 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection<Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity>#'
+            paths:
+                - src/Core/Content/Product/SalesChannel/Listing/Filter/PropertyListingFilterHandler.php
 
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'

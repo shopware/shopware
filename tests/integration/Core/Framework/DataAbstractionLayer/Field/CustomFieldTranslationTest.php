@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
@@ -167,12 +166,10 @@ class CustomFieldTranslationTest extends TestCase
         ];
         $result = $repo->create([$entity], $context);
 
-        /** @var EntityWrittenEvent $event */
         $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(1, $event->getIds());
 
-        /** @var EntityWrittenEvent $event */
         $event = $result->getEventByEntityName(CustomFieldTestTranslationDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(4, $event->getIds());
@@ -187,7 +184,6 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(Entity::class, $result);
 
@@ -200,7 +196,6 @@ class CustomFieldTranslationTest extends TestCase
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(Entity::class, $result);
 
@@ -212,7 +207,6 @@ class CustomFieldTranslationTest extends TestCase
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(Entity::class, $result);
 

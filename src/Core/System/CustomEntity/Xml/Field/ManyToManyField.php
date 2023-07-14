@@ -17,8 +17,6 @@ class ManyToManyField extends AssociationField
 
     protected string $onDelete = 'cascade';
 
-    protected bool $required = false;
-
     /**
      * @internal
      */

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -70,11 +69,6 @@ class ElasticsearchHelper
         if ($languageId === '') {
             return $this->prefix . '_' . $definition->getEntityName();
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            'Second parameter `$languageId` will be removed in method `getIndexName()` in `ElasticsearchHelper` since v6.6.0.0'
-        );
 
         return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
     }

@@ -13,7 +13,6 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -168,7 +167,6 @@ class Kernel extends HttpKernel
         $this->initializeContainer();
 
         // Taken from \Symfony\Component\HttpKernel\Kernel::preBoot()
-        /** @var ContainerInterface $container */
         $container = $this->container;
 
         if ($container->hasParameter('kernel.trusted_hosts') && $trustedHosts = $container->getParameter('kernel.trusted_hosts')) {
@@ -176,10 +174,7 @@ class Kernel extends HttpKernel
         }
 
         if ($container->hasParameter('kernel.trusted_proxies') && $container->hasParameter('kernel.trusted_headers') && $trustedProxies = $container->getParameter('kernel.trusted_proxies')) {
-            \assert(\is_string($trustedProxies) || \is_array($trustedProxies));
-            $trustedHeaderSet = $container->getParameter('kernel.trusted_headers');
-            \assert(\is_int($trustedHeaderSet));
-            Request::setTrustedProxies(\is_array($trustedProxies) ? $trustedProxies : array_map('trim', explode(',', $trustedProxies)), $trustedHeaderSet);
+            Request::setTrustedProxies(\is_array($trustedProxies) ? $trustedProxies : array_map('trim', explode(',', $trustedProxies)), $container->getParameter('kernel.trusted_headers'));
         }
 
         foreach ($this->getBundles() as $bundle) {

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as DALEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -656,7 +657,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'email', 'type' => 'email', 'storeApiAware' => false, 'required' => false],
             ['name' => 'price', 'type' => 'price', 'storeApiAware' => false, 'required' => false],
             ['name' => 'my_date', 'type' => 'date', 'storeApiAware' => false, 'required' => false],
-            ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade'],
+            ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade', 'required' => false],
             ['name' => 'top_seller_restrict', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'restrict'],
             ['name' => 'top_seller_cascade', 'type' => 'many-to-one', 'required' => true, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade'],
             ['name' => 'top_seller_set_null', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'set-null'],
@@ -666,7 +667,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'links_restrict', 'type' => 'one-to-many', 'reference' => 'category', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'restrict', 'reverseRequired' => false],
             ['name' => 'links_set_null', 'type' => 'one-to-many', 'reference' => 'category', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'set-null', 'reverseRequired' => false],
             ['name' => 'comments', 'type' => 'one-to-many', 'reference' => 'ce_blog_comment', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade', 'reverseRequired' => true],
-            ['name' => 'inherited_products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'cascade'],
+            ['name' => 'inherited_products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'cascade', 'required' => false],
             ['name' => 'inherited_top_seller', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'set-null'],
             ['name' => 'inherited_link_product', 'type' => 'one-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'set-null'],
         ];
@@ -736,6 +737,7 @@ class CustomEntityTest extends TestCase
         static::assertCount(1, $blogs);
         $blog = $blogs->first();
 
+        static::assertInstanceOf(DALEntity::class, $blog);
         static::assertEquals($ids->get('blog-2'), $blog->get('id'));
         static::assertEquals(1, $blog->get('position'));
         static::assertEquals(2.2, $blog->get('rating'));
@@ -971,15 +973,6 @@ class CustomEntityTest extends TestCase
         ];
     }
 
-    private function transactional(\Closure $closure): void
-    {
-        $this->getContainer()->get(Connection::class)->beginTransaction();
-
-        $closure();
-
-        $this->getContainer()->get(Connection::class)->rollBack();
-    }
-
     private function initBlogEntity(): ContainerInterface
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/custom-entity-test');
@@ -1115,7 +1108,6 @@ class CustomEntityTest extends TestCase
                 static::assertTrue($definition->getFields()->has($name), $message . ' - field not found');
 
                 $actual = $definition->getFields()->get($name);
-                static::assertInstanceOf(DAL\Field::class, $actual);
                 static::assertInstanceOf($field::class, $actual, $message . ' - wrong class');
 
                 foreach ($field->getFlags() as $flag) {

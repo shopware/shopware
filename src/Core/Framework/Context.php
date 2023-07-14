@@ -209,9 +209,11 @@ class Context extends Struct
     }
 
     /**
-     * @param callable(Context): mixed $function
+     * @template TReturn of mixed
      *
-     * @return mixed
+     * @param callable(Context): TReturn $function
+     *
+     * @return TReturn
      */
     public function enableInheritance(callable $function)
     {
@@ -224,9 +226,11 @@ class Context extends Struct
     }
 
     /**
-     * @param callable(Context): mixed $function
+     * @template TReturn of mixed
      *
-     * @return mixed
+     * @param callable(Context): TReturn $function
+     *
+     * @return TReturn
      */
     public function disableInheritance(callable $function)
     {

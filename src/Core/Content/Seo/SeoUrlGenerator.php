@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -65,8 +68,8 @@ class SeoUrlGenerator
 
         $criteria->setLimit(50);
 
-        /** @var RepositoryIterator $iterator */
-        $iterator = $context->enableInheritance(static fn (Context $context) => new RepositoryIterator($repository, $context, $criteria));
+        /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
+        $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
         $this->setTwigTemplate($config, $template);
 
@@ -86,7 +89,6 @@ class SeoUrlGenerator
 
         $basePath = $request ? $request->getBasePath() : '';
 
-        /** @var Entity $entity */
         foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());

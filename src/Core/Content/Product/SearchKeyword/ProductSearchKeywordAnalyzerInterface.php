@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 interface ProductSearchKeywordAnalyzerInterface
 {
     /**
-     * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
+     * @param array<int, array{field: string, tokenize: '1'|'0'|bool, ranking: numeric-string|int|float}> $configFields
      */
     public function analyze(ProductEntity $product, Context $context, array $configFields): AnalyzedKeywordCollection;
 }

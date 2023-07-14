@@ -65,6 +65,29 @@ class TypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
     }
 
+    public function testDetectAvif(): void
+    {
+        $type = $this->getTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.avif')
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+        static::assertCount(1, $type->getFlags());
+        static::assertTrue($type->is(ImageType::TRANSPARENT));
+    }
+
+    public function testDetectAnimatedAvif(): void
+    {
+        $type = $this->getTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/animated.avif')
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+        static::assertCount(2, $type->getFlags());
+        static::assertTrue($type->is(ImageType::TRANSPARENT));
+        static::assertTrue($type->is(ImageType::ANIMATED));
+    }
+
     public function testDetectSvg(): void
     {
         $type = $this->getTypeDetector()->detect(

@@ -48,6 +48,16 @@ class DefaultTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $type);
     }
 
+    public function testDetectAvif(): void
+    {
+        $type = $this->getDefaultTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.avif'),
+            null
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+    }
+
     public function testDetectSvg(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(

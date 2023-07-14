@@ -36,6 +36,16 @@ class DocumentTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
+    public function testDetectAvif(): void
+    {
+        $type = $this->getDocumentTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.avif'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
     public function testDetectSvg(): void
     {
         $type = $this->getDocumentTypeDetector()->detect(

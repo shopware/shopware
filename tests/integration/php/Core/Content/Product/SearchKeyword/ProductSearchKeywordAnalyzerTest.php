@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
@@ -28,19 +30,16 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     private const CUSTOM_FIELDS = 'customFields';
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductSearchConfigCollection>
      */
-    private $productSearchConfigRepository;
+    private EntityRepository $productSearchConfigRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private Context $context;
 
@@ -339,13 +338,16 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $criteria->addAssociation('tags');
         $criteria->addAssociation('customFieldSets');
 
-        return $this->productRepository->search($criteria, $this->context)->first();
+        $product = $this->productRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($product);
+
+        return $product;
     }
 
     private function createDataTest(): void
     {
         $this->enSearchConfigId = $this->getEnSearchConfig()->getId();
-        $this->deSearchConfigId = $this->getDESearchConfig()->getId();
+        $this->deSearchConfigId = $this->getDeSearchConfig()->getId();
 
         $customFieldSetData = [
             'id' => $this->ids->create('custom_field_set_id'),
@@ -556,7 +558,10 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM));
 
-        return $this->productSearchConfigRepository->search($criteria, $this->context)->first();
+        $productSearchConfig = $this->productSearchConfigRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($productSearchConfig);
+
+        return $productSearchConfig;
     }
 
     private function getDeSearchConfig(): ProductSearchConfigEntity
@@ -567,7 +572,10 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             [new EqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM)]
         ));
 
-        return $this->productSearchConfigRepository->search($criteria, $this->context)->first();
+        $productSearchConfig = $this->productSearchConfigRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertNotNull($productSearchConfig);
+
+        return $productSearchConfig;
     }
 
     private function updateProductSearchConfigField(

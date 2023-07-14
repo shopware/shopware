@@ -10656,26 +10656,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTest.php
 
 		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
-			message: "#^Cannot call method getTranslated\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\CustomFieldTranslationTest\\:\\:addCustomFields\\(\\) has parameter \\$attributeTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/Flag/ApiAwareFlagTest.php

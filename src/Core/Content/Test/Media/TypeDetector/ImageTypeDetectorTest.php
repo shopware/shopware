@@ -147,6 +147,65 @@ class ImageTypeDetectorTest extends TestCase
         unlink($publicPath);
     }
 
+    public function testDetectAvif(): void
+    {
+        $type = $this->getImageTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.avif'),
+            null
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+        static::assertCount(1, $type->getFlags());
+        static::assertTrue($type->is(ImageType::TRANSPARENT));
+    }
+
+    public function testDetectAnimatedAvif(): void
+    {
+        $type = $this->getImageTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/animated.avif'),
+            null
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+        static::assertCount(2, $type->getFlags());
+        static::assertTrue($type->is(ImageType::TRANSPARENT));
+        static::assertTrue($type->is(ImageType::ANIMATED));
+    }
+
+    /**
+     * @group needsWebserver
+     */
+    public function testDetectAnimatedAvifFromUrl(): void
+    {
+        $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.avif';
+        \copy(
+            __DIR__ . '/../fixtures/animated.avif',
+            $publicPath
+        );
+
+        static::assertIsString(
+            $appUrl = EnvironmentHelper::getVariable('APP_URL')
+        );
+        $webPath = rtrim($appUrl, '/') . '/animate.avif';
+
+        $type = $this->getImageTypeDetector()->detect(
+            new MediaFile(
+                $webPath,
+                'image/avif',
+                'avif',
+                1024
+            ),
+            null
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+        static::assertCount(2, $type->getFlags());
+        static::assertTrue($type->is(ImageType::TRANSPARENT));
+        static::assertTrue($type->is(ImageType::ANIMATED));
+
+        unlink($publicPath);
+    }
+
     public function testDetectSvg(): void
     {
         $type = $this->getImageTypeDetector()->detect(

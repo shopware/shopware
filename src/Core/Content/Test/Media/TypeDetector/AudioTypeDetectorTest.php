@@ -36,6 +36,16 @@ class AudioTypeDetectorTest extends TestCase
         static::assertNull($type);
     }
 
+    public function testDetectAvif(): void
+    {
+        $type = $this->getAudioTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.avif'),
+            null
+        );
+
+        static::assertNull($type);
+    }
+
     public function testDetectSvg(): void
     {
         $type = $this->getAudioTypeDetector()->detect(

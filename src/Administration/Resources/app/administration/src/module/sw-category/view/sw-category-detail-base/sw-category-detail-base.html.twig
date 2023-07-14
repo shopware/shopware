@@ -42,11 +42,14 @@
         {% block sw_category_detail_information_tags %}
         <sw-entity-tag-select
             v-if="category && !isLoading"
-            {% if VUE3 %}
+            {% if VUE3 %
+}
             v-model:entityCollection="category.tags"
-            {% else %}
+            {% else %
+}
             v-model="category.tags"
-            {% endif %}
+            {% endif %
+}
             class="sw-category-detail-base__tags"
             :label="$tc('sw-category.base.general.labelCategoryTags')"
             :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"

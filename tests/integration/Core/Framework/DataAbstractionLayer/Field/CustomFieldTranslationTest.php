@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -10,12 +10,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -164,9 +167,11 @@ class CustomFieldTranslationTest extends TestCase
         ];
         $result = $repo->create([$entity], $context);
 
+        /** @var EntityWrittenEvent $event */
         $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getIds());
 
+        /** @var EntityWrittenEvent $event */
         $event = $result->getEventByEntityName(CustomFieldTestTranslationDefinition::ENTITY_NAME);
         static::assertCount(4, $event->getIds());
 
@@ -180,6 +185,7 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
 
         $expected = ['de' => 'de', 'code' => 'de-DE'];
@@ -190,6 +196,8 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+
+        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
 
         $expected = ['code' => 'root', 'root' => 'root'];
@@ -199,6 +207,8 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+
+        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
         $expected = ['code' => 'child', 'child' => 'child'];
         static::assertEquals($expected, $result->get('customTranslated'));
@@ -582,6 +592,9 @@ class CustomFieldTranslationTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, string> $attributeTypes
+     */
     private function addCustomFields(array $attributeTypes): void
     {
         $attributeRepo = $this->getContainer()->get('custom_field.repository');

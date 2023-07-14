@@ -54,6 +54,10 @@ class Entity extends Struct
 
     public function __set($name, $value): void
     {
+        if ($name === 'options') {
+            dd($this);
+        }
+
         $this->$name = $value; /* @phpstan-ignore-line */
     }
 

@@ -13533,21 +13533,6 @@ parameters:
 			path: src/Core/System/Test/CustomEntity/Api/CustomEntityApiControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Field\\\\\\\\Field' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 10
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:transactional\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
 			message: "#^Cannot call method getAdmin\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
 			path: src/Core/System/Test/Integration/IntegrationRepositoryTest.php

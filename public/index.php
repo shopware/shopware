@@ -46,19 +46,6 @@ return function (array $context) {
     $appEnv = $context['APP_ENV'] ?? 'dev';
     $debug = (bool) ($context['APP_DEBUG'] ?? ($appEnv !== 'prod'));
 
-    $trustedProxies = $context['TRUSTED_PROXIES'] ?? false;
-    if ($trustedProxies) {
-        Request::setTrustedProxies(
-            explode(',', $trustedProxies),
-            Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_HOST
-        );
-    }
-
-    $trustedHosts = $context['TRUSTED_HOSTS'] ?? false;
-    if ($trustedHosts) {
-        Request::setTrustedHosts(explode(',', $trustedHosts));
-    }
-
     if (!file_exists(dirname(__DIR__) . '/install.lock')) {
         return new InstallerKernel($appEnv, $debug);
     }

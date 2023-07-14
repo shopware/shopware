@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
@@ -107,8 +106,8 @@ class CustomFieldTranslationTest extends TestCase
 
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        /** @var Entity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
 
         static::assertNull($result->get('customTranslated'));
         static::assertNotNull($result->getTranslation('customTranslated'));
@@ -167,16 +166,16 @@ class CustomFieldTranslationTest extends TestCase
         ];
         $result = $repo->create([$entity], $context);
 
-        /** @var EntityWrittenEvent $event */
         $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(1, $event->getIds());
 
-        /** @var EntityWrittenEvent $event */
         $event = $result->getEventByEntityName(CustomFieldTestTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(4, $event->getIds());
 
-        /** @var Entity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
         $expected = ['code' => 'en-GB', 'system' => 'system'];
         static::assertEquals($expected, $result->getTranslated()['customTranslated']);
 
@@ -185,8 +184,8 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['de' => 'de', 'code' => 'de-DE'];
         static::assertEquals($expected, $result->get('customTranslated'));
@@ -197,8 +196,8 @@ class CustomFieldTranslationTest extends TestCase
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['code' => 'root', 'root' => 'root'];
         static::assertEquals($expected, $result->get('customTranslated'));
@@ -208,8 +207,9 @@ class CustomFieldTranslationTest extends TestCase
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        /** @var ArrayEntity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
+
         $expected = ['code' => 'child', 'child' => 'child'];
         static::assertEquals($expected, $result->get('customTranslated'));
         $expectedViewData = ['code' => 'child', 'system' => 'system', 'root' => 'root', 'child' => 'child'];
@@ -269,8 +269,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertSame(1.0, $first->getTranslated()['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $first->getTranslated()['customTranslated']);
         static::assertArrayNotHasKey('child', $first->getTranslated()['customTranslated']);
@@ -310,8 +310,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->getTranslated()['customTranslated']);
         static::assertTrue($first->getTranslated()['customTranslated']['root']);
         static::assertArrayNotHasKey('child', $first->getTranslated()['customTranslated']);
@@ -351,8 +351,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->get('customTranslated'));
         static::assertArrayNotHasKey('root', $first->get('customTranslated'));
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['child']);
@@ -436,8 +436,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertSame(1.0, $first->getTranslated()['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $first->getTranslated()['customTranslated']);
         static::assertArrayNotHasKey('sub', $first->getTranslated()['customTranslated']);
@@ -487,8 +487,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->getTranslated()['customTranslated']);
         static::assertTrue($first->getTranslated()['customTranslated']['root']);
         static::assertArrayNotHasKey('sub', $first->getTranslated()['customTranslated']);
@@ -538,8 +538,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['sub']);
         static::assertSame(3, $first->get('customTranslated')['int']);
 

@@ -20,6 +20,16 @@ class Parameter extends XmlElement
 
     protected string $id;
 
+    /**
+     * @param array<int|string, mixed> $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
     public function getType(): string
     {
         return $this->type;

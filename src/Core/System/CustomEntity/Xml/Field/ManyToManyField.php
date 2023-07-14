@@ -16,4 +16,14 @@ class ManyToManyField extends AssociationField
     protected string $type = 'many-to-many';
 
     protected string $onDelete = 'cascade';
+
+    protected bool $required = false;
+
+    /**
+     * @internal
+     */
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
 }

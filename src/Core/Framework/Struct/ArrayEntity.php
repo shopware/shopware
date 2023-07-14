@@ -155,10 +155,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
         $this->data['translated'][$key] = $value;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getTranslation(string $field)
+    public function getTranslation(string $field): mixed
     {
         return $this->data['translated'][$field] ?? null;
     }

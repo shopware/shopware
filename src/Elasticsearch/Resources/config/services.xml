@@ -350,6 +350,14 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\SystemUpdateListener">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper" public="true">
             <argument>%elasticsearch.administration.enabled%</argument>
             <argument>%elasticsearch.administration.refresh_indices%</argument>

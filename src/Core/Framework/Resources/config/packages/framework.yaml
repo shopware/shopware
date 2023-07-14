@@ -19,6 +19,7 @@ framework:
     secret: "%env(APP_SECRET)%"
     validation:
         enable_annotations: true
+        email_validation_mode: html5
     default_locale:  en_GB
     http_method_override: true
     mailer:

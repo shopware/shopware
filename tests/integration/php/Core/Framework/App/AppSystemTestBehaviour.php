@@ -40,10 +40,7 @@ trait AppSystemTestBehaviour
 
         if (!empty($fails)) {
             $errors = \array_map(function (array $fail): string {
-                $exception = $fail['exception'];
-                static::assertInstanceOf(\Throwable::class, $exception);
-
-                return $exception->getMessage();
+                return $fail['exception']->getMessage();
             }, $fails);
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));

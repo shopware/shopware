@@ -23,6 +23,7 @@ class AppException extends HttpException
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
+    public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -108,6 +109,15 @@ class AppException extends HttpException
             'Configuration of app "{{ appName }}" is invalid: {{ error }}',
             ['appName' => $appName, 'error' => $error->getMessage()],
             $previous
+        );
+    }
+
+    public static function jwtGenerationRequiresCustomerLoggedIn(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN,
+            'JWT generation requires customer to be logged in'
         );
     }
 }

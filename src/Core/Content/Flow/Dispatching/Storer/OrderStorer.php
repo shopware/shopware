@@ -90,6 +90,7 @@ class OrderStorer extends FlowStorer
             'orderCustomer',
             'orderCustomer.salutation',
             'lineItems.downloads.media',
+            'lineItems.cover',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
             'deliveries.shippingOrderAddress.countryState',

@@ -356,6 +356,12 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Api\AppJWTGenerateRoute" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+
+        </service>
+
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
             <argument type="service" id="app.repository"/>
         </service>

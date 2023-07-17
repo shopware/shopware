@@ -12,6 +12,7 @@
     <import resource="../../Increment/Controller/*Controller.php" type="annotation" />
     <import resource="../../Migration/**/*Controller.php" type="annotation" />
     <import resource="../../App/**/*Controller.php" type="annotation" />
+    <import resource="../../App/**/*Route.php" type="annotation" />
     <import resource="../../Script/Api/*Route.php" type="annotation" />
     <import resource="../../Rule/Api/*Controller.php" type="annotation" />
 

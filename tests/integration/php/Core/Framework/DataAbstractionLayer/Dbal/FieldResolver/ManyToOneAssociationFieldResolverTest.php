@@ -19,6 +19,8 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
@@ -29,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -245,5 +248,54 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         $document = $documents->first();
         static::assertNotNull($document->getOrder());
         static::assertEquals('00000000000000000000000000000000', $document->getOrder()->getVersionId());
+    }
+
+    public function testManyToOneInheritedWorks(): void
+    {
+        $ids = new TestDataCollection();
+        $p = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->cover('cover')
+            ->variant(
+                (new ProductBuilder($ids, 'p2'))
+                    ->price(200)
+                    ->build()
+            );
+
+        $connection = $this->getContainer()->get(Connection::class);
+        $productRepo = $this->getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+        $productRepo->create([$p->build()], $context);
+
+        // Old database records don't have a product_media_version_id set
+        $connection->executeStatement('UPDATE product SET product_media_version_id = NULL WHERE product_media_id IS NULL');
+
+        $criteria = new Criteria([$ids->get('p1'), $ids->get('p2')]);
+        $criteria->addAssociation('cover');
+
+        /** @var ProductEntity[] $products */
+        $products = array_values($productRepo->search($criteria, $context)->getElements());
+
+        static::assertCount(2, $products);
+
+        [$product1, $product2] = $products;
+
+        static::assertNotNull($product1->getCover());
+        static::assertNull($product2->getCover());
+
+        // Enable inheritance
+
+        $context->setConsiderInheritance(true);
+
+        /** @var ProductEntity[] $products */
+        $products = array_values($productRepo->search($criteria, $context)->getElements());
+
+        static::assertCount(2, $products);
+
+        [$product1, $product2] = $products;
+
+        static::assertNotNull($product1->getCover());
+        static::assertNotNull($product2->getCover());
     }
 }

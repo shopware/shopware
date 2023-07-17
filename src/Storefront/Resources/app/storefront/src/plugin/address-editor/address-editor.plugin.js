@@ -186,7 +186,7 @@ export default class AddressEditorPlugin extends Plugin {
 
                         const invalidFields = DomAccess.querySelectorAll(
                             modal,
-                            `${FormAjaxSubmitInstance.options.replaceSelectors[0]} .is-invalid`,
+                            `${FormAjaxSubmitInstance.options.replaceSelectors[0]}.is-invalid`,
                             false
                         );
 

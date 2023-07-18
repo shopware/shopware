@@ -60,7 +60,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<string, mixed>
      */
     private function loadCompileConfig(string $themeId, Context $context): array
     {
@@ -79,7 +79,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<string, mixed>
      */
     private function loadRecursiveConfig(string $themeId, Context $context, bool $withBase = true): array
     {

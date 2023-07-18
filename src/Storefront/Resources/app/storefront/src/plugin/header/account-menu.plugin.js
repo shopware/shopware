@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
-import DeviceDetection from 'src/helper/device-detection.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
 export default class OffCanvasAccountMenu extends Plugin {
@@ -38,8 +37,7 @@ export default class OffCanvasAccountMenu extends Plugin {
      * @private
      */
     _registerEventListeners() {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-        this.el.addEventListener(event, this._onClickAccountMenuTrigger.bind(this, this.el));
+        this.el.addEventListener('click', this._onClickAccountMenuTrigger.bind(this, this.el));
 
         document.addEventListener('Viewport/hasChanged', this._onViewportHasChanged.bind(this));
     }

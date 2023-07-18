@@ -1,6 +1,6 @@
 ---
 title: Add storefront controller endpoints to change or delete multiple line items at once
-issue: NEXT-00000
+issue: NEXT-29314
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

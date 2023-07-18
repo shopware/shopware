@@ -7,5 +7,4 @@ author_github: @kiplingi
 ---
 
 # Storefront
-
-Extends the line item controller with the possibility to add a product payload to the line item.
+* Changed `\Shopware\Storefront\Controller\CartLineItemController` with the possibility to add a product payload to the line item.

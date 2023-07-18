@@ -233,6 +233,20 @@ class PaymentException extends HttpException
         );
     }
 
+    public static function recurringInterrupted(string $transactionId, string $errorMessage, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_REFUND_PROCESS_INTERRUPTED,
+            'The recurring capture process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
+            [
+                'orderTransactionId' => $transactionId,
+                'errorMessage' => $errorMessage,
+            ],
+            $e
+        );
+    }
+
     public static function tokenExpired(string $token, ?\Throwable $e = null): self
     {
         if (!Feature::isActive('v6.6.0.0')) {

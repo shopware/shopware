@@ -15,6 +15,7 @@ class OrderException extends HttpException
     final public const ORDER_ORDER_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_DELIVERY_NOT_FOUND';
     final public const ORDER_ORDER_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_NOT_FOUND';
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
+    final public const ORDER_MISSING_TRANSACTIONS_CODE = 'CHECKOUT__ORDER_MISSING_TRANSACTIONS';
     final public const ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_NOT_FOUND';
     final public const ORDER_PAYMENT_METHOD_UNAVAILABLE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE';
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
@@ -98,6 +99,16 @@ class OrderException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_NOT_FOUND_CODE,
             'Order with id {{ orderId }} not found.',
+            ['orderId' => $orderId]
+        );
+    }
+
+    public static function missingTransactions(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_MISSING_TRANSACTIONS_CODE,
+            'Order with id {{ orderId }} has no transactions.',
             ['orderId' => $orderId]
         );
     }

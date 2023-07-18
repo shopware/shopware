@@ -31,6 +31,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\PreparedPaymentService">
@@ -38,6 +39,7 @@
             <argument type="service" id="app_payment_method.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
@@ -50,6 +52,8 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
+
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
             <argument type="service" id="order.repository"/>
@@ -57,12 +61,21 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor" public="true">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
         </service>
 
         <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256"/>
@@ -85,6 +98,7 @@
             <argument type="tagged_locator" tag="shopware.payment.method.async"/>
             <argument type="tagged_locator" tag="shopware.payment.method.prepared"/>
             <argument type="tagged_locator" tag="shopware.payment.method.refund"/>
+            <argument type="tagged_locator" tag="shopware.payment.method.recurring"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

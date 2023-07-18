@@ -21,7 +21,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefin
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
@@ -33,6 +32,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
+use Shopware\Core\Content\Seo\CachedSeoResolver;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
@@ -80,93 +80,6 @@ class CacheInvalidationSubscriber
         private readonly bool $fineGrainedCacheSnippet,
         private readonly bool $fineGrainedCacheConfig
     ) {
-    }
-
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            CategoryIndexerEvent::class => [
-                ['invalidateCategoryRouteByCategoryIds', 2000],
-                ['invalidateListingRouteByCategoryIds', 2001],
-            ],
-            LandingPageIndexerEvent::class => [
-                ['invalidateIndexedLandingPages', 2000],
-            ],
-            ProductIndexerEvent::class => [
-                ['invalidateSearch', 2000],
-                ['invalidateListings', 2001],
-                ['invalidateProductIds', 2002],
-                ['invalidateDetailRoute', 2004],
-                ['invalidateStreamsAfterIndexing', 2005],
-                ['invalidateReviewRoute', 2006],
-            ],
-            ProductNoLongerAvailableEvent::class => [
-                ['invalidateSearch', 2000],
-                ['invalidateListings', 2001],
-                ['invalidateProductIds', 2002],
-                ['invalidateDetailRoute', 2004],
-                ['invalidateStreamsAfterIndexing', 2005],
-                ['invalidateReviewRoute', 2006],
-            ],
-            EntityWrittenContainerEvent::class => [
-                ['invalidateCmsPageIds', 2001],
-                ['invalidateCurrencyRoute', 2002],
-                ['invalidateLanguageRoute', 2003],
-                ['invalidateNavigationRoute', 2004],
-                ['invalidatePaymentMethodRoute', 2005],
-                ['invalidateProductAssignment', 2006],
-                ['invalidateManufacturerFilters', 2007],
-                ['invalidatePropertyFilters', 2008],
-                ['invalidateCrossSellingRoute', 2009],
-                ['invalidateContext', 2010],
-                ['invalidateShippingMethodRoute', 2011],
-                ['invalidateSnippets', 2012],
-                ['invalidateStreamsBeforeIndexing', 2013],
-                ['invalidateStreamIds', 2014],
-                ['invalidateCountryRoute', 2015],
-                ['invalidateSalutationRoute', 2016],
-                ['invalidateInitialStateIdLoader', 2017],
-                ['invalidateCountryStateRoute', 2018],
-            ],
-            SeoUrlUpdateEvent::class => [
-                ['invalidateSeoUrls', 2000],
-            ],
-            RuleIndexerEvent::class => [
-                ['invalidateRules', 2000],
-            ],
-            PluginPostInstallEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostActivateEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostUpdateEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostDeactivateEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostUninstallEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            SystemConfigChangedHook::class => [
-                ['invalidateConfigKey', 2000],
-            ],
-            SitemapGeneratedEvent::class => [
-                ['invalidateSitemap', 2000],
-            ],
-            ProductSearchConfigDefinition::ENTITY_NAME . '.written' => [
-                ['invalidateSearch', 2002],
-            ],
-        ];
     }
 
     public function invalidateInitialStateIdLoader(EntityWrittenContainerEvent $event): void

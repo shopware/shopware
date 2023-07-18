@@ -519,73 +519,6 @@ base-uri 'self';
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
-            <argument type="service" id="cache.messenger.restart_workers_signal"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheTracer">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator">
-            <argument>%shopware.cache.invalidation.delay%</argument>
-            <argument>%shopware.cache.invalidation.count%</argument>
-            <argument type="collection">
-                <argument type="service" id="cache.object"/>
-                <argument type="service" id="cache.http"/>
-            </argument>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
-            <tag name="shopware.scheduled.task" />
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument>%shopware.cache.invalidation.delay%</argument>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
-            <argument type="collection">
-                <argument type="service" id="cache.object"/>
-                <argument type="service" id="cache.http"/>
-            </argument>
-            <argument type="service" id="cache_clearer"/>
-            <argument type="service" id="filesystem"/>
-            <argument>%kernel.cache_dir%</argument>
-            <argument>%kernel.environment%</argument>
-            <argument type="service" id="messenger.bus.shopware"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\Script\ScriptCacheInvalidationSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>
@@ -676,21 +609,6 @@ base-uri 'self';
             <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="shopware.filesystem.asset"/>
             <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument>%shopware.cache.tagging.each_snippet%</argument>
-            <argument>%shopware.cache.tagging.each_config%</argument>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator" decorates="cache.object">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">

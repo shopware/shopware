@@ -1,0 +1,135 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
+            <argument type="service" id="cache.messenger.restart_workers_signal"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheTracer">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator">
+            <argument>%shopware.cache.invalidation.delay%</argument>
+            <argument>%shopware.cache.invalidation.count%</argument>
+            <argument type="collection">
+                <argument type="service" id="cache.object"/>
+                <argument type="service" id="cache.http"/>
+            </argument>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument>%shopware.cache.invalidation.delay%</argument>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
+            <argument type="collection">
+                <argument type="service" id="cache.object"/>
+                <argument type="service" id="cache.http"/>
+            </argument>
+            <argument type="service" id="cache_clearer"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.environment%</argument>
+            <argument type="service" id="messenger.bus.shopware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Script\ScriptCacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.cache.tagging.each_snippet%</argument>
+            <argument>%shopware.cache.tagging.each_config%</argument>
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateCategoryRouteByCategoryIds" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateListingRouteByCategoryIds" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent" method="invalidateIndexedLandingPages" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateSearch" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateListings" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateProductIds" priority="2002" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateDetailRoute" priority="2004" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateStreamsAfterIndexing" priority="2005" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateReviewRoute" priority="2006" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateSearch" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateListings" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateProductIds" priority="2002" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateDetailRoute" priority="2004" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateStreamsAfterIndexing" priority="2005" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateReviewRoute" priority="2006" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCmsPageIds" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCurrencyRoute" priority="2002" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateLanguageRoute" priority="2003" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateNavigationRoute" priority="2004" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidatePaymentMethodRoute" priority="2005" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateProductAssignment" priority="2006" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateManufacturerFilters" priority="2007" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidatePropertyFilters" priority="2008" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCrossSellingRoute" priority="2009" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateContext" priority="2010" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateShippingMethodRoute" priority="2011" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateSnippets" priority="2012" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateStreamsBeforeIndexing" priority="2013" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateStreamIds" priority="2014" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCountryRoute" priority="2015" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateSalutationRoute" priority="2016" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateInitialStateIdLoader" priority="2017" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCountryStateRoute" priority="2018" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent" method="invalidateSeoUrls" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Rule\Event\RuleIndexerEvent" method="invalidateRules" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent" method="invalidateRules" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent" method="invalidateConfig" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent" method="invalidateRules" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent" method="invalidateConfig" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent" method="invalidateRules" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent" method="invalidateConfig" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent" method="invalidateRules" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent" method="invalidateConfig" priority="2001" />
+            <tag name="kernel.event_listener" event="Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook" method="invalidateConfigKey" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent" method="invalidateSitemap" priority="2000" />
+            <tag name="kernel.event_listener" event="product_search_config.written" method="invalidateSearch" priority="2002" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator" decorates="cache.object">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+        </service>
+    </services>
+</container>

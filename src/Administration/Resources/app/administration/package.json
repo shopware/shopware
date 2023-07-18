@@ -112,7 +112,7 @@
     "webpack-cli": "3.3.12",
     "webpack-dev-server": "3.11.3",
     "webpack-merge": "4.2.2",
-    "worker-loader": "2.0.0"
+    "worker-loader": "3.0.4"
   },
   "devDependencies": {
     "@babel/core": "7.21.3",

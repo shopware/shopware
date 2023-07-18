@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import AdminWorker from 'src/core/worker/admin-worker.worker';
+import AdminWorker from 'src/core/worker/admin-worker.shared-worker';
 import Axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 
@@ -201,5 +201,19 @@ describe('core/worker/admin-worker.worker.js', () => {
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
         expect(isCanceled(0)).toBeTruthy();
         expect(isCanceled(1)).toBeFalsy();
+    });
+
+    it('should set the onMessage method to the first port on connect', async () => {
+        const mockEvent = {
+            ports: [
+                { postMessage: jest.fn() },
+            ],
+        };
+
+        expect(mockEvent.ports[0].onmessage).toBeUndefined();
+
+        AdminWorker.onconnect(mockEvent);
+
+        expect(mockEvent.ports[0].onmessage).toBe(AdminWorker.onMessage);
     });
 });

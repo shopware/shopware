@@ -1,16 +1,19 @@
-/**
- * @package admin
- *
- * @module core/worker/admin-worker
- */
-
 import LoginService from 'src/core/service/login.service';
 import ScheduledTaskService from 'src/core/service/api/scheduled-task.api.service';
 import MessageQueueService from 'src/core/service/api/message-queue.api.service';
 import Axios from 'axios';
 
+/**
+ * @package admin
+ * @deprecated tag:v6.6.0 - Will be private
+ *
+ * @module core/worker/admin-worker
+ */
+
 // eslint-disable-next-line no-restricted-globals
 self.onmessage = onMessage;
+// eslint-disable-next-line no-restricted-globals
+self.onconnect = onconnect;
 
 const { CancelToken } = Axios;
 let isRunning = false;
@@ -19,6 +22,12 @@ let scheduledTaskService;
 let messageQueueService;
 let cancelTokenSource = CancelToken.source();
 let consumeTimeoutIds = {};
+
+function onconnect(event) {
+    const port = event.ports[0];
+
+    port.onmessage = onMessage;
+}
 
 function onMessage({ data: { context, bearerAuth, host, transports, type } }) {
     // This if statement is so ugly, because we cannot use ES6 Syntax in web workers
@@ -128,6 +137,7 @@ function cancelConsumeMessages() {
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
+    onconnect,
     onMessage,
     runTasks,
     consumeMessages,

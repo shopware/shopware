@@ -1,4 +1,4 @@
-import AdminWorker from 'src/core/worker/admin-worker.worker';
+import AdminWorker from 'src/core/worker/admin-worker.shared-worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
@@ -83,40 +83,42 @@ function enableAdminWorker(
     };
 
     if (loginService.isLoggedIn()) {
-        getWorker().postMessage(getMessage());
+        getWorker().port.postMessage(getMessage());
     }
 
     loginService.addOnTokenChangedListener((auth) => {
-        getWorker().postMessage({ ...getMessage(), ...{ bearerAuth: auth } });
+        getWorker().port.postMessage({ ...getMessage(), ...{ bearerAuth: auth } });
     });
 
     loginService.addOnLogoutListener(() => {
-        getWorker().postMessage({ type: 'logout' });
+        getWorker().port.postMessage({ type: 'logout' });
     });
 
     const importExportService = Shopware.Service('importExport');
 
     importExportService.addOnProgressStartedListener(() => {
-        getWorker().postMessage({ ...getMessage(), ...{ type: 'consumeReset' } });
+        getWorker().port.postMessage({ ...getMessage(), ...{ type: 'consumeReset' } });
     });
 
     enabled = true;
 }
 
 // singleton instance of worker
-let worker: Worker;
+let worker: SharedWorker;
 
 /* istanbul ignore next */
-function getWorker() : Worker {
+function getWorker() : SharedWorker {
     if (worker) {
         return worker;
     }
 
     // The webpack worker plugin generates a valid worker file therefore we can use it here
     // @ts-expect-error
-    worker = new AdminWorker() as Worker;
+    worker = new AdminWorker() as SharedWorker;
 
-    worker.onmessage = () => {
+    worker.port.start();
+
+    worker.port.onmessage = () => {
         const tokenHandler = getRefreshTokenHelper();
 
         if (!tokenHandler.isRefreshing) {

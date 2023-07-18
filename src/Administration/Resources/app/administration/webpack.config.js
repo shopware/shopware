@@ -333,7 +333,16 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 use: {
                     loader: 'worker-loader',
                     options: {
-                        inline: true,
+                        inline: 'no-fallback',
+                    },
+                },
+            },
+            {
+                test: /\.shared-worker\.(js|tsx?|vue)$/,
+                use: {
+                    loader: 'worker-loader',
+                    options: {
+                        worker: 'SharedWorker',
                     },
                 },
             },

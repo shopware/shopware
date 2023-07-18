@@ -6,9 +6,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -45,6 +47,16 @@ class CustomerStorerTest extends TestCase
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(CustomerAware::CUSTOMER_ID, $stored);
+    }
+
+    public function testStoreWillCatchCustomerDeleteException(): void
+    {
+        $event = $this->createMock(OrderStateMachineStateChangeEvent::class);
+        $event->method('getCustomerId')->willThrowException(new CustomerDeletedException('id'));
+
+        $stored = [];
+        $stored = $this->storer->store($event, $stored);
+        static::assertArrayNotHasKey(CustomerAware::CUSTOMER_ID, $stored);
     }
 
     public function testStoreWithNotAware(): void

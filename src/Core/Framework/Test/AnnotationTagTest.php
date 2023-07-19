@@ -14,7 +14,7 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('core')]
-class DeprecatedTagTest extends TestCase
+class AnnotationTagTest extends TestCase
 {
     /**
      * white list file path segments for ignored paths
@@ -46,7 +46,7 @@ class DeprecatedTagTest extends TestCase
 
     private string $manifestRoot;
 
-    private ?DeprecationTagTester $deprecationTagTester = null;
+    private ?AnnotationTagTester $deprecationTagTester = null;
 
     protected function setUp(): void
     {
@@ -78,7 +78,8 @@ class DeprecatedTagTest extends TestCase
             $content = (string) file_get_contents($filePath);
 
             try {
-                $this->getDeprecationTagTester()->validateAnnotations($content);
+                $this->getDeprecationTagTester()->validateDeprecatedAnnotations($content);
+                $this->getDeprecationTagTester()->validateExperimentalAnnotations($content);
             } catch (\Throwable $error) {
                 if (!$error instanceof NoDeprecationFoundException) {
                     $invalidFiles[$filePath] = $error->getMessage();
@@ -131,10 +132,10 @@ class DeprecatedTagTest extends TestCase
         return $path;
     }
 
-    private function getDeprecationTagTester(): DeprecationTagTester
+    private function getDeprecationTagTester(): AnnotationTagTester
     {
         if ($this->deprecationTagTester === null) {
-            $this->deprecationTagTester = new DeprecationTagTester(
+            $this->deprecationTagTester = new AnnotationTagTester(
                 $this->getShopwareVersion(),
                 $this->getManifestVersion()
             );
@@ -180,7 +181,7 @@ class DeprecatedTagTest extends TestCase
 
         $manifestVersions = [];
         foreach ($finder->getIterator() as $file) {
-            $manifestVersions[] = DeprecationTagTester::getVersionFromManifestFileName($file->getFilename());
+            $manifestVersions[] = AnnotationTagTester::getVersionFromManifestFileName($file->getFilename());
         }
 
         return $this->getCurrentManifestVersion($manifestVersions);

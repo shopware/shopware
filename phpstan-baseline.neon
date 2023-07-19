@@ -11581,11 +11581,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$matches of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateMatches\\(\\) expects array\\<array\\{1\\: string\\|null\\}\\>, list\\<array\\<string\\|null\\>\\> given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DeprecationTagTester.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true and 'No Notice in prod…' will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php

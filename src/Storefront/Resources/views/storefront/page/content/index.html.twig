@@ -14,8 +14,8 @@
             {% endblock %}
 
             {% block cms_content %}
-                {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
                 {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
+                {% set cmsPageClasses = ('cms-page ' ~ cmsPage.cssClass|striptags)|trim %}
                 {% set landingPage = page.landingPage ? page.landingPage : {} %}
                 <div class="{{ cmsPageClasses }}">
                     {% block page_content_blocks %}

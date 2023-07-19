@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -315,6 +316,9 @@ class OrderConverter
         if ($order->getRuleIds() !== null) {
             $salesChannelContext->setRuleIds($order->getRuleIds());
         }
+
+        $event = new SalesChannelContextAssembledEvent($order, $salesChannelContext);
+        $this->eventDispatcher->dispatch($event);
 
         return $salesChannelContext;
     }

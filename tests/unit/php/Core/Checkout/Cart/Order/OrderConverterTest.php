@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
@@ -23,6 +24,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -56,6 +58,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -500,6 +503,54 @@ class OrderConverterTest extends TestCase
         static::assertArrayNotHasKey('id', $lineItemB['downloads'][0]);
         static::assertArrayHasKey('mediaId', $lineItemB['downloads'][0]);
         static::assertArrayHasKey('position', $lineItemB['downloads'][0]);
+    }
+
+    public function testAssembleSalesChannelContextEventIsDispatched(): void
+    {
+        $order = $this->getOrder();
+        $salesChannelContext = $this->getSalesChannelContext(true);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(static::callback(function (SalesChannelContextAssembledEvent $event) use ($order): bool {
+                static::assertSame($order, $event->getOrder());
+
+                return true;
+            }));
+
+        $address = new OrderAddressEntity();
+        $address->setId('order-address-id');
+        $address->setUniqueIdentifier('order-address-id');
+
+        $addresses = new OrderAddressCollection([$address]);
+
+        $addressRepository = $this->createMock(EntityRepository::class);
+        $addressRepository
+            ->expects(static::once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'order_address',
+                1,
+                $addresses,
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext()
+            ));
+
+        $converter = new OrderConverter(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(SalesChannelContextFactory::class),
+            $dispatcher,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(OrderDefinition::class),
+            $addressRepository,
+            $this->createMock(InitialStateIdLoader::class),
+            $this->createMock(LineItemDownloadLoader::class),
+        );
+
+        $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
     }
 
     /**

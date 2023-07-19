@@ -32,6 +32,7 @@ class CartTransformer
             'customerComment' => $cart->getCustomerComment(),
             'affiliateCode' => $cart->getAffiliateCode(),
             'campaignCode' => $cart->getCampaignCode(),
+            'source' => $cart->getSource(),
         ];
 
         if ($setOrderDate) {

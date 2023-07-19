@@ -1219,6 +1219,7 @@
     "order.affiliateCode",
     "order.campaignCode",
     "order.customerComment",
+    "order.source",
     "order.stateMachineState",
     "order.customFields",
     "order.createdById",

@@ -811,16 +811,6 @@ parameters:
 			path: src/Core/Checkout/Order/OrderCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getAmountNet\\(\\) should return float but returns float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/OrderEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getRuleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/OrderEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Aggregate\\\\PaymentMethodTranslation\\\\PaymentMethodTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Aggregate/PaymentMethodTranslation/PaymentMethodTranslationCollection.php

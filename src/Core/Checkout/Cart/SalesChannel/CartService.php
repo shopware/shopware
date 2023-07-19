@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
-use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
@@ -40,7 +40,8 @@ class CartService implements ResetInterface
         private readonly AbstractCartItemAddRoute $itemAddRoute,
         private readonly AbstractCartItemUpdateRoute $itemUpdateRoute,
         private readonly AbstractCartItemRemoveRoute $itemRemoveRoute,
-        private readonly AbstractCartOrderRoute $orderRoute
+        private readonly AbstractCartOrderRoute $orderRoute,
+        private readonly CartFactory $cartFactory,
     ) {
     }
 
@@ -51,9 +52,7 @@ class CartService implements ResetInterface
 
     public function createNew(string $token): Cart
     {
-        $cart = new Cart($token);
-
-        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
+        $cart = $this->cartFactory->createNew($token);
 
         return $this->cart[$cart->getToken()] = $cart;
     }

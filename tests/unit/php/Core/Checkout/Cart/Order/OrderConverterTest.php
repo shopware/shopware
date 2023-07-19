@@ -1110,6 +1110,7 @@ class OrderConverterTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
+            'source' => null,
         ];
     }
 
@@ -1219,6 +1220,7 @@ class OrderConverterTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
+            'source' => null,
             'itemRounding' => [],
             'totalRounding' => [],
             'orderCustomer' => [

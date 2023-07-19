@@ -80,8 +80,10 @@ class AnnotationTagTest extends TestCase
             try {
                 $this->getDeprecationTagTester()->validateDeprecatedAnnotations($content);
                 $this->getDeprecationTagTester()->validateExperimentalAnnotations($content);
-            } catch (NoDeprecationFoundException|\InvalidArgumentException $error) {
-                $invalidFiles[$filePath] = $error->getMessage();
+            } catch (\Throwable $error) {
+                if (!$error instanceof NoDeprecationFoundException) {
+                    $invalidFiles[$filePath] = $error->getMessage();
+                }
             }
         }
 

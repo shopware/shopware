@@ -73,10 +73,10 @@ The opt-in then only makes the entry point to the new feature visible for the us
 
 We add a `@experimental` annotation, that can be used similar as the `@internal` annotation, to indicate parts of the code (class or method level) that are not yet stable, and thus not covered by the backwards compatibility promise.+
 Additionally all `@experimental` annotation need to have a `stableVersion` property when the feature will be made available as stable at the latest, e.g. `@experimental stableVersion:v6.6.0`.
-This means that at the latest with that major version the feature should be stable (or removed), however the `@experimental` annotation can always be removed earlier. As experimental features can be considered as technical debt we should strive to stabilize features as soon as possible.
+This means that at the latest with that major version the feature should be stable (or removed), however the `@experimental` annotation can always be removed earlier. As experimental features can be considered as technical debt, we should strive to stabilize features as soon as possible.
 When a feature can not be stabilized for the targeted major version, the experimental phase can be extended on a case by case basis.
 
-There will be a static analysis rule / unit test, that checks that every `@experimental` annotations has the stable version propterty and there are no `@experimental` annotation for a version that is already released (similar to the test case we have for `@deprecated`).
+There will be a static analysis rule / unit test, that checks that every `@experimental` annotation has the stable version property and there are no `@experimental` annotations for a version that is already released (similar to the test case we have for `@deprecated`).
 Additionally, the BC checker needs to be adapted to handle the `@experimental` annotation in the same way as it handles `@internal`.
 
 We use an annotation here over an attribute because of the following reasons:

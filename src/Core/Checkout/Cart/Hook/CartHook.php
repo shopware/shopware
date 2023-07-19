@@ -53,6 +53,10 @@ class CartHook extends Hook implements CartAware
 
     public function getName(): string
     {
+        if ($this->cart->getSource()) {
+            return self::HOOK_NAME . '-' . $this->cart->getSource();
+        }
+
         return self::HOOK_NAME;
     }
 

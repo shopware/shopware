@@ -484,6 +484,7 @@ class OrderSerializerTest extends TestCase
                 ],
             ],
             'billingAddressVersionId' => null,
+            'source' => null,
         ], $overrided);
     }
 

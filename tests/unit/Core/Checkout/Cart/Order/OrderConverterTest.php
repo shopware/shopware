@@ -536,7 +536,7 @@ class OrderConverterTest extends TestCase
         $dispatcher
             ->expects(static::once())
             ->method('dispatch')
-            ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
+            ->with(static::callback(function (SalesChannelContextAssembledEvent $event) use ($order): bool {
                 static::assertSame($order, $event->getOrder());
 
                 return true;
@@ -561,9 +561,6 @@ class OrderConverterTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
-        $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
-
         $converter = new OrderConverter(
             $this->createMock(EntityRepository::class),
             $this->createMock(SalesChannelContextFactory::class),
@@ -573,13 +570,15 @@ class OrderConverterTest extends TestCase
             $addressRepository,
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(LineItemDownloadLoader::class),
-            $ruleRepository,
         );
 
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
     }
 
-    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject&SalesChannelContext
+    /**
+     * @return MockObject&SalesChannelContext
+     */
+    private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): MockObject
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);

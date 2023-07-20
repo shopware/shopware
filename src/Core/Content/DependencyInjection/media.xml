@@ -67,7 +67,9 @@
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
-            <tag name="kernel.event_subscriber"/>
+
+            <!-- unseralize read optimized (serialized) database objects > restores thumbnails from `RO` into real property-->
+            <tag name="kernel.event_listener" event="media.loaded" method="unserialize" priority="100" />
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaFolderConfigLoadedSubscriber">

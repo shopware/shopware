@@ -59,6 +59,7 @@ class MediaThumbnailDefinition extends EntityDefinition
             (new IntField('width', 'width'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('height', 'height'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime()),
+            (new StringField('path', 'path'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

@@ -180,6 +180,8 @@ class MediaEntity extends Entity
      */
     protected $thumbnailsRo;
 
+    protected ?string $path = null;
+
     /**
      * @var DocumentBaseConfigCollection|null
      */
@@ -680,5 +682,15 @@ class MediaEntity extends Entity
     public function setOrderLineItemDownloads(OrderLineItemDownloadCollection $orderLineItemDownloads): void
     {
         $this->orderLineItemDownloads = $orderLineItemDownloads;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(?string $path): void
+    {
+        $this->path = $path;
     }
 }

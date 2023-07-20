@@ -19,6 +19,8 @@ class MediaThumbnailEntity extends Entity
      */
     protected $width;
 
+    protected ?string $path = null;
+
     /**
      * @var int
      */

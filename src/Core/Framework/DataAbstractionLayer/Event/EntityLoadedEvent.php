@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
-class EntityLoadedEvent extends NestedEvent implements GenericEvent
+class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAggregate
 {
     /**
      * @var Entity[]
@@ -45,6 +45,11 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
         $this->definition = $definition;
         $this->context = $context;
         $this->name = $this->definition->getEntityName() . '.loaded';
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator($this->entities);
     }
 
     /**

@@ -19,6 +19,8 @@ class OrderTransactionCaptureEntity extends Entity
 
     protected string $orderTransactionId;
 
+    protected string $orderTransactionVersionId;
+
     protected string $stateId;
 
     protected ?string $externalReference = null;
@@ -99,5 +101,15 @@ class OrderTransactionCaptureEntity extends Entity
     public function setRefunds(OrderTransactionCaptureRefundCollection $refunds): void
     {
         $this->refunds = $refunds;
+    }
+
+    public function getOrderTransactionVersionId(): string
+    {
+        return $this->orderTransactionVersionId;
+    }
+
+    public function setOrderVersionId(string $orderTransactionVersionId): void
+    {
+        $this->orderTransactionVersionId = $orderTransactionVersionId;
     }
 }

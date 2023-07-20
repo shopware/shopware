@@ -2703,7 +2703,7 @@ class ElasticsearchProductTest extends TestCase
     {
         $context = $this->createIndexingContext();
 
-        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+        $dal1 = $ids->getBytes('dal-1');
 
         // Fetch: Default language
         $esProducts = $this->definition->fetch([$dal1], $context);
@@ -2772,7 +2772,7 @@ class ElasticsearchProductTest extends TestCase
         $languageContext->addExtensions($context->getExtensions());
         $languageContext->setConsiderInheritance(true);
 
-        $dal21 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-2.1') : $ids->getBytes('dal-2.1');
+        $dal21 = $ids->getBytes('dal-2.1');
 
         $esProducts = $this->definition->fetch([$dal21], $languageContext);
 
@@ -2797,7 +2797,7 @@ class ElasticsearchProductTest extends TestCase
         $languageContext->addExtensions($context->getExtensions());
         $languageContext->setConsiderInheritance(true);
 
-        $dal22 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-2.2') : $ids->getBytes('dal-2.2');
+        $dal22 = $ids->getBytes('dal-2.2');
 
         $esProducts = $this->definition->fetch([$dal22], $languageContext);
 
@@ -2822,7 +2822,7 @@ class ElasticsearchProductTest extends TestCase
         $languageContext->addExtensions($context->getExtensions());
         $languageContext->setConsiderInheritance(true);
 
-        $dal22 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-2.2') : $ids->getBytes('dal-2.2');
+        $dal22 = $ids->getBytes('dal-2.2');
 
         $esProducts = $this->definition->fetch([$dal22], $languageContext);
 
@@ -2848,7 +2848,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testReleaseDate(IdsCollection $ids): void
     {
-        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+        $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
@@ -2862,7 +2862,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
     {
-        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+        $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
@@ -2880,7 +2880,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCategoriesProperties(IdsCollection $ids): void
     {
-        $dal1 = Feature::isActive('ES_MULTILINGUAL_INDEX') ? $ids->get('dal-1') : $ids->getBytes('dal-1');
+        $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 

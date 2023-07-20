@@ -300,6 +300,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'name' => $this->takeItem('name', $context, $category) ?? '',
                 ], $categories)),
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
+                'categoryIds' => $categoryIds,
+                'categoryTree' => $categoriesRo,
                 'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],

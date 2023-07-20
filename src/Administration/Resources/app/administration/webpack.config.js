@@ -30,7 +30,7 @@ if (process.env.IPV4FIRST) {
 * but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
 */
 const cryptoOrigCreateHash = crypto.createHash;
-crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
+crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha1' : algorithm);
 
 /* eslint-disable */
 
@@ -213,7 +213,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: isDev ? 'eval-source-map' : '#source-map',
+    devtool: isDev ? 'cheap-module-eval-source-map' : '#source-map',
 
     optimization: {
         moduleIds: 'hashed',
@@ -350,7 +350,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.css$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
@@ -364,7 +369,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.postcss$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
@@ -378,7 +388,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.less$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
@@ -399,7 +414,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.sass$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
@@ -424,7 +444,8 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: MiniCssExtractPlugin.loader,
                         options: {
                             publicPath: isDev ? '/' : `../../`,
-                        }
+                            esModule: false,
+                        },
                     },
                     {
                         loader: 'css-loader',
@@ -445,7 +466,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.stylus$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
@@ -465,7 +491,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.styl$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: false,
+                        },
+                    },
                     {
                         loader: 'css-loader',
                         options: {
@@ -495,26 +526,31 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
             if (isDev) {
                 return [assetsPluginInstance];
             }
+
+            if (isProd) {
+                return [
+                    /**
+                     * All files inside webpack's output.path directory will be removed once, but the
+                     * directory itself will not be. If using webpack 4+'s default configuration,
+                     * everything under <PROJECT_DIR>/dist/ will be removed.
+                     * Use cleanOnceBeforeBuildPatterns to override this behavior.
+                     *
+                     * During rebuilds, all webpack assets that are not used anymore
+                     * will be removed automatically.
+                     *
+                     * See `Options and Defaults` for information
+                     */
+                    new CleanWebpackPlugin({
+                        cleanOnceBeforeBuildPatterns: [
+                            '!**/*',
+                            'static/**/*',
+                        ]
+                    }),
+                ]
+            }
+
             return [];
         })(),
-
-        /**
-         * All files inside webpack's output.path directory will be removed once, but the
-         * directory itself will not be. If using webpack 4+'s default configuration,
-         * everything under <PROJECT_DIR>/dist/ will be removed.
-         * Use cleanOnceBeforeBuildPatterns to override this behavior.
-         *
-         * During rebuilds, all webpack assets that are not used anymore
-         * will be removed automatically.
-         *
-         * See `Options and Defaults` for information
-         */
-        new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: [
-                '!**/*',
-                'static/**/*',
-            ]
-        }),
     ],
 });
 
@@ -629,8 +665,9 @@ const coreConfig = {
 
             return [
                 new ForkTsCheckerWebpackPlugin({
+                    async: true,
                     typescript: {
-                        mode: 'write-references',
+                        mode: 'readonly',
                     },
                     logger: {
                         infrastructure: 'console',

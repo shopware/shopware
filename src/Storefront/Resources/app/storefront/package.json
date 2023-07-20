@@ -67,6 +67,7 @@
     "jest": "24.8.0",
     "jest-junit": "6.3.0",
     "jest-plugin-clock": "2.9.0",
+    "license-checker-rseidelsohn": "4.2.6",
     "postcss-html": "1.5.0",
     "postcss-loader": "7.0.2",
     "postcss-pxtorem": "6.0.0",

@@ -1,0 +1,15 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "tags": [
+        {
+            "name": "Experimental",
+            "description": "Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+            "externalDocs": {
+                "description": "Find out more",
+                "url": "https://github.com/shopware/platform/blob/trunk/adr/2023-05-10-experimental-features.md"
+            }
+        }
+    ]
+}

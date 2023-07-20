@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('core')]
-class DeprecationTagTester
+class AnnotationTagTester
 {
     /**
      * captures any shopware version like 6.4.0.0 but also old version with 3 digits like 6.2.0
@@ -61,7 +61,7 @@ class DeprecationTagTester
         return $matches[1] ?? null;
     }
 
-    public function validateAnnotations(string $content): void
+    public function validateDeprecatedAnnotations(string $content): void
     {
         /*
          * captures the first word after the @deprecated annotation
@@ -70,7 +70,19 @@ class DeprecationTagTester
         $matches = [];
         preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
 
-        $this->validateMatches($matches);
+        $this->validateMatches($matches, $this->validateDeprecationVersion(...));
+    }
+
+    public function validateExperimentalAnnotations(string $content): void
+    {
+        /*
+         * captures the first word after the @experimental annotation
+         */
+        $annotationPattern = '/@experimental\s*([^\s]*)\s?/';
+        $matches = [];
+        preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
+
+        $this->validateMatches($matches, $this->validateExperimentalVersion(...));
     }
 
     public function validateDeprecationElements(string $content): void
@@ -87,24 +99,25 @@ class DeprecationTagTester
         $matches = [];
         preg_match_all($elementPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
 
-        $this->validateMatches($matches);
+        $this->validateMatches($matches, $this->validateDeprecationVersion(...));
     }
 
     /**
-     * @param array{1: string|null}[] $matches
+     * @param list<array<string|null>> $matches
+     * @param callable(string):void $validateFunction
      */
-    private function validateMatches(array $matches): void
+    private function validateMatches(array $matches, callable $validateFunction): void
     {
         if (empty($matches)) {
             throw new NoDeprecationFoundException();
         }
 
         foreach ($matches as $match) {
-            $this->validateVersion($match[1] ?? '');
+            $validateFunction($match[1] ?? '');
         }
     }
 
-    private function validateVersion(string $versionTag): void
+    private function validateDeprecationVersion(string $versionTag): void
     {
         $match = [];
         preg_match('/(tag|manifest):v(.*)/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
@@ -124,7 +137,21 @@ class DeprecationTagTester
             return;
         }
 
-        throw new \InvalidArgumentException('Could not find indicator manifest or tag in deprecation');
+        throw new \InvalidArgumentException('Could not find indicator manifest or tag in deprecation annotation');
+    }
+
+    private function validateExperimentalVersion(string $versionTag): void
+    {
+        $match = [];
+        preg_match('/stableVersion:v(.*)/', $versionTag, $match, \PREG_UNMATCHED_AS_NULL);
+
+        if (empty($match)) {
+            throw new \InvalidArgumentException('Could not find indicator stableVersion in experimental annotation');
+        }
+
+        $version = $match[1] ?? '';
+
+        $this->validateAgainstPlatformVersion($version);
     }
 
     private function validateAgainstPlatformVersion(string $version): void
@@ -152,7 +179,7 @@ class DeprecationTagTester
     private function compareVersion(string $highestVersion, string $deprecatedVersion): void
     {
         if (version_compare($highestVersion, $deprecatedVersion) >= 0) {
-            throw new \InvalidArgumentException('The version you used for deprecation is already live.');
+            throw new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.');
         }
     }
 }

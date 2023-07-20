@@ -6641,11 +6641,6 @@ parameters:
 			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiPathBuilder\\:\\:getDefaultListingParameter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiPathBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiSchemaBuilder\\:\\:createSecurity\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiSchemaBuilder.php
@@ -11579,11 +11574,6 @@ parameters:
 			message: "#^Cannot call method getUrl\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$matches of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateMatches\\(\\) expects array\\<array\\{1\\: string\\|null\\}\\>, list\\<array\\<string\\|null\\>\\> given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DeprecationTagTester.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true and 'No Notice in prod…' will always evaluate to true\\.$#"

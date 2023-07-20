@@ -230,7 +230,7 @@ export default {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
-                align: 'right',
+                align: 'center',
                 sortable: true,
             }, {
                 property: 'tokenize',

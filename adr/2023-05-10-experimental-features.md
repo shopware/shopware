@@ -2,16 +2,16 @@
 title: Experimental features
 date: 2023-05-10
 area: core, administration, storefront
-tags: [process, backward compatibility]
+tags: [process, backwards compatibility]
 ---
 
 ## Context
 
 Currently, it is hard to publish features in an early state to gather feedback regarding those features. If they are useful, what needs to be improved etc.
-One major reason is that everything we publish (that is not marked as internal) is part of our backward compatibility promise, thus changing foundational parts of features is quite hard after first release.
+One major reason is that everything we publish (that is not marked as internal) is part of our backwards compatibility promise, thus changing foundational parts of features is quite hard after first release.
 That leads to features being developed over quite some time without getting actual feedback from users or being able to release them, as they need to be implemented to a pretty final state in order to confidently release them in a stable manner, where we will keep backwards compatibility.
 
-This at the same time also means that the current approach is not beneficial to our ecosystem, whom the whole backwards compatibility promise should benefit, because the features are built behind close curtains they can't chime in with ideas and use cases regarding extendability, etc.
+This at the same time also means that the current approach is not beneficial to our ecosystem, whom the whole backwards compatibility promise should benefit, because the features are built behind closed curtains they can't chime in with ideas and use cases regarding extendability, etc.
 
 Examples of features that could benefit from an earlier experimental release:
 * B2B:
@@ -26,7 +26,7 @@ Thus, we can ship business value sooner to our customers and lower the risk of b
 ## Decision
 
 To ship features earlier, we add the concept of "experimental" features, thus giving early access to meaningful increments of features that are still in active development.
-That means in particular that there is no backward compatibility promise for experimental features, thus we can change the implementation as is needed, without having to worry about breaking changes.
+That means in particular that there is no backwards compatibility promise for experimental features, thus we can change the implementation as is needed, without having to worry about breaking changes.
 We mark the code for those features with a new `experimental` annotation, to make it clear on code level that the API is **not yet** stable.
 For code where already expect that it should never become part of the public API we will use the `@internal` annotation directly, to make sure that even if the feature is stable we will continue to tread those parts of the code as internal and not keep backwards compatible.
 Everything that is marked with `@experimental` is designed to be part of the public API, when the feature is stable.
@@ -95,6 +95,7 @@ As blue/green compatibility is a overall system property we can't exclude `@expe
 
 API routes and also entity definitions (that automatically will be mapped to the auto-generated CRUD-API) can be marked as experimental, meaning that they are also not covered by the backwards compatibility promise.
 The experimental state then will be reflected in the OpenAPI definition for those routes.
+To do so add the `Experimental` tag to the OpenApi definition of the route and add a hint that that route currently still is experimental in the summary for that route, and use the `@experimental` annotation on the entity definition class.
 
 ### Admin
 
@@ -152,3 +153,11 @@ In the docs it will also be marked that the features are experimental and that t
 The experimental status of features should also be reflected in the roadmap. That means that for a given feature, the progress in the roadmap can have a progress of 30% but already released in an experimental state. 
 In that case, the version where it was made available as experimental should be shown in the roadmap.
 When a feature is completed, it leaves the experimental state and all features that are displayed under "released" in the roadmap are stable.
+
+### Automated checks
+
+We will add the following automated checks to ensure that the `@experimental` annotation is used correctly:
+* Static analysis rule / unit test, that checks that every `@experimental` annotation has the stable version property and there are no `@experimental` annotations for a version that is already released (similar to the test case we have for `@deprecated`).
+* The BC checker will be adapted to handle the `@experimental` annotation in the same way as it handles `@internal`.
+* The API schema generator will be adapted to add the `Experimental` tag to all auto-generated CRUD-routes if the entity definition is marked as experimental.
+* The test that checks that all API routes have OpenApi specification also checks that the route is marked as experimental in the documentation when the route or controller method is marked as experimental.

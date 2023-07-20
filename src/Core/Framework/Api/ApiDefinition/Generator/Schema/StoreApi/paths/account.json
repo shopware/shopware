@@ -7,7 +7,7 @@
                 "tags": [
                     "Profile",
                     "Newsletter",
-                    "Endpoints supporting Criteria "
+                    "Endpoints supporting Criteria"
                 ],
                 "summary": "Fetch newsletter recipients",
                 "description": "Perform a filtered search for newsletter recipients.",

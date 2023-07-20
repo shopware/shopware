@@ -55,13 +55,18 @@ class OpenApiPathBuilder
     private function getListingPath(EntityDefinition $definition, string $path): Get
     {
         $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
+        $tags = [$humanReadableName];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
 
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
         return new Get([
-            'summary' => 'List with basic information of ' . $humanReadableName . ' resources',
+            'summary' => 'List with basic information of ' . $humanReadableName . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'tags' => [$humanReadableName],
+            'tags' => $tags,
             'parameters' => $this->getDefaultListingParameter(),
             'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()) . 'List',
             'responses' => [
@@ -131,11 +136,17 @@ class OpenApiPathBuilder
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
         return new Get([
-            'summary' => 'Detailed information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
+            'summary' => 'Detailed information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()),
-            'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
+            'tags' => $tags,
             'parameters' => [$this->getIdParameter($definition)],
             'responses' => [
                 Response::HTTP_OK => $this->getDetailResponse($schemaName),
@@ -149,10 +160,16 @@ class OpenApiPathBuilder
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
         return new Post([
-            'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources',
+            'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
+            'tags' => $tags,
             'operationId' => 'create' . $this->convertToOperationId($definition->getEntityName()),
             'parameters' => [
                 new Parameter([
@@ -198,11 +215,17 @@ class OpenApiPathBuilder
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
         return new Patch([
-            'summary' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
+            'summary' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'operationId' => 'update' . $this->convertToOperationId($definition->getEntityName()),
-            'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
+            'tags' => $tags,
             'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],
             'requestBody' => [
                 'description' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.',
@@ -240,11 +263,17 @@ class OpenApiPathBuilder
 
     private function getDeletePath(EntityDefinition $definition): Delete
     {
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
         return new Delete([
             'operationId' => 'delete' . $this->convertToOperationId($definition->getEntityName()),
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'summary' => 'Delete a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
-            'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
+            'summary' => 'Delete a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
+            'tags' => $tags,
             'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],
             'responses' => [
                 Response::HTTP_NO_CONTENT => $this->getResponseRef((string) Response::HTTP_NO_CONTENT),
@@ -268,6 +297,9 @@ class OpenApiPathBuilder
         return str_replace(' ', '', $name);
     }
 
+    /**
+     * @return list<Parameter>
+     */
     private function getDefaultListingParameter(): array
     {
         return [
@@ -367,5 +399,12 @@ class OpenApiPathBuilder
     private function snakeCaseToCamelCase(string $input): string
     {
         return str_replace('_', '', ucwords($input, '_'));
+    }
+
+    private function isExperimental(EntityDefinition $definition): bool
+    {
+        $reflection = new \ReflectionClass($definition);
+
+        return str_contains($reflection->getDocComment() ?: '', '@experimental');
     }
 }

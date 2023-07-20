@@ -40,6 +40,14 @@ class Cart extends Struct
 
     protected ?string $campaignCode = null;
 
+    /**
+     * This can be used to identify carts, that are used for different purposes.
+     * Setting this will call different hook names for respective cart sources.
+     * This may be used for multi-cart or subscription applications,
+     * where the regular calculation process is not desired and separate calculation processes are used as an opt-in usage.
+     */
+    protected ?string $source = null;
+
     private ?CartDataCollection $data = null;
 
     /**
@@ -288,5 +296,15 @@ class Cart extends Struct
     public function setBehavior(?CartBehavior $behavior): void
     {
         $this->behavior = $behavior;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): void
+    {
+        $this->source = $source;
     }
 }

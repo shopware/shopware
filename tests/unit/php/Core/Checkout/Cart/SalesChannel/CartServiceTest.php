@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartDeleteRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemRemoveRoute;
@@ -32,6 +33,8 @@ class CartServiceTest extends TestCase
 
     private AbstractCartItemRemoveRoute&MockObject $cartItemRemoveRoute;
 
+    private CartFactory&MockObject $cartFactory;
+
     private CartService $cartService;
 
     protected function setUp(): void
@@ -39,6 +42,7 @@ class CartServiceTest extends TestCase
         $this->cartDeleteRoute = $this->createMock(AbstractCartDeleteRoute::class);
         $this->cartItemUpdateRoute = $this->createMock(AbstractCartItemUpdateRoute::class);
         $this->cartItemRemoveRoute = $this->createMock(AbstractCartItemRemoveRoute::class);
+        $this->cartFactory = $this->createMock(CartFactory::class);
 
         $this->cartService = new CartService(
             $this->createMock(AbstractCartPersister::class),
@@ -50,6 +54,7 @@ class CartServiceTest extends TestCase
             $this->cartItemUpdateRoute,
             $this->cartItemRemoveRoute,
             $this->createMock(AbstractCartOrderRoute::class),
+            $this->cartFactory,
         );
     }
 
@@ -152,5 +157,17 @@ class CartServiceTest extends TestCase
             }), $cart, $context);
 
         $this->cartService->update($cart, $items, $context);
+    }
+
+    public function testCreatesNewCart(): void
+    {
+        $cart = new Cart('test');
+        $this->cartFactory
+            ->expects(static::once())
+            ->method('createNew')
+            ->with('test')
+            ->willReturn($cart);
+
+        static::assertSame($cart, $this->cartService->createNew('test'));
     }
 }

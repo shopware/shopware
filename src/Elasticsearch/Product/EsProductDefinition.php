@@ -134,6 +134,11 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                 ],
             ],
             'childCount' => self::INT_FIELD,
+            'categoryTree' => self::KEYWORD_FIELD,
+            'categoryIds' => self::KEYWORD_FIELD,
+            'propertyIds' => self::KEYWORD_FIELD,
+            'optionIds' => self::KEYWORD_FIELD,
+            'tagIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
             'manufacturerNumber' => self::getTextFieldConfig(),
@@ -252,7 +257,8 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             $optionIds = json_decode($item['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $propertyIds = json_decode($item['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $tagIds = json_decode($item['tagIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
-            $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoriesRo = json_decode($item['categoryTree'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoryIds = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $states = json_decode($item['states'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $tags = json_decode($item['tags'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $categories = json_decode($item['categories'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
@@ -298,6 +304,8 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
+                'categoryIds' => $categoryIds,
+                'categoryTree' => $categoriesRo,
                 'optionIds' => $optionIds,
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
@@ -473,7 +481,8 @@ SELECT
     IFNULL(p.width, pp.width) AS width,
     IFNULL(p.release_date, pp.release_date) AS releaseDate,
     IFNULL(p.created_at, pp.created_at) AS createdAt,
-    IFNULL(p.category_tree, pp.category_tree) AS categoryIds,
+    IFNULL(p.category_tree, pp.category_tree) AS categoryTree,
+    IFNULL(p.category_ids, pp.category_ids) AS categoryIds,
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
@@ -512,7 +521,7 @@ SQL;
         $result = $this->connection->fetchAllAssociativeIndexed(
             $sql,
             [
-                'ids' => Uuid::fromHexToBytesList($ids),
+                'ids' => $ids,
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
             [

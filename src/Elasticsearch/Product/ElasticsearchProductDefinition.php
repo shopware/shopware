@@ -64,6 +64,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'active' => self::BOOLEAN_FIELD,
                 'available' => self::BOOLEAN_FIELD,
                 'isCloseout' => self::BOOLEAN_FIELD,
+                'categoryTree' => self::KEYWORD_FIELD,
+                'categoryIds' => self::KEYWORD_FIELD,
+                'propertyIds' => self::KEYWORD_FIELD,
+                'optionIds' => self::KEYWORD_FIELD,
+                'tagIds' => self::KEYWORD_FIELD,
                 'categoriesRo' => [
                     'type' => 'nested',
                     'properties' => [
@@ -226,7 +231,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $optionIds = json_decode($item['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $propertyIds = json_decode($item['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $tagIds = json_decode($item['tagIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
-            $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoriesRo = json_decode($item['categoryTree'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoryIds = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $states = json_decode($item['states'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
             $translations = $this->filterToOne(json_decode((string) $item['translation'], true, 512, \JSON_THROW_ON_ERROR));
@@ -285,6 +291,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'name' => $this->takeItem('name', $context, $category) ?? '',
                 ], $categories)),
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
+                'categoryIds' => $categoryIds,
+                'categoryTree' => $categoriesRo,
                 'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
@@ -417,7 +425,8 @@ SELECT
     IFNULL(p.width, pp.width) AS width,
     IFNULL(p.release_date, pp.release_date) AS releaseDate,
     IFNULL(p.created_at, pp.created_at) AS createdAt,
-    IFNULL(p.category_tree, pp.category_tree) AS categoryIds,
+    IFNULL(p.category_tree, pp.category_tree) AS categoryTree,
+    IFNULL(p.category_ids, pp.category_ids) AS categoryIds,
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,

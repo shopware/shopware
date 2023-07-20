@@ -36,6 +36,7 @@ class OpenApiFileLoaderTest extends TestCase
             [
                 'paths' => [],
                 'components' => [],
+                'tags' => [],
             ],
             $spec
         );

@@ -407,6 +407,6 @@ class OpenApiPathBuilder
     {
         $reflection = new \ReflectionClass($definition);
 
-        return str_contains($reflection->getDocComment() ?: '', '@' . self::EXPERIMENTAL_ANNOTATION_NAME);
+        return str_contains($reflection->getDocComment() ?: '', '@experimental');
     }
 }

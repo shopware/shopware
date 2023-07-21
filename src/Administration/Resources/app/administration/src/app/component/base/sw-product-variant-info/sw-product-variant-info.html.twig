@@ -24,24 +24,24 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_info_options %}
-        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-        <span
-            v-for="(variation, index) in variations"
-            v-if="variations.length > 0"
-            :key="variation.group"
-            class="sw-product-variant-info__specification"
-        >
-            <template v-if="index === 0 && !ommitParenthesis">(</template>
+        <template v-if="variations && variations.length > 0">
+            <span
+                v-for="(variation, index) in variations"
+                :key="variation.group"
+                class="sw-product-variant-info__specification"
+            >
+                <template v-if="index === 0 && !ommitParenthesis">(</template>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_info_options_text %}
-            <span>{{ variation.group }}</span>: {{ variation.option }}
-            {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variant_info_options_text %}
+                <span>{{ variation.group }}</span>: {{ variation.option }}
+                {% endblock %}
 
-            <template v-if="index !== Object.keys(variations).length - 1">{{ seperator }}</template>
+                <template v-if="index !== Object.keys(variations).length - 1">{{ seperator }}</template>
 
-            <template v-if="index === Object.keys(variations).length - 1 && !ommitParenthesis">)</template>
-        </span>
+                <template v-if="index === Object.keys(variations).length - 1 && !ommitParenthesis">)</template>
+            </span>
+        </template>
         {% endblock %}
 
     </span>

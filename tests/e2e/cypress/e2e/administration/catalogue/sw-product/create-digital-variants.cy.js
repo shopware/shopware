@@ -22,6 +22,7 @@ function getVariantRowFilter(optionName) {
 function addFilesToAllVariants(fixture) {
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-field--switch__input').click();
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').should('be.visible');
+    cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').should('not.be.disabled');
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__button').click();
     // Add file to all variants
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-upload-v2__file-input').attachFile(fixture);
@@ -29,7 +30,7 @@ function addFilesToAllVariants(fixture) {
     cy.get('.sw-product-modal-variant-generation__upload-all-container .sw-media-preview-v2__item').should('exist');
 }
 
-describe('Product: Test digital variants', () => {
+describe('Product: Test digital variants', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
             .then(() => {
@@ -90,6 +91,9 @@ describe('Product: Test digital variants', () => {
         page.proceedVariantsGeneration(2);
 
         cy.get('.sw-product-variants-overview').should('be.visible');
+        if (Cypress.env('VUE3')) {
+            cy.get('.sw-skeleton').should('not.exist');
+        }
 
         cy.get('.sw-data-grid__row').filter(getVariantRowFilter('Hardcover')).find(digitalIndicatorClass).should('not.exist');
         cy.get('.sw-data-grid__row').filter(getVariantRowFilter('E-Book')).find(digitalIndicatorClass).should('exist');
@@ -136,6 +140,11 @@ describe('Product: Test digital variants', () => {
         cy.get('.sw-product-modal-variant-generation__upload-card').should('not.exist');
 
         page.proceedVariantsGeneration(0);
+
+        if (Cypress.env('VUE3')) {
+            cy.get('.sw-product-variants-overview').should('be.visible');
+            cy.get('.sw-skeleton').should('not.exist');
+        }
 
         // check final table of variants
         cy.contains('.sw-data-grid__body', 'Regular');

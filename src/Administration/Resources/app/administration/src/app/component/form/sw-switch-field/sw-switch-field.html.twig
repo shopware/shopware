@@ -10,7 +10,11 @@
         <div class="sw-field--switch__input">
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
+                {% if VUE3 %}
+                :id="formFieldName || identification"
+                {% else %}
                 :id="identification"
+                {% endif %}
                 type="checkbox"
                 :name="formFieldName || identification"
                 :checked="inputState"

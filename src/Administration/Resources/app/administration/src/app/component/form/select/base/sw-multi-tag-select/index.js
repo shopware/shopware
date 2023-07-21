@@ -97,18 +97,29 @@ Component.register('sw-multi-tag-select', {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         mountedComponent() {
-            this.$refs.selectionList.getFocusEl().addEventListener('keydown', this.onKeyDown);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         beforeDestroyComponent() {
-            this.$refs.selectionList.getFocusEl().removeEventListener('keydown', this.onKeyDown);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         onKeyDown({ key }) {
             if (key.toUpperCase() === 'ENTER') {
                 this.addItem();
             }
+        },
+
+        onSelectionListKeyDownEnter() {
+            this.addItem();
         },
 
         addItem() {

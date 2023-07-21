@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[Package('core')]
 class Context extends Struct
@@ -32,6 +33,9 @@ class Context extends Struct
     protected string $scope = self::USER_SCOPE;
 
     protected bool $rulesLocked = false;
+
+    #[Ignore]
+    protected $extensions = [];
 
     /**
      * @param array<string> $languageIdChain

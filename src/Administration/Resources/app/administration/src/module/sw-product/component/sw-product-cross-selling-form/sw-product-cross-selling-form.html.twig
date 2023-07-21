@@ -42,7 +42,6 @@
                     v-model:value="crossSelling.name"
                     {% else %}
                     v-model="crossSelling.name"
-                    {% endif %}
                     {% if VUE3 %}
                     name="sw-field--crossSelling-name"
                     {% endif %}
@@ -55,12 +54,14 @@
                 {% endblock %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-switch-field
+                <sw-field
                     {% if VUE3 %}
                     v-model:value="crossSelling.active"
+                    name="sw-field--crossSelling-active"
                     {% else %}
                     v-model="crossSelling.active"
                     {% endif %}
+                    type="switch"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"

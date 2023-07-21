@@ -43,8 +43,6 @@ function initVuexState(state: FullState, app = Vue) {
             modules: {},
             strict: false,
         });
-
-        Vue.use(Vuex);
     }
 
     registerProperties(state, store);

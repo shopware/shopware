@@ -21,71 +21,78 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
-            ALTER TABLE `order_transaction_capture`
-            ADD COLUMN `version_id` BINARY(16) NOT NULL AFTER `id`,
+        // adjusting "order_transaction_capture" table
+        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture', 'id');
+        $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture', 'version_id');
+        $this->reAddVersionedPrimaryKey($connection, 'order_transaction_capture');
+
+        // adjusting "order_transaction_capture_refund" table
+        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture_refund', 'id');
+        $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund', 'version_id');
+        $this->reAddVersionedPrimaryKey($connection, 'order_transaction_capture_refund');
+
+        $this->addBinaryColumnToTable($connection, 'capture_version_id', 'order_transaction_capture_refund', 'capture_id');
+        $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund', 'capture_version_id');
+        $this->reAddVersionedForeignKey($connection, 'order_transaction_capture_refund', 'order_transaction_capture', 'capture');
+
+        // adjusting "order_transaction_capture_refund_position" table
+        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture_refund_position', 'id');
+        $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund_position', 'version_id');
+        $this->reAddVersionedPrimaryKey($connection, 'order_transaction_capture_refund_position');
+
+        $this->addBinaryColumnToTable($connection, 'refund_version_id', 'order_transaction_capture_refund_position', 'refund_id');
+        $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund_position', 'refund_version_id');
+        $this->reAddVersionedForeignKey($connection, 'order_transaction_capture_refund_position', 'order_transaction_capture_refund', 'refund');
+    }
+
+    private function reAddVersionedPrimaryKey(Connection $connection, string $tableName): void
+    {
+        $sqlStatement = sprintf('
+            ALTER TABLE `%s`
             DROP PRIMARY KEY,
             ADD PRIMARY KEY (`id`, `version_id`);
-        ');
+        ', $tableName);
+        $connection->executeStatement($sqlStatement);
+    }
 
-        $liveVersionUuid = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+    private function addBinaryColumnToTable(Connection $connection, string $newColumnName, string $tableName, string $afterColumn): void
+    {
+        if (!$this->columnExists($connection, $tableName, $newColumnName)) {
+            $sqlStatement = sprintf('
+                ALTER TABLE `%s`
+                ADD COLUMN `%s` BINARY(16) NOT NULL AFTER `%s`;
+            ', $tableName, $newColumnName, $afterColumn);
 
-        // for all existing order_transaction_capture - set live version ID
-        $liveVersionSetOnCaptureStatement = $connection->prepare('UPDATE `order_transaction_capture` SET version_id = :versionId');
-        $liveVersionSetOnCaptureStatement->executeStatement([
-            'versionId' => $liveVersionUuid,
-        ]);
+            $connection->executeStatement($sqlStatement);
+        }
+    }
 
-        $connection->executeStatement('
-            ALTER TABLE `order_transaction_capture_refund`
-            ADD COLUMN `version_id` BINARY(16) NOT NULL AFTER `id`,
-            ADD COLUMN `capture_version_id` BINARY(16) NOT NULL AFTER `capture_id`,
-            DROP PRIMARY KEY,
-            ADD PRIMARY KEY (`id`, `version_id`),
-            DROP FOREIGN KEY `fk.order_transaction_capture_refund.capture_id`;
-        ');
+    private function reAddVersionedForeignKey(Connection $connection, $tableName, $referencedTableName, $foreignKeyColumnSuffix): void
+    {
+        $foreignKeyName = sprintf('fk.%s.%s_id', $tableName, $foreignKeyColumnSuffix);
 
-        // for all existing order_transaction_capture_refund - set live version ID
-        $liveVersionSetOnCaptureRefundStatement = $connection->prepare(
-            'UPDATE `order_transaction_capture_refund` SET version_id = :versionId, capture_version_id = :captureVersionId'
+        $connection->executeStatement(
+            sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`;', $tableName, $foreignKeyName)
         );
-        $liveVersionSetOnCaptureRefundStatement->executeStatement([
-            'versionId' => $liveVersionUuid,
-            'captureVersionId' => $liveVersionUuid,
+
+        $addForeignKeySqlStatement = sprintf('
+            ALTER TABLE `%s`
+            ADD CONSTRAINT `%s` FOREIGN KEY (`%s_id`, `%s_version_id`)
+                REFERENCES `%s` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+        ', $tableName, $foreignKeyName, $foreignKeyColumnSuffix, $foreignKeyColumnSuffix, $referencedTableName);
+
+        $connection->executeStatement($addForeignKeySqlStatement);
+    }
+
+    private function setLiveVersionValueOnNewVersionColumn(Connection $connection, string $tableName, $versionColumn): void
+    {
+        $liveVersionUpdateSqlStatement = $connection->prepare(
+            sprintf('UPDATE `%s` SET %s = :liveVersionId WHERE %s = :emptyVersionId', $tableName, $versionColumn, $versionColumn)
+        );
+        $liveVersionUpdateSqlStatement->executeStatement([
+            'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'emptyVersionId' => Uuid::fromHexToBytes('00000000000000000000000000000000'),
         ]);
-
-        // re-add foreign key once relation can be set using version_id
-        $connection->executeStatement('
-            ALTER TABLE `order_transaction_capture_refund`
-            ADD CONSTRAINT `fk.order_transaction_capture_refund.capture_id` FOREIGN KEY (`capture_id`, `capture_version_id`)
-                REFERENCES `order_transaction_capture` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
-        ');
-
-        $connection->executeStatement('
-            ALTER TABLE `order_transaction_capture_refund_position`
-            ADD COLUMN `version_id` BINARY(16) NOT NULL AFTER `id`,
-            ADD COLUMN `refund_version_id` BINARY(16) NOT NULL AFTER `refund_id`,
-            DROP PRIMARY KEY,
-            ADD PRIMARY KEY (`id`, `version_id`),
-            DROP FOREIGN KEY `fk.order_transaction_capture_refund_position.refund_id`;
-        ');
-
-        // for all existing order_transaction_capture_refund_position - set live version ID
-        $liveVersionSetOnCaptureRefundPositionStatement = $connection->prepare('
-            UPDATE `order_transaction_capture_refund_position`
-                SET version_id = :versionId, refund_version_id = :refundVersionId
-        ');
-        $liveVersionSetOnCaptureRefundPositionStatement->executeStatement([
-            'versionId' => $liveVersionUuid,
-            'refundVersionId' => $liveVersionUuid,
-        ]);
-
-        // re-add foreign key once relation can be set using version_id
-        $connection->executeStatement('
-            ALTER TABLE `order_transaction_capture_refund_position`
-            ADD CONSTRAINT `fk.order_transaction_capture_refund_position.refund_id` FOREIGN KEY (`refund_id`, `refund_version_id`)
-                REFERENCES `order_transaction_capture_refund` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
-        ');
     }
 
     public function updateDestructive(Connection $connection): void

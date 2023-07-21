@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
@@ -11,6 +11,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_5\Migration1689856589AddVersioningForOrderTransactionCaptures;
 
+/**
+ * @package checkout
+ *
+ * @internal
+ *
+ * @covers \Shopware\Core\Migration\V6_5\Migration1689856589AddVersioningForOrderTransactionCaptures
+ */
 class Migration1689856589AddVersioningForOrderTransactionCapturesTest extends TestCase
 {
     use KernelTestBehaviour;

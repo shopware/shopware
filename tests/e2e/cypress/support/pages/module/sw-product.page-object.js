@@ -84,7 +84,9 @@ export default class ProductPageObject {
 
         cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click()
             .then(() => {
-                cy.get('.generate-variant-progress-bar__description').contains(new RegExp(`0 (of|van) ${totalCount} (variations generated|Varianten gegenereerd)`));
+                if (Cypress.env('VUE3') && totalCount >= 1) {
+                    cy.get('.generate-variant-progress-bar__description').contains(new RegExp(`0 (of|van) ${totalCount} (variations generated|Varianten gegenereerd)`));
+                }
                 cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
             });
 

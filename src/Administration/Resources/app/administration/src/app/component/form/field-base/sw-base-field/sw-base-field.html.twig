@@ -3,6 +3,9 @@
 <div
     class="sw-field"
     :class="swFieldClasses"
+    {% if VUE3 %}
+    v-bind="$attrs"
+    {% endif %}
 >
     <div
         v-if="hasLabel"
@@ -44,7 +47,7 @@
     <sw-field-error :error="error" />
 
     <div
-        v-if="$slots.hint"
+        v-if="hasHint"
         class="sw-field__hint"
     >
         <slot name="hint"></slot>

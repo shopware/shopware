@@ -53,7 +53,11 @@
                     show-clearable-button
                     allow-entity-creation
                     :entity-creation-label="$tc('sw-product.basicForm.labelManufacturerCreation')"
+                    {% if VUE3 %}
+                    @update:value="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

@@ -74,7 +74,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_seo_form_canonical_url_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="canonicalProductSwitchEnabled"
+            {% else %}
             v-model="canonicalProductSwitchEnabled"
+            {% endif %}
             :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')"
         />
         {% endblock %}

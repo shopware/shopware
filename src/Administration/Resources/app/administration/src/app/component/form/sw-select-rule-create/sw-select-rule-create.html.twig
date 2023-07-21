@@ -3,7 +3,11 @@
 <div class="sw-select-rule-create">
     <sw-entity-multi-select
         v-if="rules !== null"
+        {% if VUE3 %}
+        v-model:entityCollection="collection"
+        {% else %}
         v-model="collection"
+        {% endif %}
         :criteria="ruleFilter"
         v-bind="$attrs"
         advanced-selection-component="sw-advanced-selection-rule"
@@ -72,7 +76,11 @@
         show-clearable-button
         advanced-selection-component="sw-advanced-selection-rule"
         :advanced-selection-parameters="getAdvancedSelectionParameters()"
+        {% if VUE3 %}
+        @update:value="onSelectRule"
+        {% else %}
         @change="onSelectRule"
+        {% endif %}
     >
         <template #before-item-list>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

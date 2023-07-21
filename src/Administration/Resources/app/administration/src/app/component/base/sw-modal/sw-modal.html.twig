@@ -2,6 +2,9 @@
 {% block sw_modal %}
 <transition
     name="sw-modal-fade"
+    {% if VUE3 %}
+    v-bind="$attrs"
+    {% endif %}
     appear
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -31,7 +31,6 @@ if (window._features_?.vue3) {
         INSTANCE_CHILDREN: true, // https://v3-migration.vuejs.org/breaking-changes/children.html
         INSTANCE_LISTENERS: true, // https://v3-migration.vuejs.org/breaking-changes/listeners-removed.html
         INSTANCE_SCOPED_SLOTS: true, // https://v3-migration.vuejs.org/breaking-changes/slots-unification.html
-        INSTANCE_ATTRS_CLASS_STYLE: true, // https://v3-migration.vuejs.org/breaking-changes/attrs-includes-class-style.html
         OPTIONS_DATA_FN: true, // https://v3-migration.vuejs.org/breaking-changes/data-option.html
         OPTIONS_DATA_MERGE: true, // https://v3-migration.vuejs.org/breaking-changes/data-option.html
         OPTIONS_BEFORE_DESTROY: true,

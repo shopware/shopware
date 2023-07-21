@@ -44,7 +44,6 @@ export default {
 
     computed: {
         ...mapState('swProductDetail', [
-            'repositoryFactory',
             'product',
             'parentProduct',
             'taxes',

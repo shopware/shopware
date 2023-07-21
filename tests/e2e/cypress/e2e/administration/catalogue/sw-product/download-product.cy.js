@@ -2,7 +2,7 @@
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Product: Test download product', () => {
+describe('Product: Test download product', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
             .then(() => {

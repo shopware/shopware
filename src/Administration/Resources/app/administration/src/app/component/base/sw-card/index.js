@@ -18,6 +18,9 @@ const { Component } = Shopware;
  */
 Component.register('sw-card', {
     template,
+    inheritAttrs: !window._features_.VUE3,
+
+    inject: ['feature'],
 
     props: {
         positionIdentifier: {
@@ -87,6 +90,11 @@ Component.register('sw-card', {
                 'has--toolbar': !!this.toolbar || !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
                 'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
+
+            // With Vue 3 there is no sw-ignore-class
+            if (this.feature.isActive('VUE3')) {
+                return classes;
+            }
 
             if (!this.$refs.swIgnoreClass) {
                 this.$nextTick(() => {

@@ -317,6 +317,10 @@
             "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"
         ],
+        "e2e:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "export CYPRESS_VUE3=\"true\"; export CYPRESS_grepTags=\"VUE3\"; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
+        ],
         "e2e:percy": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
         ],

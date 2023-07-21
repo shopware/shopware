@@ -69,6 +69,7 @@
         "doctrine/dbal": "^3.6",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "2.0.3",
+        "dragonmantank/cron-expression": "^3.3",
         "erusev/parsedown-extra": "0.8.1",
         "ezyang/htmlpurifier": "~4.16",
         "guzzlehttp/guzzle": "~7.5.0",
@@ -503,7 +504,7 @@
         ]
     },
     "autoload": {
-        "files":[
+        "files": [
             "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
             "src/Core/Framework/Adapter/Twig/functions.php"
         ],

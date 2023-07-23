@@ -519,14 +519,6 @@ base-uri 'self';
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
-            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
-            <argument type="service" id="media.repository"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-
         <!-- Changelog -->
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator" public="false">
             <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>

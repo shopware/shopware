@@ -1,6 +1,6 @@
 ---
 title: Removed duplicate GenerateThumbnailsHandler service registration
-issue: NEXT-0000
+issue: NEXT-29467
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

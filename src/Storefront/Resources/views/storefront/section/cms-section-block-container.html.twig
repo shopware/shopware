@@ -55,6 +55,7 @@
             {% if block.backgroundMedia %}
                 {% sw_thumbnails 'cms-block-background' with {
                     media: block.backgroundMedia,
+                    autoColumnSizes: false,
                     attributes: {
                         class: "cms-block-background media-mode--" ~ block.backgroundMediaMode
                     }

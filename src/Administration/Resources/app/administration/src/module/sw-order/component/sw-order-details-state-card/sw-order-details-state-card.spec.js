@@ -6,7 +6,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
  * @package customer-order
  */
 
-jest.useFakeTimers().setSystemTime(new Date(0));
+jest.useFakeTimers().setSystemTime(new Date(170363865609544));
 
 Shopware.Component.register('sw-order-details-state-card', swOrderDetailsStateCard);
 
@@ -153,6 +153,6 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
         const summary = wrapper.get('.sw-order-detail-state-card__state-history-text');
 
         expect(summary.text()).toBe('John Doe');
-        expect(summary.get('.sw-time-ago').props('date')).toEqual(new Date(0));
+        expect(summary.get('.sw-time-ago').props('date')).toEqual(new Date(170363865609544));
     });
 });

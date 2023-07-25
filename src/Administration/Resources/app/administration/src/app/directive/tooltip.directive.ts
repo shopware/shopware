@@ -63,7 +63,6 @@ class Tooltip {
 
     private _timeout?: ReturnType<typeof setTimeout>;
 
-
     constructor({
         id = utils.createId(),
         placement = 'top',

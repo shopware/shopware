@@ -391,7 +391,7 @@ class ThemeLifecycleService
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
-                if (!\array_key_exists('type', $field) || $field['type'] !== 'media' || !Uuid::isValid($field['value'])) {
+                if ($this->hasOldMedia($field) === false) {
                     continue;
                 }
                 $currentMediaIds[$key] = $field['value'];
@@ -404,7 +404,7 @@ class ThemeLifecycleService
 
         if (\array_key_exists('fields', $baseConfig)) {
             foreach ($baseConfig['fields'] as $key => $field) {
-                if (!\array_key_exists('type', $field) || $field['type'] !== 'media') {
+                if ($this->hasNewMedia($field) === false) {
                     continue;
                 }
 
@@ -628,5 +628,23 @@ class ThemeLifecycleService
         return $currentThemeConfig->getTechnicalName() !== $parentConfig->getTechnicalName()
             && \in_array('@' . $parentConfig->getTechnicalName(), $currentThemeConfig->getStyleFiles()->getFilepaths(), true)
         ;
+    }
+
+    /**
+     * @param array<int|string, mixed> $field
+     */
+    private function hasNewMedia(array $field): bool
+    {
+        return \array_key_exists('type', $field) && $field['type'] === 'media'
+            && \array_key_exists('value', $field) && \is_string($field['value']);
+    }
+
+    /**
+     * @param array<int|string, mixed> $field
+     */
+    private function hasOldMedia(array $field): bool
+    {
+        return \array_key_exists('type', $field) && $field['type'] === 'media'
+            && \array_key_exists('value', $field) && \is_string($field['value']) && Uuid::isValid($field['value']);
     }
 }

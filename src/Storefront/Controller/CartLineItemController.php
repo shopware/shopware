@@ -337,7 +337,7 @@ class CartLineItemController extends StorefrontController
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
                 }
-            } catch (ProductNotFoundException) {
+            } catch (ProductNotFoundException|RoutingException) {
                 $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
             }
 
@@ -363,6 +363,15 @@ class CartLineItemController extends StorefrontController
      */
     private function getLineItemArray(RequestDataBag $lineItemData, ?array $defaultValues): array
     {
+        if ($lineItemData->has('payload')) {
+            $payload = $lineItemData->get('payload');
+
+            if (mb_strlen($payload, '8bit') > (1024 * 256)) {
+                throw RoutingException::invalidRequestParameter('payload');
+            }
+
+            $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
+        }
         $lineItemArray = $lineItemData->all();
 
         if (isset($lineItemArray['quantity'])) {

@@ -111,6 +111,26 @@ class EsProductDefinitionTest extends TestCase
                     'type' => 'keyword',
                     'normalizer' => 'sw_lowercase_normalizer',
                 ],
+                'categoryTree' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
+                ],
+                'categoryIds' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
+                ],
+                'propertyIds' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
+                ],
+                'optionIds' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
+                ],
+                'tagIds' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
+                ],
                 'active' => [
                     'type' => 'boolean',
                 ],

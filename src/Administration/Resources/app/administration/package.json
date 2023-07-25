@@ -95,6 +95,7 @@
     "ts-loader": "8.4.0",
     "twig": "1.15.4",
     "uuid": "8.3.2",
+    "uuidv7": "0.5.3",
     "v-click-outside": "3.2.0",
     "vue": "2.7.14",
     "vue-apexcharts": "1.6.2",

@@ -46,6 +46,7 @@
                 position-identifier="sw-customer-create-base-form"
             >
                 <sw-customer-base-form
+                    v-if="customer"
                     :is-loading="isLoading"
                     :customer="customer"
                     @sales-channel-change="onChangeSalesChannel"
@@ -60,6 +61,7 @@
                 position-identifier="sw-customer-create-address-form"
             >
                 <sw-customer-address-form
+                    v-if="customer"
                     v-bind="{ customer, address }"
                 />
             </sw-card>

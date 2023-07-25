@@ -10,6 +10,21 @@ use Danger\Rule\DisallowRepeatedCommits;
 use Danger\Struct\File;
 use Danger\Struct\Gitlab\File as GitlabFile;
 
+const COMPOSER_PACKAGE_EXCEPTIONS = [
+    '~' => [
+        '^symfony\/.*$' => 'We are too tightly coupled to symfony, therefore minor updates often cause breaks',
+        '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
+    ],
+    'strict' => [
+        '^phpstan\/.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
+        '^symplify\/phpstan-rules$'  => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
+        '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
+        '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
+        '^shopware\/core$' => 'The shopware core packages should be required in any version, so use `*` constraint, the version constraint will be automatically synced during the release process',
+        '^ext-.*$' => 'PHP extension version ranges should be required in any version, so use `*` constraint',
+    ],
+];
+
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(new DisallowRepeatedCommits())
@@ -344,6 +359,67 @@ return (new Config())
                 'Don\'t add new testcases in the `/src` folder, for new tests write "real" unit tests under `tests/unit` and if needed a few meaningful integration tests under `tests/integration`: <br/>'
                 . print_r($addedLegacyTests, true)
             );
+        }
+    })
+    // check for composer version operators
+    ->useRule(function (Context $context): void {
+        $composerFiles = $context->platform->pullRequest->getFiles()->matches('**/composer.json');
+
+        foreach ($composerFiles as $composerFile) {
+            if ($composerFile->status === File::STATUS_REMOVED) {
+                continue;
+            }
+
+            $composerContent = json_decode($composerFile->getContent(), true);
+            /** @var array<string, string> $requirements */
+            $requirements = array_merge(
+                $composerContent['require'] ?? [],
+                $composerContent['require-dev'] ?? []
+            );
+
+            foreach ($requirements as $package => $constraint) {
+                foreach (COMPOSER_PACKAGE_EXCEPTIONS['~'] as $exceptionPackage => $exceptionMessage) {
+                    if (preg_match('/' . $exceptionPackage . '/', $package)) {
+                        if (!str_contains($constraint, '~')) {
+                            $context->failure(
+                                sprintf(
+                                    'The package `%s` from composer file `%s` should use the [tilde version range](https://getcomposer.org/doc/articles/versions.md#tilde-version-range-) to only allow patch version updates. ',
+                                    $package,
+                                    $composerFile->name
+                                ) . $exceptionMessage
+                            );
+                        }
+
+                        continue 2;
+                    }
+                }
+
+                foreach (COMPOSER_PACKAGE_EXCEPTIONS['strict'] as $exceptionPackage => $exceptionMessage) {
+                    if (preg_match('/' . $exceptionPackage . '/', $package)) {
+                        if (str_contains($constraint, '~') || str_contains($constraint, '^')) {
+                            $context->failure(
+                                sprintf(
+                                    'The package `%s` from composer file `%s` should be pinned to a specific version. ',
+                                    $package,
+                                    $composerFile->name
+                                ) . $exceptionMessage
+                            );
+                        }
+
+                        continue 2;
+                    }
+                }
+
+                if (!str_contains($constraint, '^')) {
+                    $context->failure(
+                        sprintf(
+                            'The package `%s` from composer file `%s` should use the [caret version range](https://getcomposer.org/doc/articles/versions.md#caret-version-range-), to automatically allow minor updates.',
+                            $package,
+                            $composerFile->name
+                        )
+                    );
+                }
+            }
         }
     })
     ->after(function (Context $context): void {

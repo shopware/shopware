@@ -124,7 +124,7 @@
     "@babel/plugin-transform-runtime": "7.21.0",
     "@babel/preset-env": "7.20.2",
     "@babel/register": "7.21.0",
-    "@shopware-ag/jest-preset-sw6-admin": "4.2.2",
+    "@shopware-ag/jest-preset-sw6-admin": "4.1.0",
     "@testing-library/jest-dom": "5.16.5",
     "@types/lodash": "4.14.192",
     "@types/webpack-env": "^1.18.0",

@@ -179,6 +179,24 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
     }
 
+    public function testItIgnoresMediaFieldsWithoutValue(): void
+    {
+        $bundle = $this->getThemeConfig();
+        $this->addPinkLogoToThemeWithoutValue($bundle);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $shopwareLogoId = $this->getMedia('shopware_logo');
+        $this->createCmsPage($shopwareLogoId->getId());
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+
+        static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
+        $this->hasNoMedia('shopware_logo_pink2');
+    }
+
     public function testItUploadsFilesIntoTheRootFolderIfThemeDefaultFolderDoesNotExist(): void
     {
         $bundle = $this->getThemeConfig();
@@ -400,6 +418,15 @@ class ThemeLifecycleServiceTest extends TestCase
         return $media;
     }
 
+    private function hasNoMedia(string $fileName): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('fileName', $fileName));
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->first();
+        static::assertNull($media);
+    }
+
     // we create a cms-page because it has has the DeleteRestricted flag in media definition
     private function createCmsPage(string $logoId): void
     {
@@ -437,6 +464,20 @@ class ThemeLifecycleServiceTest extends TestCase
             ],
             'type' => 'media',
             'value' => 'app/storefront/src/assets/image/shopware_logo_pink2.svg',
+        ];
+
+        $bundle->setThemeConfig($config);
+    }
+
+    private function addPinkLogoToThemeWithoutValue(StorefrontPluginConfiguration $bundle): void
+    {
+        $config = $bundle->getThemeConfig();
+        $config['fields']['shopwareLogoPink'] = [
+            'label' => [
+                'en-GB' => 'shopware_logo_pink',
+                'de-DE' => 'shopware_logo_pink',
+            ],
+            'type' => 'media',
         ];
 
         $bundle->setThemeConfig($config);

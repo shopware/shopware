@@ -10,7 +10,6 @@
                 ],
                 "summary": "Loads all available payment methods",
                 "operationId": "readPaymentMethod",
-                "parameters": [],
                 "requestBody": {
                     "required": true,
                     "content": {

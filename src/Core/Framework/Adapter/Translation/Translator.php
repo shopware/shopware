@@ -15,6 +15,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
+use Symfony\Component\Intl\Locale;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
@@ -157,7 +158,9 @@ class Translator extends AbstractTranslator
             }
         }
 
-        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
+        $catalogue = $this->getCatalogue($locale);
+
+        return $this->formatter->format($catalogue->get($id, $domain), Locale::getFallback($catalogue->getLocale()), $parameters);
     }
 
     /**

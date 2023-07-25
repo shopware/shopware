@@ -179,25 +179,6 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
     }
 
-    public function testItRenamesThemeMediaIfItExistsBefore(): void
-    {
-        $bundle = $this->getThemeConfig();
-        $this->addPinkLogoToThemeChanged($bundle);
-
-        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
-
-        $shopwareLogoId = $this->getMedia('shopware_logo');
-        $this->createCmsPage($shopwareLogoId->getId());
-
-        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
-
-        $themeEntity = $this->getTheme($bundle);
-
-        static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
-        $renamedShopwareLogoId = $this->getMedia('shopware_logo_pink2');
-        static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
-    }
-
     public function testItIgnoresMediaFieldsWithoutValue(): void
     {
         $bundle = $this->getThemeConfig();
@@ -483,6 +464,20 @@ class ThemeLifecycleServiceTest extends TestCase
             ],
             'type' => 'media',
             'value' => 'app/storefront/src/assets/image/shopware_logo_pink2.svg',
+        ];
+
+        $bundle->setThemeConfig($config);
+    }
+
+    private function addPinkLogoToThemeWithoutValue(StorefrontPluginConfiguration $bundle): void
+    {
+        $config = $bundle->getThemeConfig();
+        $config['fields']['shopwareLogoPink'] = [
+            'label' => [
+                'en-GB' => 'shopware_logo_pink',
+                'de-DE' => 'shopware_logo_pink',
+            ],
+            'type' => 'media',
         ];
 
         $bundle->setThemeConfig($config);

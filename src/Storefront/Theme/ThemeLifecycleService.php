@@ -391,7 +391,7 @@ class ThemeLifecycleService
         // get existing MediaFiles
         if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
             foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
-                if (!\array_key_exists('type', $field) || $field['type'] !== 'media' || !Uuid::isValid($field['value'])) {
+                if ($this->hasOldMedia($field) === false) {
                     continue;
                 }
                 $currentMediaIds[$key] = $field['value'];

@@ -155,12 +155,7 @@ class Translator extends AbstractTranslator
 
         $catalogue = $this->getCatalogue($locale);
 
-        // the formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
-        // We use the locale from the catalogue here as that may be the fallback locale,
-        // so we always format the translations in the actual locale of the catalogue
-        $formatLocale = Locale::getFallback($catalogue->getLocale()) ?? $catalogue->getLocale();
-
-        return $this->formatter->format($catalogue->get($id, $domain), $formatLocale, $parameters);
+        return $this->formatter->format($catalogue->get($id, $domain), Locale::getFallback($catalogue->getLocale()), $parameters);
     }
 
     /**

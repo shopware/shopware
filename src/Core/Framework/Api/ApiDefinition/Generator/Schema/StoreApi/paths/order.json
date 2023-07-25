@@ -55,7 +55,6 @@
                 "summary": "Fetch a list of orders",
                 "description": "List orders of a customer.",
                 "operationId": "readOrder",
-                "parameters": [],
                 "requestBody": {
                     "required": true,
                     "content": {

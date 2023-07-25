@@ -32,6 +32,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
+        // Only the route on controller will be removed
+        'reason:remove-route',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
         'reason:becomes-internal',
         // New function parameter will be added

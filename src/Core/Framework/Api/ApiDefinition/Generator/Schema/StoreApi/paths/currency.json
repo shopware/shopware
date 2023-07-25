@@ -11,7 +11,6 @@
                 "summary": "Fetch currencies",
                 "description": "Perform a filtered search for currencies.",
                 "operationId": "readCurrency",
-                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {

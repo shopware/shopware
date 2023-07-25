@@ -94,8 +94,8 @@ class CartItemRemoveRouteTest extends TestCase
         // Remove
         $this->browser
             ->request(
-                'DELETE',
-                '/store-api/checkout/cart/line-item',
+                'POST',
+                '/store-api/checkout/cart/line-item/delete',
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
@@ -142,8 +142,8 @@ class CartItemRemoveRouteTest extends TestCase
         // Remove
         $this->browser
             ->request(
-                'DELETE',
-                '/store-api/checkout/cart/line-item',
+                'POST',
+                '/store-api/checkout/cart/line-item/delete',
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
@@ -193,8 +193,8 @@ class CartItemRemoveRouteTest extends TestCase
         // Remove
         $this->browser
             ->request(
-                'DELETE',
-                '/store-api/checkout/cart/line-item',
+                'POST',
+                '/store-api/checkout/cart/line-item/delete',
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],

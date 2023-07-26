@@ -17,7 +17,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  *
- * @decrecated tag:v6.6.0 - Will be removed, please transfer all public methods method to ElasticsearchProductDefinition
+ * @decrecated tag:v6.6.0 - Will be removed, please transfer all public methods method to ElasticsearchIndexer
  */
 #[Package('core')]
 class MultilingualEsIndexer

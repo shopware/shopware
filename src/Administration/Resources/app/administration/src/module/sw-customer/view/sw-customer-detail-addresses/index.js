@@ -151,11 +151,13 @@ export default {
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 align: 'center',
                 iconLabel: 'regular-shopping-cart',
+                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
             }, {
                 property: 'defaultBillingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 align: 'center',
                 iconLabel: 'regular-file-text',
+                iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
             }, {
                 property: 'lastName',
                 label: this.$tc('sw-customer.detailAddresses.columnLastName'),

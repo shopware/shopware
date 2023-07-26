@@ -59,9 +59,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation,
-            false,
-            'dev'
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         $definition = new ElasticsearchProductDefinition(
@@ -343,9 +344,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation,
-            false,
-            'dev'
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         $definition = new ElasticsearchProductDefinition(
@@ -449,9 +451,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             [],
             new EventDispatcher(),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
-            $newImplementation,
-            false,
-            'dev'
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         $definition = new ElasticsearchProductDefinition(

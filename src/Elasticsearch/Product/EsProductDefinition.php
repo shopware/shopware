@@ -33,13 +33,15 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
      * @internal
      *
      * @param array<string, string> $customMapping
+     * @param array<string, string> $languageAnalyzerMapping
      */
     public function __construct(
         private readonly ProductDefinition $definition,
         private readonly Connection $connection,
         private readonly array $customMapping,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder
+        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
+        private readonly array $languageAnalyzerMapping
     ) {
     }
 
@@ -53,13 +55,24 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
      */
     public function getMapping(Context $context): array
     {
-        $languageIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language');
+        $languages = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(language.`id`)) as id, locale.code
+             FROM language
+             INNER JOIN locale ON locale_id = locale.id'
+        );
 
         $languageFields = [];
         $customFieldsProperties = [];
 
-        foreach ($languageIds as $languageId) {
+        foreach ($languages as $languageId => $code) {
+            $parts = explode('-', $code);
+            $locale = $parts[0];
+
             $languageFields[$languageId] = self::getTextFieldConfig();
+            if (\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+                $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
+            }
+
             $customFieldsProperties[$languageId] = $this->getCustomFieldsMapping($context);
         }
 

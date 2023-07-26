@@ -38,6 +38,11 @@ use Twig\Loader\FilesystemLoader;
  */
 class IconCacheTwigFilterTest extends TestCase
 {
+    /**
+     * NEXT-26125
+     *
+     * @group quarantined
+     */
     public function testStorefrontRenderIconCacheEnabled(): void
     {
         $twig = $this->createFinder([

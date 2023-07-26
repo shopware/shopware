@@ -81,11 +81,16 @@ Jest Coverage per Area (Storefront):
 Jest Coverage per Area (Administration):
   extends: Jest (Administration)
   stage: unit
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
+    - !reference [ .rules, run ]
+    - if: '$CI_COMMIT_BRANCH == "trunk"'
   script:
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
-    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Admnistration/$PRODUCT_AREA
+    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   parallel:
     matrix:
@@ -97,7 +102,7 @@ Jest Coverage per Area (Administration):
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage/js/Storefront/$PRODUCT_AREA
+        path: coverage/js/Storefront/$PRODUCT_AREA/*/cobertura-coverage.xml
 
 PHP unit:
     extends: .base-no-setup
@@ -383,7 +388,7 @@ PHP Full:
                 rm -rf tests/integration/php/Elasticsearch
                 rm -rf tests/integration/php/Storefront
                 jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
-                composer dump-autoload
+                composer dump-autoload -o
             fi
         - FAILED=0
         - >
@@ -431,15 +436,21 @@ PHP Full quarantined:
 PHP unit per area:
     extends: PHP unit coverage
     stage: unit
+    rules:
+      - !reference [ .rules, skip ]
+      - !reference [ .rules, skip-in-merge-train ]
+      - !reference [ .rules, run ]
+      - if: '$CI_COMMIT_BRANCH == "trunk"'
     script:
       - composer dump-autoload -o
-      - bin/console coverage:classes-per-area -g
+      - bin/console coverage:classes-per-area -g > /dev/null
       - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
       - php $PHP_OPTIONS vendor/bin/phpunit
         --configuration phpunit.$PRODUCT_AREA.xml
         --bootstrap tests/unit/php/Common/UnitTestBootstrap.php
         --log-junit phpunit.junit.xml
         --testsuite unit
+        --exclude-group=quarantined
         --coverage-text
         --coverage-html phpunit/
         --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
@@ -449,19 +460,18 @@ PHP unit per area:
     artifacts:
       when: always
       paths:
-        - phpunit
-        - coverage
-      reports:
-        junit: phpunit.junit.xml
-        coverage_report:
-          coverage_format: cobertura
-          path: coverage/php/$PRODUCT_AREA/cobertura.xml
+        - coverage/php/$PRODUCT_AREA/cobertura.xml
 
 Coverage per Area summary:
   extends: .base-no-setup
   stage: unit
-  dependencies: ["PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)"]
-  needs: ["PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)"]
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
+    - !reference [ .rules, run ]
+    - if: '$CI_COMMIT_BRANCH == "trunk"'
+  dependencies: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
+  needs: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
   before_script:
     - !reference [ .scripts, init, composer ]
   script:
@@ -470,4 +480,5 @@ Coverage per Area summary:
     when: always
     paths:
       - coverageSummary.html
+      - coverageSummary.json
     expose_as: 'Coverage Summary'

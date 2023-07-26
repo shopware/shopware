@@ -9,6 +9,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Finder\Finder;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -23,14 +25,13 @@ use Symfony\Component\Finder\Finder;
 #[Package('core')]
 class SummarizeCoverageReports extends Command
 {
+    private const TEMPLATE_FILE = __DIR__ . '/../../../Resources/templates/coverage-by-area-report.html.twig';
+
     public function __construct(
         private readonly string $projectDir,
+        private readonly Environment $twig
     ) {
         parent::__construct();
-    }
-
-    protected function configure(): void
-    {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -63,40 +64,58 @@ class SummarizeCoverageReports extends Command
             }
         }
 
-        $style = '<style lang="css">html,body{box-sizing:border-box;margin:0;padding:0;line-height:1.6;font-size:16px;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#333}#content{margin:0 auto;padding:30px 0}h1,h2,h3,h4,h5,h6{margin-top:50px;margin-bottom:15px;line-height:1.1}h1,h2{font-size:30px}h3{font-size:21px}table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}table th{font-weight:bold;text-align:left}table th,table td{padding:6px 26px 6px 13px;border:1px solid #ddd}table tr{background-color:#fff;border-top:1px solid #ccc}table tr:nth-child(2n){background-color:#f8f8f8}</style>';
-        $summaryHtml = "<html><head><title>Unit coverage summary</title>$style</head><body><div id='content'>";
-        $summaryHtml .= '<h2>PHP Coverage per area</h2>';
+        $originalLoader = $this->twig->getLoader();
+        $this->twig->setLoader(new ArrayLoader([
+            'coverage-by-area-report.html.twig' => file_get_contents(self::TEMPLATE_FILE),
+        ]));
 
-        $summaryHtml .= $this->generateTable($phpCoveragePerArea);
-
-        $summaryHtml .= '<h2>JS Coverage per area</h2>';
+        $jsCoverages = [];
         foreach ($jsCoveragePerArea as $coverageModuleName => $coverageModule) {
-            $summaryHtml .= "<h3>$coverageModuleName</h3>";
-            $summaryHtml .= $this->generateTable($coverageModule);
+            $jsCoverages[$coverageModuleName] = $this->getCoverage($coverageModule);
         }
 
-        $summaryHtml .= '</div></body></html>';
+        $data = [
+            'php' => [
+                'shopware/platform' => $this->getCoverage($phpCoveragePerArea),
+            ],
+            'js' => $jsCoverages,
+        ];
 
-        file_put_contents('coverageSummary.html', $summaryHtml);
+        try {
+            file_put_contents('coverageSummary.json', json_encode($data));
+
+            $html = $this->twig->render('coverage-by-area-report.html.twig', ['data' => $data]);
+            file_put_contents('coverageSummary.html', $html);
+        } finally {
+            $this->twig->setLoader($originalLoader);
+        }
 
         return 0;
     }
 
     /**
      * @param \Symfony\Component\DomCrawler\Crawler[] $xmlFiles
+     *
+     * @return array{area: string, percentage: string, coveredLines: int, validLines: int}[]
      */
-    private function generateTable(array $xmlFiles): string
+    private function getCoverage(array $xmlFiles): array
     {
-        $output = '<table borders="0"><tr><th>Area</th><th>Line coverage</th></tr>';
+        $coverages = [];
         foreach ($xmlFiles as $area => $xml) {
-            $coverage = floor((float) $xml->filter('coverage')->attr('line-rate') * 10000.0) / 100.0;
-            $linesCovered = $xml->filter('coverage')->attr('lines-covered');
-            $linesValid = $xml->filter('coverage')->attr('lines-valid');
-            $coverage = $coverage >= 0 ? '' . $coverage : 'unknown';
-            $output .= "<tr><td>$area </td><td>$coverage% ($linesCovered / $linesValid)</td></tr>";
-        }
-        $output .= '</table>';
+            $coverage = (string) floor((float) $xml->filter('coverage')->attr('line-rate') * 10000.0) / 100.0;
 
-        return $output;
+            $coverages[$area] = [
+                'area' => $area,
+                'percentage' => $coverage >= 0 ? '' . $coverage : 'unknown',
+                'coveredLines' => (int) $xml->filter('coverage')->attr('lines-covered'),
+                'validLines' => (int) $xml->filter('coverage')->attr('lines-valid'),
+            ];
+        }
+
+        uasort($coverages, function ($a, $b) {
+            return -($a['percentage'] <=> $b['percentage']);
+        });
+
+        return $coverages;
     }
 }

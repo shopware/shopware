@@ -23,13 +23,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class GetJSFilesPerAreaCommand extends Command
 {
+    public const OPTION_SEPARATED = 'separated';
+    public const OPTION_DELIMITER = 'delimiter';
+    public const OPTION_AREA = 'area';
+    public const OPTION_RELATIVE = 'relative';
+    public const OPTION_PREFIX_RELATIVE = 'prefix-relative';
+    public const OPTION_IGNORE_FILES = 'ignore-files';
     private const ARGUMENT_PATH = 'path';
-    private const OPTION_SEPARATED = 'separated';
-    private const OPTION_DELIMITER = 'delimiter';
-    private const OPTION_AREA = 'area';
-    private const OPTION_RELATIVE = 'relative';
-    private const OPTION_PREFIX_RELATIVE = 'prefix-relative';
-    private const OPTION_IGNORE_FILES = 'ignore-files';
 
     protected function configure(): void
     {

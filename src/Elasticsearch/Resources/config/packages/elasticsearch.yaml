@@ -56,11 +56,30 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_ngram_filter']
+            sw_english_analyzer:
+                type: custom
+                tokenizer: standard
+                filter: ['lowercase', 'sw_english_stop_filter']
+            sw_german_analyzer:
+                type: custom
+                tokenizer: standard
+                filter: ['lowercase', 'sw_german_stop_filter']
         filter:
             sw_ngram_filter:
                 type: ngram
                 min_gram: 4
                 max_gram: 5
+            sw_english_stop_filter:
+                type: 'stop'
+                stopwords: '_english_'
+            sw_german_stop_filter:
+                type: 'stop'
+                stopwords: '_german_'
+    language_analyzer_mapping:
+        en: sw_english_analyzer
+        de: sw_german_analyzer
+        gsw: sw_german_analyzer
+        nds: sw_german_analyzer
     dynamic_templates:
         - keywords:
             match_mapping_type: string

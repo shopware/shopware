@@ -125,19 +125,36 @@ Component.register('sw-icon', {
     watch: {
         name: {
             handler(newName) {
-                const [variant] = newName.split('-');
-                const iconName = newName.split('-').slice(1).join('-');
-
-                import(`@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg`).then((iconSvgData) => {
-                    if (iconSvgData.default) {
-                        this.iconSvgData = iconSvgData.default;
-                    } else {
-                        console.error(`The SVG file for the icon name ${newName} could not be found and loaded.`);
-                        this.iconSvgData = '';
-                    }
-                });
+                const [variant, ...iconName] = newName.split('-');
+                this.loadIconSvgData(variant, iconName.join('-'), newName);
             },
             immediate: true,
+        },
+    },
+
+    methods: {
+        /**
+         * Loads the requested icon's SVG data.
+         *
+         * This defaults to loading from the meteor-icon-kit.
+         *
+         * This throws an exception if the import is not found. Catch this in an override to add custom icons;
+         * or override and do custom logic based on the `variant`, `iconName` or `iconFullName`.
+         *
+         * Loosely based on an idea from https://shopwarecommunity.slack.com/archives/C04P3QBG8S2/p1683098652206189
+         *
+         * @return Promise for possible override fallback logic
+         */
+        loadIconSvgData(variant, iconName, iconFullName) {
+            return import(`@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg`).then((iconSvgData) => {
+                if (iconSvgData.default) {
+                    this.iconSvgData = iconSvgData.default;
+                } else {
+                    // note this only happens if the import exists but does not export a default
+                    console.error(`The SVG file for the icon name ${iconFullName} could not be found and loaded.`);
+                    this.iconSvgData = '';
+                }
+            });
         },
     },
 });

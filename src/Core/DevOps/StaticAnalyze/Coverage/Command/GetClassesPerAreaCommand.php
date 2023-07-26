@@ -24,12 +24,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class GetClassesPerAreaCommand extends Command
 {
-    private const OPTION_JSON = 'json';
-    private const OPTION_PRETTY = 'pretty-print';
+    public const OPTION_JSON = 'json';
+    public const OPTION_PRETTY = 'pretty-print';
 
-    private const OPTION_GENERATE_PHPUNIT_TEST = 'generate-phpunit-test';
+    public const OPTION_GENERATE_PHPUNIT_TEST = 'generate-phpunit-test';
+
+    public const OPTION_NAMESPACE_PATTERN = 'ns-pattern';
+
+    public const NAMESPACE_PATTERN_DEFAULT = '#^Shopware\\\\(Core|Administration|Storefront|Elasticsearch)\\\\#';
 
     private ClassLoader $classLoader;
+
+    private string $nsPattern;
 
     /**
      * @internal
@@ -37,9 +43,9 @@ class GetClassesPerAreaCommand extends Command
     public function __construct(
         private readonly string $projectDir,
     ) {
-        $this->classLoader = require $this->projectDir . '/vendor/autoload.php';
-
         parent::__construct();
+
+        $this->classLoader = require $this->projectDir . '/vendor/autoload.php';
     }
 
     protected function configure(): void
@@ -62,12 +68,22 @@ class GetClassesPerAreaCommand extends Command
             self::OPTION_GENERATE_PHPUNIT_TEST,
             'g',
             InputOption::VALUE_NONE,
-            'Generate phpunit..xml'
+            'Generate phpunit.xml'
+        );
+
+        $this->addOption(
+            self::OPTION_NAMESPACE_PATTERN,
+            null,
+            InputOption::VALUE_REQUIRED,
+            'The pattern the namespace has to match',
+            self::NAMESPACE_PATTERN_DEFAULT,
         );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->nsPattern = $input->getOption(self::OPTION_NAMESPACE_PATTERN);
+
         $classesPerArea = $this->getClassesPerArea();
         if ($input->getOption(self::OPTION_JSON)) {
             $output->write(
@@ -154,8 +170,12 @@ class GetClassesPerAreaCommand extends Command
      */
     private function getShopwareClasses(): array
     {
-        return array_filter($this->classLoader->getClassMap(), static function (string $class): bool {
-            return str_starts_with($class, 'Shopware\\');
+        return array_filter($this->classLoader->getClassMap(), function (string $class): bool {
+            if (str_starts_with($class, 'Shopware\\')) {
+                return (bool) preg_match($this->nsPattern, $class);
+            }
+
+            return false;
         }, \ARRAY_FILTER_USE_KEY);
     }
 }

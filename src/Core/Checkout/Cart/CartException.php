@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -170,7 +171,7 @@ class CartException extends HttpException
 
     public static function lineItemNotFound(string $id): self
     {
-        return new self(
+        return new LineItemNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::CART_LINE_ITEM_NOT_FOUND_CODE,
             'Line item with identifier {{ id }} not found.',

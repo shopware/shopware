@@ -339,7 +339,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $payload = [
             'isCloseout' => $product->getIsCloseout(),
-            'customFields' => $product->getCustomFields(),
+            'customFields' => $product->getTranslation('customFields'),
             'createdAt' => $product->getCreatedAt() ? $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),

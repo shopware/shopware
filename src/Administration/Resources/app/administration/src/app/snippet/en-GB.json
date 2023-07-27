@@ -1571,7 +1571,7 @@
       "headline": "Improving Shopware collectively",
       "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
       "learnMore": "Learn more",
-      "learnMoreUrl": "https://shopware.com"
+      "learnMoreUrl": "https://shopware.com/en/privacy/"
     },
     "sw-settings-usage-data-modal": {
       "alertText": "This setting will affect all Shopware Administration users. You can change it at any time in {settings-path}",

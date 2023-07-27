@@ -58,11 +58,17 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(Criteria $criteria): array
     {
         return $this->converter->convert($criteria);
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         return $this->parse($payload, $criteria, $definition, $context, $this->maxLimit);
@@ -82,6 +88,9 @@ class RequestCriteriaBuilder
         }
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private function parse(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, ?int $maxLimit): Criteria
     {
         $searchException = new SearchRequestException();
@@ -193,6 +202,11 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
+    /**
+     * @param list<array{order: string, type: string, field: string}> $sorting
+     *
+     * @return list<FieldSorting>
+     */
     private function parseSorting(EntityDefinition $definition, array $sorting): array
     {
         $sortings = [];
@@ -219,6 +233,9 @@ class RequestCriteriaBuilder
         return $sortings;
     }
 
+    /**
+     * @return list<FieldSorting>
+     */
     private function parseSimpleSorting(EntityDefinition $definition, string $query): array
     {
         $parts = array_filter(explode(',', $query));
@@ -243,6 +260,9 @@ class RequestCriteriaBuilder
         return $sorting;
     }
 
+    /**
+     * @param array<string, mixed> $filters
+     */
     private function parseSimpleFilter(EntityDefinition $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
     {
         $queries = [];
@@ -269,6 +289,9 @@ class RequestCriteriaBuilder
         return new MultiFilter(MultiFilter::CONNECTION_AND, $queries);
     }
 
+    /**
+     * @param array{page: int, limit?: int} $payload
+     */
     private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if ($payload['page'] === '') {
@@ -296,6 +319,9 @@ class RequestCriteriaBuilder
         $criteria->setOffset($offset);
     }
 
+    /**
+     * @param array{limit: int} $payload
+     */
     private function addLimit(array $payload, Criteria $criteria, SearchRequestException $searchRequestException, ?int $maxLimit): void
     {
         if ($payload['limit'] === '') {
@@ -326,6 +352,9 @@ class RequestCriteriaBuilder
         $criteria->setLimit($limit);
     }
 
+    /**
+     * @param array{filter: array<mixed>} $payload
+     */
     private function addFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['filter'])) {
@@ -350,6 +379,9 @@ class RequestCriteriaBuilder
         $criteria->addFilter($this->parseSimpleFilter($definition, $payload['filter'], $searchException));
     }
 
+    /**
+     * @param array{post-filter: array<mixed>} $payload
+     */
     private function addPostFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['post-filter'])) {
@@ -380,11 +412,17 @@ class RequestCriteriaBuilder
         );
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function hasNumericIndex(array $data): bool
     {
         return array_keys($data) === range(0, \count($data) - 1);
     }
 
+    /**
+     * @param array{sort: list<array{order: string, type: string, field: string}>|string} $payload
+     */
     private function addSorting(array $payload, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
     {
         if (\is_array($payload['sort'])) {

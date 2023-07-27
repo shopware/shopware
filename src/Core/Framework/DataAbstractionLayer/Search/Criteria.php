@@ -654,11 +654,13 @@ class Criteria extends Struct implements \Stringable
                 throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
             }
 
-            if (\is_array($id)) {
-                foreach ($id as $key => $value) {
-                    if (!\is_string($key) || !\is_string($value)) {
-                        throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
-                    }
+            if (!\is_array($id)) {
+                continue;
+            }
+
+            foreach ($id as $key => $value) {
+                if (!\is_string($key) || !\is_string($value)) {
+                    throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
                 }
             }
         }

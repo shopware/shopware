@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
+namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @group store-api
+ *
+ * @covers \Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute
  */
 #[Package('sales-channel')]
 class ContextSwitchRouteTest extends TestCase
@@ -92,6 +94,53 @@ class ContextSwitchRouteTest extends TestCase
             'Customer is not logged in.',
             $content['errors'][0]['detail'] ?? null
         );
+    }
+
+    public function testInvalidParameters(): void
+    {
+        $this->getSalesChannelBrowser()->request(
+            'PATCH',
+            '/store-api/context',
+            [
+                'currencyId' => [Uuid::randomHex(), 'foo'],
+                'billingAddressId' => [Uuid::randomHex(), Uuid::randomHex()],
+                'shippingAddressId' => [Uuid::randomHex(), Uuid::randomHex()],
+                'paymentMethodId' => [Uuid::randomHex(), Uuid::randomHex()],
+                'shippingMethodId' => [Uuid::randomHex(), Uuid::randomHex()],
+                'countryId' => [Uuid::randomHex(), Uuid::randomHex()],
+                'countryStateId' => [Uuid::randomHex(), Uuid::randomHex()],
+                'languageId' => [Uuid::randomHex(), Uuid::randomHex()],
+            ]
+        );
+
+        static::assertSame(400, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
+
+        $errors = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertCount(8, $errors['errors']);
+
+        $mapped = [];
+        foreach ($errors['errors'] as $error) {
+            $mapped[$error['source']['pointer']] = $error['detail'];
+        }
+
+        static::assertArrayHasKey('/currencyId', $mapped);
+        static::assertArrayHasKey('/billingAddressId', $mapped);
+        static::assertArrayHasKey('/shippingAddressId', $mapped);
+        static::assertArrayHasKey('/paymentMethodId', $mapped);
+        static::assertArrayHasKey('/shippingMethodId', $mapped);
+        static::assertArrayHasKey('/countryId', $mapped);
+        static::assertArrayHasKey('/countryStateId', $mapped);
+        static::assertArrayHasKey('/languageId', $mapped);
+
+        static::assertEquals('This value should be of type string.', $mapped['/currencyId']);
+        static::assertEquals('This value should be of type string.', $mapped['/billingAddressId']);
+        static::assertEquals('This value should be of type string.', $mapped['/shippingAddressId']);
+        static::assertEquals('This value should be of type string.', $mapped['/paymentMethodId']);
+        static::assertEquals('This value should be of type string.', $mapped['/shippingMethodId']);
+        static::assertEquals('This value should be of type string.', $mapped['/countryId']);
+        static::assertEquals('This value should be of type string.', $mapped['/countryStateId']);
+        static::assertEquals('This value should be of type string.', $mapped['/languageId']);
     }
 
     public function testUpdateContextWithLoggedInCustomerAndNonExistingAddresses(): void

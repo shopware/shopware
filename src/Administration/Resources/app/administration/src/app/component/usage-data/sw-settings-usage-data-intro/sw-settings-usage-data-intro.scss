@@ -23,4 +23,9 @@
             color: $color-emerald-600;
         }
     }
+
+    &__learn-more.sw-external-link {
+        font-size: inherit;
+        margin-top: 8px;
+    }
 }

@@ -612,7 +612,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $entity */
         foreach ($collection as $entity) {
             // extract mapping ids for the current entity
-            $mappingIds = $mapping[$entity->getUniqueIdentifier()];
+            $mappingIds = $mapping[$entity->getUniqueIdentifier()] ?? [];
 
             $structData = $data->getList($mappingIds);
 

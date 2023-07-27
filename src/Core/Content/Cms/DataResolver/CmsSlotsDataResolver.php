@@ -188,6 +188,7 @@ class CmsSlotsDataResolver
         }
 
         foreach ($directReads as $definition => $idLists) {
+            /** @var array<string, array<string>> $directReads */
             $directReads[$definition] = array_merge(...$idLists);
         }
 

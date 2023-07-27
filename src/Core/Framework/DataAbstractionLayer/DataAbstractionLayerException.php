@@ -18,6 +18,10 @@ class DataAbstractionLayerException extends HttpException
 
     public const INVALID_DATE_INTERVAL_CODE = 'FRAMEWORK__INVALID_DATE_INTERVAL_FORMAT';
 
+    public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
+
+    public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
+
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
         if (!Feature::isActive('v6.6.0.0')) {
@@ -52,6 +56,29 @@ class DataAbstractionLayerException extends HttpException
             'Unknown or bad DateInterval format "{{ dateIntervalString }}".',
             ['dateIntervalString' => $dateIntervalString],
             $previous,
+        );
+    }
+
+    /**
+     * @param array<mixed> $ids
+     */
+    public static function invalidCriteriaIds(array $ids, string $reason): self
+    {
+        return new InvalidCriteriaIdsException(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CRITERIA_IDS,
+            'Invalid ids provided in criteria. {{ reason }}. Ids: {{ ids }}.',
+            ['ids' => print_r($ids, true), 'reason' => $reason]
+        );
+    }
+
+    public static function invalidApiCriteriaIds(self $previous): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_API_CRITERIA_IDS,
+            $previous->getMessage(),
+            $previous->getParameters(),
         );
     }
 }

@@ -65,7 +65,7 @@ class LineItemFactoryRegistry
         $identifier = $data['id'];
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
-            throw CartException::lineItemNotFound($identifier);
+            throw CartException::lineItemNotFound($identifier ?? '');
         }
 
         $this->updateLineItem($cart, $data, $lineItem, $context);

@@ -49,7 +49,7 @@ class LineItemFactoryRegistry
 
         $this->validate($data);
 
-        $handler = $this->getHandler($data['type']);
+        $handler = $this->getHandler($data['type'] ?? '');
 
         $lineItem = $handler->create($data, $context);
         $lineItem->markModified();
@@ -82,7 +82,7 @@ class LineItemFactoryRegistry
 
         $this->validate($data);
 
-        $handler = $this->getHandler($data['type']);
+        $handler = $this->getHandler($data['type'] ?? '');
 
         if (isset($data['quantity'])) {
             $lineItem->setQuantity($data['quantity']);

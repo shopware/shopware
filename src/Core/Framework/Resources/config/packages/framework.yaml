@@ -99,6 +99,12 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException:
             log_level: notice
+        Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
+            log_level: notice
+        Shopware\Core\Checkout\Cart\Exception\InvalidCartException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\EmptyCartException:
+            log_level: notice
         Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:

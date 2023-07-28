@@ -161,6 +161,7 @@ export default {
             isDragActive: false,
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: false,
+            isLoading: false,
         };
     },
 
@@ -254,7 +255,9 @@ export default {
             }
 
             if (this.defaultFolder) {
+                this.isLoading = true;
                 this.defaultFolderId = await this.getDefaultFolderId();
+                this.isLoading = false;
             }
 
             this.configService.getConfig().then((result) => {

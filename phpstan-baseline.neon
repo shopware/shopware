@@ -8856,11 +8856,6 @@ parameters:
 			path: src/Core/Framework/Routing/AbstractRouteScope.php
 
 		-
-			message: "#^Anonymous variable in a `\\$date\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Rule/Container/DaysSinceRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ScriptResponse\\:\\:setBody\\(\\) has parameter \\$body with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Api/ScriptResponse.php
@@ -14078,11 +14073,6 @@ parameters:
 			path: tests/integration/Core/Checkout/Cart/LineItemFactoryRegistryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:createTestOrderAndReturnCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\|null\\.$#"
 			count: 2
 			path: tests/integration/Core/Checkout/Shipping/SalesChannel/ShippingMethodRouteTest.php
@@ -14501,11 +14491,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Checkout/Customer/Rule/CustomerBirthdayRuleTest.php
-
-		-
-			message: "#^Instanceof between DateTimeImmutable and DateTimeImmutable will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\SalesChannel\\\\\\\\CustomerResponse' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerResponse will always evaluate to true\\.$#"

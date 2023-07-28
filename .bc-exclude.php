@@ -69,6 +69,9 @@ return [
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
 
         // Renaming of arguments
-        'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions'
+        'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions',
+
+        // Property type change from int to float
+        'Type of property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\DaysSinceRule#$daysPassed changed from int|null to float|null'
     ],
 ];

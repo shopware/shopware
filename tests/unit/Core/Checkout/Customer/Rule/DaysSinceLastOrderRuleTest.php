@@ -223,13 +223,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
         static::assertArrayHasKey('daysPassed', $ruleConstraints, 'Constraint daysPassed not found in Rule');
         $daysPassed = $ruleConstraints['daysPassed'];
         static::assertEquals(new NotBlank(), $daysPassed[0]);
-        static::assertEquals(new Type('int'), $daysPassed[1]);
+        static::assertEquals(new Type('numeric'), $daysPassed[1]);
     }
 
     /**
      * @dataProvider getMatchValues
      */
-    public function testRuleMatching(string $operator, bool $isMatching, int $daysPassed, ?\DateTimeImmutable $day, bool $noCustomer = false): void
+    public function testRuleMatching(string $operator, bool $isMatching, float $daysPassed, ?\DateTimeImmutable $day, bool $noCustomer = false): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
@@ -260,17 +260,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public static function getMatchValues(): \Traversable
     {
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTimeImmutable) {
-            throw new \Error();
-        }
-
         $dayTest = $datetime->modify('-30 minutes');
 
-        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest];
+        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1.2, $dayTest];
         yield 'operator_eq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest];
         yield 'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest];
         yield 'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest];
-        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest];
+        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1.1, $dayTest];
         yield 'operator_lte_lt / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 1,  $dayTest];
         yield 'operator_lte_e / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 0, $dayTest];
         yield 'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest];

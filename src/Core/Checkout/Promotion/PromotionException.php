@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Framework\Feature;
@@ -36,7 +37,7 @@ class PromotionException extends HttpException
 
     public static function invalidCodePattern(string $codePattern): self
     {
-        return new self(
+        return new InvalidCodePatternException(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_CODE_PATTERN,
             'Invalid code pattern "{{ codePattern }}".',
@@ -46,11 +47,7 @@ class PromotionException extends HttpException
 
     public static function patternNotComplexEnough(): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new PatternNotComplexEnoughException();
-        }
-
-        return new self(
+        return new PatternNotComplexEnoughException(
             Response::HTTP_BAD_REQUEST,
             self::PATTERN_NOT_COMPLEX_ENOUGH,
             'The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.'

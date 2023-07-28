@@ -208,6 +208,6 @@ class DaysSinceLastOrderRuleTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $customerRepository->search($criteria, $defaultContext)->getEntities()->first();
 
-        return $result->first();
+        return $customer;
     }
 }

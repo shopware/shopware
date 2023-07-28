@@ -195,7 +195,7 @@
                         {% block sw_media_upload_v2_regular_upload_button %}
                         <sw-button
                             class="sw-media-upload-v2__button upload"
-                            :disabled="disabled"
+                            :disabled="isLoading || disabled"
                             variant="ghost"
                             size="small"
                             @click="onClickUpload"

@@ -58,15 +58,23 @@ class DateRangeRule extends Rule
             throw new \LogicException('fromDate or toDate cannot be a string at this point.');
         }
         $toDate = $this->toDate;
+        $fromDate = $this->fromDate;
         $now = $scope->getCurrentTime();
+
+        if (!$this->useTime && $fromDate) {
+            $fromDate = (new \DateTime())
+                ->setTimestamp($fromDate->getTimestamp())
+                ->setTime(0, 0);
+        }
 
         if (!$this->useTime && $toDate) {
             $toDate = (new \DateTime())
                 ->setTimestamp($toDate->getTimestamp())
-                ->add(new \DateInterval('P1D'));
+                ->add(new \DateInterval('P1D'))
+                ->setTime(0, 0);
         }
 
-        if ($this->fromDate && $this->fromDate > $now) {
+        if ($fromDate && $fromDate > $now) {
             return false;
         }
 

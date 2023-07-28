@@ -107,6 +107,10 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException:
             log_level: notice
+        Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException:
+            log_level: notice
+        Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException:
+            log_level: notice
         Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:

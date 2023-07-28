@@ -57,7 +57,7 @@
                             {% block layout_header_actions_currency_widget_form_redirect %}
                                 <input name="redirectTo"
                                        type="hidden"
-                                       value="{{ app.request.get('_route') }}"/>
+                                       value="{{ app.request.get('_route') }}">
 
                                 {% for key, value in app.request.attributes.get('_route_params') %}
                                     <input name="redirectParameters[{{ key }}]"

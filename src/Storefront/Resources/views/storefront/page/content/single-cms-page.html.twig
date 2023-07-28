@@ -57,7 +57,7 @@
                     {% block single_cms_page_footer_content %}
                         <div class="container mt-3 text-center">
                             {% if config('core.basicInformation.imprintPage') is not null %}
-                                <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.imprintPage') }) }}"
+                                <a href="{{ path('frontend.maintenance.singlepage', { id: config('core.basicInformation.imprintPage') }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
                                    class="ps-2 pe-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
@@ -65,7 +65,7 @@
                             {% endif %}
 
                             {% if config('core.basicInformation.privacyPage') is not null %}
-                                <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.privacyPage') }) }}"
+                                <a href="{{ path('frontend.maintenance.singlepage', { id: config('core.basicInformation.privacyPage') }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
                                    class="ps-2 pe-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}

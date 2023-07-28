@@ -55,7 +55,7 @@ class DaysSinceLastLoginRuleTest extends TestCase
     public function testIfMatchesCorrect(
         string $operator,
         bool $isMatching,
-        int $daysPassed,
+        float $daysPassed,
         ?\DateTimeImmutable $day,
         bool $noCustomer = false
     ): void {
@@ -94,11 +94,11 @@ class DaysSinceLastLoginRuleTest extends TestCase
 
         $dayTest = $datetime->modify('-30 minutes');
 
-        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest];
+        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1.2, $dayTest];
         yield 'operator_eq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest];
         yield 'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest];
         yield 'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest];
-        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest];
+        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1.1, $dayTest];
         yield 'operator_lte_lt / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 1,  $dayTest];
         yield 'operator_lte_e / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 0, $dayTest];
         yield 'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest];

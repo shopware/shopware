@@ -253,6 +253,12 @@ class TranslatorTest extends TestCase
             $request,
             $this->getContainer()->get(RequestStack::class)->pop()
         );
+
+        $this->translator->setLocale('de-DE');
+        static::assertEquals(
+            $snippets[1]['value'],
+            $this->translator->trans('new.unit.test.key')
+        );
     }
 
     public function testDeleteSnippet(): void

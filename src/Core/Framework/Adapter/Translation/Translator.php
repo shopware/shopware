@@ -70,6 +70,7 @@ class Translator extends AbstractTranslator
         private readonly SnippetService $snippetService,
         private readonly bool $fineGrainedCache
     ) {
+        $this->setLocale($this->getFallbackLocale());
     }
 
     public static function buildName(string $id): string
@@ -156,8 +157,9 @@ class Translator extends AbstractTranslator
                 $this->traces[$trace]['shopware.translator'] = true;
             }
         }
+        $locale ??= $this->getLocale();
 
-        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
+        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale, $parameters);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Translation;
+namespace Shopware\Tests\Integration\Core\Framework\Adapter\Translation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -8,6 +8,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Translation\Translator
  */
 class TranslatorPluralRulesTest extends TestCase
 {

@@ -14,10 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -57,7 +57,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
     {
         $salesChannelRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context): EntitySearchResult {
-                static::assertNotNull($criteria->getAssociation('themes'));
+                static::assertTrue($criteria->hasAssociation('themes'));
 
                 static::assertEquals([
                     new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
@@ -83,7 +83,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
     {
         $salesChannelRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context): EntitySearchResult {
-                static::assertNotNull($criteria->getAssociation('themes'));
+                static::assertTrue($criteria->hasAssociation('themes'));
 
                 static::assertEquals([
                     new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),

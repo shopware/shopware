@@ -1,13 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test;
+namespace Shopware\Core\Test\Stub\EventDispatcher;
 
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal
- *
- * @deprecated tag:v6.6.0 - Use \Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher instead
+ * @final
  */
 class CollectingEventDispatcher implements EventDispatcherInterface
 {

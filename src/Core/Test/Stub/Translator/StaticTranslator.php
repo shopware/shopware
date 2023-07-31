@@ -1,13 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test;
+namespace Shopware\Core\Test\Stub\Translator;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * @internal
- *
- * @deprecated tag:v6.6.0 - Use \Shopware\Core\Test\Stub\Translator\StaticTranslator instead
+ * @final
  */
 class StaticTranslator implements TranslatorInterface
 {

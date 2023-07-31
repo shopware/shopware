@@ -53,6 +53,11 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             /** @var string $code */
             $code = $item->getPayload()['code'] ?? '';
 
+            // to prevent unnecessary database queries
+            if(!$code) {
+                continue;
+            }
+
             try {
                 // first try if its an individual
                 // if not, then it might be a global promotion
@@ -64,7 +69,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             // if we did not use an individual code we might have
             // just used a global one or anything else, so just quit in this case.
             if (!($individualCode instanceof PromotionIndividualCodeEntity)) {
-                return;
+                continue;
             }
 
             /** @var OrderCustomerEntity $customer */

@@ -8,6 +8,11 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal
+ *
+ * @deprecated tag:v6.6.0 - Will be removed. Use \Shopware\Core\Test\Stub\Flow\DummyEvent instead
+ */
 #[Package('core')]
 class DummyEvent extends Event implements FlowEventAware
 {

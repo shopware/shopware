@@ -5,7 +5,9 @@ namespace Shopware\Core\Test\Stub\SystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @final
+ * @internal
+ *
+ * @decrecated tag:v6.6.0 - Will be removed. Use \Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService instead
  */
 class StaticSystemConfigService extends SystemConfigService
 {

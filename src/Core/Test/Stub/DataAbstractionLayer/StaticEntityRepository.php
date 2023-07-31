@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer;
+namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Validation;
 
 /**
- * @internal
+ * @final
  *
  * @template TEntityCollection of EntityCollection
  *

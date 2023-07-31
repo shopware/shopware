@@ -5,12 +5,12 @@ namespace Shopware\Tests\Unit\Core\Test;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Shopware\Core\Test\FeatureFlagExtension;
+use Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Test\FeatureFlagExtension
+ * @covers \Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension
  */
 class FeatureFlagExtensionTest extends TestCase
 {

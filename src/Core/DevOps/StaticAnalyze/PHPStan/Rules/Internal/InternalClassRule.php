@@ -131,6 +131,10 @@ class InternalClassRule implements Rule
             return false;
         }
 
+        if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
+            return false;
+        }
+
         if (\str_contains($namespace, '\\Test\\')) {
             return true;
         }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer;
+namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -20,9 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Validation;
 
 /**
- * @internal
- *
- * @deprecated tag:v6.6.0 - Will be removed. Use \Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository instead
+ * @final
  *
  * @template TEntityCollection of EntityCollection
  *
@@ -82,7 +80,7 @@ class StaticEntityRepository extends EntityRepository
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context, \Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository<TEntityCollection>): ResultTypes $callable */
+            /** @var callable(Criteria, Context, StaticEntityRepository<TEntityCollection>): ResultTypes $callable */
             $result = $callable($criteria, $context, $this);
         }
 

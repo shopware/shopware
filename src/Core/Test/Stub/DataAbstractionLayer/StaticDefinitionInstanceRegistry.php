@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer;
+namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeConnection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\DefaultFieldAccessorBuilder;
@@ -30,9 +30,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @internal
- *
- * @deprecated tag:v6.6.0 - Will be removed. Use \Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry instead
+ * @final
  */
 class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {

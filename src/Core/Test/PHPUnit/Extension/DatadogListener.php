@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\TestCaseBase;
+namespace Shopware\Core\Test\PHPUnit\Extension;
 
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;

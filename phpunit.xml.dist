@@ -5,7 +5,7 @@
          bootstrap="src/Core/TestBootstrap.php"
          cacheResult="false"
          executionOrder="random"
-         convertDeprecationsToExceptions="false">
+         convertDeprecationsToExceptions="true">
     <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="true">
         <include >
             <!--

@@ -1,6 +1,8 @@
 ---
 title: Add active from to tax rule
-issue: NEXT-00000
+issue: NEXT-29559
+author: Marcin Kaczor
+author_github: @CodeproSpace
 ---
 # Core
 * Changed in `src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php` file.

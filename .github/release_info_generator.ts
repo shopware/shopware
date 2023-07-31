@@ -38,29 +38,12 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
 
     const unique = matches.filter((value, index, array) => array.indexOf(value) === index);
     for (let match of unique) {
-        const query = {
-            query: `query {
-  securityAdvisory(ghsaId: "${match}") {
-    severity
-    summary
-    permalink
-  }
-}`,
-            variables: {},
-        }
-
-        const json = await (await fetchGithub("https://api.github.com/graphql", {
-            body: JSON.stringify(query),
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-        })).json();
+        const json = await (await fetchGithub(`https://api.github.com/advisories/${match}`)).json();
 
         list.push({
-            severity: json.data.securityAdvisory.severity,
-            summary: json.data.securityAdvisory.summary,
-            link: json.data.securityAdvisory.permalink,
+            severity: json.severity,
+            summary: json.summary,
+            link: json.html_url,
         } as Vulnerability);
     }
 

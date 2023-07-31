@@ -33,6 +33,7 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
@@ -132,6 +133,8 @@ class Framework extends Bundle
     {
         parent::boot();
 
+        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
+
         $featureFlags = $this->container->getParameter('shopware.feature.flags');
         if (!\is_array($featureFlags)) {
             throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
@@ -148,6 +151,8 @@ class Framework extends Bundle
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
             $this->container->get(ExtensionRegistry::class)
         );
+
+        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
     }

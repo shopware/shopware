@@ -69,7 +69,7 @@
       "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
       "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
       "placeholderStates": "Staaten hinzufügen",
-      "labelActiveFrom": "Aktiv von"
+      "labelActiveFrom": "Aktiv ab"
     },
     "taxProviderDetail": {
       "textHeadline": "Steueranbieter",

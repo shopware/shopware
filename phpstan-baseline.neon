@@ -14355,7 +14355,7 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Event\\\\\\\\EventData\\\\\\\\EventDataCollection' and Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EventDataCollection will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/Core/Content/Media/Event/MediaUploadedEventTest.php
+			path: tests/unit/php/Core/Content/Media/Event/MediaUploadedEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity will always evaluate to true\\.$#"

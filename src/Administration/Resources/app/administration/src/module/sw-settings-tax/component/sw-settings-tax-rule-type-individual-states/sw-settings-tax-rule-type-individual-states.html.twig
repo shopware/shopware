@@ -6,6 +6,10 @@
     :placeholder="$tc('sw-settings-tax.taxRuleCard.placeholderStates')"
     :criteria="exclusionCriteria"
     :entity-collection="individualStates"
+    {% if VUE3 %}
+    @update:entityCollection="onChange"
+    {% else %}
     @change="onChange"
+    {% endif %}
 />
 {% endblock %}

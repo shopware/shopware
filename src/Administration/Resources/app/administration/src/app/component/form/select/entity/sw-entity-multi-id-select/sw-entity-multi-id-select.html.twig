@@ -7,7 +7,11 @@
     :disabled="disabled"
     v-bind="$attrs"
     v-on="getListeners"
+    {% if VUE3 %}
+    @update:entityCollection="updateIds"
+    {% else %}
     @change="updateIds"
+    {% endif %}
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

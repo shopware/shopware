@@ -106,7 +106,11 @@
                     {% block sw_mail_header_footer_basic_form_sales_channels_field %}
                     <sw-entity-multi-select
                         id="salesChannels"
+                        {% if VUE3 %}
+                        v-model:entityCollection="mailHeaderFooter.salesChannels"
+                        {% else %}
                         v-model="mailHeaderFooter.salesChannels"
+                        {% endif %}
                         class="sw-mail-header-footer-detail__sales-channel"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"

@@ -199,7 +199,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
                     <sw-entity-multi-select
+                        {% if VUE3 %}
+                        v-model:entityCollection="customerGroup.registrationSalesChannels"
+                        {% else %}
                         v-model="customerGroup.registrationSalesChannels"
+                        {% endif %}
                         class="sw-settings-customer-group-detail__sales-channel"
                         :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
                         :disabled="!acl.can('customer_groups.editor')"

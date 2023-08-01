@@ -96,7 +96,11 @@
                 :disabled="column.primary"
                 :label="$te(column.label) ? $tc(column.label) : column.label"
                 :value="currentColumns[index].visible"
+                {% if VUE3 %}
+                @update:value="onChangeColumnVisibility($event, index)"
+                {% else %}
                 @change="onChangeColumnVisibility($event, index)"
+                {% endif %}
             />
             {% endblock %}
 

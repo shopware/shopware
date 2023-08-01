@@ -102,7 +102,11 @@
                     <sw-checkbox-field
                         :value="cmsPage.id === selectedPageObject?.id"
                         class="sw-cms-layout-modal__content-checkbox"
+                        {% if VUE3 %}
+                        @update:value="selectItem(cmsPage)"
+                        {% else %}
                         @change="selectItem(cmsPage)"
+                        {% endif %}
                     />
                     {% endblock %}
 

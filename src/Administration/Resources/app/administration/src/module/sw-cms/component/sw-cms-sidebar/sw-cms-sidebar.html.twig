@@ -642,7 +642,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_navigator_confirm_modal_content_input_reminder %}
             <sw-checkbox-field
+                {% if VUE3 %}
+                v-model:value="navigatorDontRemind"
+                {% else %}
                 v-model="navigatorDontRemind"
+                {% endif %}
                 class="sw-cms-sidebar__navigator-confirm-modal-reminder"
                 :label="$tc('sw-cms.detail.sidebar.confirmReminderNavigator')"
             />

@@ -75,7 +75,11 @@
 
     <template #modal-footer>
         <sw-checkbox-field
+            {% if VUE3 %}
+            v-model:value="readNotice"
+            {% else %}
             v-model="readNotice"
+            {% endif %}
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 

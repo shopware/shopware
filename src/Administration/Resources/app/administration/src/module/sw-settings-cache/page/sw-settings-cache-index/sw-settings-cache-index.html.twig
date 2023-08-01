@@ -257,7 +257,11 @@
                                                 :value="skip.includes(indexer)"
                                                 :label="indexer"
                                                 size="small"
+                                                {% if VUE3 %}
+                                                @update:value="changeSkip($event, indexer)"
+                                                {% else %}
                                                 @change="changeSkip($event, indexer)"
+                                                {% endif %}
                                             />
                                             <ul>
                                                 <li
@@ -271,7 +275,11 @@
                                                         size="small"
                                                         :disabled="skip.includes(indexer)"
                                                         @click.prevent
+                                                        {% if VUE3 %}
+                                                        @update:value="changeSkip($event, updater)"
+                                                        {% else %}
                                                         @change="changeSkip($event, updater)"
+                                                        {% endif %}
                                                     />
                                                 </li>
                                             </ul>

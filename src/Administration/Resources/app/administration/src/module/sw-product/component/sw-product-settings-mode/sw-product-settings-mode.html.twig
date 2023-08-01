@@ -66,10 +66,18 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_settings_mode_item_visibility_checkbox %}
             <sw-checkbox-field
+                {% if VUE3 %}
+                v-model:value="item.enabled"
+                {% else %}
                 v-model="item.enabled"
+                {% endif %}
                 :disabled="!advancedMode.enabled"
                 :label="$tc(item.label)"
+                {% if VUE3 %}
+                @update:value="onChangeSettingItem"
+                {% else %}
                 @change="onChangeSettingItem"
+                {% endif %}
             />
             {% endblock %}
         </div>

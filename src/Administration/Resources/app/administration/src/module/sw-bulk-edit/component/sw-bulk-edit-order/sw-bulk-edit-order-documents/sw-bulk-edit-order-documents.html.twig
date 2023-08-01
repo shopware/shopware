@@ -12,7 +12,11 @@
         <sw-checkbox-field
             v-for="document in documentTypes"
             :key="document.id"
+            {% if VUE3 %}
+            v-model:value="value.documentType[document.technicalName]"
+            {% else %}
             v-model="value.documentType[document.technicalName]"
+            {% endif %}
             :label="document.name"
             :disabled="documents?.disabled"
         />

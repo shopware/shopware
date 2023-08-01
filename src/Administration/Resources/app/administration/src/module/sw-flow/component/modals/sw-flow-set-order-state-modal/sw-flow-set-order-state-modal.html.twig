@@ -44,7 +44,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_force_transition %}
     <sw-checkbox-field
+        {% if VUE3 %}
+        v-model:value="config.force_transition"
+        {% else %}
         v-model="config.force_transition"
+        {% endif %}
         class="sw-flow-set-order-state-modal__force-transition"
         :label="$tc('sw-flow.modals.status.forceTransition')"
         :help-text="$tc('sw-flow.modals.status.forceTransitionHelpText')"

@@ -3,7 +3,11 @@
 <div class="sw-data-grid-column-boolean">
     <sw-checkbox-field
         v-if="isInlineEdit"
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
         :disabled="disabled"
     />
 

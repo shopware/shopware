@@ -21,7 +21,7 @@
         :context="productContext"
         advanced-selection-component="sw-advanced-selection-product"
         {% if VUE3 %}
-        @update:entity-collection="setIds"
+        @update:entityCollection="setIds"
         {% else %}
         @change="setIds"
         {% endif %}

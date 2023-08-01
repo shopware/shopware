@@ -242,7 +242,11 @@
                         {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
                         <sw-checkbox-field
                             v-if="isShowDivergentDeliveryAddress"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.config.displayDivergentDeliveryAddress"
+                            {% else %}
                             v-model="documentConfig.config.displayDivergentDeliveryAddress"
+                            {% endif %}
                             class="sw-settings-document-detail__field_divergent_delivery_address"
                             :disabled="!acl.can('document.editor')"
                             :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
@@ -253,7 +257,11 @@
                         {% block sw_settings_document_detail_content_field_additional_note_delivery %}
                         <sw-checkbox-field
                             v-if="isShowDisplayNoteDelivery"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.config.displayAdditionalNoteDelivery"
+                            {% else %}
                             v-model="documentConfig.config.displayAdditionalNoteDelivery"
+                            {% endif %}
                             class="sw-settings-document-detail__field_additional_note_delivery"
                             :disabled="!acl.can('document.editor')"
                             :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
@@ -264,7 +272,11 @@
                         {% block sw_settings_document_detail_content_field_customer_vat_id %}
                         <sw-checkbox-field
                             v-if="isShowDisplayNoteDelivery"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.config.displayCustomerVatId"
+                            {% else %}
                             v-model="documentConfig.config.displayCustomerVatId"
+                            {% endif %}
                             class="sw-settings-document-detail__field_customer_vat_id"
                             :disabled="!acl.can('document.editor')"
                             :label="$tc('sw-settings-document.detail.labelDisplayCustomerVatId')"

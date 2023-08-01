@@ -118,7 +118,11 @@
         {% block sw_duplicated_media_v2_save_selection %}
         <sw-checkbox-field
             v-if="!isLoading && hasAdditionalErrors"
+            {% if VUE3 %}
+            v-model:value="shouldSaveSelection"
+            {% else %}
             v-model="shouldSaveSelection"
+            {% endif %}
             class="sw-duplicated-media-v2__additional-error-count"
             :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)"
         />

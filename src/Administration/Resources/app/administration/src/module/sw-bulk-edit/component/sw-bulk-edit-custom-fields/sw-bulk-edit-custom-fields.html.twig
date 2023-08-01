@@ -12,7 +12,11 @@
             <sw-checkbox-field
                 class="sw-bulk-edit-custom-fields__change"
                 :label="$tc('sw-bulk-edit.product.customFields.changeLabel', 0, {name: getInlineSnippet(customField.config.label)})"
+                {% if VUE3 %}
+                @update:value="toggleItemCheck($event, customField)"
+                {% else %}
                 @change="toggleItemCheck($event, customField)"
+                {% endif %}
             />
             {% endblock %}
 

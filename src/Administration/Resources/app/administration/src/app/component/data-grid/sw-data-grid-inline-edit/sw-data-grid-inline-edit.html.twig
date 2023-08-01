@@ -31,7 +31,11 @@
     <sw-checkbox-field
         v-else-if="column.inlineEdit === 'boolean'"
         key="boolean"
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
     />
     {% endblock %}
 

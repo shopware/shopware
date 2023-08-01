@@ -94,7 +94,11 @@
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
                                 :value="allSelectedChecked"
+                                {% if VUE3 %}
+                                @update:value="selectAll"
+                                {% else %}
                                 @change="selectAll"
+                                {% endif %}
                             />
                             {% endblock %}
                         </div>
@@ -307,7 +311,11 @@
                                 <sw-checkbox-field
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
+                                    {% if VUE3 %}
+                                    @update:value="selectItem($event, item)"
+                                    {% else %}
                                     @change="selectItem($event, item)"
+                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>

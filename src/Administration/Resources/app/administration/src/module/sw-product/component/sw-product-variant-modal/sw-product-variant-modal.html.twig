@@ -411,7 +411,11 @@
             {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
             <template v-if="isInlineEdit">
                 <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="item.active"
+                    {% else %}
                     v-model="item.active"
+                    {% endif %}
                     :disabled="item.active === null"
                 />
 

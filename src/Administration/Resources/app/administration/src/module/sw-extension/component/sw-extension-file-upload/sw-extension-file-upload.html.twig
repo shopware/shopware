@@ -59,7 +59,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_file_upload_confirm_modal_footer_checkbox %}
             <sw-checkbox-field
+                {% if VUE3 %}
+                v-model:value="shouldHideConfirmModal"
+                {% else %}
                 v-model="shouldHideConfirmModal"
+                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_file_upload_confirm_modal_footer_checkbox_label %}

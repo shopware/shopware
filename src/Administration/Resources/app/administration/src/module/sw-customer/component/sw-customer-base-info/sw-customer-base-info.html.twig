@@ -130,7 +130,11 @@
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
                 <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="customer.active"
+                    {% else %}
                     v-model="customer.active"
+                    {% endif %}
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
                     size="small"

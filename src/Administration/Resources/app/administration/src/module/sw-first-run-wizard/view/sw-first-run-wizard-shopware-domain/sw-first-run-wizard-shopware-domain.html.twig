@@ -23,7 +23,11 @@
             :label="'Shop domain'"
         />
         <sw-checkbox-field
+            {% if VUE3 %}
+            v-model:value="testEnvironment"
+            {% else %}
             v-model="testEnvironment"
+            {% endif %}
             :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
         />
     </div>

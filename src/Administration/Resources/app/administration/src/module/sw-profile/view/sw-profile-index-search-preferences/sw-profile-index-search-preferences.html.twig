@@ -80,9 +80,17 @@
                 >
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
                         <sw-checkbox-field
+                            {% if VUE3 %}
+                            v-model:value="searchPreference._searchable"
+                            {% else %}
                             v-model="searchPreference._searchable"
+                            {% endif %}
                             :label="getModuleTitle(searchPreference.entityName)"
+                            {% if VUE3 %}
+                            @update:value="onChangeSearchPreference(searchPreference)"
+                            {% else %}
                             @change="onChangeSearchPreference(searchPreference)"
+                            {% endif %}
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li
@@ -91,7 +99,11 @@
                                 class="sw-profile-index-search-preferences-searchable-elements__entity-field"
                             >
                                 <sw-checkbox-field
+                                    {% if VUE3 %}
+                                    v-model:value="field._searchable"
+                                    {% else %}
                                     v-model="field._searchable"
+                                    {% endif %}
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"
                                 />

@@ -234,7 +234,6 @@
                             {% else %}
                             v-model="user.admin"
                             {% endif %}
-                            name="sw-field--user-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"

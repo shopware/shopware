@@ -22,7 +22,33 @@
 
     <template #content>
         <sw-card-view>
-            <sw-usage-data-consent-banner />
+            <sw-card
+                :title="$tc('sw-settings-usage-data.general.textHeadline')"
+                position-identifier="sw-settings-usage-data"
+            >
+                <sw-settings-usage-data-intro />
+
+                <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="shareUsageData"
+                    {% else %}
+                    v-model="shareUsageData"
+                    {% endif %}
+                    :label="$tc('sw-settings-usage-data.general.shareUsageData')"
+                    :disabled="!isAdmin"
+                    {% if VUE3 %}
+                    @update:value="saveSystemConfig"
+                    {% else %}
+                    @change="saveSystemConfig"
+                    {% endif %}
+                />
+
+                <sw-alert
+                    variant="neutral"
+                >
+                    {{ alertText }}
+                </sw-alert>
+            </sw-card>
         </sw-card-view>
     </template>
 </sw-page>

@@ -14,7 +14,11 @@
             :help-text="helpText"
             :entity-collection="propertyCollection"
             :criteria="criteria"
+            {% if VUE3 %}
+            @update:entityCollection="updateCollection"
+            {% else %}
             @change="updateCollection"
+            {% endif %}
         >
             <template
                 v-if="shouldShowActiveState"

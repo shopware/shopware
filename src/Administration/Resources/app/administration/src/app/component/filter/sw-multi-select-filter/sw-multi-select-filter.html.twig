@@ -19,7 +19,11 @@
         :entity-name="filter.schema.entity"
         :entity-collection="values"
         :display-variants="filter.displayVariants"
+        {% if VUE3 %}
+        @update:entityCollection="changeValue"
+        {% else %}
         @change="changeValue"
+        {% endif %}
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_select_filter_content_slot_selection_label_property %}

@@ -113,7 +113,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_landing_page_select_field %}
                 <sw-entity-multi-select
+                    {% if VUE3 %}
+                    v-model:entityCollection="page.landingPages"
+                    {% else %}
                     v-model="page.landingPages"
+                    {% endif %}
                     class="sw-cms-layout-assignment-modal__landing-page-select"
                     :label="$tc('global.entities.landing_page')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"

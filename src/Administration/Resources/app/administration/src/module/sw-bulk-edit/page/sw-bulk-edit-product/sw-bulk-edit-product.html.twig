@@ -210,7 +210,11 @@
                             entity-name="rule"
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
                             :disabled="!!bulkEditProduct[formField.name].isInherited"
+                            {% if VUE3 %}
+                            @update:entityCollection="onRuleChange"
+                            {% else %}
                             @change="onRuleChange"
+                            {% endif %}
                         >
                             <template #selection-label-property="{ item }">
                                 {{ item.ruleName }}

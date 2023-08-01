@@ -11,8 +11,10 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
+use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -329,7 +331,11 @@ class RateLimiterTest extends TestCase
 
                 static::assertArrayHasKey('errors', $response);
                 static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+                if (!Feature::isActive('v6.6.0.0')) {
+                    static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+                } else {
+                    static::assertEquals(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
+                }
             } else {
                 static::assertEquals(204, $this->browser->getResponse()->getStatusCode());
             }

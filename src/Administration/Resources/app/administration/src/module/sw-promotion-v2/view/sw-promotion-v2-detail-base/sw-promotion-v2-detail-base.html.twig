@@ -48,7 +48,7 @@
             <sw-datepicker
                 v-model="promotion.validFrom"
                 class="sw-promotion-v2-detail-base__field-valid-from"
-                date-type="datetime-local"
+                date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
                 :placeholder-text="$tc('sw-promotion-v2.detail.base.general.validFromPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
@@ -60,7 +60,7 @@
             <sw-datepicker
                 v-model="promotion.validUntil"
                 class="sw-promotion-v2-detail-base__field-valid-until"
-                date-type="datetime-local"
+                date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"
                 :placeholder-text="$tc('sw-promotion-v2.detail.base.general.validUntilPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"

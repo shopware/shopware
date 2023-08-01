@@ -16296,16 +16296,6 @@ parameters:
 			path: tests/unit/php/Core/Content/Media/Event/MediaUploadedEventTest.php
 
 		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult is not allowed\\. The object is very basic and can be constructed$#"
-			count: 4
-			path: tests/unit/php/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Mocking of Symfony\\\\Component\\\\HttpFoundation\\\\Request is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/php/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Content/Product/Cms/ProductBoxCmsElementResolverTest.php

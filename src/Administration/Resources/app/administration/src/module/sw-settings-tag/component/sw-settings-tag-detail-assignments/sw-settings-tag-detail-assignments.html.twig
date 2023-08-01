@@ -28,7 +28,11 @@
                 divider="bottom"
             >
                 <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="showSelected"
+                    {% else %}
                     v-model="showSelected"
+                    {% endif %}
                     :disabled="isLoading"
                     :label="$tc('sw-settings-tag.detail.assignments.showSelected')"
                 />

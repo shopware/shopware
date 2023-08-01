@@ -94,7 +94,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_new_tab %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="category.linkNewTab"
+        {% else %}
         v-model="category.linkNewTab"
+        {% endif %}
         class="sw-category-link-settings__link-new-tab"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.linkNewTabLabel')"

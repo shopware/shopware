@@ -318,7 +318,11 @@
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor')"
                                         :value="taxProvider.active"
+                                        {% if VUE3 %}
+                                        @update:value="onChangeTaxProviderActive(taxProvider)"
+                                        {% else %}
                                         @change="onChangeTaxProviderActive(taxProvider)"
+                                        {% endif %}
                                     />
                                 </div>
                             </template>

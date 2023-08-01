@@ -14,7 +14,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_trigger_radio_switch %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="useTrigger"
+        {% else %}
         v-model="useTrigger"
+        {% endif %}
         class="sw-promotion-v2-settings-trigger-settings__use-trigger"
         :label="$tc('sw-promotion-v2.detail.discounts.settings.trigger.labelUseTrigger')"
     />

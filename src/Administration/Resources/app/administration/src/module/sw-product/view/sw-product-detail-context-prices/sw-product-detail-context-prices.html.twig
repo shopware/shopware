@@ -111,7 +111,11 @@
                         :value="showListPrices[priceGroup.ruleId] !== false"
                         no-margin-top
                         :label="$tc('sw-product.prices.settingShowListPrices')"
+                        {% if VUE3 %}
+                        @update:value="onChangeShowListPrices($event, priceGroup.ruleId)"
+                        {% else %}
                         @change="onChangeShowListPrices($event, priceGroup.ruleId)"
+                        {% endif %}
                     />
                     {% endblock %}
                 </template>
@@ -388,7 +392,11 @@
                     :class="{ 'is--inherited': isInherited }"
                 >
                     <sw-switch-field
+                        {% if VUE3 %}
+                        v-model:value="isInherited"
+                        {% else %}
                         v-model="isInherited"
+                        {% endif %}
                         class="sw-product-detail-context-prices__inherit-switch"
                         :disabled="!acl.can('product.editor')"
                     />

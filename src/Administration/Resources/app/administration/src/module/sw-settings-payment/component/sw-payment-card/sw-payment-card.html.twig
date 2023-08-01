@@ -42,7 +42,11 @@
             :value="paymentMethod.active"
             :disabled="!acl.can('payment.editor')"
             :label="$tc('sw-settings-payment.overview.activeToggle')"
+            {% if VUE3 %}
+            @update:value="setPaymentMethodActive(!paymentMethod.active)"
+            {% else %}
             @change="setPaymentMethodActive(!paymentMethod.active)"
+            {% endif %}
         />
         {% endblock %}
 

@@ -67,7 +67,11 @@
             {% block sw_flow_detail_general_information_active %}
             <sw-switch-field
                 v-if="!isFlowTemplate"
+                {% if VUE3 %}
+                v-modle:value="flow.active"
+                {% else %}
                 v-model="flow.active"
+                {% endif %}
                 class="sw-flow-detail-general__general-active"
                 :disabled="!acl.can('flow.editor') || isUnknownTrigger"
                 :label="$tc('sw-flow.detail.labelGeneralInformationActive')"

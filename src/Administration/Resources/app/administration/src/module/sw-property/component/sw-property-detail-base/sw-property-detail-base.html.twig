@@ -40,7 +40,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_base_filterable %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.filterable"
+            {% else %}
             v-model="propertyGroup.filterable"
+            {% endif %}
             name="propertyGroupFilterable"
             class="sw-property-detail__filterable"
             :label="$tc('sw-property.detail.labelFilterable')"
@@ -51,7 +55,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_base_visible_on_detail %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.visibleOnProductDetailPage"
+            {% else %}
             v-model="propertyGroup.visibleOnProductDetailPage"
+            {% endif %}
             name="propertyGroupvisibleOnProductDetailPage"
             class="sw-property-detail__visible-on-detail"
             :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"

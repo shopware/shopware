@@ -31,6 +31,7 @@
             <sw-checkbox-field
                 {% if VUE3 %}
                 v-model:value="item._searchable"
+                @update:value="onChangeSearchPreference(item)"
                 {% else %}
                 v-model="item._searchable"
                 {% endif %}

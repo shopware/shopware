@@ -276,7 +276,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_review_detail_description_list_status %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="review.status"
+                            {% else %}
                             v-model="review.status"
+                            {% endif %}
                             class="status-switch"
                             :disabled="!acl.can('review.editor')"
                             :label="$tc('sw-review.detail.labelStatus')"

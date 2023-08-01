@@ -18,7 +18,11 @@
         class="sw-order-create-options__disable-auto-promotion"
         :value="disabledAutoPromotion"
         :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
+        {% if VUE3 %}
+        @update:value="onToggleAutoPromotion"
+        {% else %}
         @change="onToggleAutoPromotion"
+        {% endif %}
     />
     {% endblock %}
 
@@ -156,7 +160,11 @@
         </sw-number-field>
 
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="isSameAsBillingAddress"
+            {% else %}
             v-model="isSameAsBillingAddress"
+            {% endif %}
             :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
         />
 

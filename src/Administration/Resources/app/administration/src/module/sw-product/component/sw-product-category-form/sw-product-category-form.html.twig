@@ -65,7 +65,11 @@
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>

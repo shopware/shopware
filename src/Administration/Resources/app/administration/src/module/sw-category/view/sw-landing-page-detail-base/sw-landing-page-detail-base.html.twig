@@ -31,7 +31,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_information_active %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="landingPage.active"
+                {% else %}
                 v-model="landingPage.active"
+                {% endif %}
                 class="sw-landing-page-detail-base__active"
                 name="landingPageActive"
                 :disabled="!acl.can('landing_page.editor')"

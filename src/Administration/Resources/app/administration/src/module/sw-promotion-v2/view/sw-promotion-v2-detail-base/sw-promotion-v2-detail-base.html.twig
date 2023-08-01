@@ -110,7 +110,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_detail_base_general_active %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="promotion.active"
+            {% else %}
             v-model="promotion.active"
+            {% endif %}
             class="sw-promotion-v2-detail-base__field-active"
             :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
             :disabled="!acl.can('promotion.editor')"

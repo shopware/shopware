@@ -49,7 +49,11 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
+        {% if VUE3 %}
+        @update:value="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     />
 
     <sw-datepicker

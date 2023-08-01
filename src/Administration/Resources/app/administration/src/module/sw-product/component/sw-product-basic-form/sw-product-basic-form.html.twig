@@ -123,7 +123,11 @@
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

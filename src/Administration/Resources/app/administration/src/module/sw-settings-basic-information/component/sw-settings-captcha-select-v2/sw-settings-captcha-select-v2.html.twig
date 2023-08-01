@@ -50,7 +50,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_invisible %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="currentValue.googleReCaptchaV2.config.invisible"
+            {% else %}
             v-model="currentValue.googleReCaptchaV2.config.invisible"
+            {% endif %}
             bordered
             name="googleReCaptchaV2Invisible"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2Invisible')"

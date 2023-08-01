@@ -10,7 +10,11 @@
     ></p>
 
     <sw-switch-field
+        {% if VUE3 %}
+        v-modle:value="createShopDomain"
+        {% else %}
         v-model="createShopDomain"
+        {% endif %}
         :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
     />
 

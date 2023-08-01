@@ -6,7 +6,11 @@
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.forceStateInRegistration"
+                {% else %}
                 v-model="country.forceStateInRegistration"
+                {% endif %}
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -14,7 +18,11 @@
             />
 
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.postalCodeRequired"
+                {% else %}
                 v-model="country.postalCodeRequired"
+                {% endif %}
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -22,7 +30,11 @@
             />
 
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.checkPostalCodePattern"
+                {% else %}
                 v-model="country.checkPostalCodePattern"
+                {% endif %}
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor')"
@@ -32,7 +44,11 @@
 
             <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
                 <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="country.checkAdvancedPostalCodePattern"
+                    {% else %}
                     v-model="country.checkAdvancedPostalCodePattern"
+                    {% endif %}
                     class="sw-settings-country-address-handling__option-items"
                     :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern"
                     :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"

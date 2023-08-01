@@ -25,7 +25,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_documents_skip_sent_documents %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="value.skipSentDocuments"
+            {% else %}
             v-model="value.skipSentDocuments"
+            {% endif %}
             :label="$tc('sw-bulk-edit.order.status.documents.skipSentDocuments')"
             :disabled="documents?.disabled"
         />

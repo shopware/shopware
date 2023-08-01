@@ -24,7 +24,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="selectedSalesChannel.homeEnabled"
+            {% else %}
             v-model="selectedSalesChannel.homeEnabled"
+            {% endif %}
             class="sw-category-entry-point-modal__show-in-main-navigation"
             :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
             :disabled="!acl.can('category.editor')"

@@ -191,7 +191,11 @@
 
                     <div class="sw-cms-el-config-image-slider__setting-slide">
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.autoSlide.value"
+                            {% else %}
                             v-model="element.config.autoSlide.value"
+                            {% endif %}
                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                             :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                             :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"

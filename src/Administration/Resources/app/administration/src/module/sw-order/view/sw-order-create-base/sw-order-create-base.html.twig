@@ -123,7 +123,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_switch_promotions %}
                             <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="disabledAutoPromotionVisibility"
+                                {% else %}
                                 v-model="disabledAutoPromotionVisibility"
+                                {% endif %}
                                 class="sw-order-create-summary__switch-promotions"
                                 :label="$tc('sw-order.promotionModal.labelTitle')"
                             />

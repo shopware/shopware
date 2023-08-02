@@ -257,6 +257,12 @@ class TranslatorTest extends TestCase
             $this->translator->trans('new.unit.test.key')
         );
 
+        $this->translator->setLocale('de-DE');
+        static::assertEquals(
+            $snippets[1]['value'],
+            $this->translator->trans('new.unit.test.key')
+        );
+
         static::assertSame(
             $request,
             $this->getContainer()->get(RequestStack::class)->pop()
@@ -349,7 +355,7 @@ class TranslatorTest extends TestCase
         $translator->reset();
 
         // In reset, we ignore all theme snippets and use the default ones
-        static::assertEquals('document.serviceDateNotice', $translator->trans('document.serviceDateNotice'));
+        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
 
         // Assign the Storefront theme again and assert that the original snippet is used again
         $criteria = new Criteria();
@@ -370,6 +376,46 @@ class TranslatorTest extends TestCase
         );
 
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
+    }
+
+    /**
+     * @dataProvider pluralTranslationProvider
+     */
+    public function testPluralRules(string $expected, string $id, int $number, string $locale): void
+    {
+        static::assertEquals($expected, $this->translator->trans($id, ['%count%' => (string) $number], null, $locale));
+    }
+
+    /**
+     * @return list<array{string, string, int, string}>
+     */
+    public static function pluralTranslationProvider(): array
+    {
+        return [
+            // Test English plural rules
+            ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en-GB'],
+            ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en-GB'],
+            ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en-GB'],
+            ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en-GB'],
+
+            ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en_GB'],
+            ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en_GB'],
+            ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en_GB'],
+            ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en_GB'],
+
+            // Test Ukrainian plural rules
+            ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk-UA'],
+            ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk-UA'],
+            ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk-UA'],
+            ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk-UA'],
+            ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk-UA'],
+
+            ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk_UA'],
+            ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk_UA'],
+            ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk_UA'],
+            ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk_UA'],
+            ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk_UA'],
+        ];
     }
 
     private function switchDefaultLanguage(): void

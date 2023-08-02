@@ -142,10 +142,16 @@ class ProductExportControllerTest extends TestCase
 
         $client = $this->createSalesChannelBrowser(null, false, [
             'id' => $deSalesChannelId,
+            'languageId' => $this->getDeDeLanguageId(),
+            'languages' => [
+                [
+                    'id' => $this->getDeDeLanguageId(),
+                ],
+            ],
             'domains' => [
                 [
                     'id' => $deSalesChannelDomainId,
-                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'languageId' => $this->getDeDeLanguageId(),
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                     'url' => 'http://example.com/de',
@@ -299,7 +305,7 @@ class ProductExportControllerTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
                 'headerTemplate' => 'name,url',
-                'bodyTemplate' => '{{ "title"|trans }} {{ product.name }}',
+                'bodyTemplate' => '{{ "title"|trans }} {{ product.translated.name }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $salesChannelId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,

@@ -600,7 +600,7 @@ class AuthControllerTest extends TestCase
         $flashBag = $this->getSession()->getBag('flashes');
 
         static::assertEquals(
-            ['account.passwordNotIdentical'],
+            ['The passwords you have entered do not match.'],
             $flashBag->get('danger')
         );
     }

@@ -188,4 +188,15 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         expect(wrapper.vm.customer.salutationId).toBe('salutationId');
         expect(wrapper.vm.address.salutationId).toBe('salutationId');
     });
+
+    it('should not render sw-customer-base-form and sw-customer-address-form if customer is null', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({
+            customer: null,
+        });
+
+        expect(wrapper.find('sw-customer-base-form-stub').exists()).toBeFalsy();
+        expect(wrapper.find('sw-customer-address-form-stub').exists()).toBeFalsy();
+    });
 });

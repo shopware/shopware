@@ -24,10 +24,18 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_enable %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="salesChannel.hreflangActive"
+        {% else %}
         v-model="salesChannel.hreflangActive"
+        {% endif %}
         :label="$tc('sw-sales-channel.detail.hreflang.enableCheckbox')"
         :disabled="disabled"
+        {% if VUE3 %}
+        @update:value="salesChannel.hreflangDefaultDomainId = null"
+        {% else %}
         @change="salesChannel.hreflangDefaultDomainId = null"
+        {% endif %}
     />
     {% endblock %}
 

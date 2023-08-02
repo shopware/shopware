@@ -114,7 +114,11 @@
 
             <template #modal-footer>
                 <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="checkedBackupCheckbox"
+                    {% else %}
                     v-model="checkedBackupCheckbox"
+                    {% endif %}
                     class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />

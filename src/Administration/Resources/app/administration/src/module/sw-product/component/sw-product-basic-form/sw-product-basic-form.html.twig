@@ -53,7 +53,11 @@
                     show-clearable-button
                     allow-entity-creation
                     :entity-creation-label="$tc('sw-product.basicForm.labelManufacturerCreation')"
+                    {% if VUE3 %}
+                    @update:value="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
@@ -119,7 +123,11 @@
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

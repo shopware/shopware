@@ -168,13 +168,21 @@
                 {% block sw_cms_element_product_slider_config_content_products %}
                 <sw-entity-multi-select
                     v-else
+                    {% if VUE3 %}
+                    v-model:entityCollection="productCollection"
+                    {% else %}
                     v-model="productCollection"
+                    {% endif %}
                     class="sw-cms-el-config-product-slider__products"
                     :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
                     :context="productMultiSelectContext"
                     :criteria="productMediaFilter"
+                    {% if VUE3 %}
+                    @update:entityCollection="onProductsChange"
+                    {% else %}
                     @change="onProductsChange"
+                    {% endif %}
                 >
                     <template #selection-label-property="{ item }">
                         <sw-product-variant-info

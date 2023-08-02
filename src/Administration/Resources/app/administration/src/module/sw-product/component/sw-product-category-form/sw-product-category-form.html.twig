@@ -37,7 +37,11 @@
                     :entity-collection="currentValue"
                     :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
                     :disabled="isInherited || !allowEdit"
+                    {% if VUE3 %}
+                    @update:entity-collection="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>
@@ -65,7 +69,11 @@
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>

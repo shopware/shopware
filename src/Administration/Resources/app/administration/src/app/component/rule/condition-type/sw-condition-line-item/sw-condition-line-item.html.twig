@@ -20,7 +20,11 @@
         :criteria="productCriteria"
         :context="productContext"
         advanced-selection-component="sw-advanced-selection-product"
+        {% if VUE3 %}
+        @update:entityCollection="setIds"
+        {% else %}
         @change="setIds"
+        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <slot

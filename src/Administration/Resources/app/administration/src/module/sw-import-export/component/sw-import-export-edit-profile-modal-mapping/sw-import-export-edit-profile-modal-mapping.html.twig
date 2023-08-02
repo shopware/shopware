@@ -87,7 +87,11 @@
             />
             <sw-switch-field
                 v-show="!isRequiredBySystem(item)"
+                {% if VUE3 %}
+                v-modle:value="item.requiredByUser"
+                {% else %}
                 v-model="item.requiredByUser"
+                {% endif %}
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :disabled="profile.systemDefault"
             />
@@ -98,7 +102,11 @@
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
             <sw-switch-field
+                {% if VUE3 %}
+                v-modle:value="item.useDefaultValue"
+                {% else %}
                 v-model="item.useDefaultValue"
+                {% endif %}
                 :name="`useDefaultValue-${itemIndex}`"
                 :disabled="isDefaultValueCheckboxDisabled()"
                 class="sw-import-export-edit-profile-modal-mapping__default-value-switch"

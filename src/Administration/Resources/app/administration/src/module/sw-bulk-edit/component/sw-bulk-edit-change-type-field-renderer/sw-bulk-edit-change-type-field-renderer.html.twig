@@ -17,12 +17,20 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
                 <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="bulkEditData[formField.name].isChanged"
+                    {% else %}
                     v-model="bulkEditData[formField.name].isChanged"
+                    {% endif %}
                     class="sw-bulk-edit-change-field__change"
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
+                    {% if VUE3 %}
+                    @update:value="onChangeValue($event, formField.name)"
+                    {% else %}
                     @change="onChangeValue($event, formField.name)"
+                    {% endif %}
                 />
                 {% endblock %}
 

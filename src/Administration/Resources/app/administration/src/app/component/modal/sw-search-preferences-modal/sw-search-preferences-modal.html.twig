@@ -29,8 +29,16 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_preferences_modal_grid_column_active %}
             <sw-checkbox-field
+                {% if VUE3 %}
+                v-model:value="item._searchable"
+                {% else %}
                 v-model="item._searchable"
+                {% endif %}
+                {% if VUE3 %}
+                @update:value="onChangeSearchPreference(item)"
+                {% else %}
                 @change="onChangeSearchPreference(item)"
+                {% endif %}
             />
             {% endblock %}
         </template>

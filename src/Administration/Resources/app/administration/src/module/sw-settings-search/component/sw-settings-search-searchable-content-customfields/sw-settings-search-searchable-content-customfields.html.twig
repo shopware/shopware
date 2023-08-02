@@ -114,7 +114,13 @@
             <template v-if="isInlineEdit">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_searchable_editor %}
-                <sw-checkbox-field v-model="item.searchable" />
+                <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="item.searchable"
+                    {% else %}
+                    v-model="item.searchable"
+                    {% endif %}
+                />
                 {% endblock %}
             </template>
 
@@ -144,7 +150,13 @@
             <template v-if="isInlineEdit">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_tokenize_editor %}
-                <sw-checkbox-field v-model="item.tokenize" />
+                <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="item.tokenize"
+                    {% else %}
+                    v-model="item.tokenize"
+                    {% endif %}
+                />
                 {% endblock %}
             </template>
 

@@ -179,7 +179,11 @@
             <div class="sw-product-modal-variant-generation__upload-all-container">
                 <sw-switch-field
                     :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
+                    {% if VUE3 %}
+                    @update:value="onChangeAllVariantValues"
+                    {% else %}
                     @change="onChangeAllVariantValues"
+                    {% endif %}
                 />
                 <div class="sw-product-modal-variant-generation__upload-all">
                     <sw-upload-listener
@@ -244,7 +248,11 @@
                         <sw-switch-field
                             label="Digital"
                             :value="item.productStates.includes('is-download')"
+                            {% if VUE3 %}
+                            @update:value="(event) => onChangeVariantValue(event, item)"
+                            {% else %}
                             @change="(event) => onChangeVariantValue(event, item)"
+                            {% endif %}
                         />
                         <sw-upload-listener
                             :upload-tag="item.productNumber"

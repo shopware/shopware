@@ -116,7 +116,11 @@
                                 :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
                                 :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
                                 :value="isDefault"
+                                {% if VUE3 %}
+                                @update:value="onChangeDefaultTaxRate"
+                                {% else %}
                                 @change="onChangeDefaultTaxRate"
+                                {% endif %}
                             />
                         {% endblock %}
                         </div>

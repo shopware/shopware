@@ -196,7 +196,11 @@
             class="sw-order-create-details__disable-auto-promotion"
             :value="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
+            {% if VUE3 %}
+            @update:value="toggleAutomaticPromotions"
+            {% else %}
             @change="toggleAutomaticPromotions"
+            {% endif %}
         />
         {% endblock %}
     </sw-card>

@@ -19,6 +19,9 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         boundExpression() {
             // @ts-expect-error - we check if model exists on vnode
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -42,6 +45,9 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
                 return this.name;
             }
 
+            /**
+             * @deprecated tag:v6.6.0 - If statement will be removed
+             */
             if (this.boundExpression) {
                 // @ts-expect-error - we check if the value exists in boundExpression
                 // eslint-disable-next-line max-len

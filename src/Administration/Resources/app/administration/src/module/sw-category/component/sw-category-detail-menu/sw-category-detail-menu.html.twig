@@ -10,7 +10,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_information_visible %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="reversedVisibility"
+        {% else %}
         v-model="reversedVisibility"
+        {% endif %}
         borderd
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.menu.visible')"

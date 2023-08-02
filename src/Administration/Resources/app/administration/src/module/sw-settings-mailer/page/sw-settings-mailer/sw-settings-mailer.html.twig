@@ -111,7 +111,11 @@
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
                 <sw-switch-field
                     v-if="!isSmtpMode"
+                    {% if VUE3 %}
+                    v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
+                    {% else %}
                     v-model="mailerSettings['core.mailerSettings.disableDelivery']"
+                    {% endif %}
                     size="small"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />

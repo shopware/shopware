@@ -39,6 +39,9 @@
                 {% block sw_prduct_cross_selling_form_title_field %}
                 <sw-text-field
                     v-model="crossSelling.name"
+                    {% if VUE3 %}
+                    name="sw-field--crossSelling-name"
+                    {% endif %}
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
                     :placeholder="placeholder(crossSelling, 'name', $tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder'))"
@@ -49,11 +52,18 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_active_field %}
                 <sw-field
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.active"
+                    {% else %}
                     v-model="crossSelling.active"
+                    {% endif %}
                     type="switch"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
+                    {% if VUE3 %}
+                    name="sw-field--crossSelling-active"
+                    {% endif %}
                 />
                 {% endblock %}
             </sw-container>
@@ -99,7 +109,11 @@
                 {% block sw_prduct_cross_selling_form_product_stream_field %}
                 <sw-entity-single-select
                     id="sw-field--crossSelling-product-group"
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.productStreamId"
+                    {% else %}
                     v-model="crossSelling.productStreamId"
+                    {% endif %}
                     entity="product_stream"
                     class="sw-select-cross-selling__select-product-stream"
                     :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"

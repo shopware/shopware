@@ -203,7 +203,13 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field v-model="item.active" />
+                        <sw-checkbox-field
+                            {% if VUE3 %}
+                            v-model:value="item.active"
+                            {% else %}
+                            v-model="item.active"
+                            {% endif %}
+                        />
                     </template>
                     {% endblock %}
 

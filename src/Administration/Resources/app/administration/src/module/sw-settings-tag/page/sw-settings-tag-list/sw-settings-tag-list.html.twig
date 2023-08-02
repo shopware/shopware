@@ -128,18 +128,34 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_duplicate %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="duplicateFilter"
+                            {% else %}
                             v-model="duplicateFilter"
+                            {% endif %}
                             :label="$tc('sw-settings-tag.list.filterDuplicate')"
+                            {% if VUE3 %}
+                            @update:value="onFilter"
+                            {% else %}
                             @change="onFilter"
+                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_empty %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="emptyFilter"
+                            {% else %}
                             v-model="emptyFilter"
+                            {% endif %}
                             :label="$tc('sw-settings-tag.list.filterEmpty')"
+                            {% if VUE3 %}
+                            @update:value="onFilter"
+                            {% else %}
                             @change="onFilter"
+                            {% endif %}
                         />
                         {% endblock %}
 

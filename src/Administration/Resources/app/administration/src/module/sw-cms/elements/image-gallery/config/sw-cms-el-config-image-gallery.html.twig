@@ -271,7 +271,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_zoom %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.zoom.value"
+                            {% else %}
                             v-model="element.config.zoom.value"
+                            {% endif %}
                             bordered
                             :label="$tc('sw-cms.elements.imageGallery.config.label.zoom')"
                         />
@@ -280,7 +284,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_fullscreen %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.fullScreen.value"
+                            {% else %}
                             v-model="element.config.fullScreen.value"
+                            {% endif %}
                             bordered
                             :label="$tc('sw-cms.elements.imageGallery.config.label.fullscreen')"
                         />
@@ -295,7 +303,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.keepAspectRatioOnZoom.value"
+                            {% else %}
                             v-model="element.config.keepAspectRatioOnZoom.value"
+                            {% endif %}
                             bordered
                             :label="$tc('sw-cms.elements.imageGallery.config.label.keepAspectRatioOnZoom')"
                         />
@@ -304,7 +316,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.magnifierOverGallery.value"
+                            {% else %}
                             v-model="element.config.magnifierOverGallery.value"
+                            {% endif %}
                             bordered
                             :label="$tc('sw-cms.elements.imageGallery.config.label.magnifierOverGallery')"
                             :help-text="$tc('sw-cms.elements.imageGallery.config.label.magnifierOverGalleryHelpText')"

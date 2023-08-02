@@ -24,7 +24,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_conditions_pre_conditions_prevent_combination %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="promotion.preventCombination"
+            {% else %}
             v-model="promotion.preventCombination"
+            {% endif %}
             class="sw-promotion-v2-conditions__prevent-combination"
             :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPreventCombination')"
             :text="$tc('sw-promotion-v2.detail.conditions.preConditions.helpTextPreventCombination')"
@@ -40,7 +44,11 @@
             :criteria="exclusionCriteria"
             :entity-collection="excludedPromotions"
             :disabled="!acl.can('promotion.editor') || promotion.preventCombination"
+            {% if VUE3 %}
+            @update:entityCollection="onChangeExclusions"
+            {% else %}
             @change="onChangeExclusions"
+            {% endif %}
         />
         {% endblock %}
 

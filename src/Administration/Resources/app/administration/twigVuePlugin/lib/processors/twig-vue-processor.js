@@ -26,6 +26,10 @@ function twigPreParser(code) {
         })
         .replace(/{% block/g, '<!--blck')
         .replace(/{% endblock/g, '<!--endblck')
+        // Replace Vue 3 if/else/endif with VUE 2 code: https://regex101.com/r/anLqLZ/2
+        .replace(/{% if VUE3.*%}\n.*\n *{% else %}\n *(.*)\n *{% endif %}/g, '$1')
+        // Replace Vue 3 if with empty code for a Vue 2 Template: https://regex101.com/r/Bzh8eh/2
+        .replace(/ *{% if VUE3.*%}\n.*\n *{% endif %}\n(.*)/g, '$1')
         .replace(/ %}/g, '-->');
 
     return newCode;

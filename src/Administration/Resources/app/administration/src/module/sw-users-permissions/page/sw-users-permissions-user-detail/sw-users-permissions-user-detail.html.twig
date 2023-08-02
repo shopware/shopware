@@ -191,7 +191,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="user.admin"
+                            {% else %}
                             v-model="user.admin"
+                            {% endif %}
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
@@ -211,7 +215,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                         <sw-entity-multi-select
+                            {% if VUE3 %}
+                            v-model:entityCollection="user.aclRoles"
+                            {% else %}
                             v-model="user.aclRoles"
+                            {% endif %}
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),

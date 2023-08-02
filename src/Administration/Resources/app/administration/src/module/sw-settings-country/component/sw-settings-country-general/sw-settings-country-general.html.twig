@@ -71,7 +71,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_active %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.active"
+                {% else %}
                 v-model="country.active"
+                {% endif %}
                 class="sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -82,7 +86,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_shipping_available %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.shippingAvailable"
+                {% else %}
                 v-model="country.shippingAvailable"
+                {% endif %}
                 class="sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -93,7 +101,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_tax_free %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.customerTax.enabled"
+                {% else %}
                 v-model="country.customerTax.enabled"
+                {% endif %}
                 class="sw-settings-country-general__option-items switch-field-customer-tax-free"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -157,7 +169,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_tax_free_companies %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.companyTax.enabled"
+                {% else %}
                 v-model="country.companyTax.enabled"
+                {% endif %}
                 class="sw-settings-country-general__option-items switch-field-company-tax-free"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -237,7 +253,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_check_vat_id_format %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.checkVatIdPattern"
+                {% else %}
                 v-model="country.checkVatIdPattern"
+                {% endif %}
                 class="sw-settings-country-general__field-check-vatid-format sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -249,7 +269,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_vat_id_required %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="country.vatIdRequired"
+                {% else %}
                 v-model="country.vatIdRequired"
+                {% endif %}
                 class="sw-settings-country-general__vat-id-required sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"

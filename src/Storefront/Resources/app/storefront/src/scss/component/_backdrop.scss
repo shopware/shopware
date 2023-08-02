@@ -8,7 +8,7 @@ https://getbootstrap.com/docs/5.2/components/modal
 
 .modal-backdrop {
     opacity: 0;
-    transition: opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1), visibility 0.45s linear;
+    @include transition($modal-transition);
 
     &.modal-backdrop-open {
         opacity: 1;
@@ -20,11 +20,5 @@ https://getbootstrap.com/docs/5.2/components/modal
         top: 50%;
         margin-left: -$spacer;
         margin-top: -$spacer;
-    }
-}
-
-.offcanvas-backdrop {
-    &.show {
-        opacity: 1;
     }
 }

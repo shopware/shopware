@@ -18,8 +18,8 @@ The sliding direction can be left or right.
     }
 
     &.offcanvas-bottom {
+        --#{$prefix}offcanvas-height: 90%;
         border-radius: 8px 8px 0 0;
-        height: 90%;
     }
 
     &.is-fullwidth {
@@ -27,7 +27,8 @@ The sliding direction can be left or right.
     }
 
     .offcanvas-header {
-        padding: $spacer $grid-gutter-width / 2;
+        --#{$prefix}offcanvas-padding-y: 0;
+        --#{$prefix}offcanvas-padding-x: 0;
         background-color: $white;
 
         .offcanvas-title {

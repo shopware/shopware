@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -120,7 +121,7 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
-     * @param array<string|array<string>>|null $ids
+     * @param array<string>|array<array<string, string>>|null $ids
      */
     public function __construct(?array $ids = null)
     {
@@ -130,8 +131,9 @@ class Criteria extends Struct implements \Stringable
 
         $ids = array_filter($ids);
         if (empty($ids)) {
-            throw new \RuntimeException('Empty ids provided in criteria');
+            throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should not be empty');
         }
+        $this->validateIds($ids);
 
         $this->ids = $ids;
     }
@@ -144,7 +146,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return array<string>|array<int, array<string>>
+     * @return array<string>|array<array<string, string>>
      */
     public function getIds(): array
     {
@@ -475,10 +477,11 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<string>|array<array<string, string>> $ids
      */
     public function setIds(array $ids): self
     {
+        $this->validateIds($ids);
         $this->ids = $ids;
 
         return $this;
@@ -639,5 +642,27 @@ class Criteria extends Struct implements \Stringable
         }
 
         return $fields;
+    }
+
+    /**
+     * @param array<mixed> $ids
+     */
+    private function validateIds(array $ids): void
+    {
+        foreach ($ids as $id) {
+            if (!\is_string($id) && !\is_array($id)) {
+                throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
+            }
+
+            if (!\is_array($id)) {
+                continue;
+            }
+
+            foreach ($id as $key => $value) {
+                if (!\is_string($key) || !\is_string($value)) {
+                    throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
+                }
+            }
+        }
     }
 }

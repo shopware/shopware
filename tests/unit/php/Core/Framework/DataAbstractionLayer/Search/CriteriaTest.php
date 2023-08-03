@@ -3,12 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\InvalidCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria
@@ -66,5 +69,86 @@ class CriteriaTest extends TestCase
             (new Criteria())->addGroupField(new FieldGrouping('foo')),
             '{"total-count-mode":0,"grouping":["foo"]}',
         ];
+    }
+
+    public function testConstructorDoesNotAllowEmptyIdArray(): void
+    {
+        static::expectException(InvalidCriteriaIdsException::class);
+
+        try {
+            new Criteria(['']);
+        } catch (InvalidCriteriaIdsException $e) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+            static::assertSame(DataAbstractionLayerException::INVALID_CRITERIA_IDS, $e->getErrorCode());
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @dataProvider invalidCriteriaIdsProvider
+     *
+     * @param array<mixed> $ids
+     */
+    public function testInvalidIdFormatsThrowException(array $ids): void
+    {
+        $wasThrown = false;
+
+        try {
+            new Criteria($ids);
+        } catch (InvalidCriteriaIdsException $e) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+            static::assertSame(DataAbstractionLayerException::INVALID_CRITERIA_IDS, $e->getErrorCode());
+
+            $wasThrown = true;
+        }
+        static::assertTrue($wasThrown);
+
+        $criteria = new Criteria();
+        $wasThrown = false;
+
+        try {
+            $criteria->setIds($ids);
+        } catch (InvalidCriteriaIdsException $e) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+            static::assertSame(DataAbstractionLayerException::INVALID_CRITERIA_IDS, $e->getErrorCode());
+
+            $wasThrown = true;
+        }
+        static::assertTrue($wasThrown);
+    }
+
+    /**
+     * @return iterable<string, array<mixed>>
+     */
+    public static function invalidCriteriaIdsProvider(): iterable
+    {
+        yield 'non string list' => [[123, 456]];
+        yield 'non string key values' => [[[['foo'], ['bar']]]];
+        yield 'non string values' => [[[['pk-1' => 123], ['pk-2' => 456]]]];
+    }
+
+    /**
+     * @dataProvider validCriteriaIdsProvider
+     *
+     * @param array<string>|array<array<string, string>> $ids
+     */
+    public function testValidIdFormats(array $ids): void
+    {
+        $criteria = new Criteria($ids);
+        static::assertEquals($ids, $criteria->getIds());
+
+        $criteria = new Criteria();
+        $criteria->setIds($ids);
+        static::assertEquals($ids, $criteria->getIds());
+    }
+
+    /**
+     * @return iterable<string, array{array<string>|array<array<string, string>>}>
+     */
+    public static function validCriteriaIdsProvider(): iterable
+    {
+        yield 'plain id list' => [['id1', 'id2']];
+        yield 'multiple pks' => [[['pk-1' => 'id1.1', 'pk-2' => 'id1.2'], ['pk-1' => 'id2.1', 'pk-2' => 'id2.2']]];
     }
 }

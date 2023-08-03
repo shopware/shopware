@@ -1911,11 +1911,6 @@ parameters:
 			path: src/Core/Content/Cms/CmsPageEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CmsSlotsDataResolver\\:\\:optimizeCriteriaObjects\\(\\) should return array\\{array\\<string, array\\<string\\>\\>, array\\<string, array\\<string, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\>\\>\\} but returns array\\{array\\<string, non\\-empty\\-array\\<array\\<array\\<string\\>\\|string\\>\\|string\\>\\>, array\\<string, non\\-empty\\-array\\<string, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\>\\>\\}\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\FieldConfig\\:\\:__construct\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/FieldConfig.php
@@ -8776,71 +8771,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:addFilter\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:addLimit\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:addPostFilter\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:addSorting\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:fromArray\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:hasNumericIndex\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:parse\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:parseSimpleFilter\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:parseSimpleSorting\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:parseSorting\\(\\) has parameter \\$sorting with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:parseSorting\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:setPage\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\AbstractTokenFilter\\:\\:filter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
@@ -11319,21 +11249,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\SqlQueryParserTest\\:\\:whenToUseNullSafeOperatorProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Parser/SqlQueryParserTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Search\\\\\\\\Criteria' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/RequestCriteriaBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilderTest\\:\\:maxApiLimitProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/RequestCriteriaBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilderTest\\:\\:providerTotalCount\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/RequestCriteriaBuilderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:createData\\(\\) return type has no value type specified in iterable type array\\.$#"

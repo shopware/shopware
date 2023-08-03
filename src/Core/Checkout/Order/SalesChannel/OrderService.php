@@ -95,7 +95,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order', $transition);
         }
 
         return $toPlace;
@@ -155,7 +155,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_delivery', $transition);
         }
 
         return $toPlace;

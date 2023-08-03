@@ -91,7 +91,6 @@ const missingTests = [
     'src/app/component/sidebar/sw-sidebar-navigation-item/index.js',
     'src/app/component/structure/sw-admin-menu/_sw-admin-menu-item/catalogues.js',
     'src/app/component/structure/sw-admin-menu-item/_sw-admin-menu-item/catalogues.js',
-    'src/app/component/structure/sw-card-view/index.js',
     'src/app/component/structure/sw-discard-changes-modal/index.js',
     'src/app/component/structure/sw-error/index.js',
     'src/app/component/structure/sw-hidden-iframes/index.js',

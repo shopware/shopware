@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -30,7 +30,7 @@ async function createWrapper() {
             'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
             'sw-text-editor': {
                 props: ['value'],
-                template: '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'input\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
+                template: '<input type="text" :value="value" @change="$emit(\'change\', $event.target.value)"></input>',
             },
         },
         propsData: {
@@ -45,7 +45,7 @@ async function createWrapper() {
     });
 }
 
-describe('src/module/sw-cms/elements/text/config', () => {
+describe('src/module/sw-cms/elements/image/config', () => {
     beforeAll(() => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
@@ -55,39 +55,27 @@ describe('src/module/sw-cms/elements/text/config', () => {
         });
     });
 
-    it('should emits element-update when trigger @input event', async () => {
+    it('should update the content data property', async () => {
         const wrapper = await createWrapper();
 
-        const updatedContent = 'Updated content';
+        const newContent = 'New content';
 
-        const input = wrapper.find('input[type="text"]');
-        await input.setValue(updatedContent);
+        wrapper.vm.emitChanges(newContent);
 
-        expect(input.element.value).toBe(updatedContent);
-
-        await input.trigger('input');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
-        expect(wrapper.emitted('element-update')).toBeTruthy();
-        expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+        expect(wrapper.vm.content).toBe(newContent);
     });
 
-    it('should emits element-update when trigger @blur event', async () => {
+    it('calls handleUpdateContent method and emits element-update event', async () => {
         const wrapper = await createWrapper();
-
         const updatedContent = 'Updated content';
 
-        const input = wrapper.find('input[type="text"]');
-        await input.setValue(updatedContent);
+        wrapper.vm.content = updatedContent;
 
-        expect(input.element.value).toBe(updatedContent);
-
-        await input.trigger('blur');
-        await wrapper.vm.$nextTick();
+        wrapper.vm.handleUpdateContent();
 
         expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
+
         expect(wrapper.emitted('element-update')).toBeTruthy();
-        expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+        expect(wrapper.emitted('element-update')[0][0]).toEqual(wrapper.vm.element);
     });
 });

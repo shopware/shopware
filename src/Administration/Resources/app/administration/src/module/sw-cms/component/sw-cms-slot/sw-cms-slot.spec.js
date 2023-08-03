@@ -19,7 +19,7 @@ async function createWrapper(propsData = {}) {
         stubs: {
             'foo-bar': true,
             'sw-icon': true,
-            'sw-skeleton-bar': true,
+            'sw-modal': true,
         },
         provide: {
             cmsService: {
@@ -191,25 +191,20 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
     });
 
-    it('should show an error state after 10s when element is not existing', async () => {
-        const wrapper = await createWrapper({
-            element: {
-                type: 'not-existing',
+    it('should call handleUpdateContent and hide the settings modal', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.$refs = {
+            elementComponentRef: {
+                handleUpdateContent: jest.fn(),
             },
-        });
+        };
 
-        // Element not found should not be visible
-        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(false);
-        // Loading skeleton should be visible
-        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(true);
+        await wrapper.setData({ showElementSettings: true });
 
-        // Advance time by 10s
-        jest.advanceTimersByTime(10000);
-        await flushPromises();
+        wrapper.vm.onCloseSettingsModal();
 
-        // Element not found should be visible after 10 seconds
-        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(true);
-        // Loading skeleton should not be visible after 10 seconds
-        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(false);
+        expect(wrapper.vm.$refs.elementComponentRef.handleUpdateContent).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showElementSettings).toBe(false);
     });
 });

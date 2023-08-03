@@ -90,7 +90,11 @@
                     {% block sw_mail_template_basic_form_mail_type_field %}
                     <sw-entity-single-select
                         id="mailTemplateTypes"
+                        {% if VUE3 %}
+                        v-model:value="mailTemplate.mailTemplateTypeId"
+                        {% else %}
                         v-model="mailTemplate.mailTemplateTypeId"
+                        {% endif %}
                         entity="mail_template_type"
                         required
                         show-clearable-button
@@ -345,7 +349,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
                     <sw-entity-single-select
+                        {% if VUE3 %}
+                        v-model:value="testMailSalesChannelId"
+                        {% else %}
                         v-model="testMailSalesChannelId"
+                        {% endif %}
                         entity="sales_channel"
                         :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"

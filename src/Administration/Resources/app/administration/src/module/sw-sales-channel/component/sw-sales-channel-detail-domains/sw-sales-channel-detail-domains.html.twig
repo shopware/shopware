@@ -180,7 +180,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_snippet_set %}
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="currentDomain.snippetSetId"
+                {% else %}
                 v-model="currentDomain.snippetSetId"
+                {% endif %}
                 entity="snippet_set"
                 :criteria="snippetSetCriteria"
                 :label="$tc('sw-sales-channel.detail.labelInputSnippet')"

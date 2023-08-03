@@ -4,7 +4,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_with_quantity_field_product %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="id"
+        {% else %}
         v-model="id"
+        {% endif %}
         entity="product"
         :disabled="disabled"
         :value="initialProduct"

@@ -58,7 +58,11 @@
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.groupId"
+                    {% else %}
                     v-model="customer.groupId"
+                    {% endif %}
                     entity="customer_group"
                     size="small"
                     show-clearable-button
@@ -93,7 +97,11 @@
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.defaultPaymentMethodId"
+                    {% else %}
                     v-model="customer.defaultPaymentMethodId"
+                    {% endif %}
                     class="sw-customer-base-info__payment-select"
                     entity="payment_method"
                     label-property="distinguishableName"
@@ -168,7 +176,11 @@
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.languageId"
+                    {% else %}
                     v-model="customer.languageId"
+                    {% endif %}
                     class="sw-customer-base-info__language-select"
                     entity="language"
                     :criteria="languageCriteria"

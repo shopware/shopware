@@ -5,14 +5,22 @@
     {% block sw_cms_element_product_box_config_product_select %}
     <sw-entity-single-select
         ref="cmsProductSelection"
+        {% if VUE3 %}
+        v-model:value="element.config.product.value"
+        {% else %}
         v-model="element.config.product.value"
+        {% endif %}
         :label="$tc('sw-cms.elements.productBox.config.label.selection')"
         :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
         entity="product"
         :criteria="productCriteria"
         :context="productSelectContext"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="onProductChange"
+        {% else %}
         @change="onProductChange"
+        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <sw-product-variant-info

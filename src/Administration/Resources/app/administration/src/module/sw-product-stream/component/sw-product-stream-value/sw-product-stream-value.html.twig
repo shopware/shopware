@@ -171,7 +171,11 @@
 
             <sw-entity-single-select
                 v-else-if="actualCondition.type === 'equals'"
+                {% if VUE3 %}
+                v-model:value="actualCondition.value"
+                {% else %}
                 v-model="actualCondition.value"
+                {% endif %}
                 size="medium"
                 :entity="definition.entity"
                 :context="context"

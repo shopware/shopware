@@ -47,7 +47,11 @@
             :criteria="criteria"
             :selection-disabling-method="isDisabledItem"
             :disabled-selection-tooltip="{ message: disabledTooltipMessage }"
+            {% if VUE3 %}
+            @update:value="updateDefault"
+            {% else %}
             @change="updateDefault"
+            {% endif %}
         />
     </template>
 </sw-container>

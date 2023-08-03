@@ -75,7 +75,11 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_salutation %}
                                 <sw-entity-single-select
+                                    {% if VUE3 %}
+                                    v-model:value="customer.salutationId"
+                                    {% else %}
                                     v-model="customer.salutationId"
+                                    {% endif %}
                                     class="sw-customer-card__salutation-select"
                                     entity="salutation"
                                     label-property="displayName"

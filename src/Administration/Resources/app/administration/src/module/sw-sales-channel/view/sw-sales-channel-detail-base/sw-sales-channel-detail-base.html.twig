@@ -347,7 +347,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="productExport.storefrontSalesChannelId"
+            {% else %}
             v-model="productExport.storefrontSalesChannelId"
+            {% endif %}
             class="sw-sales-channel-detail__product-comparison-storefront"
             :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
             :criteria="storefrontSalesChannelCriteria"
@@ -364,7 +368,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="productExport.salesChannelDomainId"
+            {% else %}
             v-model="productExport.salesChannelDomainId"
+            {% endif %}
             class="sw-sales-channel-detail__product-comparison-domain"
             :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
             :criteria="storefrontSalesChannelDomainCriteria"
@@ -386,7 +394,11 @@
             class="sw-sales-channel-detail-base__product-comparison-container"
         >
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="productExport.currencyId"
+                {% else %}
                 v-model="productExport.currencyId"
+                {% endif %}
                 :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
                 :criteria="storefrontSalesChannelCurrencyCriteria"
                 label-property="name"
@@ -407,7 +419,11 @@
             class="sw-sales-channel-detail-base__product-comparison-container"
         >
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="productExport.salesChannelDomain.languageId"
+                {% else %}
                 v-model="productExport.salesChannelDomain.languageId"
+                {% endif %}
                 :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainLanguage.label')"
                 label-property="name"
                 value-property="id"
@@ -428,7 +444,11 @@
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group %}
         <div class="sw-sales-channel-detail-base__product-comparison-container">
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="salesChannel.customerGroupId"
+                {% else %}
                 v-model="salesChannel.customerGroupId"
+                {% endif %}
                 :label="$tc('sw-sales-channel.detail.productComparison.storefrontSalesChannelCustomerGroup.label')"
                 label-property="name"
                 value-property="id"
@@ -548,7 +568,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="productExport.productStreamId"
+            {% else %}
             v-model="productExport.productStreamId"
+            {% endif %}
             class="sw-sales-channel-detail__product-comparison-product-stream"
             :label="$tc('sw-sales-channel.detail.productComparison.productStream')"
             label-property="name"

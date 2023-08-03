@@ -56,7 +56,11 @@
                 :disabled="isDisabledListingMode('single')"
                 :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
                 show-clearable-button
+                {% if VUE3 %}
+                @update:value="updateMainVariant"
+                {% else %}
                 @change="updateMainVariant"
+                {% endif %}
                 @select-collapsed="onSelectCollapsed"
                 @search-term-change="onSearchTermChange"
             >

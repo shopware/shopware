@@ -11,14 +11,22 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_create_mail_template_modal_type_selection %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="mailTemplate.mailTemplateTypeId"
+        {% else %}
         v-model="mailTemplate.mailTemplateTypeId"
+        {% endif %}
         class="sw-flow-create-mail-template-modal__type"
         entity="mail_template_type"
         required
         :label="$tc('sw-flow.modals.mail.labelMailType')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderMailType')"
         :error="mailTemplateMailTemplateTypeIdError"
+        {% if VUE3 %}
+        @update:value="onChangeType"
+        {% else %}
         @change="onChangeType"
+        {% endif %}
     />
     {% endblock %}
 

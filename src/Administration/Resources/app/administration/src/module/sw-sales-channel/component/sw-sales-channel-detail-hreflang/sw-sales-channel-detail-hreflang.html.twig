@@ -42,7 +42,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_hreflang_content_domain %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="salesChannel.hreflangDefaultDomainId"
+        {% else %}
         v-model="salesChannel.hreflangDefaultDomainId"
+        {% endif %}
         :disabled="!salesChannel.hreflangActive || disabled"
         :label="$tc('sw-sales-channel.detail.hreflang.defaultDomain')"
         entity="sales_channel_domain"

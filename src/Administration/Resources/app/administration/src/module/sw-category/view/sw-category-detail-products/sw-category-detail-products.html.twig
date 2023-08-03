@@ -58,7 +58,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_stream_select_field %}
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="category.productStreamId"
+                {% else %}
                 v-model="category.productStreamId"
+                {% endif %}
                 class="sw-category-detail-products__product-stream-select"
                 entity="product_stream"
                 show-clearable-button

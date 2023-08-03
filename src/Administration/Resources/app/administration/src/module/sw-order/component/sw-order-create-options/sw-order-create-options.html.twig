@@ -36,7 +36,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_language %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.languageId"
+            {% else %}
             v-model="context.languageId"
+            {% endif %}
             entity="language"
             class="sw-order-create-options__order-language"
             :criteria="salesChannelCriteria"
@@ -84,7 +88,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_payment_method %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.paymentMethodId"
+            {% else %}
             v-model="context.paymentMethodId"
+            {% endif %}
             entity="payment_method"
             label-property="distinguishableName"
             class="sw-order-create-options__payment-method"
@@ -110,7 +118,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_currency %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.currencyId"
+            {% else %}
             v-model="context.currencyId"
+            {% endif %}
             class="sw-order-create-options__currency-select"
             entity="currency"
             :criteria="salesChannelCriteria"
@@ -138,7 +150,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_method %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="context.shippingMethodId"
+            {% else %}
             v-model="context.shippingMethodId"
+            {% endif %}
             class="sw-order-create-options__shipping-method"
             entity="shipping_method"
             show-clearable-button

@@ -94,7 +94,11 @@
                         {% block sw_settings_language_detail_content_field_localeId %}
                         <sw-entity-single-select
                             id="locales"
+                            {% if VUE3 %}
+                            v-model:value="language.localeId"
+                            {% else %}
                             v-model="language.localeId"
+                            {% endif %}
                             required
                             show-clearable-button
                             class="sw-settings-language-detail__select-locale"
@@ -175,7 +179,11 @@
                         {% block sw_settings_language_detail_content_field_parentId %}
                         <sw-entity-single-select
                             id="inherit"
+                            {% if VUE3 %}
+                            v-model:value="language.parentId"
+                            {% else %}
                             v-model="language.parentId"
+                            {% endif %}
                             class="sw-settings-language-detail__select-parent"
                             :criteria="parentLanguageCriteria"
                             :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"

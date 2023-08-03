@@ -18,7 +18,11 @@
         :value="selectedProfileId"
         required
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="onProfileSelect"
+        {% else %}
         @change="onProfileSelect"
+        {% endif %}
     />
     {% endblock %}
 

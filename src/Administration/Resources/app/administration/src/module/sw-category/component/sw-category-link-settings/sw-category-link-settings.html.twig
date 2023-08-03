@@ -53,7 +53,11 @@
     {% block sw_category_detail_link_type_select_entity_product %}
     <sw-entity-single-select
         v-if="category.linkType === 'product'"
+        {% if VUE3 %}
+        v-model:value="category.internalLink"
+        {% else %}
         v-model="category.internalLink"
+        {% endif %}
         class="sw-category-link-settings__selection-product"
         :disabled="!acl.can('category.editor')"
         :label="$tc('global.entities.product')"
@@ -69,7 +73,11 @@
     {% block sw_category_detail_link_type_select_entity_landing_page %}
     <sw-entity-single-select
         v-if="category.linkType === 'landing_page'"
+        {% if VUE3 %}
+        v-model:value="category.internalLink"
+        {% else %}
         v-model="category.internalLink"
+        {% endif %}
         class="sw-category-link-settings__selection-landing-page"
         :disabled="!acl.can('category.editor')"
         :label="$tc('global.entities.landing_page')"

@@ -39,7 +39,11 @@
         :criteria="profileCriteria"
         :value="selectedProfileId"
         required
+        {% if VUE3 %}
+        @update:value="onProfileSelect"
+        {% else %}
         @change="onProfileSelect"
+        {% endif %}
     />
     {% endblock %}
 

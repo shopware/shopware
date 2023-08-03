@@ -151,7 +151,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="shopPageSalesChannelId"
+                    {% else %}
                     v-model="shopPageSalesChannelId"
+                    {% endif %}
                     class="sw-cms-layout-assignment-modal__sales-channel-select"
                     entity="sales_channel"
                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
@@ -159,7 +163,11 @@
                     :reset-option="$tc('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
                     :help-text="$tc('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="onInputSalesChannelSelect"
+                    {% else %}
                     @change="onInputSalesChannelSelect"
+                    {% endif %}
                 />
                 {% endblock %}
 

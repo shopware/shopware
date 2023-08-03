@@ -260,7 +260,11 @@
                         <sw-entity-single-select
                             v-if="numberRange.type"
                             id="numberRangeTypes"
+                            {% if VUE3 %}
+                            v-model:value="numberRange.typeId"
+                            {% else %}
                             v-model="numberRange.typeId"
+                            {% endif %}
                             entity="number_range_type"
                             class="sw-number-range-detail__select-type"
                             :disabled="disableNumberRangeTypeSelect"

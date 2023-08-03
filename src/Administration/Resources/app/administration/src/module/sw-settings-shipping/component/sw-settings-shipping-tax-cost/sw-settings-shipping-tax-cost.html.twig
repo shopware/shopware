@@ -26,7 +26,11 @@
     <sw-entity-single-select
         v-if="shippingMethod.taxType === 'fixed'"
         ref="taxIdSelection"
+        {% if VUE3 %}
+        v-model:value="shippingMethod.taxId"
+        {% else %}
         v-model="shippingMethod.taxId"
+        {% endif %}
         class="sw-settings-shipping__tax-rate"
         validation="required"
         required

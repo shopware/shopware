@@ -12158,6 +12158,16 @@ parameters:
 			path: src/Core/System/Test/NumberRange/NumberRangeValueGeneratorTest.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:createProduct\\(\\) is unused\\.$#"
+			count: 1
+			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
+
+		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/Entity/SalesChannelDefinitionTest.php

@@ -36,6 +36,7 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     }
 
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.remove-item', methods: ['DELETE'])]
+    #[Route(path: '/store-api/checkout/cart/line-item/delete', name: 'store-api.checkout.cart.remove-item-v2', methods: ['POST'])]
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         $ids = $request->get('ids');

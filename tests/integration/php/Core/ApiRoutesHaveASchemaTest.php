@@ -54,6 +54,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
+                $this->checkQueryParameters($route, $schemaRoutes[$path]);
                 unset($schemaRoutes[$path]);
 
                 continue;
@@ -199,5 +200,31 @@ class ApiRoutesHaveASchemaTest extends TestCase
         }
 
         return str_contains($reflectionMethod->getDocComment() ?: '', '@experimental');
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function checkQueryParameters(Route $route, array $schema): void
+    {
+        $whitelist = [
+            '/store-api/category/{navigationId}:slots',
+            '/store-api/shipping-method:onlyAvailable',
+            '/store-api/checkout/cart/line-item:ids',
+        ];
+
+        foreach ($schema as $operation) {
+            foreach ($operation['parameters'] ?? [] as $item) {
+                if ($item['in'] !== 'query') {
+                    continue;
+                }
+
+                /** @var string $parameterName */
+                $parameterName = $item['name'];
+                $key = $route->getPath() . ':' . $parameterName;
+
+                static::assertContains($key, $whitelist, sprintf('Route "%s" has a query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
+            }
+        }
     }
 }

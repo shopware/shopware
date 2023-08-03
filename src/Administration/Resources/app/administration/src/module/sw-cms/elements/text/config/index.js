@@ -9,6 +9,12 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    data() {
+        return {
+            content: this.element.config.content.value,
+        };
+    },
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -31,8 +37,12 @@ export default {
         },
 
         emitChanges(content) {
-            if (content !== this.element.config.content.value) {
-                this.element.config.content.value = content;
+            this.content = content;
+        },
+
+        handleUpdateContent() {
+            if (this.content !== this.element.config.content.value) {
+                this.element.config.content.value = this.content;
                 this.$emit('element-update', this.element);
             }
         },

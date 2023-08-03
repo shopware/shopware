@@ -88,11 +88,8 @@
                             id="documentConfigTypes"
                             {% if VUE3 %}
                             v-model:value="documentConfig.documentTypeId"
-                            name="sw-field--documentConfig-documentTypeId"
-                            @update:value="(id, type) => onChangeType(type)"
                             {% else %}
                             v-model="documentConfig.documentTypeId"
-                            @change="(id, type) => onChangeType(type)"
                             {% endif %}
                             v-tooltip="{
                                 showDelay: 300,

@@ -205,7 +205,6 @@
                         {% else %}
                         v-model="shippingMethod.deliveryTimeId"
                         {% endif %}
-                        name="sw-field--shippingMethod-deliveryTimeId"
                         class="sw-settings-shipping-detail__delivery-time"
                         entity="delivery_time"
                         :disabled="!acl.can('shipping.editor')"

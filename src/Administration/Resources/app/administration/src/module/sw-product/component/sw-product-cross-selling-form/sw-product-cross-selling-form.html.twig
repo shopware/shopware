@@ -112,7 +112,11 @@
                     {% if VUE3 %}
                     v-model:value="crossSelling.productStreamId"
                     {% else %}
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.productStreamId"
+                    {% else %}
                     v-model="crossSelling.productStreamId"
+                    {% endif %}
                     {% endif %}
                     entity="product_stream"
                     class="sw-select-cross-selling__select-product-stream"

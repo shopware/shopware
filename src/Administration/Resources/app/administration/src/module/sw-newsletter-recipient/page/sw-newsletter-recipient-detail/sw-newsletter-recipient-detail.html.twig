@@ -51,7 +51,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_detail_form_salutation %}
                     <sw-entity-single-select
+                        {% if VUE3 %}
+                        v-model:value="newsletterRecipient.salutationId"
+                        {% else %}
                         v-model="newsletterRecipient.salutationId"
+                        {% endif %}
                         :disabled="!acl.can('newsletter_recipient.editor')"
                         :label="$tc('sw-newsletter-recipient.general.salutation')"
                         label-property="displayName"
@@ -137,7 +141,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipient_detail_form_language %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="newsletterRecipient.languageId"
+                    {% else %}
                     v-model="newsletterRecipient.languageId"
+                    {% endif %}
                     :label="$tc('sw-newsletter-recipient.general.language')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                     entity="language"
@@ -148,7 +156,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipient_detail_form_sales_channel %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="newsletterRecipient.salesChannelId"
+                    {% else %}
                     v-model="newsletterRecipient.salesChannelId"
+                    {% endif %}
                     :label="$tc('sw-newsletter-recipient.general.salesChannel')"
                     label-property="name"
                     :disabled="true"

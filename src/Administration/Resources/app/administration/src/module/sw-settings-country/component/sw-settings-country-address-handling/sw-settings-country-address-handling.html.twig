@@ -96,7 +96,11 @@
                 </div>
 
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customerId"
+                    {% else %}
                     v-model="customerId"
+                    {% endif %}
                     class="sw-settings-country-address-handling__customer-select"
                     :label="$tc('sw-settings-country.detail.labelCustomer')"
                     :placeholder="$tc('sw-settings-country.detail.placeholderSelectCustomer')"
@@ -104,7 +108,11 @@
                     show-clearable-button
                     :criteria="customerCriteria"
                     :label-callback="customerLabel"
+                    {% if VUE3 %}
+                    @update:value="onChangeCustomer"
+                    {% else %}
                     @change="onChangeCustomer"
+                    {% endif %}
                 />
 
                 <sw-settings-country-preview-template :formatting-address="formattingAddress" />

@@ -115,7 +115,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_mail_template_select %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="mailTemplateId"
+        {% else %}
         v-model="mailTemplateId"
+        {% endif %}
         class="sw-flow-mail-send-modal__mail-template-select"
         required
         entity="mail_template"
@@ -125,7 +129,11 @@
         :label="$tc('sw-flow.modals.mail.labelEmailTemplate')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderEmailTemplate')"
         :error="mailTemplateIdError"
+        {% if VUE3 %}
+        @update:value="(id, template) => onChangeMailTemplate(id, template)"
+        {% else %}
         @change="(id, template) => onChangeMailTemplate(id, template)"
+        {% endif %}
     >
 
         <template #before-item-list>

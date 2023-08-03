@@ -262,7 +262,11 @@
                         {% block sw_review_detail_description_list_language %}
                         <sw-entity-single-select
                             id="language"
+                            {% if VUE3 %}
+                            v-model:value="review.languageId"
+                            {% else %}
                             v-model="review.languageId"
+                            {% endif %}
                             entity="language"
                             class="sw-review__language-select"
                             required

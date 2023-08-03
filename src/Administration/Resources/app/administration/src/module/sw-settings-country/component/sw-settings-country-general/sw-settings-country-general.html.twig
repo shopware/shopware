@@ -132,7 +132,11 @@
                 >
                     <template #suffix>
                         <sw-entity-single-select
+                            {% if VUE3 %}
+                            v-model:value="country.customerTax.currencyId"
+                            {% else %}
                             v-model="country.customerTax.currencyId"
+                            {% endif %}
                             class="sw-settings-country-general__customer-select-currency sw-settings-country-general__select"
                             entity="currency"
                             bordered
@@ -201,7 +205,11 @@
                 >
                     <template #suffix>
                         <sw-entity-single-select
+                            {% if VUE3 %}
+                            v-model:value="country.companyTax.currencyId"
+                            {% else %}
                             v-model="country.companyTax.currencyId"
+                            {% endif %}
                             class="sw-settings-country-general__company-select-currency sw-settings-country-general__select"
                             entity="currency"
                             show-clearable-button

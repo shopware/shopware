@@ -36,7 +36,11 @@
             />
 
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="context.paymentMethodId"
+                {% else %}
                 v-model="context.paymentMethodId"
+                {% endif %}
                 entity="payment_method"
                 label-property="distinguishableName"
                 class="sw_order_create-details__payment-method"
@@ -48,7 +52,11 @@
             />
 
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="context.currencyId"
+                {% else %}
                 v-model="context.currencyId"
+                {% endif %}
                 class="sw_order_create-details__currency"
                 entity="currency"
                 :criteria="currencyCriteria"
@@ -83,7 +91,11 @@
             />
 
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="context.shippingMethodId"
+                {% else %}
                 v-model="context.shippingMethodId"
+                {% endif %}
                 show-clearable-button
                 class="sw_order_create-details__shipping"
                 entity="shipping_method"
@@ -153,7 +165,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details__order_sales_channel %}
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="salesChannelId"
+                {% else %}
                 v-model="salesChannelId"
+                {% endif %}
                 disabled
                 entity="sales_channel"
                 class="sw-order-create-options__sales-channel"
@@ -165,7 +181,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_order_language %}
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="context.languageId"
+                {% else %}
                 v-model="context.languageId"
+                {% endif %}
                 entity="language"
                 class="sw-order-create-options__order-language"
                 :criteria="languageCriteria"

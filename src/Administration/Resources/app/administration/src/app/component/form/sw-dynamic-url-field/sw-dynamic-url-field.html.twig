@@ -69,7 +69,11 @@
         {% block sw_dynamic_url_field_content_type_inputs_detail %}
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
             v-model="linkTarget"
+            {% endif %}
             class="sw-dynamic-url-field__entity-single-select"
             should-show-active-state
             display-variants

@@ -31,7 +31,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_method_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="transaction.paymentMethodId"
+            {% else %}
             v-model="transaction.paymentMethodId"
+            {% endif %}
             entity="payment_method"
             label-property="distinguishableName"
             disabled
@@ -74,7 +78,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="delivery.shippingMethodId"
+            {% else %}
             v-model="delivery.shippingMethodId"
+            {% endif %}
             entity="shipping_method"
             disabled
             :criteria="salesChannelCriteria"
@@ -168,7 +176,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_sales_channel %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="order.salesChannelId"
+            {% else %}
             v-model="order.salesChannelId"
+            {% endif %}
             entity="sales_channel"
             disabled
             :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
@@ -180,7 +192,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_language %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="order.languageId"
+            {% else %}
             v-model="order.languageId"
+            {% endif %}
             entity="language"
             disabled
             :criteria="salesChannelCriteria"

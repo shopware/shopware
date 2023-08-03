@@ -69,7 +69,11 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail %}
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
             v-model="linkTarget"
+            {% endif %}
             class="sw-text-editor-link-menu__entity-single-select"
             entity="product"
             should-show-active-state

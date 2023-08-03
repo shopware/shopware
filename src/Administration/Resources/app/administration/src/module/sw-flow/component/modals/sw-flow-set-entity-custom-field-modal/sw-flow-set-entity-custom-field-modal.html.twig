@@ -27,7 +27,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_category %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="customFieldSetId"
+            {% else %}
             v-model="customFieldSetId"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__custom-field-set"
             entity="custom_field_set"
             required
@@ -52,7 +56,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_name %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="customFieldId"
+            {% else %}
             v-model="customFieldId"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__custom-field"
             entity="custom_field"
             required

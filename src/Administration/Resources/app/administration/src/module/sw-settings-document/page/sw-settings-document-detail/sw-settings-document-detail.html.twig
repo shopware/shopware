@@ -78,7 +78,11 @@
                         {% block sw_document_detail_base_general_input_type %}
                         <sw-entity-single-select
                             id="documentConfigTypes"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.documentTypeId"
+                            {% else %}
                             v-model="documentConfig.documentTypeId"
+                            {% endif %}
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-settings-document.detail.disabledTypeSelect'),

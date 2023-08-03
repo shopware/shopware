@@ -66,13 +66,21 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_content_product_stream_select %}
                     <sw-entity-single-select
+                        {% if VUE3 %}
+                        v-model:value="element.config.products.value"
+                        {% else %}
                         v-model="element.config.products.value"
+                        {% endif %}
                         entity="product_stream"
                         class="sw-cms-el-config-product-slider__product-stream-select"
                         :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
                         :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
                         show-clearable-button
+                        {% if VUE3 %}
+                        @update:value="onChangeProductStream"
+                        {% else %}
                         @change="onChangeProductStream"
+                        {% endif %}
                     />
                     {% endblock %}
 

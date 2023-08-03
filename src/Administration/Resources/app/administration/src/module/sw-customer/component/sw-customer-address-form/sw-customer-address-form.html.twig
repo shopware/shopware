@@ -35,7 +35,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_salutation_field %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="address.salutationId"
+            {% else %}
             v-model="address.salutationId"
+            {% endif %}
             class="sw-customer-address-form__salutation-select"
             entity="salutation"
             :label="$tc('sw-customer.addressForm.labelSalutation')"
@@ -152,7 +156,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_country_field %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="countryId"
+            {% else %}
             v-model="countryId"
+            {% endif %}
             class="sw-customer-address-form__country-select"
             entity="country"
             :criteria="countryCriteria"
@@ -173,7 +181,11 @@
             class="sw-customer-address-form__state-select-placeholder"
         >
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="address.countryStateId"
+                {% else %}
                 v-model="address.countryStateId"
+                {% endif %}
                 class="sw-customer-address-form__state-select"
                 entity="country_state"
                 :criteria="stateCriteria"

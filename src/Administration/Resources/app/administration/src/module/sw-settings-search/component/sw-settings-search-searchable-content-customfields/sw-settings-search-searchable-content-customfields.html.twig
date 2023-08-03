@@ -63,12 +63,20 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_field_editor %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="currentCustomFieldId"
+                    {% else %}
                     v-model="currentCustomFieldId"
+                    {% endif %}
                     class="sw-settings-search-custom-field-select"
                     entity="custom_field"
                     :criteria="customFieldFilteredCriteria"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="(id, customfield) => onSelectCustomField(customfield)"
+                    {% else %}
                     @change="(id, customfield) => onSelectCustomField(customfield)"
+                    {% endif %}
                 >
 
                     <template #selection-label-property="{ item }">

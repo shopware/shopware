@@ -14,7 +14,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_rule_modal_country_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="taxRule.countryId"
+            {% else %}
             v-model="taxRule.countryId"
+            {% endif %}
             show-clearable-button
             required
             :label="$tc('sw-settings-tax.taxRuleCard.labelCountryName')"
@@ -27,7 +31,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_rule_modal_type_select %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="taxRule.taxRuleTypeId"
+            {% else %}
             v-model="taxRule.taxRuleTypeId"
+            {% endif %}
             show-clearable-button
             required
             :label="$tc('sw-settings-tax.taxRuleCard.labelAppliesOn')"
@@ -35,7 +43,11 @@
             :error="taxRuleTaxRuleTypeIdError"
             :criteria="taxRuleTypeCriteria"
             entity="tax_rule_type"
+            {% if VUE3 %}
+            @update:value="changeRuleType"
+            {% else %}
             @change="changeRuleType"
+            {% endif %}
         />
         {% endblock %}
     </sw-container>

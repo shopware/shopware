@@ -69,11 +69,31 @@
             <table borders="0">
             <tr>
                 <th>Area</th>
-                <th>Covered overed</th>
+                <th>Covered lines</th>
                 <th>Valid lines</th>
                 <th>%</th>
             </tr>
             {%- for c in phpCoverage -%}
+                <tr>
+                    <td>{{ c.area }}</td>
+                    <td>{{ c.coveredLines }}</td>
+                    <td>{{ c.validLines }}</td>
+                    <td>{{ c.percentage }}</td>
+                </tr>
+            {%- endfor -%}
+        </table>
+    {%- endfor -%}
+
+    {%- for jsModule, jsCoverage in data.js -%}
+        <h2>{{ jsModule }} javascript coverage per area</h2>
+        <table borders="0">
+            <tr>
+                <th>Area</th>
+                <th>Covered lines</th>
+                <th>Valid lines</th>
+                <th>%</th>
+            </tr>
+            {%- for c in jsCoverage -%}
                 <tr>
                     <td>{{ c.area }}</td>
                     <td>{{ c.coveredLines }}</td>

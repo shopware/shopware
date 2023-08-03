@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Address;
 
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
-use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -58,12 +57,6 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         }
 
         if ($customer === null) {
-            return;
-        }
-
-        if (!$customer->getSalutationId()) {
-            $errors->add(new ProfileSalutationMissingError($customer));
-
             return;
         }
 

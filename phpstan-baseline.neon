@@ -14988,11 +14988,6 @@ parameters:
 			path: tests/integration/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/Core/Checkout/Customer/SalesChannel/ChangeProfileRouteTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\|null\\.$#"
 			count: 2
 			path: tests/integration/Core/Checkout/Shipping/SalesChannel/ShippingMethodRouteTest.php

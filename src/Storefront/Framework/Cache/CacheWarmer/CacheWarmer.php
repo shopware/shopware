@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -31,6 +33,9 @@ class CacheWarmer
         $cacheId ??= $this->cacheIdLoader->load();
 
         $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+        );
         $domains = $this->salesChannelDomainRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         $this->cacheIdLoader->write($cacheId);

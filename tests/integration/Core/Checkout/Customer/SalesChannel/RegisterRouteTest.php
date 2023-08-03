@@ -17,15 +17,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -33,12 +36,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
- *
  * @internal
  *
  * @group store-api
  */
+#[Package('customer-order')]
 class RegisterRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -1230,6 +1232,65 @@ class RegisterRouteTest extends TestCase
 
         static::assertNotEmpty($response['errors']);
         static::assertEquals('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testRegistrationWithExistingNotSpecifiedSalutation(): void
+    {
+        $connection = KernelLifecycleManager::getConnection();
+
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['salutationId']);
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($response['salutationId']);
+        static::assertNotEmpty($response['salutation']);
+        static::assertSame($response['salutation']['salutationKey'], SalutationDefinition::NOT_SPECIFIED);
+    }
+
+    public function testRegistrationToNotSpecifiedWithoutExistingSalutation(): void
+    {
+        $connection = KernelLifecycleManager::getConnection();
+
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['salutationId']);
+
+        $connection->executeStatement(
+            '
+					DELETE FROM salutation WHERE salutation_key = :salutationKey
+				',
+            ['salutationKey' => SalutationDefinition::NOT_SPECIFIED]
+        );
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNull($response['salutationId']);
     }
 
     /**

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -583,6 +584,97 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(0.7, $tax['tax']);
         static::assertSame(7, $tax['taxRate']);
         static::assertSame(10, $tax['price']);
+    }
+
+    public function testOrderWithExistingNotSpecifiedSalutation(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+
+        $this->createCustomerAndLogin($email, $password, PreparedTestPaymentHandler::class, true);
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order',
+            );
+
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($response['orderCustomer']);
+        static::assertNotNull($response['orderCustomer']['salutation']);
+        static::assertSame($response['orderCustomer']['salutation']['salutationKey'], SalutationDefinition::NOT_SPECIFIED);
+    }
+
+    public function testOrderToNotSpecifiedWithoutExistingSalutation(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+
+        $connection->executeStatement(
+            '
+					DELETE FROM salutation WHERE salutation_key = :salutationKey
+				',
+            ['salutationKey' => SalutationDefinition::NOT_SPECIFIED]
+        );
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->createCustomerAndLogin($email, $password, PreparedTestPaymentHandler::class, true);
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order',
+            );
+
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($response['orderCustomer']);
+        static::assertNull($response['orderCustomer']['salutationId']);
     }
 
     protected function catchEvent(string $eventName, ?Event &$eventResult): void

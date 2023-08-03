@@ -108,7 +108,7 @@ class OrderTransactionCaptureEntity extends Entity
         return $this->orderTransactionVersionId;
     }
 
-    public function setOrderVersionId(string $orderTransactionVersionId): void
+    public function setOrderTransactionVersionId(string $orderTransactionVersionId): void
     {
         $this->orderTransactionVersionId = $orderTransactionVersionId;
     }

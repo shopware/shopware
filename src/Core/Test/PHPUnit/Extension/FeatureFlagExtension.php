@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test;
+namespace Shopware\Core\Test\PHPUnit\Extension;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Runner\AfterTestHook;

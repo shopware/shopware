@@ -165,7 +165,7 @@ parameters:
 
         - # NEXT-25276 - Needs to be fixed with the update ot PHPUnit 10
             message: '#deprecated interface PHPUnit\\Framework\\TestListener#'
-            path: src/Core/Framework/Test/TestCaseBase/DatadogListener.php
+            path: src/Core/Test/PHPUnit/Extension/DatadogListener.php
 
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*class Shopware\\#'

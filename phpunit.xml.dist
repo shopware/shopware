@@ -144,13 +144,10 @@
             </arguments>
         </listener>
         <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
-        <listener class="Shopware\Core\Framework\Test\TestCaseBase\DatadogListener" />
-
-        <!--Enable to see Test structure violations. (Not formatted) -->
-        <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->
+        <listener class="Shopware\Core\Test\PHPUnit\Extension\DatadogListener" />
     </listeners>
     <extensions>
-        <extension class="Shopware\Core\Test\FeatureFlagExtension" />
+        <extension class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension" />
         <!--Enable to see the db sideeffects of the tests. -->
         <!--<extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension" />-->
     </extensions>

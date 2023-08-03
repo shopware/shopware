@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test;
+namespace Shopware\Core\Test\Stub\MessageBus;
 
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @internal
- *
- * @deprecated tag:v6.6.0 - Use \Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus instead
+ * @final
  */
 class CollectingMessageBus implements MessageBusInterface
 {

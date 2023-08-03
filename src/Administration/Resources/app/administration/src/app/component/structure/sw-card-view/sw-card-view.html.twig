@@ -4,7 +4,9 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_card_view_content %}
     <div class="sw-card-view__content">
-        <sw-error-summary />
+        <sw-error-summary
+            v-if="showErrorSummary"
+        />
 
         <slot>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

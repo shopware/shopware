@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\SalesChannel\Context;
+namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
@@ -49,7 +49,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxId);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(15.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(15.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -90,7 +90,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -131,7 +131,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -170,7 +170,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -215,7 +215,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(8.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(8.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -258,7 +258,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(7.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(7.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -318,7 +318,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(7.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(7.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -378,7 +378,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(15.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(15.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -404,7 +404,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(10.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(10.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -442,7 +442,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(10.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(10.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -478,7 +478,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -507,7 +507,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(15.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(15.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -535,7 +535,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(15.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(15.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -592,7 +592,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(9.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(9.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
@@ -650,7 +650,7 @@ class SalesChannelContextTest extends TestCase
         $taxRuleCollection = $salesChannelContext->buildTaxRules($taxData['id']);
 
         static::assertCount(1, $taxRuleCollection);
-        static::assertSame(15.0, $taxRuleCollection->first()->getTaxRate());
+        static::assertSame(15.0, $taxRuleCollection->first()?->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 

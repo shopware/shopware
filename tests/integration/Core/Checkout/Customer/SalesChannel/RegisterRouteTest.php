@@ -40,7 +40,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @group store-api
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class RegisterRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -1232,6 +1232,65 @@ class RegisterRouteTest extends TestCase
 
         static::assertNotEmpty($response['errors']);
         static::assertEquals('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testRegistrationWithExistingNotSpecifiedSalutation(): void
+    {
+        $connection = KernelLifecycleManager::getConnection();
+
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['salutationId']);
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($response['salutationId']);
+        static::assertNotEmpty($response['salutation']);
+        static::assertSame($response['salutation']['salutationKey'], SalutationDefinition::NOT_SPECIFIED);
+    }
+
+    public function testRegistrationToNotSpecifiedWithoutExistingSalutation(): void
+    {
+        $connection = KernelLifecycleManager::getConnection();
+
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['salutationId']);
+
+        $connection->executeStatement(
+            '
+					DELETE FROM salutation WHERE salutation_key = :salutationKey
+				',
+            ['salutationKey' => SalutationDefinition::NOT_SPECIFIED]
+        );
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNull($response['salutationId']);
     }
 
     /**

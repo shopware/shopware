@@ -159,7 +159,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         ));
     }
 
-    private function getDefaultSalutationId(SalesChannelContext $context): string
+    private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -170,6 +170,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         /** @var array<string> $ids */
         $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
 
-        return $ids[0] ?? '';
+        return $ids[0] ?? null;
     }
 }

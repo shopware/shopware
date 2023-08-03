@@ -19,7 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class UpsertAddressTest extends TestCase
 {
     use IntegrationTestBehaviour;

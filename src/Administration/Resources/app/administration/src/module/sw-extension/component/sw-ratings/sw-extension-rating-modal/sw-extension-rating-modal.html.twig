@@ -24,7 +24,13 @@
     <template #modal-footer>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_rating_modal_slot_footer_gtc_checkbox %}
-        <sw-gtc-checkbox v-model="tocAccepted" />
+        <sw-gtc-checkbox
+            {% if VUE3 %}
+            v-model:value="tocAccepted"
+            {% else %}
+            v-model="tocAccepted"
+            {% endif %}
+        />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

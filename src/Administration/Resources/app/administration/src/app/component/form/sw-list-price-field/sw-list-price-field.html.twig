@@ -68,7 +68,11 @@
             :inherited="isInherited"
             class="sw-list-price-field__list-price-field"
             :currency="currency"
+            {% if VUE3 %}
+            @update:price="listPriceChanged"
+            {% else %}
             @change="listPriceChanged"
+            {% endif %}
         />
         {% endblock %}
     </div>
@@ -93,7 +97,11 @@
             :inherited="isInherited"
             class="sw-list-price-field__regulation-price-field"
             :currency="currency"
+            {% if VUE3 %}
+            @update:price="regulationPriceChanged"
+            {% else %}
             @change="regulationPriceChanged"
+            {% endif %}
         />
         {% endblock %}
     </div>

@@ -528,11 +528,19 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
         <sw-select-number-field
+            {% if VUE3 %}
+            v-model:value="productExport.interval"
+            {% else %}
             v-model="productExport.interval"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.interval')"
             :options="getIntervalOptions"
             :disabled="!acl.can('sales_channel.editor')"
+            {% if VUE3 %}
+            @update:value="changeInterval"
+            {% else %}
             @change="changeInterval"
+            {% endif %}
         />
         {% endblock %}
 

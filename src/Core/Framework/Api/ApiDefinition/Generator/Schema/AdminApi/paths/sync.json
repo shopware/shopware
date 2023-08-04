@@ -81,12 +81,16 @@
                                 "schema": {
                                     "properties": {
                                         "data": {
-                                            "description": "Object with information about the updated entites",
+                                            "description": "Object with information about updated entites",
                                             "type": "object"
                                         },
-                                        "success": {
-                                            "description": "Indicator if the sync was successful.",
-                                            "type": "boolean"
+                                        "notFound": {
+                                            "description": "Object with information about not found entites",
+                                            "type": "object"
+                                        },
+                                        "deleted": {
+                                            "description": "Object with information about deleted entites",
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"

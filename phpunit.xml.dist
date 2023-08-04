@@ -114,11 +114,11 @@
             <directory>src/Core/System/Test</directory>
         </testsuite>
         <testsuite name="unit">
-            <directory>tests/unit/php</directory>
+            <directory>tests/unit</directory>
         </testsuite>
 
         <testsuite name="integration">
-            <directory>tests/integration/php</directory>
+            <directory>tests/integration</directory>
         </testsuite>
 
         <testsuite name="migration-tests">
@@ -128,7 +128,7 @@
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
-            <directory>tests/unit/php</directory>
+            <directory>tests/unit</directory>
             <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>

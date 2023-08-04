@@ -637,7 +637,7 @@ class AuthControllerTest extends TestCase
 
     public function testLoginFailsForInactiveApp(): void
     {
-        $path = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
+        $path = __DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test';
         $this->loadAppsFromDir($path, false);
 
         $browser = $this->createClient();

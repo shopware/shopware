@@ -525,8 +525,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Shopware\\Tests\\Unit\\": "tests/unit/php/",
-            "Shopware\\Tests\\Integration\\": "tests/integration/php/",
+            "Shopware\\Tests\\Unit\\": "tests/unit/",
+            "Shopware\\Tests\\Integration\\": "tests/integration/",
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
             "Shopware\\Tests\\Migration\\": "tests/migration/"
         }

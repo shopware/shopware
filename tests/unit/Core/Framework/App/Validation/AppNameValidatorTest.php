@@ -21,7 +21,7 @@ class AppNameValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->appNameValidator = new AppNameValidator();
-        $this->testAppDir = __DIR__ . '/../../../../../../integration/php/Core/Framework/App/Manifest/_fixtures';
+        $this->testAppDir = __DIR__ . '/../../../../../integration/Core/Framework/App/Manifest/_fixtures';
     }
 
     public function testValidate(): void

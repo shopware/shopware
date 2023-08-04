@@ -14,11 +14,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package customer-order
+ *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;

@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class MediaUploadControllerTest extends TestCase
 {
     private FileSaver&MockObject $fileSaver;

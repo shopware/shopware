@@ -3,10 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\Locale;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LocaleException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -14,34 +11,38 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\Locale\LocaleException
  */
-#[Package('buyers-experience')]
 class LocaleExceptionTest extends TestCase
 {
-    public function testLocaleDoesNotExist(): void
+    /**
+     * @dataProvider exceptionDataProvider
+     */
+    public function testItThrowsException(LocaleException $exception, int $statusCode, string $errorCode, string $message): void
     {
-        $e = LocaleException::localeDoesNotExists('myCustomLocale');
+        $exceptionWasThrown = false;
 
-        static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
-        static::assertSame(LocaleException::LOCALE_DOES_NOT_EXISTS_EXCEPTION, $e->getErrorCode());
-    }
+        try {
+            throw $exception;
+        } catch (LocaleException $cmsException) {
+            static::assertEquals($statusCode, $cmsException->getStatusCode());
+            static::assertEquals($errorCode, $cmsException->getErrorCode());
+            static::assertEquals($message, $cmsException->getMessage());
 
-    public function testLanguageNotFound(): void
-    {
-        $e = LocaleException::languageNotFound('foo');
-
-        static::assertSame(Response::HTTP_PRECONDITION_FAILED, $e->getStatusCode());
-        static::assertSame(LocaleException::LANGUAGE_NOT_FOUND, $e->getErrorCode());
+            $exceptionWasThrown = true;
+        } finally {
+            static::assertTrue($exceptionWasThrown, 'Excepted exception with error code ' . $errorCode . ' to be thrown.');
+        }
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
-     * @deprecated tag:v6.6.0.0
+     * @return array<string, array{exception: LocaleException, statusCode: int, errorCode: string, message: string}>
      */
-    public function testLanguageNotFoundLegacy(): void
+    public static function exceptionDataProvider(): iterable
     {
-        $e = LocaleException::languageNotFound('foo');
-
-        static::assertInstanceOf(LanguageNotFoundException::class, $e);
+        yield LocaleException::LOCALE_DOES_NOT_EXISTS_EXCEPTION => [
+            'exception' => LocaleException::localeDoesNotExists('myCustomLocale'),
+            'statusCode' => Response::HTTP_NOT_FOUND,
+            'errorCode' => LocaleException::LOCALE_DOES_NOT_EXISTS_EXCEPTION,
+            'message' => 'The locale myCustomLocale does not exists.',
+        ];
     }
 }

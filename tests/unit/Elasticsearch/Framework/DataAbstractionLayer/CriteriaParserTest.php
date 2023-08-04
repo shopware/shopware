@@ -32,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldService;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -151,6 +150,10 @@ class CriteriaParserTest extends TestCase
 
     public function testParseUnsupportedFilter(): void
     {
+        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage(sprintf('Unsupported filter %s', CustomFilter::class));
         $definition = $this->getDefinition();
 
         $storage = $this->createMock(AbstractKeyValueStorage::class);
@@ -158,8 +161,6 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), $storage);
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage(sprintf('Provided filter of class %s is not supported', CustomFilter::class));
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
     }
 
@@ -589,7 +590,7 @@ class CriteriaParserTest extends TestCase
 
         $customFieldService = $this->createMock(CustomFieldService::class);
 
-        if ($customField instanceof Field) {
+        if ($customField !== null) {
             $customFieldService->expects(static::once())->method('getCustomField')->willReturn($customField);
         }
 
@@ -793,7 +794,6 @@ class CriteriaParserTest extends TestCase
                         Defaults::LANGUAGE_SYSTEM,
                     ],
                     'suffix' => 'foo',
-                    'order' => 'asc',
                 ],
             ],
             true,
@@ -810,7 +810,6 @@ class CriteriaParserTest extends TestCase
                         Defaults::LANGUAGE_SYSTEM,
                     ],
                     'suffix' => 'foo',
-                    'order' => 'asc',
                 ],
             ],
             true,

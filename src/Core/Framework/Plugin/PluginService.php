@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\IOInterface;
+use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackageInterface;
+use Composer\Package\Version\VersionParser;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -63,7 +65,15 @@ class PluginService
                 continue;
             }
 
-            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
+            $version = $info->getVersion();
+
+            // default branches are normalized to alias internally @see https://github.com/composer/composer/blob/95dca79fc2e18c3a4e33f207c1fcaa7d5b559400/src/Composer/Package/Locker.php#L353,
+            // when showing the version name, they will be normalized back to real name of the alias @see https://github.com/composer/composer/blob/95dca79fc2e18c3a4e33f207c1fcaa7d5b559400/src/Composer/Command/ShowCommand.php#L752
+            if ($version === VersionParser::DEFAULT_BRANCH_ALIAS && $info instanceof AliasPackage) {
+                $version = $info->getAliasOf()->getVersion();
+            }
+
+            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($version);
             $extra = $info->getExtra();
             $license = $info->getLicense();
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';

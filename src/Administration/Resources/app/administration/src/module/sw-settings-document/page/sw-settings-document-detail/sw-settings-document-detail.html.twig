@@ -295,7 +295,11 @@
                         {% block sw_settings_document_detail_content_field_delivery_countries %}
                         <sw-entity-multi-id-select
                             v-if="showCountriesSelect"
+                            {% if VUE3 %}
+                            v-model:ids="documentConfig.config.deliveryCountries"
+                            {% else %}
                             v-model="documentConfig.config.deliveryCountries"
+                            {% endif %}
                             class="sw-settings-document-detail__field_delivery_countries"
                             :repository="countryRepository"
                             :disabled="!acl.can('document.editor')"

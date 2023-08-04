@@ -201,7 +201,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_document_types %}
     <sw-entity-multi-id-select
+        {% if VUE3 %}
+        v-model:ids="documentTypeIds"
+        {% else %}
         v-model="documentTypeIds"
+        {% endif %}
         :repository="documentTypeRepository"
         class="sw-flow-mail-send-modal__document-types"
         :label="$tc('sw-flow.modals.mail.labelLatestDocuments')"

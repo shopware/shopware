@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountAbsoluteCa
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -72,6 +74,32 @@ class DiscountAbsoluteCalculatorTest extends TestCase
         static::assertEquals($discountOut, $price->getPrice()->getTotalPrice());
     }
 
+    public function testInvalidPriceDefinitionThrow(): void
+    {
+        $context = Generator::createSalesChannelContext();
+
+        $rounding = new CashRounding();
+
+        $taxCalculator = new TaxCalculator();
+
+        $calculator = new AbsolutePriceCalculator(
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator($taxCalculator, $rounding),
+                new NetPriceCalculator($taxCalculator, $rounding),
+            ),
+            new PercentageTaxRuleBuilder()
+        );
+
+        $discountCalculator = new DiscountAbsoluteCalculator($calculator);
+
+        $priceDefinition = new PercentagePriceDefinition(23.5);
+        $discount = new DiscountLineItem('foo', $priceDefinition, ['discountScope' => 'foo', 'discountType' => 'bar'], null);
+
+        static::expectException(InvalidPriceDefinitionException::class);
+
+        $discountCalculator->calculate($discount, new DiscountPackageCollection(), $context);
+    }
+
     /**
      * @return iterable<string, float[]>
      */
@@ -80,5 +108,6 @@ class DiscountAbsoluteCalculatorTest extends TestCase
         yield 'discount greater than packages sum' => [100.00, 90.00, -90.00];
         yield 'discount less than packages sum' => [45.00, 90.00, -45.00];
         yield 'discount equal to packages sum' => [45.00, 45.00, -45.00];
+        yield 'discount for zero price product' => [0.0, 0.0, 0.0];
     }
 }

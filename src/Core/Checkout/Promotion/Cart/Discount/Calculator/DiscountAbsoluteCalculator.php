@@ -67,7 +67,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 
                 $itemTotal = $lineItem->getPrice()->getTotalPrice();
 
-                $factor = $itemTotal / $totalOriginalSum;
+                $factor = $totalOriginalSum === 0.0 ? 0 : $itemTotal / $totalOriginalSum;
 
                 $items[] = new DiscountCompositionItem(
                     $lineItem->getId(),

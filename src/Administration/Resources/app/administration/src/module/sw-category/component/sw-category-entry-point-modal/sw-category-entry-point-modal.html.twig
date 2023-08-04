@@ -9,7 +9,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_modal_sales_channel_selection %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="selectedSalesChannelId"
+        {% else %}
         v-model="selectedSalesChannelId"
+        {% endif %}
         class="sw-category-entry-point-modal__sales-channel-selection"
         :label="$tc('sw-category.base.entry-point-modal.salesChannelSelection')"
         :options="salesChannelOptions"

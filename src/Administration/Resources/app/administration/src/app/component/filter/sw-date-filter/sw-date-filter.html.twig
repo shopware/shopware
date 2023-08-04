@@ -15,11 +15,19 @@
     {% block sw_date_filter_timeframe %}
     <sw-single-select
         v-if="filter.showTimeframe"
+        {% if VUE3 %}
+        v-model:value="dateValue.timeframe"
+        {% else %}
         v-model="dateValue.timeframe"
+        {% endif %}
         class="sw-date-filter__timeframe"
         placeholder="Select timeframe"
         :options="timeframeOptions"
+        {% if VUE3 %}
+        @update:value="onTimeframeSelect"
+        {% else %}
         @change="onTimeframeSelect"
+        {% endif %}
     />
     {% endblock %}
 

@@ -12,7 +12,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_affiliate_and_campaign_code_modal_entity %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="entity"
+            {% else %}
             v-model="entity"
+            {% endif %}
             class="sw-flow-affiliate-and-campaign-code-modal__entity"
             required
             show-clearable-button

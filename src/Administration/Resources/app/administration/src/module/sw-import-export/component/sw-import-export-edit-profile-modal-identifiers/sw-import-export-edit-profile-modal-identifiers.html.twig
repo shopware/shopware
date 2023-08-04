@@ -31,7 +31,11 @@
                 :options="item.options"
                 :disabled="profile.systemDefault"
                 :show-clearable-button="item.selected !== 'id'"
+                {% if VUE3 %}
+                @update:value="onChangeIdentifier($event, item.entityName)"
+                {% else %}
                 @change="onChangeIdentifier($event, item.entityName)"
+                {% endif %}
             />
             <sw-import-export-entity-path-select
                 v-else

@@ -12,7 +12,11 @@
         :options="replyToOptions"
         :label="$tc('sw-flow.modals.mail.useDifferentReplyToLabel')"
         :help-text="buildReplyToTooltip('sw-flow.modals.mail.tooltipDifferentReplyTo')"
+        {% if VUE3 %}
+        @update:value="changeShowReplyToField"
+        {% else %}
         @change="changeShowReplyToField"
+        {% endif %}
     />
 
     <sw-text-field
@@ -29,12 +33,20 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="mailRecipient"
+        {% else %}
         v-model="mailRecipient"
+        {% endif %}
         class="sw-flow-mail-send-modal__recipient"
         :options="recipientOptions"
         :label="$tc('sw-flow.modals.mail.labelRecipient')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderRecipient')"
+        {% if VUE3 %}
+        @update:value="onChangeRecipient"
+        {% else %}
         @change="onChangeRecipient"
+        {% endif %}
     />
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

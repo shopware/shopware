@@ -51,7 +51,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_encryption %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.encryption']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.encryption']"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.encryption')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.encryption-placeholder')"
         :options="encryptionOptions"

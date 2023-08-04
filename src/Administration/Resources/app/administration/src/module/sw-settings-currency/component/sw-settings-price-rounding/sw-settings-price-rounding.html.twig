@@ -55,7 +55,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_interval %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="itemRounding.interval"
+            {% else %}
             v-model="itemRounding.interval"
+            {% endif %}
             v-tooltip="{
                 message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
                 disabled: !itemIntervalDisabled,
@@ -146,7 +150,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_interval %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="totalRounding.interval"
+            {% else %}
             v-model="totalRounding.interval"
+            {% endif %}
             v-tooltip="{
                 message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
                 disabled: !totalIntervalDisabled,

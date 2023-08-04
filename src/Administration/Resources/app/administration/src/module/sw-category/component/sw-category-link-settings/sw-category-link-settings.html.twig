@@ -8,7 +8,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_main %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="mainType"
+        {% else %}
         v-model="mainType"
+        {% endif %}
         class="sw-category-link-settings__type"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.mainTypeLabel')"
@@ -22,14 +26,22 @@
     {% block sw_category_detail_link_type_select_entity %}
     <sw-single-select
         v-if="isInternal"
+        {% if VUE3 %}
+        v-model:value="category.linkType"
+        {% else %}
         v-model="category.linkType"
+        {% endif %}
         class="sw-category-link-settings__entity"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.internalTypeLabel')"
         :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
         :options="entityValues"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="changeEntity"
+        {% else %}
         @change="changeEntity"
+        {% endif %}
     />
     {% endblock %}
 

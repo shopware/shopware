@@ -12,7 +12,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_to_field %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="entity"
+            {% else %}
             v-model="entity"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__entity-field"
             required
             show-clearable-button
@@ -20,7 +24,11 @@
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.placeholderToField')"
             :error="entityError"
             :options="entityOptions"
+            {% if VUE3 %}
+            @update:value="onEntityChange()"
+            {% else %}
             @change="onEntityChange()"
+            {% endif %}
         />
         {% endblock %}
 
@@ -86,7 +94,11 @@
         {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
         <sw-single-select
             v-if="customFieldId"
+            {% if VUE3 %}
+            v-model:value="fieldOptionSelected"
+            {% else %}
             v-model="fieldOptionSelected"
+            {% endif %}
             class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
             :options="fieldOptions"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"

@@ -357,7 +357,7 @@
                                                                                     :type="mapSwFieldTypes(field.type)"
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
-                                                                                    :value="currentValue"
+                                                                                    :value="currentValue | cssValue"
                                                                                     @change="updateCurrentValue"
                                                                                     @input="updateCurrentValue"
                                                                                 >

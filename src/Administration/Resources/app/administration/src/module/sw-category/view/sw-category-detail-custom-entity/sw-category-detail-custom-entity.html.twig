@@ -34,7 +34,7 @@
             :select-label="$tc('sw-category.base.customEntity.instanceAssignment.label')"
             :placeholder="$tc('sw-category.base.customEntity.instanceAssignment.placeholder')"
             {% if VUE3 %}
-            @update:entity-collection="onAssignmentChange"
+            @update:entityCollection="onAssignmentChange"
             {% else %}
             @change="onAssignmentChange"
             {% endif %}

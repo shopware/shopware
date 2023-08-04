@@ -57,7 +57,11 @@
             :value="promotionCodes"
             :label="$tc('sw-order.createBase.labelPromotions')"
             :validate="validatePromotions"
+            {% if VUE3 %}
+            @update:value="changePromotionCodes"
+            {% else %}
             @change="changePromotionCodes"
+            {% endif %}
         >
             <template #message-add-data>
                 <span>{{ $tc('sw-order.initialModal.options.placeholderAddPromotion') }}</span>

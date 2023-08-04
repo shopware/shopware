@@ -119,13 +119,21 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_tracking_codes %}
         <sw-multi-tag-select
+            {% if VUE3 %}
+            v-model:value="delivery.trackingCodes"
+            {% else %}
             v-model="delivery.trackingCodes"
+            {% endif %}
             class="sw-order-user-card__tracking-code-select"
             :disabled="!acl.can('order.editor')"
             :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$tc('sw-order.detailBase.labelTrackingCodes')"
             :validate="validateTrackingCode"
+            {% if VUE3 %}
+            @update:value="saveAndReload"
+            {% else %}
             @change="saveAndReload"
+            {% endif %}
         >
             <template #message-add-data>
                 <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>

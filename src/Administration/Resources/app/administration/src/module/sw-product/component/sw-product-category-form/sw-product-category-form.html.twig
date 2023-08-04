@@ -199,7 +199,11 @@
                 class="sw-product-category-form__search-keyword-field"
                 :value="currentValue ? currentValue : []"
                 :placeholder="$tc('sw-product.categoryForm.placeholderSearchKeywords')"
+                {% if VUE3 %}
+                @update:value="updateCurrentValue"
+                {% else %}
                 @change="updateCurrentValue"
+                {% endif %}
             >
                 <template #message-add-data>
                     <span>{{ $tc('sw-product.categoryForm.textAddSearchKeyword') }}</span>

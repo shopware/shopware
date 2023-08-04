@@ -23,6 +23,8 @@ Component.register('sw-multi-tag-select', {
 
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
@@ -129,15 +131,34 @@ Component.register('sw-multi-tag-select', {
                 return;
             }
 
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', [...this.value, this.searchTerm]);
+                this.searchTerm = '';
+
+                return;
+            }
+
             this.$emit('change', [...this.value, this.searchTerm]);
             this.searchTerm = '';
         },
 
         remove({ value }) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.value.filter(entry => entry !== value));
+
+                return;
+            }
+
             this.$emit('change', this.value.filter(entry => entry !== value));
         },
 
         removeLastItem() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.value.slice(0, -1));
+
+                return;
+            }
+
             this.$emit('change', this.value.slice(0, -1));
         },
 

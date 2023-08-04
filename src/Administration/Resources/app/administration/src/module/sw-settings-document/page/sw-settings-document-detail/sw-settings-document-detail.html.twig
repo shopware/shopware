@@ -189,7 +189,11 @@
                             class="media-column"
                         >
                             <sw-media-field
+                                {% if VUE3 %}
+                                v-model:mediaId="documentConfig.logoId"
+                                {% else %}
                                 v-model="documentConfig.logoId"
+                                {% endif %}
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelOptionMedia')"
                             />

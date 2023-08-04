@@ -104,7 +104,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_customer_group_detail_content_card_display_gross %}
                             <sw-boolean-radio-group
+                                {% if VUE3 %}
+                                v-model:value="customerGroup.displayGross"
+                                {% else %}
                                 v-model="customerGroup.displayGross"
+                                {% endif %}
                                 bordered
                                 :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
                                 :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"

@@ -246,7 +246,7 @@ PHP unit coverage:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
-            --bootstrap tests/unit/php/Common/UnitTestBootstrap.php
+            --bootstrap tests/unit/Common/UnitTestBootstrap.php
             --exclude-group=quarantined
             --log-junit phpunit.junit.xml
             --testsuite unit
@@ -384,10 +384,9 @@ PHP Full:
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php
                 sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
-                rm -rf tests/integration/php/Administration
-                rm -rf tests/integration/php/Elasticsearch
-                rm -rf tests/integration/php/Storefront
-                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+                rm -rf tests/integration/Administration
+                rm -rf tests/integration/Elasticsearch
+                rm -rf tests/integration/Storefront
                 composer dump-autoload -o
             fi
         - FAILED=0
@@ -447,7 +446,7 @@ PHP unit per area:
       - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
       - php $PHP_OPTIONS vendor/bin/phpunit
         --configuration phpunit.$PRODUCT_AREA.xml
-        --bootstrap tests/unit/php/Common/UnitTestBootstrap.php
+        --bootstrap tests/unit/Common/UnitTestBootstrap.php
         --log-junit phpunit.junit.xml
         --testsuite unit
         --exclude-group=quarantined

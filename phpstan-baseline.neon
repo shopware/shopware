@@ -15438,272 +15438,272 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\LineItem\\\\\\\\LineItem' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Checkout/Cart/LineItemFactoryRegistryTest.php
+			path: tests/integration/Core/Checkout/Cart/LineItemFactoryRegistryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:createTestOrderAndReturnCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
+			path: tests/integration/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Checkout/Customer/SalesChannel/ChangeProfileRouteTest.php
+			path: tests/integration/Core/Checkout/Customer/SalesChannel/ChangeProfileRouteTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 2
-			path: tests/integration/php/Core/Checkout/Customer/SalesChannel/RegisterRouteTest.php
+			path: tests/integration/Core/Checkout/Customer/SalesChannel/RegisterRouteTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\|null\\.$#"
 			count: 2
-			path: tests/integration/php/Core/Checkout/Shipping/SalesChannel/ShippingMethodRouteTest.php
+			path: tests/integration/Core/Checkout/Shipping/SalesChannel/ShippingMethodRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$product of method Shopware\\\\Core\\\\Content\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilder\\:\\:getProductSeoCategory\\(\\) expects Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
 			count: 5
-			path: tests/integration/php/Core/Content/Category/Service/CategoryBreadcrumbBuilderTest.php
+			path: tests/integration/Core/Content/Category/Service/CategoryBreadcrumbBuilderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 2
-			path: tests/integration/php/Core/Content/Cms/Subscriber/CmsPageBeforeDefaultChangeSubscriberTest.php
+			path: tests/integration/Core/Content/Cms/Subscriber/CmsPageBeforeDefaultChangeSubscriberTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'confirmUrl', 'confirmUrl' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'contactFormData', 'contactFormData' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'contents', 'contents' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'contextToken', 'contextToken' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'data', 'data' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'email', 'email' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'mediaId', 'mediaId' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'name', 'name' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'recipients', 'recipients' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'resetUrl', 'resetUrl' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'reviewFormData', 'reviewFormData' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'shopName', 'shopName' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'subject', 'subject' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'templateData', 'templateData' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with arguments 'url', 'url' and 'The variable value…' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
+			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
 			message: "#^Cannot call method getCity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Cannot call method getCompany\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Cannot call method getCountryId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Cannot call method getCountryStateId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Cannot call method getDepartment\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Cannot call method getStreet\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Cannot call method getZipcode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\OrderSerializerTest\\:\\:createOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
+			path: tests/integration/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$property\\-\\>getValue\\(\\$renderer\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Mail/Service/MailServiceTest.php
+			path: tests/integration/Core/Content/Mail/Service/MailServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizerTest\\:\\:getProductCategoryList\\(\\) should return list\\<string\\>\\|null but returns array\\<string\\>\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
+			path: tests/integration/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\MoveShopPermanentlyStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/AppUrlChangeResolver/MoveShopPermanentlyStrategyTest.php
+			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/MoveShopPermanentlyStrategyTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\ReinstallAppsStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/AppUrlChangeResolver/ReinstallAppsStrategyTest.php
+			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/ReinstallAppsStrategyTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\UninstallAppsStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/AppUrlChangeResolver/UninstallAppsStrategyTest.php
+			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/UninstallAppsStrategyTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$cmsExtensions\\-\\>getBlocks\\(\\)\\-\\>getBlocks\\(\\)\\[0\\]\\-\\>getSlots\\(\\)\\[1\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Cms/Xml/ConfigTest.php
+			path: tests/integration/Core/Framework/App/Cms/Xml/ConfigTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$config\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Cms/Xml/ConfigTest.php
+			path: tests/integration/Core/Framework/App/Cms/Xml/ConfigTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$slot\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 4
-			path: tests/integration/php/Core/Framework/App/Cms/Xml/SlotTest.php
+			path: tests/integration/Core/Framework/App/Cms/Xml/SlotTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$slot\\-\\>getConfig\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Cms/Xml/SlotTest.php
+			path: tests/integration/Core/Framework/App/Cms/Xml/SlotTest.php
 
 		-
 			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Command/ActivateAppCommandTest.php
+			path: tests/integration/Core/Framework/App/Command/ActivateAppCommandTest.php
 
 		-
 			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Command/DeactivateAppCommandTest.php
+			path: tests/integration/Core/Framework/App/Command/DeactivateAppCommandTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with 'domains' and 'domains' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Delta/DomainsDeltaProviderTest.php
+			path: tests/integration/Core/Framework/App/Delta/DomainsDeltaProviderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with 'permissions' and 'permissions' will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Delta/PermissionsDeltaProviderTest.php
+			path: tests/integration/Core/Framework/App/Delta/PermissionsDeltaProviderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Manifest\\\\\\\\Manifest' and Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Manifest will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Event/AppInstalledEventTest.php
+			path: tests/integration/Core/Framework/App/Event/AppInstalledEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Manifest\\\\\\\\Manifest' and Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Manifest will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Event/AppUpdatedEventTest.php
+			path: tests/integration/Core/Framework/App/Event/AppUpdatedEventTest.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getStateId\\(\\)\\.$#"
 			count: 2
-			path: tests/integration/php/Core/Framework/App/Payment/AbstractAppPaymentHandlerTestCase.php
+			path: tests/integration/Core/Framework/App/Payment/AbstractAppPaymentHandlerTestCase.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Payment/AbstractAppPaymentHandlerTestCase.php
+			path: tests/integration/Core/Framework/App/Payment/AbstractAppPaymentHandlerTestCase.php
 
 		-
 			message: "#^Cannot call method getIntegrationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Subscriber/CustomFieldProtectionSubscriberTest.php
+			path: tests/integration/Core/Framework/App/Subscriber/CustomFieldProtectionSubscriberTest.php
 
 		-
 			message: "#^Cannot call method getMessage\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Validation\\\\Error\\\\Error\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/App/Validation/TranslationValidatorTest.php
+			path: tests/integration/Core/Framework/App/Validation/TranslationValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationList will always evaluate to true\\.$#"
 			count: 2
-			path: tests/integration/php/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
+			path: tests/integration/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$clonedAffected\\['product'\\]\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 3
-			path: tests/integration/php/Core/Framework/DataAbstractionLayer/VersionManagerTest.php
+			path: tests/integration/Core/Framework/DataAbstractionLayer/VersionManagerTest.php
 
 		-
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
+			path: tests/integration/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
 
 		-
 			message: "#^Cannot call method getHash\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Core/System/User/Api/UserRecoveryControllerTest.php
+			path: tests/integration/Core/System/User/Api/UserRecoveryControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
-			path: tests/integration/php/Storefront/Controller/AddressControllerTest.php
+			path: tests/integration/Storefront/Controller/AddressControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
@@ -15778,934 +15778,934 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\ShopwareHttpException' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Exception\\\\TaxProviderExceptions will always evaluate to true\\.$#"
 			count: 3
-			path: tests/unit/php/Core/Checkout/Cart/Exception/TaxProviderExceptionsTest.php
+			path: tests/unit/Core/Checkout/Cart/Exception/TaxProviderExceptionsTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\CartPriceFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartPriceFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\ContainerFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ContainerFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\DiscountFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\DiscountFacade will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\ErrorsFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\ItemsFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\ProductsFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ProductsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\StatesFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\StatesFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsIterable\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsIterable\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsIterable\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ProductsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/CartFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/CartFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\ProductsFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ProductsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/ContainerFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/ContainerFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsIterable\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/ErrorsFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/ErrorsFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Facade\\\\\\\\ItemsFacade' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/ItemFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/ItemFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Script\\\\\\\\Facade\\\\\\\\ArrayFacade' and Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/ItemFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/ItemFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsIterable\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ItemsFacade will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Facade/ItemsFacadeTest.php
+			path: tests/unit/Core/Checkout/Cart/Facade/ItemsFacadeTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\LineItem\\\\\\\\LineItemCollection' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/LineItem/LineItemCollectionTest.php
+			path: tests/unit/Core/Checkout/Cart/LineItem/LineItemCollectionTest.php
 
 		-
 			message: "#^Cannot call method getMessageKey\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\Error\\|null\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/LineItem/LineItemValidatorTest.php
+			path: tests/unit/Core/Checkout/Cart/LineItem/LineItemValidatorTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$e\\-\\>getExceptions\\(\\)\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Promotion/Validator/PromotionValidatorTest.php
+			path: tests/unit/Core/Checkout/Cart/Promotion/Validator/PromotionValidatorTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$e\\-\\>getExceptions\\(\\)\\[0\\]\\-\\>getViolations\\(\\)\\[0\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Promotion/Validator/PromotionValidatorTest.php
+			path: tests/unit/Core/Checkout/Cart/Promotion/Validator/PromotionValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Checkout/Cart/Promotion/Validator/PromotionValidatorTest.php
+			path: tests/unit/Core/Checkout/Cart/Promotion/Validator/PromotionValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Rule\\\\\\\\LineItemOfTypeRule' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemOfTypeRule will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Rule/LineItemOfTypeRuleTest.php
+			path: tests/unit/Core/Checkout/Cart/Rule/LineItemOfTypeRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Rule/LineItemVariantValueRuleTest.php
+			path: tests/unit/Core/Checkout/Cart/Rule/LineItemVariantValueRuleTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/Rule/PaymentMethodRuleTest.php
+			path: tests/unit/Core/Checkout/Cart/Rule/PaymentMethodRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Checkout/Cart/SalesChannel/CartItemAddRouteTest.php
+			path: tests/unit/Core/Checkout/Cart/SalesChannel/CartItemAddRouteTest.php
 
 		-
 			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/TaxProvider/TaxAdjustmentTest.php
+			path: tests/unit/Core/Checkout/Cart/TaxProvider/TaxAdjustmentTest.php
 
 		-
 			message: "#^Cannot call method getTax\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/TaxProvider/TaxAdjustmentTest.php
+			path: tests/unit/Core/Checkout/Cart/TaxProvider/TaxAdjustmentTest.php
 
 		-
 			message: "#^Cannot call method getTaxRate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/TaxProvider/TaxAdjustmentTest.php
+			path: tests/unit/Core/Checkout/Cart/TaxProvider/TaxAdjustmentTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Tax\\\\\\\\Struct\\\\\\\\CalculatedTax' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Cart/TaxProvider/TaxProviderProcessorTest.php
+			path: tests/unit/Core/Checkout/Cart/TaxProvider/TaxProviderProcessorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Customer/Rule/CustomerBirthdayRuleTest.php
+			path: tests/unit/Core/Checkout/Customer/Rule/CustomerBirthdayRuleTest.php
 
 		-
 			message: "#^Instanceof between DateTimeImmutable and DateTimeImmutable will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
+			path: tests/unit/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\SalesChannel\\\\\\\\CustomerResponse' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerResponse will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Customer/SalesChannel/RegisterConfirmRouteTest.php
+			path: tests/unit/Core/Checkout/Customer/SalesChannel/RegisterConfirmRouteTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\Context is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Customer/Subscriber/CustomerFlowEventsSubscriberTest.php
+			path: tests/unit/Core/Checkout/Customer/Subscriber/CustomerFlowEventsSubscriberTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\Context is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Document/Service/DocumentMergerTest.php
+			path: tests/unit/Core/Checkout/Document/Service/DocumentMergerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
+			path: tests/unit/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
+			path: tests/unit/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
+			path: tests/unit/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
+			path: tests/unit/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
+			path: tests/unit/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\System\\\\Tax\\\\TaxCollection is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
+			path: tests/unit/Core/Checkout/Payment/Cart/PaymentMethodValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'IteratorAggregate' and Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\Element\\\\ElementDataCollection will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Cms/DataResolver/Element/ElementDataCollectionTest.php
+			path: tests/unit/Core/Content/Cms/DataResolver/Element/ElementDataCollectionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Cms/Subscriber/CmsPageDefaultChangeSubscriberTest.php
+			path: tests/unit/Core/Content/Cms/Subscriber/CmsPageDefaultChangeSubscriberTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Flow\\\\\\\\Api\\\\\\\\FlowActionCollectorResponse' and Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionCollectorResponse will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Api/FlowActionCollectorTest.php
+			path: tests/unit/Core/Content/Flow/Api/FlowActionCollectorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Api/FlowActionCollectorTest.php
+			path: tests/unit/Core/Content/Flow/Api/FlowActionCollectorTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/AddCustomerAffiliateAndCampaignCodeActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerAffiliateAndCampaignCodeActionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/AddOrderAffiliateAndCampaignCodeActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddOrderAffiliateAndCampaignCodeActionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/AddOrderTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddOrderTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/AddOrderTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddOrderTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/ChangeCustomerGroupActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/ChangeCustomerGroupActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/ChangeCustomerStatusActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/ChangeCustomerStatusActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/GenerateDocumentActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/GenerateDocumentActionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/RemoveOrderTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveOrderTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/RemoveOrderTagActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveOrderTagActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Action/SetOrderStateActionTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Action/SetOrderStateActionTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ConfirmUrlStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ConfirmUrlStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ContactFormDataStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContactFormDataStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ContentsStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContentsStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ContextTokenStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContextTokenStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/DataStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/DataStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/EmailStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/EmailStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/MediaUploadedStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/MediaUploadedStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/MessageStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/MessageStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/NameStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/NameStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/RecipientsStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/RecipientsStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ResetUrlStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ResetUrlStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ReviewFormDataStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ReviewFormDataStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/ShopNameStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ShopNameStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/SubjectStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/SubjectStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/TemplateDataStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/TemplateDataStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Dispatching/Storer/UrlStorerTest.php
+			path: tests/unit/Core/Content/Flow/Dispatching/Storer/UrlStorerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Context' and Shopware\\\\Core\\\\Framework\\\\Context will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
+			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Search\\\\\\\\Criteria' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
+			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
+			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 5
-			path: tests/unit/php/Core/Content/Flow/Events/FlowSendMailActionEventTest.php
+			path: tests/unit/Core/Content/Flow/Events/FlowSendMailActionEventTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Rule/OrderCreatedByAdminRuleTest.php
+			path: tests/unit/Core/Content/Flow/Rule/OrderCreatedByAdminRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Rule/OrderDeliveryStatusRuleTest.php
+			path: tests/unit/Core/Content/Flow/Rule/OrderDeliveryStatusRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Rule/OrderStatusRuleTest.php
+			path: tests/unit/Core/Content/Flow/Rule/OrderStatusRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Rule/OrderTagRuleTest.php
+			path: tests/unit/Core/Content/Flow/Rule/OrderTagRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Flow/Rule/OrderTrackingCodeRuleTest.php
+			path: tests/unit/Core/Content/Flow/Rule/OrderTrackingCodeRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Flow/Rule/OrderTransactionStatusRuleTest.php
+			path: tests/unit/Core/Content/Flow/Rule/OrderTransactionStatusRuleTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Mail/Service/MailTest.php
+			path: tests/unit/Core/Content/Mail/Service/MailTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Event\\\\\\\\EventData\\\\\\\\EventDataCollection' and Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EventDataCollection will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Media/Event/MediaUploadedEventTest.php
+			path: tests/unit/Core/Content/Media/Event/MediaUploadedEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Product/Cms/ProductBoxCmsElementResolverTest.php
+			path: tests/unit/Core/Content/Product/Cms/ProductBoxCmsElementResolverTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\Detail\\\\\\\\AvailableCombinationResult' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationResult will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
+			path: tests/unit/Core/Content/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\Detail\\\\\\\\ProductDetailRouteResponse' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductDetailRouteResponse will always evaluate to true\\.$#"
 			count: 3
-			path: tests/unit/php/Core/Content/Product/SalesChannel/Detail/ProductDetailRouteTest.php
+			path: tests/unit/Core/Content/Product/SalesChannel/Detail/ProductDetailRouteTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\FindVariant\\\\\\\\FoundCombination' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteResponseTest.php
+			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteResponseTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\FindVariant\\\\\\\\FindProductVariantRouteResponse' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FindProductVariantRouteResponse will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteTest.php
+			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SalesChannel\\\\\\\\NoContentResponse' and Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRouteTest.php
+			path: tests/unit/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRouteTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceContainer is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/Product/Subscriber/ProductSubscriberTest.php
+			path: tests/unit/Core/Content/Product/Subscriber/ProductSubscriberTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandlerTest.php
+			path: tests/unit/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandlerTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
+			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
+			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>method\\('invalidate'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
+			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Adapter\\\\\\\\Twig\\\\\\\\TwigVariableParser' and Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TwigVariableParser will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/Adapter/Twig/TwigVariableParserFactoryTest.php
+			path: tests/unit/Core/Framework/Adapter/Twig/TwigVariableParserFactoryTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
 			count: 3
-			path: tests/unit/php/Core/Framework/Api/Controller/CustomSnippetFormatControllerTest.php
+			path: tests/unit/Core/Framework/Api/Controller/CustomSnippetFormatControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\App\\\\\\\\Payment\\\\\\\\Payload\\\\\\\\Struct\\\\\\\\Source' and Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\Source will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/App/AppPayloadServiceHelperTest.php
+			path: tests/unit/Core/Framework/App/AppPayloadServiceHelperTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/App/Manifest/Xml/AdminTest.php
+			path: tests/unit/Core/Framework/App/Manifest/Xml/AdminTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/DataAbstractionLayer/EntityRepositoryTest.php
+			path: tests/unit/Core/Framework/DataAbstractionLayer/EntityRepositoryTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Demodata/Command/DemodataCommandTest.php
+			path: tests/unit/Core/Framework/Demodata/Command/DemodataCommandTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\DependencyInjection\\\\Alias will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPassTest.php
+			path: tests/unit/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPassTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\Builder\\\\\\\\TreeBuilder' and Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\TreeBuilder will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/DependencyInjection/ConfigurationTest.php
+			path: tests/unit/Core/Framework/DependencyInjection/ConfigurationTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/FeatureTest.php
+			path: tests/unit/Core/Framework/FeatureTest.php
 
 		-
 			message: "#^Strict comparison using \\!\\=\\= between int\\<0, max\\>\\|false and \\-1 will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/FeatureTest.php
+			path: tests/unit/Core/Framework/FeatureTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Composer\\\\\\\\Composer' and Composer\\\\Composer will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Plugin/Composer/FactoryTest.php
+			path: tests/unit/Core/Framework/Plugin/Composer/FactoryTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Event\\\\\\\\PluginLifecycleEvent' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Event\\\\PluginPostDeactivationFailedEvent will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/Plugin/Event/PluginPostDeactivationFailedEventTest.php
+			path: tests/unit/Core/Framework/Plugin/Event/PluginPostDeactivationFailedEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\ActivateContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\ActivateContext will always evaluate to true\\.$#"
 			count: 3
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\DeactivateContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\DeactivateContext will always evaluate to true\\.$#"
 			count: 4
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\InstallContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\InstallContext will always evaluate to true\\.$#"
 			count: 5
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\InstallContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\UninstallContext will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Context\\\\\\\\UpdateContext' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\UpdateContext will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity is not allowed\\. The object is very basic and can be constructed$#"
 			count: 3
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Offset 1 does not exist on array\\<0, mixed\\>&list\\.$#"
 			count: 5
-			path: tests/unit/php/Core/Framework/Plugin/PluginLifecycleServiceTest.php
+			path: tests/unit/Core/Framework/Plugin/PluginLifecycleServiceTest.php
 
 		-
 			message: "#^Offset 1 does not exist on array\\<0, mixed\\>&list\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/Update/Api/UpdateControllerTest.php
+			path: tests/unit/Core/Framework/Update/Api/UpdateControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Update\\\\\\\\Steps\\\\\\\\ValidResult' and Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\ValidResult will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/Update/Steps/DeactivateExtensionsStepTest.php
+			path: tests/unit/Core/Framework/Update/Steps/DeactivateExtensionsStepTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Util\\\\TestEntity\\|null\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/Util/AfterSortTest.php
+			path: tests/unit/Core/Framework/Util/AfterSortTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Framework/Webhook/BusinessEventEncoderTest.php
+			path: tests/unit/Core/Framework/Webhook/BusinessEventEncoderTest.php
 
 		-
 			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/php/Core/Installer/Finish/NotifierTest.php
+			path: tests/unit/Core/Installer/Finish/NotifierTest.php
 
 		-
 			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Installer/License/LicenseFetcherTest.php
+			path: tests/unit/Core/Installer/License/LicenseFetcherTest.php
 
 		-
 			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
-			path: tests/unit/php/Core/Maintenance/System/Service/AppUrlVerifierTest.php
+			path: tests/unit/Core/Maintenance/System/Service/AppUrlVerifierTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$c\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 11
-			path: tests/unit/php/Core/Profiling/Doctrine/ConnectionProfilerTest.php
+			path: tests/unit/Core/Profiling/Doctrine/ConnectionProfilerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Rule\\\\\\\\RuleEntity' and Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/Profiling/Subscriber/ActiveRulesDataCollectorSubscriberTest.php
+			path: tests/unit/Core/Profiling/Subscriber/ActiveRulesDataCollectorSubscriberTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\AdminUiXmlSchema' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\AdminUiXmlSchema will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Columns' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Columns will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Detail' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Detail will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Listing' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Listing will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tab' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tab will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tabs' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tabs will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SystemConfig\\\\\\\\Exception\\\\\\\\XmlParsingException' and Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Exception\\\\XmlParsingException will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 5
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\CustomEntityConfigurationException' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\CustomEntityConfigurationException will always evaluate to true\\.$#"
 			count: 6
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaValidatorTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\CardField' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\CardField will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardFieldTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardFieldTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Card' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Card will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Column' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Column will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Columns' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Columns will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnsTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ColumnsTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Detail' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Detail will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/DetailTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/DetailTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tabs' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tabs will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/DetailTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/DetailTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/EntityTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/EntityTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/EntityTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/EntityTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Columns' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Columns will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ListingTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ListingTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Listing' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Listing will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ListingTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/ListingTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tab' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tab will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tabs' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tabs will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareField\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_categories'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_cms_page'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_content'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_og_image'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_description'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_title'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_slot_config'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_title'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
 			message: "#^Anonymous variable in a `\\$enrichedCustomEntity\\-\\>getFlags\\(\\)\\['admin\\-ui'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentServiceTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\CustomEntityConfigurationException' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\CustomEntityConfigurationException will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentServiceTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\CustomEntityXmlSchema' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\CustomEntityXmlSchema will always evaluate to true\\.$#"
 			count: 4
-			path: tests/unit/php/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentServiceTest.php
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentServiceTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/SalesChannel/Api/StructEncoderTest.php
+			path: tests/unit/Core/System/SalesChannel/Api/StructEncoderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
-			path: tests/unit/php/Core/System/Snippet/Files/SnippetFileCollectionTest.php
+			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Core/System/SystemConfig/Api/SystemConfigControllerTest.php
+			path: tests/unit/Core/System/SystemConfig/Api/SystemConfigControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Core/System/SystemConfig/Validation/SystemConfigValidatorTest.php
+			path: tests/unit/Core/System/SystemConfig/Validation/SystemConfigValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\Builder\\\\\\\\TreeBuilder' and Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\TreeBuilder will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Elasticsearch/DependencyInjection/ConfigurationTest.php
+			path: tests/unit/Elasticsearch/DependencyInjection/ConfigurationTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\ConfigurationInterface' and Symfony\\\\Component\\\\Config\\\\Definition\\\\ConfigurationInterface will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Elasticsearch/DependencyInjection/ElasticsearchExtensionTest.php
+			path: tests/unit/Elasticsearch/DependencyInjection/ElasticsearchExtensionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Context' and Shopware\\\\Core\\\\Framework\\\\Context will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexConfigEventTest.php
+			path: tests/unit/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexConfigEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Elasticsearch\\\\\\\\Framework\\\\\\\\AbstractElasticsearchDefinition' and Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexConfigEventTest.php
+			path: tests/unit/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexConfigEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Elasticsearch\\\\\\\\Framework\\\\\\\\AbstractElasticsearchDefinition' and Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexCreatedEventTest.php
+			path: tests/unit/Elasticsearch/Framework/Indexing/Event/ElasticsearchIndexCreatedEventTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Storefront/Controller/DownloadControllerTest.php
+			path: tests/unit/Storefront/Controller/DownloadControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Framework\\\\\\\\Routing\\\\\\\\MaintenanceModeResolver' and Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\MaintenanceModeResolver will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Storefront/Framework/Routing/MaintenanceModeResolverTest.php
+			path: tests/unit/Storefront/Framework/Routing/MaintenanceModeResolverTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Storefront/Framework/Routing/StorefrontResponseTest.php
+			path: tests/unit/Storefront/Framework/Routing/StorefrontResponseTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRouteTest.php
+			path: tests/unit/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRouteTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Account\\\\\\\\Overview\\\\\\\\AccountOverviewPage' and Shopware\\\\Storefront\\\\Page\\\\Account\\\\Overview\\\\AccountOverviewPage will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Storefront/Page/Account/Overview/AccountOverviewPageLoaderTest.php
+			path: tests/unit/Storefront/Page/Account/Overview/AccountOverviewPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Cart' and Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
+			path: tests/unit/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Confirm\\\\\\\\CheckoutConfirmPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Confirm\\\\CheckoutConfirmPage will always evaluate to true\\.$#"
 			count: 4
-			path: tests/unit/php/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
+			path: tests/unit/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationInterface will always evaluate to true\\.$#"
 			count: 3
-			path: tests/unit/php/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
+			path: tests/unit/Storefront/Page/Checkout/Confirm/CheckoutConfirmPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"
 			count: 5
-			path: tests/unit/php/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php
+			path: tests/unit/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Offcanvas\\\\\\\\OffcanvasCartPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Offcanvas\\\\OffcanvasCartPage will always evaluate to true\\.$#"
 			count: 4
-			path: tests/unit/php/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php
+			path: tests/unit/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Exception\\\\\\\\DecorationPatternException' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Exception\\\\DecorationPatternException will always evaluate to true\\.$#"
 			count: 2
-			path: tests/unit/php/Storefront/Theme/ThemeCompilerTest.php
+			path: tests/unit/Storefront/Theme/ThemeCompilerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
-			path: tests/unit/php/Storefront/Theme/ThemeServiceTest.php
+			path: tests/unit/Storefront/Theme/ThemeServiceTest.php

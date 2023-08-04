@@ -188,7 +188,7 @@ class AclAnnotationValidatorTest extends TestCase
 
     private function registerActionButton(string $appName, string $actionId): void
     {
-        $iconRaw = \file_get_contents(__DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test/icon.png');
+        $iconRaw = \file_get_contents(__DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test/icon.png');
         static::assertNotFalse($iconRaw);
 
         $this->appRepository->create([[

@@ -25,7 +25,7 @@ class ClientRepositoryTest extends TestCase
 
     public function testLoginFailsForInactiveApp(): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
+        $fixturesPath = __DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test';
 
         $this->loadAppsFromDir($fixturesPath, false);
 

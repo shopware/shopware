@@ -91,12 +91,20 @@
             class="sw-cms-el-config-form__tab-options"
         >
             <sw-tagged-field
+                {% if VUE3 %}
+                v-model:value="element.config.mailReceiver.value"
+                {% else %}
                 v-model="element.config.mailReceiver.value"
+                {% endif %}
                 :class="getLastMailClass"
                 :label="$tc('sw-cms.elements.form.config.label.receiverEmail')"
                 name="mailReceiver"
                 placeholder="john@doe.com"
+                {% if VUE3 %}
+                @update:value="updateMailReceiver"
+                {% else %}
                 @change="updateMailReceiver"
+                {% endif %}
             />
         </sw-container>
         {% endblock %}

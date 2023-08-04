@@ -34,7 +34,11 @@
     {% block sw_condition_billing_zip_code_field_zip_codes %}
     <sw-tagged-field
         v-if="!isNumeric && !isEmpty"
+        {% if VUE3 %}
+        v-model:value="zipCodes"
+        {% else %}
         v-model="zipCodes"
+        {% endif %}
         size="medium"
         :placeholder="taggedFieldPlaceholder"
         :disabled="disabled"

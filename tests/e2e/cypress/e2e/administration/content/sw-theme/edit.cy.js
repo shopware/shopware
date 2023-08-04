@@ -91,17 +91,16 @@ describe('Theme: Test common editing of theme', { tags: ['VUE3']}, () => {
 
         cy.get('.sw-theme-manager-detail__area');
 
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif').blur()
+        cy.get('.sw-field-id-sw-font-family-base input').first().clear().typeAndCheck('\'Inter\', sans-serif');
+
+        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif`')
             .should('have.value', '\'Inter\', sans-serif');
 
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif`').blur()
-            .should('have.value', '\'Inter\', sans-serif');
-
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif´').blur()
+        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif´')
             .should('have.value', '\'Inter\', sans-serif');
     });
 
-    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',

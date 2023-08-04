@@ -409,10 +409,7 @@
                                                                                     v-if="mapSwFieldTypes(field.type) === 'colorpicker'"
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
-                                                                                    :value="currentValue"
-                                                                                    {% if VUE3 %}
-                                                                                    @update:value="updateCurrentValue"
-                                                                                    {% else %}
+                                                                                    :value="currentValue | cssValue"
                                                                                     @change="updateCurrentValue"
                                                                                     @input="updateCurrentValue"
                                                                                     {% endif %}

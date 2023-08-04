@@ -24,7 +24,10 @@ Component.register('sw-many-to-many-assignment-card', {
     template,
     inheritAttrs: false,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     model: {
         prop: 'entityCollection',
@@ -283,6 +286,12 @@ Component.register('sw-many-to-many-assignment-card', {
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
 
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:entityCollection', newCollection);
+
+                    return;
+                }
+
                 this.$emit('change', newCollection);
                 return;
             }
@@ -300,6 +309,12 @@ Component.register('sw-many-to-many-assignment-card', {
 
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
+
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:entityCollection', newCollection);
+
+                    return Promise.resolve();
+                }
 
                 this.$emit('change', newCollection);
                 return Promise.resolve();

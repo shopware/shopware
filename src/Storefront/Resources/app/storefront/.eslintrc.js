@@ -52,6 +52,7 @@ module.exports = {
                 '@typescript-eslint/await-thenable': 'error',
                 '@typescript-eslint/consistent-type-exports': 'error',
                 '@typescript-eslint/consistent-type-imports': 'error',
+                '@typescript-eslint/switch-exhaustiveness-check': 'error',
             },
         },
     ],

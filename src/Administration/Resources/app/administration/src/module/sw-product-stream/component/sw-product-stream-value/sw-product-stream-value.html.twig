@@ -334,7 +334,11 @@
 
             <sw-entity-multi-id-select
                 v-else-if="isMultiSelectValue"
+                {% if VUE3 %}
+                v-model:ids="multiValue"
+                {% else %}
                 v-model="multiValue"
+                {% endif %}
                 size="medium"
                 description-position="bottom"
                 :repository="repository"

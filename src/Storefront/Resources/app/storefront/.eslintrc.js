@@ -50,6 +50,8 @@ module.exports = {
             },
             rules: {
                 '@typescript-eslint/await-thenable': 'error',
+                '@typescript-eslint/consistent-type-exports': 'error',
+                '@typescript-eslint/consistent-type-imports': 'error',
             },
         },
     ],

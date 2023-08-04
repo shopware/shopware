@@ -74,7 +74,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_timezone %}
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="user.timeZone"
+                {% else %}
                 v-model="user.timeZone"
+                {% endif %}
                 class="sw-profile--timezone"
                 :options="timezoneOptions"
                 required

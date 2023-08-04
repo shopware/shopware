@@ -177,7 +177,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_grid_content_timezone %}
                         <sw-single-select
+                            {% if VUE3 %}
+                            v-model:value="user.timeZone"
+                            {% else %}
                             v-model="user.timeZone"
+                            {% endif %}
                             class="sw-settings-user-detail__grid-timezone"
                             :options="timezoneOptions"
                             required

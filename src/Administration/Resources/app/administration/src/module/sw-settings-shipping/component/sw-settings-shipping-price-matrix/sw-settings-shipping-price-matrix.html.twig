@@ -260,7 +260,11 @@
                 size="small"
                 show-clearable-button
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')"
+                {% if VUE3 %}
+                @update:value="onCalculationChange"
+                {% else %}
                 @change="onCalculationChange"
+                {% endif %}
             />
             {% endblock %}
 

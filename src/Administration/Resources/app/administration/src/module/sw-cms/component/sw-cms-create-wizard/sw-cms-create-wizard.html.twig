@@ -160,7 +160,11 @@
 
                     <sw-single-select
                         v-if="isCustomEntityType"
+                        {% if VUE3 %}
+                        v-model:value="page.entity"
+                        {% else %}
                         v-model="page.entity"
+                        {% endif %}
                         class="sw-cms-create-wizard__page-completion-custom-entity"
                         :label="$tc('sw-cms.detail.label.pageEntity')"
                         :placeholder="$tc('sw-cms.detail.label.pageEntityPlaceholder')"

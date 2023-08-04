@@ -4,7 +4,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_date_range_field_use_time %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="useTime"
+        {% else %}
         v-model="useTime"
+        {% endif %}
         size="medium"
         :options="selectValues"
         :disabled="disabled"

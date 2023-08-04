@@ -65,7 +65,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_information_type_select %}
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="category.type"
+                {% else %}
                 v-model="category.type"
+                {% endif %}
                 class="sw-category-detail-base__type-selection"
                 :help-text="categoryTypeHelpText"
                 :label="$tc('sw-category.base.general.types.title')"

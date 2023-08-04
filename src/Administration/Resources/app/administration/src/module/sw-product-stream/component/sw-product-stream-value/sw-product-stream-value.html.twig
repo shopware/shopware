@@ -22,7 +22,11 @@
             :value="condition.value"
             :disabled="disabled"
             show-clearable-button
+            {% if VUE3 %}
+            @update:value="setBooleanValue"
+            {% else %}
             @change="setBooleanValue"
+            {% endif %}
         />
         {% endblock %}
     </template>
@@ -31,7 +35,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_value_empty_value %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="emptyValue"
+            {% else %}
             v-model="emptyValue"
+            {% endif %}
             class="sw-product-stream-value__select"
             size="medium"
             :options="reversedEmptyOptions"
@@ -49,7 +57,11 @@
             :disabled="!acl.can('product_stream.editor')"
         >
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="filterType"
+                {% else %}
                 v-model="filterType"
+                {% endif %}
                 size="medium"
                 :options="operators"
                 :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
@@ -61,7 +73,11 @@
 
         <template v-if="fieldType === 'product_state_list'">
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="actualCondition.value"
+                {% else %}
                 v-model="actualCondition.value"
+                {% endif %}
                 :options="productStateOptions"
                 :disabled="disabled"
             />
@@ -410,7 +426,11 @@
             {% block sw_product_stream_value_relative_time_operator %}
             <sw-arrow-field :disabled="disabled">
                 <sw-single-select
+                    {% if VUE3 %}
+                    v-model:value="operator"
+                    {% else %}
                     v-model="operator"
+                    {% endif %}
                     size="medium"
                     :options="relativeTimeOperators"
                     :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"

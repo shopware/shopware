@@ -87,7 +87,11 @@
         {% block sw_product_seo_form_canonical_url_select %}
         <sw-single-select
             ref="canonicalProductSelect"
+            {% if VUE3 %}
+            v-model:value="product.canonicalProductId"
+            {% else %}
             v-model="product.canonicalProductId"
+            {% endif %}
             :options="variants"
             :disabled="!canonicalProductSwitchEnabled"
             value-property="id"

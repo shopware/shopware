@@ -89,7 +89,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_unit_field %}
                         <sw-single-select
+                            {% if VUE3 %}
+                            v-model:value="deliveryTime.unit"
+                            {% else %}
                             v-model="deliveryTime.unit"
+                            {% endif %}
                             class="sw-delivery-time-detail__field-unit"
                             :options="deliveryTimeUnits"
                             :error="deliveryTimeUnitError"

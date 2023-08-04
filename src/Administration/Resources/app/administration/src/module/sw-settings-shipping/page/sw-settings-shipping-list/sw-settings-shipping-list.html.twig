@@ -136,7 +136,11 @@
                     {% block sw_settings_shipping_list_grid_columns_tax_type_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-single-select
+                            {% if VUE3 %}
+                            v-model:value="item.taxType"
+                            {% else %}
                             v-model="item.taxType"
+                            {% endif %}
                             required
                             show-clearable-button
                             size="small"

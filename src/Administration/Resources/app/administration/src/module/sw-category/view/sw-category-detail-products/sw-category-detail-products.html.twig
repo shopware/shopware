@@ -25,7 +25,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_type_select_field %}
             <sw-single-select
+                {% if VUE3 %}
+                v-model:value="category.productAssignmentType"
+                {% else %}
                 v-model="category.productAssignmentType"
+                {% endif %}
                 class="sw-category-detail-products__product-assignment-type-select"
                 :label="$tc('sw-category.base.products.productAssignmentTypeLabel')"
                 :error="categoryProductAssignmentTypeError"

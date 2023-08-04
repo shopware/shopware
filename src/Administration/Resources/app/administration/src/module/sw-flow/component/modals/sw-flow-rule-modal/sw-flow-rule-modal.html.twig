@@ -92,7 +92,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_detail_type %}
                     <sw-multi-select
+                        {% if VUE3 %}
+                        v-model:value="moduleTypes"
+                        {% else %}
                         v-model="moduleTypes"
+                        {% endif %}
                         class="sw-flow-rule-modal__type"
                         value-property="id"
                         label-property="name"

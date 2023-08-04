@@ -186,7 +186,11 @@
                             :disabled="props.isInherited"
                             :value="props.currentValue"
                             :map-inheritance="props"
+                            {% if VUE3 %}
+                            @update:value="props.updateCurrentValue"
+                            {% else %}
                             @change="props.updateCurrentValue"
+                            {% endif %}
                         />
                     </template>
                 </sw-inherit-wrapper>

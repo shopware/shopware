@@ -162,13 +162,21 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_assignment %}
                         <sw-multi-select
+                            {% if VUE3 %}
+                            v-model:value="assignmentFilter"
+                            {% else %}
                             v-model="assignmentFilter"
+                            {% endif %}
                             class="sw-settings-tag-list__filter-assignment-select"
                             :label="$tc('sw-settings-tag.list.filterAssignemnt')"
                             :placeholder="$tc('sw-settings-tag.list.placeholderFilterAssignemnt')"
                             :options="assignmentFilterOptions"
                             :disabled="emptyFilter"
+                            {% if VUE3 %}
+                            @update:value="onFilter"
+                            {% else %}
                             @change="onFilter"
+                            {% endif %}
                         />
                         {% endblock %}
 

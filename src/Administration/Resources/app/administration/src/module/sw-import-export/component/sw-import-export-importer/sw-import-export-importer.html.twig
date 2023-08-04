@@ -15,7 +15,11 @@
     {% block sw_import_export_importer_file_input %}
     <sw-file-input
         :key="isLoading"
+        {% if VUE3 %}
+        v-model:value="importFile"
+        {% else %}
         v-model="importFile"
+        {% endif %}
     >
         <template #caption-label>
             {{ $tc('sw-import-export.importer.labelUploadCaption') }}

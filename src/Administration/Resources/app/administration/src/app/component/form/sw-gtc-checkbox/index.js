@@ -10,6 +10,8 @@ import template from './sw-gtc-checkbox.html.twig';
 Shopware.Component.register('sw-gtc-checkbox', {
     template,
 
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -24,6 +26,12 @@ Shopware.Component.register('sw-gtc-checkbox', {
 
     methods: {
         onChange(value) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', value);
+
+                return;
+            }
+
             this.$emit('change', value);
         },
     },

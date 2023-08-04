@@ -60,7 +60,11 @@
                 {% block sw_settings_rule_detail_base_content_card_field_type %}
                 <sw-multi-select
                     v-if="rule"
+                    {% if VUE3 %}
+                    v-model:value="moduleTypes"
+                    {% else %}
                     v-model="moduleTypes"
+                    {% endif %}
                     class="sw-settings-rule-detail__type-field"
                     value-property="id"
                     label-property="name"

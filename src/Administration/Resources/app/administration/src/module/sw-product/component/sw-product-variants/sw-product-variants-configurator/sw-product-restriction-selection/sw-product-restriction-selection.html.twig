@@ -50,7 +50,11 @@
             {% block sw_product_restriction_selection_multi_select %}
             <sw-multi-select
                 v-if="!optionLoading"
+                {% if VUE3 %}
+                v-model:value="selectedOptions"
+                {% else %}
                 v-model="selectedOptions"
+                {% endif %}
                 :options="options"
                 value-property="optionId"
             >

@@ -56,7 +56,11 @@
         :placeholder="filter.placeholder"
         :options="filter.options"
         :value="values"
+        {% if VUE3 %}
+        @update:value="changeValue"
+        {% else %}
         @change="changeValue"
+        {% endif %}
     />
     {% endblock %}
     {% endblock %}

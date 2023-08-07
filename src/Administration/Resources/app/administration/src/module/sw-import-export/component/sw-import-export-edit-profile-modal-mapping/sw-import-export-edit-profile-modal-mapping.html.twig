@@ -65,7 +65,11 @@
         {% block sw_import_export_edit_profile_modal_mapping_grid_entry_column %}
         <template #column-entry="{ item }">
             <sw-import-export-entity-path-select
+                {% if VUE3 %}
+                v-model:value="item.key"
+                {% else %}
                 v-model="item.key"
+                {% endif %}
                 :languages="languages"
                 :currencies="currencies"
                 :entity-type="profile.sourceEntity"

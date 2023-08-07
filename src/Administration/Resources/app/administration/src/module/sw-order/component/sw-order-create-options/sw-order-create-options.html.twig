@@ -110,7 +110,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_billing_address %}
         <sw-order-customer-address-select
+            {% if VUE3 %}
+            v-model:value="context.billingAddressId"
+            {% else %}
             v-model="context.billingAddressId"
+            {% endif %}
             class="sw-order-create-options__billing-address"
             :label="$tc('sw-order.createBase.labelBillingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
@@ -191,7 +195,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_address %}
         <sw-order-customer-address-select
+            {% if VUE3 %}
+            v-model:value="context.shippingAddressId"
+            {% else %}
             v-model="context.shippingAddressId"
+            {% endif %}
             class="sw-order-create-options__shipping-address"
             :label="$tc('sw-order.createBase.labelShippingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"

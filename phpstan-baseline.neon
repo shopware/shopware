@@ -13801,16 +13801,6 @@ parameters:
 			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
 
 		-
-			message: "#^Cannot call method getPercentage\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\TaxRule\\|null\\.$#"
-			count: 15
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
-			message: "#^Cannot call method getTaxRate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\TaxRule\\|null\\.$#"
-			count: 15
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/Entity/SalesChannelDefinitionTest.php

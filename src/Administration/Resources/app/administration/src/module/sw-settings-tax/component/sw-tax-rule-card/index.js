@@ -100,6 +100,10 @@ export default {
                 property: 'taxRate',
                 dataIndex: 'taxRate',
                 label: 'sw-settings-tax.taxRuleCard.labelTaxRate',
+            }, {
+                property: 'activeFrom',
+                dataIndex: 'activeFrom',
+                label: 'sw-settings-tax.taxRuleCard.labelActiveFrom',
             }];
         },
     },

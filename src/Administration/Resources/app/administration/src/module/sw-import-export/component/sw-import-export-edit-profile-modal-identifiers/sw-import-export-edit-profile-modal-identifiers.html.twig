@@ -45,7 +45,11 @@
                 :entity-type="item.entityName"
                 :disabled="profile.systemDefault"
                 :custom-field-sets="customFieldSets"
+                {% if VUE3 %}
+                @update:value="onChangeIdentifier($event, item.entityName)"
+                {% else %}
                 @change="onChangeIdentifier($event, item.entityName)"
+                {% endif %}
             >
                 <template #before-item-list>
                     <span></span>

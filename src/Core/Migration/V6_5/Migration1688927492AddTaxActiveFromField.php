@@ -19,6 +19,10 @@ class Migration1688927492AddTaxActiveFromField extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        if ($this->columnExists($connection, 'tax_rule', 'active_from')) {
+            return;
+        }
+
         $connection->executeStatement('ALTER TABLE `tax_rule` ADD `active_from` DATETIME(3) NULL AFTER `data`;');
     }
 

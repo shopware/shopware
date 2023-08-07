@@ -209,7 +209,11 @@
     {% block sw_order_document_card_grid_column_document_type_modal %}
     <sw-order-select-document-type-modal
         v-if="showSelectDocumentTypeModal"
+        {% if VUE3 %}
+        v-model:value="currentDocumentType"
+        {% else %}
         v-model="currentDocumentType"
+        {% endif %}
         :order="order"
         @modal-close="onCloseSelectDocumentTypeModal"
     />

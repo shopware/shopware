@@ -8,7 +8,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_packaging_form_width_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.width"
+            {% else %}
             v-model="product.width"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.width"
         >
@@ -38,7 +42,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_packaging_form_height_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.height"
+            {% else %}
             v-model="product.height"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.height"
         >
@@ -68,7 +76,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_length_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.length"
+            {% else %}
             v-model="product.length"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.length"
         >
@@ -102,7 +114,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_weight_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.weight"
+            {% else %}
             v-model="product.weight"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.weight"
         >
@@ -134,7 +150,11 @@
         {% block sw_product_price_form_purchase_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.purchaseUnit"
+            {% else %}
             v-model="product.purchaseUnit"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.purchaseUnit"
         >
@@ -165,7 +185,11 @@
         {% block sw_product_price_form_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.unitId"
+            {% else %}
             v-model="product.unitId"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :label="$tc('sw-product.packagingForm.labelUnit')"
             :inherited-value="parentProduct.unitId"
@@ -196,7 +220,11 @@
         {% block sw_product_price_form_pack_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.packUnit"
+            {% else %}
             v-model="product.packUnit"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.packUnit"
         >
@@ -223,7 +251,11 @@
         {% block sw_product_price_form_pack_unit_plural_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.packUnitPlural"
+            {% else %}
             v-model="product.packUnitPlural"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.packUnitPlural"
         >
@@ -250,7 +282,11 @@
         {% block sw_product_price_form_reference_unit_field %}
         <sw-inherit-wrapper
             v-show="showSettingPackaging"
+            {% if VUE3 %}
+            v-model:value="product.referenceUnit"
+            {% else %}
             v-model="product.referenceUnit"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.referenceUnit"
         >

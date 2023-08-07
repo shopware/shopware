@@ -174,7 +174,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_shop_pages_select_field %}
                 <sw-inherit-wrapper
+                    {% if VUE3 %}
+                    v-model:value="selectedShopPages[shopPageSalesChannelId]"
+                    {% else %}
                     v-model="selectedShopPages[shopPageSalesChannelId]"
+                    {% endif %}
                     :inherited-value="selectedShopPages.null"
                     :has-parent="shopPageSalesChannelId !== null"
                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"

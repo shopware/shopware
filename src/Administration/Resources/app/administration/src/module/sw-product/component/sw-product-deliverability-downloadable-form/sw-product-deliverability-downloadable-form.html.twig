@@ -1,7 +1,11 @@
 <sw-container class="product-deliverability-downloadable-form">
 
     <sw-inherit-wrapper
+        {% if VUE3 %}
+        v-model:value="product.isCloseout"
+        {% else %}
         v-model="product.isCloseout"
+        {% endif %}
         :has-parent="!!parentProduct.id"
         :inherited-value="parentProduct.isCloseout"
         @input="onSwitchInput"
@@ -55,7 +59,11 @@
 
     <sw-inherit-wrapper
         v-if="showModeSetting"
+        {% if VUE3 %}
+        v-model:value="product.deliveryTimeId"
+        {% else %}
         v-model="product.deliveryTimeId"
+        {% endif %}
         :inherited-value="parentProduct.deliveryTimeId"
         :has-parent="!!parentProduct.id"
         :label="$tc('sw-product.settingsForm.labelDeliveryTime')"

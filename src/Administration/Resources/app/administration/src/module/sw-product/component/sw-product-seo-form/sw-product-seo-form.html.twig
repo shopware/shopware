@@ -4,7 +4,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_meta_title %}
     <sw-inherit-wrapper
+        {% if VUE3 %}
+        v-model:value="product.metaTitle"
+        {% else %}
         v-model="product.metaTitle"
+        {% endif %}
         :has-parent="hasParent"
         :label="$tc('sw-product.seoForm.labelMetaTitle')"
         :help-text="$tc('sw-product.seoForm.helpTextMetaTitle')"
@@ -26,7 +30,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_meta_description %}
     <sw-inherit-wrapper
+        {% if VUE3 %}
+        v-model:value="product.metaDescription"
+        {% else %}
         v-model="product.metaDescription"
+        {% endif %}
         :has-parent="hasParent"
         :label="$tc('sw-product.seoForm.labelMetaDescription')"
         :help-text="$tc('sw-product.seoForm.helpTextMetaDescription')"
@@ -48,7 +56,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_keywords %}
     <sw-inherit-wrapper
+        {% if VUE3 %}
+        v-model:value="product.keywords"
+        {% else %}
         v-model="product.keywords"
+        {% endif %}
         :has-parent="hasParent"
         :label="$tc('sw-product.seoForm.labelKeywords')"
         :help-text="$tc('sw-product.seoForm.helpTextKeywords')"

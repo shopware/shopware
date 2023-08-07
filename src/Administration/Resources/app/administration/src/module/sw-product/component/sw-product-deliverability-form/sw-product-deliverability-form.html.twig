@@ -34,7 +34,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_is_closeout_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.isCloseout"
+            {% else %}
             v-model="product.isCloseout"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.isCloseout"
         >
@@ -65,7 +69,11 @@
         {% block sw_product_deliverability_form_delivery_time_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
+            {% if VUE3 %}
+            v-model:value="product.deliveryTimeId"
+            {% else %}
             v-model="product.deliveryTimeId"
+            {% endif %}
             :inherited-value="parentProduct.deliveryTimeId"
             :has-parent="!!parentProduct.id"
             :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
@@ -92,7 +100,11 @@
         {% block sw_product_deliverability_form_restock_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
+            {% if VUE3 %}
+            v-model:value="product.restockTime"
+            {% else %}
             v-model="product.restockTime"
+            {% endif %}
             class="sw-product-deliverability__restock-field"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.restockTime"
@@ -122,7 +134,11 @@
         {% block sw_product_deliverability_form_shipping_free_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
+            {% if VUE3 %}
+            v-model:value="product.shippingFree"
+            {% else %}
             v-model="product.shippingFree"
+            {% endif %}
             class="sw-product-deliverability__shipping-free"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.shippingFree"
@@ -152,7 +168,11 @@
         {% block sw_product_deliverability_form_min_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
+            {% if VUE3 %}
+            v-model:value="product.minPurchase"
+            {% else %}
             v-model="product.minPurchase"
+            {% endif %}
             class="sw-product-deliverability__min-purchase"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.minPurchase"
@@ -180,7 +200,11 @@
         {% block sw_product_deliverability_form_purchase_steps_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
+            {% if VUE3 %}
+            v-model:value="product.purchaseSteps"
+            {% else %}
             v-model="product.purchaseSteps"
+            {% endif %}
             class="sw-product-deliverability__purchase-step"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.purchaseSteps"
@@ -207,7 +231,11 @@
         {% block sw_product_deliverability_form_max_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
+            {% if VUE3 %}
+            v-model:value="product.maxPurchase"
+            {% else %}
             v-model="product.maxPurchase"
+            {% endif %}
             class="sw-product-deliverability__max-purchase"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.maxPurchase"

@@ -12,7 +12,7 @@ Build:
         - when: always
     before_script: []
     script:
-      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
+      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
       - composer config version "${LATEST_TAG#"v"}"
       - !reference [ .scripts, init, composer ]
       - bin/console debug:container --parameter 'kernel.shopware_version'

@@ -22,6 +22,7 @@ export default Component.wrapComponentConfig({
         'feature',
     ],
 
+
     model: {
         prop: 'value',
         event: 'change',

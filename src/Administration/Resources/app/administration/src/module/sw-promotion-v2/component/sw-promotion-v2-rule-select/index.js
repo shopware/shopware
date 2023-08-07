@@ -67,6 +67,12 @@ export default {
 
     methods: {
         onChange(collection) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:collection', collection);
+
+                return;
+            }
+
             this.$emit('change', collection);
         },
 
@@ -78,6 +84,13 @@ export default {
 
             ruleRepository.assign(ruleId, this.collection.context).then(() => {
                 ruleRepository.search(this.collection.criteria, this.collection.context).then((searchResult) => {
+                    if (this.feature.isActive('VUE3')) {
+                        this.$emit('update:collection', searchResult);
+                        this.$refs.ruleSelect.sendSearchRequest();
+
+                        return;
+                    }
+
                     this.$emit('change', searchResult);
                     this.$refs.ruleSelect.sendSearchRequest();
                 });

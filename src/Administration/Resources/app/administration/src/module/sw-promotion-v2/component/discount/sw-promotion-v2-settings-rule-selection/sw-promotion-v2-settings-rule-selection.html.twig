@@ -12,7 +12,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_settings_rule_selection_selection %}
     <sw-promotion-v2-rule-select
+        {% if VUE3 %}
+        v-model:collection="discount.discountRules"
+        {% else %}
         v-model="discount.discountRules"
+        {% endif %}
         :criteria="ruleCriteria"
         :rule-scope="['cart']"
         local-mode

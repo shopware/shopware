@@ -6,7 +6,11 @@
     {% block sw_promotion_v2_cart_condition_form_rules_field %}
     <sw-promotion-v2-rule-select
         v-if="promotion"
+        {% if VUE3 %}
+        v-model:collection="promotion.cartRules"
+        {% else %}
         v-model="promotion.cartRules"
+        {% endif %}
         class="sw-promotion-v2-cart-condition-form__rule-select-cart"
         :local-mode="promotion.isNew()"
         :criteria="ruleFilter"
@@ -150,7 +154,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
                 <sw-promotion-v2-rule-select
+                    {% if VUE3 %}
+                    v-model:collection="group.setGroupRules"
+                    {% else %}
                     v-model="group.setGroupRules"
+                    {% endif %}
                     class="sw-promotion-v2-cart-condition-form__setgroup-rules"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
                     :placeholder="$tc('sw-promotion-v2.detail.conditions.setgroups.placeholder')"

@@ -92,7 +92,11 @@
                             :term="term"
                             :compact="compact"
                             :allow-multi-select="allowMultiSelect"
+                            {% if VUE3 %}
+                            @update:selection="selection = $event"
+                            {% else %}
                             @media-selection-change="selection = $event"
+                            {% endif %}
                             @media-folder-change="folderId = $event"
                         />
                         {% endblock %}

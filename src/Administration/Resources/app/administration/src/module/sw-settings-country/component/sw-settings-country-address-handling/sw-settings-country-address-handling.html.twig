@@ -82,7 +82,11 @@
                     :line-position="index"
                     :get-label-property="getLabelProperty"
                     :total-lines="addressFormat.length"
+                    {% if VUE3 %}
+                    @update:value="change"
+                    {% else %}
                     @change="change"
+                    {% endif %}
                     @drop-end="onDropEnd"
                     @position-move="moveToNewPosition"
                     @add-new-line="addNewLineAt"

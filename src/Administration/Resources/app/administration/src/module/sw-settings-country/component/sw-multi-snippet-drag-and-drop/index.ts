@@ -22,6 +22,8 @@ const DEFAULT_MAX_LINES = 10 as number;
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
 
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -199,6 +201,12 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         },
 
         onDelete() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.linePosition);
+
+                return;
+            }
+
             this.$emit('change', this.linePosition);
         },
 

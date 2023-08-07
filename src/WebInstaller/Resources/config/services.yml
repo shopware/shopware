@@ -5,8 +5,7 @@ services:
     public: false
 
   Shopware\WebInstaller\:
-    resource: '../../*'
-    exclude: '../../{Command,Controller,Resources,Tests}'
+    resource: '../../{Listener,Services}'
 
   Shopware\WebInstaller\Controller\:
     resource: '../../Controller'

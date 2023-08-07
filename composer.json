@@ -513,10 +513,7 @@
             "src/Core/Framework/Adapter/Twig/functions.php"
         ],
         "psr-4": {
-            "Shopware\\Administration\\": "src/Administration/",
-            "Shopware\\Storefront\\": "src/Storefront/",
-            "Shopware\\Core\\": "src/Core/",
-            "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
+            "Shopware\\": "src/"
         },
         "exclude-from-classmap": [
             "src/**/Test/",

@@ -55,7 +55,11 @@
             :process-success="isSaveSuccessful"
             :disabled="invalidKey || isKeyChecking || !allowSave"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('sw-settings-salutation.general.buttonSave') }}

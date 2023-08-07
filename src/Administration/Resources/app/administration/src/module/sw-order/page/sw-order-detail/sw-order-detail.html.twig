@@ -81,7 +81,11 @@
             :disabled="isLoading || !acl.can('order.editor')"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
+            {% if VUE3 %}
+            @update:processSuccess="saveEditsFinish"
+            {% else %}
             @process-finish="saveEditsFinish"
+            {% endif %}
             @click.prevent="onSaveEdits"
         >
             {{ $tc('global.default.save') }}

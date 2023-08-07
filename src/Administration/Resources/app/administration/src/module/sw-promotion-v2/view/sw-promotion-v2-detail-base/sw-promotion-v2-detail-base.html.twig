@@ -183,7 +183,11 @@
                 :is-loading="isGenerating"
                 :disabled="!acl.can('promotion.editor')"
                 :process-success="isGenerateSuccessful"
+                {% if VUE3 %}
+                @update:processSuccess="generateFinish"
+                {% else %}
                 @process-finish="generateFinish"
+                {% endif %}
                 @click.prevent="onGenerateCodeFixed"
             >
                 {{ $tc('sw-promotion-v2.detail.base.codes.fixed.generateButton') }}

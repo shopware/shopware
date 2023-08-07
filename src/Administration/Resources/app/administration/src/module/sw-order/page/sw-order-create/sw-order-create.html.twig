@@ -35,7 +35,11 @@
                 :disabled="isLoading"
                 :is-loading="isLoading"
                 :process-success="isSaveSuccessful"
+                {% if VUE3 %}
+                @update:processSuccess="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSaveOrder"
             >
                 {{ $tc('sw-order.create.buttonSaveOrder') }}

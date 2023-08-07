@@ -605,7 +605,11 @@
                 :process-success="isDeletionOver"
                 :is-loading="isDeleteButtonLoading"
                 @click="deleteVariants"
+                {% if VUE3 %}
+                @update:processSuccess="closeDeleteModal"
+                {% else %}
                 @process-finish="closeDeleteModal"
+                {% endif %}
             >
                 {{ $tc('global.default.delete') }}
             </sw-button-process>

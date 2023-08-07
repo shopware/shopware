@@ -31,7 +31,11 @@
             :is-loading="isLoading"
             :process-success="isCreatedSuccessful"
             :disabled="disabled"
+            {% if VUE3 %}
+            @update:processSuccess="emitCreated"
+            {% else %}
             @process-finish="emitCreated"
+            {% endif %}
             @click="handleCreateReview"
         >
             {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}

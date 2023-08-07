@@ -1,3 +1,34 @@
+# 6.5.4.0
+* Update your thumbnails by running command: `media:generate-thumbnails`
+## Generic type template for EntityRepository
+The `EntityRepository` class now has a generic type template.
+This allows to define the entity type of the repository, which improves the IDE support and static code analysis.
+Usage:
+
+```php
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+
+class MyService
+    /**
+     * @param EntityRepository<ProductCollection> $productRepository
+     */
+    public function __construct(private readonly EntityRepository $productRepository)
+    {}
+
+    public function doSomething(Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
+        // $products is now inferred as ProductCollection
+    }
+```
+
 # 6.5.3.0
 ## The app custom trigger and the app action can be defined in one xml file.
 Since v6.5.2.0, we can define the flow custom trigger and the flow app action in one XML file.

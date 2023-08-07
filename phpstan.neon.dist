@@ -35,6 +35,7 @@ parameters:
         - src/WebInstaller/ecs.php
         - src/WebInstaller/vendor
         - src/WebInstaller/tests/_fixtures
+        - tests/e2e/cypress
 
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # vendor patches over autoload files
@@ -59,10 +60,10 @@ parameters:
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/php/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
+        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
-        - tests/unit/php/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+        - tests/unit/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
@@ -71,8 +72,8 @@ parameters:
             message: '#Service ".*" is not registered in the container\.#'
             paths:
                 - src/**/*Test.php
-                - tests/unit/php
-                - tests/integration/php
+                - tests/unit
+                - tests/integration
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
@@ -221,7 +222,7 @@ parameters:
         -
             message: '#Class name starting with "Abstract" must have an `abstract` keyword#'
             paths:
-                - tests/unit/php
+                - tests/unit
 
         # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
         -
@@ -230,7 +231,7 @@ parameters:
                 - src/Core/Framework/Test/Store/_fixtures/AppStoreTestPlugin/*
                 - src/Core/Framework/Test/Plugin/_fixture/plugins/*
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
-                - tests/integration/php/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
+                - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
 
         # NEXT-29041 - Needs to be fixed with a script, rest goes to baseline
         - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'

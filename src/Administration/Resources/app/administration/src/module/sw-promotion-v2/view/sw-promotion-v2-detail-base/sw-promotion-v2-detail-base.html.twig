@@ -216,7 +216,7 @@
                 :disabled="!acl.can('promotion.editor')"
                 :process-success="isGenerateSuccessful"
                 {% if VUE3 %}
-                @update:process-success="generateFinish"
+                @update:processSuccess="generateFinish"
                 {% else %}
                 @process-finish="generateFinish"
                 {% endif %}

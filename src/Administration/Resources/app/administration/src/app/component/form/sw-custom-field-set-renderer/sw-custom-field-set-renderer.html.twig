@@ -146,21 +146,21 @@
                         </template>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_set_renderer_media_button_save %}
-                        <sw-button-process
-                            :is-loading="isLoading"
-                            :process-success="isSaveSuccessful"
-                            :disabled="isLoading || disabled"
-                            variant="primary"
-                            size="small"
-                            {% if VUE3 %}
-                            @update:process-success="$emit('process-finish')"
-                            {% else %}
-                            @process-finish="$emit('process-finish')"
-                            {% endif %}
-                            @click="$emit('save')"
-                        >
-                            {{ $tc('global.default.save') }}
-                        </sw-button-process>
+                    <sw-button-process
+                        :is-loading="isLoading"
+                        :process-success="isSaveSuccessful"
+                        :disabled="isLoading || disabled"
+                        variant="primary"
+                        size="small"
+                        {% if VUE3 %}
+                        @update:processSuccess="$emit('process-finish')"
+                        {% else %}
+                        @process-finish="$emit('process-finish')"
+                        {% endif %}
+                        @click="$emit('save')"
+                    >
+                        {{ $tc('global.default.save') }}
+                    </sw-button-process>
                     {% endblock %}
                     </template>
                 </sw-media-collapse>

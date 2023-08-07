@@ -32,7 +32,7 @@
             :process-success="isSaveSuccessful"
             variant="primary"
             {% if VUE3 %}
-            @update:process-success="onSaveFinish"
+            @update:processSuccess="onSaveFinish"
             {% else %}
             @process-finish="onSaveFinish"
             {% endif %}

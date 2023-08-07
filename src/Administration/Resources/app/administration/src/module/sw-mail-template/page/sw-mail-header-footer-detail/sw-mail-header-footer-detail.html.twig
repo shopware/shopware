@@ -36,7 +36,7 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
             {% if VUE3 %}
-            @update:process-success="saveFinish"
+            @update:processSuccess="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}

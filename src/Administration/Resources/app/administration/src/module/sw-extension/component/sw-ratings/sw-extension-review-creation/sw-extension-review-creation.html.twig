@@ -33,7 +33,7 @@
             :process-success="isCreatedSuccessful"
             :disabled="disabled"
             {% if VUE3 %}
-            @update:process-success="emitCreated"
+            @update:processSuccess="emitCreated"
             {% else %}
             @process-finish="emitCreated"
             {% endif %}

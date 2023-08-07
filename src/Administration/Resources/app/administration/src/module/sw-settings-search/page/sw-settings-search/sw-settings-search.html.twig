@@ -38,7 +38,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             {% if VUE3 %}
-            @update:process-success="saveFinish"
+            @update:processSuccess="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}

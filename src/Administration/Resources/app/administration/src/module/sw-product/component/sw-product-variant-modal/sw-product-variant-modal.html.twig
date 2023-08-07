@@ -618,7 +618,7 @@
                 :is-loading="isDeleteButtonLoading"
                 @click="deleteVariants"
                 {% if VUE3 %}
-                @update:process-success="closeDeleteModal"
+                @update:processSuccess="closeDeleteModal"
                 {% else %}
                 @process-finish="closeDeleteModal"
                 {% endif %}

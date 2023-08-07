@@ -34,7 +34,7 @@ parameters:
         - src/WebInstaller/Resources/
         - src/WebInstaller/ecs.php
         - src/WebInstaller/vendor
-        - src/WebInstaller/tests/_fixtures
+        - src/WebInstaller/Tests/_fixtures
         - tests/e2e/cypress
 
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php

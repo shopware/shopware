@@ -11782,6 +11782,8 @@ parameters:
 			count: 1
 			path: src/Core/System/Snippet/SnippetFixer.php
 
+
+
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidatorInterface\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1

@@ -11,7 +11,10 @@ Build:
     rules:
         - when: always
     script:
+      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+      - composer config version "${LATEST_TAG#"v"}"
       - !reference [ .scripts, init, composer ]
+      - bin/console debug:container --parameter 'kernel.shopware_version'
       - mkdir -p config/jwt custom/plugins || true
       - echo -e "\e[0Ksection_start:$(date +%s):initdb[collapsed=true]\r\e[0KDatabase init"
       - composer run init:db

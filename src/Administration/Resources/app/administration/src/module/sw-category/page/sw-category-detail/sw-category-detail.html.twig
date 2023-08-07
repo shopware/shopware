@@ -67,7 +67,11 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading || !acl.can('category.editor')"
                 variant="primary"
+                {% if VUE3 %}
+                @update:processSuccess="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-category.general.buttonSafeCategory') }}
@@ -84,7 +88,11 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading || !acl.can('landing_page.editor')"
                 variant="primary"
+                {% if VUE3 %}
+                @update:processSuccess="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSaveLandingPage"
             >
                 {{ $tc('sw-category.general.buttonSafeCategory') }}

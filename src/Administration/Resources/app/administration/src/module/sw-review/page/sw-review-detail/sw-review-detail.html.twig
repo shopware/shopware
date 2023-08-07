@@ -31,7 +31,11 @@
             variant="primary"
             :disabled="isLoading || !acl.can('review.editor')"
             :process-success="isSaveSuccessful"
+            {% if VUE3 %}
+            @update:processSuccess="onSaveFinish"
+            {% else %}
             @process-finish="onSaveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('global.default.save') }}

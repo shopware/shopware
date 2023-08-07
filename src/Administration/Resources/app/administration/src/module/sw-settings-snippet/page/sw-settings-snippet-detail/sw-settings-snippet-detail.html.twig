@@ -57,7 +57,11 @@
             :process-success="isSaveSuccessful"
             :disabled="!acl.can('snippet.editor') || isLoading || !translationKey || !isSaveable"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-snippet.detail.buttonSave') }}

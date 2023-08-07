@@ -20,6 +20,8 @@ Component.register('sw-button-process', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     model: {
         prop: 'processSuccess',
         event: 'process-finish',
@@ -53,6 +55,12 @@ Component.register('sw-button-process', {
             }
 
             setTimeout(() => {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:processSuccess', false);
+
+                    return;
+                }
+
                 this.$emit('process-finish', false);
             }, this.animationTimeout);
         },

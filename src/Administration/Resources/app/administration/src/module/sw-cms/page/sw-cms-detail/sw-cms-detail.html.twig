@@ -126,7 +126,11 @@
                             :process-success="isSaveSuccessful"
                             :disabled="isLoading || page.locked || !acl.can('cms.editor')"
                             variant="primary"
+                            {% if VUE3 %}
+                            @update:processSuccess="saveFinish"
+                            {% else %}
                             @process-finish="saveFinish"
+                            {% endif %}
                             @click="onSave"
                         >
                             {{ $tc('sw-cms.detail.label.buttonSave') }}

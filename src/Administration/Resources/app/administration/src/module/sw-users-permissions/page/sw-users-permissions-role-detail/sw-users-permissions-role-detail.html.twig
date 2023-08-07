@@ -42,7 +42,11 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('users_and_permissions.editor')"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}

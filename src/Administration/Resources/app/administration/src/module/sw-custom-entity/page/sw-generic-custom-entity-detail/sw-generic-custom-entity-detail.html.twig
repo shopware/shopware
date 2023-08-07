@@ -15,7 +15,11 @@
             :process-success="isSaveSuccessful"
             variant="primary"
             :disabled="isLoading"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('global.default.save') }}

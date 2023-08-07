@@ -42,7 +42,11 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-delivery-time.general.buttonSave') }}

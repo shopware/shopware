@@ -114,7 +114,11 @@
                         :disabled="isLoading || disabled"
                         variant="primary"
                         size="small"
+                        {% if VUE3 %}
+                        @update:processSuccess="$emit('process-finish')"
+                        {% else %}
                         @process-finish="$emit('process-finish')"
+                        {% endif %}
                         @click="$emit('save')"
                     >
                         {{ $tc('global.default.save') }}

@@ -31,7 +31,11 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="onSaveFinish"
+            {% else %}
             @process-finish="onSaveFinish"
+            {% endif %}
             @click="saveMailerSettings"
         >
             {{ $tc('sw-settings-mailer.general.buttonSave') }}

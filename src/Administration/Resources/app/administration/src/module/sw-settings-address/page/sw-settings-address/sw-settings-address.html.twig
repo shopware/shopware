@@ -50,7 +50,11 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('sw-settings-address.general.buttonSave') }}

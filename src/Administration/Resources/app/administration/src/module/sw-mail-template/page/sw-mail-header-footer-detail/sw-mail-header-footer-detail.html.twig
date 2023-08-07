@@ -35,7 +35,11 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-mail-header-footer.detail.buttonSave') }}

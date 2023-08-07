@@ -48,7 +48,11 @@
                 :process-success="isSaveSuccessful"
                 variant="primary"
                 :disabled="isLoading || !acl.can('product.editor')"
+                {% if VUE3 %}
+                @update:processSuccess="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-product.detail.buttonSave') }}

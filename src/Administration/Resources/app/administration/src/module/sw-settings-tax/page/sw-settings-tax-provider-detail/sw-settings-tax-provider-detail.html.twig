@@ -20,7 +20,11 @@
         </sw-button>
 
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             class="sw-settings-tax-tax-provider-detail__save-action"
             variant="primary"
             :is-loading="isLoading"

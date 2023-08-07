@@ -2,17 +2,10 @@
 
 namespace Shopware\Tests\Migration\Core\V6_5;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
-use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
-use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\V6_5\Migration1688927492AddTaxActiveFromField;
 
 /**
  * @internal
@@ -21,62 +14,37 @@ use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
  */
 class Migration1688927492AddTaxActiveFromFieldTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
-    use KernelTestBehaviour;
-
-    private EntityRepository $taxRepository;
-
-    private EntityRepository $taxRuleRepository;
-
-    private TaxRuleTypeCollection $taxRuleTypes;
-
-    protected function setUp(): void
+    public function testMultipleExecution(): void
     {
-        $this->taxRuleTypes = $this->loadTaxRuleTypes();
-        $this->taxRepository = $this->getContainer()->get('tax.repository');
-        $this->taxRuleRepository = $this->getContainer()->get('tax_rule.repository');
+        $connection = KernelLifecycleManager::getConnection();
+
+        $migration = new Migration1688927492AddTaxActiveFromField();
+        $migration->update($connection);
+        $migration->update($connection);
+
+        static::assertTrue($this->columnExists($connection));
     }
 
-    public function testTaxRuleAfterMigration(): void
+    public function testColumnGetsCreated(): void
     {
-        // GIVEN
-        $taxId = Uuid::randomHex();
-        $taxRuleId = Uuid::randomHex();
-        $activeFrom = new \DateTime();
-        $context = Context::createDefaultContext();
-        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
-        $taxData = [
-            'id' => $taxId,
-            'name' => 'test',
-            'taxRate' => 7.125,
-            'rules' => [
-                [
-                    'id' => $taxRuleId,
-                    'taxRate' => 10,
-                    'activeFrom' => $activeFrom,
-                    'country' => [
-                        'name' => 'test',
-                    ],
-                    'taxRuleTypeId' => $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME)->getId(),
-                ],
-            ],
-        ];
+        $connection = KernelLifecycleManager::getConnection();
+        $migration = new Migration1688927492AddTaxActiveFromField();
 
-        // THEN
-        $this->taxRepository->create([$taxData], $context);
-        /** @var TaxRuleEntity $taxRule */
-        $taxRule = $this->taxRuleRepository->search(new Criteria([$taxRuleId]), $context)->first();
+        if ($this->columnExists($connection)) {
+            $connection->executeStatement('ALTER TABLE `tax_rule` DROP `active_from`;');
+        }
+        $migration->update($connection);
 
-        // THEN
-        static::assertInstanceOf(\DateTimeInterface::class, $taxRule->getActiveFrom());
-        static::assertEquals($activeFrom->getTimestamp(), $taxRule->getActiveFrom()->getTimestamp());
+        static::assertTrue($this->columnExists($connection));
     }
 
-    private function loadTaxRuleTypes(): TaxRuleTypeCollection
+    private function columnExists(Connection $connection): bool
     {
-        /** @var TaxRuleTypeCollection $collection */
-        $collection = $this->getContainer()->get('tax_rule_type.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $field = $connection->fetchOne(
+            'SHOW COLUMNS FROM `tax_rule` WHERE `Field` LIKE :column;',
+            ['column' => 'active_from']
+        );
 
-        return $collection;
+        return $field === 'active_from';
     }
 }

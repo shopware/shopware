@@ -15,6 +15,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
+use Symfony\Component\Intl\Locale;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
@@ -135,7 +136,7 @@ class Translator extends AbstractTranslator
             $fallbackLocale = null;
         }
 
-        return $this->getCustomizedCatalog($catalog, $fallbackLocale, $locale);
+        return $this->getCustomizedCatalog($catalog, $fallbackLocale);
     }
 
     /**
@@ -157,7 +158,14 @@ class Translator extends AbstractTranslator
             }
         }
 
-        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
+        $catalogue = $this->getCatalogue($locale);
+
+        // the formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
+        // We use the locale from the catalogue here as that may be the fallback locale,
+        // so we always format the translations in the actual locale of the catalogue
+        $formatLocale = Locale::getFallback($catalogue->getLocale()) ?? $catalogue->getLocale();
+
+        return $this->formatter->format($catalogue->get($id, $domain), $formatLocale, $parameters);
     }
 
     /**
@@ -300,9 +308,9 @@ class Translator extends AbstractTranslator
     /**
      * Add language specific snippets provided by the admin
      */
-    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale, ?string $locale = null): MessageCatalogueInterface
+    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId($locale);
+        $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
 
         if (!$snippetSetId) {
             return $catalog;

@@ -70,7 +70,6 @@ class InstallController extends AbstractController
             $this->recoveryManager->getPhpBinary($request),
             '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
-            'composer',
             'install',
             '-d',
             $folder,

@@ -61,7 +61,6 @@ class InstallControllerTest extends TestCase
                 'php',
                 '-dmemory_limit=1G',
                 '',
-                'composer',
                 'install',
                 '-d',
                 $tmpDir,

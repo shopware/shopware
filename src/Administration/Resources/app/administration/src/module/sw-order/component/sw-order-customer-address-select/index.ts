@@ -17,7 +17,10 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
 
     model: {
@@ -73,6 +76,12 @@ export default Component.wrapComponentConfig({
             },
             set(newValue: string|null): void {
                 if (newValue === null) {
+                    return;
+                }
+
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
                     return;
                 }
 

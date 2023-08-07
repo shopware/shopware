@@ -28,7 +28,11 @@
             columns="1fr 1fr"
         >
             <sw-order-customer-address-select
+                {% if VUE3 %}
+                v-model:value="context.billingAddressId"
+                {% else %}
                 v-model="context.billingAddressId"
+                {% endif %}
                 :label="$tc('sw-order.createBase.labelBillingAddress')"
                 :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
                 :same-address-value="context.shippingAddressId"
@@ -82,7 +86,11 @@
             columns="1fr 1fr"
         >
             <sw-order-customer-address-select
+                {% if VUE3 %}
+                v-model:value="context.shippingAddressId"
+                {% else %}
                 v-model="context.shippingAddressId"
+                {% endif %}
                 :label="$tc('sw-order.createBase.labelShippingAddress')"
                 :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"
                 :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"

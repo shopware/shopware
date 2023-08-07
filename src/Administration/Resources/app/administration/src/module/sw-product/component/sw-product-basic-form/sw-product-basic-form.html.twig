@@ -4,7 +4,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_basic_form_title_field %}
     <sw-inherit-wrapper
+        {% if VUE3 %}
+        v-model:value="product.name"
+        {% else %}
         v-model="product.name"
+        {% endif %}
         :has-parent="!!parentProduct.id"
         :inherited-value="getInheritValue('translated', 'name')"
     >
@@ -34,7 +38,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_basic_form_manufacturer_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.manufacturerId"
+            {% else %}
             v-model="product.manufacturerId"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.manufacturerId"
             :label="$tc('sw-product.basicForm.labelManufacturer')"
@@ -80,7 +88,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_basic_form_description_field %}
     <sw-inherit-wrapper
+        {% if VUE3 %}
+        v-model:value="product.description"
+        {% else %}
         v-model="product.description"
+        {% endif %}
         class="sw-product-basic-form__inheritance-wrapper-description"
         :has-parent="!!parentProduct.id"
         :inherited-value="getInheritValue('translated', 'description')"
@@ -109,7 +121,11 @@
         {% block sw_product_settings_form_mark_as_topseller_field %}
         <sw-inherit-wrapper
             v-show="showSettingsInformation"
+            {% if VUE3 %}
+            v-model:value="product.markAsTopseller"
+            {% else %}
             v-model="product.markAsTopseller"
+            {% endif %}
             class="sw-product-basic-form__promotion-switch"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.markAsTopseller"

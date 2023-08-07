@@ -20,7 +20,11 @@
         {% block sw_product_category_form_visibility_field %}
         <sw-inherit-wrapper
             ref="productVisibilitiesInheritance"
+            {% if VUE3 %}
+            v-model:value="product.visibilities"
+            {% else %}
             v-model="product.visibilities"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             class="sw-product-category-form__visibility_field"
             :inherited-value="parentProduct.visibilities"
@@ -57,7 +61,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_active_field %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.active"
+            {% else %}
             v-model="product.active"
+            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.active"
         >
@@ -137,7 +145,11 @@
         </p>
         {% endblock %}
         <sw-inherit-wrapper
+            {% if VUE3 %}
+            v-model:value="product.categories"
+            {% else %}
             v-model="product.categories"
+            {% endif %}
             is-association
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.categories"
@@ -160,7 +172,11 @@
     {% block sw_product_category_form_tags_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"
+        {% if VUE3 %}
+        v-model:value="product.tags"
+        {% else %}
         v-model="product.tags"
+        {% endif %}
         class="sw-product-category-form__tag-field-wrapper"
         :inherited-value="parentProduct.tags"
         :has-parent="!!parentProduct.id"
@@ -188,7 +204,11 @@
     {% block sw_product_category_form_search_keyword_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"
+        {% if VUE3 %}
+        v-model:value="product.customSearchKeywords"
+        {% else %}
         v-model="product.customSearchKeywords"
+        {% endif %}
         :help-text="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
         :inherited-value="parentProduct.customSearchKeywords"
         :has-parent="!!parentProduct.id"

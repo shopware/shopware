@@ -18,6 +18,14 @@ class StorefrontException extends HttpException
      */
     public static function cannotRenderView(string $view, string $message, array $parameters): self
     {
+        /**
+         * The parameters array often contains large objects (like the page context). Passing them into the exception
+         * message may overflow further regex functions. Therefore we filter out all objects.
+         */
+        $parameters = array_filter($parameters, static function ($param) {
+            return !\is_object($param);
+        });
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CAN_NOT_RENDER_VIEW,

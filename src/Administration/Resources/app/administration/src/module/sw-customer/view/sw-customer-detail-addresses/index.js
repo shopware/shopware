@@ -318,10 +318,11 @@ export default {
             this.customer.defaultShippingAddressId = shippingAddressId;
         },
 
-        onDuplicateAddress(addressId) {
-            this.customerAddressRepository.clone(addressId).then(() => {
-                this.refreshList();
-            });
+        async onDuplicateAddress(addressId) {
+            const { id } = await this.customerAddressRepository.clone(addressId);
+            const newAddress = await this.customerAddressRepository.get(id);
+
+            this.activeCustomer.addresses.push(newAddress);
         },
 
         onChangeDefaultAddress(data) {

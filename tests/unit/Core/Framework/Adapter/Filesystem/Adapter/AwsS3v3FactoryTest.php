@@ -26,7 +26,7 @@ class AwsS3v3FactoryTest extends TestCase
         $config = [
             'bucket' => 'private',
             'endpoint' => 'http://localhost:9000',
-            'use_path_style_endpoint' => true,
+            'use_path_style_endpoint' => 'true',
             'region' => 'local',
             'root' => 'foobar',
             'credentials' => [
@@ -41,7 +41,7 @@ class AwsS3v3FactoryTest extends TestCase
         $client = new SimpleS3Client([
             'region' => 'local',
             'endpoint' => 'http://localhost:9000',
-            'pathStyleEndpoint' => true,
+            'pathStyleEndpoint' => 'true',
             'accessKeyId' => 'foo',
             'accessKeySecret' => 'bar',
         ]);

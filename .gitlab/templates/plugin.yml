@@ -302,6 +302,7 @@ jest (administration vue3):
               - src/Resources/app/administration/jest.vue3.config.js
               - Resources/app/administration/jest.vue3.config.js
     variables:
+        APP_ENV: prod
         ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
         STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:

@@ -42,8 +42,6 @@ variables:
       - shopware
     before_script:
         - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
-        - !reference [.scripts, install-node, script]
-        - cp public/.htaccess.dist public/.htaccess
         - !reference [ .scripts, init, composer ]
         - >
           if [[ -r var/database.sql ]]; then
@@ -57,11 +55,17 @@ variables:
               composer run e2e:sdk-plugin:fixture-to-plugin
           fi
         - echo -e "\e[0Ksection_end:`date +%s`:base_init\r\e[0K"
-        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
-        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
+        - 'rm -Rf /var/www/html/public || true'
+        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
     after_script:
-        - !reference [.upload-junit-xml, after_script]
         - !reference [.tag-pipeline-span, after_script]
+    artifacts:
+      expire_in: 4 days
+
+.base-with-node:
+  extends: .base
+  image: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:${CI_BUILD_IMAGE_TAG}
 
 .base-with-db:
   extends: .base

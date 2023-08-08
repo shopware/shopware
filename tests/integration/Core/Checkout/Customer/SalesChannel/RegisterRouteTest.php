@@ -809,7 +809,6 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $customerDefinition = new CustomerDefinition();
-        static::assertIsArray($customerDefinition->getDefaults());
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
 
@@ -851,7 +850,6 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $customerDefinition = new CustomerDefinition();
-        static::assertIsArray($customerDefinition->getDefaults());
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
 
@@ -1211,6 +1209,27 @@ class RegisterRouteTest extends TestCase
         $newContextToken = $this->browser->getResponse()->headers->all(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertCount(1, $newContextToken);
         static::assertNotEquals($contextToken, $newContextToken);
+    }
+
+    public function testRegistrationWithEmptyBillingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['billingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($response['errors']);
+        static::assertEquals('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
     }
 
     /**

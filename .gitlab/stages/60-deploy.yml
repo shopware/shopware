@@ -25,14 +25,13 @@ Upload Component Library:
     interruptible: false
 
 Publish entity-schema-types NPM package:
-    extends: .base
+    extends: .base-with-node
     stage: deploy
     needs: []
     rules:
       - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
     before_script:
       - !reference [ .scripts, init, composer ]
-      - !reference [ .scripts, install-node, script ]
       - !reference [ .scripts, init, npm, admin ]
       - composer run admin:generate-entity-schema-types
     script:

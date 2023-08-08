@@ -1,7 +1,7 @@
 # requires /.gitlab/base.yml
 
 Build:
-    extends: .base-no-setup
+    extends: .base-with-node
     stage: lint
     needs: []
     services:
@@ -10,8 +10,9 @@ Build:
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     rules:
         - when: always
+    before_script: []
     script:
-      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
       - composer config version "${LATEST_TAG#"v"}"
       - !reference [ .scripts, init, composer ]
       - bin/console debug:container --parameter 'kernel.shopware_version'
@@ -19,7 +20,6 @@ Build:
       - echo -e "\e[0Ksection_start:$(date +%s):initdb[collapsed=true]\r\e[0KDatabase init"
       - composer run init:db
       - echo -e "\e[0Ksection_end:`date +%s`:initdb\r\e[0K"
-      - !reference [ .scripts, install-node, script ]
       - !reference [ .scripts, init, npm, admin ]
       - !reference [ .scripts, init, npm, storefront ]
       - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
@@ -51,7 +51,6 @@ Component Library:
   extends: .base
   stage: lint
   image: node:18.15
-  before_script: []
   needs: []
   variables:
     PROJECT_ROOT: $CI_PROJECT_DIR
@@ -61,6 +60,7 @@ Component Library:
     - changes:
         - src/Administration/**/*
         - src/Storefront/**/*
+  before_script: []
   script:
     - npm install --prefix src/Administration/Resources/app/administration
     - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/

@@ -3,7 +3,7 @@
 # performance stage - This files contains all jobs belonging to the performance stage.
 
 Lighthouse (Administration):
-    extends: .base
+    extends: .base-with-node
     stage: unit
     needs: [ Build, 'Jest (Administration)' ]
     dependencies: [ Build ]
@@ -35,7 +35,7 @@ Lighthouse (Administration):
             - build/artifacts
 
 Lighthouse Server (Storefront):
-    extends: .base
+    extends: .base-with-node
     stage: unit
     needs: [ Build, 'Jest (Storefront)' ]
     dependencies: [ Build ]
@@ -54,6 +54,7 @@ Lighthouse Server (Storefront):
         # only run on protected refs like trunk and the version branches, if it's not a merge request
         - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true"'
           allow_failure: true
+    before_script: []
     script:
         - !reference [ .scripts, init, npm, storefront ]
         - APP_ENV=prod bin/console framework:demodata

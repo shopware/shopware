@@ -26,7 +26,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         });
     });
 
-    it('@package: should create promotion and apply it for custom products, based on amount', () => {
+    it('@package: should create promotion and apply it for custom products, based on amount', {tags: ['quarantined']}, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST',

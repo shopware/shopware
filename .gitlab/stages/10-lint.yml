@@ -15,7 +15,7 @@ Danger:
         - danger ci
 
 ESLint (Administration):
-    extends: .base
+    extends: .base-with-node
     stage: lint
     rules:
         - !reference [.rules, skip]
@@ -24,24 +24,17 @@ ESLint (Administration):
               - 'src/Administration/Resources/app/administration/**/*'
     before_script:
       - !reference [ .scripts, init, composer ]
-      - !reference [ .scripts, install-node, script ]
       - !reference [ .scripts, init, npm, admin ]
       - composer run admin:generate-entity-schema-types
     script:
         - cd src/Administration/Resources/app/administration
-        - 'npm run lint -- --format junit --cache-location /shared_cache/npm/eslint/admin --output-file $CI_PROJECT_DIR/eslint.junit.xml --plugin file-progress --rule "file-progress/activate: 0"'
+        - 'npm run lint -- --format junit --cache-location ${npm_config_cache}/eslint/admin --output-file $CI_PROJECT_DIR/eslint.junit.xml --plugin file-progress --rule "file-progress/activate: 0"'
         - npm run lint:types
     after_script:
         - grep 'failure message' eslint.junit.xml
-    artifacts:
-        when: on_failure
-        paths:
-            - eslint.junit.xml
-        reports:
-            junit: eslint.junit.xml
 
 Check eslint parser (Administration):
-    extends: .base
+    extends: .base-with-node
     stage: lint
     rules:
         - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
@@ -50,7 +43,6 @@ Check eslint parser (Administration):
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
     before_script:
       - !reference [ .scripts, init, composer ]
-      - !reference [ .scripts, install-node, script ]
       - !reference [ .scripts, init, npm, admin ]
       - composer run admin:generate-entity-schema-types
     script:
@@ -77,18 +69,12 @@ ESLint (Storefront):
     script:
         - !reference [ .scripts, init, npm, storefront ]
         - cd src/Storefront/Resources/app/storefront
-        - npm run --silent lint:js -- --format junit --cache-location /cache/npm/eslint/storefront --output-file $CI_PROJECT_DIR/eslint.junit.xml
+        - npm run --silent lint:js -- --format junit --cache-location ${npm_config_cache}/eslint/storefront --output-file $CI_PROJECT_DIR/eslint.junit.xml
     after_script:
         - grep 'failure message' eslint.junit.xml
-    artifacts:
-        when: on_failure
-        paths:
-            - eslint.junit.xml
-        reports:
-            junit: eslint.junit.xml
 
 ESLint (E2E):
-  extends: .base
+  extends: .base-with-node
   stage: lint
   rules:
     - !reference [.rules, skip]
@@ -97,22 +83,15 @@ ESLint (E2E):
         - 'tests/e2e/**/*'
   before_script:
     - !reference [ .scripts, init, composer ]
-    - !reference [ .scripts, install-node, script ]
     - !reference [ .scripts, init, npm, e2e ]
   script:
     - cd tests/e2e
-    - npm run lint -- --format junit --cache-location /cache/npm/eslint/e2e --output-file $CI_PROJECT_DIR/eslint.junit.xml
+    - npm run lint -- --format junit --cache-location ${npm_config_cache}/eslint/e2e --output-file $CI_PROJECT_DIR/eslint.junit.xml
   after_script:
     - grep 'failure message' eslint.junit.xml
-  artifacts:
-    when: on_failure
-    paths:
-      - eslint.junit.xml
-    reports:
-      junit: eslint.junit.xml
 
 Stylelint (Administration):
-    extends: .base-no-setup
+    extends: .base-with-node
     stage: lint
     image: node:lts-alpine
     rules:
@@ -121,13 +100,11 @@ Stylelint (Administration):
         - changes:
               - 'src/Administration/Resources/app/administration/.stylelintrc'
               - 'src/Administration/Resources/app/administration/**/*.scss'
+    before_script: []
     script:
         - !reference [ .scripts, init, npm, admin ]
         - cd src/Administration/Resources/app/administration
         - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
-    artifacts:
-        reports:
-            junit: src/Administration/Resources/app/administration/stylelint.junit.xml
 
 Stylelint (Storefront):
     extends: .base-no-setup
@@ -143,16 +120,12 @@ Stylelint (Storefront):
         - !reference [ .scripts, init, npm, storefront ]
         - cd src/Storefront/Resources/app/storefront
         - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
-    artifacts:
-        reports:
-            junit: src/Storefront/Resources/app/storefront/stylelint.junit.xml
 
 PHP static analysis:
     extends: .base-no-setup
     variables:
         GIT_DEPTH: 0
     stage: lint
-    image: shopware/development:8.1-composer-2
     rules:
         - if: '$CI_COMMIT_BRANCH == "trunk"'
           when: never
@@ -167,9 +140,6 @@ PHP static analysis:
         - !reference [ .scripts, init, composer ]
     script:
         - composer run phpstan -- --error-format=gitlab | tee phpstan-report.json
-    artifacts:
-      reports:
-        codequality: phpstan-report.json
 
 PHP lint:
     extends: .base-no-setup
@@ -177,7 +147,6 @@ PHP lint:
         GIT_STRATEGY: clone
         GIT_DEPTH: 0
     stage: lint
-    image: shopware/development:8.1-composer-2
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

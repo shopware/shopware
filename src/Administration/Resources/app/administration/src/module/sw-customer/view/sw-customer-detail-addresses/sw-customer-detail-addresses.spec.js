@@ -17,6 +17,23 @@ async function createWrapper() {
                     return {
                         search: () => Promise.resolve([]),
                         create: () => Promise.resolve({ id: '' }),
+                        clone: jest.fn(() => Promise.resolve({
+                            id: 'clone-address-id',
+                        })),
+                        get: (id) => {
+                            if (id === 'clone-address-id') {
+                                return Promise.resolve({
+                                    id: 'clone-address-id',
+                                    lastName: 'Thu',
+                                    firstName: 'Vo',
+                                    city: 'Berlin',
+                                    street: 'Legiendamm',
+                                    zipcode: '550000',
+                                });
+                            }
+
+                            return Promise.reject();
+                        },
                     };
                 },
             },
@@ -64,10 +81,14 @@ async function createWrapper() {
                         <tbody>
                             <td v-for="item in collection">
                                 <slot name="column-lastName" v-bind="{ item }"></slot>
+                                <slot name="actions" v-bind="{ item }"></slot>
                             </td>
                         </tbody>
                     </div>
                 `,
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
             },
             'sw-customer-address-form': true,
             'sw-customer-address-form-options': true,
@@ -141,5 +162,30 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         await wrapper.vm.onSaveAddress();
 
         expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clone address line correctly', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        let lines = wrapper.findAll('td');
+        expect(lines).toHaveLength(1);
+        expect(wrapper.vm.$data.activeCustomer.addresses).toHaveLength(1);
+
+        const contextMenus = wrapper.findAll('.sw-context-menu-item');
+
+        expect(contextMenus).toHaveLength(5);
+        expect(contextMenus.at(1).text()).toBe('sw-customer.detailAddresses.contextMenuDuplicate');
+
+        await contextMenus.at(1).trigger('click');
+        await flushPromises();
+
+        lines = wrapper.findAll('td');
+        expect(lines).toHaveLength(2);
+        expect(wrapper.vm.$data.activeCustomer.addresses).toHaveLength(2);
+
+        expect(lines.at(1).find('a').exists()).toBeTruthy();
+        expect(lines.at(1).text()).toContain('Thu');
     });
 });

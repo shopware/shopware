@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
@@ -15,9 +16,9 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -48,6 +49,7 @@ class PaymentService
         private readonly EntityRepository $orderRepository,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -148,7 +150,7 @@ class PaymentService
         return $token;
     }
 
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): AsynchronousPaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId): AsynchronousPaymentHandlerInterface
     {
         $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethodId);
 
@@ -159,12 +161,17 @@ class PaymentService
         return $handler;
     }
 
-    private function getPaymentTransactionStruct(string $orderTransactionId, Context $context): AsyncPaymentTransactionStruct
+    private function getPaymentTransactionStruct(string $orderTransactionId, SalesChannelContext $context): AsyncPaymentTransactionStruct
     {
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->setTitle('payment-service::load-transaction');
         $criteria->addAssociation('order');
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
+
+        $this->eventDispatcher->dispatch(new FinalizePaymentOrderTransactionCriteriaEvent($orderTransactionId, $criteria, $context));
+
+        /** @var OrderTransactionEntity|null $orderTransaction */
+        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context->getContext())->first();
 
         if ($orderTransaction === null || $orderTransaction->getOrder() === null) {
             throw PaymentException::invalidTransaction($orderTransactionId);

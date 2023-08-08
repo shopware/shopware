@@ -87,6 +87,9 @@ async function createWrapper() {
                     </div>
                 `,
             },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
+            },
             'sw-customer-address-form': true,
             'sw-customer-address-form-options': true,
         },
@@ -159,5 +162,30 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         await wrapper.vm.onSaveAddress();
 
         expect(Shopware.State.getters['error/getApiError'](entityMock, 'street')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clone address line correctly', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        let lines = wrapper.findAll('td');
+        expect(lines).toHaveLength(1);
+        expect(wrapper.vm.$data.activeCustomer.addresses).toHaveLength(1);
+
+        const contextMenus = wrapper.findAll('.sw-context-menu-item');
+
+        expect(contextMenus).toHaveLength(5);
+        expect(contextMenus.at(1).text()).toBe('sw-customer.detailAddresses.contextMenuDuplicate');
+
+        await contextMenus.at(1).trigger('click');
+        await flushPromises();
+
+        lines = wrapper.findAll('td');
+        expect(lines).toHaveLength(2);
+        expect(wrapper.vm.$data.activeCustomer.addresses).toHaveLength(2);
+
+        expect(lines.at(1).find('a').exists()).toBeTruthy();
+        expect(lines.at(1).text()).toContain('Thu');
     });
 });

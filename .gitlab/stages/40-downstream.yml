@@ -149,14 +149,3 @@ commercial tag:
     strategy: depend
     branch: $CI_COMMIT_TAG
 
-set fix versions:
-  extends: .downstream-job
-  rules:
-    - !reference [ .rules, skip ]
-    - if: '$CI_COMMIT_TAG'
-    - when: never
-  variables:
-    CI_ASSIGN_FIX_VERSIONS: 'true'
-  trigger:
-    project: product-operations/maintenance
-    strategy: depend

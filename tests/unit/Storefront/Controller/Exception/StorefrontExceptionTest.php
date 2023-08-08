@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 
 /**
@@ -14,7 +15,12 @@ class StorefrontExceptionTest extends TestCase
 {
     public function testCannotRenderView(): void
     {
-        $res = StorefrontException::cannotRenderView('test.html.twig', 'Error message', ['param' => 'Param']);
+        $parameters = [
+            'param' => 'Param',
+            'context' => Context::createDefaultContext(),
+        ];
+
+        $res = StorefrontException::cannotRenderView('test.html.twig', 'Error message', $parameters);
 
         static::assertEquals(500, $res->getStatusCode());
         static::assertEquals('STOREFRONT__CAN_NOT_RENDER_VIEW', $res->getErrorCode());

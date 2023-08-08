@@ -351,7 +351,8 @@ class AppLifecycleTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',
-            $this->createMock(FlowEventPersister::class)
+            $this->createMock(FlowEventPersister::class),
+            'test'
         );
     }
 

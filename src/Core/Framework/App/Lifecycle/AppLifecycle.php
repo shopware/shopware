@@ -90,7 +90,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
-        private readonly FlowEventPersister $flowEventPersister
+        private readonly FlowEventPersister $flowEventPersister,
+        private readonly string $env
     ) {
     }
 
@@ -215,6 +216,14 @@ class AppLifecycle extends AbstractAppLifecycle
         // Refetch app to get secret after registration
         $app = $this->loadApp($id, $context);
 
+        try {
+            $this->assertAppSecretIsPresentForApplicableFeatures($app, $manifest);
+        } catch (AppException $e) {
+            $this->removeAppAndRole($app, $context);
+
+            throw $e;
+        }
+
         $flowActions = $this->appLoader->getFlowActions($app);
 
         if ($flowActions) {
@@ -232,8 +241,8 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->flowEventPersister->updateEvents($flowEvents, $id, $context, $defaultLocale);
         }
 
-        // we need a app secret to securely communicate with apps
-        // therefore we only install action-buttons, webhooks and modules if we have a secret
+        // we need an app secret to securely communicate with apps
+        // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
         if ($app->getAppSecret()) {
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->taxProviderPersister->updateTaxProviders($manifest, $id, $defaultLocale, $context);
@@ -529,7 +538,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $actions = [];
 
         if ($flowActions) {
-            $actions = $flowActions->getActions() ? $flowActions->getActions()->getActions() : [];
+            $actions = $flowActions->getActions()?->getActions() ?? [];
         }
 
         $webhooks = array_map(function ($action) use ($appId) {
@@ -550,7 +559,7 @@ class AppLifecycle extends AbstractAppLifecycle
             return $webhooks;
         }
 
-        $manifestWebhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
+        $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
         $webhooks = array_merge($webhooks, array_map(function ($webhook) use ($defaultLocale, $appId) {
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
@@ -569,5 +578,43 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return $this->appLoader->loadFile($manifest->getPath(), $iconPath);
+    }
+
+    /**
+     * Certain app features require an app secret to be set, if these features are used but no app secret
+     * is set, we throw an exception in dev mode so the developer is aware
+     */
+    private function assertAppSecretIsPresentForApplicableFeatures(AppEntity $app, Manifest $manifest): void
+    {
+        if ($app->getAppSecret()) {
+            return;
+        }
+
+        if ($this->env !== 'dev') {
+            return;
+        }
+
+        $usedFeatures = [];
+
+        if (\count($manifest->getAdmin()?->getModules() ?? []) > 0) {
+            // if there is no app secret but the manifest specifies modules, throw an exception in dev mode
+            $usedFeatures[] = 'Admin Modules';
+        }
+
+        if (\count($manifest->getPayments()?->getPaymentMethods() ?? []) > 0) {
+            $usedFeatures[] = 'Payment Methods';
+        }
+
+        if (\count($manifest->getTax()?->getTaxProviders() ?? []) > 0) {
+            $usedFeatures[] = 'Tax providers';
+        }
+
+        if (\count($manifest->getWebhooks()?->getWebhooks() ?? []) > 0) {
+            $usedFeatures[] = 'Webhooks';
+        }
+
+        if (\count($usedFeatures) > 0) {
+            throw AppException::appSecretRequiredForFeatures($app->getName(), $usedFeatures);
+        }
     }
 }

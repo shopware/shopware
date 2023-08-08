@@ -226,6 +226,7 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

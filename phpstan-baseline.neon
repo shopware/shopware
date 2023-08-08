@@ -13380,10 +13380,7 @@ parameters:
 			count: 1
 			path: src/Core/System/Snippet/SnippetFixer.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetService\\:\\:getSnippetSet\\(\\) should return Shopware\\\\Core\\\\System\\\\Snippet\\\\Aggregate\\\\SnippetSet\\\\SnippetSetEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetService.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetValidatorInterface\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"

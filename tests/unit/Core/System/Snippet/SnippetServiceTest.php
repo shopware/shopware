@@ -120,7 +120,7 @@ class SnippetServiceTest extends TestCase
         $catalog = new MessageCatalogue($locale, []);
 
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects(static::once())->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
+        $container->expects(static::exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
 
         $snippetService = new SnippetService(
             $this->connection,

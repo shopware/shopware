@@ -38,7 +38,7 @@ class KernelTest extends TestCase
     {
         $kernel = new Kernel('test', true);
 
-        static::assertSame(realpath(__DIR__ . '/../src'), $kernel->getProjectDir());
+        static::assertSame(realpath(__DIR__ . '/..'), $kernel->getProjectDir());
     }
 
     public function testCacheDir(): void

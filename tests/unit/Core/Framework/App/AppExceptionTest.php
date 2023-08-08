@@ -68,4 +68,17 @@ class AppExceptionTest extends TestCase
 
         static::assertEquals(AppException::INVALID_CONFIGURATION, $e->getErrorCode());
     }
+
+    public function testAppSecretRequiredForFeatures(): void
+    {
+        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules']);
+
+        static::assertEquals(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
+        static::assertEquals('App "MyApp" could not be installed/updated because it uses features Modules but has no secret', $e->getMessage());
+
+        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules', 'Payments', 'Webhooks']);
+
+        static::assertEquals(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
+        static::assertEquals('App "MyApp" could not be installed/updated because it uses features Modules, Payments and Webhooks but has no secret', $e->getMessage());
+    }
 }

@@ -236,8 +236,6 @@
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
             <argument>%kernel.environment%</argument>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister"/>
-            <argument type="service" id="custom_entity.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

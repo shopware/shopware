@@ -47,7 +47,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Script\ScriptCollection;
+use Shopware\Core\Framework\Script\ScriptEntity;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -67,6 +68,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
+    use IntegrationTestBehaviour;
 
     private AppLifecycle $appLifecycle;
 
@@ -1556,31 +1558,32 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
 
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
-        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
-        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
+        /** @var AppLifecycle $appLifeCycle */
+        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
         $appLifeCycle->install($manifest, true, $this->context);
     }
 
     public function testUpdateAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
 
-        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
-        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
+        /** @var AppLifecycle $appLifeCycle */
+        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
         $appLifeCycle->install($manifest, true, $this->context);
 
-        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
-        static::assertNotNull($app);
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
-        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+
         $appLifeCycle->update(
             $updatedManifest,
             [
@@ -1593,10 +1596,10 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretInDevEnvIsSuccessfulWhenSecretIsSet(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
 
-        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
-        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
+        /** @var AppLifecycle $appLifeCycle */
+        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
         $appLifeCycle->install($manifest, true, $this->context);
 
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
@@ -1607,119 +1610,13 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretDoesNotThrowExceptionWhenNoSecretSetAndNotInDevEnv(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
         $this->appLifecycle->install($manifest, true, $this->context);
 
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
         static::assertNotNull($app);
-    }
-
-    public function testOnUninstallCustomEntitiesAreSoftDeleted(): void
-    {
-        // We need to stop the transaction because create table statements commit the transaction instantly
-        $this->stopTransactionAfter();
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
-
-        $this->appLifecycle->install($manifest, true, $this->context);
-
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
-
-        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
-
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
-        static::assertCount(1, $customEntities);
-
-        /** @var CustomEntityEntity $customEntity */
-        $customEntity = $customEntities->first();
-
-        // We call delete with keepUserData = true
-        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context, true);
-
-        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
-
-        /** @var CustomEntityEntity $customEntity */
-        $customEntity = $customEntities->first();
-
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
-        static::assertCount(1, $customEntities);
-        static::assertNotNull($customEntity->getDeletedAt());
-
-        // Cleanup
-        $this->connection->executeStatement('DELETE FROM custom_entity');
-        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
-        $this->connection->executeStatement('DROP TABLE `custom_entity_test`');
-
-        // We need to start a new transaction, so we have something to stop after the test
-        $this->startTransactionBefore();
-    }
-
-    public function testOnUninstallCustomEntitiesAreHardDeleted(): void
-    {
-        // We need to stop the transaction because create table statements commit the transaction instantly
-        $this->stopTransactionAfter();
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
-
-        $this->appLifecycle->install($manifest, true, $this->context);
-
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
-
-        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
-
-        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
-        static::assertCount(1, $customEntities);
-
-        /** @var CustomEntityEntity $customEntity */
-        $customEntity = $customEntities->first();
-
-        // We call delete with keepUserData = false
-        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context);
-
-        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
-
-        static::assertFalse($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
-        static::assertCount(0, $customEntities);
-
-        // Cleanup
-        $this->connection->executeStatement('DELETE FROM custom_entity');
-        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
-
-        // We need to start a new transaction, so we have something to stop after the test
-        $this->startTransactionBefore();
-    }
-
-    private function assertShippingMethodsExists(string $appId): void
-    {
-        $criteria = new Criteria([$appId]);
-        $criteria->addAssociation('appShippingMethods.shippingMethod');
-
-        $app = $this->appRepository->search($criteria, $this->context)->first();
-        static::assertInstanceOf(AppEntity::class, $app);
-
-        $appShippingMethods = $app->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-        static::assertCount(2, $appShippingMethods);
-
-        foreach ($appShippingMethods as $appShippingMethod) {
-            static::assertInstanceOf(AppShippingMethodEntity::class, $appShippingMethod);
-            $shippingMethod = $appShippingMethod->getShippingMethod();
-            static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
-        }
     }
 
     private function getAppFlowActionIdFromSequence(string $sequenceId): ?string

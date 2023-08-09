@@ -172,7 +172,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_active %}
                             <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.active"
+                                {% else %}
                                 v-model="paymentMethod.active"
+                                {% endif %}
                                 class="sw-settings-payment-detail__field-active"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelActive')"
@@ -182,7 +186,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
                             <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.afterOrderEnabled"
+                                {% else %}
                                 v-model="paymentMethod.afterOrderEnabled"
+                                {% endif %}
                                 class="sw-settings-payment-detail__field-after-order"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"

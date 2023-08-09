@@ -306,7 +306,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_navigation %}
                 <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.navigation.value"
+                    {% else %}
                     v-model="element.config.navigation.value"
+                    {% endif %}
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.navigation')"
                 />
@@ -315,7 +319,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_rotate %}
                 <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.rotate.value"
+                    {% else %}
                     v-model="element.config.rotate.value"
+                    {% endif %}
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.rotate')"
                 />
@@ -324,7 +332,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_border %}
                 <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.border.value"
+                    {% else %}
                     v-model="element.config.border.value"
+                    {% endif %}
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.border')"
                 />

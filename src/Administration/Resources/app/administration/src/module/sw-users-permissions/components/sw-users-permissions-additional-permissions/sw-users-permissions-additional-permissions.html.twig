@@ -41,7 +41,11 @@
                     :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.' + privilege.key + '.' + roleName)"
                     :bordered="true"
+                    {% if VUE3 %}
+                    @update:value="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
+                    {% else %}
                     @change="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
+                    {% endif %}
                 />
                 {% endblock %}
             </template>
@@ -88,7 +92,11 @@
                     :value="isPrivilegeSelected('app.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.app.all')"
                     :bordered="true"
+                    {% if VUE3 %}
+                    @update:value="changeAllAppPermissionsForKey('app.' + roleName, $event)"
+                    {% else %}
                     @change="changeAllAppPermissionsForKey('app.' + roleName, $event)"
+                    {% endif %}
                 />
 
                 <sw-switch-field
@@ -104,7 +112,11 @@
                     :value="isPrivilegeSelected('app.' + roleName)"
                     :label="roleName"
                     :bordered="true"
+                    {% if VUE3 %}
+                    @update:value="onSelectPrivilege('app.' + roleName, $event)"
+                    {% else %}
                     @change="onSelectPrivilege('app.' + roleName, $event)"
+                    {% endif %}
                 />
                 {% endblock %}
             </template>

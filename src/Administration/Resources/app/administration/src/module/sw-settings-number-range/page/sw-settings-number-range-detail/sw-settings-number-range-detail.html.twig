@@ -210,7 +210,11 @@
                         {% block sw_settings_number_range_detail_content_field_default %}
                         <div class="sw-settings-number-range-detail__field_default">
                             <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="advanced"
+                                {% else %}
                                 v-model="advanced"
+                                {% endif %}
                                 bordered
                                 :disabled="!acl.can('number_ranges.editor')"
                                 :label="$tc('sw-settings-number-range.detail.labelAdvanced')"

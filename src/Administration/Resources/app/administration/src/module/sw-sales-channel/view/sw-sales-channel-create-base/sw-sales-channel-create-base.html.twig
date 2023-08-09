@@ -4,7 +4,11 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_base_general_input_active %}
 <sw-switch-field
+    {% if VUE3 %}
+    v-model:value="salesChannel.active"
+    {% else %}
     v-model="salesChannel.active"
+    {% endif %}
     v-tooltip="{ message: $tc('sw-sales-channel.detail.activateDisable') }"
     bordered
     disabled

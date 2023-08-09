@@ -34,6 +34,7 @@
                                 v-model:value="allSelectedChecked"
                                 {% else %}
                                 v-model="allSelectedChecked"
+                                {% endif %}
                                 {% if VUE3 %}
                                 @update:value="selectAll"
                                 {% else %}

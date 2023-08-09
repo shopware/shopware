@@ -196,7 +196,11 @@
                         {% block sw_customer_card_metadata_customer_email_editor %}
                         <sw-email-field
                             v-else
+                            {% if VUE3 %}
+                            v-model:value="customer.email"
+                            {% else %}
                             v-model="customer.email"
+                            {% endif %}
                             validation="required"
                             required
                             :label="$tc('sw-customer.card.labelEmail')"

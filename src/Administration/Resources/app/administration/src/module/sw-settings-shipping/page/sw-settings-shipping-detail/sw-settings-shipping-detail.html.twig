@@ -153,7 +153,6 @@
                             {% else %}
                             v-model="shippingMethod.description"
                             {% endif %}
-                            name="sw-field--shippingMethod-description"
                             :value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
                             :disabled="!acl.can('shipping.editor')"

@@ -71,7 +71,11 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_email %}
         <sw-email-field
             v-else-if="linkCategory === 'email'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
             v-model="linkTarget"
+            {% endif %}
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
         />

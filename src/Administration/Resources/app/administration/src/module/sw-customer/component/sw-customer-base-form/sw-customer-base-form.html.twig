@@ -89,7 +89,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_email_field %}
         <sw-email-field
+            {% if VUE3 %}
+            v-model:value="customer.email"
+            {% else %}
             v-model="customer.email"
+            {% endif %}
             required
             :label="$tc('sw-customer.baseForm.labelEmail')"
             :placeholder="$tc('sw-customer.baseForm.placeholderEmail')"

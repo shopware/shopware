@@ -70,7 +70,11 @@
             </option>
         </sw-select-field>
         <sw-password-field
+            {% if VUE3 %}
+            v-model:value="user.pw"
+            {% else %}
             v-model="user.pw"
+            {% endif %}
             type="password"
             :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
             :copy-able="false"

@@ -153,7 +153,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_password_new_password %}
         <sw-password-field
+            {% if VUE3 %}
+            v-model:value="computedNewPassword"
+            {% else %}
             v-model="computedNewPassword"
+            {% endif %}
             :label="$tc('sw-profile.index.labelNewPassword')"
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
@@ -164,7 +168,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_profile_index_general_password_new_password_confirm %}
         <sw-password-field
+            {% if VUE3 %}
+            v-model:value="computedNewPasswordConfirm"
+            {% else %}
             v-model="computedNewPasswordConfirm"
+            {% endif %}
             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"

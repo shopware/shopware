@@ -61,7 +61,11 @@
                         gap="0px 30px"
                     >
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="taxProvider.priority"
+                            {% else %}
                             v-model="taxProvider.priority"
+                            {% endif %}
                             class="sw-settings-tax-tax-provider-detail__field-priority"
                             :disabled="true"
                             :label="$tc('sw-settings-tax.taxProviderDetail.labelPriority')"

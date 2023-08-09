@@ -127,7 +127,6 @@
                                 {% else %}
                                 v-model="deliveryTime.min"
                                 {% endif %}
-                                name="sw-field--deliveryTime-min"
                                 :label="$tc('sw-settings-delivery-time.detail.labelMin')"
                                 :error="deliveryTimeMinError || invalidMinError"
                                 :min="0"
@@ -145,7 +144,6 @@
                                 {% else %}
                                 v-model="deliveryTime.max"
                                 {% endif %}
-                                name="sw-field--deliveryTime-max"
                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"
                                 :min="deliveryTime.min"

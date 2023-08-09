@@ -8,7 +8,11 @@
     {% block sw_product_variants_price_field_gross %}
     <div class="sw-field">
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="price.gross"
+            {% else %}
             v-model="price.gross"
+            {% endif %}
             size="small"
             class="sw-product-variants-price-field__input"
             :disabled="readonly"
@@ -47,7 +51,11 @@
     {% block sw_product_variants_price_field_net %}
     <div class="sw-field">
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="price.net"
+            {% else %}
             v-model="price.net"
+            {% endif %}
             size="small"
             class="sw-field sw-product-variants-price-field__input"
             :disabled="readonly"

@@ -34,7 +34,6 @@
             <sw-number-field
                 {% if VUE3 %}
                 v-model:value="country.position"
-                name="sw-field--country-position"
                 {% else %}
                 v-model="country.position"
                 {% endif %}
@@ -142,7 +141,6 @@
                 <sw-number-field
                     {% if VUE3 %}
                     v-model:value="country.customerTax.amount"
-                    name="sw-field--country-customerTax-amount"
                     {% else %}
                     v-model="country.customerTax.amount"
                     {% endif %}
@@ -222,7 +220,6 @@
                 <sw-number-field
                     {% if VUE3 %}
                     v-model:value="country.companyTax.amount"
-                    name="sw-field--country-companyTax-amount"
                     {% else %}
                     v-model="country.companyTax.amount"
                     {% endif %}

@@ -104,7 +104,6 @@
                             {% else %}
                             v-model="tax.taxRate"
                             {% endif %}
-                            name="sw-field--tax-taxRate"
                             required
                             :digits="3"
                             :disabled="!acl.can('tax.editor')"

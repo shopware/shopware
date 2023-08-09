@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -81,13 +81,10 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
     private function getCountry(string $countryId): CountryEntity
     {
-        /**
-         * @var CountryEntity|null $country
-         */
         $country = $this->countryRepository->search(new Criteria([$countryId]), Context::createDefaultContext())->get($countryId);
 
-        if ($country === null) {
-            throw new CountryNotFoundException($countryId);
+        if (!$country instanceof CountryEntity) {
+            throw CustomerException::countryNotFound($countryId);
         }
 
         return $country;

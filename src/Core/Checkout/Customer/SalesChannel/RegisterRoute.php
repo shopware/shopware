@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -36,7 +37,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -542,11 +542,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
-        /** @var CountryEntity|null $country */
         $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
 
-        if (!$country) {
-            throw new CountryNotFoundException($countryId);
+        if (!$country instanceof CountryEntity) {
+            throw CustomerException::countryNotFound($countryId);
         }
 
         return $country->getVatIdRequired();

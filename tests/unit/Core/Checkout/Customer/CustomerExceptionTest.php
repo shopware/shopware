@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\Country\CountryException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -221,5 +222,21 @@ class CustomerExceptionTest extends TestCase
             'errorCode' => CustomerException::CUSTOMER_AUTH_THROTTLED,
             'message' => 'Customer auth throttled for 100 seconds.',
         ];
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            yield CustomerException::COUNTRY_NOT_FOUND => [
+                'exception' => CustomerException::countryNotFound('100'),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => CountryException::COUNTRY_NOT_FOUND,
+                'message' => 'Country with id "100" not found.',
+            ];
+        } else {
+            yield CustomerException::COUNTRY_NOT_FOUND => [
+                'exception' => CustomerException::countryNotFound('100'),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => CustomerException::COUNTRY_NOT_FOUND,
+                'message' => 'Country with id "100" not found.',
+            ];
+        }
     }
 }

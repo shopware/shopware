@@ -91,19 +91,70 @@ framework:
             log_level: notice
         Shopware\Core\Content\Cms\Exception\PageNotFoundException:
             log_level: notice
-        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException:
-            log_level: notice
         Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException:
             log_level: notice
-        Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException:
+        Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\BadCredentialsException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException:
             log_level: notice
         Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
             log_level: notice
         Shopware\Core\Checkout\Cart\Exception\InvalidCartException:
             log_level: notice
+        Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException:
+            log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\PaymentMethodNotChangeableException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException:
             log_level: notice
         Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException:
             log_level: notice
@@ -190,4 +241,10 @@ framework:
             log_level: notice
         # deprecated tag:v6.6.0 - Exception will be removed
         Shopware\Core\Content\Media\Exception\UploadException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\System\Country\Exception\CountryStateNotFoundException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\System\Country\Exception\CountryNotFoundException:
             log_level: notice

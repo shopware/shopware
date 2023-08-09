@@ -277,7 +277,11 @@
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="item.stock"
+                            {% else %}
                             v-model="item.stock"
+                            {% endif %}
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>

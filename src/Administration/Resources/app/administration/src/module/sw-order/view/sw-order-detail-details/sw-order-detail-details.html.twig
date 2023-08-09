@@ -95,7 +95,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_costs %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="shippingCosts"
+            {% else %}
             v-model="shippingCosts"
+            {% endif %}
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             fill-digits

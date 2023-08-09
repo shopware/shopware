@@ -173,10 +173,18 @@
         {% endblock %}
 
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="shippingCost"
+            {% else %}
             v-model="shippingCost"
+            {% endif %}
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
+            {% if VUE3 %}
+            @update:value="onChangeShippingCost"
+            {% else %}
             @change="onChangeShippingCost"
+            {% endif %}
         >
             <template #suffix>
                 {{ currency.symbol }}

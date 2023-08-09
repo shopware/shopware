@@ -127,7 +127,11 @@
                         <template #column-taxRate="{ item, isInlineEdit, compact }">
                             <template v-if="isInlineEdit">
                                 <sw-number-field
+                                    {% if VUE3 %}
+                                    v-model:value="item.taxRate"
+                                    {% else %}
                                     v-model="item.taxRate"
+                                    {% endif %}
                                     :digits="3"
                                     :size="compact ? 'small' : 'default'"
                                 >

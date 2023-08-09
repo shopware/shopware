@@ -20,13 +20,21 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_port %}
     <sw-number-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.port']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.port']"
+        {% endif %}
         :max="65536"
         :label="$tc('sw-settings-mailer.card-smtp.port')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
         :error="portError"
         required
+        {% if VUE3 %}
+        @update:value="$emit('port-changed')"
+        {% else %}
         @change="$emit('port-changed')"
+        {% endif %}
     />
     {% endblock %}
 

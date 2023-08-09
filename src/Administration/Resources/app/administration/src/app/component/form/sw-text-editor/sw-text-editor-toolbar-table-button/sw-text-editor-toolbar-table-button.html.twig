@@ -28,7 +28,11 @@
             :max="colMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.cols')"
             @input-change="setSelectedCols"
+            {% if VUE3 %}
+            @update:value="setSelectedCols"
+            {% else %}
             @change="setSelectedCols"
+            {% endif %}
         />
         <sw-icon
             class="sw-text-editor-toolbar-table-button__grid-input-icon"
@@ -46,7 +50,11 @@
             :max="rowMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.rows')"
             @input-change="setSelectedRows"
+            {% if VUE3 %}
+            @update:value="setSelectedRows"
+            {% else %}
             @change="setSelectedRows"
+            {% endif %}
         />
     </div>
     {% endblock %}

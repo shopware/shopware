@@ -27,7 +27,11 @@
                     :error="productWidthError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>mm</span>
@@ -60,7 +64,11 @@
                     :error="productHeightError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>mm</span>
@@ -93,7 +101,11 @@
                     :error="productLengthError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>mm</span>
@@ -131,7 +143,11 @@
                     :error="productWeightError"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 >
                     <template #suffix>
                         <span>kg</span>
@@ -169,7 +185,11 @@
                     :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
                     :help-text="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
@@ -306,7 +326,11 @@
                     :label="$tc('sw-product.priceForm.labelReferenceUnit')"
                     :value="props.currentValue"
                     :help-text="$tc('sw-product.packagingForm.referenceUnitHelpText')"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

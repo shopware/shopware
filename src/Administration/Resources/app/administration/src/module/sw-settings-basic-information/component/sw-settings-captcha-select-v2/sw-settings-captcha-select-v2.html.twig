@@ -120,7 +120,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_threshold_score %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="currentValue.googleReCaptchaV3.config.thresholdScore"
+            {% else %}
             v-model="currentValue.googleReCaptchaV3.config.thresholdScore"
+            {% endif %}
             name="googleReCaptchaV3ThresholdScore"
             number-type="float"
             :min="0"

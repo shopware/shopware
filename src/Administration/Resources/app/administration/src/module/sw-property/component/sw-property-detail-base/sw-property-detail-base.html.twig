@@ -130,7 +130,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_position %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.position"
+            {% else %}
             v-model="propertyGroup.position"
+            {% endif %}
             pattern="[0-9]"
             :step="1"
             :label="$tc('sw-property.detail.labelPosition')"

@@ -37,7 +37,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_price %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="discount.value"
+            {% else %}
             v-model="discount.value"
+            {% endif %}
             class="sw-promotion-v2-settings-discount-type__field-price"
             :id-suffix="discount.id"
             :min="0"
@@ -95,13 +99,21 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_max_discount_value %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="discount.maxValue"
+            {% else %}
             v-model="discount.maxValue"
+            {% endif %}
             class="sw-promotion-v2-settings-discount-type__field-max-discount"
             :id-suffix="discount.id"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelMaxDiscountValue')"
             :disabled="discount.type !== 'percentage' || !acl.can('promotion.editor')"
             allow-empty
+            {% if VUE3 %}
+            @update:value="onMaxValueChanged"
+            {% else %}
             @change="onMaxValueChanged"
+            {% endif %}
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -164,7 +176,11 @@
             {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price %}
             <template #column-price="{ item }">
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="item.price"
+                    {% else %}
                     v-model="item.price"
+                    {% endif %}
                     class="sw-promotion-v2-settings-discounts-type__advanced-prices-column-price"
                     type="text"
                     size="small"

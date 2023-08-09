@@ -114,7 +114,11 @@
             />
 
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="shippingCosts"
+                {% else %}
                 v-model="shippingCosts"
+                {% endif %}
                 :label="$tc('sw-order.createBase.labelShippingCosts')"
                 :min="0"
                 fill-digits

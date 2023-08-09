@@ -71,7 +71,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_rule_modal_tax_rate %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="taxRule.taxRate"
+            {% else %}
             v-model="taxRule.taxRate"
+            {% endif %}
             required
             :digits="3"
             :error="taxRuleTaxRateError"

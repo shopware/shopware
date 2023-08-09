@@ -159,7 +159,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.productStreamLimit.value"
+                            {% else %}
                             v-model="element.config.productStreamLimit.value"
+                            {% endif %}
                             :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
                             class="sw-cms-el-config-product-slider__product-stream-limit"
                             :disabled="!productStream"

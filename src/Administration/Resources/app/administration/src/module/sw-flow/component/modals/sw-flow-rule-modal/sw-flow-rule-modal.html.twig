@@ -73,7 +73,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_rule_modal_detail_priority %}
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="rule.priority"
+                            {% else %}
                             v-model="rule.priority"
+                            {% endif %}
                             class="sw-flow-rule-modal__priority"
                             required
                             :label="$tc('sw-flow.modals.rule.labelPriority')"

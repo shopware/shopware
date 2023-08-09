@@ -64,7 +64,11 @@
             {% block sw_flow_detail_general_information_priority %}
             <sw-number-field
                 v-if="!isFlowTemplate"
+                {% if VUE3 %}
+                v-model:value="flow.priority"
+                {% else %}
                 v-model="flow.priority"
+                {% endif %}
                 class="sw-flow-detail-general__general-priority"
                 :disabled="!acl.can('flow.editor')"
                 :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"

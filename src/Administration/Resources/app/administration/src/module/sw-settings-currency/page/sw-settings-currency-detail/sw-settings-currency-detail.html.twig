@@ -158,7 +158,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_factor %}
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="currency.factor"
+                            {% else %}
                             v-model="currency.factor"
+                            {% endif %}
                             required
                             :digits="14"
                             :label="$tc('sw-settings-currency.detail.labelFactor')"
@@ -171,7 +175,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_tax_free_from %}
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="currency.taxFreeFrom"
+                            {% else %}
                             v-model="currency.taxFreeFrom"
+                            {% endif %}
                             :min="0"
                             :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
                             :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', 0 , { currencyName: `${currency.name}` })"

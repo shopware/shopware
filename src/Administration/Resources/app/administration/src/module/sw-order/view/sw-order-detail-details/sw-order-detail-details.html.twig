@@ -162,7 +162,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_email %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.orderCustomer.email"
+            {% else %}
             v-model="order.orderCustomer.email"
+            {% endif %}
             class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
@@ -173,7 +177,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_phone_number %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
+            {% else %}
             v-model="order.addresses.get(order.billingAddressId).phoneNumber"
+            {% endif %}
             class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
@@ -217,7 +225,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_affiliate %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.affiliateCode"
+            {% else %}
             v-model="order.affiliateCode"
+            {% endif %}
             class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
@@ -227,7 +239,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_campaign %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="order.campaignCode"
+            {% else %}
             v-model="order.campaignCode"
+            {% endif %}
             class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"

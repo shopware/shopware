@@ -39,7 +39,11 @@
         {% block sw_dynamic_url_field_content_type_inputs_link %}
         <sw-text-field
             v-if="linkCategory === 'link'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
             v-model="linkTarget"
+            {% endif %}
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
         />
@@ -49,7 +53,11 @@
         {% block sw_dynamic_url_field_content_type_inputs_phone %}
         <sw-text-field
             v-else-if="linkCategory === 'phone'"
+            {% if VUE3 %}
+            v-model:value="linkTarget"
+            {% else %}
             v-model="linkTarget"
+            {% endif %}
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
         />

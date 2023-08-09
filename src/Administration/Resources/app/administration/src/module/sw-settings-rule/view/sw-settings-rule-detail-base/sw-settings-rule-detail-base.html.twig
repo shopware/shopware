@@ -17,7 +17,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="rule.name"
+                    {% else %}
                     v-model="rule.name"
+                    {% endif %}
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                     :error="ruleNameError"

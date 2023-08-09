@@ -17,7 +17,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_information_name %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="landingPage.name"
+                {% else %}
                 v-model="landingPage.name"
+                {% endif %}
                 required
                 name="landingPageName"
                 validation="required"
@@ -92,7 +96,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_meta_title %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="landingPage.metaTitle"
+                {% else %}
                 v-model="landingPage.metaTitle"
+                {% endif %}
                 maxlength="255"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
@@ -116,7 +124,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_keywords %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="landingPage.keywords"
+                {% else %}
                 v-model="landingPage.keywords"
+                {% endif %}
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelKeywords')"
                 :placeholder="placeholder(landingPage, 'keywords', $tc('sw-landing-page.base.seo.placeholderKeywords'))"
@@ -126,7 +138,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_url %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="landingPage.url"
+                {% else %}
                 v-model="landingPage.url"
+                {% endif %}
                 required
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelUrl')"

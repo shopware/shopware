@@ -16,7 +16,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_name %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="country.name"
+                {% else %}
                 v-model="country.name"
+                {% endif %}
                 required
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelName')"
@@ -39,7 +43,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_iso %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="country.iso"
+                {% else %}
                 v-model="country.iso"
+                {% endif %}
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelIso')"
                 :placeholder="placeholder(country, 'iso', $tc('sw-settings-country.detail.placeholderIso'))"
@@ -49,7 +57,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_iso3 %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="country.iso3"
+                {% else %}
                 v-model="country.iso3"
+                {% endif %}
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelIso3')"
                 :placeholder="placeholder(country, 'iso3', $tc('sw-settings-country.detail.placeholderIso3'))"

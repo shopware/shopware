@@ -36,7 +36,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_site_key %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="currentValue.googleReCaptchaV2.config.siteKey"
+            {% else %}
             v-model="currentValue.googleReCaptchaV2.config.siteKey"
+            {% endif %}
             name="googleReCaptchaV2SiteKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2SiteKey')"
         />
@@ -45,7 +49,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_secret_key %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="currentValue.googleReCaptchaV2.config.secretKey"
+            {% else %}
             v-model="currentValue.googleReCaptchaV2.config.secretKey"
+            {% endif %}
             name="googleReCaptchaV2SecretKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2SecretKey')"
         />
@@ -86,7 +94,11 @@
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_site_key %}
 
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="currentValue.googleReCaptchaV3.config.siteKey"
+            {% else %}
             v-model="currentValue.googleReCaptchaV3.config.siteKey"
+            {% endif %}
             name="googleReCaptchaV3SiteKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3SiteKey')"
         />
@@ -95,7 +107,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_secret_key %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="currentValue.googleReCaptchaV3.config.secretKey"
+            {% else %}
             v-model="currentValue.googleReCaptchaV3.config.secretKey"
+            {% endif %}
             name="googleReCaptchaV3SecretKey"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3SecretKey')"
         />

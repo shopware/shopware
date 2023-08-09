@@ -20,7 +20,11 @@
 
     <div v-if="createShopDomain">
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="newShopDomain"
+            {% else %}
             v-model="newShopDomain"
+            {% endif %}
             name="newShopDomain"
             validation="required"
             :label="'Shop domain'"

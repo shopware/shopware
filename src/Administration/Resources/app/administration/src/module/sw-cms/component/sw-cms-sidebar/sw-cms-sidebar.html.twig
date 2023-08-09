@@ -31,7 +31,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_name_field %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="page.name"
+                        {% else %}
                         v-model="page.name"
+                        {% endif %}
                         :label="$tc('sw-cms.detail.label.pageName')"
                         :placeholder="placeholder(page, 'name')"
                         :error="pageNameError"
@@ -41,7 +45,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_css_class_field %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="page.cssClass"
+                        {% else %}
                         v-model="page.cssClass"
+                        {% endif %}
                         :label="$tc('sw-cms.detail.label.pageCssClass')"
                         :placeholder="placeholder(page, 'cssClass')"
                         :help-text="$tc('sw-cms.detail.helpText.cssClassField')"

@@ -7,7 +7,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_name %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="currentOption.name"
+        {% else %}
         v-model="currentOption.name"
+        {% endif %}
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"
         :disabled="!allowEdit"

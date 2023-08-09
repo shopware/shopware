@@ -5,7 +5,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_video_id %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="videoID"
+        {% else %}
         v-model="videoID"
+        {% endif %}
         class="sw-cms-el-config-youtube-video__video-id"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
         :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"

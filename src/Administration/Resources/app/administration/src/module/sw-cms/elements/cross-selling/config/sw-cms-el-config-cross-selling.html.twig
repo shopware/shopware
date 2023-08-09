@@ -144,7 +144,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_min_width %}
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.elMinWidth.value"
+                    {% else %}
                     v-model="element.config.elMinWidth.value"
+                    {% endif %}
                     :label="$tc('sw-cms.elements.crossSelling.config.label.minWidth')"
                     :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.minWidth')"
                 />

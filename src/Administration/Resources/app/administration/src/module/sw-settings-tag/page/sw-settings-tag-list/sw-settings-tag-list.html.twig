@@ -289,7 +289,11 @@
                                         class="sw-settings-tag-list__confirm-bulk-merge-name-input"
                                     >
                                         <sw-text-field
+                                            {% if VUE3 %}
+                                            v-model:value="duplicateName"
+                                            {% else %}
                                             v-model="duplicateName"
+                                            {% endif %}
                                             :label="$tc('sw-settings-tag.list.bulkMergeName')"
                                             :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                             maxlength="255"
@@ -463,7 +467,11 @@
                                 {% block sw_settings_tag_list_delete_modal_confirm_duplicate_input %}
                                 <p class="sw-settings-tag-list__confirm-duplicate-input">
                                     <sw-text-field
+                                        {% if VUE3 %}
+                                        v-model:value="duplicateName"
+                                        {% else %}
                                         v-model="duplicateName"
+                                        {% endif %}
                                         :label="$tc('sw-settings-tag.list.columnName')"
                                         :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                         maxlength="255"

@@ -47,7 +47,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="section.name"
+            {% else %}
             v-model="section.name"
+            {% endif %}
             :label="$tc('sw-cms.detail.label.sectionNameField')"
             :help-text="$tc('sw-cms.detail.tooltip.sectionNameField')"
         />
@@ -56,7 +60,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_css_classes_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="section.cssClass"
+            {% else %}
             v-model="section.cssClass"
+            {% endif %}
             :label="$tc('sw-cms.detail.label.cssClassField')"
             :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
         />

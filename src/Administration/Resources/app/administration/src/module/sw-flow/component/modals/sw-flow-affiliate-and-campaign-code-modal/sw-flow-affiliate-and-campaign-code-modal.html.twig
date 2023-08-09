@@ -34,7 +34,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="affiliateCode.value"
+                {% else %}
                 v-model="affiliateCode.value"
+                {% endif %}
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
                 :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderAffiliateCode')"
@@ -62,7 +66,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="campaignCode.value"
+                {% else %}
                 v-model="campaignCode.value"
+                {% endif %}
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
                 :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderCampaignCode')"

@@ -103,7 +103,11 @@
     {% block sw_category_detail_link_field %}
     <sw-text-field
         v-if="isExternal"
+        {% if VUE3 %}
+        v-model:value="category.externalLink"
+        {% else %}
         v-model="category.externalLink"
+        {% endif %}
         class="sw-category-link-settings__external-link"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.linkLabel')"

@@ -94,7 +94,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_customer_group_detail_content_card_name %}
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="customerGroup.name"
+                                {% else %}
                                 v-model="customerGroup.name"
+                                {% endif %}
                                 class="sw-settings-customer-group-detail__name"
                                 required
                                 validation="required"
@@ -154,7 +158,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="customerGroup.registrationTitle"
+                        {% else %}
                         v-model="customerGroup.registrationTitle"
+                        {% endif %}
                         required
                         validation="required"
                         :label="$tc('sw-settings-customer-group.registration.title')"
@@ -230,7 +238,11 @@
                     {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
                     <sw-text-field
                         v-if="customerGroupId"
+                        {% if VUE3 %}
+                        v-model:value="technicalUrl"
+                        {% else %}
                         v-model="technicalUrl"
+                        {% endif %}
                         :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
                         :copyable="true"
                         :disabled="true"
@@ -248,7 +260,11 @@
                         {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                         <!-- eslint-disable vue/valid-v-model -->
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="getSeoUrl(seoUrl)"
+                            {% else %}
                             v-model="getSeoUrl(seoUrl)"
+                            {% endif %}
                             :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', 0, { salesChannelName: seoUrl.salesChannel.translated.name})"
                             :copyable="true"
                             :disabled="true"

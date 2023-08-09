@@ -57,7 +57,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_rule_modal_detail_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="rule.name"
+                            {% else %}
                             v-model="rule.name"
+                            {% endif %}
                             class="sw-flow-rule-modal__name"
                             required
                             :label="$tc('sw-flow.modals.rule.labelName')"

@@ -87,7 +87,11 @@
                         gap="24px"
                     >
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="currentIntegration.label"
+                            {% else %}
                             v-model="currentIntegration.label"
+                            {% endif %}
                             :label="$tc('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
                         />
@@ -131,7 +135,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="currentIntegration.accessKey"
+                        {% else %}
                         v-model="currentIntegration.accessKey"
+                        {% endif %}
                         :label="$tc('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
                         :copyable="true"
@@ -144,7 +152,11 @@
                     <template v-if="showSecretAccessKey">
                         <sw-text-field
                             v-if="secretAccessKeyFieldTypeIsText"
+                            {% if VUE3 %}
+                            v-model:value="currentIntegration.secretAccessKey"
+                            {% else %}
                             v-model="currentIntegration.secretAccessKey"
+                            {% endif %}
                             :type="secretAccessKeyFieldType"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"

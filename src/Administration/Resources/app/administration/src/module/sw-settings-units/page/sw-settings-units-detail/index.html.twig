@@ -29,14 +29,22 @@
                 position-identifier="sw-settings-units-content"
             >
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="unit.name"
+                    {% else %}
                     v-model="unit.name"
+                    {% endif %}
                     :label="$tc('sw-settings-units.detail.fieldLabels.name')"
                     :error="unitNameError"
                     required
                 />
 
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="unit.shortCode"
+                    {% else %}
                     v-model="unit.shortCode"
+                    {% endif %}
                     :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
                     :error="unitShortCodeError"
                     required

@@ -82,7 +82,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_name_field %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="deliveryTime.name"
+                            {% else %}
                             v-model="deliveryTime.name"
+                            {% endif %}
                             :label="$tc('sw-settings-delivery-time.detail.labelName')"
                             :error="deliveryTimeNameError"
                             :disabled="!acl.can('delivery_times.editor')"

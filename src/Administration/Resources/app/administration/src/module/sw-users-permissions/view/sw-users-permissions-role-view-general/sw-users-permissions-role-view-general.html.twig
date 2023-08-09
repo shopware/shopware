@@ -8,7 +8,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="role.name"
+            {% else %}
             v-model="role.name"
+            {% endif %}
             :error="roleNameError"
             :disabled="!acl.can('users_and_permissions.editor')"
             :label="$tc('sw-users-permissions.roles.detail.labelName')"

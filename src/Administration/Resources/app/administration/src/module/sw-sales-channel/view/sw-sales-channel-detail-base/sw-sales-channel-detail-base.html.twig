@@ -65,7 +65,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.name"
+            {% else %}
             v-model="salesChannel.name"
+            {% endif %}
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -474,7 +478,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="productExport.fileName"
+            {% else %}
             v-model="productExport.fileName"
+            {% endif %}
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -610,7 +618,11 @@
         {% block sw_sales_channel_detail_base_options_input_access_key %}
         <sw-text-field
             v-if="!isProductComparison"
+            {% if VUE3 %}
+            v-model:value="salesChannel.accessKey"
+            {% else %}
             v-model="salesChannel.accessKey"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
             :disabled="true"
         />
@@ -647,7 +659,11 @@
         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
         <sw-text-field
             v-if="isProductComparison"
+            {% if VUE3 %}
+            v-model:value="productExport.accessKey"
+            {% else %}
             v-model="productExport.accessKey"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
             :disabled="true"
             :copyable="true"
@@ -658,7 +674,11 @@
         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
         <sw-text-field
             v-if="isProductComparison && productExport.salesChannelDomainId"
+            {% if VUE3 %}
+            v-model:value="productComparisonAccessUrl"
+            {% else %}
             v-model="productComparisonAccessUrl"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.accessUrl')"
             :disabled="true"
             :copyable="true"

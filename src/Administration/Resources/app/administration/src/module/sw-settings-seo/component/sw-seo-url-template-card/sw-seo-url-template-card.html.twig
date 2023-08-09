@@ -58,7 +58,11 @@
                             :name="`sw-field--seo-url-template-${seoUrlTemplate.entity}`"
                             :label="getLabel(seoUrlTemplate)"
                             :placeholder="getPlaceholder(seoUrlTemplate)"
+                            {% if VUE3 %}
+                            @update:value="props.updateCurrentValue"
+                            {% else %}
                             @input="props.updateCurrentValue"
+                            {% endif %}
                         >
 
                             <template #suffix>

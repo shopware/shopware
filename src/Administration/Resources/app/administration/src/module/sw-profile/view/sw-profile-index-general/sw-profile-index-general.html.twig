@@ -12,7 +12,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_firstname %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="user.firstName"
+                {% else %}
                 v-model="user.firstName"
+                {% endif %}
                 :label="$tc('sw-profile.index.labelFirstNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
@@ -21,7 +25,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_lastname %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="user.lastName"
+                {% else %}
                 v-model="user.lastName"
+                {% endif %}
                 :label="$tc('sw-profile.index.labelLastNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
@@ -32,7 +40,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_username %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="user.username"
+                {% else %}
                 v-model="user.username"
+                {% endif %}
                 :label="$tc('sw-profile.index.labelUsernameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
@@ -62,7 +74,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_email %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="user.email"
+                {% else %}
                 v-model="user.email"
+                {% endif %}
                 validation="email"
                 name="sw-field--email"
                 required

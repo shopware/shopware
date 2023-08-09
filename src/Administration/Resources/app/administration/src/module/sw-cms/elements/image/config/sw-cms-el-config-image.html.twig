@@ -69,10 +69,18 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_config_min_height %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="element.config.minHeight.value"
+            {% else %}
             v-model="element.config.minHeight.value"
+            {% endif %}
             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
+            {% if VUE3 %}
+            @update:value="onChangeMinHeight"
+            {% else %}
             @input="onChangeMinHeight"
+            {% endif %}
         />
         {% endblock %}
     </template>

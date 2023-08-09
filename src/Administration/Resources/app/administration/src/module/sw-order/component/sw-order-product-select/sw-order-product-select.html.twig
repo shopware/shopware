@@ -5,7 +5,11 @@
     {% block sw_order_product_select_blank_item %}
     <sw-text-field
         v-if="isShownItemLabelInput"
+        {% if VUE3 %}
+        v-model:value="item.label"
+        {% else %}
         v-model="item.label"
+        {% endif %}
         size="small"
         :placeholder="$tc('sw-order.detailBase.columnProductName')"
     />

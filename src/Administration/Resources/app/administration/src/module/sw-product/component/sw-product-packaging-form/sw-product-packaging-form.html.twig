@@ -234,7 +234,11 @@
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitHelpText')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @input="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
@@ -264,7 +268,11 @@
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @input="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

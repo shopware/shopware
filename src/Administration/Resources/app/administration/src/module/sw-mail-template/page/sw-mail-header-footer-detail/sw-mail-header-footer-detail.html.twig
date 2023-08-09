@@ -84,7 +84,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_name_field %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="mailHeaderFooter.name"
+                        {% else %}
                         v-model="mailHeaderFooter.name"
+                        {% endif %}
                         validation="required"
                         required
                         :label="$tc('sw-mail-header-footer.detail.basic.labelName')"

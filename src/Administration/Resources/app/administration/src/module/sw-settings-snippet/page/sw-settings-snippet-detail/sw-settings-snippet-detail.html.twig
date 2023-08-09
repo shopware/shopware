@@ -94,13 +94,21 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_detail_card_information_key %}
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="translationKey"
+                                {% else %}
                                 v-model="translationKey"
+                                {% endif %}
                                 v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
                                 :label="$tc('sw-settings-snippet.detail.labelName')"
                                 :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                 :disabled="!(isCreate || isAddedSnippet)"
                                 :error="invalidKeyError"
+                                {% if VUE3 %}
+                                @update:value="onChange"
+                                {% else %}
                                 @input="onChange"
+                                {% endif %}
                             />
                             {% endblock %}
                         </div>
@@ -120,13 +128,21 @@
                             <sw-text-field
                                 v-for="(snippet, index) in snippets"
                                 :key="snippet.setId"
+                                {% if VUE3 %}
+                                v-model:value="snippet.value"
+                                {% else %}
                                 v-model="snippet.value"
+                                {% endif %}
                                 v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
                                 :class="`sw-settings-snippet-detail__translation-field--${index}`"
                                 :disabled="!acl.can('snippet.editor')"
                                 :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
                                 :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+                                {% if VUE3 %}
+                                @update:value="onChange"
+                                {% else %}
                                 @input="onChange"
+                                {% endif %}
                             />
                             {% endblock %}
                         </div>

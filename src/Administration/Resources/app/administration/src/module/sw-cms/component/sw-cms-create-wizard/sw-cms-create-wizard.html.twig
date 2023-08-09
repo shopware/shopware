@@ -150,7 +150,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_create_wizard_page_name %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="page.name"
+                        {% else %}
                         v-model="page.name"
+                        {% endif %}
                         class="sw-cms-create-wizard__page-completion-name"
                         :label="$tc('sw-cms.detail.label.pageName')"
                         :placeholder="$tc('sw-cms.detail.label.pageNamePlaceholder')"

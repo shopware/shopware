@@ -28,7 +28,11 @@
             </p>
             <div class="input-fields">
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="shopwareId"
+                    {% else %}
                     v-model="shopwareId"
+                    {% endif %}
                     name="shopwareId"
                     validation="required"
                     :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"

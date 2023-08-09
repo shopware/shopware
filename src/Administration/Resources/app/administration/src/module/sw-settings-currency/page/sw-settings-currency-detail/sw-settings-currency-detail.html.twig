@@ -94,7 +94,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="currency.name"
+                            {% else %}
                             v-model="currency.name"
+                            {% endif %}
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelName')"
@@ -106,7 +110,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_iso_code %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="currency.isoCode"
+                            {% else %}
                             v-model="currency.isoCode"
+                            {% endif %}
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelIsoCode')"
@@ -118,7 +126,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_short_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="currency.shortName"
+                            {% else %}
                             v-model="currency.shortName"
+                            {% endif %}
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelShortName')"
@@ -130,7 +142,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_symbol %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="currency.symbol"
+                            {% else %}
                             v-model="currency.symbol"
+                            {% endif %}
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelSymbol')"

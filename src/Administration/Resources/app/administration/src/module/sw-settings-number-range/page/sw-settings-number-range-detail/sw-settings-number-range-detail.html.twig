@@ -95,7 +95,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="numberRange.name"
+                            {% else %}
                             v-model="numberRange.name"
+                            {% endif %}
                             :label="$tc('sw-settings-number-range.detail.labelName')"
                             :placeholder="placeholder(numberRange,'name', $tc('sw-settings-number-range.detail.placeholderName'))"
                             validation="required"
@@ -108,7 +112,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_description %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="numberRange.description"
+                            {% else %}
                             v-model="numberRange.description"
+                            {% endif %}
                             :label="$tc('sw-settings-number-range.detail.labelDescription')"
                             :placeholder="placeholder(numberRange,'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
                             :disabled="!acl.can('number_ranges.editor')"
@@ -123,11 +131,19 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_prefix %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="prefix"
+                            {% else %}
                             v-model="prefix"
+                            {% endif %}
                             :disabled="advanced || !acl.can('number_ranges.editor')"
                             :label="$tc('sw-settings-number-range.detail.labelPrefix')"
                             :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
+                            {% if VUE3 %}
+                            @update:value="onChangePattern()"
+                            {% else %}
                             @input="onChangePattern()"
+                            {% endif %}
                         />
                         {% endblock %}
 
@@ -148,11 +164,19 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_suffix %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="suffix"
+                            {% else %}
                             v-model="suffix"
+                            {% endif %}
                             :disabled="advanced || !acl.can('number_ranges.editor')"
                             :label="$tc('sw-settings-number-range.detail.labelSuffix')"
                             :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
+                            {% if VUE3 %}
+                            @update:value="onChangePattern()"
+                            {% else %}
                             @input="onChangePattern()"
+                            {% endif %}
                         />
                         {% endblock %}
 
@@ -160,11 +184,19 @@
                         {% block sw_settings_number_range_detail_content_field_pattern %}
                         <sw-text-field
                             v-if="advanced"
+                            {% if VUE3 %}
+                            v-model:value="numberRange.pattern"
+                            {% else %}
                             v-model="numberRange.pattern"
+                            {% endif %}
                             :label="$tc('sw-settings-number-range.detail.labelPattern')"
                             :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
                             :disabled="!acl.can('number_ranges.editor')"
+                            {% if VUE3 %}
+                            @update:value="onChangePattern()"
+                            {% else %}
                             @input="onChangePattern()"
+                            {% endif %}
                         />
                         <div v-if="!advanced"></div>
                         {% endblock %}
@@ -199,7 +231,11 @@
                         {% block sw_settings_number_range_detail_content_field_current_number %}
                         <sw-text-field
                             v-if="state"
+                            {% if VUE3 %}
+                            v-model:value="state"
+                            {% else %}
                             v-model="state"
+                            {% endif %}
                             :disabled="true"
                             :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
                             :placeholder="numberRange.start?numberRange.start.toString():''"
@@ -209,7 +245,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_preview %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="preview"
+                            {% else %}
                             v-model="preview"
+                            {% endif %}
                             :disabled="true"
                             :label="$tc('sw-settings-number-range.detail.labelPreview')"
                         />

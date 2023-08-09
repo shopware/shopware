@@ -83,7 +83,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="language.name"
+                            {% else %}
                             v-model="language.name"
+                            {% endif %}
                             :disabled="!acl.can('language.editor')"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"

@@ -95,7 +95,11 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_title %}
                                 <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="customer.title"
+                                    {% else %}
                                     v-model="customer.title"
+                                    {% endif %}
                                     :label="$tc('sw-customer.card.labelTitle')"
                                     :placeholder="$tc('sw-customer.card.placeholderTitle')"
                                 />
@@ -109,7 +113,11 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_first_name %}
                                 <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="customer.firstName"
+                                    {% else %}
                                     v-model="customer.firstName"
+                                    {% endif %}
                                     :label="$tc('sw-customer.card.labelFirstName')"
                                     validation="required"
                                     required
@@ -121,7 +129,11 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_last_name %}
                                 <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="customer.lastName"
+                                    {% else %}
                                     v-model="customer.lastName"
+                                    {% endif %}
                                     :label="$tc('sw-customer.card.labelLastName')"
                                     validation="required"
                                     required
@@ -134,7 +146,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_metadata_customer_name_editor_company %}
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="customer.company"
+                                {% else %}
                                 v-model="customer.company"
+                                {% endif %}
                                 :required="isBusinessAccountType"
                                 :error="customerCompanyError"
                                 :label="$tc('sw-customer.card.labelCompany')"
@@ -149,7 +165,11 @@
                         {% block sw_customer_card_vat_ids %}
                         <sw-text-field
                             v-if="editMode && isBusinessAccountType"
+                            {% if VUE3 %}
+                            v-model:value="customer.vatIds[0]"
+                            {% else %}
                             v-model="customer.vatIds[0]"
+                            {% endif %}
                             name="vatId"
                             :label="$tc('sw-customer.card.labelVatId')"
                             :placeholder="$tc('sw-customer.card.placeholderVatId')"

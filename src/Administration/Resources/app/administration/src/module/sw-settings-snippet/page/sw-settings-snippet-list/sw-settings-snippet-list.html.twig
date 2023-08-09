@@ -126,7 +126,11 @@
                     <template v-if="isInlineEdit">
                         <sw-text-field
                             :key="set.id"
+                            {% if VUE3 %}
+                            v-model:value="item[set.id].value"
+                            {% else %}
                             v-model="item[set.id].value"
+                            {% endif %}
                             :placeholder="item[set.id].origin || $tc('sw-settings-snippet.general.placeholderValue')"
                             :size="compact ? 'small' : 'default'"
                         />

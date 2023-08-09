@@ -148,7 +148,11 @@
                         :value="isActiveGroupInListing(group.id)"
                         :disabled="isDisabledListingMode('expanded')"
                         :label="group.translated.name"
+                        {% if VUE3 %}
+                        @update:value="onChangeGroupListing($event, group.id)"
+                        {% else %}
                         @change="onChangeGroupListing($event, group.id)"
+                        {% endif %}
                     />
                     {% endblock %}
                 </dd>

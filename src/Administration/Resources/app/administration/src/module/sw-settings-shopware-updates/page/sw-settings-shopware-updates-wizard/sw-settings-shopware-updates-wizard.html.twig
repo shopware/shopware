@@ -101,7 +101,11 @@
 
             <sw-radio-field
                 v-if="displayIncompatiblePluginsWarning"
+                {% if VUE3 %}
+                v-model:value="chosenPluginBehaviour"
+                {% else %}
                 v-model="chosenPluginBehaviour"
+                {% endif %}
                 :options="[
                     {'value': 'all', 'name': optionDeactivateAllTranslation },
                     {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },

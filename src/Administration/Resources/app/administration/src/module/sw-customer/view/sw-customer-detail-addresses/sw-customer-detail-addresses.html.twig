@@ -110,11 +110,19 @@
                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
                 <template #column-defaultShippingAddress="{ item }">
                     <sw-radio-field
+                        {% if VUE3 %}
+                        v-model:value="activeCustomer.defaultShippingAddressId"
+                        {% else %}
                         v-model="activeCustomer.defaultShippingAddressId"
+                        {% endif %}
                         :disabled="!customerEditMode"
                         name="defaultShippingAddress"
                         :options="[{ value: item.id }]"
+                        {% if VUE3 %}
+                        @update:value="onChangeDefaultShippingAddress"
+                        {% else %}
                         @change="onChangeDefaultShippingAddress"
+                        {% endif %}
                     />
                 </template>
                 {% endblock %}
@@ -123,11 +131,19 @@
                 {% block sw_customer_detail_addresses_grid_columns_default_billing_address %}
                 <template #column-defaultBillingAddress="{ item }">
                     <sw-radio-field
+                        {% if VUE3 %}
+                        v-model:value="activeCustomer.defaultBillingAddressId"
+                        {% else %}
                         v-model="activeCustomer.defaultBillingAddressId"
+                        {% endif %}
                         :disabled="!customerEditMode"
                         name="defaultBillingAddress"
                         :options="[{ value: item.id }]"
+                        {% if VUE3 %}
+                        @update:value="onChangeDefaultBillingAddress"
+                        {% else %}
                         @change="onChangeDefaultBillingAddress"
+                        {% endif %}
                     />
                 </template>
                 {% endblock %}

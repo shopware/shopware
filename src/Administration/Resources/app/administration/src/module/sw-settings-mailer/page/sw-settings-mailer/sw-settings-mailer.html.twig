@@ -105,7 +105,11 @@
 
                     <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
+                        {% if VUE3 %}
+                        v-model:value="mailerSettings['core.mailerSettings.sendMailOptions']"
+                        {% else %}
                         v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
+                        {% endif %}
                         :options="emailSendmailOptions"
                     />
                     {% endblock %}

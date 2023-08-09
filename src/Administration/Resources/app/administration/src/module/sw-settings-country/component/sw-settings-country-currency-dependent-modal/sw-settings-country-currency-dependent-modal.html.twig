@@ -58,7 +58,11 @@
                 :name="radioButtonName"
                 :options="[{ value: item.enabled }]"
                 :disabled="!acl.can('country.editor')"
+                {% if VUE3 %}
+                @update:value="onChangeBaseCurrency(item)"
+                {% else %}
                 @change="onChangeBaseCurrency(item)"
+                {% endif %}
             />
         </template>
         {% endblock %}

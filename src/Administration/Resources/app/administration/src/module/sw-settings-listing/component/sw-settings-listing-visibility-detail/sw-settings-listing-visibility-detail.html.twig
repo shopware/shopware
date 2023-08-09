@@ -30,7 +30,11 @@
                 :value="item.visibility"
                 :name="'visibility' + item.id"
                 :options="[{ value: 30 }]"
+                {% if VUE3 %}
+                @update:value="changeVisibilityValue($event, item)"
+                {% else %}
                 @change="changeVisibilityValue($event, item)"
+                {% endif %}
             />
         </sw-grid-column>
         {% endblock %}
@@ -47,7 +51,11 @@
                 :value="item.visibility"
                 :name="'visibility' + item.id"
                 :options="[{ value: 20 }]"
+                {% if VUE3 %}
+                @update:value="changeVisibilityValue($event, item)"
+                {% else %}
                 @change="changeVisibilityValue($event, item)"
+                {% endif %}
             />
         </sw-grid-column>
         {% endblock %}
@@ -65,7 +73,11 @@
                 :value="item.visibility"
                 :name="'visibility' + item.id"
                 :options="[{ value: 10 }]"
+                {% if VUE3 %}
+                @update:value="changeVisibilityValue($event, item)"
+                {% else %}
                 @change="changeVisibilityValue($event, item)"
+                {% endif %}
             />
         </sw-grid-column>
         {% endblock %}

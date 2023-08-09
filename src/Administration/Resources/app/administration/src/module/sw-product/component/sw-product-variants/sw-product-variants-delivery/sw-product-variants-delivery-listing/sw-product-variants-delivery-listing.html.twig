@@ -9,7 +9,11 @@
         <sw-radio-field
             :value="product.listingMode"
             :options="listingModeOptions"
+            {% if VUE3 %}
+            @update:value="updateListingMode"
+            {% else %}
             @change="updateListingMode"
+            {% endif %}
         />
         {% endblock %}
     </div>
@@ -33,7 +37,11 @@
                 :value="product.variantListingConfig.displayParent"
                 :options="mainVariantModeOptions"
                 :disabled="isDisabledListingMode('single')"
+                {% if VUE3 %}
+                @update:value="updateVariantMode"
+                {% else %}
                 @change="updateVariantMode"
+                {% endif %}
             />
             {% endblock %}
 

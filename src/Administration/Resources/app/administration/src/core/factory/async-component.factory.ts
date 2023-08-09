@@ -643,15 +643,8 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
             this._virtualCallStack[name] = superFuncObject.parent;
 
             // @ts-expect-error
-            const result = superFuncObject.func.bind(this)(...args);
-
-            // reset the virtual call-stack
-            if (superFuncObject.parent) {
-                this._virtualCallStack[name] = this._inheritedFrom();
-            }
-
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return result;
+            return superFuncObject.func.bind(this)(...args);
         },
         _initVirtualCallStack(name) {
             // if there is no virtualCallStack

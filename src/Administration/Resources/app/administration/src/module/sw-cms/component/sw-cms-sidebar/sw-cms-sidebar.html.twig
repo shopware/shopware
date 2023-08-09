@@ -63,7 +63,11 @@
                         :value="page.type"
                         :label="$tc('sw-cms.detail.label.pageTypeSelection')"
                         :disabled="!isSystemDefaultLanguage || page.type === 'product_detail'"
+                        {% if VUE3 %}
+                        @update:value="onPageTypeChange"
+                        {% else %}
                         @change="onPageTypeChange"
+                        {% endif %}
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_sidebar_page_settings_type_field_options %}
@@ -153,7 +157,11 @@
             {% block sw_cms_sidebar_block_overview_category %}
             <div class="sw-cms-sidebar__block-category">
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="currentBlockCategory"
+                    {% else %}
                     v-model="currentBlockCategory"
+                    {% endif %}
                     :label="$tc('sw-cms.detail.label.blockCategorySelection')"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

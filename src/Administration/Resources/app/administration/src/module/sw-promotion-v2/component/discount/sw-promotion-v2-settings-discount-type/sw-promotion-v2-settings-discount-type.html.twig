@@ -9,7 +9,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_type %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="discount.type"
+            {% else %}
             v-model="discount.type"
+            {% endif %}
             class="sw-promotion-v2-settings-discount-type__field-select-discount-type"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelDiscountType')"
             :disabled="!acl.can('promotion.editor')"
@@ -63,7 +67,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_settings_discount_type_apply_discount_to %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="discount.applierKey"
+            {% else %}
             v-model="discount.applierKey"
+            {% endif %}
             class="sw-promotion-v2-settings-discount-type__field-apply-discount-to"
             :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelApplyDiscountTo')"
             :disabled="discount.type === 'free' || !acl.can('promotion.editor')"

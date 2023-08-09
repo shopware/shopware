@@ -40,7 +40,11 @@
     </div>
     <div v-else-if="licenceDomains.length > 0">
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="selectedShopDomain"
+            {% else %}
             v-model="selectedShopDomain"
+            {% endif %}
             label="Shop domain"
             placeholder=""
         >

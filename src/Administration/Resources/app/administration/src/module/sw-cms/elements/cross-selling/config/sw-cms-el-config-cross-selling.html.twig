@@ -108,7 +108,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_box_layout %}
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.boxLayout.value"
+                    {% else %}
                     v-model="element.config.boxLayout.value"
+                    {% endif %}
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                 >
                     <option value="standard">
@@ -126,7 +130,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_display_mode %}
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.displayMode.value"
+                    {% else %}
                     v-model="element.config.displayMode.value"
+                    {% endif %}
                     :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                 >
                     <option value="standard">

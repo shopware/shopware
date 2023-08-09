@@ -15,7 +15,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_restriction_selection_select_group %}
             <sw-select-field
+                {% if VUE3 %}
+                v-model:value="selectedGroup"
+                {% else %}
                 v-model="selectedGroup"
+                {% endif %}
                 class="sw-product-restriction-selection__select-group"
             >
                 <option

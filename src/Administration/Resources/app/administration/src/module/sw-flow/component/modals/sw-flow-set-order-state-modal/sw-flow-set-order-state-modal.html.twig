@@ -11,7 +11,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_payment_status %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="config.order_transaction"
+        {% else %}
         v-model="config.order_transaction"
+        {% endif %}
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
         :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
@@ -22,7 +26,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_delivery_status %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="config.order_delivery"
+        {% else %}
         v-model="config.order_delivery"
+        {% endif %}
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
         :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
@@ -33,7 +41,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_order_status %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="config.order"
+        {% else %}
         v-model="config.order"
+        {% endif %}
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
         :label="$tc('sw-flow.modals.status.labelOrderStatus')"

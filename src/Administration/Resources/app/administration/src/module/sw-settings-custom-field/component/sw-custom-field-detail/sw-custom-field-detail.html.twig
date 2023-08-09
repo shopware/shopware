@@ -14,7 +14,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_type %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="currentCustomField.config.customFieldType"
+            {% else %}
             v-model="currentCustomField.config.customFieldType"
+            {% endif %}
             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
             :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
             class="sw-custom-field-detail__modal-type"

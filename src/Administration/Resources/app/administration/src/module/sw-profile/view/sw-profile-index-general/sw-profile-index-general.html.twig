@@ -53,7 +53,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_profile_index_general_information_language %}
             <sw-select-field
+                {% if VUE3 %}
+                v-model:value="user.localeId"
+                {% else %}
                 v-model="user.localeId"
+                {% endif %}
                 :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                 :disabled="!acl.can('user.update_profile')"
                 :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"

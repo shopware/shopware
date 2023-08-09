@@ -84,7 +84,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_display_type %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.displayType"
+            {% else %}
             v-model="propertyGroup.displayType"
+            {% endif %}
             validation="required"
             required
             :label="$tc('sw-property.detail.labelDisplayType')"
@@ -103,7 +107,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_sorting_type %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.sortingType"
+            {% else %}
             v-model="propertyGroup.sortingType"
+            {% endif %}
             validation="required"
             :disabled="!allowEdit"
             required

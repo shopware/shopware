@@ -32,12 +32,20 @@
         {% block sw_promotion_discount_component_scope %}
         <sw-select-field
             ref="selectFieldScope"
+            {% if VUE3 %}
+            v-model:value="discount.scope"
+            {% else %}
             v-model="discount.scope"
+            {% endif %}
             required
             validation="required"
             :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
             :disabled="isEditingDisabled"
+            {% if VUE3 %}
+            @update:value="onDiscountScopeChanged"
+            {% else %}
             @change="onDiscountScopeChanged"
+            {% endif %}
         >
             <option
                 v-for="scope in scopes"
@@ -96,7 +104,11 @@
             {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
             <sw-select-field
                 v-if="!isSet"
+                {% if VUE3 %}
+                v-model:value="discount.applierKey"
+                {% else %}
                 v-model="discount.applierKey"
+                {% endif %}
                 :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
                 :disabled="isEditingDisabled"
             >
@@ -113,7 +125,11 @@
             {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
             <sw-select-field
                 v-if="isMaxUsageVisible"
+                {% if VUE3 %}
+                v-model:value="discount.usageKey"
+                {% else %}
                 v-model="discount.usageKey"
+                {% endif %}
                 :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
                 :disabled="isEditingDisabled"
             >
@@ -137,7 +153,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="discount.sorterKey"
+                    {% else %}
                     v-model="discount.sorterKey"
+                    {% endif %}
                     :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
                     :disabled="isEditingDisabled"
                 >
@@ -154,7 +174,11 @@
                 {% block sw_promotion_cart_condition_setgroup_filter_picker_field %}
                 <sw-select-field
                     v-if="isPickingModeVisible"
+                    {% if VUE3 %}
+                    v-model:value="discount.pickerKey"
+                    {% else %}
                     v-model="discount.pickerKey"
+                    {% endif %}
                     :label="$tc('sw-promotion.detail.main.discounts.labelPicking')"
                     :disabled="isEditingDisabled"
                 >
@@ -180,10 +204,18 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_component_type %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="discount.type"
+            {% else %}
             v-model="discount.type"
+            {% endif %}
             :label="$tc('sw-promotion.detail.main.discounts.labelType')"
             :disabled="isEditingDisabled"
+            {% if VUE3 %}
+            @update:value="onDiscountTypeChanged"
+            {% else %}
             @change="onDiscountTypeChanged"
+            {% endif %}
         >
             <option
                 v-for="type in types"

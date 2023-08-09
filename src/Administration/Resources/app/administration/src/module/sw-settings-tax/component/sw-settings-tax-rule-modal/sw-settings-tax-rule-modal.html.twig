@@ -92,7 +92,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_rule_modal_tax_active_from %}
             <sw-datepicker
+                {% if VUE3 %}
+                v-model:value="taxRule.activeFrom"
+                {% else %}
                 v-model="taxRule.activeFrom"
+                {% endif %}
                 date-type="datetime"
                 :error="taxRuleActiveFromError"
                 :label="$tc('sw-settings-tax.taxRuleCard.labelActiveFrom')"

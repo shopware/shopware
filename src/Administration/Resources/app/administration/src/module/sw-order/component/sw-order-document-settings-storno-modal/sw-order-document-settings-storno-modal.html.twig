@@ -41,7 +41,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_cancellation_document_date %}
     <sw-datepicker
+        {% if VUE3 %}
+        v-model:value="documentConfig.documentDate"
+        {% else %}
         v-model="documentConfig.documentDate"
+        {% endif %}
         date-type="date"
         required
         :label="$tc('sw-order.documentModal.labelDocumentDate')"

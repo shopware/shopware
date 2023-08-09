@@ -138,7 +138,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_birthday_field %}
         <sw-datepicker
+            {% if VUE3 %}
+            v-model:value="customer.birthday"
+            {% else %}
             v-model="customer.birthday"
+            {% endif %}
             type="date"
             name="birthday"
             :label="$tc('sw-customer.baseForm.labelBirthday')"

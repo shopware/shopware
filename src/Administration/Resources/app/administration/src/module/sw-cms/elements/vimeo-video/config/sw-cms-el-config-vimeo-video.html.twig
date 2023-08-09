@@ -76,7 +76,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_vimeo_video_config_color %}
     <sw-colorpicker
+        {% if VUE3 %}
+        v-model:value="element.config.color.value"
+        {% else %}
         v-model="element.config.color.value"
+        {% endif %}
         class="sw-cms-el-config-vimeo-video__color"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.controlsColor')"
         color-output="hex"

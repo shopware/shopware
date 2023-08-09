@@ -30,7 +30,11 @@
                     >
                         <div class="sw-grid__cell-content">
                             <sw-checkbox-field
+                                {% if VUE3 %}
+                                v-model:value="allSelectedChecked"
+                                {% else %}
                                 v-model="allSelectedChecked"
+                                {% endif %}
                                 {% if VUE3 %}
                                 @update:value="selectAll"
                                 {% else %}

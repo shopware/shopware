@@ -7,7 +7,11 @@
 
     <div class="sw-settings-mailer-local">
         <sw-radio-field
+            {% if VUE3 %}
+            v-model:value="mailerSettings['core.mailerSettings.sendMailOptions']"
+            {% else %}
             v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
+            {% endif %}
             :options="emailSendmailOptions"
         />
     </div>

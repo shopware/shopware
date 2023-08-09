@@ -316,7 +316,11 @@
         {% endblock %}
 
         <sw-radio-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.taxCalculationType"
+            {% else %}
             v-model="salesChannel.taxCalculationType"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.labelTaxCalculation')"
             :help-text="helpTextTaxCalculation"
             block

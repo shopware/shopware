@@ -222,7 +222,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
+            {% if VUE3 %}
+            v-model:value="currentDomain.hreflangUseOnlyLocale"
+            {% else %}
             v-model="currentDomain.hreflangUseOnlyLocale"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.hreflang.domainSettings.label')"
             identification="hreflang"
             :options="hreflangLocalisationOptions"

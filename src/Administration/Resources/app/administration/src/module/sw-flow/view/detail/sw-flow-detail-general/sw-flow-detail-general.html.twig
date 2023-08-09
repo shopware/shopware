@@ -44,7 +44,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_general_information_description %}
         <sw-textarea-field
+            {% if VUE3 %}
+            v-model:value="flow.description"
+            {% else %}
             v-model="flow.description"
+            {% endif %}
             class="sw-flow-detail-general__general-description"
             :disabled="!acl.can('flow.editor')"
             :label="$tc('sw-flow.detail.labelGeneralInformationDescription')"

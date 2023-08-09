@@ -151,7 +151,11 @@
                     {% block sw_product_basic_form_description_field %}
                     <sw-textarea-field
                         v-if="productStream"
+                        {% if VUE3 %}
+                        v-model:value="productStream.description"
+                        {% else %}
                         v-model="productStream.description"
+                        {% endif %}
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         :label="$tc('sw-product-stream.detail.labelDescription')"
                         :placeholder="placeholder(productStream, 'description', $tc('sw-product-stream.detail.placeholderDescription'))"

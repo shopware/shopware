@@ -253,7 +253,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_customer_comment %}
         <sw-textarea-field
+            {% if VUE3 %}
+            v-model:value="order.customerComment"
+            {% else %}
             v-model="order.customerComment"
+            {% endif %}
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"

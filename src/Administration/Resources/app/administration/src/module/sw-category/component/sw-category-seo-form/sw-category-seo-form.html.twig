@@ -20,7 +20,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_description %}
     <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="category.metaDescription"
+        {% else %}
         v-model="category.metaDescription"
+        {% endif %}
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaDescription')"

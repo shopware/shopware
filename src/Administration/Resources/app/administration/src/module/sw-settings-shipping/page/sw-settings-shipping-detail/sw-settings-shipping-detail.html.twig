@@ -128,7 +128,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_description %}
                         <sw-textarea-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.description"
+                            {% else %}
                             v-model="shippingMethod.description"
+                            {% endif %}
                             :value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
                             :disabled="!acl.can('shipping.editor')"

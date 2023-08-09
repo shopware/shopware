@@ -37,7 +37,11 @@
         :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaDescription')"
+        {% if VUE3 %}
+        @update:value="emitSeoMetaDescription"
+        {% else %}
         @input="emitSeoMetaDescription"
+        {% endif %}
     />
 
     <div class="sw-generic-seo-general-card__google-preview-container">

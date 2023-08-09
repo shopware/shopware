@@ -71,7 +71,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_create_mail_template_modal_description %}
     <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="mailTemplate.description"
+        {% else %}
         v-model="mailTemplate.description"
+        {% endif %}
         class="sw-flow-create-mail-template-modal__description"
         :label="$tc('sw-flow.modals.mail.labelDescription')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderDescription')"

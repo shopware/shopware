@@ -13,7 +13,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_documents_generate_invoice_textarea %}
     <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="generateData.documentComment"
+        {% else %}
         v-model="generateData.documentComment"
+        {% endif %}
         :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
         :placeholder="$tc('sw-bulk-edit.order.documents.generateInvoice.placeholderTextarea')"
     />

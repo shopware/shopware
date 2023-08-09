@@ -187,7 +187,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
                     <sw-textarea-field
+                        {% if VUE3 %}
+                        v-model:value="customerGroup.registrationSeoMetaDescription"
+                        {% else %}
                         v-model="customerGroup.registrationSeoMetaDescription"
+                        {% endif %}
                         :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
                         :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
                         :disabled="!acl.can('customer_groups.editor')"

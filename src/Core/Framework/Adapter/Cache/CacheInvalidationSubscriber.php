@@ -197,9 +197,7 @@ class CacheInvalidationSubscriber
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the category route cache when a category changed
-        /** @var list<string> $ids */
-        $ids = array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds());
-        $this->cacheInvalidator->invalidate($ids);
+        $this->cacheInvalidator->invalidate(array_map(CachedCategoryRoute::buildName(...), $event->getIds()));
     }
 
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void

@@ -123,7 +123,11 @@
 
     {% block sw_cms_element_image_config_horizontal_align %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="element.config.horizontalAlign.value"
+        {% else %}
         v-model="element.config.horizontalAlign.value"
+        {% endif %}
         :label="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :disabled="element.config.displayMode.value === 'cover'"

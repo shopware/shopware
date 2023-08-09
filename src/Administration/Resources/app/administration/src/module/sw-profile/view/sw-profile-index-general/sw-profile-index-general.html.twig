@@ -58,7 +58,6 @@
                 {% else %}
                 v-model="user.localeId"
                 {% endif %}
-                name="sw-field--user-localeId"
                 :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                 :disabled="!acl.can('user.update_profile')"
                 :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"

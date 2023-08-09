@@ -122,7 +122,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_min_field %}
                             <sw-number-field
+                                {% if VUE3 %}
+                                v-model:value="deliveryTime.min"
+                                {% else %}
                                 v-model="deliveryTime.min"
+                                {% endif %}
                                 :label="$tc('sw-settings-delivery-time.detail.labelMin')"
                                 :error="deliveryTimeMinError || invalidMinError"
                                 :min="0"
@@ -135,7 +139,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_max_field %}
                             <sw-number-field
+                                {% if VUE3 %}
+                                v-model:value="deliveryTime.max"
+                                {% else %}
                                 v-model="deliveryTime.max"
+                                {% endif %}
                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"
                                 :min="deliveryTime.min"

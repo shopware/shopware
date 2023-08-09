@@ -27,7 +27,11 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
+        {% if VUE3 %}
+        @update:value="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     />
 
     <sw-number-field
@@ -39,7 +43,11 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
+        {% if VUE3 %}
+        @update:value="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     />
 
     <sw-switch-field

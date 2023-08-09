@@ -38,7 +38,11 @@
     >
 
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="product.stock"
+            {% else %}
             v-model="product.stock"
+            {% endif %}
             name="sw-field--product-stock"
             number-type="int"
             :min="0"
@@ -49,7 +53,11 @@
         />
 
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="product.availableStock"
+            {% else %}
             v-model="product.availableStock"
+            {% endif %}
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"

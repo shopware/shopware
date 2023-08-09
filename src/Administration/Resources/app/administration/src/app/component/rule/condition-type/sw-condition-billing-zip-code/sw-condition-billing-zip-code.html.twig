@@ -45,7 +45,11 @@
     />
     <sw-number-field
         v-if="isNumeric && !isEmpty"
+        {% if VUE3 %}
+        v-model:value="zipCodes"
+        {% else %}
         v-model="zipCodes"
+        {% endif %}
         size="medium"
         :disabled="disabled"
         :min="0"

@@ -95,7 +95,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_detail_content_field_tax_rate %}
                         <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="tax.taxRate"
+                            {% else %}
                             v-model="tax.taxRate"
+                            {% endif %}
                             required
                             :digits="3"
                             :disabled="!acl.can('tax.editor')"

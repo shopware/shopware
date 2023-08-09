@@ -391,7 +391,11 @@
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.stock"
+                {% else %}
                 v-model="item.stock"
+                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />

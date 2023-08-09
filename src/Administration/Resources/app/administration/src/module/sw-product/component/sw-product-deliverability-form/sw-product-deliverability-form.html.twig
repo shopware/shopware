@@ -8,7 +8,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_stock_field %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="product.stock"
+            {% else %}
             v-model="product.stock"
+            {% endif %}
             name="sw-field--product-stock"
             number-type="int"
             :disabled="!allowEdit"
@@ -21,7 +25,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_available_stock_field %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="product.availableStock"
+            {% else %}
             v-model="product.availableStock"
+            {% endif %}
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
@@ -123,7 +131,11 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
                     :value="props.currentValue"
                     :error="productRestockTimeError"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
@@ -191,7 +203,11 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>
@@ -222,7 +238,11 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderPurchaseSteps')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>
@@ -253,7 +273,11 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @change="props.updateCurrentValue"
+                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>

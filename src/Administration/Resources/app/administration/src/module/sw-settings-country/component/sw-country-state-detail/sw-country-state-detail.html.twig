@@ -41,7 +41,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_position %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="countryState.position"
+            {% else %}
             v-model="countryState.position"
+            {% endif %}
             :disabled="!acl.can('country.editor')"
             :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"
             number-type="int"

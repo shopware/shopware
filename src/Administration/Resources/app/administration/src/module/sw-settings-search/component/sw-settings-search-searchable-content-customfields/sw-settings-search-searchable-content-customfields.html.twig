@@ -107,7 +107,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_ranking_editor %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="item.ranking"
+                    {% else %}
                     v-model="item.ranking"
+                    {% endif %}
                     number-type="int"
                     size="small"
                 />

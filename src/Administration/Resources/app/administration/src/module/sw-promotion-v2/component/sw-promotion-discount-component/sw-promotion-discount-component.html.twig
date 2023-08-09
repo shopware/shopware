@@ -237,7 +237,11 @@
             :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
             :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
             :disabled="isEditingDisabled"
+            {% if VUE3 %}
+            @update:value="onDiscountValueChanged"
+            {% else %}
             @change="onDiscountValueChanged"
+            {% endif %}
         >
             <template #suffix>
                 {{ valueSuffix }}
@@ -257,11 +261,19 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_field %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="discount.maxValue"
+            {% else %}
             v-model="discount.maxValue"
+            {% endif %}
             :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
             :help-text="maxValueAdvancedPricesTooltip"
             :disabled="isEditingDisabled"
+            {% if VUE3 %}
+            @update:value="onMaxValueChanged"
+            {% else %}
             @change="onMaxValueChanged"
+            {% endif %}
         >
             <template #suffix>
                 {{ maxValueSuffix }}
@@ -332,7 +344,11 @@
 
             <template #column-price="{ item }">
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="item.price"
+                    {% else %}
                     v-model="item.price"
+                    {% endif %}
                     type="text"
                     size="small"
                     :disabled="isEditingDisabled"

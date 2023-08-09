@@ -104,7 +104,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_position_field %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.position"
+                    {% else %}
                     v-model="crossSelling.position"
+                    {% endif %}
                     number-type="int"
                     :min="1"
                     :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
@@ -167,7 +171,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_prduct_cross_selling_form_limit_field %}
                     <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="crossSelling.limit"
+                        {% else %}
                         v-model="crossSelling.limit"
+                        {% endif %}
                         number-type="int"
                         :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
                         :disabled="!allowEdit"

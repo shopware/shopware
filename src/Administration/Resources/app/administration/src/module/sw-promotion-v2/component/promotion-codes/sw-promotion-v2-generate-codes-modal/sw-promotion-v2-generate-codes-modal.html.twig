@@ -56,7 +56,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_replacement %}
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="pattern.codeLength"
+                {% else %}
                 v-model="pattern.codeLength"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__replacement"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
                 :min="1"
@@ -137,7 +141,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_code_amount %}
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="codeAmount"
+                {% else %}
                 v-model="codeAmount"
+                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__code-amount"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
                 :min="1"

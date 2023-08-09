@@ -149,7 +149,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
                     <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="item.quantityStart"
+                        {% else %}
                         v-model="item.quantityStart"
+                        {% endif %}
                         v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                         validation="required"
@@ -170,7 +174,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
                     <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="item.quantityEnd"
+                        {% else %}
                         v-model="item.quantityEnd"
+                        {% endif %}
                         :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                         placeholder="∞"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"

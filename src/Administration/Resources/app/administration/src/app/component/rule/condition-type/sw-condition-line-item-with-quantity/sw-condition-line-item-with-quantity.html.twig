@@ -30,7 +30,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_with_quantity_field_quantity %}
     <sw-number-field
+        {% if VUE3 %}
+        v-model:value="quantity"
+        {% else %}
         v-model="quantity"
+        {% endif %}
         :disabled="disabled"
         size="medium"
         :step="1"

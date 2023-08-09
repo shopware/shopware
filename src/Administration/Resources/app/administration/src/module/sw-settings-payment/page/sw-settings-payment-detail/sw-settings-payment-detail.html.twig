@@ -113,7 +113,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_position %}
                             <sw-number-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.position"
+                                {% else %}
                                 v-model="paymentMethod.position"
+                                {% endif %}
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelPosition')"

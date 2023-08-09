@@ -54,7 +54,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_position %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="currentCustomField.config.customFieldPosition"
+            {% else %}
             v-model="currentCustomField.config.customFieldPosition"
+            {% endif %}
             class="sw-custom-field-detail__modal-position"
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"

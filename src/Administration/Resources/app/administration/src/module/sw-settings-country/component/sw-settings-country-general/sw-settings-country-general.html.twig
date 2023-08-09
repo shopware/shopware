@@ -32,7 +32,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_position %}
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="country.position"
+                {% else %}
                 v-model="country.position"
+                {% endif %}
                 number-type="int"
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelPosition')"
@@ -135,7 +139,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_general_content_field_tax_free_from_customer_value %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="country.customerTax.amount"
+                    {% else %}
                     v-model="country.customerTax.amount"
+                    {% endif %}
                     class="sw-settings-country-general__input-amount customer-tax-amount"
                     :min="0"
                     :label="$tc('sw-settings-country.detail.taxFreeFrom')"
@@ -208,7 +216,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_general_content_field_tax_free_from_companies_value %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="country.companyTax.amount"
+                    {% else %}
                     v-model="country.companyTax.amount"
+                    {% endif %}
                     class="sw-settings-country-general__input-amount"
                     :min="0"
                     :label="$tc('sw-settings-country.detail.taxFreeFrom')"

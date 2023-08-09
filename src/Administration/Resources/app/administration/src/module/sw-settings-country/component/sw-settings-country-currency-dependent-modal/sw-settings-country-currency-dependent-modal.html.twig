@@ -41,11 +41,19 @@
         {% block sw_settings_country_currency_dependent_grid_column_value %}
         <template #column-amount="{ item }">
             <sw-number-field
+                {% if VUE3 %}
+                v-model:value="item.amount"
+                {% else %}
                 v-model="item.amount"
+                {% endif %}
                 class="sw-settings-country-currency-dependent-modal__input"
                 :min="0"
                 :disabled="!item.enabled || !acl.can('country.editor')"
+                {% if VUE3 %}
+                @update:value="reCalculatorInherited(item)"
+                {% else %}
                 @change="reCalculatorInherited(item)"
+                {% endif %}
             />
         </template>
         {% endblock %}

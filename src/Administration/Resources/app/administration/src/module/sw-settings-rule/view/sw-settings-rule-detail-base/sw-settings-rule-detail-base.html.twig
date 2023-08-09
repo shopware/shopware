@@ -33,7 +33,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_priority %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="rule.priority"
+                    {% else %}
                     v-model="rule.priority"
+                    {% endif %}
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"

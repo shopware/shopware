@@ -26,7 +26,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_detail_base_position %}
     <sw-number-field
+        {% if VUE3 %}
+        v-model:value="set.position"
+        {% else %}
         v-model="set.position"
+        {% endif %}
         class="sw-settings-custom-field-set-detail-base__base-postion"
         :disabled="!acl.can('custom_field.editor')"
         :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"

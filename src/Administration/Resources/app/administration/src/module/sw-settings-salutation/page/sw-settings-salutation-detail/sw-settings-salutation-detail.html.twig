@@ -92,9 +92,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.salutationKey"
+                            {% else %}
                             v-model="salutation.salutationKey"
                             {% endif %}
-                            name="sw-field--salutation-salutationKey"
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
                             :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
@@ -114,9 +116,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_display_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.displayName"
+                            {% else %}
                             v-model="salutation.displayName"
                             {% endif %}
-                            name="sw-field--salutation-displayName"
                             required
                             class="sw-settings-salutation-detail__displayName"
                             :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
@@ -129,9 +133,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="salutation.letterName"
+                            {% else %}
                             v-model="salutation.letterName"
                             {% endif %}
-                            name="sw-field--salutation-letterName"
                             required
                             class="sw-settings-salutation-detail__letterName"
                             :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"

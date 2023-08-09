@@ -17,7 +17,6 @@
                 {% else %}
                 v-model="user.firstName"
                 {% endif %}
-                name="sw-field--user-firstName"
                 :label="$tc('sw-profile.index.labelFirstNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
@@ -31,7 +30,6 @@
                 {% else %}
                 v-model="user.lastName"
                 {% endif %}
-                name="sw-field--user-lastName"
                 :label="$tc('sw-profile.index.labelLastNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
@@ -47,7 +45,6 @@
                 {% else %}
                 v-model="user.username"
                 {% endif %}
-                name="sw-field--user-username"
                 :label="$tc('sw-profile.index.labelUsernameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
@@ -87,7 +84,6 @@
                 {% else %}
                 v-model="user.email"
                 {% endif %}
-                name="sw-field--user-email"
                 validation="email"
                 required
                 :label="$tc('sw-profile.index.labelEmailField')"

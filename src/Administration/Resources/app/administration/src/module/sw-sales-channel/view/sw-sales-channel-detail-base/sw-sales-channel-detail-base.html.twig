@@ -73,7 +73,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.name"
+            {% else %}
             v-model="salesChannel.name"
+            {% endif %}
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -503,7 +507,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="productExport.fileName"
+            {% else %}
             v-model="productExport.fileName"
+            {% endif %}
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"

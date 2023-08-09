@@ -93,7 +93,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_manufacturer_detail_base_info_field_name %}
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="manufacturer.name"
+                                {% else %}
                                 v-model="manufacturer.name"
+                                {% endif %}
                                 :label="$tc('sw-manufacturer.detail.labelName')"
                                 :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
                                 name="name"
@@ -107,7 +111,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_manufacturer_detail_base_info_field_link %}
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="manufacturer.link"
+                                {% else %}
                                 v-model="manufacturer.link"
+                                {% endif %}
                                 :label="$tc('sw-manufacturer.detail.labelLink')"
                                 :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
                                 name="link"

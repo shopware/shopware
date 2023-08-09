@@ -56,7 +56,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_folder_settings_name_field %}
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="mediaFolder.name"
+                    {% else %}
                     v-model="mediaFolder.name"
+                    {% endif %}
                     :disabled="disabled"
                     :error="mediaFolderNameError"
                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"

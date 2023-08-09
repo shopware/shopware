@@ -17,7 +17,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="profile.label"
+            {% else %}
             v-model="profile.label"
+            {% endif %}
             :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
             required
             :disabled="profile.systemDefault"

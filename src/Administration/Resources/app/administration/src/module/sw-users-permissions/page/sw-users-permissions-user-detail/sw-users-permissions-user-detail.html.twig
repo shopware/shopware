@@ -78,7 +78,6 @@
                             {% else %}
                             v-model="user.firstName"
                             {% endif %}
-                            name="sw-field--user-firstName"
                             class="sw-settings-user-detail__grid-firstName"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :error="userFirstNameError"
@@ -95,7 +94,6 @@
                             {% else %}
                             v-model="user.lastName"
                             {% endif %}
-                            name="sw-field--user-lastName"
                             class="sw-settings-user-detail__grid-lastName"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :error="userLastNameError"
@@ -131,7 +129,6 @@
                             {% else %}
                             v-model="user.username"
                             {% endif %}
-                            name="sw-field--user-username"
                             class="sw-settings-user-detail__grid-username"
                             :error-message="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
                             :error="userUsernameError"
@@ -247,7 +244,6 @@
                             {% else %}
                             v-model="user.title"
                             {% endif %}
-                            name="sw-field--user-title"
                             class="sw-settings-user-detail__grid-jobTitle"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
@@ -420,6 +416,9 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="currentIntegration.accessKey"
+                {% else %}
                 v-model="currentIntegration.accessKey"
                 {% endif %}
                 :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
@@ -436,7 +435,11 @@
             <template v-if="showSecretAccessKey">
                 <sw-text-field
                     v-if="secretAccessKeyFieldIsText"
+                    {% if VUE3 %}
+                    v-model:value="currentIntegration.secretAccessKey"
+                    {% else %}
                     v-model="currentIntegration.secretAccessKey"
+                    {% endif %}
                     :type="secretAccessKeyFieldType"
                     :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                     :disabled="true"

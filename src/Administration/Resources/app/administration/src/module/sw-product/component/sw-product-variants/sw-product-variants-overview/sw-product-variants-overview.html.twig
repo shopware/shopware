@@ -293,6 +293,7 @@
                 v-model:value="item.productNumber"
                 {% else %}
                 v-model="item.productNumber"
+                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}

@@ -7,7 +7,6 @@
         v-if="isShownItemLabelInput"
         {% if VUE3 %}
         v-model:value="item.label"
-        v-bind="$attrs"
         {% else %}
         v-model="item.label"
         {% endif %}

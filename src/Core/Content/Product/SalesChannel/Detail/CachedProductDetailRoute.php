@@ -97,7 +97,6 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
     private function generateTags(string $productId, Request $request, ProductDetailRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $parentId = $response->getProduct()->getParentId() ?? $response->getProduct()->getId();
-
         $pageId = $response->getProduct()->getCmsPageId();
 
         $tags = array_merge(

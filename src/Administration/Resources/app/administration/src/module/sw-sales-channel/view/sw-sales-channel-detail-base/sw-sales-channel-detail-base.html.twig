@@ -85,7 +85,11 @@
             :disabled="!acl.can('user_config:create') || !acl.can('user_config:update') || salesChannel._isNew"
             :label="$tc('sw-sales-channel.detail.favouriteLabel')"
             :value="isFavorite()"
+            {% if VUE3 %}
+            @update:value="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
+            {% else %}
             @change="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
+            {% endif %}
         />
         {% endblock %}
 
@@ -521,7 +525,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="productExport.includeVariants"
+            {% else %}
             v-model="productExport.includeVariants"
+            {% endif %}
             bordered
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
@@ -550,7 +558,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="productExport.generateByCronjob"
+            {% else %}
             v-model="productExport.generateByCronjob"
+            {% endif %}
             bordered
             :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
             :disabled="disableGenerateByCronjob || !acl.can('sales_channel.editor')"
@@ -722,10 +734,18 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_status_input_active %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.active"
+            {% else %}
             v-model="salesChannel.active"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.labelInputActive')"
             :disabled="!acl.can('sales_channel.editor')"
+            {% if VUE3 %}
+            @update:value="onToggleActive"
+            {% else %}
             @change="onToggleActive"
+            {% endif %}
         />
         {% endblock %}
 
@@ -743,7 +763,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.maintenance"
+            {% else %}
             v-model="salesChannel.maintenance"
+            {% endif %}
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
         />

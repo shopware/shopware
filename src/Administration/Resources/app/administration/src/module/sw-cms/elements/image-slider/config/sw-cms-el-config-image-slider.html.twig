@@ -221,7 +221,11 @@
                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                             :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                             :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
+                            {% if VUE3 %}
+                            @update:value="onChangeAutoSlide"
+                            {% else %}
                             @change="onChangeAutoSlide"
+                            {% endif %}
                         />
                     </div>
 
@@ -291,7 +295,11 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
                             <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="sliderItem.newTab"
+                                {% else %}
                                 v-model="sliderItem.newTab"
+                                {% endif %}
                                 class="sw-cms-el-config-image-slider__settings-link-tab"
                                 :name="sliderItem.mediaId"
                                 :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"

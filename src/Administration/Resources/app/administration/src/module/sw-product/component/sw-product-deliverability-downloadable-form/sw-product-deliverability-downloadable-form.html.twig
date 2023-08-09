@@ -21,7 +21,11 @@
                 :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
                 :value="props.currentValue"
+                {% if VUE3 %}
+                @update:value="props.updateCurrentValue"
+                {% else %}
                 @change="props.updateCurrentValue"
+                {% endif %}
             />
 
         </template>

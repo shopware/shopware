@@ -10,7 +10,11 @@
                     :name="name"
                     :value="value"
                     :label="label"
+                    {% if VUE3 %}
+                    @update:value="onChange"
+                    {% else %}
                     @change="onChange"
+                    {% endif %}
                 />
             </slot>
             {% endblock %}

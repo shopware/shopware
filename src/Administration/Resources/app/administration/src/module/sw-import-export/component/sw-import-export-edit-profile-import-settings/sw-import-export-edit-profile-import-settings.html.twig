@@ -19,7 +19,11 @@
         class="sw-import-export-edit-profile-import-settings__create-switch"
         :label="$tc('sw-import-export.profile.createEntitiesLabel')"
         :disabled="profile.systemDefault"
+        {% if VUE3 %}
+        @update:value="onChange($event, 'updateEntities')"
+        {% else %}
         @change="onChange($event, 'updateEntities')"
+        {% endif %}
     />
     {% endblock %}
 
@@ -34,7 +38,11 @@
         class="sw-import-export-edit-profile-import-settings__update-switch"
         :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
         :disabled="profile.systemDefault"
+        {% if VUE3 %}
+        @update:value="onChange($event, 'createEntities')"
+        {% else %}
         @change="onChange($event, 'createEntities')"
+        {% endif %}
     />
     {% endblock %}
 </div>

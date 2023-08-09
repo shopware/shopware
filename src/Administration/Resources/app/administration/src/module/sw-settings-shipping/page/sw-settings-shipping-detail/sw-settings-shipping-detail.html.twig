@@ -114,7 +114,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_active %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.active"
+                            {% else %}
                             v-model="shippingMethod.active"
+                            {% endif %}
                             bordered
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelActive')"

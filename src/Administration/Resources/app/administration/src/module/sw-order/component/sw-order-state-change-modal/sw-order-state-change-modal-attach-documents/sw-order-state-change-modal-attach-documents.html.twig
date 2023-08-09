@@ -20,7 +20,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_state_change_modal_attach_documents_send_mail_switch %}
             <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="sendMail"
+                {% else %}
                 v-model="sendMail"
+                {% endif %}
                 class="sw-order-state-change-modal-attach-documents__switch"
                 :label="$tc('sw-order.stateCard.labelSendMailSwitch')"
             />

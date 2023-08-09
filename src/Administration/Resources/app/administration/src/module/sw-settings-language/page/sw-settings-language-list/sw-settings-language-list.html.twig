@@ -240,7 +240,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="filterRootLanguages"
+                            {% else %}
                             v-model="filterRootLanguages"
+                            {% endif %}
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
                         />
@@ -249,7 +253,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
                         <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="filterInheritedLanguages"
+                            {% else %}
                             v-model="filterInheritedLanguages"
+                            {% endif %}
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
                         />

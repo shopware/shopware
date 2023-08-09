@@ -41,7 +41,11 @@
                     :disabled="isEntityDisabled(roleName) || disabled"
                     :label="roleName"
                     :bordered="true"
+                    {% if VUE3 %}
+                    @update:value="changePermissionForEntity(roleName)"
+                    {% else %}
                     @change="changePermissionForEntity(roleName)"
+                    {% endif %}
                 />
                 {% endblock %}
             </template>

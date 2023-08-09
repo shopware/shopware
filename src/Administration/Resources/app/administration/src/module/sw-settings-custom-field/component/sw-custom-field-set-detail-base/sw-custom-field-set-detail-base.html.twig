@@ -37,7 +37,11 @@
     {% block sw_settings_custom_field_set_detail_base_translated %}
     <sw-switch-field
         v-if="set.config"
+        {% if VUE3 %}
+        v-model:value="set.config.translated"
+        {% else %}
         v-model="set.config.translated"
+        {% endif %}
         class="sw-settings-custom-field-set-detail-base__base-translation"
         :disabled="!acl.can('custom_field.editor')"
         :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"

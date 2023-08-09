@@ -56,7 +56,11 @@
                 />
 
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="country.advancedPostalCodePattern"
+                    {% else %}
                     v-model="country.advancedPostalCodePattern"
+                    {% endif %}
                     class="sw-settings-country-address-handling__text-field"
                     :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
                     :disabled="!acl.can('country.editor')"

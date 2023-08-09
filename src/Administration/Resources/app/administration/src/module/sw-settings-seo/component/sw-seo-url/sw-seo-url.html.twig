@@ -36,7 +36,11 @@
                         :disable-inheritance-toggle="isHeadlessSalesChannel"
                         :label="$tc('sw-seo-url.labelSeoPathInfo')"
                         :help-text="seoUrlHelptext"
+                        {% if VUE3 %}
+                        @update:value="props.updateCurrentValue"
+                        {% else %}
                         @input="props.updateCurrentValue"
+                        {% endif %}
                     />
                     {% endblock %}
                 </template>

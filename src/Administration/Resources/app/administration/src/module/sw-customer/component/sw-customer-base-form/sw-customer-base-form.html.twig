@@ -45,7 +45,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_form_title_field %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="customer.title"
+                {% else %}
                 v-model="customer.title"
+                {% endif %}
                 :label="$tc('sw-customer.baseForm.labelTitle')"
                 :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
             />
@@ -55,7 +59,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_first_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="customer.firstName"
+            {% else %}
             v-model="customer.firstName"
+            {% endif %}
             required
             :label="$tc('sw-customer.baseForm.labelFirstName')"
             :placeholder="$tc('sw-customer.baseForm.placeholderFirstName')"
@@ -66,7 +74,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_last_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="customer.lastName"
+            {% else %}
             v-model="customer.lastName"
+            {% endif %}
             required
             :label="$tc('sw-customer.baseForm.labelLastName')"
             :placeholder="$tc('sw-customer.baseForm.placeholderLastName')"
@@ -103,7 +115,11 @@
         <sw-text-field
             v-if="isBusinessAccountType"
             id="vatId"
+            {% if VUE3 %}
+            v-model:value="customer.vatIds[0]"
+            {% else %}
             v-model="customer.vatIds[0]"
+            {% endif %}
             name="vatId"
             :error="customerVatIdsError"
             :label="$tc('sw-customer.addressForm.labelVatId')"
@@ -180,7 +196,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_customer_number_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="customer.customerNumber"
+            {% else %}
             v-model="customer.customerNumber"
+            {% endif %}
             :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
             :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
             :error="customerCustomerNumberError"

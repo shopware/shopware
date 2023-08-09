@@ -15,7 +15,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_option_general_info_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="sortingOption.label"
+            {% else %}
             v-model="sortingOption.label"
+            {% endif %}
             class="sw-settings-listing-edit__general-input"
             :label="$tc('sw-settings-listing.base.general.labelName')"
             :required="true"

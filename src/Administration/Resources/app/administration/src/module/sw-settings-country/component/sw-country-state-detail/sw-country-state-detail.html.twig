@@ -14,7 +14,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_technical_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="countryState.name"
+            {% else %}
             v-model="countryState.name"
+            {% endif %}
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelName')"
             :placeholder="placeholder(countryState, 'name')"
@@ -24,7 +28,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_shortcode %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="countryState.shortCode"
+            {% else %}
             v-model="countryState.shortCode"
+            {% endif %}
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelShortCode')"
         />

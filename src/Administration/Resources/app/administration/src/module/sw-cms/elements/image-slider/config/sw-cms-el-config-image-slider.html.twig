@@ -105,12 +105,20 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.minHeight.value"
+                            {% else %}
                             v-model="element.config.minHeight.value"
+                            {% endif %}
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :placeholder="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :help-text="$tc('sw-cms.elements.image.config.label.minHeightHelpText')"
                             :disabled="element.config.displayMode.value !== 'cover'"
+                            {% if VUE3 %}
+                            @update:value="onChangeMinHeight"
+                            {% else %}
                             @input="onChangeMinHeight"
+                            {% endif %}
                         />
                         {% endblock %}
 
@@ -259,7 +267,11 @@
                             {% block sw_cms_element_image_slider_config_settings_link_url %}
                             <sw-text-field
                                 :key="sliderItem.mediaId"
+                                {% if VUE3 %}
+                                v-model:value="sliderItem.url"
+                                {% else %}
                                 v-model="sliderItem.url"
+                                {% endif %}
                                 class="sw-cms-el-config-image-slider__settings-link-input"
                                 :name="sliderItem.mediaUrl"
                                 :label="$tc('sw-cms.elements.image.config.label.linkTo')"

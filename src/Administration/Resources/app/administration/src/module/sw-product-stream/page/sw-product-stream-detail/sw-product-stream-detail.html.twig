@@ -132,7 +132,11 @@
                     {% block sw_product_basic_form_name_field %}
                     <sw-text-field
                         v-if="productStream"
+                        {% if VUE3 %}
+                        v-model:value="productStream.name"
+                        {% else %}
                         v-model="productStream.name"
+                        {% endif %}
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         :label="$tc('sw-product-stream.detail.labelName')"
                         :validation="nameRequired"

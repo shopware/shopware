@@ -82,7 +82,11 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @input="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

@@ -39,7 +39,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_create_mail_template_modal_subject %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="mailTemplate.subject"
+            {% else %}
             v-model="mailTemplate.subject"
+            {% endif %}
             class="sw-flow-create-mail-template-modal__subject"
             required
             :label="$tc('sw-flow.modals.mail.labelSubject')"
@@ -51,7 +55,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_create_mail_template_modal_sender_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="mailTemplate.senderName"
+            {% else %}
             v-model="mailTemplate.senderName"
+            {% endif %}
             class="sw-flow-create-mail-template-modal__sender-name"
             :label="$tc('sw-flow.modals.mail.labelSenderName')"
             :placeholder="$tc('sw-flow.modals.mail.placeholderSenderName')"

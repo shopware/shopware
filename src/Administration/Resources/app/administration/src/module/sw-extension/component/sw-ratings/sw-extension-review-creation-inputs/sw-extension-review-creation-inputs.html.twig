@@ -7,7 +7,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_creation_inputs_grid_headline_input %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="headline"
+            {% else %}
             v-model="headline"
+            {% endif %}
             :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelHeadline')"
             :placeholder="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.placeholderHeadline')"
             :error="errors.headlineError"

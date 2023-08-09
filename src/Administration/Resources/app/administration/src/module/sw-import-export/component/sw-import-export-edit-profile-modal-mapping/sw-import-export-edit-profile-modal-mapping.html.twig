@@ -53,7 +53,11 @@
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="item.mappedKey"
+                {% else %}
                 v-model="item.mappedKey"
+                {% endif %}
                 :name="`mappedKey-${itemIndex}`"
                 :disabled="profile.systemDefault"
             />
@@ -116,7 +120,11 @@
             />
 
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="item.defaultValue"
+                {% else %}
                 v-model="item.defaultValue"
+                {% endif %}
                 :name="`defaultValue-${itemIndex}`"
                 :disabled="isDefaultValueTextFieldDisabled(item)"
             />

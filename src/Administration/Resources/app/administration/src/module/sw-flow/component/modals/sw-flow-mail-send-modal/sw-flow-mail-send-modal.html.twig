@@ -21,7 +21,11 @@
 
     <sw-text-field
         v-if="showReplyToField"
+        {% if VUE3 %}
+        v-model:value="replyTo"
+        {% else %}
         v-model="replyTo"
+        {% endif %}
         class="sw-flow-mail-send-modal__reply-to"
         :label="$tc('sw-flow.modals.mail.labelReplyTo')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
@@ -69,7 +73,11 @@
         <template #column-email="{ item, column, isInlineEdit, compact }">
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.email"
+                {% else %}
                 v-model="item.email"
+                {% endif %}
                 class="sw-flow-mail-send-modal__recipient-email"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorMail"
@@ -86,7 +94,11 @@
         <template #column-name="{ item, column, isInlineEdit, compact }">
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.name"
+                {% else %}
                 v-model="item.name"
+                {% endif %}
                 class="sw-flow-mail-send-modal__recipient-name"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorName"

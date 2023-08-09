@@ -159,12 +159,20 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="element.config.minHeight.value"
+                            {% else %}
                             v-model="element.config.minHeight.value"
+                            {% endif %}
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
                             :help-text="$tc('sw-cms.elements.image.config.label.minHeightHelpText')"
                             :disabled="!['cover', 'contain'].includes(element.config.displayMode.value)"
+                            {% if VUE3 %}
+                            @update:value="onChangeMinHeight"
+                            {% else %}
                             @input="onChangeMinHeight"
+                            {% endif %}
                         />
                         {% endblock %}
 

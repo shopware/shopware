@@ -19,7 +19,11 @@
             gap="0 32px"
         >
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="promotion.name"
+                {% else %}
                 v-model="promotion.name"
+                {% endif %}
                 class="sw-promotion-v2-detail-base__field-name"
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
@@ -167,7 +171,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_codes_type_fixed_code %}
             <sw-text-field
+                {% if VUE3 %}
+                v-model:value="promotion.code"
+                {% else %}
                 v-model="promotion.code"
+                {% endif %}
                 class="sw-promotion-v2-detail-base__fixed-field-code"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"

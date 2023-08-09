@@ -178,7 +178,11 @@
                         {% block sw_settings_document_detail_content_field_name %}
                         <div class="sw-settings-document-detail__field_name">
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="documentConfig.name"
+                                {% else %}
                                 v-model="documentConfig.name"
+                                {% endif %}
                                 :label="$tc('sw-settings-document.detail.labelName')"
                                 :placeholder="$tc('sw-settings-document.detail.placeholderName')"
                                 :disabled="!acl.can('document.editor')"
@@ -210,7 +214,11 @@
                         {% block sw_settings_document_detail_content_field_file_name_prefix %}
                         <div class="sw-settings-document-detail__field_file_name_prefix">
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="documentConfig.filenamePrefix"
+                                {% else %}
                                 v-model="documentConfig.filenamePrefix"
+                                {% endif %}
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
                             />
@@ -220,7 +228,11 @@
                         {% block sw_settings_document_detail_content_field_file_name_suffix %}
                         <div class="sw-settings-document-detail__field_file_name_suffix">
                             <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="documentConfig.filenameSuffix"
+                                {% else %}
                                 v-model="documentConfig.filenameSuffix"
+                                {% endif %}
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
                             />

@@ -24,7 +24,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_fields_tracking_id %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="salesChannel.analytics.trackingId"
+            {% else %}
             v-model="salesChannel.analytics.trackingId"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
             :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
             name="trackingId"

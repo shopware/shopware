@@ -7,7 +7,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_credit_document_number %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="documentConfig.documentNumber"
+        {% else %}
         v-model="documentConfig.documentNumber"
+        {% endif %}
         :label="$tc('sw-order.documentModal.labelDocumentNumber')"
     />
     {% endblock %}

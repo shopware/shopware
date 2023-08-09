@@ -279,7 +279,11 @@
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.productNumber"
+                {% else %}
                 v-model="item.productNumber"
+                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}

@@ -10,7 +10,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_name %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="propertyGroup.name"
+        {% else %}
         v-model="propertyGroup.name"
+        {% endif %}
         required
         :error="propertyGroupNameError"
         :label="$tc('sw-property.detail.labelName')"

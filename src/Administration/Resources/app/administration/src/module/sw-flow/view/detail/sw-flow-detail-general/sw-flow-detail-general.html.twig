@@ -27,7 +27,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_general_information_name %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="flow.name"
+            {% else %}
             v-model="flow.name"
+            {% endif %}
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
             :disabled="!acl.can('flow.editor')"

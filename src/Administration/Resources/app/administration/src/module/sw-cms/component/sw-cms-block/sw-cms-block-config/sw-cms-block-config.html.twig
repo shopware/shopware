@@ -51,7 +51,11 @@
             :label="$tc('sw-cms.detail.label.blockNameField')"
             :placeholder="$tc('sw-cms.detail.label.blockNameFieldPlaceholder')"
             :help-text="$tc('sw-cms.detail.tooltip.blockNameField')"
+            {% if VUE3 %}
+            @update:value="onBlockNameChange"
+            {% else %}
             @input="onBlockNameChange"
+            {% endif %}
         />
         {% endblock %}
 

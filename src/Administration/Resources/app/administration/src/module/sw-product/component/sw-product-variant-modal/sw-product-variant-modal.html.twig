@@ -284,7 +284,11 @@
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.name"
+                {% else %}
                 v-model="item.name"
+                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />

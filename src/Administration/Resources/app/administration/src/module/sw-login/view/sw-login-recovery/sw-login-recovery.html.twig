@@ -33,7 +33,11 @@
         {% block sw_login_recovery_form_email_field %}
         <sw-text-field
             ref="swLoginRecoveryEmailField"
+            {% if VUE3 %}
+            v-model:value="email"
+            {% else %}
             v-model="email"
+            {% endif %}
             :label="$tc('sw-login.recovery.email.label')"
             :placeholder="$tc('sw-login.recovery.email.placeholder')"
         />

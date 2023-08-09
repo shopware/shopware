@@ -104,7 +104,11 @@
             <template #column-name="{ item, column, compact, isInlineEdit }">
                 <sw-text-field
                     v-if="isInlineEdit"
+                    {% if VUE3 %}
+                    v-model:value="item.name"
+                    {% else %}
                     v-model="item.name"
+                    {% endif %}
                     :size="compact ? 'small' : 'default'"
                 />
                 <router-link

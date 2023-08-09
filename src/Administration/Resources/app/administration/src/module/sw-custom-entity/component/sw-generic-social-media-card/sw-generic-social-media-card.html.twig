@@ -10,7 +10,11 @@
         :label="$tc('sw-landing-page.base.seo.labelSocialMediaTitle')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaTitle')"
+        {% if VUE3 %}
+        @update:value="emitOgTitle"
+        {% else %}
         @input="emitOgTitle"
+        {% endif %}
     />
 
     <sw-textarea-field

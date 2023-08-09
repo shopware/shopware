@@ -89,7 +89,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_name %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.name"
+                            {% else %}
                             v-model="shippingMethod.name"
+                            {% endif %}
                             required
                             :disabled="!acl.can('shipping.editor')"
                             :error="shippingMethodNameError"
@@ -180,7 +184,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
                     <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="shippingMethod.trackingUrl"
+                        {% else %}
                         v-model="shippingMethod.trackingUrl"
+                        {% endif %}
                         :disabled="!acl.can('shipping.editor')"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                         :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"

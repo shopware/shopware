@@ -66,7 +66,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_required %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="required"
+            {% else %}
             v-model="required"
+            {% endif %}
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
             class="sw-custom-field-detail__switch"
@@ -79,7 +83,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_allow_customer_write %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="currentCustomField.allowCustomerWrite"
+            {% else %}
             v-model="currentCustomField.allowCustomerWrite"
+            {% endif %}
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"

@@ -9,7 +9,7 @@ use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\Country\Exception\CountryStateNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class CountryException extends HttpException
 {
     public const COUNTRY_NOT_FOUND = 'CHECKOUT__COUNTRY_NOT_FOUND';
@@ -24,8 +24,8 @@ class CountryException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'country', 'field' => 'id', 'value' => $id]
+            'Country with id "{{ countryId }}" not found.',
+            ['countryId' => $id]
         );
     }
 
@@ -38,8 +38,8 @@ class CountryException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_STATE_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'country state', 'field' => 'id', 'value' => $id]
+            'Country state with id "{{ stateId }}" not found.',
+            ['stateId' => $id]
         );
     }
 }

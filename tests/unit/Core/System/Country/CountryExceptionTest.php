@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\Country;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Country\CountryException;
@@ -14,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\Country\CountryException
  */
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class CountryExceptionTest extends TestCase
 {
     /**
@@ -28,9 +27,9 @@ class CountryExceptionTest extends TestCase
             $caughtException = $customerException;
         }
 
-        static::assertSame($statusCode, $caughtException->getStatusCode());
-        static::assertSame($errorCode, $caughtException->getErrorCode());
-        static::assertSame($message, $caughtException->getMessage());
+        static::assertEquals($statusCode, $caughtException->getStatusCode());
+        static::assertEquals($errorCode, $caughtException->getErrorCode());
+        static::assertEquals($message, $caughtException->getMessage());
     }
 
     /**
@@ -42,14 +41,14 @@ class CountryExceptionTest extends TestCase
             'exception' => CountryException::countryNotFound('id-1'),
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CountryException::COUNTRY_NOT_FOUND,
-            'message' => Feature::isActive('v6.6.0.0') ? 'Could not find country with id "id-1"' : 'Country with id "id-1" not found.',
+            'message' => 'Country with id "id-1" not found.',
         ];
 
         yield CountryException::COUNTRY_STATE_NOT_FOUND => [
             'exception' => CountryException::countryStateNotFound('id-1'),
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CountryException::COUNTRY_STATE_NOT_FOUND,
-            'message' => Feature::isActive('v6.6.0.0') ? 'Could not find country state with id "id-1"' : 'Country state with id "id-1" not found.',
+            'message' => 'Country state with id "id-1" not found.',
         ];
     }
 }

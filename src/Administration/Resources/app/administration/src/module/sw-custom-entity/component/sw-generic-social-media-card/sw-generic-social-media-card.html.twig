@@ -24,7 +24,11 @@
         :label="$tc('sw-landing-page.base.seo.labelSocialMediaDescription')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaDescription')"
+        {% if VUE3 %}
+        @update:value="emitOgDescription"
+        {% else %}
         @input="emitOgDescription"
+        {% endif %}
     />
 
     <sw-media-upload-v2

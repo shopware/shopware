@@ -43,7 +43,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_inputs_description_input %}
     <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="text"
+        {% else %}
         v-model="text"
+        {% endif %}
         :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelText')"
     />
     {% endblock %}

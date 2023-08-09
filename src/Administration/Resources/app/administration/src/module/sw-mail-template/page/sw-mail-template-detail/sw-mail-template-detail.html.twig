@@ -113,7 +113,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_basic_form_description_field %}
                     <sw-textarea-field
+                        {% if VUE3 %}
+                        v-model:value="mailTemplate.description"
+                        {% else %}
                         v-model="mailTemplate.description"
+                        {% endif %}
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
                         :disabled="!acl.can('mail_templates.editor')"

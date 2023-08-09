@@ -46,7 +46,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_base_content_card_field_description %}
             <sw-textarea-field
+                {% if VUE3 %}
+                v-model:value="rule.description"
+                {% else %}
                 v-model="rule.description"
+                {% endif %}
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
                 :disabled="!acl.can('rule.editor')"

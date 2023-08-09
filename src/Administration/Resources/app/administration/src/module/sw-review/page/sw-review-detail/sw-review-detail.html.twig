@@ -308,7 +308,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_review_detail_basic_info_card_comment %}
                     <sw-textarea-field
+                        {% if VUE3 %}
+                        v-model:value="review.comment"
+                        {% else %}
                         v-model="review.comment"
+                        {% endif %}
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor')"
                         :label="$tc('sw-review.detail.titleCardComment')"

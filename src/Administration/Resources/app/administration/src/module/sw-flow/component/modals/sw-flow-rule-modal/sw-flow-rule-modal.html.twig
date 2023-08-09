@@ -86,7 +86,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_detail_description %}
                     <sw-textarea-field
+                        {% if VUE3 %}
+                        v-model:value="rule.description"
+                        {% else %}
                         v-model="rule.description"
+                        {% endif %}
                         class="sw-flow-rule-modal__description"
                         :label="$tc('sw-flow.modals.rule.labelDescription')"
                         :placeholder="$tc('sw-flow.modals.rule.placeholderDescription')"

@@ -50,13 +50,20 @@
         :class="classes"
         @click="buttonHandler($event, buttonConfig)"
     >
-        <sw-field
+        <sw-compact-colorpicker
+            {% if VUE3 %}
+            v-model:value="buttonConfig.value"
+            {% else %}
             v-model="buttonConfig.value"
-            type="compactColorpicker"
+            {% endif %}
             :disabled="disabled"
             compact
             :alpha="false"
+            {% if VUE3 %}
+            @update:value="handleButtonClick(buttonConfig)"
+            {% else %}
             @input="handleButtonClick(buttonConfig)"
+            {% endif %}
         />
     </div>
     {% endblock %}

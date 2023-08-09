@@ -29,7 +29,7 @@ async function createWrapper() {
             'sw-customer-address-form': true,
             'sw-customer-base-form': true,
             'sw-icon': true,
-            'sw-field': true,
+            'sw-switch-field': true,
         },
         provide: {
             repositoryFactory: {

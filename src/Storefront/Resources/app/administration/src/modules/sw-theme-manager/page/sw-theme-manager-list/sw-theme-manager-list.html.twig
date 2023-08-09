@@ -32,12 +32,13 @@
 
                                     {% block sw_theme_list_listing_actions_sorting %}
                                         <div class="sw-theme-list__actions-sorting">
-                                            <sw-field type="select"
-                                                      name="sortType"
-                                                      :label="$tc('sw-theme-manager.sorting.labelSort')"
-                                                      :value="sortingConCat"
-                                                      @change="onSortingChanged"
-                                                      aside>
+                                            <sw-select-field 
+                                                name="sortType"
+                                                :label="$tc('sw-theme-manager.sorting.labelSort')"
+                                                :value="sortingConCat"
+                                                @change="onSortingChanged"
+                                                aside
+                                            >
 
                                                 {% block sw_theme_list_listing_actions_sorting_options %}
                                                 <option v-for="sortOption in sortOptions"
@@ -45,7 +46,7 @@
                                                     {{ sortOption.name }}
                                                 </option>
                                                 {% endblock %}
-                                            </sw-field>
+                                            </sw-select-field>
                                         </div>
                                     {% endblock %}
 
@@ -332,11 +333,15 @@
                                     {{ $tc('sw-theme-manager.modal.textDuplicateInfo') }}
                                 </div>
 
-                                <sw-field v-model="newThemeName"
-                                          :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
-                                          :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
-                                          tpye="text">
-                                </sw-field>
+                                <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="newThemeName"
+                                    {% else %}
+                                    v-model="newThemeName"
+                                    {% endif %}
+                                    :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
+                                    :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
+                                />
                             {% endblock %}
 
                             {% block sw_theme_list_duplicate_modal_footer %}
@@ -373,11 +378,15 @@
                                     {{ $tc('sw-theme-manager.modal.textRenameInfo') }}
                                 </div>
 
-                                <sw-field v-model="newThemeName"
-                                          :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
-                                          :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
-                                          tpye="text">
-                                </sw-field>
+                                <sw-text-field
+                                    {% if VUE3 %}
+                                    v-model:value="newThemeName"
+                                    {% else %}
+                                    v-model="newThemeName"
+                                    {% endif %}
+                                    :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
+                                    :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
+                                />
                             {% endblock %}
 
                             {% block sw_theme_list_rename_modal_footer %}

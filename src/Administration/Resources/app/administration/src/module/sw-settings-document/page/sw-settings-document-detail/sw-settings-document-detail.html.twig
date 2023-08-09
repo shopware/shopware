@@ -177,9 +177,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_name %}
                         <div class="sw-settings-document-detail__field_name">
-                            <sw-field
+                            <sw-text-field
                                 v-model="documentConfig.name"
-                                type="text"
                                 :label="$tc('sw-settings-document.detail.labelName')"
                                 :placeholder="$tc('sw-settings-document.detail.placeholderName')"
                                 :disabled="!acl.can('document.editor')"
@@ -210,9 +209,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_file_name_prefix %}
                         <div class="sw-settings-document-detail__field_file_name_prefix">
-                            <sw-field
+                            <sw-text-field
                                 v-model="documentConfig.filenamePrefix"
-                                type="text"
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
                             />
@@ -221,9 +219,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_file_name_suffix %}
                         <div class="sw-settings-document-detail__field_file_name_suffix">
-                            <sw-field
+                            <sw-text-field
                                 v-model="documentConfig.filenameSuffix"
-                                type="text"
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
                             />

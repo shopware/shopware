@@ -38,15 +38,13 @@ describe('src/app/asyncComponent/asyncComponent', () => {
         await registerAsyncComponents();
     });
 
-    componentNames.forEach((componentName) => {
-        it('should register the components asynchronously', async () => {
-            expect(Shopware.Component.getComponentRegistry().has(componentName)).toBe(true);
-        });
+    it.each(componentNames)('should register the %s synchronously', (componentName) => {
+        expect(Shopware.Component.getComponentRegistry().has(componentName)).toBe(true);
+    });
 
-        it('should be able to build all the components correctly', async () => {
-            const buildResult = await Shopware.Component.build(componentName);
-            // If component could not get build then the component library returns "false"
-            expect(buildResult).not.toBe(false);
-        });
+    it.each(componentNames)('should be able to build %s correctly', async (componentName) => {
+        const buildResult = await Shopware.Component.build(componentName);
+        // If component could not get build then the component library returns "false"
+        expect(buildResult).not.toBe(false);
     });
 });

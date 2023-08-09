@@ -51,13 +51,12 @@
                 {% endblock %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-field
+                <sw-switch-field
                     {% if VUE3 %}
                     v-model:value="crossSelling.active"
                     {% else %}
                     v-model="crossSelling.active"
                     {% endif %}
-                    type="switch"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"

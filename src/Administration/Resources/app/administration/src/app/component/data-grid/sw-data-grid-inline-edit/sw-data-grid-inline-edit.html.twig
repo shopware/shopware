@@ -6,23 +6,29 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_string %}
-    <sw-field
+    <sw-text-field
         v-if="column.inlineEdit === 'string'"
         key="string"
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
         :size="inputFieldSize"
-        type="text"
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_number %}
-    <sw-field
+    <sw-number-field
         v-else-if="column.inlineEdit === 'number'"
         key="number"
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
         :size="inputFieldSize"
-        type="number"
     />
     {% endblock %}
 

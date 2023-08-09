@@ -65,7 +65,7 @@ async function createWrapper(privileges = []) {
                 template: '<div class="sw-field"></div>',
                 props: ['disabled'],
             },
-            'sw-field': {
+            'sw-text-field': {
                 template: '<div class="sw-field"></div>',
                 props: ['disabled'],
             },

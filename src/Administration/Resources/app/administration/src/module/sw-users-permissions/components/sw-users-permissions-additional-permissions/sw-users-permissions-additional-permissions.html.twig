@@ -34,9 +34,8 @@
             <template v-for="(value, roleName) in privilege.roles">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
-                <sw-field
+                <sw-switch-field
                     :key="roleName"
-                    type="switch"
                     :disabled="disabled"
                     :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
                     :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
@@ -81,10 +80,9 @@
             <template v-for="(key, roleName) in privilege.roles">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_app_privileges_switches_content_switch %}
-                <sw-field
+                <sw-switch-field
                     v-if="roleName === 'all'"
                     :key="roleName"
-                    type="switch"
                     :disabled="disabled"
                     class="sw_users_permissions_additional_permissions_app_all"
                     :value="isPrivilegeSelected('app.' + roleName)"
@@ -93,7 +91,7 @@
                     @change="changeAllAppPermissionsForKey('app.' + roleName, $event)"
                 />
 
-                <sw-field
+                <sw-switch-field
                     v-else
                     :key="roleName"
                     v-tooltip="{
@@ -101,7 +99,6 @@
                         disabled: !isPrivilegeSelected('app.all') || disabled,
                         showOnDisabledElements: false
                     }"
-                    type="switch"
                     :disabled="isPrivilegeSelected('app.all') || disabled"
                     :class="'sw_users_permissions_additional_permissions_app_' + roleName"
                     :value="isPrivilegeSelected('app.' + roleName)"

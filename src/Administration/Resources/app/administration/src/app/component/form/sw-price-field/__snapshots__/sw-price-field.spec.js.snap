@@ -7,7 +7,7 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
   <div
     class="price-field-grid"
   >
-    <sw-field-stub
+    <sw-number-field-stub
       class="sw-price-field__gross"
       digits="20"
       label="global.sw-price-field.labelPriceGross"
@@ -15,13 +15,12 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       name="sw-price-field-gross"
       placeholder="sw-product.priceForm.placeholderPriceGross"
       size="default"
-      type="number"
       value="123"
     >
       
                 $
             
-    </sw-field-stub>
+    </sw-number-field-stub>
      
     <button
       class="sw-price-field__lock"
@@ -32,7 +31,7 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       />
     </button>
      
-    <sw-field-stub
+    <sw-number-field-stub
       class="sw-price-field__net"
       digits="20"
       label="global.sw-price-field.labelPriceNet"
@@ -40,13 +39,12 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       name="sw-price-field-net"
       placeholder="sw-product.priceForm.placeholderPriceNet"
       size="default"
-      type="number"
       value="250"
     >
       
                 $
             
-    </sw-field-stub>
+    </sw-number-field-stub>
   </div>
    
   <!---->

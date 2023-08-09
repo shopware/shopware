@@ -11,7 +11,8 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-analytics'), {
         stubs: {
             'sw-card': true,
-            'sw-field': true,
+            'sw-switch-field': true,
+            'sw-text-field': true,
             'sw-container': true,
         },
         provide: {

@@ -10,9 +10,8 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_number_container_numbertype %}
-    <sw-field
+    <sw-select-field
         v-model="currentCustomField.config.numberType"
-        type="select"
         :label="$tc('sw-settings-custom-field.customField.detail.labelNumberType')"
         :options="numberTypes"
     />

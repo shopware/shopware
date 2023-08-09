@@ -39,7 +39,7 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-card': true,
             'sw-container': true,
-            'sw-field': true,
+            'sw-text-field': true,
             'sw-number-field': true,
             'sw-language-info': true,
             'sw-settings-price-rounding': true,

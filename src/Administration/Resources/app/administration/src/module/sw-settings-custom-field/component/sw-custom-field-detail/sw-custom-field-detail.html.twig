@@ -34,9 +34,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_technical_name %}
-        <sw-field
+        <sw-text-field
             v-model="currentCustomField.name"
-            type="text"
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -46,9 +45,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_position %}
-        <sw-field
+        <sw-number-field
             v-model="currentCustomField.config.customFieldPosition"
-            type="number"
             class="sw-custom-field-detail__modal-position"
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"
@@ -59,9 +57,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_required %}
-        <sw-field
+        <sw-switch-field
             v-model="required"
-            type="switch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
             class="sw-custom-field-detail__switch"
@@ -73,9 +70,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_allow_customer_write %}
-        <sw-field
+        <sw-switch-field
             v-model="currentCustomField.allowCustomerWrite"
-            type="switch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
@@ -84,11 +80,10 @@
         />
         {% endblock %}
 
-        <sw-field
+        <sw-switch-field
             v-if="isProductCustomField"
             v-model="currentCustomField.allowCartExpose"
             v-tooltip="getCartExposeTooltipConfig()"
-            type="switch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
             class="sw-custom-field-detail__allow-cart-expose"

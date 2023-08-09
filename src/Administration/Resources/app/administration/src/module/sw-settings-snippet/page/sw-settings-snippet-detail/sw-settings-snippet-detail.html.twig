@@ -93,10 +93,9 @@
                         <div class="snippet-general-card">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_detail_card_information_key %}
-                            <sw-field
+                            <sw-text-field
                                 v-model="translationKey"
                                 v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                                type="text"
                                 :label="$tc('sw-settings-snippet.detail.labelName')"
                                 :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                 :disabled="!(isCreate || isAddedSnippet)"
@@ -118,12 +117,11 @@
                         <div class="snippet-overview-card">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_detail_card_snippets_fields %}
-                            <sw-field
+                            <sw-text-field
                                 v-for="(snippet, index) in snippets"
                                 :key="snippet.setId"
                                 v-model="snippet.value"
                                 v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                                type="text"
                                 :class="`sw-settings-snippet-detail__translation-field--${index}`"
                                 :disabled="!acl.can('snippet.editor')"
                                 :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"

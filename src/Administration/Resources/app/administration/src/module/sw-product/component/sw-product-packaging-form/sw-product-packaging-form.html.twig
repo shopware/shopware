@@ -18,8 +18,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelWidth')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
@@ -33,7 +32,7 @@
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -52,8 +51,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelHeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
@@ -67,7 +65,7 @@
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -86,8 +84,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelLength')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
@@ -101,7 +98,7 @@
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -124,8 +121,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     :label="$tc('sw-product.settingsForm.labelWeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
@@ -140,7 +136,7 @@
                     <template #suffix>
                         <span>kg</span>
                     </template>
-                </sw-field>
+                </sw-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -160,8 +156,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     class="sw-product-packaging-form__purchase-unit-field"
                     :map-inheritance="props"
                     number-type="float"
@@ -230,8 +225,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="text"
+                <sw-text-field
                     class="sw-product-packaging-form__pack-unit-field"
                     :map-inheritance="props"
                     :error="productPackUnitError"
@@ -261,8 +255,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="text"
+                <sw-text-field
                     class="sw-product-packaging-form__pack-unit-plural-field"
                     :map-inheritance="props"
                     :error="productPackUnitPluralError"
@@ -292,8 +285,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     class="sw-product-packaging-form__reference-unit-field"
                     :map-inheritance="props"
                     number-type="float"

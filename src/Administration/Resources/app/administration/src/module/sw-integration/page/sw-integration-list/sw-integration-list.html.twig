@@ -86,7 +86,7 @@
                         columns="2fr 1fr"
                         gap="24px"
                     >
-                        <sw-field
+                        <sw-text-field
                             v-model="currentIntegration.label"
                             :label="$tc('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
@@ -130,7 +130,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
-                    <sw-field
+                    <sw-text-field
                         v-model="currentIntegration.accessKey"
                         :label="$tc('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
@@ -141,16 +141,29 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
-                    <sw-field
-                        v-if="showSecretAccessKey"
-                        v-model="currentIntegration.secretAccessKey"
-                        :type="secretAccessKeyFieldType"
-                        :label="$tc('sw-integration.detail.secretFieldLabel')"
-                        :disabled="true"
-                        :password-toggle-able="false"
-                        :copyable="showSecretAccessKey"
-                        :copyable-tooltip="true"
-                    />
+                    <template v-if="showSecretAccessKey">
+                        <sw-text-field
+                            v-if="secretAccessKeyFieldTypeIsText"
+                            v-model="currentIntegration.secretAccessKey"
+                            :type="secretAccessKeyFieldType"
+                            :label="$tc('sw-integration.detail.secretFieldLabel')"
+                            :disabled="true"
+                            :password-toggle-able="false"
+                            :copyable="showSecretAccessKey"
+                            :copyable-tooltip="true"
+                        />
+
+                        <sw-password-field
+                            v-if="secretAccessKeyFieldTypeIsPassword"
+                            v-model="currentIntegration.secretAccessKey"
+                            :type="secretAccessKeyFieldType"
+                            :label="$tc('sw-integration.detail.secretFieldLabel')"
+                            :disabled="true"
+                            :password-toggle-able="false"
+                            :copyable="showSecretAccessKey"
+                            :copyable-tooltip="true"
+                        />
+                    </template>
 
                     <sw-button
                         v-if="!showSecretAccessKey"

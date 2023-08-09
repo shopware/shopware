@@ -42,9 +42,8 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_content_title %}
-                <sw-field
+                <sw-text-field
                     v-model="element.config.title.value"
-                    type="text"
                     :label="$tc('sw-cms.elements.productSlider.config.label.title')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
                 />
@@ -302,9 +301,8 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_navigation %}
-                <sw-field
+                <sw-switch-field
                     v-model="element.config.navigation.value"
-                    type="switch"
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.navigation')"
                 />
@@ -312,9 +310,8 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_rotate %}
-                <sw-field
+                <sw-switch-field
                     v-model="element.config.rotate.value"
-                    type="switch"
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.rotate')"
                 />
@@ -322,9 +319,8 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_border %}
-                <sw-field
+                <sw-switch-field
                     v-model="element.config.border.value"
-                    type="switch"
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.border')"
                 />
@@ -332,9 +328,8 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_min_width %}
-                <sw-field
+                <sw-text-field
                     v-model="element.config.elMinWidth.value"
-                    type="text"
                     :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
                 />

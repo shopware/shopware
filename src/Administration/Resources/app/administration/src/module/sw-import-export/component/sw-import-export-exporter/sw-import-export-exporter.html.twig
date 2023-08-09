@@ -29,9 +29,8 @@
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_exporter_profile_select_product_variants_switch %}
-        <sw-field
+        <sw-switch-field
             v-model="config.parameters.includeVariants"
-            type="switch"
             class="sw-import-export-exporter__variants-switch-field"
             :label="$tc('sw-import-export.exporter.exportVariants')"
         />

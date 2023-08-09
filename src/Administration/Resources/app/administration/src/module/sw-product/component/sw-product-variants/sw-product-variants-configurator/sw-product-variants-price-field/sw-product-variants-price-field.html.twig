@@ -7,9 +7,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_price_field_gross %}
     <div class="sw-field">
-        <sw-field
+        <sw-number-field
             v-model="price.gross"
-            type="number"
             size="small"
             class="sw-product-variants-price-field__input"
             :disabled="readonly"
@@ -43,9 +42,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_price_field_net %}
     <div class="sw-field">
-        <sw-field
+        <sw-number-field
             v-model="price.net"
-            type="number"
             size="small"
             class="sw-field sw-product-variants-price-field__input"
             :disabled="readonly"

@@ -64,9 +64,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_name %}
-        <sw-field
+        <sw-text-field
             v-model="salesChannel.name"
-            type="text"
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -78,8 +77,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_favorite %}
-        <sw-field
-            type="switch"
+        <sw-switch-field
             :disabled="!acl.can('user_config:create') || !acl.can('user_config:update') || salesChannel._isNew"
             :label="$tc('sw-sales-channel.detail.favouriteLabel')"
             :value="isFavorite()"
@@ -116,9 +114,8 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_base_general_input_navigation_category_depth %}
-            <sw-field
+            <sw-number-field
                 v-model="salesChannel.navigationCategoryDepth"
-                type="number"
                 number-type="int"
                 :min="1"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -476,9 +473,8 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
-        <sw-field
+        <sw-text-field
             v-model="productExport.fileName"
-            type="text"
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -516,9 +512,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
-        <sw-field
+        <sw-switch-field
             v-model="productExport.includeVariants"
-            type="switch"
             bordered
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
@@ -546,9 +541,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
-        <sw-field
+        <sw-switch-field
             v-model="productExport.generateByCronjob"
-            type="switch"
             bordered
             :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
             :disabled="disableGenerateByCronjob || !acl.can('sales_channel.editor')"
@@ -614,7 +608,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_options_input_access_key %}
-        <sw-field
+        <sw-text-field
             v-if="!isProductComparison"
             v-model="salesChannel.accessKey"
             :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
@@ -651,7 +645,7 @@
         {% block sw_sales_channel_detail_base_product_comparison_access_key %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
-        <sw-field
+        <sw-text-field
             v-if="isProductComparison"
             v-model="productExport.accessKey"
             :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
@@ -662,7 +656,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
-        <sw-field
+        <sw-text-field
             v-if="isProductComparison && productExport.salesChannelDomainId"
             v-model="productComparisonAccessUrl"
             :label="$tc('sw-sales-channel.detail.productComparison.accessUrl')"
@@ -707,9 +701,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_status_input_active %}
-        <sw-field
+        <sw-switch-field
             v-model="salesChannel.active"
-            type="switch"
             :label="$tc('sw-sales-channel.detail.labelInputActive')"
             :disabled="!acl.can('sales_channel.editor')"
             @change="onToggleActive"
@@ -729,9 +722,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
-        <sw-field
+        <sw-switch-field
             v-model="salesChannel.maintenance"
-            type="switch"
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
         />

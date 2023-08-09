@@ -14,7 +14,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             sync: false,
             stubs: {
                 'sw-card': true,
-                'sw-field': {
+                'sw-switch-field': {
                     props: ['value'],
                     template: `
                         <input :value="value"

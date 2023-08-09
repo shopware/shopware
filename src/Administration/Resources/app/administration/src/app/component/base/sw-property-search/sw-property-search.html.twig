@@ -18,15 +18,23 @@
         >
             <div class="sw-property-search__search-field-container">
                 <slot name="toolbar-search-field">
-                    <sw-field
+                    <sw-text-field
                         ref="searchField"
+                        {% if VUE3 %}
+                        v-model:value="searchTerm"
+                        {% else %}
                         v-model="searchTerm"
+                        {% endif %}
                         class="sw-property-search__search-field"
                         :disabled="disabled"
                         :placeholder="$tc('sw-property-search.placeholderSearch')"
                         autocomplete="off"
                         @focus="onFocusSearch"
+                        {% if VUE3 %}
+                        @update:value="onSearchOptions"
+                        {% else %}
                         @input="onSearchOptions"
+                        {% endif %}
                     />
                 </slot>
             </div>

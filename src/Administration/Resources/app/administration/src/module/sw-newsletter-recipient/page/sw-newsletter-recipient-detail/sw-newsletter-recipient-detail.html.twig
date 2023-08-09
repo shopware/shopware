@@ -66,7 +66,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_detail_form_title %}
-                    <sw-field
+                    <sw-text-field
                         v-model="newsletterRecipient.title"
                         :label="$tc('sw-newsletter-recipient.list.title')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
@@ -80,7 +80,7 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_detail_form_first_name %}
-                    <sw-field
+                    <sw-text-field
                         v-model="newsletterRecipient.firstName"
                         :label="$tc('sw-newsletter-recipient.list.firstName')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
@@ -89,7 +89,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_detail_form_last_name %}
-                    <sw-field
+                    <sw-text-field
                         v-model="newsletterRecipient.lastName"
                         :label="$tc('sw-newsletter-recipient.list.lastName')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
@@ -99,7 +99,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipient_detail_form_email %}
-                <sw-field
+                <sw-text-field
                     v-model="newsletterRecipient.email"
                     :label="$tc('sw-newsletter-recipient.list.email')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
@@ -108,7 +108,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipient_detail_form_street %}
-                <sw-field
+                <sw-text-field
                     v-model="newsletterRecipient.street"
                     :label="$tc('sw-newsletter-recipient.list.street')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
@@ -121,7 +121,7 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_detail_form_zip_code %}
-                    <sw-field
+                    <sw-text-field
                         v-model="newsletterRecipient.zipCode"
                         :label="$tc('sw-newsletter-recipient.list.zipCode')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
@@ -130,7 +130,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_detail_form_city %}
-                    <sw-field
+                    <sw-text-field
                         v-model="newsletterRecipient.city"
                         :label="$tc('sw-newsletter-recipient.list.city')"
                         :disabled="!acl.can('newsletter_recipient.editor')"

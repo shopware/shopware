@@ -92,9 +92,8 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_manufacturer_detail_base_info_field_name %}
-                            <sw-field
+                            <sw-text-field
                                 v-model="manufacturer.name"
-                                type="text"
                                 :label="$tc('sw-manufacturer.detail.labelName')"
                                 :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
                                 name="name"
@@ -107,9 +106,8 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_manufacturer_detail_base_info_field_link %}
-                            <sw-field
+                            <sw-text-field
                                 v-model="manufacturer.link"
-                                type="text"
                                 :label="$tc('sw-manufacturer.detail.labelLink')"
                                 :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
                                 name="link"

@@ -99,8 +99,7 @@
                 </span>
 
                 <template #inline-edit>
-                    <sw-field
-                        type="text"
+                    <sw-text-field
                         :value="getInlineSnippet(item.config.label) || item.name"
                         disabled
                     />
@@ -119,8 +118,7 @@
                 {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
 
                 <template #inline-edit>
-                    <sw-field
-                        type="text"
+                    <sw-text-field
                         :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
                         disabled
                     />
@@ -141,9 +139,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
                 <template #inline-edit>
-                    <sw-field
+                    <sw-number-field
                         v-model="item.config.customFieldPosition"
-                        type="number"
                         number-type="int"
                     />
                 </template>

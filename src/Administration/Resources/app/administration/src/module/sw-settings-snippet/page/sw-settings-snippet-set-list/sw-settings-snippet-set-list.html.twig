@@ -209,10 +209,9 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
                                 <template #inline-edit>
-                                    <sw-field
+                                    <sw-text-field
                                         ref="nameEditor"
                                         v-model="item.name"
-                                        type="text"
                                         :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
                                     />
                                 </template>
@@ -256,9 +255,8 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
                                 <template #inline-edit>
-                                    <sw-field
+                                    <sw-select-field
                                         v-model="item.baseFile"
-                                        type="select"
                                     >
                                         <option
                                             v-for="file in baseFiles"
@@ -267,7 +265,7 @@
                                         >
                                             {{ file.name }}
                                         </option>
-                                    </sw-field>
+                                    </sw-select-field>
                                 </template>
                                 {% endblock %}
                             </sw-grid-column>

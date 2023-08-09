@@ -8,13 +8,12 @@
             v-for="locale in locales"
             :key="locale"
         >
-            <sw-field
+            <sw-text-field
                 v-for="(label, name) in propertyNames"
                 :key="getInlineSnippet(name)"
                 v-model="config[name][locale]"
                 :disabled="disabled"
                 :label="getLabel(label, locale)"
-                type="text"
                 @input="onInput($event, name, locale)"
             />
         </div>
@@ -58,14 +57,13 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_custom_field_translated_labels_translated_content_field %}
-                <sw-field
+                <sw-text-field
                     v-for="(label, name) in propertyNames"
                     :key="getInlineSnippet(name)"
                     v-model="config[name][locale]"
                     class="sw-custom-field-translated-labels__translated-content-field"
                     :disabled="disabled"
                     :label="getLabel(label, locale)"
-                    type="text"
                     @input="onInput($event, name, locale)"
                 />
                 {% endblock %}

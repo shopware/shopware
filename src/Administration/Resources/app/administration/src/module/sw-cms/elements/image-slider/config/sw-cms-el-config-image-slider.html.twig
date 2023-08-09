@@ -143,11 +143,18 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
-                            <sw-field
+                            <sw-select-field
+                                {% if VUE3 %}
+                                v-model:value="element.config.navigationArrows.value"
+                                {% else %}
                                 v-model="element.config.navigationArrows.value"
-                                type="select"
+                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')"
+                                {% if VUE3 %}
+                                @update:value="emitUpdateEl"
+                                {% else %}
                                 @change="emitUpdateEl"
+                                {% endif %}
                             >
 
                                 <option :value="null">
@@ -159,7 +166,7 @@
                                 <option value="outside">
                                     {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
                                 </option>
-                            </sw-field>
+                            </sw-select-field>
                             {% endblock %}
                         </div>
 
@@ -167,11 +174,18 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
-                            <sw-field
+                            <sw-select-field
+                                {% if VUE3 %}
+                                v-model:value="element.config.navigationDots.value"
+                                {% else %}
                                 v-model="element.config.navigationDots.value"
-                                type="select"
+                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')"
+                                {% if VUE3 %}
+                                @update:value="emitUpdateEl"
+                                {% else %}
                                 @change="emitUpdateEl"
+                                {% endif %}
                             >
 
                                 <option :value="null">
@@ -183,7 +197,7 @@
                                 <option value="outside">
                                     {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
                                 </option>
-                            </sw-field>
+                            </sw-select-field>
                             {% endblock %}
                         </div>
                     </div>
@@ -243,12 +257,11 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_url %}
-                            <sw-field
+                            <sw-text-field
                                 :key="sliderItem.mediaId"
                                 v-model="sliderItem.url"
                                 class="sw-cms-el-config-image-slider__settings-link-input"
                                 :name="sliderItem.mediaUrl"
-                                type="text"
                                 :label="$tc('sw-cms.elements.image.config.label.linkTo')"
                                 :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterUrl')"
                             >
@@ -260,15 +273,14 @@
                                         alt=""
                                     >
                                 </template>
-                            </sw-field>
+                            </sw-text-field>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
-                            <sw-field
+                            <sw-switch-field
                                 v-model="sliderItem.newTab"
                                 class="sw-cms-el-config-image-slider__settings-link-tab"
-                                type="switch"
                                 :name="sliderItem.mediaId"
                                 :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
                             />

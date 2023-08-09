@@ -16,9 +16,8 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
-                <sw-field
+                <sw-text-field
                     v-model="rule.name"
-                    type="text"
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                     :error="ruleNameError"
@@ -29,9 +28,8 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_priority %}
-                <sw-field
+                <sw-number-field
                     v-model="rule.priority"
-                    type="number"
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"
@@ -43,9 +41,8 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_base_content_card_field_description %}
-            <sw-field
+            <sw-textarea-field
                 v-model="rule.description"
-                type="textarea"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
                 :disabled="!acl.can('rule.editor')"

@@ -52,10 +52,9 @@
             <div v-if="active ==='details'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_details_guest %}
-                <sw-field
+                <sw-switch-field
                     v-model="customer.guest"
                     no-margin-top
-                    type="switch"
                     :label="$tc('sw-order.newCustomerModal.labelGuest')"
                 />
                 {% endblock %}
@@ -75,10 +74,9 @@
             <div v-if="active === 'shippingAddress'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_shipping_same_billing %}
-                <sw-field
+                <sw-switch-field
                     v-model="isSameBilling"
                     no-margin-top
-                    type="switch"
                     :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
                 />
                 {% endblock %}

@@ -145,7 +145,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 'sw-language-info': true,
                 'sw-entity-single-select': true,
                 'sw-entity-multi-select': true,
-                'sw-field': true,
+                'sw-textarea-field': true,
                 'sw-modal': true,
                 'sw-text-field': true,
                 'sw-context-menu-item': true,

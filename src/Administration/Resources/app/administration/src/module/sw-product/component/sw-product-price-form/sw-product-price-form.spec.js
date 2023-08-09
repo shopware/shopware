@@ -141,7 +141,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 },
                 'sw-price-field': true,
                 'sw-help-text': true,
-                'sw-field': true,
+                'sw-select-field': true,
                 'sw-internal-link': true,
                 'router-link': true,
                 'sw-icon': true,

@@ -91,7 +91,7 @@
                     <template v-if="salutation">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
-                        <sw-field
+                        <sw-text-field
                             v-model="salutation.salutationKey"
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
@@ -107,7 +107,7 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_display_name %}
-                        <sw-field
+                        <sw-text-field
                             v-model="salutation.displayName"
                             required
                             class="sw-settings-salutation-detail__displayName"
@@ -120,7 +120,7 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
-                        <sw-field
+                        <sw-text-field
                             v-model="salutation.letterName"
                             required
                             class="sw-settings-salutation-detail__letterName"

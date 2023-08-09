@@ -75,6 +75,14 @@ Component.register('sw-snippet-field-edit-modal', {
         snippetRepository() {
             return this.repositoryFactory.create('snippet');
         },
+
+        textField() {
+            return this.fieldType === 'text';
+        },
+
+        textArea() {
+            return this.fieldType === 'textarea';
+        },
     },
 
     created() {

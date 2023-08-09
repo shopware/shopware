@@ -49,9 +49,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
                 <sw-switch-field
-                    {% if VUE2 %}
                     :key="roleName"
-                    {% endif %}
                     :disabled="disabled"
                     :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
                     :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
@@ -116,7 +114,6 @@
                     v-if="roleName === 'all'"
                     {% if VUE2 %}
                     :key="roleName"
-                    {% endif %}
                     :disabled="disabled"
                     class="sw_users_permissions_additional_permissions_app_all"
                     :value="isPrivilegeSelected('app.' + roleName)"

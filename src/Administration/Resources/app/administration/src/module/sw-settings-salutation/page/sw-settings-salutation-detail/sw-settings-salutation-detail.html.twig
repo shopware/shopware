@@ -92,9 +92,6 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="salutation.salutationKey"
-                            {% else %}
                             v-model="salutation.salutationKey"
                             {% endif %}
                             name="sw-field--salutation-salutationKey"
@@ -117,9 +114,6 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_display_name %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="salutation.displayName"
-                            {% else %}
                             v-model="salutation.displayName"
                             {% endif %}
                             name="sw-field--salutation-displayName"
@@ -135,9 +129,6 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="salutation.letterName"
-                            {% else %}
                             v-model="salutation.letterName"
                             {% endif %}
                             name="sw-field--salutation-letterName"

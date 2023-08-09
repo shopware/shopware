@@ -18,9 +18,6 @@
                 {% endif %}
                 :disabled="disabled"
                 :label="getLabel(label, locale)"
-                {% if VUE3 %}
-                @update:value="onInput($event, name, locale)"
-                {% else %}
                 @input="onInput($event, name, locale)"
                 {% endif %}
             />
@@ -76,9 +73,6 @@
                     class="sw-custom-field-translated-labels__translated-content-field"
                     :disabled="disabled"
                     :label="getLabel(label, locale)"
-                    {% if VUE3 %}
-                    @update:value="onInput($event, name, locale)"
-                    {% else %}
                     @input="onInput($event, name, locale)"
                     {% endif %}
                 />

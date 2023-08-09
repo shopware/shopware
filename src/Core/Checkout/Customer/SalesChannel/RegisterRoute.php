@@ -90,6 +90,10 @@ class RegisterRoute extends AbstractRegisterRoute
     {
         $isGuest = $data->getBoolean('guest');
 
+        if (!$data->has('billingAddress')) {
+            $data->set('billingAddress', new RequestDataBag());
+        }
+
         if ($data->has('accountType') && empty($data->get('accountType'))) {
             $data->remove('accountType');
         }

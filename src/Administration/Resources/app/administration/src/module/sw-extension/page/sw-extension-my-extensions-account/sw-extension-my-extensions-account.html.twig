@@ -71,7 +71,11 @@
                     />
 
                     <sw-password-field
+                        {% if VUE3 %}
+                        v-model:value="form.password"
+                        {% else %}
                         v-model="form.password"
+                        {% endif %}
                         class="sw-extension-my-extensions-account__password-field"
                         :label="$tc('sw-extension.my-extensions.account.passwordLabel')"
                         :placeholder="$tc('sw-extension.my-extensions.account.passwordPlaceholder')"

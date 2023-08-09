@@ -210,7 +210,11 @@
                         {% block sw_customer_card_password %}
                         <sw-password-field
                             v-if="editMode"
+                            {% if VUE3 %}
+                            v-model:value="customer.passwordNew"
+                            {% else %}
                             v-model="customer.passwordNew"
+                            {% endif %}
                             autocomplete="new-password"
                             :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPassword')"
@@ -223,7 +227,11 @@
                         {% block sw_customer_card_password_confirm %}
                         <sw-password-field
                             v-if="editMode"
+                            {% if VUE3 %}
+                            v-model:value="customer.passwordConfirm"
+                            {% else %}
                             v-model="customer.passwordConfirm"
+                            {% endif %}
                             autocomplete="new-password"
                             :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"

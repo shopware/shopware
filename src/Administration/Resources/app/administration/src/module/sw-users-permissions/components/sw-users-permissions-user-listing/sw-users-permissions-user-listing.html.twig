@@ -159,7 +159,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
                 <sw-password-field
+                    {% if VUE3 %}
+                    v-model:value="confirmPassword"
+                    {% else %}
                     v-model="confirmPassword"
+                    {% endif %}
                     class="sw-settings-user-detail__confirm-password"
                     required
                     name="sw-field--confirm-password"

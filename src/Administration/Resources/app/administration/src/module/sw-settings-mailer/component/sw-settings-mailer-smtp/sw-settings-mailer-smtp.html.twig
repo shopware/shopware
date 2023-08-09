@@ -46,7 +46,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_password %}
     <sw-password-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.password']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.password']"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.password')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
     />

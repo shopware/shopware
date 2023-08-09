@@ -439,7 +439,11 @@
 
                 <sw-password-field
                     v-if="secretAccessKeyFieldIsPassword"
+                    {% if VUE3 %}
+                    v-model:value="currentIntegration.secretAccessKey"
+                    {% else %}
                     v-model="currentIntegration.secretAccessKey"
+                    {% endif %}
                     :type="secretAccessKeyFieldType"
                     :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                     :disabled="true"

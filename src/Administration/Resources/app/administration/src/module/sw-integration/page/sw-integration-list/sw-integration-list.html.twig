@@ -167,7 +167,11 @@
 
                         <sw-password-field
                             v-if="secretAccessKeyFieldTypeIsPassword"
+                            {% if VUE3 %}
+                            v-model:value="currentIntegration.secretAccessKey"
+                            {% else %}
                             v-model="currentIntegration.secretAccessKey"
+                            {% endif %}
                             :type="secretAccessKeyFieldType"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"

@@ -156,7 +156,6 @@
             {% else %}
             v-model="computedNewPassword"
             {% endif %}
-            name="sw-field--computedNewPassword"
             :label="$tc('sw-profile.index.labelNewPassword')"
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
@@ -172,7 +171,6 @@
             {% else %}
             v-model="computedNewPasswordConfirm"
             {% endif %}
-            name="sw-field--computedNewPasswordConfirm"
             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"

@@ -83,10 +83,6 @@ Jest Coverage per Area (Storefront):
     when: always
     paths:
       - coverage
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/js/Storefront/$PRODUCT_AREA/cobertura-coverage.xml
 
 Jest Coverage per Area (Administration):
   extends: Jest (Administration)
@@ -109,10 +105,6 @@ Jest Coverage per Area (Administration):
     when: always
     paths:
       - coverage
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/js/Storefront/$PRODUCT_AREA/*/cobertura-coverage.xml
 
 PHP unit:
     extends: .base-no-setup

@@ -132,13 +132,21 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_url %}
             <sw-url-field
+                {% if VUE3 %}
+                v-model:value="currentDomain.url"
+                {% else %}
                 v-model="currentDomain.url"
+                {% endif %}
                 type="text"
                 omit-url-hash
                 omit-url-search
                 :label="$tc('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
+                {% if VUE3 %}
+                @update:value="onInput"
+                {% else %}
                 @input="onInput"
+                {% endif %}
             />
             {% endblock %}
 

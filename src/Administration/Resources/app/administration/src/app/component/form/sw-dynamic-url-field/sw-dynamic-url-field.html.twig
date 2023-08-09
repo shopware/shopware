@@ -10,7 +10,11 @@
             :value="linkCategory"
             :label="$tc('sw-text-editor-toolbar.link.labelType')"
             require
+            {% if VUE3 %}
+            @update:value="onSelectFieldChange"
+            {% else %}
             @change="onSelectFieldChange"
+            {% endif %}
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dynamic_url_field_content_type_options %}

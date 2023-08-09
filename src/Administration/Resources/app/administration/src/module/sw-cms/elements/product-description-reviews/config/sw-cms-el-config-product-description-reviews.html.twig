@@ -108,7 +108,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_el_product_description_rating_config_options_alignment %}
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="element.config.alignment.value"
+                    {% else %}
                     v-model="element.config.alignment.value"
+                    {% endif %}
                     :label="$tc('sw-cms.elements.general.config.label.alignment')"
                     :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
                 >

@@ -78,11 +78,19 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_type %}
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.type"
+                    {% else %}
                     v-model="crossSelling.type"
+                    {% endif %}
                     :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                     :error="crossSellingTypeError"
                     :disabled="!allowEdit"
+                    {% if VUE3 %}
+                    @update:value="onTypeChanged"
+                    {% else %}
                     @change="onTypeChanged"
+                    {% endif %}
                 >
                     <option
                         v-for="option in crossSellingTypes"
@@ -140,7 +148,11 @@
                         :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
                         :value="sortingConCat"
                         :disabled="!allowEdit"
+                        {% if VUE3 %}
+                        @update:value="onSortingChanged"
+                        {% else %}
                         @change="onSortingChanged"
+                        {% endif %}
                     >
                         <option
                             v-for="option in sortingTypes"

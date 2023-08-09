@@ -73,7 +73,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_sizing_field %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="section.sizingMode"
+            {% else %}
             v-model="section.sizingMode"
+            {% endif %}
             :label="$tc('sw-cms.detail.label.sizingField')"
         >
             <option value="boxed">
@@ -89,7 +93,11 @@
         {% block sw_cms_sidebar_section_config_sidebar_mobile %}
         <sw-select-field
             v-if="section.type === 'sidebar'"
+            {% if VUE3 %}
+            v-model:value="section.mobileBehavior"
+            {% else %}
             v-model="section.mobileBehavior"
+            {% endif %}
             :label="$tc('sw-cms.detail.sidebar.mobile')"
         >
             <option value="hidden">
@@ -130,7 +138,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_background_image_position_field %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="section.backgroundMediaMode"
+            {% else %}
             v-model="section.backgroundMediaMode"
+            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!section.backgroundMediaId"
         >

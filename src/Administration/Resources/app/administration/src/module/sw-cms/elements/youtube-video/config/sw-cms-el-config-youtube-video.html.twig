@@ -95,7 +95,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_display_mode %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="element.config.displayMode.value"
+        {% else %}
         v-model="element.config.displayMode.value"
+        {% endif %}
         :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
     >

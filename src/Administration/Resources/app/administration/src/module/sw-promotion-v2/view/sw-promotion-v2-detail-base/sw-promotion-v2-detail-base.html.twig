@@ -142,11 +142,19 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_detail_base_codes_select %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="selectedCodeType"
+            {% else %}
             v-model="selectedCodeType"
+            {% endif %}
             class="sw-promotion-v2-detail-base__field-code-type"
             :label="$tc('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
             :disabled="!acl.can('promotion.editor')"
+            {% if VUE3 %}
+            @update:value="onChangeCodeType"
+            {% else %}
             @change="onChangeCodeType"
+            {% endif %}
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

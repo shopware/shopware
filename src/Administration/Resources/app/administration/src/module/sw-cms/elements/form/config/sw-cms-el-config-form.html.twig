@@ -44,7 +44,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_form_config_content_form_type %}
             <sw-select-field
+                {% if VUE3 %}
+                v-model:value="element.config.type.value"
+                {% else %}
                 v-model="element.config.type.value"
+                {% endif %}
                 :label="$tc('sw-cms.elements.form.config.label.type')"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

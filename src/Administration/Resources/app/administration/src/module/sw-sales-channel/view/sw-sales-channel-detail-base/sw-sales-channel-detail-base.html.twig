@@ -14,12 +14,20 @@
         {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
         <sw-select-field
             v-if="isProductComparison"
+            {% if VUE3 %}
+            v-model:value="templateName"
+            {% else %}
             v-model="templateName"
+            {% endif %}
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
             :options="templateOptions"
+            {% if VUE3 %}
+            @update:value="$emit('template-selected', arguments[0])"
+            {% else %}
             @change="$emit('template-selected', arguments[0])"
+            {% endif %}
         >
             <option
                 v-for="option in templateOptions"
@@ -499,7 +507,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_encoding %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="productExport.encoding"
+            {% else %}
             v-model="productExport.encoding"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.encoding')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
             :options="getEncodingOptions"
@@ -512,7 +524,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_file_format %}
         <sw-select-field
+            {% if VUE3 %}
+            v-model:value="productExport.fileFormat"
+            {% else %}
             v-model="productExport.fileFormat"
+            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.fileFormat')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
             :options="getFileFormatOptions"

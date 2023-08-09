@@ -54,7 +54,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_general_valid_from %}
             <sw-datepicker
+                {% if VUE3 %}
+                v-model:value="promotion.validFrom"
+                {% else %}
                 v-model="promotion.validFrom"
+                {% endif %}
                 class="sw-promotion-v2-detail-base__field-valid-from"
                 date-type="datetime-local"
                 :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
@@ -66,7 +70,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_general_valid_until %}
             <sw-datepicker
+                {% if VUE3 %}
+                v-model:value="promotion.validUntil"
+                {% else %}
                 v-model="promotion.validUntil"
+                {% endif %}
                 class="sw-promotion-v2-detail-base__field-valid-until"
                 date-type="datetime-local"
                 :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"

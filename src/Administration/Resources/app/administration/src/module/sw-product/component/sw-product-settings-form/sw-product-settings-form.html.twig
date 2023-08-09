@@ -28,7 +28,11 @@
                     :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                     :value="props.currentValue"
+                    {% if VUE3 %}
+                    @update:value="props.updateCurrentValue"
+                    {% else %}
                     @input="props.updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

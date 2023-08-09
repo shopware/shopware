@@ -130,7 +130,11 @@
             </sw-number-field>
 
             <sw-datepicker
+                {% if VUE3 %}
+                v-model:value="deliveryDate"
+                {% else %}
                 v-model="deliveryDate"
+                {% endif %}
                 disabled
                 :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
             />

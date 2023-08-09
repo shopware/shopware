@@ -269,8 +269,7 @@
                                                                                 @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                                                                                <sw-field
-                                                                                        type="select"
+                                                                                <sw-select-field
                                                                                         :placeholder="field.placeholder"
                                                                                         :options="field.options"
                                                                                         :helpText="!field.helpText ? null : field.helpText"
@@ -278,7 +277,7 @@
                                                                                         @change="updateCurrentValue"
                                                                                         @input="updateCurrentValue"
                                                                                         v-model="currentValue">
-                                                                                </sw-field>
+                                                                                </sw-select-field>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
@@ -295,14 +294,13 @@
                                                                                 @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                                                                                <sw-field
-                                                                                        type="url"
+                                                                                <sw-url-field
                                                                                         :helpText="!field.helpText ? null : field.helpText"
                                                                                         :disabled="isInherited || !acl.can('theme.editor')"
                                                                                         @change="updateCurrentValue"
                                                                                         @input="updateCurrentValue"
                                                                                         v-model="currentValue">
-                                                                                </sw-field>
+                                                                                </sw-url-field>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
@@ -353,15 +351,23 @@
                                                                             @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                                                                                <sw-field
-                                                                                    :type="mapSwFieldTypes(field.type)"
+                                                                                <sw-colorpicker
+                                                                                    v-if="mapSwFieldTypes(field.type) === 'colorpicker'"
+                                                                                    :helpText="!field.helpText ? null : field.helpText"
+                                                                                    :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
+                                                                                    :value="currentValue"
+                                                                                    @change="updateCurrentValue"
+                                                                                    @input="updateCurrentValue"
+                                                                                />
+
+                                                                                <sw-text-field
+                                                                                    v-else-if="mapSwFieldTypes(field.type) === 'text' || mapSwFieldTypes(field.type) === null"
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue | cssValue"
                                                                                     @change="updateCurrentValue"
                                                                                     @input="updateCurrentValue"
-                                                                                >
-                                                                                </sw-field>
+                                                                                />
                                                                             </template>
                                                                         </sw-inherit-wrapper>
                                                                     </template>
@@ -557,11 +563,11 @@
                             {{ $tc('sw-theme-manager.modal.textDuplicateInfo') }}
                         </div>
 
-                        <sw-field v-model="newThemeName"
-                                  :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
-                                  :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
-                                  tpye="text">
-                        </sw-field>
+                        <sw-text-field
+                            v-model="newThemeName"
+                            :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
+                            :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
+                        />
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_duplicate_modal_footer %}
@@ -598,11 +604,11 @@
                             {{ $tc('sw-theme-manager.modal.textRenameInfo') }}
                         </div>
 
-                        <sw-field v-model="newThemeName"
-                                  :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
-                                  :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
-                                  tpye="text">
-                        </sw-field>
+                        <sw-text-field 
+                            v-model="newThemeName"
+                            :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
+                            :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
+                        />
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_rename_modal_footer %}

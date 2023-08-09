@@ -14,8 +14,7 @@
     >
         <template #content="props">
 
-            <sw-field
-                type="text"
+            <sw-text-field
                 :map-inheritance="props"
                 :value="props.currentValue"
                 :disabled="props.isInherited || !allowEdit"
@@ -74,9 +73,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_basic_form_id_field %}
-        <sw-field
+        <sw-text-field
             v-model="product.productNumber"
-            type="text"
             :error="productProductNumberError"
             :disabled="!allowEdit"
             :label="$tc('sw-product.basicForm.labelProductNumber')"

@@ -73,9 +73,8 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_detail_content_field_name %}
-                    <sw-field
+                    <sw-text-field
                         v-model="productFeatureSet.name"
-                        type="text"
                         class="sw-settings-product-feature-sets-detail__name"
                         validation="required"
                         required
@@ -88,9 +87,8 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_detail_content_field_description %}
-                    <sw-field
+                    <sw-textarea-field
                         v-model="productFeatureSet.description"
-                        type="textarea"
                         :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
                         class="sw-settings-product-feature-sets-detail__description"
                         :error="productFeatureSetDescriptionError"

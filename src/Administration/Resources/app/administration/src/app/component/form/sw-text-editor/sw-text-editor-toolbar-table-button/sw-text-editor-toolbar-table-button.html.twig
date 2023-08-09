@@ -4,9 +4,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_head_switch %}
-    <sw-field
+    <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="addTableHead"
+        {% else %}
         v-model="addTableHead"
-        type="switch"
+        {% endif %}
         :label="$tc('sw-text-editor-toolbar.table.addHeading')"
     />
     {% endblock %}
@@ -14,9 +17,12 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_grid_input %}
     <div class="sw-text-editor-toolbar-table-button__grid-input">
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="selectedCols"
+            {% else %}
             v-model="selectedCols"
-            type="number"
+            {% endif %}
             number-type="int"
             :min="0"
             :max="colMaxLimit"
@@ -29,9 +35,12 @@
             name="regular-times"
             size="12"
         />
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="selectedRows"
+            {% else %}
             v-model="selectedRows"
-            type="number"
+            {% endif %}
             number-type="int"
             :min="0"
             :max="rowMaxLimit"

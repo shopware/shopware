@@ -23,9 +23,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_fields_tracking_id %}
-        <sw-field
+        <sw-text-field
             v-model="salesChannel.analytics.trackingId"
-            type="text"
             :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
             :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
             name="trackingId"
@@ -42,9 +41,8 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_active %}
-            <sw-field
+            <sw-switch-field
                 v-model="salesChannel.analytics.active"
-                type="switch"
                 :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
                 name="analyticsActive"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -53,9 +51,8 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_track_orders %}
-            <sw-field
+            <sw-switch-field
                 v-model="salesChannel.analytics.trackOrders"
-                type="switch"
                 :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
                 name="trackOrders"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -64,9 +61,8 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_anonymize_ip %}
-            <sw-field
+            <sw-switch-field
                 v-model="salesChannel.analytics.anonymizeIp"
-                type="switch"
                 :label="$tc('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
                 name="anonymizeIp"
                 :disabled="!acl.can('sales_channel.editor')"

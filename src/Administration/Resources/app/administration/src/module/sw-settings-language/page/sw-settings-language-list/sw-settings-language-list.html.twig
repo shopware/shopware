@@ -102,7 +102,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_column_name %}
             <template #column-name="{ item, column, compact, isInlineEdit }">
-                <sw-field
+                <sw-text-field
                     v-if="isInlineEdit"
                     v-model="item.name"
                     :size="compact ? 'small' : 'default'"
@@ -235,9 +235,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-                        <sw-field
+                        <sw-switch-field
                             v-model="filterRootLanguages"
-                            type="switch"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
                         />
@@ -245,9 +244,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-                        <sw-field
+                        <sw-switch-field
                             v-model="filterInheritedLanguages"
-                            type="switch"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
                         />

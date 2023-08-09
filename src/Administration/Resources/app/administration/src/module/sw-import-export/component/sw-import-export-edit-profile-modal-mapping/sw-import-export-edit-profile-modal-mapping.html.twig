@@ -52,10 +52,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
-            <sw-field
+            <sw-text-field
                 v-model="item.mappedKey"
                 :name="`mappedKey-${itemIndex}`"
-                type="text"
                 :disabled="profile.systemDefault"
             />
         </template>

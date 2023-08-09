@@ -55,9 +55,8 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_folder_settings_name_field %}
-                <sw-field
+                <sw-text-field
                     v-model="mediaFolder.name"
-                    type="text"
                     :disabled="disabled"
                     :error="mediaFolderNameError"
                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
@@ -118,18 +117,30 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
                     <sw-field
+                        {% if VUE3 %}
+                        v-model:value="mediaFolder.useParentConfiguration"
+                        {% else %}
                         v-model="mediaFolder.useParentConfiguration"
+                        {% endif %}
                         type="switch"
                         :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
                         :disabled="mediaFolder.parentId === null"
+                        {% if VUE3 %}
+                        @update:value="onChangeInheritance"
+                        {% else %}
                         @change="onChangeInheritance"
+                        {% endif %}
                     />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
                     <sw-field
+                        {% if VUE3 %}
+                        v-model:value="configuration.createThumbnails"
+                        {% else %}
                         v-model="configuration.createThumbnails"
+                        {% endif %}
                         type="switch"
                         :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
                         :disabled="mediaFolder.useParentConfiguration || disabled"
@@ -138,9 +149,12 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_keep_proportions_field %}
-                    <sw-field
+                    <sw-switch-field
+                        {% if VUE3 %}
+                        v-model:value="configuration.keepAspectRatio"
+                        {% else %}
                         v-model="configuration.keepAspectRatio"
-                        type="switch"
+                        {% endif %}
                         :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
                         :disabled="notEditable"
                     />
@@ -148,9 +162,12 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
-                    <sw-field
+                    <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="configuration.thumbnailQuality"
+                        {% else %}
                         v-model="configuration.thumbnailQuality"
-                        type="number"
+                        {% endif %}
                         number-type="int"
                         :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
                         :min="0"
@@ -206,13 +223,16 @@
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
-                                <sw-field
-                                    type="switch"
+                                <sw-switch-field
                                     :value="isThumbnailSizeActive(size)"
                                     :name="thumbnailSizeCheckboxName(size)"
                                     :label="size | thumbnailSize"
                                     :disabled="notEditable"
+                                    {% if VUE3 %}
+                                    @update:value="onChangeThumbnailSize($event, size)"
+                                    {% else %}
                                     @change="onChangeThumbnailSize($event, size)"
+                                    {% endif %}
                                 />
                                 {% endblock %}
 

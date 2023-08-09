@@ -93,9 +93,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_name %}
-                        <sw-field
+                        <sw-text-field
                             v-model="currency.name"
-                            type="text"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelName')"
@@ -106,9 +105,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_iso_code %}
-                        <sw-field
+                        <sw-text-field
                             v-model="currency.isoCode"
-                            type="text"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelIsoCode')"
@@ -119,9 +117,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_short_name %}
-                        <sw-field
+                        <sw-text-field
                             v-model="currency.shortName"
-                            type="text"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelShortName')"
@@ -132,9 +129,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_symbol %}
-                        <sw-field
+                        <sw-text-field
                             v-model="currency.symbol"
-                            type="text"
                             required
                             :disabled="!acl.can('currencies.editor')"
                             :label="$tc('sw-settings-currency.detail.labelSymbol')"

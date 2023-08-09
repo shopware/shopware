@@ -13,9 +13,8 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_technical_name %}
-        <sw-field
+        <sw-text-field
             v-model="countryState.name"
-            type="text"
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelName')"
             :placeholder="placeholder(countryState, 'name')"
@@ -24,9 +23,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_shortcode %}
-        <sw-field
+        <sw-text-field
             v-model="countryState.shortCode"
-            type="text"
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelShortCode')"
         />
@@ -34,9 +32,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_position %}
-        <sw-field
+        <sw-number-field
             v-model="countryState.position"
-            type="number"
             :disabled="!acl.can('country.editor')"
             :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"
             number-type="int"

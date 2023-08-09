@@ -10,11 +10,12 @@
     {% block sw_order_saveable_field_input %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block  sw_order_saveable_field_input_field%}
-    <sw-field ref="edit-field"
-        :type="type"
+    <component
+        :is="component"
+        ref="edit-field"
         :value="value"
-        :placeholder="placeholder">
-    </sw-field>
+        :placeholder="placeholder"
+    />
     {% endblock %}
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

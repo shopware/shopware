@@ -6,9 +6,8 @@
     <h2>{{ $tc('sw-first-run-wizard.mailerLocal.headline') }}</h2>
 
     <div class="sw-settings-mailer-local">
-        <sw-field
+        <sw-radio-field
             v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
-            type="radio"
             :options="emailSendmailOptions"
         />
     </div>

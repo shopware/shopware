@@ -112,9 +112,8 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_basic_form_description_field %}
-                    <sw-field
+                    <sw-textarea-field
                         v-model="mailTemplate.description"
-                        type="textarea"
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
                         :disabled="!acl.can('mail_templates.editor')"
@@ -138,9 +137,8 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_options_form_subject_field %}
-                            <sw-field
+                            <sw-text-field
                                 v-model="mailTemplate.subject"
-                                type="text"
                                 required
                                 :label="$tc('sw-mail-template.detail.options.labelSubject')"
                                 :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
@@ -152,9 +150,8 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_options_form_sender_name_field %}
-                        <sw-field
+                        <sw-text-field
                             v-model="mailTemplate.senderName"
-                            type="text"
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
                             :disabled="!acl.can('mail_templates.editor')"

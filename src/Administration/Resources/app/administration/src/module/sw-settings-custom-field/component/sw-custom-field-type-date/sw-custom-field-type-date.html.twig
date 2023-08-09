@@ -10,9 +10,8 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_date_container_type %}
-    <sw-field
+    <sw-select-field
         v-model="currentCustomField.config.dateType"
-        type="select"
         :label="$tc('sw-settings-custom-field.customField.detail.labelDateType')"
         :options="types"
     />
@@ -20,10 +19,9 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_date_container_time_format %}
-    <sw-field
+    <sw-select-field
         v-if="['time', 'datetime'].includes(currentCustomField.config.dateType)"
         v-model="currentCustomField.config.config.time_24hr"
-        type="select"
         :label="$tc('sw-settings-custom-field.customField.detail.labelTimeForm')"
         :options="timeForms"
     />

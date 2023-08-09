@@ -197,11 +197,18 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_settings_navigation_arrow_position %}
-                            <sw-field
+                            <sw-select-field
+                                {% if VUE3 %}
+                                v-model:value="element.config.navigationArrows.value"
+                                {% else %}
                                 v-model="element.config.navigationArrows.value"
-                                type="select"
+                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')"
+                                {% if VUE3 %}
+                                @update:value="emitUpdateEl"
+                                {% else %}
                                 @change="emitUpdateEl"
+                                {% endif %}
                             >
 
                                 <option :value="null">
@@ -213,7 +220,7 @@
                                 <option value="outside">
                                     {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
                                 </option>
-                            </sw-field>
+                            </sw-select-field>
                             {% endblock %}
                         </div>
 
@@ -221,11 +228,18 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_settings_navigation_dots_position %}
-                            <sw-field
+                            <sw-select-field
+                                {% if VUE3 %}
+                                v-model:value="element.config.navigationDots.value"
+                                {% else %}
                                 v-model="element.config.navigationDots.value"
-                                type="select"
+                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')"
+                                {% if VUE3 %}
+                                @update:value="emitUpdateEl"
+                                {% else %}
                                 @change="emitUpdateEl"
+                                {% endif %}
                             >
 
                                 <option :value="null">
@@ -237,7 +251,7 @@
                                 <option value="outside">
                                     {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
                                 </option>
-                            </sw-field>
+                            </sw-select-field>
                             {% endblock %}
                         </div>
 
@@ -245,11 +259,18 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_settings_navigation_preview_position %}
-                            <sw-field
+                            <sw-select-field
+                                {% if VUE3 %}
+                                v-model:value="element.config.galleryPosition.value"
+                                {% else %}
                                 v-model="element.config.galleryPosition.value"
-                                type="select"
+                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageGallery.config.label.navigationPreview')"
+                                {% if VUE3 %}
+                                @update:value="emitUpdateEl"
+                                {% else %}
                                 @change="emitUpdateEl"
+                                {% endif %}
                             >
 
                                 <option value="left">
@@ -258,7 +279,7 @@
                                 <option value="underneath">
                                     {{ $tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath') }}
                                 </option>
-                            </sw-field>
+                            </sw-select-field>
                             {% endblock %}
                         </div>
                     </div>

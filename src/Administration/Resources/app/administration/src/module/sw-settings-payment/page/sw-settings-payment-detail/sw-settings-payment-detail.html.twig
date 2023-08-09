@@ -95,9 +95,8 @@
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_name %}
-                            <sw-field
+                            <sw-text-field
                                 v-model="paymentMethod.name"
-                                type="text"
                                 class="sw-settings-payment-detail__field-name"
                                 required
                                 :disabled="!acl.can('payment.editor')"
@@ -109,9 +108,8 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_position %}
-                            <sw-field
+                            <sw-number-field
                                 v-model="paymentMethod.position"
-                                type="number"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelPosition')"
@@ -165,10 +163,9 @@
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_active %}
-                            <sw-field
+                            <sw-switch-field
                                 v-model="paymentMethod.active"
                                 class="sw-settings-payment-detail__field-active"
-                                type="switch"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelActive')"
                             />
@@ -176,10 +173,9 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
-                            <sw-field
+                            <sw-switch-field
                                 v-model="paymentMethod.afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
-                                type="switch"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
                             />

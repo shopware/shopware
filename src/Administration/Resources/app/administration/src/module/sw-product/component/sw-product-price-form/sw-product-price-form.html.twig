@@ -27,8 +27,7 @@
         >
             <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
-                <sw-field
-                    type="select"
+                <sw-select-field
                     name="sw-field--product-taxId"
                     :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
                     validation="required"
@@ -49,7 +48,7 @@
                     >
                         {{ getTaxLabel(tax) }}
                     </option>
-                </sw-field>
+                </sw-select-field>
 
             </template>
         </sw-inherit-wrapper>

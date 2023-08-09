@@ -14,9 +14,8 @@
         <div class="sw-product-restriction-selection__select-group-wrapper">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_restriction_selection_select_group %}
-            <sw-field
+            <sw-select-field
                 v-model="selectedGroup"
-                type="select"
                 class="sw-product-restriction-selection__select-group"
             >
                 <option
@@ -26,7 +25,7 @@
                 >
                     {{ item.group.translated.name }}
                 </option>
-            </sw-field>
+            </sw-select-field>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -88,9 +88,8 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_name %}
-                        <sw-field
+                        <sw-text-field
                             v-model="shippingMethod.name"
-                            type="text"
                             required
                             :disabled="!acl.can('shipping.editor')"
                             :error="shippingMethodNameError"
@@ -100,9 +99,8 @@
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_position %}
-                        <sw-field
+                        <sw-number-field
                             v-model="shippingMethod.position"
-                            type="number"
                             class="sw-settings-shipping-detail__field-position"
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelPosition')"
@@ -111,9 +109,8 @@
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_active %}
-                        <sw-field
+                        <sw-switch-field
                             v-model="shippingMethod.active"
-                            type="switch"
                             bordered
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelActive')"
@@ -182,9 +179,8 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
-                    <sw-field
+                    <sw-text-field
                         v-model="shippingMethod.trackingUrl"
-                        type="text"
                         :disabled="!acl.can('shipping.editor')"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                         :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"

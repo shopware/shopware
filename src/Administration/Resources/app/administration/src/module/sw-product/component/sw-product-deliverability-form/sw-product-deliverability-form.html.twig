@@ -7,9 +7,8 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_stock_field %}
-        <sw-field
+        <sw-number-field
             v-model="product.stock"
-            type="number"
             name="sw-field--product-stock"
             number-type="int"
             :disabled="!allowEdit"
@@ -21,9 +20,8 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_available_stock_field %}
-        <sw-field
+        <sw-number-field
             v-model="product.availableStock"
-            type="number"
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
@@ -44,8 +42,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="switch"
+                <sw-switch-field
                     name="sw-field--product-is-closeout"
                     :error="productIsCloseoutError"
                     :map-inheritance="props"
@@ -111,8 +108,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     name="sw-field--product-restock-time"
                     :map-inheritance="props"
                     number-type="int"
@@ -145,8 +141,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="switch"
+                <sw-switch-field
                     :map-inheritance="props"
                     :error="productShippingFreeError"
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
@@ -179,8 +174,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     number-type="int"
                     :min="1"
@@ -211,8 +205,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     number-type="int"
                     :min="1"
@@ -242,8 +235,7 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="number"
+                <sw-number-field
                     :map-inheritance="props"
                     number-type="int"
                     :allow-empty="true"

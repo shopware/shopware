@@ -67,7 +67,7 @@ describe('components/sw-import-export-exporter', () => {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-loader': true,
                 'sw-icon': true,
-                'sw-field': true,
+                'sw-switch-field': true,
                 'sw-field-error': true,
                 'sw-import-export-progress': true,
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),

@@ -34,9 +34,8 @@
             <template v-for="(value, roleName) in privilege.roles">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch %}
-                <sw-field
+                <sw-switch-field
                     :key="`field-${privilege.key}-${roleName}`"
-                    type="switch"
                     :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
                     :value="isEntitySelected(roleName)"
                     :disabled="isEntityDisabled(roleName) || disabled"

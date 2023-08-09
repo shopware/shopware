@@ -103,10 +103,9 @@
                         </option>
                     </sw-select-field>
 
-                    <sw-field
+                    <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
                         v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
-                        type="radio"
                         :options="emailSendmailOptions"
                     />
                     {% endblock %}

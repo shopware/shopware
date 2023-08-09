@@ -35,9 +35,8 @@
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_entity_multi %}
-<sw-field
+<sw-switch-field
     v-model="multiSelectSwitch"
-    type="switch"
     class="sw-custom-field-detail__switch"
     :disabled="!currentCustomField._isNew"
     :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextMultiSelect')"

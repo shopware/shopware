@@ -122,10 +122,13 @@
         <sw-dynamic-url-field
             v-model="element.config.url.value"
         />
-        <sw-field
+        <sw-switch-field
+            {% if VUE3 %}
+            v-model:value="element.config.newTab.value"
+            {% else %}
             v-model="element.config.newTab.value"
+            {% endif %}
             class="sw-cms-el-config-image__link-tab"
-            type="switch"
             :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
         />
     </div>

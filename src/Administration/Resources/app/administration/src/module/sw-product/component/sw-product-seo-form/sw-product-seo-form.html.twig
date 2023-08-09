@@ -15,8 +15,7 @@
         :inherited-value="parentProduct.metaTitle"
     >
         <template #content="props">
-            <sw-field
-                type="text"
+            <sw-text-field
                 :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
                 :error="productMetaTitleError"
                 :disabled="props.isInherited || !allowEdit"
@@ -41,8 +40,7 @@
         :inherited-value="parentProduct.metaDescription"
     >
         <template #content="props">
-            <sw-field
-                type="textarea"
+            <sw-textarea-field
                 :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
                 :error="productMetaDescriptionError"
                 :disabled="props.isInherited || !allowEdit"
@@ -67,8 +65,7 @@
         :inherited-value="parentProduct.keywords"
     >
         <template #content="props">
-            <sw-field
-                type="text"
+            <sw-text-field
                 :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
                 :error="productKeywordsError"
                 :disabled="props.isInherited || !allowEdit"

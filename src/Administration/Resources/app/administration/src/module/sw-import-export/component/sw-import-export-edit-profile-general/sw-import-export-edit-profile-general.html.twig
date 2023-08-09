@@ -16,9 +16,8 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_name %}
-        <sw-field
+        <sw-text-field
             v-model="profile.label"
-            type="text"
             :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
             required
             :disabled="profile.systemDefault"

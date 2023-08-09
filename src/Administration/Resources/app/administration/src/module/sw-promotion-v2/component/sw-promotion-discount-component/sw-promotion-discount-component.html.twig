@@ -52,9 +52,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_condition_consider_product_rules_field %}
         <template v-if="displayAdvancedRuleOption">
-            <sw-field
+            <sw-switch-field
                 v-model="discount.considerAdvancedRules"
-                type="switch"
                 bordered
                 :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
                 :disabled="isEditingDisabled"
@@ -193,8 +192,7 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_component_value %}
-        <sw-field
-            type="number"
+        <sw-number-field
             class="sw-promotion-discount-component__discount-value"
             validation="required"
             required
@@ -208,7 +206,7 @@
             <template #suffix>
                 {{ valueSuffix }}
             </template>
-        </sw-field>
+        </sw-number-field>
         {% endblock %}
     </sw-container>
 
@@ -222,9 +220,8 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_field %}
-        <sw-field
+        <sw-number-field
             v-model="discount.maxValue"
-            type="number"
             :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
             :help-text="maxValueAdvancedPricesTooltip"
             :disabled="isEditingDisabled"
@@ -233,7 +230,7 @@
             <template #suffix>
                 {{ maxValueSuffix }}
             </template>
-        </sw-field>
+        </sw-number-field>
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_advanced_prices %}

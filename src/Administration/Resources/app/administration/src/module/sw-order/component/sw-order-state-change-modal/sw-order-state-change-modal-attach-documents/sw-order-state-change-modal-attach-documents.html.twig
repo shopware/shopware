@@ -19,10 +19,9 @@
         <div>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_state_change_modal_attach_documents_send_mail_switch %}
-            <sw-field
+            <sw-switch-field
                 v-model="sendMail"
                 class="sw-order-state-change-modal-attach-documents__switch"
-                type="switch"
                 :label="$tc('sw-order.stateCard.labelSendMailSwitch')"
             />
             {% endblock %}

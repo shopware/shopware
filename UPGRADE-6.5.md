@@ -28,6 +28,24 @@ class MyService
         // $products is now inferred as ProductCollection
     }
 ```
+## Clean duplicated theme images
+With [NEXT-25804](https://issues.shopware.com/issues/NEXT-25804) we fixed an issue with duplicated theme images on `system:update` and `theme:refresh`.
+This fix will only prevent future duplicates. In order to remove already existing duplicates from your setup, follow these steps:
+
+1. Open the administration media section
+2. Open the folder `Theme Media` check for duplicated images with the suffix `(x)`, where x is a number. For example `defaultThemePreview_(1).jpg`, `defaultThemePreview_(2)` etc.
+3. Check the id of the images without a `(x)` suffix, these are the original images
+4. Go to the database table `theme` and check the field `preview_media_id`
+5. If it is not the id of the original image, change it to that. Otherwise leave it as is.
+6. Check the field `base_config`. This field is a JSON field. Check if there is an UUID inside, which refers to an image/media.
+7. Check for all these UUIDs if they refer to the original image without a `(x)` prefix. If not, change the UUIDs to match the original image.
+8. Check the database table `theme_media` for associations for the theme with duplicated images (with the suffix) and delete all of them.
+9. Now you should be able to delete these duplicates in the administration media section in the folder `Theme Media`
+10. Now do a `composer theme:refresh`
+
+This comment on github could also be helpful: [github how to clean theme media](https://github.com/shopware/platform/discussions/3254#discussioncomment-6666360)
+The images should not be doubled again.
+
 
 # 6.5.3.0
 ## The app custom trigger and the app action can be defined in one xml file.

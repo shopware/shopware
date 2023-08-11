@@ -241,6 +241,7 @@
         "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
         "labelDefault": "Standard",
         "labelCustomer": "Kunde",
+        "labelMailStruct": "Automatisch",
         "labelAdmin": "Administrator",
         "labelCustom": "Anderer Empfänger",
         "labelContactFormMail": "Anfragesteller",

@@ -65,6 +65,15 @@ export default {
             ];
         },
 
+        recipientMailStruct() {
+            return [
+                {
+                    value: 'default',
+                    label: this.$tc('sw-flow.modals.mail.labelMailStruct'),
+                },
+            ];
+        },
+
         recipientAdmin() {
             return [
                 {
@@ -105,6 +114,10 @@ export default {
             return ['CustomerAware', 'UserAware', 'OrderAware', 'CustomerGroupAware'];
         },
 
+        mailAware() {
+            return ['MailAware'];
+        },
+
         recipientOptions() {
             const allowedAwareOrigin = this.triggerEvent.aware ?? [];
             const allowAwareConverted = [];
@@ -142,6 +155,16 @@ export default {
             if (hasEntityAware) {
                 return [
                     ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            const hasMailAware = allowAwareConverted.some(allowedAware => this.mailAware.includes(allowedAware));
+
+            if (hasMailAware) {
+                return [
+                    ...this.recipientMailStruct,
                     ...this.recipientAdmin,
                     ...this.recipientCustom,
                 ];

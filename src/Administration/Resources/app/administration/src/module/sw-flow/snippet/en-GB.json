@@ -241,6 +241,7 @@
         "buttonAddMailTemplate": "Add email template",
         "labelDefault": "Default",
         "labelCustomer": "Customer",
+        "labelMailStruct": "Automatic",
         "labelAdmin": "Admin",
         "labelCustom": "Custom recipient",
         "labelContactFormMail": "Inquirer",

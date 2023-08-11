@@ -127,7 +127,7 @@ export default {
                 const criteria = new Criteria(1, 1)
                     .addFilter(Criteria.equals('id', child.parentId))
                     .addAssociation('children');
-                const items = await this.mediaFolderRepository.search(criteria, Context.api);$
+                const items = await this.mediaFolderRepository.search(criteria, Context.api);
                 if (items.length === 1) {
                     this.parentFolder = items[0];
                 } else {

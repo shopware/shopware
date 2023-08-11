@@ -567,8 +567,11 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
 const coreConfig = {
     ...(() => {
         if (isDev) {
+            const disableDevServerInlineMode = process.env.DISABLE_DEV_SERVER_INLINE_MODE === '1' || process.env.DISABLE_DEV_SERVER_INLINE_MODE === 'true';
+
             return {
                 devServer: {
+                    inline: disableDevServerInlineMode ? false : true,
                     host: process.env.HOST,
                     port: process.env.PORT,
                     disableHostCheck: true,

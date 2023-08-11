@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Payment;
+namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token;
 
 use Doctrine\DBAL\Connection;
 use Lcobucci\Clock\FrozenClock;
@@ -17,8 +17,8 @@ use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\Payment\JWTMock\TestKey;
-use Shopware\Tests\Unit\Core\Checkout\Payment\JWTMock\TestSigner;
+use Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token\JWTMock\TestKey;
+use Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token\JWTMock\TestSigner;
 
 /**
  * @internal

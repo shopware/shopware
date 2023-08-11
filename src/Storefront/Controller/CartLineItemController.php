@@ -304,12 +304,26 @@ class CartLineItemController extends StorefrontController
 
                         $items[] = $item;
                     } catch (CartException $e) {
+                        if ($e->getErrorCode() === CartException::CART_INVALID_LINE_ITEM_QUANTITY_CODE) {
+                            $this->addFlash(
+                                self::DANGER,
+                                $this->trans(
+                                    'error.CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY',
+                                    [
+                                        '%quantity%' => $e->getParameter('quantity'),
+                                    ]
+                                )
+                            );
+
+                            return $this->createActionResponse($request);
+                        }
+
                         if ($e->getErrorCode() !== CartException::CART_LINE_ITEM_TYPE_NOT_SUPPORTED_CODE) {
                             throw $e;
                         }
 
                         /**
-                         * @deprecated tag:v6.6.0 - remove complete try/catch and just leave the try content
+                         * @deprecated tag:v6.6.0 - remove complete catch below and just leave the try content
                          */
                         Feature::triggerDeprecationOrThrow(
                             'v6.6.0.0',
@@ -382,14 +396,14 @@ class CartLineItemController extends StorefrontController
 
         if (isset($lineItemArray['stackable'])) {
             $lineItemArray['stackable'] = (bool) $lineItemArray['stackable'];
-        } elseif (isset($defaultValues['quantity'])) {
-            $lineItemArray['quantity'] = $defaultValues['quantity'];
+        } elseif (isset($defaultValues['stackable'])) {
+            $lineItemArray['stackable'] = $defaultValues['stackable'];
         }
 
         if (isset($lineItemArray['removable'])) {
             $lineItemArray['removable'] = (bool) $lineItemArray['removable'];
-        } elseif (isset($defaultValues['quantity'])) {
-            $lineItemArray['quantity'] = $defaultValues['quantity'];
+        } elseif (isset($defaultValues['removable'])) {
+            $lineItemArray['removable'] = $defaultValues['removable'];
         }
 
         if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['quantity'])) {

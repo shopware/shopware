@@ -1,7 +1,7 @@
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Data: { Criteria } } = Shopware;
 
 /**
  * @status ready
@@ -128,7 +128,15 @@ export default {
             } else if (child.parentId === null) {
                 this.parentFolder = { id: null, name: this.rootFolderName };
             } else {
-                this.parentFolder = await this.mediaFolderRepository.get(child.parentId, Context.api);
+                const criteria = new Criteria(1, 1)
+                    .addFilter(Criteria.equals('id', child.parentId))
+                    .addAssociation('children');
+                const items = await this.mediaFolderRepository.search(criteria, Context.api);
+                if (items.length === 1) {
+                    this.parentFolder = items[0];
+                } else {
+                    this.parentFolder = null;
+                }
             }
         },
 

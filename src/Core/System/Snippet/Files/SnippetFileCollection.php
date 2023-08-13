@@ -12,6 +12,8 @@ use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 #[Package('system-settings')]
 class SnippetFileCollection extends Collection
 {
+    private ?array $mapping = null;
+
     /**
      * @param AbstractSnippetFile $snippetFile
      */
@@ -110,13 +112,14 @@ class SnippetFileCollection extends Collection
 
     public function hasFileForPath(string $filePath): bool
     {
-        $filePath = realpath($filePath);
+        if ($this->mapping === null) {
+            $this->mapping = [];
+            foreach ($this->elements as $element) {
+                $this->mapping[realpath($element->getPath())] = true;
+            }
+        }
 
-        $filesWithMatchingPath = $this->filter(
-            static fn (AbstractSnippetFile $file): bool => realpath($file->getPath()) === $filePath
-        );
-
-        return $filesWithMatchingPath->count() > 0;
+        return isset($this->mapping[realpath($filePath)]);
     }
 
     protected function getExpectedClass(): ?string

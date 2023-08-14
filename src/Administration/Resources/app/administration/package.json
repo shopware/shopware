@@ -4,16 +4,6 @@
   "description": "Shopware administration",
   "main": "./src/core/shopware.js",
   "types": "./types/index.d.ts",
-  "contributors": [
-    {
-      "name": "Stephan Pohl",
-      "email": "s.pohl@shopware.com"
-    },
-    {
-      "name": "Philipp Schuch",
-      "email": "p.schuch@shopware.com"
-    }
-  ],
   "scripts": {
     "preinstall": "node src/scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",

@@ -3826,26 +3826,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
 
 		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
-			message: "#^Cannot call method getUrl\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int\\|string, array\\<int\\|string, int\\|string\\>\\|int\\|string\\>\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterConfirmRouteTest.php

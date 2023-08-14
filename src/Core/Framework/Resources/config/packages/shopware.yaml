@@ -254,6 +254,7 @@ shopware:
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
             # deprecated tag:v6.6.0 - Exception will be removed
             - Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
+            - Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException
         exclude_events:
             - user.recovery.request
             - customer.recovery.request
@@ -340,6 +341,7 @@ shopware:
             FRAMEWORK__CLUSTER_PARAMETER_IS_MISSING: notice
             FRAMEWORK__INVALID_API_CRITERIA_IDS: notice
             FRAMEWORK__DEFINITION_NOT_FOUND: notice
+            FRAMEWORK__LANGUAGE_NOT_FOUND: notice
             SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
             SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
             SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice

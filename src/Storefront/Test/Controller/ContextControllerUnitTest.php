@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeLanguageRoute;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -55,7 +54,7 @@ class ContextControllerUnitTest extends TestCase
 
         $notExistingLang = Uuid::randomHex();
 
-        $this->expectException(LanguageNotFoundException::class);
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('The language "' . $notExistingLang . '" was not found');
 
         $controller->switchLanguage(

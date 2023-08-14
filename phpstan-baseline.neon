@@ -12756,31 +12756,6 @@ parameters:
 			path: src/Core/System/Locale/Aggregate/LocaleTranslation/LocaleTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:getLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:getLocalesForLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:resolveParentLanguages\\(\\) has parameter \\$languages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:resolveParentLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:\\$languages type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\Aggregate\\\\NumberRangeTranslation\\\\NumberRangeTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/Aggregate/NumberRangeTranslation/NumberRangeTranslationCollection.php

@@ -7,8 +7,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaEvents;
-use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
+use Shopware\Core\Content\Media\Path\Domain\Service\MediaPathSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,12 +21,8 @@ class MediaLoadedSubscriberTest extends TestCase
 
     public function testExtensionSubscribesToMediaLoaded(): void
     {
-        static::assertCount(2, MediaLoadedSubscriber::getSubscribedEvents()[MediaEvents::MEDIA_LOADED_EVENT]);
-    }
-
-    public function testItAddsUrl(): void
-    {
-        $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+        $subscriber = $this->getContainer()->get(MediaPathSubscriber::class);
         $context = Context::createDefaultContext();
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
@@ -52,7 +47,9 @@ class MediaLoadedSubscriberTest extends TestCase
 
     public function testItAddsThumbnailUrl(): void
     {
-        $subscriber = $this->getContainer()->get(MediaLoadedSubscriber::class);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
+        $subscriber = $this->getContainer()->get(MediaPathSubscriber::class);
         $context = Context::createDefaultContext();
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';

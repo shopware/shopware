@@ -400,11 +400,8 @@ class DocumentGeneratorTest extends TestCase
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
-        /** @var UrlGenerator $urlGenerator */
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
         static::assertNotNull($document->getDocumentMediaFile());
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+        $filePath = $document->getDocumentMediaFile()->getPath();
 
         static::assertTrue($fileSystem->has($filePath));
         $fileSystem->delete($filePath);
@@ -486,7 +483,7 @@ class DocumentGeneratorTest extends TestCase
         $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
 
         static::assertNotNull($document->getDocumentMediaFile());
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+        $filePath = $document->getDocumentMediaFile()->getPath();
 
         $fileSystem->write($filePath, 'test123');
 
@@ -858,7 +855,7 @@ class DocumentGeneratorTest extends TestCase
 
             static::assertNotNull($media);
 
-            $filePath = $urlGenerator->getRelativeMediaUrl($media);
+            $filePath = $media->getPath();
 
             static::assertTrue($fileSystem->has($filePath));
             $fileSystem->delete($filePath);

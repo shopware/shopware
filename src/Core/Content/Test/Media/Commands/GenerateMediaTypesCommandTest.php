@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
@@ -150,19 +151,34 @@ class GenerateMediaTypesCommandTest extends TestCase
             ],
         ], $this->context);
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaPng->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
+        }
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaJpg->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        }
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaPdf->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
+        }
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')

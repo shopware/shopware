@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test\Framework\Twig\Extension;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
@@ -92,9 +92,8 @@ class UrlEncodingTwigFilterTest extends TestCase
     public function testItEncodesTheUrl(): void
     {
         $filter = new UrlEncodingTwigFilter();
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $urlGenerator = $this->getContainer()->get(AbstractMediaUrlGenerator::class);
         $uploadTime = new \DateTime();
-        $utc = $uploadTime->getTimestamp();
 
         $media = new MediaEntity();
         $media->setId(Uuid::randomHex());
@@ -102,8 +101,14 @@ class UrlEncodingTwigFilterTest extends TestCase
         $media->setFileExtension('png');
         $media->setUploadedAt($uploadTime);
         $media->setFileName('(image with spaces and brackets)');
-        $media->setUrl($urlGenerator->getAbsoluteMediaUrl($media));
 
-        static::assertStringEndsWith("{$utc}/%28image%20with%20spaces%20and%20brackets%29.png", (string) $filter->encodeMediaUrl($media));
+        $urls = $urlGenerator->generate(['foo' => ['path' => '(image with spaces and brackets).png']]);
+
+        static::assertArrayHasKey('foo', $urls);
+        $url = $urls['foo'];
+
+        $media->setUrl((string) $url);
+
+        static::assertStringEndsWith('%28image%20with%20spaces%20and%20brackets%29.png', (string) $filter->encodeMediaUrl($media));
     }
 }

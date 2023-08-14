@@ -10,16 +10,19 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Path\Domain\Service\MediaPathSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('core')]
 class MediaLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testExtensionSubscribesToMediaLoaded(): void
+    public function testLegacyUrlGenerationForMedia(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
         $subscriber = $this->getContainer()->get(MediaPathSubscriber::class);
@@ -36,16 +39,17 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaEntity->setThumbnails(new MediaThumbnailCollection());
 
         $mediaLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(MediaDefinition::class), [$mediaEntity], $context);
-        $subscriber->addUrls($mediaLoadedEvent);
+        $subscriber->legacy($mediaLoadedEvent);
 
         static::assertStringEndsWith(
             $mediaEntity->getFileName() . '.' . $mediaEntity->getFileExtension(),
             $mediaEntity->getUrl()
         );
+        static::assertNotNull($mediaEntity->getThumbnails());
         static::assertEquals([], $mediaEntity->getThumbnails()->getElements());
     }
 
-    public function testItAddsThumbnailUrl(): void
+    public function testLegacyUrlGenerationForThumbnail(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
 
@@ -67,8 +71,16 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaEntity->setFileName($mediaId . '-134578345');
         $mediaEntity->setThumbnails(new MediaThumbnailCollection([$thumbnailEntity]));
 
-        $mediaLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(MediaDefinition::class), [$mediaEntity], $context);
-        $subscriber->addUrls($mediaLoadedEvent);
+        $mediaLoadedEvent = new EntityLoadedEvent(
+            $this->getContainer()->get(MediaDefinition::class),
+            [$mediaEntity],
+            $context
+        );
+
+        $subscriber->legacy($mediaLoadedEvent);
+
+        static::assertNotNull($mediaEntity->getThumbnails());
+        static::assertNotNull($mediaEntity->getThumbnails()->get($thumbnailEntity->getId()));
 
         static::assertStringEndsWith(
             $mediaEntity->getFileName() . '_100x100.' . $mediaEntity->getFileExtension(),

@@ -105,7 +105,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_user_detail_content_email %}
                         <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value.trim="user.email"
+                            {% else %}
                             v-model.trim="user.email"
+                            {% endif %}
                             class="sw-settings-user-detail__grid-eMail"
                             :error-message="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
                             :error="userEmailError"

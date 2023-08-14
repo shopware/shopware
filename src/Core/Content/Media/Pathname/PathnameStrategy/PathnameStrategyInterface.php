@@ -7,6 +7,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.6.0 - Use AbstractMediaPathStrategy instead
+ *
  * providing data for the default format: __HASH__/__BUSTER__/__PHYSICAL_FILE_NAME_WITH_EXTENSION
  * Important:
  *   * If an empty string is returned, the data will be striped

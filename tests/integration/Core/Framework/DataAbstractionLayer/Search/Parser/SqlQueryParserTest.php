@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,24 +16,68 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser
  */
 class SqlQueryParserTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $manufacturerRepository;
+    private EntityRepository $repository;
+
+    private EntityRepository $manufacturerRepository;
+
+    private Context $context;
+
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
         $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+
+        $this->context = Context::createDefaultContext();
+        $this->repository = $this->getContainer()->get('product.repository');
+
+        $this->ids = new IdsCollection();
+
+        $this->createProduct();
+
+        parent::setUp();
+    }
+
+    public function testFindProductsWithoutCategory(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('categoryIds', null));
+
+        $result = $this->repository->searchIds($criteria, $this->context);
+
+        $productsWithoutCategory = [
+            $this->ids->get('product1-without-category'),
+            $this->ids->get('product2-without-category'),
+        ];
+
+        static::assertEquals($productsWithoutCategory, $result->getIds());
+    }
+
+    public function testFindProductsWithCategory(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('categoryIds', $this->ids->get('category1')));
+
+        $result = $this->repository->searchIds($criteria, $this->context);
+
+        $productsWithoutCategory = [
+            $this->ids->get('product1-with-category'),
+        ];
+
+        static::assertEquals($productsWithoutCategory, $result->getIds());
     }
 
     /**
@@ -54,6 +99,9 @@ class SqlQueryParserTest extends TestCase
         static::assertEquals($expected, $has);
     }
 
+    /**
+     * @return iterable<array-key, array{0: Filter, 1: bool}>
+     */
     public static function whenToUseNullSafeOperatorProvider()
     {
         yield 'Dont used for simple equals' => [new EqualsFilter('product.id', Uuid::randomHex()), false];
@@ -162,6 +210,9 @@ class SqlQueryParserTest extends TestCase
         static::assertNotContains($erroneousId, $foundIds->getIds());
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     private function createManufacturer(array $parameters = []): string
     {
         $id = Uuid::randomHex();
@@ -173,5 +224,31 @@ class SqlQueryParserTest extends TestCase
         $this->manufacturerRepository->create([$parameters], Context::createDefaultContext());
 
         return $id;
+    }
+
+    private function createProduct(): void
+    {
+        $products = [
+            (new ProductBuilder($this->ids, 'product1-with-category', 10))
+                ->categories(['category1', 'category2'])
+                ->visibility()
+                ->price(10)
+                ->build(),
+            (new ProductBuilder($this->ids, 'product2-with-category', 12))
+                ->category('category2')
+                ->visibility()
+                ->price(20)
+                ->build(),
+            (new ProductBuilder($this->ids, 'product1-without-category', 14))
+                ->visibility()
+                ->price(30)
+                ->build(),
+            (new ProductBuilder($this->ids, 'product2-without-category', 16))
+                ->visibility()
+                ->price(40)
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
     }
 }

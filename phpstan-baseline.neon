@@ -10891,16 +10891,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Parser/QueryStringParserTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\SqlQueryParserTest\\:\\:createManufacturer\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Parser/SqlQueryParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\SqlQueryParserTest\\:\\:whenToUseNullSafeOperatorProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Parser/SqlQueryParserTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:createData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php

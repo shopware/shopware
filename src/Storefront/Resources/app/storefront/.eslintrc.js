@@ -53,6 +53,7 @@ module.exports = {
                 '@typescript-eslint/consistent-type-exports': 'error',
                 '@typescript-eslint/consistent-type-imports': 'error',
                 '@typescript-eslint/switch-exhaustiveness-check': 'error',
+                '@typescript-eslint/ban-ts-comment': 'off'
             },
         },
     ],

@@ -115,6 +115,8 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:
             log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException:
+            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException:
             log_level: notice
         # deprecated tag:v6.6.0 - Exception will be removed

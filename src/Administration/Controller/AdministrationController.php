@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -136,7 +135,7 @@ class AdministrationController extends AbstractController
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
         if ($searchConfigId === false) {
-            throw new LanguageNotFoundException($context->getLanguageId());
+            throw RoutingException::languageNotFound($context->getLanguageId());
         }
 
         $deLanguageId = $this->fetchLanguageIdByName('de-DE', $this->connection);

@@ -6,11 +6,15 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @deprecated tag:v6.6.0 - Use AbstractMediaUrlGenerator instead
+ */
 #[Package('buyers-experience')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
@@ -19,7 +23,8 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
      */
     public function __construct(
         private readonly PathnameStrategyInterface $pathnameStrategy,
-        private readonly FilesystemOperator $filesystem
+        private readonly FilesystemOperator $filesystem,
+        private readonly AbstractMediaUrlGenerator $generator
     ) {
     }
 
@@ -32,6 +37,11 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
+
+        // already migrated? delegate to new service
+        if ($media->getPath()) {
+            return $media->getPath();
+        }
 
         $this->validateMedia($media);
 
@@ -53,7 +63,16 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
 
-        return $this->filesystem->publicUrl($media->getPath());
+        // already migrated? delegate to new service
+        if ($media->getPath()) {
+            $params = ['path' => $media->getPath(), 'updatedAt' => $media->getUpdatedAt()];
+
+            $url = $this->generator->generate([$params]);
+
+            return $url[0];
+        }
+
+        return $this->filesystem->publicUrl($this->getRelativeMediaUrl($media));
     }
 
     /**
@@ -65,6 +84,11 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
+
+        // already migrated?
+        if ($thumbnail->getPath()) {
+            return $thumbnail->getPath();
+        }
 
         $this->validateMedia($media);
 
@@ -86,11 +110,24 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
 
+        // already migrated? delegate to new service
+        if ($thumbnail->getPath()) {
+            $params = ['path' => $thumbnail->getPath(), 'updatedAt' => $thumbnail->getUpdatedAt()];
+
+            $url = $this->generator->generate([$params]);
+
+            return $url[0];
+        }
+
         return $this->filesystem->publicUrl($this->getRelativeThumbnailUrl($media, $thumbnail));
     }
 
     public function reset(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', )
+        );
     }
 
     /**

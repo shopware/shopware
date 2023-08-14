@@ -3,6 +3,7 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
     "baseUrl": "./",
     "paths": {
       "src/*": [

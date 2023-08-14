@@ -279,6 +279,7 @@ class ProductSerializerTest extends TestCase
                 'media' => [
                     'id' => Uuid::randomHex(),
                     'fileName' => 'shopware-logo',
+                    'path' => 'shopware-logo.png',
                     'fileExtension' => 'png',
                     'mimeType' => 'image/png',
                     'metaData' => [
@@ -293,6 +294,7 @@ class ProductSerializerTest extends TestCase
                     'media' => [
                         'id' => Uuid::randomHex(),
                         'fileName' => 'shopware-icon',
+                        'path' => 'shopware-icon.png',
                         'fileExtension' => 'png',
                         'mimeType' => 'image/png',
                     ],
@@ -303,6 +305,7 @@ class ProductSerializerTest extends TestCase
                     'media' => [
                         'id' => Uuid::randomHex(),
                         'fileName' => 'shopware-background',
+                        'path' => 'shopware-background.png',
                         'fileExtension' => 'png',
                         'mimeType' => 'image/png',
                     ],

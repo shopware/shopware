@@ -339,13 +339,21 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaPng = $this->getPngWithFolder();
         $mediaJpg = $this->getJpgWithFolder();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaPng->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
+        }
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaJpg->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        }
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
@@ -365,13 +373,23 @@ class GenerateThumbnailsCommandTest extends TestCase
             ],
         ], $this->context);
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaPdf->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
+        }
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        if (Feature::isActive('v6.6.0.0')) {
+            $filePath = $mediaJpg->getPath();
+        } else {
+            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        }
+
         $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 

@@ -490,7 +490,13 @@ class WriterTest extends TestCase
 
     public function testInsertIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
+        static::assertNotNull(
+            $this->getContainer()->get(MediaDefinition::class)
+                ->getFields()
+                ->get('url')
+                ->getFlag(Runtime::class)
+        );
+
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
@@ -502,6 +508,7 @@ class WriterTest extends TestCase
                     'fileName' => 'testFile',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
+                    'path' => 'testFile.jpg',
                     'url' => 'www.example.com',
                 ],
             ],
@@ -527,6 +534,7 @@ class WriterTest extends TestCase
                     'id' => $id,
                     'name' => 'Test media',
                     'fileName' => 'testFile',
+                    'path' => 'testFile.jpg',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
                 ],

@@ -12,6 +12,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -97,7 +98,12 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaPath = $media->getPath();
+        } else {
+            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
+
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith($media->getId() . '.' . $media->getFileExtension(), $mediaPath);
 
@@ -129,7 +135,12 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaPath = $media->getPath();
+        } else {
+            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
+
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertIsString($media->getFileName());
         static::assertStringEndsWith('new file name', $media->getFileName());
@@ -173,7 +184,14 @@ class MediaUploadControllerTest extends TestCase
             '/api/media/' . $this->mediaId,
             $location
         );
-        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($media)));
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $path = $media->getPath();
+        } else {
+            $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
+
+        static::assertTrue($this->getPublicFilesystem()->has($path));
 
         $this->assertMediaApiResponse();
     }
@@ -220,7 +238,13 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $this->getPublicFilesystem()->write($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
+        if (Feature::isActive('v6.6.0.0')) {
+            $url = $media->getPath();
+        } else {
+            $url = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
+
+        $this->getPublicFilesystem()->write($url, 'some content');
 
         $url = sprintf(
             '/api/_action/media/%s/rename',
@@ -244,7 +268,14 @@ class MediaUploadControllerTest extends TestCase
         $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
-        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $location = $media->getPath();
+        } else {
+            $location = $this->urlGenerator->getRelativeMediaUrl($updatedMedia);
+        }
+
+        static::assertTrue($this->getPublicFilesystem()->has($location));
     }
 
     public function testProvideName(): void

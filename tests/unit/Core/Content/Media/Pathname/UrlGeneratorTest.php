@@ -7,9 +7,11 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaUrlGenerator;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -39,7 +41,8 @@ class UrlGeneratorTest extends TestCase
 
         $urlGenerator = new UrlGenerator(
             new FilenamePathnameStrategy(),
-            $filesystem
+            $filesystem,
+            new MediaUrlGenerator($filesystem)
         );
 
         static::assertSame(
@@ -64,7 +67,8 @@ class UrlGeneratorTest extends TestCase
 
         $urlGenerator = new UrlGenerator(
             new FilenamePathnameStrategy(),
-            $filesystem
+            $filesystem,
+            new MediaUrlGenerator($filesystem)
         );
 
         static::assertSame(
@@ -94,7 +98,8 @@ class UrlGeneratorTest extends TestCase
 
         $urlGenerator = new UrlGenerator(
             new FilenamePathnameStrategy(),
-            $filesystem
+            $filesystem,
+            new MediaUrlGenerator($filesystem)
         );
 
         static::assertSame(
@@ -116,7 +121,8 @@ class UrlGeneratorTest extends TestCase
 
         $urlGenerator = new UrlGenerator(
             new FilenamePathnameStrategy(),
-            $filesystem
+            $filesystem,
+            new MediaUrlGenerator($filesystem)
         );
 
         static::assertSame(
@@ -146,7 +152,8 @@ class UrlGeneratorTest extends TestCase
 
         $urlGenerator = new UrlGenerator(
             new FilenamePathnameStrategy(),
-            $filesystem
+            $filesystem,
+            new MediaUrlGenerator($filesystem)
         );
 
         static::assertSame(
@@ -167,11 +174,11 @@ class UrlGeneratorTest extends TestCase
 
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), $filesystem);
+        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), $filesystem, new MediaUrlGenerator($filesystem));
         $urlGenerator->getAbsoluteMediaUrl($mediaEntity);
-        $urlGeneratorAssert = new UrlGenerator(new FilenamePathnameStrategy(), $filesystem);
+        $urlGeneratorAssert = new UrlGenerator(new FilenamePathnameStrategy(), $filesystem, new MediaUrlGenerator($filesystem));
         $urlGeneratorAssert->getAbsoluteMediaUrl($mediaEntity);
-        $urlGeneratorAssertStaysUntouched = new UrlGenerator(new FilenamePathnameStrategy(), $filesystem);
+        $urlGeneratorAssertStaysUntouched = new UrlGenerator(new FilenamePathnameStrategy(), $filesystem, new MediaUrlGenerator($filesystem));
 
         // Both $fallbackBaseUrl should be same
         static::assertSame(print_r($urlGeneratorAssert, true), print_r($urlGenerator, true));

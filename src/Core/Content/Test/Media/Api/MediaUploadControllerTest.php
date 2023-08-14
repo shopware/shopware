@@ -11,7 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -94,7 +94,11 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        $mediaPath = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaPath = $media->getPath();
+        } else {
+            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith($media->getId() . '.' . $media->getFileExtension(), $mediaPath);
@@ -127,7 +131,11 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        $mediaPath = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaPath = $media->getPath();
+        } else {
+            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertIsString($media->getFileName());
@@ -173,7 +181,11 @@ class MediaUploadControllerTest extends TestCase
             $location
         );
 
-        $path = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $path = $media->getPath();
+        } else {
+            $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
 
         static::assertTrue($this->getPublicFilesystem()->has($path));
 
@@ -220,21 +232,13 @@ class MediaUploadControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $ids = new IdsCollection();
-        $data = [
-            'id' => $id = $ids->get('media'),
-            'fileName' => 'original_file_name',
-            'path' => 'media/original_file_name.png',
-            'fileExtension' => 'png',
-        ];
+        if (Feature::isActive('v6.6.0.0')) {
+            $url = $media->getPath();
+        } else {
+            $url = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
 
-        $this->mediaRepository->create([$data], $context);
-        $media = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
-
-        static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertNotEmpty($media->getPath());
-
-        $this->getPublicFilesystem()->write($media->getPath(), 'some content');
+        $this->getPublicFilesystem()->write($url, 'some content');
 
         $url = sprintf(
             '/api/_action/media/%s/rename',
@@ -255,13 +259,17 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
+        static::assertInstanceOf(MediaEntity::class, $updatedMedia);
+        static::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
 
-        static::assertInstanceOf(MediaEntity::class, $updated);
-        static::assertNotEquals($media->getFileName(), $updated->getFileName());
+        if (Feature::isActive('v6.6.0.0')) {
+            $location = $media->getPath();
+        } else {
+            $location = $this->urlGenerator->getRelativeMediaUrl($updatedMedia);
+        }
 
-        static::assertTrue($this->getPublicFilesystem()->has($updated->getPath()));
-        static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
+        static::assertTrue($this->getPublicFilesystem()->has($location));
     }
 
     public function testProvideName(): void

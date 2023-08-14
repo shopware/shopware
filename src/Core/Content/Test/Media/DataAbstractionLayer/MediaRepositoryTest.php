@@ -125,7 +125,11 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $path = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $path = $media->getPath();
+        } else {
+            $path = $urlGenerator->getRelativeMediaUrl($media);
+        }
 
         // simulate file
         $fileSystem->write($path, 'foo');
@@ -262,7 +266,11 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $mediaPath = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaPath = $media->getPath();
+        } else {
+            $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
+        }
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -302,11 +310,18 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $mediaPath = $media->getPath();
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        static::assertNotNull($media->getThumbnails());
-        static::assertNotNull($media->getThumbnails()->first());
-        $thumbnailPath = $media->getThumbnails()->first()->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaPath = $media->getPath();
+
+            static::assertNotNull($media->getThumbnails());
+            static::assertNotNull($media->getThumbnails()->first());
+            $thumbnailPath = $media->getThumbnails()->first()->getPath();
+        } else {
+            $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
+            $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]));
+        }
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -322,12 +337,7 @@ class MediaRepositoryTest extends TestCase
         $this->runWorker();
 
         static::assertFalse($this->getPublicFilesystem()->has((string) $mediaPath));
-
-        if (Feature::isActive('v6.6.0.0') || Feature::isActive('MEDIA_PATH')) {
-            static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
-        } else {
-            static::assertTrue($this->getPublicFilesystem()->has((string) $thumbnailPath));
-        }
+        static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
     }
 
     public function testDeleteMediaDeletesOnlyFilesForGivenMediaId(): void
@@ -371,8 +381,15 @@ class MediaRepositoryTest extends TestCase
         $secondMedia = $read->get($secondId);
         static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
-        $firstPath = $firstMedia->getPath();
-        $secondPath = $secondMedia->getPath();
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $firstPath = $firstMedia->getPath();
+            $secondPath = $secondMedia->getPath();
+        } else {
+            $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
+            $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
+        }
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -426,7 +443,11 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $secondPath = $secondMedia->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $secondPath = $secondMedia->getPath();
+        } else {
+            $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
+        }
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -518,7 +539,11 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $mediaUrl = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $mediaUrl = $media->getPath();
+        } else {
+            $mediaUrl = $urlGenerator->getRelativeMediaUrl($media);
+        }
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);

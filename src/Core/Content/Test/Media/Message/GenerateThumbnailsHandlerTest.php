@@ -125,7 +125,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
-        $url = $media->getPath();
+        if (Feature::isActive('v6.6.0.0')) {
+            $url = $media->getPath();
+        } else {
+            $url = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
 
         $this->getPublicFilesystem()->writeStream(
             $url,

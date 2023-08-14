@@ -84,7 +84,7 @@ class SalesChannelExceptionTest extends TestCase
             'exception' => SalesChannelException::languageNotFound('myCustomLanguage'),
             'statusCode' => Response::HTTP_PRECONDITION_FAILED,
             'errorCode' => SalesChannelException::LANGUAGE_NOT_FOUND,
-            'message' => 'Could not find language with id "myCustomLanguage"',
+            'message' => 'The language "myCustomLanguage" was not found.',
         ];
 
         if (!Feature::isActive('v6.6.0.0')) {

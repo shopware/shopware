@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -57,11 +56,7 @@ class ContextControllerUnitTest extends TestCase
         $notExistingLang = Uuid::randomHex();
 
         $this->expectException(RoutingException::class);
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Could not find language with id "%s"', $notExistingLang));
-        } else {
-            $this->expectExceptionMessage(sprintf('The language "%s" was not found', $notExistingLang));
-        }
+        $this->expectExceptionMessage('The language "' . $notExistingLang . '" was not found');
 
         $controller->switchLanguage(
             new Request([], ['languageId' => $notExistingLang]),

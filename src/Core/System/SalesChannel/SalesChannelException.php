@@ -102,8 +102,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::LANGUAGE_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
+            'The language "{{ languageId }}" was not found.',
+            ['languageId' => $languageId]
         );
     }
 

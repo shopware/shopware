@@ -16,6 +16,7 @@ class RoutingException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__MISSING_REQUEST_PARAMETER';
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     public const APP_INTEGRATION_NOT_FOUND = 'FRAMEWORK__APP_INTEGRATION_NOT_FOUND';
+    public const LANGUAGE_NOT_FOUND = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -42,6 +43,20 @@ class RoutingException extends HttpException
             self::MISSING_REQUEST_PARAMETER_CODE,
             'Parameter "{{ parameterName }}" is missing.',
             ['parameterName' => $name, 'path' => $path]
+        );
+    }
+
+    public static function languageNotFound(?string $languageId): self
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new LanguageNotFoundException($languageId);
+        }
+
+        return new self(
+            Response::HTTP_PRECONDITION_FAILED,
+            self::LANGUAGE_NOT_FOUND,
+            'The language "{{ languageId }}" was not found.',
+            ['languageId' => $languageId]
         );
     }
 

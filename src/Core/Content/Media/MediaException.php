@@ -28,6 +28,7 @@ class MediaException extends HttpException
 {
     public const MEDIA_INVALID_CONTENT_LENGTH = 'CONTENT__MEDIA_INVALID_CONTENT_LENGTH';
     public const MEDIA_INVALID_URL = 'CONTENT__MEDIA_INVALID_URL';
+    public const MEDIA_INVALID_URL_GENERATOR_PARAMETER = 'CONTENT__MEDIA_INVALID_URL_GENERATOR_PARAMETER';
     public const MEDIA_ILLEGAL_URL = 'CONTENT__MEDIA_ILLEGAL_URL';
     public const MEDIA_DISABLE_URL_UPLOAD_FEATURE = 'CONTENT__MEDIA_DISABLE_URL_UPLOAD_FEATURE';
     public const MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ = 'CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_READ';
@@ -465,6 +466,16 @@ class MediaException extends HttpException
             self::MEDIA_FILE_NOT_FOUND,
             'The file "{{ path }}" does not exist',
             ['path' => $path]
+        );
+    }
+
+    public static function invalidUrlGeneratorParameter(string|int $key): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_INVALID_URL,
+            'The url generator parameter "{{ key }}" is invalid.',
+            ['key' => $key]
         );
     }
 }

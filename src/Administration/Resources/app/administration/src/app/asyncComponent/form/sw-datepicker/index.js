@@ -112,6 +112,9 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed, use `this.$refs.flatpickrInput` instead.
+         */
         flatpickrInputRef() {
             return this.$refs.flatpickrInput;
         },
@@ -403,7 +406,7 @@ export default {
             });
 
             // Init flatpickr only if it is not already loaded.
-            this.flatpickrInstance = new Flatpickr(this.flatpickrInputRef, mergedConfig);
+            this.flatpickrInstance = new Flatpickr(this.$refs.flatpickrInput, mergedConfig);
             this.flatpickrInstance.config.onOpen.push(() => {
                 this.isDatepickerOpen = true;
             });

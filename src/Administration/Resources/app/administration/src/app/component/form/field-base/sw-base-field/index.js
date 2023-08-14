@@ -141,4 +141,8 @@ Component.register('sw-base-field', {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
     },
+
+    mounted() {
+        this.$emit('base-field-mounted');
+    },
 });

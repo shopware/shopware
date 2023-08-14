@@ -19,6 +19,8 @@ class MediaThumbnailEntity extends Entity
      */
     protected $width;
 
+    protected ?string $path = null;
+
     /**
      * @var int
      */
@@ -94,5 +96,15 @@ class MediaThumbnailEntity extends Entity
         $identifier = sprintf('%dx%d', $this->getWidth(), $this->getHeight());
 
         return $identifier;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path ?? '';
+    }
+
+    public function setPath(?string $path): void
+    {
+        $this->path = $path;
     }
 }

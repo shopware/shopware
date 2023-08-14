@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('buyers-experience')]
@@ -49,6 +50,10 @@ class FileLoader
     private function getFilePath(MediaEntity $media): string
     {
         $this->fileNameValidator->validateFileName($media->getFileName() ?: '');
+
+        if (Feature::isActive('v6.6.0.0')) {
+            return $media->getPath();
+        }
 
         return $this->urlGenerator->getRelativeMediaUrl($media);
     }

@@ -36,7 +36,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_detail_actions_save %}
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-language-detail__save-action"
             :is-loading="isLoading"
@@ -78,9 +82,12 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="language.name"
+                            {% else %}
                             v-model="language.name"
-                            type="text"
+                            {% endif %}
                             :disabled="!acl.can('language.editor')"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
@@ -94,7 +101,11 @@
                         {% block sw_settings_language_detail_content_field_localeId %}
                         <sw-entity-single-select
                             id="locales"
+                            {% if VUE3 %}
+                            v-model:value="language.localeId"
+                            {% else %}
                             v-model="language.localeId"
+                            {% endif %}
                             required
                             show-clearable-button
                             class="sw-settings-language-detail__select-locale"
@@ -124,7 +135,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_iso_code %}
                         <sw-inherit-wrapper
+                            {% if VUE3 %}
+                            v-model:value="language.translationCodeId"
+                            {% else %}
                             v-model="language.translationCodeId"
+                            {% endif %}
                             :inherited-value="parentTranslationCodeId"
                             :label="$tc('sw-settings-language.detail.labelIsoCode')"
                             :required="isIsoCodeRequired"
@@ -175,7 +190,11 @@
                         {% block sw_settings_language_detail_content_field_parentId %}
                         <sw-entity-single-select
                             id="inherit"
+                            {% if VUE3 %}
+                            v-model:value="language.parentId"
+                            {% else %}
                             v-model="language.parentId"
+                            {% endif %}
                             class="sw-settings-language-detail__select-parent"
                             :criteria="parentLanguageCriteria"
                             :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"

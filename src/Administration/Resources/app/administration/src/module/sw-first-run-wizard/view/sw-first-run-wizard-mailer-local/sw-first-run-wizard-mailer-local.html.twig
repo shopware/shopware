@@ -6,9 +6,12 @@
     <h2>{{ $tc('sw-first-run-wizard.mailerLocal.headline') }}</h2>
 
     <div class="sw-settings-mailer-local">
-        <sw-field
+        <sw-radio-field
+            {% if VUE3 %}
+            v-model:value="mailerSettings['core.mailerSettings.sendMailOptions']"
+            {% else %}
             v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
-            type="radio"
+            {% endif %}
             :options="emailSendmailOptions"
         />
     </div>

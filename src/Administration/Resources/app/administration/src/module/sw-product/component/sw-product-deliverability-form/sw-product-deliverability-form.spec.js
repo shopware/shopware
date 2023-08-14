@@ -78,7 +78,8 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-field': {
+                'sw-switch-field': true,
+                'sw-number-field': {
                     template: '<input class="sw-field">',
                 },
                 'sw-entity-single-select': true,

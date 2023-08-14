@@ -73,14 +73,17 @@
         v-if="steps.length > 1"
         class="sw-pagination__per-page"
     >
-        <sw-field
-            type="select"
+        <sw-select-field
             size="small"
             name="perPage"
             :label="$tc('global.sw-pagination.labelItemsPerPage')"
             :value="String(perPage)"
             aside
+            {% if VUE3 %}
+            @update:value="onPageSizeChange"
+            {% else %}
             @change="onPageSizeChange"
+            {% endif %}
         >
             <option
                 v-for="step in possibleSteps"
@@ -89,7 +92,7 @@
             >
                 {{ step }}
             </option>
-        </sw-field>
+        </sw-select-field>
     </div>
     {% endblock %}
 </div>

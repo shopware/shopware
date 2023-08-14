@@ -145,7 +145,11 @@
         <sw-inherit-wrapper
             v-show="showProductCard('media')"
             ref="productMediaInheritance"
+            {% if VUE3 %}
+            v-model:value="product.media"
+            {% else %}
             v-model="product.media"
+            {% endif %}
             class="sw-product-detail-base__media"
             :inherited-value="parentProduct.media"
             :custom-restore-inheritance-function="mediaRestoreInheritanceFunction"

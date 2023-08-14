@@ -17,7 +17,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_my_extensions_listing_controls_sorting_select %}
     <sw-select-field
+        {% if VUE3 %}
+        v-model:value="selectedSortingOption"
+        {% else %}
         v-model="selectedSortingOption"
+        {% endif %}
         class="sw-extension-my-extensions-listing-controls__sorting-dropdown"
         size="small"
     >

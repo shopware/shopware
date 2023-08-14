@@ -20,7 +20,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_media_item_name_container %}
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
-        <sw-field
+        <sw-text-field
             v-if="isInlineEdit"
             v-autofocus
             class="sw-media-base-item__name-field"

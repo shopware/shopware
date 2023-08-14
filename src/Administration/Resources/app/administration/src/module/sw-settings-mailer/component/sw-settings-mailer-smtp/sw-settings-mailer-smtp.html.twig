@@ -3,9 +3,12 @@
 <div class="sw-settings-mailer-smtp">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_host %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.host']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.host']"
-        type="text"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.host')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
         :error="hostError"
@@ -16,23 +19,33 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_port %}
-    <sw-field
+    <sw-number-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.port']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.port']"
-        type="number"
+        {% endif %}
         :max="65536"
         :label="$tc('sw-settings-mailer.card-smtp.port')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
         :error="portError"
         required
+        {% if VUE3 %}
+        @update:value="$emit('port-changed')"
+        {% else %}
         @change="$emit('port-changed')"
+        {% endif %}
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_username %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.username']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.username']"
-        type="text"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.username')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.username-placeholder')"
     />
@@ -40,9 +53,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_password %}
-    <sw-field
+    <sw-password-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.password']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.password']"
-        type="password"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.password')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
     />
@@ -51,7 +67,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_encryption %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.encryption']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.encryption']"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.encryption')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.encryption-placeholder')"
         :options="encryptionOptions"
@@ -61,9 +81,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_sender_address %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.senderAddress']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.senderAddress']"
-        type="text"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.sender-address')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.sender-address-placeholder')"
         validation="email"
@@ -72,9 +95,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_delivery_address %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="mailerSettings['core.mailerSettings.deliveryAddress']"
+        {% else %}
         v-model="mailerSettings['core.mailerSettings.deliveryAddress']"
-        type="text"
+        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.delivery-address')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.delivery-address-placeholder')"
         :help-text="$tc('sw-settings-mailer.card-smtp.delivery-address-helptext')"

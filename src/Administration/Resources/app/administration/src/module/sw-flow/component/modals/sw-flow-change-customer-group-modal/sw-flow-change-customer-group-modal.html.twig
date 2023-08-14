@@ -9,7 +9,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_change_customer_group_modal_select %}
     <sw-entity-single-select
+        {% if VUE3 %}
+        v-model:value="customerGroupId"
+        {% else %}
         v-model="customerGroupId"
+        {% endif %}
         required
         class="sw-flow-change-customer-group-modal__type-select"
         entity="customer_group"

@@ -135,7 +135,11 @@
                             variant="ghost"
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
+                            {% if VUE3 %}
+                            @update:processSuccess="resetButtons"
+                            {% else %}
                             @process-finish="resetButtons"
+                            {% endif %}
                             @click="clearCache"
                         >
                             {{ $tc('sw-settings-cache.section.clearCachesButton') }}
@@ -174,7 +178,11 @@
                             variant="ghost"
                             :is-loading="processes.clearAndWarmUpCache"
                             :process-success="processSuccess.clearAndWarmUpCache"
+                            {% if VUE3 %}
+                            @update:processSuccess="resetButtons"
+                            {% else %}
                             @process-finish="resetButtons"
+                            {% endif %}
                             @click="clearAndWarmUpCache"
                         >
                             {{ $tc('sw-settings-cache.section.clearAndWarmUpButton') }}
@@ -213,7 +221,11 @@
                             variant="ghost"
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
+                            {% if VUE3 %}
+                            @update:processSuccess="resetButtons"
+                            {% else %}
                             @process-finish="resetButtons"
+                            {% endif %}
                             @click="updateIndexes"
                         >
                             {{ $tc('sw-settings-cache.section.indexesButton') }}

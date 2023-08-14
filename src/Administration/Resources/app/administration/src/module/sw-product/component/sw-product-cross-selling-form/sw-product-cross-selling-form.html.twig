@@ -38,7 +38,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_title_field %}
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.name"
+                    {% else %}
                     v-model="crossSelling.name"
+                    {% endif %}
                     {% if VUE3 %}
                     name="sw-field--crossSelling-name"
                     {% endif %}
@@ -51,13 +55,12 @@
                 {% endblock %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_active_field %}
-                <sw-field
+                <sw-switch-field
                     {% if VUE3 %}
                     v-model:value="crossSelling.active"
                     {% else %}
                     v-model="crossSelling.active"
                     {% endif %}
-                    type="switch"
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
@@ -75,11 +78,19 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_type %}
                 <sw-select-field
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.type"
+                    {% else %}
                     v-model="crossSelling.type"
+                    {% endif %}
                     :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                     :error="crossSellingTypeError"
                     :disabled="!allowEdit"
+                    {% if VUE3 %}
+                    @update:value="onTypeChanged"
+                    {% else %}
                     @change="onTypeChanged"
+                    {% endif %}
                 >
                     <option
                         v-for="option in crossSellingTypes"
@@ -93,7 +104,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prduct_cross_selling_form_position_field %}
                 <sw-number-field
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.position"
+                    {% else %}
                     v-model="crossSelling.position"
+                    {% endif %}
                     number-type="int"
                     :min="1"
                     :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
@@ -112,7 +127,11 @@
                     {% if VUE3 %}
                     v-model:value="crossSelling.productStreamId"
                     {% else %}
+                    {% if VUE3 %}
+                    v-model:value="crossSelling.productStreamId"
+                    {% else %}
                     v-model="crossSelling.productStreamId"
+                    {% endif %}
                     {% endif %}
                     entity="product_stream"
                     class="sw-select-cross-selling__select-product-stream"
@@ -133,7 +152,11 @@
                         :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
                         :value="sortingConCat"
                         :disabled="!allowEdit"
+                        {% if VUE3 %}
+                        @update:value="onSortingChanged"
+                        {% else %}
                         @change="onSortingChanged"
+                        {% endif %}
                     >
                         <option
                             v-for="option in sortingTypes"
@@ -148,7 +171,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_prduct_cross_selling_form_limit_field %}
                     <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="crossSelling.limit"
+                        {% else %}
                         v-model="crossSelling.limit"
+                        {% endif %}
                         number-type="int"
                         :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
                         :disabled="!allowEdit"

@@ -7,9 +7,12 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_detail_base_technical_name %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="set.name"
+        {% else %}
         v-model="set.name"
-        type="text"
+        {% endif %}
         class="sw-settings-custom-field-set-detail-base__technical-name"
         :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
         :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -22,9 +25,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_detail_base_position %}
-    <sw-field
+    <sw-number-field
+        {% if VUE3 %}
+        v-model:value="set.position"
+        {% else %}
         v-model="set.position"
-        type="number"
+        {% endif %}
         class="sw-settings-custom-field-set-detail-base__base-postion"
         :disabled="!acl.can('custom_field.editor')"
         :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
@@ -33,10 +39,13 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_custom_field_set_detail_base_translated %}
-    <sw-field
+    <sw-switch-field
         v-if="set.config"
+        {% if VUE3 %}
+        v-model:value="set.config.translated"
+        {% else %}
         v-model="set.config.translated"
-        type="switch"
+        {% endif %}
         class="sw-settings-custom-field-set-detail-base__base-translation"
         :disabled="!acl.can('custom_field.editor')"
         :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"

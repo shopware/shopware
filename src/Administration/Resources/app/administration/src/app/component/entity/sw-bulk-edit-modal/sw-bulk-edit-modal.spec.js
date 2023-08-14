@@ -61,7 +61,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             },
             'sw-icon': true,
             'sw-button': true,
-            'sw-field': true,
+            'sw-select-field': true,
         };
     });
 

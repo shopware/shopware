@@ -12,7 +12,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_to_field %}
         <sw-single-select
+            {% if VUE3 %}
+            v-model:value="entity"
+            {% else %}
             v-model="entity"
+            {% endif %}
             class="sw-flow-tag-modal__to-field"
             required
             show-clearable-button

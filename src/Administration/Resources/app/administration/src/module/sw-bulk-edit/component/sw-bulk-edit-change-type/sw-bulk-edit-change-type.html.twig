@@ -4,10 +4,18 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_change_type_select_field %}
     <sw-single-select
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
         class="sw-bulk-edit-change-type__selection"
         :options="options"
+        {% if VUE3 %}
+        @update:value="onChangeType"
+        {% else %}
         @change="onChangeType"
+        {% endif %}
     />
     {% endblock %}
 

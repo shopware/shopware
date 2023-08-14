@@ -11,7 +11,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_url_form_input %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="url"
+        {% else %}
         v-model="url"
+        {% endif %}
         class="sw-media-url-form__url-input"
         label="URL"
         :error="invalidUrlError"
@@ -20,7 +24,11 @@
 
     <sw-text-field
         v-if="missingFileExtension"
+        {% if VUE3 %}
+        v-model:value="extensionFromInput"
+        {% else %}
         v-model="extensionFromInput"
+        {% endif %}
         class="sw-media-url-form__extension-input"
         :label="$tc('global.sw-media-url-form.labelFileExtension')"
         validation="required"
@@ -63,7 +71,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_url_form_input_inline %}
     <sw-text-field
+        {% if VUE3 %}
+        v-model:value="url"
+        {% else %}
         v-model="url"
+        {% endif %}
         class="sw-media-url-form__url-input"
         label="URL"
         :error="invalidUrlError"
@@ -72,7 +84,11 @@
 
     <sw-text-field
         v-if="missingFileExtension"
+        {% if VUE3 %}
+        v-model:value="extensionFromInput"
+        {% else %}
         v-model="extensionFromInput"
+        {% endif %}
         class="sw-media-url-form__extension-input"
         :label="$tc('global.sw-media-url-form.labelFileExtension')"
         validation="required"

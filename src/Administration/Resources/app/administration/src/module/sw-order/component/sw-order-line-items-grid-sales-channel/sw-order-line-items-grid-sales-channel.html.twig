@@ -200,7 +200,11 @@
                 size="small"
                 :min="getMinItemPrice(item)"
                 :value="item.priceDefinition.price"
+                {% if VUE3 %}
+                @update:value="checkItemPrice($event, item)"
+                {% else %}
                 @change="checkItemPrice($event, item)"
+                {% endif %}
             />
             {% endblock %}
 
@@ -237,7 +241,11 @@
                 size="small"
                 placeholder="0"
                 :value="item.quantity"
+                {% if VUE3 %}
+                @update:value="changeItemQuantity($event, item)"
+                {% else %}
                 @change="changeItemQuantity($event, item)"
+                {% endif %}
             />
             {% endblock %}
 
@@ -265,7 +273,11 @@
                     item.priceDefinition.taxRules &&
                     !isCreditItem(item)"
                 key="order-line-item-tax-edit-default"
+                {% if VUE3 %}
+                v-model:value="item.priceDefinition.taxRules[0].taxRate"
+                {% else %}
                 v-model="item.priceDefinition.taxRules[0].taxRate"
+                {% endif %}
                 size="small"
                 placeholder="0"
                 :min="0"

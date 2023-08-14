@@ -74,6 +74,10 @@ class EntityIndexerRegistry
     public function index(bool $useQueue, array $skip = [], array $only = []): void
     {
         foreach ($this->indexer as $indexer) {
+            // one time indexer are only for update case, they get scheduled after the update were done and the message are send over the: RegisteredIndexerSubscriber::runRegisteredIndexers
+            if ($indexer instanceof PostUpdateIndexer) {
+                continue;
+            }
             if (\in_array($indexer->getName(), $skip, true)) {
                 continue;
             }
@@ -123,6 +127,10 @@ class EntityIndexerRegistry
         $useQueue = $this->useQueue($context);
 
         foreach ($this->indexer as $indexer) {
+            if ($indexer instanceof PostUpdateIndexer) {
+                continue;
+            }
+
             $message = $indexer->update($event);
 
             if (!$message) {
@@ -153,7 +161,7 @@ class EntityIndexerRegistry
      * @param list<string> $indexer
      * @param list<string> $skip
      */
-    public function sendIndexingMessage(array $indexer = [], array $skip = []): void
+    public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
         if (empty($indexer)) {
             $indexer = [];
@@ -167,6 +175,12 @@ class EntityIndexerRegistry
         }
 
         foreach ($indexer as $name) {
+            $instance = $this->getIndexer($name);
+
+            // skip "one-time" indexer which should only be triggered after an update
+            if (!$postUpdate && $instance instanceof PostUpdateIndexer) {
+                continue;
+            }
             if (\in_array($name, $skip, true)) {
                 continue;
             }

@@ -9,6 +9,7 @@ use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -34,7 +35,8 @@ class DownloadResponseGenerator
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly MediaService $mediaService,
-        private readonly string $localPrivateDownloadStrategy
+        private readonly string $localPrivateDownloadStrategy,
+        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
     ) {
     }
 
@@ -44,7 +46,12 @@ class DownloadResponseGenerator
         string $expiration = '+120 minutes'
     ): Response {
         $fileSystem = $this->getFileSystem($media);
-        $path = $this->urlGenerator->getRelativeMediaUrl($media);
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $path = $media->getPath();
+        } else {
+            $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        }
 
         try {
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
@@ -59,12 +66,21 @@ class DownloadResponseGenerator
     private function getDefaultResponse(MediaEntity $media, SalesChannelContext $context, FilesystemOperator $fileSystem): Response
     {
         if (!$media->isPrivate()) {
-            return new RedirectResponse($this->urlGenerator->getAbsoluteMediaUrl($media));
+            $params = ['path' => $media->getPath(), 'updatedAt' => $media->getUpdatedAt()];
+
+            $url = $this->mediaUrlGenerator->generate([$params]);
+
+            return new RedirectResponse($url[0]);
         }
 
         switch ($this->localPrivateDownloadStrategy) {
             case self::X_SENDFILE_DOWNLOAD_STRATEGRY:
-                $location = $this->urlGenerator->getRelativeMediaUrl($media);
+                if (Feature::isActive('v6.6.0.0')) {
+                    $location = $media->getPath();
+                } else {
+                    $location = $this->urlGenerator->getRelativeMediaUrl($media);
+                }
+
                 $stream = $fileSystem->readStream($location);
                 $location = \is_resource($stream) ? stream_get_meta_data($stream)['uri'] : $location;
 
@@ -73,7 +89,11 @@ class DownloadResponseGenerator
 
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGRY:
-                $location = $this->urlGenerator->getRelativeMediaUrl($media);
+                if (Feature::isActive('v6.6.0.0')) {
+                    $location = $media->getPath();
+                } else {
+                    $location = $this->urlGenerator->getRelativeMediaUrl($media);
+                }
 
                 $response = new Response(null, 200, $this->getStreamHeaders($media));
                 $response->headers->set('X-Accel-Redirect', $location);

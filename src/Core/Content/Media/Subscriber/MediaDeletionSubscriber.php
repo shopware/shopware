@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -129,9 +130,17 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
 
             if ($mediaEntity->isPrivate()) {
-                $privatePaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+                if (Feature::isActive('v6.6.0.0')) {
+                    $privatePaths[] = $mediaEntity->getPath();
+                } else {
+                    $privatePaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+                }
             } else {
-                $publicPaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+                if (Feature::isActive('v6.6.0.0')) {
+                    $publicPaths[] = $mediaEntity->getPath();
+                } else {
+                    $publicPaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+                }
             }
 
             if (!$mediaEntity->getThumbnails()) {

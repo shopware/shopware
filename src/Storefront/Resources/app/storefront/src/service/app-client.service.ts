@@ -38,7 +38,6 @@ export default class AppClientService {
         window.sessionStorage.removeItem(this.getStorageKey());
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     private getStorageKey() {
         return `app-system.${this.name}`;

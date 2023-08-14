@@ -110,7 +110,6 @@
                             {% else %}
                             v-model.trim="user.email"
                             {% endif %}
-                            name="sw-field--user-email"
                             class="sw-settings-user-detail__grid-eMail"
                             :error-message="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
                             :error="userEmailError"

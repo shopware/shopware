@@ -416,11 +416,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Rule/CartVolumeRule.php
 
 		-
-			message: "#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemCustomFieldRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\AbstractCartItemAddRoute\\:\\:add\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/SalesChannel/AbstractCartItemAddRoute.php
@@ -661,22 +656,7 @@ parameters:
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Event\\\\DocumentTemplateRendererParameterEvent\\:\\:addArrayExtension\\(\\) has parameter \\$extension with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Event\\\\DocumentTemplateRendererParameterEvent\\:\\:getParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Event\\\\DocumentTemplateRendererParameterEvent\\:\\:setExtensions\\(\\) has parameter \\$extensions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
-
-		-
-			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
 
@@ -819,21 +799,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Aggregate\\\\PaymentMethodTranslation\\\\PaymentMethodTranslationCollection\\:\\:getPaymentMethodIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Aggregate/PaymentMethodTranslation/PaymentMethodTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\SyncPaymentTransactionStruct\\:\\:addArrayExtension\\(\\) has parameter \\$extension with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/SyncPaymentTransactionStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\SyncPaymentTransactionStruct\\:\\:setExtensions\\(\\) has parameter \\$extensions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/SyncPaymentTransactionStruct.php
-
-		-
-			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/SyncPaymentTransactionStruct.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentDistinguishableNameGenerator\\:\\:generateDistinguishableNamesPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -6706,31 +6671,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/IndexingController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:convert\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:convert\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:convertExceptionToError\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:getErrorsFromException\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ErrorResponseFactory\\:\\:getHeadersFromException\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ErrorResponseFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Exception\\\\IncompletePrimaryKeyException\\:\\:__construct\\(\\) has parameter \\$primaryKeyFields with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Exception/IncompletePrimaryKeyException.php
@@ -7939,36 +7879,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:retryable\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:filterInvisibleFields\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:filterInvisibleFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getTranslated\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getVars\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:setTranslated\\(\\) has parameter \\$translated with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:\\$translated type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -9581,21 +9491,6 @@ parameters:
 			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
 
 		-
-			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
-			count: 3
-			path: src/Core/Framework/Plugin/PluginExtractor.php
-
-		-
-			message: "#^Strict comparison using \\!\\=\\= between non\\-empty\\-string and '' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginExtractor.php
-
-		-
-			message: "#^PHPDoc tag @var with type string is not subtype of native type non\\-empty\\-string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginManagementService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\VersionSanitizer\\:\\:sanitizePluginVersion\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/VersionSanitizer.php
@@ -9989,26 +9884,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructDecoder\\:\\:format\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:addArrayExtension\\(\\) has parameter \\$extension with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:getVars\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:setExtensions\\(\\) has parameter \\$extensions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
-
-		-
-			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -10749,26 +10624,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\CustomFieldTest\\:\\:addCustomFields\\(\\) has parameter \\$attributeTypes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
-			message: "#^Cannot call method getTranslated\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\CustomFieldTranslationTest\\:\\:addCustomFields\\(\\) has parameter \\$attributeTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CustomFieldTranslationTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -11626,11 +11481,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/PluginAclTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginExtractorTest\\:\\:\\$container \\(Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginCollection\\) does not accept Symfony\\\\Component\\\\DependencyInjection\\\\ContainerInterface\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginExtractorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginFromFileSystemStructTest\\:\\:dataProviderTestGetName\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/PluginFromFileSystemStructTest.php
@@ -11856,26 +11706,6 @@ parameters:
 			path: src/Core/Framework/Test/Rule/TimeRangeRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\FunctionWillBeRequiredTestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/FunctionWillBeRequiredTestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\SalesChannelTestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/SalesChannelTestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\SalesChannelTestHook\\:\\:getServiceIds\\(\\) should return list\\<class\\-string\\<object\\>\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/SalesChannelTestHook.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\SalesChannelTestHook\\:\\:\\$serviceIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/SalesChannelTestHook.php
-
-		-
 			message: "#^Call to an undefined method DateTimeInterface\\:\\:add\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
@@ -11889,31 +11719,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$script of class Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Script constructor expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/TestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:__construct\\(\\) has parameter \\$deprecatedServices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/TestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:getServiceIds\\(\\) should return list\\<class\\-string\\<object\\>\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/TestHook.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:\\$deprecatedServices type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/TestHook.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:\\$serviceIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/TestHook.php
 
 		-
 			message: "#^Cannot assign new offset to Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\.$#"
@@ -13181,11 +12986,6 @@ parameters:
 			path: src/Core/System/SalesChannel/StoreApiCustomFieldMapper.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse\\:\\:getVars\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/StoreApiResponse.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Command\\\\ValidateSnippetsCommand\\:\\:hydrateMissingSnippets\\(\\) has parameter \\$missingSnippetsArray with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/Command/ValidateSnippetsCommand.php
@@ -13731,21 +13531,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Test/CustomEntity/Api/CustomEntityApiControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Field\\\\\\\\Field' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 10
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:transactional\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
 
 		-
 			message: "#^Cannot call method getAdmin\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

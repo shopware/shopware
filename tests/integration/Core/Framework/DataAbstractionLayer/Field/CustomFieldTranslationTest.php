@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -10,12 +10,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -104,8 +106,8 @@ class CustomFieldTranslationTest extends TestCase
 
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        /** @var Entity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
 
         static::assertNull($result->get('customTranslated'));
         static::assertNotNull($result->getTranslation('customTranslated'));
@@ -165,13 +167,15 @@ class CustomFieldTranslationTest extends TestCase
         $result = $repo->create([$entity], $context);
 
         $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(1, $event->getIds());
 
         $event = $result->getEventByEntityName(CustomFieldTestTranslationDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(4, $event->getIds());
 
-        /** @var Entity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
         $expected = ['code' => 'en-GB', 'system' => 'system'];
         static::assertEquals($expected, $result->getTranslated()['customTranslated']);
 
@@ -181,6 +185,7 @@ class CustomFieldTranslationTest extends TestCase
         $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['de' => 'de', 'code' => 'de-DE'];
         static::assertEquals($expected, $result->get('customTranslated'));
@@ -190,7 +195,9 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['code' => 'root', 'root' => 'root'];
         static::assertEquals($expected, $result->get('customTranslated'));
@@ -199,7 +206,10 @@ class CustomFieldTranslationTest extends TestCase
 
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+
         $result = $repo->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(Entity::class, $result);
+
         $expected = ['code' => 'child', 'child' => 'child'];
         static::assertEquals($expected, $result->get('customTranslated'));
         $expectedViewData = ['code' => 'child', 'system' => 'system', 'root' => 'root', 'child' => 'child'];
@@ -259,8 +269,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertSame(1.0, $first->getTranslated()['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $first->getTranslated()['customTranslated']);
         static::assertArrayNotHasKey('child', $first->getTranslated()['customTranslated']);
@@ -300,8 +310,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->getTranslated()['customTranslated']);
         static::assertTrue($first->getTranslated()['customTranslated']['root']);
         static::assertArrayNotHasKey('child', $first->getTranslated()['customTranslated']);
@@ -341,8 +351,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->get('customTranslated'));
         static::assertArrayNotHasKey('root', $first->get('customTranslated'));
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['child']);
@@ -426,8 +436,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertSame(1.0, $first->getTranslated()['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $first->getTranslated()['customTranslated']);
         static::assertArrayNotHasKey('sub', $first->getTranslated()['customTranslated']);
@@ -477,8 +487,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->getTranslated()['customTranslated']);
         static::assertTrue($first->getTranslated()['customTranslated']['root']);
         static::assertArrayNotHasKey('sub', $first->getTranslated()['customTranslated']);
@@ -528,8 +538,8 @@ class CustomFieldTranslationTest extends TestCase
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
-        /** @var Entity $first */
         $first = $result->first();
+        static::assertInstanceOf(Entity::class, $first);
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['sub']);
         static::assertSame(3, $first->get('customTranslated')['int']);
 
@@ -582,6 +592,9 @@ class CustomFieldTranslationTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, string> $attributeTypes
+     */
     private function addCustomFields(array $attributeTypes): void
     {
         $attributeRepo = $this->getContainer()->get('custom_field.repository');

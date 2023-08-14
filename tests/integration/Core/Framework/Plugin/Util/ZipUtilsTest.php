@@ -30,7 +30,7 @@ class ZipUtilsTest extends TestCase
     public function testArchiveIsReturnedForValidZip(): void
     {
         $archive = ZipUtils::openZip(
-            __DIR__ . '/../../../../../../../src/Core/Framework/Test/Plugin/_fixture/archives/App.zip'
+            __DIR__ . '/../../../../../../src/Core/Framework/Test/Plugin/_fixture/archives/App.zip'
         );
 
         try {

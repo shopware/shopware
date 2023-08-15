@@ -29,6 +29,7 @@ class Migration1692279790AppShippingMethod extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
+        // implement update destructive
     }
 
     private function addAppShippingMethodTable(Connection $connection): void

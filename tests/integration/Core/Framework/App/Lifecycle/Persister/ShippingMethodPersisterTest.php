@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,18 +30,11 @@ class ShippingMethodPersisterTest extends TestCase
 
     private const APP_NAME = 'test';
     private const APP_PATH = __DIR__ . '/../_fixtures/shippingMethodBase/test';
-    private const ACTIVE_FLAG_APP_PATH = __DIR__ . '/../_fixtures/ShippingMethodActiveFlag/test';
-    private const MANIFEST_UPDATE = __DIR__ . '/../_fixtures/shippingMethodUpdate/test/manifest.xml';
+    private const MANIFEST_UPDATE_NAME = __DIR__ . '/../_fixtures/shippingMethodUpdateName/test/manifest.xml';
     private const MANIFEST_UPDATE_IDENTIFIER = __DIR__ . '/../_fixtures/shippingMethodUpdateIdentifier/test/manifest.xml';
-    private const IDENTIFIER_FIRST_METHOD = 'swagFirstShippingMethod';
-    private const IDENTIFIER_SECOND_METHOD = 'swagSecondShippingMethod';
-    private const IDENTIFIER_SECOND_METHOD_UPDATED = 'swagUpdatedShippingMethod';
-    private const INITIAL_METHOD_NAME = 'first Shipping Method';
-    private const INITIAL_METHOD_DESCRIPTION = 'This is a simple description';
-    private const INITIAL_TECHNICAL_NAME = 'shipping_test_swagFirstShippingMethod';
-    private const DELIVERY_TIME_ID_INITIAL = '4b00146bdc8b4175b12d3fc36ec114c8';
-    private const TRACKING_URL_UPDATED = 'https://www.mytrackingurl.com/updated-by-manifest';
-    private const POSITION_INITIAL = 3;
+    private const IDENTIFIER = 'swagSecondShippingMethod';
+    private const IDENTIFIER_UPDATED = 'swagUpdatedShippingMethod';
+    private const METHOD_NAME = 'updated Shipping Method Name';
 
     private Connection $connection;
 
@@ -51,54 +43,39 @@ class ShippingMethodPersisterTest extends TestCase
         $this->connection = self::getContainer()->get(Connection::class);
     }
 
-    public function testUpdateShippingMethodsAmountShallNotChangeAfterUpdate(): void
+    public function testUpdateShippingMethodsChangeNameShallOnlyChangeName(): void
     {
         $this->installApp(self::APP_PATH);
 
-        $expectedShippingMethodCountBeforeUpdate = 4;
-        $expectedAppShippingMethodCountBeforeUpdate = 2;
-        $expectedShippingMethodCountAfterUpdate = 4;
-        $expectedAppShippingMethodCountAfterUpdate = 2;
+        $sql = 'SELECT count(*) from `shipping_method`';
+        $numberOfShippingMethods = $this->connection->fetchOne($sql);
+        $sql = 'SELECT count(*) from `app_shipping_method`';
+        $numberOfAppShippingMethods = $this->connection->fetchOne($sql);
 
-        $numberOfShippingMethods = $this->getNumberOfShippingMethods();
-        static::assertSame($expectedShippingMethodCountBeforeUpdate, $numberOfShippingMethods, 'Number of expected shipping methods before update does not match');
-        $numberOfAppShippingMethods = $this->getNumberOfShippingMethods(true);
-        static::assertSame($expectedAppShippingMethodCountBeforeUpdate, $numberOfAppShippingMethods, 'Number of expected app shipping methods before update does not match');
+        $sql = 'SELECT id from `app` where name ="' . self::APP_NAME . '";';
+        $appUuid = $this->connection->fetchOne($sql);
+        $appId = Uuid::fromBytesToHex($appUuid);
 
-        $this->updateApp($this->getAppId(), self::MANIFEST_UPDATE);
+        $this->updateApp($appId, self::MANIFEST_UPDATE_NAME);
 
-        $numberOfShippingMethodsAfterUpdate = $this->getNumberOfShippingMethods();
-        static::assertSame($expectedShippingMethodCountAfterUpdate, $numberOfShippingMethodsAfterUpdate, 'Number of expected shipping methods after update does not match');
-        $numberOfAppShippingMethodsAfterUpdate = $this->getNumberOfShippingMethods(true);
-        static::assertSame($expectedAppShippingMethodCountAfterUpdate, $numberOfAppShippingMethodsAfterUpdate, 'Number of expected app shipping methods after update does not match');
+        $sql = 'SELECT count(*) from `shipping_method`';
+        $numberOfShippingMethodsAfterUpdate = $this->connection->fetchOne($sql);
+        static::assertSame($numberOfShippingMethods, $numberOfShippingMethodsAfterUpdate);
 
-        $this->removeApp(self::APP_PATH);
-    }
+        $sql = 'SELECT count(*) from `app_shipping_method`';
+        $numberOfAppShippingMethodsAfterUpdate = $this->connection->fetchOne($sql);
+        static::assertSame($numberOfAppShippingMethods, $numberOfAppShippingMethodsAfterUpdate);
 
-    public function testUpdateShippingMethodsShallNotUpdatePropertiesThatCanBeChangedByMerchant(): void
-    {
-        $this->installApp(self::APP_PATH);
-
-        $appShippingMethods = $this->getApp()->getAppShippingMethods();
+        $updatedApp = $this->getApp();
+        $appShippingMethods = $updatedApp->getAppShippingMethods();
         static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-        $shippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER_FIRST_METHOD)->first()?->getShippingMethod();
+        static::assertCount(2, $appShippingMethods);
+
+        $updatedAppShippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER)->first();
+        static::assertInstanceOf(AppShippingMethodEntity::class, $updatedAppShippingMethod);
+        $shippingMethod = $updatedAppShippingMethod->getShippingMethod();
         static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
-        $mediaId = $shippingMethod->getMediaId();
-
-        $this->updateApp($this->getAppId(), self::MANIFEST_UPDATE);
-
-        $updatedAppShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $updatedAppShippingMethods);
-        $updatedShippingMethod = $updatedAppShippingMethods->filterByProperty('identifier', self::IDENTIFIER_FIRST_METHOD)->first()?->getShippingMethod();
-        static::assertInstanceOf(ShippingMethodEntity::class, $updatedShippingMethod);
-
-        static::assertSame(self::INITIAL_TECHNICAL_NAME, $updatedShippingMethod->getTechnicalName(), 'technicalName shall be not updatable by app but has been updated.');
-        static::assertSame(self::INITIAL_METHOD_NAME, $updatedShippingMethod->getName(), 'name shall be not updatable by app but has been updated.');
-        static::assertSame(self::INITIAL_METHOD_DESCRIPTION, $updatedShippingMethod->getDescription(), 'description shall be not updatable by app but has been updated.');
-        static::assertSame(self::DELIVERY_TIME_ID_INITIAL, $updatedShippingMethod->getDeliveryTimeId(), 'deliveryTime shall be not updatable by app but has been updated.');
-        static::assertSame(self::POSITION_INITIAL, $updatedShippingMethod->getPosition(), 'position shall be not updatable by app but has been updated.');
-        static::assertSame(self::TRACKING_URL_UPDATED, $updatedShippingMethod->getTrackingUrl(), 'tracking-url shall be updatable by app but hasn\'t been updated.');
-        static::assertSame($mediaId, $updatedShippingMethod->getMediaId(), 'mediaId shall be not updatable by app but has been updated.');
+        static::assertSame(self::METHOD_NAME, $shippingMethod->getName());
 
         $this->removeApp(self::APP_PATH);
     }
@@ -117,7 +94,11 @@ class ShippingMethodPersisterTest extends TestCase
         $numberOfAppShippingMethods = $this->getNumberOfShippingMethods(true);
         static::assertSame($expectedAppShippingMethodCountBeforeUpdate, $numberOfAppShippingMethods, 'Number of expected app shipping methods before update does not match');
 
-        $this->updateApp($this->getAppId(), self::MANIFEST_UPDATE_IDENTIFIER);
+        $sql = 'SELECT `id` from `app` where name ="' . self::APP_NAME . '";';
+        $appUuid = $this->connection->fetchOne($sql);
+        $appId = Uuid::fromBytesToHex($appUuid);
+
+        $this->updateApp($appId, self::MANIFEST_UPDATE_IDENTIFIER);
 
         $numberOfShippingMethodsAfterUpdate = $this->getNumberOfShippingMethods();
         static::assertSame($expectedShippingMethodCountAfterUpdate, $numberOfShippingMethodsAfterUpdate, 'Number of expected shipping methods after update does not match');
@@ -130,10 +111,10 @@ class ShippingMethodPersisterTest extends TestCase
         static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
         static::assertCount($expectedAppShippingMethodCountAfterUpdate, $appShippingMethods);
 
-        $shippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER_SECOND_METHOD_UPDATED)->first();
+        $shippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER_UPDATED)->first();
         static::assertInstanceOf(AppShippingMethodEntity::class, $shippingMethod);
 
-        $deactivatedAppShippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER_SECOND_METHOD)->first();
+        $deactivatedAppShippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER)->first();
         static::assertInstanceOf(AppShippingMethodEntity::class, $deactivatedAppShippingMethod);
 
         $deactivatedShippingMethod = $deactivatedAppShippingMethod->getShippingMethod();
@@ -143,78 +124,7 @@ class ShippingMethodPersisterTest extends TestCase
         $this->removeApp(self::APP_PATH);
     }
 
-    public function testUpdateShippingMethodsShouldNotActivatedAndDeactivatedShippingMethodDuringUpdate(): void
-    {
-        $this->installApp(self::ACTIVE_FLAG_APP_PATH);
-
-        $appShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-
-        $firstShippingMethod = $appShippingMethods->filterByProperty('identifier', 'swagFirstShippingMethod')->first()?->getShippingMethod();
-        $secondShippingMethod = $appShippingMethods->filterByProperty('identifier', self::IDENTIFIER_SECOND_METHOD)->first()?->getShippingMethod();
-        static::assertInstanceOf(ShippingMethodEntity::class, $firstShippingMethod);
-        static::assertInstanceOf(ShippingMethodEntity::class, $secondShippingMethod);
-        static::assertTrue($firstShippingMethod->getActive(), 'Install: swagFirstShippingMethod is not activated');
-        static::assertFalse($secondShippingMethod->getActive(), 'Install: swagSecondShippingMethod is not deactivated');
-
-        $this->updateApp($this->getAppId(), __DIR__ . '/../_fixtures/ShippingMethodActiveFlagUpdate/test/manifest.xml');
-
-        $updatedAppShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $updatedAppShippingMethods);
-
-        $updatedFirstShippingMethod = $updatedAppShippingMethods->filterByProperty('identifier', 'swagFirstShippingMethod')->first()?->getShippingMethod();
-        $updatedSecondShippingMethod = $updatedAppShippingMethods->filterByProperty('identifier', self::IDENTIFIER_SECOND_METHOD)->first()?->getShippingMethod();
-        static::assertInstanceOf(ShippingMethodEntity::class, $updatedFirstShippingMethod);
-        static::assertInstanceOf(ShippingMethodEntity::class, $updatedSecondShippingMethod);
-        static::assertTrue($updatedFirstShippingMethod->getActive(), 'Update: swagFirstShippingMethod is activated');
-        static::assertFalse($updatedSecondShippingMethod->getActive(), 'Update: swagSecondShippingMethod is deactivated');
-
-        $this->removeApp(self::ACTIVE_FLAG_APP_PATH);
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.0.
-     */
-    public function testGetAvailabilityRuleUuidReturnsAlwaysValidRule(): void
-    {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
-
-        $this->installApp(self::APP_PATH);
-
-        $alwaysValidRule = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `name` = "Always valid (Default)"'));
-
-        $appShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-        $availabilityRuleId = $appShippingMethods->first()?->getShippingMethod()?->getAvailabilityRuleId();
-
-        static::assertSame($alwaysValidRule, $availabilityRuleId);
-
-        $this->removeApp(self::APP_PATH);
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.0.
-     */
-    public function testGetAvailabilityRuleUuidReturnsFirstRuleForShippingArea(): void
-    {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
-
-        $this->connection->update('rule', ['name' => 'Foo Bar'], ['name' => 'Always valid (Default)']);
-
-        $this->installApp(self::APP_PATH);
-
-        $ruleId = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `areas` LIKE "%shipping%" ORDER BY `id` ASC'));
-
-        $appShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-        $availabilityRuleId = $appShippingMethods->first()?->getShippingMethod()?->getAvailabilityRuleId();
-
-        static::assertSame($ruleId, $availabilityRuleId);
-
-        $this->removeApp(self::APP_PATH);
-    }
-
-    private function getNumberOfShippingMethods(bool $getAppShippingMethod = false): int
+    private function getNumberOfShippingMethods(?bool $getAppShippingMethod = false): int
     {
         $sql = 'SELECT count(*) from `shipping_method`';
 
@@ -248,22 +158,12 @@ class ShippingMethodPersisterTest extends TestCase
             $this->getContainer()->get('shipping_method.repository'),
             $this->getContainer()->get('app_shipping_method.repository'),
             $this->getContainer()->get('rule.repository'),
+            $this->getContainer()->get('delivery_time.repository'),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get(AppLoader::class),
         );
 
         $shippingMethodPersister->updateShippingMethods($manifest, $appId, Defaults::LANGUAGE_SYSTEM, Context::createDefaultContext());
-    }
-
-    private function getAppId(): string
-    {
-        $sql = 'SELECT `id` from `app` where name ="' . self::APP_NAME . '";';
-        $appUuid = $this->connection->fetchOne($sql);
-        if (!$appUuid) {
-            static::fail('Cannot find appId for app with name ' . self::APP_NAME);
-        }
-
-        return Uuid::fromBytesToHex($appUuid);
     }
 }

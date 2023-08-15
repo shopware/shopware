@@ -4,9 +4,17 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
@@ -17,6 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeCollection;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -57,8 +67,6 @@ class ShippingMethodPersisterTest extends TestCase
         $shippingMethodPersister = $this->createShippingMethodPersister([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
             'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
-            'appLoader' => $this->createMock(AppLoader::class),
-            'mediaService' => $this->createMock(MediaService::class),
         ]);
 
         $shippingMethodPersister->updateShippingMethods($manifest, self::APP_ID, self::DEFAULT_LOCALE_ID, $context);
@@ -72,25 +80,61 @@ class ShippingMethodPersisterTest extends TestCase
         $deliveryTime = new DeliveryTimeEntity();
         $deliveryTime->setId('ca565fa321ad4c87a2669161907fc4c8');
 
-        $ruleId = 'd4bdfbb82f624c7482b4c16599d31a30';
+        $rule = new RuleEntity();
+        $rule->setId('d4bdfbb82f624c7482b4c16599d31a30');
+
+        $defaultServices = array_merge([
+            'shippingMethodRepository' => $this->createShippingMethodRepositoryMock(),
+            'appShippingMethodRepository' => $this->createAppShippingMethodRepositoryMock(),
+            'ruleRepository' => $this->createRuleRepositoryMock([$rule]),
+            'deliveryTimeRepository' => $this->createDeliveryTimeRepositoryMock([$deliveryTime]),
+            'mediaRepository' => $this->createMediaRepositoryMock(),
+            'mediaService' => $this->createMediaServiceMock(),
+            'appLoader' => $this->createAppLoaderMock(),
+        ], $services);
 
         return new ShippingMethodPersister(
-            \array_key_exists('shippingMethodRepository', $services) ? $services['shippingMethodRepository'] : $this->createShippingMethodRepositoryMock(),
-            \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
-            \array_key_exists('ruleRepository', $services) ? $services['ruleRepository'] : $this->createRuleRepositoryMock([[$ruleId], [$ruleId]]),
-            \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
-            \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
-            \array_key_exists('appLoader', $services) ? $services['appLoader'] : $this->createAppLoaderMock(),
+            $defaultServices['shippingMethodRepository'],
+            $defaultServices['appShippingMethodRepository'],
+            $defaultServices['ruleRepository'],
+            $defaultServices['deliveryTimeRepository'],
+            $defaultServices['mediaRepository'],
+            $defaultServices['mediaService'],
+            $defaultServices['appLoader'],
         );
     }
 
-    private function createShippingMethodRepositoryMock(): EntityRepository
+    /**
+     * @param array<ShippingMethodEntity> $entities
+     */
+    private function createShippingMethodRepositoryMock(array $entities = []): EntityRepository
     {
-        return new StaticEntityRepository([]);
+        if (!empty($entities)) {
+            return new StaticEntityRepository(
+                [
+                    new ShippingMethodCollection($entities),
+                ],
+                new ShippingMethodDefinition()
+            );
+        }
+
+        return $this->createMock(EntityRepository::class);
     }
 
-    private function createAppShippingMethodRepositoryMock(): EntityRepository
+    /**
+     * @param array<AppShippingMethodEntity> $entities
+     */
+    private function createAppShippingMethodRepositoryMock(array $entities = []): EntityRepository
     {
+        if (!empty($entities)) {
+            return new StaticEntityRepository(
+                [
+                    new EntityCollection($entities),
+                ],
+                new AppShippingMethodDefinition()
+            );
+        }
+
         $appShippingMethodMock = $this->createMock(EntityRepository::class);
         $appShippingMethodMock->method('search')->willReturn(
             new EntitySearchResult(
@@ -107,15 +151,47 @@ class ShippingMethodPersisterTest extends TestCase
     }
 
     /**
-     * @param list<list<string>> $ruleIds
+     * @param array<RuleEntity> $entities
      */
-    private function createRuleRepositoryMock(array $ruleIds = []): EntityRepository
+    private function createRuleRepositoryMock(array $entities = []): EntityRepository
     {
-        return new StaticEntityRepository($ruleIds, new RuleDefinition());
+        return new StaticEntityRepository(
+            [
+                new RuleCollection($entities),
+                new RuleCollection($entities),
+            ],
+            new RuleDefinition()
+        );
     }
 
-    private function createMediaRepositoryMock(): EntityRepository
+    /**
+     * @param array<DeliveryTimeEntity> $entities
+     */
+    private function createDeliveryTimeRepositoryMock(array $entities = []): EntityRepository
     {
+        return new StaticEntityRepository(
+            [
+                new DeliveryTimeCollection($entities),
+                new DeliveryTimeCollection($entities),
+            ],
+            new DeliveryTimeDefinition()
+        );
+    }
+
+    /**
+     * @param array<MediaEntity> $entities
+     */
+    private function createMediaRepositoryMock(array $entities = []): EntityRepository
+    {
+        if (!empty($entities)) {
+            return new StaticEntityRepository(
+                [
+                    new MediaCollection($entities),
+                ],
+                new MediaDefinition()
+            );
+        }
+
         $mediaRepositoryMock = $this->createMock(EntityRepository::class);
         $mediaRepositoryMock->method('searchIds')->willReturn(
             new IdSearchResult(
@@ -132,7 +208,7 @@ class ShippingMethodPersisterTest extends TestCase
     private function createMediaServiceMock(): MediaService&MockObject
     {
         $mediaServiceMock = $this->createMock(MediaService::class);
-        $mediaServiceMock->expects(static::once())->method('saveFile')->willReturn(self::ICON_URL);
+        $mediaServiceMock->expects(static::Once())->method('saveFile')->willReturn(self::ICON_URL);
 
         return $mediaServiceMock;
     }
@@ -140,7 +216,7 @@ class ShippingMethodPersisterTest extends TestCase
     private function createAppLoaderMock(): AppLoader&MockObject
     {
         $appLoaderMock = $this->createMock(AppLoader::class);
-        $appLoaderMock->expects(static::once())->method('loadFile')->willReturn(self::ICON_URL);
+        $appLoaderMock->expects(static::Once())->method('loadFile')->willReturn(self::ICON_URL);
 
         return $appLoaderMock;
     }

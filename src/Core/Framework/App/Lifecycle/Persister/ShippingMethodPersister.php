@@ -9,11 +9,12 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,9 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeCollection;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
  * @internal
@@ -38,12 +39,14 @@ class ShippingMethodPersister
      * @param EntityRepository<ShippingMethodCollection>                  $shippingMethodRepository
      * @param EntityRepository<EntityCollection<AppShippingMethodEntity>> $appShippingMethodRepository
      * @param EntityRepository<RuleCollection>                            $ruleRepository
+     * @param EntityRepository<DeliveryTimeCollection>                    $deliveryTimeRepository
      * @param EntityRepository<MediaCollection>                           $mediaRepository
      */
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
         private readonly EntityRepository $appShippingMethodRepository,
         private readonly EntityRepository $ruleRepository,
+        private readonly EntityRepository $deliveryTimeRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly MediaService $mediaService,
         private readonly AbstractAppLoader $appLoader,
@@ -58,7 +61,7 @@ class ShippingMethodPersister
         Context $context
     ): void {
         $appName = $manifest->getMetadata()->getName();
-        $manifestShipments = $manifest->getShippingMethods();
+        $manifestShipments = $manifest->getShipments();
         $manifestShippingMethods = $manifestShipments?->getShippingMethods() ?? [];
 
         $existingAppShippingMethods = $this->getExistingAppShippingMethods($appName, $context);
@@ -76,39 +79,25 @@ class ShippingMethodPersister
 
         foreach ($manifestShippingMethods as $manifestShippingMethod) {
             $payload = $manifestShippingMethod->toArray($defaultLocale);
-            $payload['technicalName'] = \sprintf('shipping_%s_%s', $manifest->getMetadata()->getName(), $manifestShippingMethod->getIdentifier());
 
             $existingAppShippingMethod = $existingAppShippingMethods->filterByProperty('identifier', $manifestShippingMethod->getIdentifier())->first();
+
+            $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
+            $payload['deliveryTimeId'] = $this->getDeliveryTimeUuid($context, $appName);
+            $payload['appShippingMethod']['appId'] = $appId;
+            $payload['appShippingMethod']['appName'] = $appName;
+            $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($manifest, $manifestShippingMethod, $context);
+            $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
 
             if ($existingAppShippingMethod) {
                 $payload['appShippingMethod']['id'] = $existingAppShippingMethod->getId();
             }
 
-            $payload['appShippingMethod']['appId'] = $appId;
-            $payload['appShippingMethod']['appName'] = $appName;
-
             $shippingMethodEntity = $existingAppShippingMethod?->getShippingMethod();
             if ($shippingMethodEntity) {
                 $payload['id'] = $shippingMethodEntity->getId();
-                unset(
-                    $payload['name'],
-                    $payload['description'],
-                    $payload['icon'],
-                    $payload['position'],
-                    $payload['active'],
-                    $payload['deliveryTime'],
-                );
-                $existingShippingMethods->remove($shippingMethodEntity->getId());
-            } else {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    /**
-                     * @deprecated tag:v6.6.0 - availabilityRuleId can be nullable as of 6.6.0 - Remove this line
-                     */
-                    $payload['availabilityRuleId'] = $this->getAvailabilityRuleUuid($context, $appName);
-                }
 
-                $payload['appShippingMethod']['originalMediaId'] = $this->getIconId($manifest, $manifestShippingMethod, $context);
-                $payload['mediaId'] = $payload['appShippingMethod']['originalMediaId'];
+                $existingShippingMethods->remove($shippingMethodEntity->getId());
             }
 
             $shippingMethodsToUpdate[] = $payload;
@@ -154,43 +143,38 @@ class ShippingMethodPersister
         });
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.
-     */
     private function getAvailabilityRuleUuid(Context $context, string $appName): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('invalid', 0),
-            new EqualsFilter('name', 'Always valid (Default)'),
-        ]));
-        $criteria->setLimit(1);
-
-        $ruleId = $this->ruleRepository->searchIds($criteria, $context)->firstId();
-        if ($ruleId !== null) {
-            return $ruleId;
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('invalid', 0),
             new ContainsFilter('areas', RuleAreas::SHIPPING_AREA),
+            new EqualsFilter('invalid', 0),
         ]));
-        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
-        $criteria->setLimit(1);
 
-        $ruleId = $this->ruleRepository->searchIds($criteria, $context)->firstId();
-        if ($ruleId !== null) {
-            return $ruleId;
+        $rule = $this->ruleRepository->search($criteria, $context)->getEntities()->first();
+
+        if (!$rule instanceof RuleEntity) {
+            throw AppException::installationFailed($appName, 'No availability rule available. You have to create one before installing the app.');
         }
 
-        throw AppException::installationFailed($appName, 'No availability rule available. You have to create one before installing the app.');
+        return $rule->getId();
+    }
+
+    private function getDeliveryTimeUuid(Context $context, string $appName): string
+    {
+        $criteria = new Criteria();
+        $deliveryTime = $this->deliveryTimeRepository->search($criteria, $context)->getEntities()->first();
+
+        if (!$deliveryTime instanceof DeliveryTimeEntity) {
+            throw AppException::installationFailed($appName, 'No Delivery times available. You have to create one before installing the app.');
+        }
+
+        return $deliveryTime->getId();
     }
 
     private function getIconId(Manifest $manifest, ShippingMethod $shippingMethod, Context $context): ?string
     {
-        $iconPath = $shippingMethod->getIcon();
-        if (!$iconPath) {
+        if (!$iconPath = $shippingMethod->getIcon()) {
             return null;
         }
 

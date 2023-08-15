@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
-use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -1617,6 +1617,25 @@ class AppLifecycleTest extends TestCase
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
         static::assertNotNull($app);
+    }
+
+    private function assertShippingMethodsExists(string $appId): void
+    {
+        $criteria = new Criteria([$appId]);
+        $criteria->addAssociation('appShippingMethods.shippingMethod');
+
+        $app = $this->appRepository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(AppEntity::class, $app);
+
+        $appShippingMethods = $app->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+        static::assertCount(2, $appShippingMethods);
+
+        foreach ($appShippingMethods as $appShippingMethod) {
+            static::assertInstanceOf(AppShippingMethodEntity::class, $appShippingMethod);
+            $shippingMethod = $appShippingMethod->getShippingMethod();
+            static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+        }
     }
 
     private function getAppFlowActionIdFromSequence(string $sequenceId): ?string

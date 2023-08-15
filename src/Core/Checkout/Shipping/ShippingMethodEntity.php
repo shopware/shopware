@@ -137,7 +137,7 @@ class ShippingMethodEntity extends Entity
      */
     protected $tax;
 
-    protected ?AppShippingMethodEntity $appShippingMethod = null;
+    protected ?AppShippingMethodEntity $appShippingMethod;
 
     public function __construct()
     {

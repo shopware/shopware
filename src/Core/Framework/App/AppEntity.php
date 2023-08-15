@@ -228,7 +228,7 @@ class AppEntity extends Entity
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
-    protected ?EntityCollection $appShippingMethods = null;
+    protected ?EntityCollection $appShippingMethods;
 
     /**
      * @var int

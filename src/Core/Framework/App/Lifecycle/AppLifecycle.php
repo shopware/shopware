@@ -96,7 +96,8 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
         private readonly FlowEventPersister $flowEventPersister,
-        private readonly string $env
+        private readonly string $env,
+        private readonly ShippingMethodPersister $shippingMethodPersister,
     ) {
     }
 

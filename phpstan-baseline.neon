@@ -6691,21 +6691,6 @@ parameters:
 			path: src/Core/Framework/Api/OAuth/AccessToken.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getByAccessKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getIntegrationByAccessKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getUserByAccessKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
-
-		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/OAuth/RefreshTokenRepository.php

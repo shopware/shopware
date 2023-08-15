@@ -86,6 +86,8 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
             RepositoryWriterFacadeHookFactory::class,
             ScriptResponseFactoryFacadeHookFactory::class,
             RequestFacadeFactory::class,
+            CartFacadeHookFactory::class,
+            PriceFactoryFactory::class,
         ];
     }
 }

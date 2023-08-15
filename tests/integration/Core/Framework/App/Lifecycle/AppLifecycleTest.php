@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -36,6 +38,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -169,6 +172,7 @@ class AppLifecycleTest extends TestCase
         $this->assertAssetExists($appEntity->getName());
         $this->assertFlowActionExists($appEntity->getId());
         $this->assertDefaultHosts($appEntity);
+        $this->assertShippingMethodsExists($appEntity->getId());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -1644,6 +1648,25 @@ class AppLifecycleTest extends TestCase
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
         static::assertNotNull($app);
+    }
+
+    private function assertShippingMethodsExists(string $appId): void
+    {
+        $criteria = new Criteria([$appId]);
+        $criteria->addAssociation('appShippingMethods.shippingMethod');
+
+        $app = $this->appRepository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(AppEntity::class, $app);
+
+        $appShippingMethods = $app->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+        static::assertCount(2, $appShippingMethods);
+
+        foreach ($appShippingMethods as $appShippingMethod) {
+            static::assertInstanceOf(AppShippingMethodEntity::class, $appShippingMethod);
+            $shippingMethod = $appShippingMethod->getShippingMethod();
+            static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+        }
     }
 
     private function getAppFlowActionIdFromSequence(string $sequenceId): ?string

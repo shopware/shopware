@@ -100,6 +100,17 @@
                         <xs:field xpath="@identifier"/>
                     </xs:unique>
                 </xs:element>
+                <xs:element name="shipping-methods" type="shipping-methods" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register shipping methods your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueShippingMethodName">
+                        <xs:selector xpath="shipping-method"/>
+                        <xs:field xpath="@identifier"/>
+                    </xs:unique>
+                </xs:element>
                 <xs:element name="rule-conditions" type="rule-conditions" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -484,6 +495,25 @@
             <xs:element type="xs:anyURI" name="capture-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="refund-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="recurring-url" minOccurs="0"/>
+            <xs:element type="xs:string" name="icon" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Path to local image file.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="shipping-methods">
+        <xs:sequence>
+            <xs:element name="shipping-method" type="shipping-method" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="shipping-method">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="xs:string" name="identifier"/>
+            <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
+            <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">

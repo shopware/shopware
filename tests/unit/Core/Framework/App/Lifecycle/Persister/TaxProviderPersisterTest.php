@@ -197,7 +197,8 @@ class TaxProviderPersisterTest extends TestCase
             null,
             null,
             null,
-            $tax
+            $tax,
+            null,
         );
 
         return $manifest;

@@ -267,11 +267,7 @@ class ThumbnailServiceTest extends TestCase
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaUrl = $media->getPath();
-        } else {
-            $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $mediaUrl = $media->getPath();
 
         static::assertInstanceOf(MediaThumbnailCollection::class, $media->getThumbnails());
         static::assertCount(2, $media->getThumbnails());
@@ -428,11 +424,7 @@ class ThumbnailServiceTest extends TestCase
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
         \assert($resource !== false);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $url = $media->getPath();
-        } else {
-            $url = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $url = $media->getPath();
         $this->getPublicFilesystem()->writeStream($url, $resource);
 
         $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
@@ -452,7 +444,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertEquals(2, $thumbnails->count());
 
         foreach ($thumbnails as $thumbnail) {
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -572,11 +564,7 @@ class ThumbnailServiceTest extends TestCase
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
         \assert($resource !== false);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $location = $media->getPath();
-        } else {
-            $location = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $location = $media->getPath();
 
         $this->getPublicFilesystem()->writeStream($location, $resource);
 
@@ -595,7 +583,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
 
-        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+        $thumbnailPath = $thumbnail->getPath();
 
         $thumbnail = $media->getThumbnails()?->first();
 

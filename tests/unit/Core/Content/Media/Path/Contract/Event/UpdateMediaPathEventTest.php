@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Path\Contract\Event;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Path\Contract\Event\UpdateMediaPathEvent;
+use Shopware\Core\Content\Media\Path\Domain\Event\UpdateMediaPathEvent;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Media\Path\Contract\Event\UpdateMediaPathEvent
+ * @covers \Shopware\Core\Content\Media\Path\Domain\Event\UpdateMediaPathEvent
  */
 class UpdateMediaPathEventTest extends TestCase
 {

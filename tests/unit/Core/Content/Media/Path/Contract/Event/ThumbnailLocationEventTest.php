@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Path\Contract\Event;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Path\Contract\Event\ThumbnailLocationEvent;
-use Shopware\Core\Content\Media\Path\Contract\Struct\MediaLocationStruct;
-use Shopware\Core\Content\Media\Path\Contract\Struct\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\Path\Domain\Event\ThumbnailLocationEvent;
+use Shopware\Core\Content\Media\Path\Domain\Struct\MediaLocationStruct;
+use Shopware\Core\Content\Media\Path\Domain\Struct\ThumbnailLocationStruct;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Media\Path\Contract\Event\ThumbnailLocationEvent
+ * @covers \Shopware\Core\Content\Media\Path\Domain\Event\ThumbnailLocationEvent
  */
 class ThumbnailLocationEventTest extends TestCase
 {

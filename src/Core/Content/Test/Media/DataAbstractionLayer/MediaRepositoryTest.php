@@ -381,15 +381,8 @@ class MediaRepositoryTest extends TestCase
         $secondMedia = $read->get($secondId);
         static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $firstPath = $firstMedia->getPath();
-            $secondPath = $secondMedia->getPath();
-        } else {
-            $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
-            $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
-        }
+        $firstPath = $firstMedia->getPath();
+        $secondPath = $secondMedia->getPath();
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);

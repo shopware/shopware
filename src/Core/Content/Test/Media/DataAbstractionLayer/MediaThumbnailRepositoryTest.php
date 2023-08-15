@@ -83,7 +83,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             'mediaId' => $media->getId(),
             'width' => 100,
             'height' => 200,
-            'path' => 'foo/bar.png',
+            'path' => 'foo/bar.png'
         ];
 
         $this->getContainer()->get('media_thumbnail.repository')

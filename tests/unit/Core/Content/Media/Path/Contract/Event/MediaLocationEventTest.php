@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Path\Contract\Event;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Path\Contract\Event\MediaLocationEvent;
-use Shopware\Core\Content\Media\Path\Contract\Struct\MediaLocationStruct;
+use Shopware\Core\Content\Media\Path\Domain\Event\MediaLocationEvent;
+use Shopware\Core\Content\Media\Path\Domain\Struct\MediaLocationStruct;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Media\Path\Contract\Event\MediaLocationEvent
+ * @covers \Shopware\Core\Content\Media\Path\Domain\Event\MediaLocationEvent
  */
 class MediaLocationEventTest extends TestCase
 {

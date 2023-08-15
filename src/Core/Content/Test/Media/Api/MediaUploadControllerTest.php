@@ -232,11 +232,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $url = $media->getPath();
-        } else {
-            $url = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $url = $media->getPath();
 
         $this->getPublicFilesystem()->write($url, 'some content');
 
@@ -263,13 +259,8 @@ class MediaUploadControllerTest extends TestCase
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $location = $media->getPath();
-        } else {
-            $location = $this->urlGenerator->getRelativeMediaUrl($updatedMedia);
-        }
-
-        static::assertTrue($this->getPublicFilesystem()->has($location));
+        static::assertTrue($this->getPublicFilesystem()->has($updatedMedia->getPath()));
+        static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
     }
 
     public function testProvideName(): void

@@ -27,7 +27,7 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', )
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
         $filenameSuffix = '';
         if ($thumbnail !== null) {
@@ -46,7 +46,7 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', )
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
         $uploadedAt = $media->getUploadedAt();
 
@@ -61,7 +61,7 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', )
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
         $md5hash = md5($fromValue);
 

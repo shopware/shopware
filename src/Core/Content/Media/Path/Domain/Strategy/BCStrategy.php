@@ -12,12 +12,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprected tag:v6.6.0 - reason:factory-for-deprecation - Just for BC compatibility with the old path generator
  */
+#[Package('content')]
 class BCStrategy extends AbstractMediaPathStrategy
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly EntityRepository $mediaRepository,
         private readonly EntityRepository $thumbnailRepository,
@@ -65,6 +70,9 @@ class BCStrategy extends AbstractMediaPathStrategy
 
             /** @var MediaThumbnailEntity $thumbnail */
             foreach ($thumbnails as $thumbnail) {
+                if (!$thumbnail->getMedia()) {
+                    continue;
+                }
                 $mapping[$thumbnail->getId()] = $this->generator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
             }
         }

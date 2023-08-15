@@ -1,4 +1,16 @@
 {
+  "global": {
+    "default": {
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "save": "Save",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "confirm": "Confirm",
+      "noteRequiredFields": "Fields marked with asterisks (*) are required."
+    }
+  },
   "general": {
     "homeLink": "Home",
     "menuLink": "Menu",

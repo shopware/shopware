@@ -16,12 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  */
 class PathnameStrategyTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        parent::setUp();
-    }
-
     use IntegrationTestBehaviour;
     use MediaFixtures;
 

@@ -4,19 +4,17 @@ namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
-use Shopware\Core\Content\Media\Core\Event\MediaLocationEvent;
-use Shopware\Core\Content\Media\Core\Event\ThumbnailLocationEvent;
-use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
-use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\Core\Path\MediaLocationBuilder;
+use Shopware\Core\Content\Media\Domain\Event\MediaLocationEvent;
+use Shopware\Core\Content\Media\Domain\Event\ThumbnailLocationEvent;
+use Shopware\Core\Content\Media\Domain\Path\Struct\MediaLocationStruct;
+use Shopware\Core\Content\Media\Domain\Path\Struct\ThumbnailLocationStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore (see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaLocationBuilderTest)
  */
 #[Package('content')]
 class SqlMediaLocationBuilder implements MediaLocationBuilder
@@ -55,7 +53,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
         $locations = [];
 
         foreach ($data as $key => $row) {
-            $locations[(string) $key] = new MediaLocationStruct(
+            $locations[$key] = new MediaLocationStruct(
                 $row['id'],
                 $row['file_extension'],
                 $row['file_name'],
@@ -63,11 +61,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
             );
         }
 
-        $this->dispatcher->dispatch(
-            new MediaLocationEvent($locations)
-        );
-
-        return $locations;
+        return $this->mediaEvent($locations);
     }
 
     /**
@@ -106,7 +100,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
                 $row['uploaded_at'] ? new \DateTimeImmutable($row['uploaded_at']) : null
             );
 
-            $locations[(string) $key] = new ThumbnailLocationStruct(
+            $locations[$key] = new ThumbnailLocationStruct(
                 $row['id'],
                 (int) $row['width'],
                 (int) $row['height'],
@@ -114,8 +108,32 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
             );
         }
 
+        return $this->thumbnailEvent($locations);
+    }
+
+    /**
+     * @param array<ThumbnailLocationStruct> $locations
+     *
+     * @return array<ThumbnailLocationStruct>
+     */
+    private function thumbnailEvent(array $locations): array
+    {
         $this->dispatcher->dispatch(
             new ThumbnailLocationEvent($locations)
+        );
+
+        return $locations;
+    }
+
+    /**
+     * @param array<MediaLocationStruct> $locations
+     *
+     * @return array<MediaLocationStruct>
+     */
+    private function mediaEvent(array $locations): array
+    {
+        $this->dispatcher->dispatch(
+            new MediaLocationEvent($locations)
         );
 
         return $locations;

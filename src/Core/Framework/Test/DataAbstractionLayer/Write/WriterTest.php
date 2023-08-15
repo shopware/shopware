@@ -495,7 +495,7 @@ class WriterTest extends TestCase
             $this->getContainer()->get(MediaDefinition::class)
                 ->getFields()
                 ->get('url')
-                ->getFlag(Runtime::class)
+                ?->getFlag(Runtime::class)
         );
 
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
@@ -522,7 +522,7 @@ class WriterTest extends TestCase
         )->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertStringContainsString('/testFile.jpg', $media->getUrl());
+        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresRuntimeFields(): void

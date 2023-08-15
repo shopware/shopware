@@ -3626,11 +3626,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php
 
 		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterConfirmRouteTest.php
@@ -8966,31 +8961,6 @@ parameters:
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\|null\\.$#"
 			count: 4
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterExtensionTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getMediaId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot call method getFlag\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot call method getUrl\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true and 'No Notice in prod…' will always evaluate to true\\.$#"

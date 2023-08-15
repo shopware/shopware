@@ -4,31 +4,28 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Core\Event\MediaLocationEvent;
-use Shopware\Core\Content\Media\Core\Event\ThumbnailLocationEvent;
-use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
-use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\Domain\Event\MediaLocationEvent;
+use Shopware\Core\Content\Media\Domain\Event\ThumbnailLocationEvent;
+use Shopware\Core\Content\Media\Domain\Path\Struct\MediaLocationStruct;
+use Shopware\Core\Content\Media\Domain\Path\Struct\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Test\Stub\EventDispatcher\AssertingEventDispatcher;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Tests\Unit\Common\Stubs\Event\AssertEventDispatched;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder
- * @covers \Shopware\Core\Content\Media\Core\Event\MediaLocationEvent
- * @covers \Shopware\Core\Content\Media\Core\Params\MediaLocationStruct
- * @covers \Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct
+ * @covers \Shopware\Core\Content\Media\Domain\Event\MediaLocationEvent
  */
 class MediaLocationBuilderTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
-    use KernelTestBehaviour;
+    use AssertEventDispatched;
+    use IntegrationTestBehaviour;
 
     /**
      * @param array<string, mixed> $storage
@@ -46,7 +43,8 @@ class MediaLocationBuilderTest extends TestCase
         $queue->addInsert('media', $storage);
         $queue->execute();
 
-        $dispatcher = new AssertingEventDispatcher($this, [MediaLocationEvent::class => 1]);
+        $dispatcher = new EventDispatcher();
+        static::assertDispatched($dispatcher, $this, MediaLocationEvent::class);
 
         $builder = new SqlMediaLocationBuilder($dispatcher, $this->getContainer()->get(Connection::class));
 
@@ -79,7 +77,8 @@ class MediaLocationBuilderTest extends TestCase
         $queue->addInsert('media_thumbnail', $thumbnail);
         $queue->execute();
 
-        $dispatcher = new AssertingEventDispatcher($this, [ThumbnailLocationEvent::class => 1]);
+        $dispatcher = new EventDispatcher();
+        static::assertDispatched($dispatcher, $this, ThumbnailLocationEvent::class);
 
         $builder = new SqlMediaLocationBuilder($dispatcher, $this->getContainer()->get(Connection::class));
 

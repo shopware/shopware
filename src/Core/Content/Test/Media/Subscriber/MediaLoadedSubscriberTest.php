@@ -5,9 +5,9 @@ namespace Shopware\Core\Content\Test\Media\Subscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\Domain\Path\MediaUrlLoader;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Path\Domain\Service\MediaPathSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Feature;
@@ -25,7 +25,7 @@ class MediaLoadedSubscriberTest extends TestCase
     public function testLegacyUrlGenerationForMedia(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
-        $subscriber = $this->getContainer()->get(MediaPathSubscriber::class);
+        $subscriber = $this->getContainer()->get(MediaUrlLoader::class);
         $context = Context::createDefaultContext();
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';
@@ -53,7 +53,7 @@ class MediaLoadedSubscriberTest extends TestCase
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
 
-        $subscriber = $this->getContainer()->get(MediaPathSubscriber::class);
+        $subscriber = $this->getContainer()->get(MediaUrlLoader::class);
         $context = Context::createDefaultContext();
 
         $mediaId = '34556f108ab14969a0dcf9d9522fd7df';

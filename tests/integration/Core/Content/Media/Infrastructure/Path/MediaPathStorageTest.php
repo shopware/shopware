@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
@@ -18,8 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  */
 class MediaPathStorageTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testStoreMediaPath(): void
     {

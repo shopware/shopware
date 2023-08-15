@@ -79,6 +79,12 @@
             <argument>%kernel.bundles_metadata%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Command\CreateIntegrationCommand">
+            <tag name="console.command"/>
+
+            <argument type="service" id="integration.repository"/>
+        </service>
+
         <!-- Serializer -->
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiDecoder">
             <tag name="serializer.encoder"/>

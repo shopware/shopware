@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator;
+use Shopware\Core\Content\Media\Path\Domain\Service\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;

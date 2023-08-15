@@ -222,10 +222,18 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if ($media->isPrivate()) {
-                $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            if (Feature::isActive('v6.6.0.0')) {
+                if ($media->isPrivate()) {
+                    $privatePaths[] = $thumbnail->getPath();
+                } else {
+                    $publicPaths[] = $thumbnail->getPath();
+                }
             } else {
-                $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+                if ($media->isPrivate()) {
+                    $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+                } else {
+                    $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+                }
             }
         }
 

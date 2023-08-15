@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrate
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\IdPathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -15,6 +16,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  */
 class PathnameStrategyTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+        parent::setUp();
+    }
+
     use IntegrationTestBehaviour;
     use MediaFixtures;
 

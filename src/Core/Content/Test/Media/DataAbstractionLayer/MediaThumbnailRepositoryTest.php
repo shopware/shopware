@@ -77,14 +77,22 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     private function createThumbnailFile(MediaEntity $media, string $service): string
     {
-        $generator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $data = [
+            'mediaId' => $media->getId(),
+            'width' => 100,
+            'height' => 200,
+            'path' => 'foo/bar.png'
+        ];
 
-        $thumbnail = (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]);
+        $this->getContainer()->get('media_thumbnail.repository')
+            ->create([$data], Context::createDefaultContext());
 
-        $thumbnailPath = $generator->getRelativeThumbnailUrl($media, $thumbnail);
+        $fs = $this->getFilesystem($service);
 
-        $this->getFilesystem($service)->write($thumbnailPath, 'foo');
+        $fs->write('foo/bar.png', 'foo');
 
-        return $thumbnailPath;
+        static::assertTrue($fs->has('foo/bar.png'));
+
+        return 'foo/bar.png';
     }
 }

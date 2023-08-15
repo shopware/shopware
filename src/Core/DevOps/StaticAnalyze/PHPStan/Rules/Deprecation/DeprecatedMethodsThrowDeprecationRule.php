@@ -55,7 +55,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         // The constraint can still be used, just not via an annotation
         'reason:remove-constraint-annotation',
         // Container factory for deprecated service
-        'reason:factory-for-deprecation'
+        'reason:factory-for-deprecation',
     ];
 
     public function getNodeType(): string

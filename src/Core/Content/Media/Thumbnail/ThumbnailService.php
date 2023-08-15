@@ -18,7 +18,6 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Path\Contract\Event\UpdateThumbnailPathEvent;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -39,7 +38,6 @@ class ThumbnailService
         private readonly EntityRepository $thumbnailRepository,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly EntityRepository $mediaFolderRepository,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly EntityIndexer $indexer,
@@ -149,8 +147,7 @@ class ThumbnailService
                     continue;
                 }
 
-                if ($strict === true
-                    && !$this->getFileSystem($media)->fileExists($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail))) {
+                if ($strict === true && !$this->getFileSystem($media)->fileExists($thumbnail->getPath())) {
                     continue;
                 }
 

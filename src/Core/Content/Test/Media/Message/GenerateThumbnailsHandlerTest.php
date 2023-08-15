@@ -78,7 +78,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
+            $media->getPath(),
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
@@ -108,7 +108,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -170,7 +170,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'

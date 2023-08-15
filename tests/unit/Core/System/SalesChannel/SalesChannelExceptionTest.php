@@ -79,10 +79,10 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'Currency with id "myCustomCurrency" not found!.',
         ];
 
-        yield 'language not found exception' => [
+        yield SalesChannelException::LANGUAGE_NOT_FOUND => [
             'exception' => SalesChannelException::languageNotFound('myCustomLanguage'),
             'statusCode' => Response::HTTP_PRECONDITION_FAILED,
-            'errorCode' => 'FRAMEWORK__LANGUAGE_NOT_FOUND',
+            'errorCode' => SalesChannelException::LANGUAGE_NOT_FOUND,
             'message' => 'The language "myCustomLanguage" was not found.',
         ];
 

@@ -1,4 +1,16 @@
 {
+  "global": {
+    "default": {
+      "cancel": "Abbrechen",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "delete": "Löschen",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "confirm": "Bestätigen",
+      "noteRequiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
+    }
+  },
   "general": {
     "homeLink": "Home",
     "menuLink": "Menü",

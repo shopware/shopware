@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Path\Domain\Strategy;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Path\Contract\Struct\MediaLocationStruct;
-use Shopware\Core\Content\Media\Path\Contract\Struct\ThumbnailLocationStruct;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\FilenamePathStrategy;
+use Shopware\Core\Content\Media\Path\Domain\Struct\MediaLocationStruct;
+use Shopware\Core\Content\Media\Path\Domain\Struct\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\FilenamePathStrategy;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Media\Path\Domain\Strategy\FilenamePathStrategy
+ * @covers \Shopware\Core\Content\Media\Path\Implementation\Strategy\FilenamePathStrategy
  */
 class FilenamePathStrategyTest extends TestCase
 {

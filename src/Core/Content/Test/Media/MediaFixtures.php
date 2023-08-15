@@ -129,6 +129,7 @@ trait MediaFixtures
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithExtensionAndFolder',
                 'fileSize' => 1024,
+                'path' => 'media/_test/pngFileWithExtensionAndFolder.png',
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                 'mediaFolder' => [
@@ -206,6 +207,7 @@ trait MediaFixtures
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithExtensionAndFolder',
                 'fileSize' => 1024,
+                'path' => 'media/_test/pngFileWithExtensionAndFolder.png',
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                 'mediaFolder' => [

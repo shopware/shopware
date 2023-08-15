@@ -4,21 +4,21 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Path\Domain\Strategy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaException;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\BCStrategy;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\FilenamePathStrategy;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\IdPathStrategy;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\PathStrategyFactory;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\PhysicalFilenamePathStrategy;
-use Shopware\Core\Content\Media\Path\Domain\Strategy\PlainPathStrategy;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\BCStrategy;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\FilenamePathStrategy;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\IdPathStrategy;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\PathStrategyFactory;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\PhysicalFilenamePathStrategy;
+use Shopware\Core\Content\Media\Path\Implementation\Strategy\PlainPathStrategy;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Media\Path\Domain\Strategy\PathStrategyFactory
- * @covers \Shopware\Core\Content\Media\Path\Domain\Strategy\IdPathStrategy
- * @covers \Shopware\Core\Content\Media\Path\Domain\Strategy\FilenamePathStrategy
- * @covers \Shopware\Core\Content\Media\Path\Domain\Strategy\PhysicalFilenamePathStrategy
- * @covers \Shopware\Core\Content\Media\Path\Domain\Strategy\PlainPathStrategy
+ * @covers \Shopware\Core\Content\Media\Path\Implementation\Strategy\PathStrategyFactory
+ * @covers \Shopware\Core\Content\Media\Path\Implementation\Strategy\IdPathStrategy
+ * @covers \Shopware\Core\Content\Media\Path\Implementation\Strategy\FilenamePathStrategy
+ * @covers \Shopware\Core\Content\Media\Path\Implementation\Strategy\PhysicalFilenamePathStrategy
+ * @covers \Shopware\Core\Content\Media\Path\Implementation\Strategy\PlainPathStrategy
  */
 class PathStrategyFactoryTest extends TestCase
 {

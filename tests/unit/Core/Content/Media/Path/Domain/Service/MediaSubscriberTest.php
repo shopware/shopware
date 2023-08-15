@@ -5,17 +5,17 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Path\Domain\Service;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Path\Domain\Service\MediaPathSubscriber;
+use Shopware\Core\Content\Media\Path\Domain\Service\MediaUrlLoader;
 use Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaUrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Media\Path\Domain\Service\MediaPathSubscriber
+ * @covers \Shopware\Core\Content\Media\Path\Domain\Service\MediaUrlLoader
  */
 class MediaSubscriberTest extends TestCase
 {
@@ -35,14 +35,16 @@ class MediaSubscriberTest extends TestCase
 
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
-        $subscriber = new MediaPathSubscriber(new MediaUrlGenerator($filesystem), $mock);
+        $subscriber = new MediaUrlLoader(new MediaUrlGenerator($filesystem), $mock);
 
         $subscriber->loaded([$entity]);
 
         $actual = [$entity->get('id') => $entity->get('url')];
 
-        if ($entity->get('thumbnails') instanceof EntityCollection) {
+        if ($entity->has('thumbnails')) {
+            static::assertIsIterable($entity->get('thumbnails'));
             foreach ($entity->get('thumbnails') as $thumbnail) {
+                static::assertInstanceOf(Entity::class, $thumbnail);
                 $actual[$thumbnail->get('id')] = $thumbnail->get('url');
             }
         }
@@ -99,13 +101,13 @@ class MediaSubscriberTest extends TestCase
                 'thumbnails' => [
                     (new PartialEntity())->assign([
                         'id' => $ids->get('thumbnail'),
-                        'path' => '/foo/bar.png',
+                        'path' => '/thumb/bar.png',
                     ]),
                 ],
             ]),
             [
                 $ids->get('media') => 'http://localhost:8000/foo/bar.png?946684800',
-                $ids->get('thumbnail') => 'http://localhost:8000/foo/bar.png?946684800',
+                $ids->get('thumbnail') => 'http://localhost:8000/thumb/bar.png?946684800',
             ],
         ];
     }

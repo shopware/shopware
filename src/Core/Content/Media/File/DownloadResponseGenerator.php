@@ -70,7 +70,7 @@ class DownloadResponseGenerator
 
             $url = $this->mediaUrlGenerator->generate([$params]);
 
-            return new RedirectResponse($url[0]);
+            return new RedirectResponse((string) array_shift($url));
         }
 
         switch ($this->localPrivateDownloadStrategy) {

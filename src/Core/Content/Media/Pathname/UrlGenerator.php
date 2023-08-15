@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.6.0 - Use AbstractMediaUrlGenerator instead
+ * @deprecated tag:v6.6.0 - reason:remove-subscriber - Use AbstractMediaUrlGenerator instead
  */
 #[Package('buyers-experience')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
@@ -124,10 +124,6 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 
     public function reset(): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', )
-        );
     }
 
     /**

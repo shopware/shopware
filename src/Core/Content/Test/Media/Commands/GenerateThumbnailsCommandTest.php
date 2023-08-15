@@ -91,7 +91,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                $this->assertThumbnailExists($thumbnail);
             }
         }
     }
@@ -119,7 +119,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             );
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                $this->assertThumbnailExists($thumbnail);
             }
         }
     }
@@ -148,7 +148,7 @@ class GenerateThumbnailsCommandTest extends TestCase
                 );
 
                 foreach ($thumbnails as $thumbnail) {
-                    $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                    $this->assertThumbnailExists($thumbnail);
                 }
             }
         }
@@ -170,7 +170,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::assertEquals(2, $thumbnails->count());
 
             foreach ($thumbnails as $thumbnail) {
-                $this->assertThumbnailExists($updatedMedia, $thumbnail);
+                $this->assertThumbnailExists($thumbnail);
             }
         }
     }
@@ -324,13 +324,9 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertEquals($expectedMessageStrict, $envelopes[3]->getMessage());
     }
 
-    protected function assertThumbnailExists(MediaEntity $media, MediaThumbnailEntity $thumbnail): void
+    protected function assertThumbnailExists(MediaThumbnailEntity $thumbnail): void
     {
-        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-            $media,
-            $thumbnail
-        );
-        static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
+        static::assertTrue($this->getPublicFilesystem()->has($thumbnail->getPath()));
     }
 
     protected function createValidMediaFiles(): void

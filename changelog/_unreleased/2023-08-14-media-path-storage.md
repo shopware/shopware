@@ -24,6 +24,7 @@ We also removed the dependency to the entity layer and allow much faster and sim
 Due to this change, the usage of the `UrlGeneratorInterface` changed. The generator is deprecated and will be removed with v6.6.0. We implemented a new generator `MediaUrlGenerator` which can be used instead.
 
 ### Generating a media or thumbnail url
+
 ```php
 <?php 
 

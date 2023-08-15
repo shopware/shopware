@@ -94,7 +94,7 @@ class MediaPathUpdaterTest extends TestCase
             $this->getContainer()->get(MediaPathStorage::class)
         );
 
-        $updater->updateThumbnails($ids->getList(['thumbnail-1']));
+        $updater->updateThumbnails($ids->getList(['thumbnail-1', 'thumbnail-2']));
 
         $paths = $this->getContainer()->get(Connection::class)
             ->fetchAllKeyValue(

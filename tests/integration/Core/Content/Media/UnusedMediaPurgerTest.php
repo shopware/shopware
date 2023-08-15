@@ -56,10 +56,10 @@ class UnusedMediaPurgerTest extends TestCase
         $withManufacturer = $this->getMediaWithManufacturer();
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $firstPath = $urlGenerator->getRelativeMediaUrl($txt);
-        $secondPath = $urlGenerator->getRelativeMediaUrl($png);
-        $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
-        $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
+        $firstPath = $txt->getPath();
+        $secondPath = $png->getPath();
+        $thirdPath = $withProduct->getPath();
+        $fourthPath = $withManufacturer->getPath();
 
         $this->getPublicFilesystem()->writeStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
         $this->getPublicFilesystem()->writeStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));

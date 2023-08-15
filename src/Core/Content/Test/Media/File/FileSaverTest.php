@@ -6,17 +6,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
+use Shopware\Core\Content\Media\Domain\Event\UpdateMediaPathEvent;
+use Shopware\Core\Content\Media\Domain\Event\UpdateThumbnailPathEvent;
+use Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Path\Contract\Event\UpdateMediaPathEvent;
-use Shopware\Core\Content\Media\Path\Contract\Event\UpdateThumbnailPathEvent;
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaLocationBuilder;
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
@@ -164,11 +164,7 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getTxt();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $oldMediaFilePath = $media->getPath();
-        } else {
-            $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $oldMediaFilePath = $media->getPath();
         $this->getPublicFilesystem()->write($oldMediaFilePath, 'Some ');
 
         static::assertIsString($media->getFileName());
@@ -188,14 +184,10 @@ class FileSaverTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $path = $media->getPath();
-        } else {
-            $path = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $path = $media->getPath();
+
         static::assertNotEquals($oldMediaFilePath, $path);
         static::assertTrue($this->getPublicFilesystem()->has($path));
-        static::assertFalse($this->getPublicFilesystem()->has($oldMediaFilePath));
     }
 
     public function testPersistFileToMediaForMediaTypeWithoutThumbs(): void
@@ -566,15 +558,10 @@ class FileSaverTest extends TestCase
         static::assertNotNull($png->getThumbnails());
         static::assertGreaterThan(0, $png->getThumbnails()->count());
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $oldMediaPath = $png->getPath();
+        $oldMediaPath = $png->getPath();
 
-            static::assertNotNull($png->getThumbnails()->first());
-            $oldThumbnailPath = $png->getThumbnails()->first()->getPath();
-        } else {
-            $oldMediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-            $oldThumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($png, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 100]));
-        }
+        static::assertNotNull($png->getThumbnails()->first());
+        $oldThumbnailPath = $png->getThumbnails()->first()->getPath();
 
         $this->getPublicFilesystem()->write($oldMediaPath, 'test file content');
         $this->getPublicFilesystem()->write($oldThumbnailPath, 'test file content');
@@ -584,14 +571,7 @@ class FileSaverTest extends TestCase
         $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaPath));
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $location = $updatedMedia->getPath();
-        } else {
-            $location = $this->urlGenerator->getRelativeMediaUrl($updatedMedia);
-        }
-
-        static::assertTrue($this->getPublicFilesystem()->has($location));
+        static::assertTrue($this->getPublicFilesystem()->has($updatedMedia->getPath()));
 
         static::assertFalse($this->getPublicFilesystem()->has($oldThumbnailPath));
 
@@ -645,7 +625,7 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get(TypeDetector::class),
             $this->getContainer()->get('messenger.bus.shopware'),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(AbstractMediaLocationBuilder::class),
+            $this->getContainer()->get(SqlMediaLocationBuilder::class),
             $this->getContainer()->get(AbstractMediaPathStrategy::class),
             $allowed,
             $allowedPrivate

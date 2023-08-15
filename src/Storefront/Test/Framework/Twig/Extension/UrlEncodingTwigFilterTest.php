@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Test\Framework\Twig\Extension;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;

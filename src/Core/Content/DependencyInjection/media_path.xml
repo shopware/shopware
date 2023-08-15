@@ -5,8 +5,8 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Content\Media\Path\Domain\Service\MediaPathSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator"/>
+        <service id="Shopware\Core\Content\Media\Domain\Path\MediaUrlLoader">
+            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" />
 
             <!-- now trigger "new" media path handling and url generation -->
@@ -16,74 +16,70 @@
             <tag name="kernel.event_listener" event="media.loaded" method="legacy" priority="0" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaLocationBuilder"
-                 class="Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaLocationBuilder">
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathUpdater"
-                 class="Shopware\Core\Content\Media\Path\Domain\Service\MediaPathUpdater">
+        <service id="Shopware\Core\Content\Media\Domain\Path\MediaPathUpdater">
+            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage"/>
 
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathStrategy"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaLocationBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaPathStorage"/>
-
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Path\Contract\Event\UpdateMediaPathEvent" method="updateMedia" priority="0" />
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Path\Contract\Event\UpdateThumbnailPathEvent" method="updateThumbnails" priority="0" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Domain\Event\UpdateMediaPathEvent" method="updateMedia" priority="0" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Domain\Event\UpdateThumbnailPathEvent" method="updateThumbnails" priority="0" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaPathStorage">
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Domain\Strategy\PathStrategyFactory">
+        <service id="Shopware\Core\Content\Media\Core\Path\Strategy\PathStrategyFactory">
             <argument type="tagged" tag="shopware.path.strategy"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Domain\Strategy\BCStrategy"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Path\Strategy\BCStrategy"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Domain\Strategy\FilenamePathStrategy">
+        <service id="Shopware\Core\Content\Media\Core\Path\Strategy\FilenamePathStrategy">
             <tag name="shopware.path.strategy" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Domain\Strategy\IdPathStrategy">
+        <service id="Shopware\Core\Content\Media\Core\Path\Strategy\IdPathStrategy">
             <tag name="shopware.path.strategy" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Domain\Strategy\BCStrategy" public="true">
+        <service id="Shopware\Core\Content\Media\Core\Path\Strategy\BCStrategy" public="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Domain\Strategy\PhysicalFilenamePathStrategy">
+        <service id="Shopware\Core\Content\Media\Core\Path\Strategy\PhysicalFilenamePathStrategy">
             <tag name="shopware.path.strategy" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Domain\Strategy\PlainPathStrategy">
+        <service id="Shopware\Core\Content\Media\Core\Path\Strategy\PlainPathStrategy">
             <tag name="shopware.path.strategy" />
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator"
-                 class="Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaUrlGenerator">
+        <service id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator" class="Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator">
             <argument type="service" id="shopware.filesystem.public"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathStrategy">
-            <factory service="Shopware\Core\Content\Media\Path\Domain\Strategy\PathStrategyFactory" method="factory"/>
+        <service id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy">
+            <factory service="Shopware\Core\Content\Media\Core\Path\Strategy\PathStrategyFactory" method="factory"/>
             <argument>%shopware.cdn.strategy%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaPathPostUpdater">
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\MediaPathPostUpdater">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\MediaPathUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.entity_indexer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Path\Infrastructure\Command\UpdatePath">
+        <service id="Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand">
             <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\MediaPathUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
     </services>

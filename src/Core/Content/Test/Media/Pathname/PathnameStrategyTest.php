@@ -16,14 +16,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  */
 class PathnameStrategyTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+    use MediaFixtures;
+
     protected function setUp(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
         parent::setUp();
     }
-
-    use IntegrationTestBehaviour;
-    use MediaFixtures;
 
     public function testUuidCacheBuster(): void
     {
@@ -96,6 +96,6 @@ class PathnameStrategyTest extends TestCase
         $mediaWithThumbnail = $this->getMediaWithThumbnail();
 
         static::assertSame('jpgFileWithExtension.jpg', $strategy->generatePhysicalFilename($jpg));
-        static::assertSame('jpgFileWithExtension_200x200.jpg', $strategy->generatePhysicalFilename($jpg, $mediaWithThumbnail->getThumbnails()->first()));
+        static::assertSame('jpgFileWithExtension_200x200.jpg', $strategy->generatePhysicalFilename($jpg, $mediaWithThumbnail->getThumbnails()?->first()));
     }
 }

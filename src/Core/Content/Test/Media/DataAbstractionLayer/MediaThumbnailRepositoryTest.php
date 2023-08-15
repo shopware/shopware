@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -70,9 +68,13 @@ class MediaThumbnailRepositoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        return $this->getContainer()->get('media.repository')
+        $media = $this->getContainer()->get('media.repository')
             ->search(new Criteria([$mediaId]), Context::createDefaultContext())
             ->get($mediaId);
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+
+        return $media;
     }
 
     private function createThumbnailFile(MediaEntity $media, string $service): string
@@ -81,7 +83,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             'mediaId' => $media->getId(),
             'width' => 100,
             'height' => 200,
-            'path' => 'foo/bar.png'
+            'path' => 'foo/bar.png',
         ];
 
         $this->getContainer()->get('media_thumbnail.repository')

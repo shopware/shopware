@@ -30,7 +30,9 @@ Due to this change, the usage of the `UrlGeneratorInterface` changed. The genera
 
 namespace Examples;
 
-use Shopware\Core\Content\Media\MediaCollection;use Shopware\Core\Content\Media\MediaEntity;use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaUrlGenerator;
+use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 
 class BeforeChange
@@ -115,7 +117,7 @@ class ForwardCompatible
 ### Path strategies
 Beside the url generator change, we also had to change the media path strategy. The strategies are no longer working with a `MediaEntity`. They are now working with a `MediaFile` object. This object is a simple struct, which contains the path and the updated at timestamp. The path is the same as the one stored in the database. The updated at timestamp is the timestamp, when the path was generated. This is important for the cache invalidation. The `MediaFile` object is also used for the thumbnail generation. The thumbnail generation is now also working with a `MediaLocation` object instead.
 
-As foundation, we use `Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathStrategy` as base class and dependency injection service id:
+As foundation, we use `\Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy` as base class and dependency injection service id:
 
 ```php
 <?php
@@ -176,12 +178,11 @@ These structs are simple structs, which contains the necessary information to ge
 
 namespace Examples;
 
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaLocationBuilder;
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathStrategy;
+use Shopware\Core\Content\Media\Core\Path\MediaLocationBuilder;use Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy;
 
 class Consumer
 {
-    private AbstractMediaLocationBuilder $builder;
+    private MediaLocationBuilder $builder;
     private AbstractMediaPathStrategy $strategy;
     
     public function foo(array $mediaIds)

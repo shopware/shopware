@@ -5,16 +5,16 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\Domain\Event\UpdateMediaPathEvent;
+use Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Path\Contract\Event\UpdateMediaPathEvent;
-use Shopware\Core\Content\Media\Path\Contract\Service\AbstractMediaPathStrategy;
-use Shopware\Core\Content\Media\Path\Infrastructure\Service\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
@@ -51,7 +51,7 @@ class FileSaver
         private readonly TypeDetector $typeDetector,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly MediaLocationBuilder $locationBuilder,
+        private readonly SqlMediaLocationBuilder $locationBuilder,
         private readonly AbstractMediaPathStrategy $mediaPathStrategy,
         private readonly array $allowedExtensions,
         private readonly array $privateAllowedExtensions

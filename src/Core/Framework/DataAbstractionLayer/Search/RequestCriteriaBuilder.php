@@ -147,7 +147,11 @@ class RequestCriteriaBuilder
 
         if (isset($payload['query']) && \is_array($payload['query'])) {
             foreach ($payload['query'] as $query) {
-                $parsedQuery = QueryStringParser::fromArray($definition, $query['query'], $searchException);
+                if (!\is_array($query)) {
+                    continue;
+                }
+
+                $parsedQuery = QueryStringParser::fromArray($definition, $query['query'] ?? [], $searchException);
                 $score = $query['score'] ?? 1;
                 $scoreField = $query['scoreField'] ?? null;
 

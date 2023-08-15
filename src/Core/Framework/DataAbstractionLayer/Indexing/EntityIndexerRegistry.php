@@ -56,15 +56,13 @@ class EntityIndexerRegistry
             return;
         }
 
-        if ($message instanceof IterateEntityIndexerMessage) {
-            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
+        $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
 
-            if (!$next) {
-                return;
-            }
-
-            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
+        if (!$next) {
+            return;
         }
+
+        $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
     }
 
     /**

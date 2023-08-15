@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('buyers-experience')]
 abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 {
+    /**
+     * @var array<string, string>
+     */
     private array $blacklist = [
         'ad' => 'g0',
     ];

@@ -47,7 +47,11 @@
             {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field %}
             <sw-bulk-edit-change-type
                 v-if="showSelectBoxType(formField)"
+                {% if VUE3 %}
+                v-model:value="bulkEditData[formField.name].type"
+                {% else %}
                 v-model="bulkEditData[formField.name].type"
+                {% endif %}
                 :allow-overwrite="getConfigValue(formField, 'allowOverwrite')"
                 :allow-clear="getConfigValue(formField, 'allowClear')"
                 :allow-add="getConfigValue(formField, 'allowAdd')"

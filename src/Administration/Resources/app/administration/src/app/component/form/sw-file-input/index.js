@@ -23,6 +23,8 @@ const utils = Shopware.Utils;
 Component.register('sw-file-input', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -123,6 +125,13 @@ Component.register('sw-file-input', {
 
         setSelectedFile(newFile) {
             this.selectedFile = newFile;
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.selectedFile);
+
+                return;
+            }
+
             this.$emit('change', this.selectedFile);
         },
 

@@ -4,16 +4,6 @@
   "description": "Shopware administration",
   "main": "./src/core/shopware.js",
   "types": "./types/index.d.ts",
-  "contributors": [
-    {
-      "name": "Stephan Pohl",
-      "email": "s.pohl@shopware.com"
-    },
-    {
-      "name": "Philipp Schuch",
-      "email": "p.schuch@shopware.com"
-    }
-  ],
   "scripts": {
     "preinstall": "node src/scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
@@ -183,6 +173,7 @@
     "launch-editor-middleware": "2.6.0",
     "less": "3.13.1",
     "less-loader": "5.0.0",
+    "license-checker-rseidelsohn": "4.2.6",
     "mini-css-extract-plugin": "1.6.2",
     "opn": "6.0.0",
     "patch-package": "6.5.1",

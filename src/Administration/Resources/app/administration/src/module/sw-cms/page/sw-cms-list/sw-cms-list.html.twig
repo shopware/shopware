@@ -473,7 +473,11 @@
                     {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
                 </div>
                 <sw-text-field
+                    {% if VUE3 %}
+                    v-model:value="newName"
+                    {% else %}
                     v-model="newName"
+                    {% endif %}
                     class="sw_tree__confirm-rename-text-field"
                     size="medium"
                 />

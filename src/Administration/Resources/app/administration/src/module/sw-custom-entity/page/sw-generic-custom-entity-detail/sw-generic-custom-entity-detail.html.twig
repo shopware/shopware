@@ -15,7 +15,11 @@
             :process-success="isSaveSuccessful"
             variant="primary"
             :disabled="isLoading"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -85,7 +89,11 @@
                                     <sw-custom-entity-input-field
                                         v-for="field in card.fields"
                                         :key="field.ref"
+                                        {% if VUE3 %}
+                                        v-model:value="customEntityData[field.ref]"
+                                        {% else %}
                                         v-model="customEntityData[field.ref]"
+                                        {% endif %}
                                         class="sw-generic-custom-entity-detail__field"
                                         :type="getType(field.ref)"
                                         :label="getLabel('fields', field.ref)"

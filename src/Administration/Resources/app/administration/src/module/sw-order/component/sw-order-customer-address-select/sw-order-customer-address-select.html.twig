@@ -1,5 +1,9 @@
 <sw-single-select
+    {% if VUE3 %}
+    v-model:value="addressId"
+    {% else %}
     v-model="addressId"
+    {% endif %}
     v-bind="$attrs"
     class="sw-order-customer-address-select"
     value-property="id"

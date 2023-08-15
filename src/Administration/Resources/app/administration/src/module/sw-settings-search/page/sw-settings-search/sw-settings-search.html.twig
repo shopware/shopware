@@ -37,7 +37,11 @@
             :disabled="!allowSave"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSaveSearchSettings"
         >
             {{ $tc('global.default.save') }}

@@ -58,7 +58,11 @@
         :value="salesChannelId"
         :options="salesChannels"
         show-clearable-button
+        {% if VUE3 %}
+        @update:value="changeSalesChannel"
+        {% else %}
         @change="changeSalesChannel"
+        {% endif %}
     />
     {% endblock %}
 

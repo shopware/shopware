@@ -460,6 +460,12 @@ function resolveToken(token, itemTokens, name) {
         return token;
     }
 
+    // Vue 3 - if/else token support
+    const ifElseTokenTypes = ['Twig.logic.type.if', 'Twig.logic.type.else', 'Twig.logic.type.endif'];
+    if (token.type === 'logic' && ifElseTokenTypes.includes(token.token.type)) {
+        return token;
+    }
+
     const tokenBlockName = token.token.blockName;
     const isIn = findBlock(tokenBlockName, itemTokens);
 

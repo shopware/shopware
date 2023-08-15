@@ -9,9 +9,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_name %}
-    <sw-field
+    <sw-text-field
+        {% if VUE3 %}
+        v-model:value="propertyGroup.name"
+        {% else %}
         v-model="propertyGroup.name"
-        type="text"
+        {% endif %}
         required
         :error="propertyGroupNameError"
         :label="$tc('sw-property.detail.labelName')"
@@ -22,9 +25,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_description %}
-    <sw-field
+    <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="propertyGroup.description"
+        {% else %}
         v-model="propertyGroup.description"
-        type="textarea"
+        {% endif %}
         :label="$tc('sw-property.detail.labelDescription')"
         :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"
         :disabled="!allowEdit"
@@ -77,9 +83,12 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_display_type %}
-        <sw-field
+        <sw-select-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.displayType"
+            {% else %}
             v-model="propertyGroup.displayType"
-            type="select"
+            {% endif %}
             validation="required"
             required
             :label="$tc('sw-property.detail.labelDisplayType')"
@@ -92,14 +101,17 @@
             >
                 {{ option.label }}
             </option>
-        </sw-field>
+        </sw-select-field>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_sorting_type %}
-        <sw-field
+        <sw-select-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.sortingType"
+            {% else %}
             v-model="propertyGroup.sortingType"
-            type="select"
+            {% endif %}
             validation="required"
             :disabled="!allowEdit"
             required
@@ -112,13 +124,17 @@
             >
                 {{ option.label }}
             </option>
-        </sw-field>
+        </sw-select-field>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_position %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="propertyGroup.position"
+            {% else %}
             v-model="propertyGroup.position"
+            {% endif %}
             pattern="[0-9]"
             :step="1"
             :label="$tc('sw-property.detail.labelPosition')"

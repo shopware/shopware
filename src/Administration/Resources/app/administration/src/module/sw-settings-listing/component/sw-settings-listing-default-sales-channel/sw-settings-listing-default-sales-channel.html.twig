@@ -17,11 +17,19 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channel_select %}
         <sw-entity-multi-id-select
+            {% if VUE3 %}
+            v-model:ids="configData[null]['core.defaultSalesChannel.salesChannel']"
+            {% else %}
             v-model="configData[null]['core.defaultSalesChannel.salesChannel']"
+            {% endif %}
             :repository="salesChannelRepository"
             :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
             :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+            {% if VUE3 %}
+            @update:ids="updateSalesChannel"
+            {% else %}
             @change="updateSalesChannel"
+            {% endif %}
         />
         {% endblock %}
 

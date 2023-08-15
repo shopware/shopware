@@ -284,7 +284,11 @@
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.name"
+                {% else %}
                 v-model="item.name"
+                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />
@@ -387,7 +391,11 @@
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit"
+                {% if VUE3 %}
+                v-model:value="item.stock"
+                {% else %}
                 v-model="item.stock"
+                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
@@ -605,7 +613,11 @@
                 :process-success="isDeletionOver"
                 :is-loading="isDeleteButtonLoading"
                 @click="deleteVariants"
+                {% if VUE3 %}
+                @update:processSuccess="closeDeleteModal"
+                {% else %}
                 @process-finish="closeDeleteModal"
+                {% endif %}
             >
                 {{ $tc('global.default.delete') }}
             </sw-button-process>

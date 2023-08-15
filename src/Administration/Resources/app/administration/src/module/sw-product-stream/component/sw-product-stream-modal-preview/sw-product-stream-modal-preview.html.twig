@@ -34,12 +34,20 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_sales_channel_field %}
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="selectedSalesChannel"
+                    {% else %}
                     v-model="selectedSalesChannel"
+                    {% endif %}
                     :disabled="isLoading"
                     entity="sales_channel"
                     class="sw-product-stream-modal-preview__sales-channel-field"
                     :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                    {% if VUE3 %}
+                    @update:value="onSalesChannelChange"
+                    {% else %}
                     @change="onSalesChannelChange"
+                    {% endif %}
                 />
                 {% endblock %}
             </sw-label>

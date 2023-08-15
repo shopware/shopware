@@ -13,7 +13,11 @@
         advanced-selection-component="sw-advanced-selection-rule"
         :advanced-selection-parameters="advanceSelectionParameters"
         v-on="$listeners"
+        {% if VUE3 %}
+        @update:entityCollection="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     >
 
         <template #before-item-list>

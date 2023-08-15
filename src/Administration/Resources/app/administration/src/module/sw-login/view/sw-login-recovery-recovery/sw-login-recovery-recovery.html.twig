@@ -25,7 +25,11 @@
             {% block sw_login_recovery_recovery_form_new_password_field %}
             <sw-password-field
                 ref="swLoginRecoveryRecoveryNewPasswordField"
+                {% if VUE3 %}
+                v-model:value="newPassword"
+                {% else %}
                 v-model="newPassword"
+                {% endif %}
                 :label="$tc('sw-login.recovery.recovery.newPasswordField.label')"
                 :error="userPasswordError"
             />
@@ -34,7 +38,11 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_recovery_recovery_form_password_confirm_field %}
             <sw-password-field
+                {% if VUE3 %}
+                v-model:value="newPasswordConfirm"
+                {% else %}
                 v-model="newPasswordConfirm"
+                {% endif %}
                 :label="$tc('sw-login.recovery.recovery.passwordConfirmField.label')"
             />
             {% endblock %}

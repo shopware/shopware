@@ -75,6 +75,7 @@ describe('src/component/grid/sw-pagination', () => {
                 'sw-field': {
                     template: '<div class="field"></div>',
                 },
+                'sw-select-field': true,
             },
             attachTo: document.body,
         });

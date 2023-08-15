@@ -14,7 +14,9 @@ async function createWrapper(privileges = []) {
             'sw-loader': true,
             'sw-condition-tree': true,
             'sw-container': true,
-            'sw-field': true,
+            'sw-textarea-field': true,
+            'sw-number-field': true,
+            'sw-text-field': true,
             'sw-multi-select': true,
             'sw-entity-tag-select': true,
         },
@@ -57,9 +59,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper();
 
-        const ruleNameField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelName"]');
-        const rulePriorityField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelPriority"]');
-        const ruleDescriptionField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelDescription"]');
+        const ruleNameField = wrapper.find('sw-text-field-stub[label="sw-settings-rule.detail.labelName"]');
+        const rulePriorityField = wrapper.find('sw-number-field-stub[label="sw-settings-rule.detail.labelPriority"]');
+        const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[label="sw-settings-rule.detail.labelDescription"]');
         const moduleTypesField = wrapper.find('sw-multi-select-stub[label="sw-settings-rule.detail.labelType"]');
         const conditionTree = wrapper.find('sw-condition-tree-stub');
 
@@ -75,9 +77,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             'rule.editor',
         ]);
 
-        const ruleNameField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelName"]');
-        const rulePriorityField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelPriority"]');
-        const ruleDescriptionField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelDescription"]');
+        const ruleNameField = wrapper.find('sw-text-field-stub[label="sw-settings-rule.detail.labelName"]');
+        const rulePriorityField = wrapper.find('sw-number-field-stub[label="sw-settings-rule.detail.labelPriority"]');
+        const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[label="sw-settings-rule.detail.labelDescription"]');
         const moduleTypesField = wrapper.find('sw-multi-select-stub[label="sw-settings-rule.detail.labelType"]');
         const conditionTree = wrapper.find('sw-condition-tree-stub');
 

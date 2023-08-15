@@ -148,10 +148,13 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
-                    <sw-field
+                    <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="item.quantityStart"
+                        {% else %}
                         v-model="item.quantityStart"
+                        {% endif %}
                         v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
-                        type="number"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                         validation="required"
                         :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
@@ -170,9 +173,12 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
-                    <sw-field
+                    <sw-number-field
+                        {% if VUE3 %}
+                        v-model:value="item.quantityEnd"
+                        {% else %}
                         v-model="item.quantityEnd"
-                        type="number"
+                        {% endif %}
                         :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                         placeholder="∞"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"

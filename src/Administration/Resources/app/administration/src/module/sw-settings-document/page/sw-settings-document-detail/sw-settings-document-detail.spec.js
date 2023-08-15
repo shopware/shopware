@@ -91,7 +91,7 @@ const createWrapper = async (customOptions, privileges = []) => {
         stubs: {
             'sw-page': true,
             'sw-entity-single-select': true,
-            'sw-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
+            'sw-text-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
             'sw-button': true,
             'sw-button-process': true,
             'sw-card-view': true,

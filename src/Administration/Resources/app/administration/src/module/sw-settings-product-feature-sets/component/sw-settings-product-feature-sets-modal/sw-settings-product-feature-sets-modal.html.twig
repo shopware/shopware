@@ -10,13 +10,21 @@
     {% block sw_settings_product_feature_sets_modal_first_page %}
     <template v-if="showPageOne">
         <sw-radio-field
+            {% if VUE3 %}
+            v-model:value="selectedFeatureType"
+            {% else %}
             v-model="selectedFeatureType"
+            {% endif %}
             :label="$tc('sw-settings-product-feature-sets.modal.labelTitlePageOne')"
             block
             class="sw-settings-product-feature-sets-modal__options"
             identification="fieldType"
             :options="settingOptions"
+            {% if VUE3 %}
+            @update:value="onChangeOption"
+            {% else %}
             @change="onChangeOption"
+            {% endif %}
         />
     </template>
     {% endblock %}

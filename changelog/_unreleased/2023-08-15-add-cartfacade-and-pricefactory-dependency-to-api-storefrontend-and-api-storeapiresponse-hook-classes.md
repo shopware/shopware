@@ -6,7 +6,7 @@ author_email: support@codixio.com
 author_github: codixio
 ---
 # Core
-* Changed `src\Storefront\Framework\Script\Api\StorefrontHook.php` added CartFacadeHookFactory::class and PriceFactoryFactory::class, to getServiceIds function.
+* Changed `src\Core\Framework\Script\Api\StoreApiResponseHook.php` added CartFacadeHookFactory::class and PriceFactoryFactory::class, to getServiceIds function.
 ___
 # Storefront
-* Changed `src/Core/Checkout/Cart/Hook/CartHook.php` added CartFacadeHookFactory::class and PriceFactoryFactory::class, to getServiceIds function.
+* Changed `src\Storefront\Framework\Script\Api\StorefrontHook.php` added CartFacadeHookFactory::class and PriceFactoryFactory::class, to getServiceIds function.

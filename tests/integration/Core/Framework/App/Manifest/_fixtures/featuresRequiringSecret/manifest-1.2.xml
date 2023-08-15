@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
     <meta>
         <name>test</name>
         <label>Swag App Test</label>
@@ -42,4 +42,10 @@
             <description>Simple Synchronous payment</description>
         </payment-method>
     </payments>
+    <shipping-methods>
+        <shipping-method>
+            <identifier>simpleShippingMethod</identifier>
+            <name>simple Shipping Method</name>
+        </shipping-method>
+    </shipping-methods>
 </manifest>

@@ -99,6 +99,16 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister">
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="app_shipping_method.repository"/>
+            <argument type="service" id="rule.repository"/>
+            <argument type="service" id="delivery_time.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
             <argument type="service" id="tax_provider.repository"/>
         </service>
@@ -227,6 +237,7 @@
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -532,6 +543,10 @@
 
         <service id="Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventDefinition">
             <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition">
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber">

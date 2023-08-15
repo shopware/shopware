@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
+use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethods;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
@@ -41,7 +42,8 @@ class Manifest
         private readonly ?Payments $payments,
         private readonly ?RuleConditions $ruleConditions,
         private readonly ?Storefront $storefront,
-        private readonly ?Tax $tax
+        private readonly ?Tax $tax,
+        private readonly ?ShippingMethods $shipments,
     ) {
     }
 
@@ -75,6 +77,8 @@ class Manifest
             $storefront = $storefront === null ? null : Storefront::fromXml($storefront);
             $tax = $doc->getElementsByTagName('tax')->item(0);
             $tax = $tax === null ? null : Tax::fromXml($tax);
+            $shippingMethods = $doc->getElementsByTagName('shipping-methods')->item(0);
+            $shippingMethods = $shippingMethods === null ? null : ShippingMethods::fromXml($shippingMethods);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
@@ -92,7 +96,8 @@ class Manifest
             $payments,
             $ruleConditions,
             $storefront,
-            $tax
+            $tax,
+            $shippingMethods,
         );
     }
 
@@ -209,6 +214,11 @@ class Manifest
         $urls = \array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
 
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
+    }
+
+    public function getShipments(): ?ShippingMethods
+    {
+        return $this->shipments;
     }
 
     public function isManagedByComposer(): bool

@@ -55,7 +55,6 @@
         </include>
         <exclude>
             <file>src/Core/Framework/Adapter/Twig/functions.php</file>
-            <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
             <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>

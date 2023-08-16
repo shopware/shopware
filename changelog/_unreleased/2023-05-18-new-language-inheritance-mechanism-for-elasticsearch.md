@@ -25,6 +25,7 @@ ___
 * Deprecated subscriber method `\Shopware\Elasticsearch\Product\LanguageSubscriber::onSalesChannelWritten` as we are no longer need to add new index when a new sales channel language is created
 * Changed method `\Shopware\Elasticsearch\Product\ProductSearchQueryBuilder::build` to apply new search queries when working with new index strategy (multilingual fields instead of multilingual indexes)
 * Added a new DTO class `\Shopware\Elasticsearch\Product\SearchFieldConfig` that represent a search config of a searchable field
+* Changed method `getMapping` in `\Shopware\Elasticsearch\Product\EsProductDefinition` to add language analyzer
 ___
 # Upgrade Information
 

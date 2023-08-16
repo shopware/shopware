@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
 use Shopware\Core\Framework\App\ActionButton\AppAction;
-use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -20,6 +20,9 @@ class ActionButtonResponseFactory
     {
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     public function createFromResponse(AppAction $action, string $actionType, array $payload, Context $context): ActionButtonResponse
     {
         foreach ($this->factories as $factory) {
@@ -28,6 +31,6 @@ class ActionButtonResponseFactory
             }
         }
 
-        throw new ActionProcessException($action->getActionId(), sprintf('No factory found for action type "%s"', $actionType));
+        throw AppException::actionButtonProcessException($action->getActionId(), sprintf('No factory found for action type "%s"', $actionType));
     }
 }

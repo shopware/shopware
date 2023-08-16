@@ -350,7 +350,7 @@ PHP Full:
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'
-            -   MYSQL_IMAGE: mariadb:10.11.5
+            -   MYSQL_IMAGE: mariadb:10.11.4
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'

@@ -6971,16 +6971,6 @@ parameters:
 			path: src/Core/Framework/App/ActionButton/AppActionLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Executor\\:\\:executeHttpRequest\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Executor.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\ActionButtonResponseFactory\\:\\:createFromResponse\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/ActionButtonResponseFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\ActionButtonResponseFactoryInterface\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/Response/ActionButtonResponseFactoryInterface.php
@@ -6989,26 +6979,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\NotificationResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/Response/NotificationResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenModalResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenModalResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenModalResponseFactory\\:\\:validate\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenModalResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenNewTabResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenNewTabResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenNewTabResponseFactory\\:\\:validate\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenNewTabResponseFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\ReloadDataResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"

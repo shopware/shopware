@@ -25,6 +25,7 @@ class AppException extends HttpException
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
     public const FEATURES_REQUIRE_APP_SECRET = 'FRAMEWORK__APP_FEATURES_REQUIRE_APP_SECRET';
+    public const ACTION_BUTTON_PROCESS_EXCEPTION = 'FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -136,6 +137,17 @@ class AppException extends HttpException
             self::FEATURES_REQUIRE_APP_SECRET,
             'App "{{ appName }}" could not be installed/updated because it uses features {{ features }} but has no secret',
             ['appName' => $appName, 'features' => $featuresAsString],
+        );
+    }
+
+    public static function actionButtonProcessException(string $actionId, string $message, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ACTION_BUTTON_PROCESS_EXCEPTION,
+            'The synchronous action (id: {{ actionId }}) process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
+            ['errorMessage' => $message, 'actionId' => $actionId],
+            $e
         );
     }
 }

@@ -179,6 +179,8 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Validation\Exception\ConstraintViolationException:
             log_level: notice
+        Shopware\Core\Framework\Validation\WriteConstraintViolationException:
+            log_level: notice
         Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
             log_level: notice
         Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException:

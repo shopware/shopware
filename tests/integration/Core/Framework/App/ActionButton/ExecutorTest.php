@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
-use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -107,7 +107,7 @@ class ExecutorTest extends TestCase
 
         $this->appendNewResponse(new Response(500));
 
-        static::expectException(ActionProcessException::class);
+        static::expectException(AppException::class);
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
@@ -284,7 +284,7 @@ class ExecutorTest extends TestCase
 
         $this->signResponse('123455');
 
-        static::expectException(ActionProcessException::class);
+        static::expectException(AppException::class);
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
@@ -313,7 +313,7 @@ class ExecutorTest extends TestCase
 
         $this->signResponse($appSecret, $responseData);
 
-        static::expectException(ActionProcessException::class);
+        static::expectException(AppException::class);
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
@@ -340,7 +340,7 @@ class ExecutorTest extends TestCase
 
         $this->signResponse('123455');
 
-        static::expectException(ActionProcessException::class);
+        static::expectException(AppException::class);
         static::expectExceptionMessage('Detected APP_URL change');
         $this->executor->execute($action, Context::createDefaultContext());
     }

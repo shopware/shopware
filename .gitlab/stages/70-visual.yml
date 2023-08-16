@@ -4,7 +4,7 @@ Percy:
     stage: visual
     timeout: 1h
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
     dependencies: [ Build ]
     variables:

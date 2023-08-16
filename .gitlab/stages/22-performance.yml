@@ -8,7 +8,7 @@ Lighthouse (Administration):
     needs: [ Build, 'Jest (Administration)' ]
     dependencies: [ Build ]
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
     variables:
       # Use e2e env to deactivate the admin queue worker
@@ -42,7 +42,7 @@ Lighthouse Server (Storefront):
     allow_failure: true
     timeout: 1h
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
     variables:
         APP_ENV: prod

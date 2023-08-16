@@ -98,6 +98,7 @@ class Framework extends Bundle
             $loader->load('services_test.xml');
             $loader->load('store_test.xml');
             $loader->load('seo_test.xml');
+            $loader->load('app_test.xml');
         }
 
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority

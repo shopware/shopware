@@ -45,6 +45,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptEntity;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -65,6 +66,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
+    use IntegrationTestBehaviour;
 
     private AppLifecycle $appLifecycle;
 
@@ -1579,6 +1581,69 @@ class AppLifecycleTest extends TestCase
 
         $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
         static::assertNull($flow);
+    }
+
+    public function testInstallAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
+    {
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+
+        /** @var AppLifecycle $appLifeCycle */
+        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle->install($manifest, true, $this->context);
+    }
+
+    public function testUpdateAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
+
+        /** @var AppLifecycle $appLifeCycle */
+        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle->install($manifest, true, $this->context);
+
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        static::expectException(AppException::class);
+        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+
+        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+
+        $appLifeCycle->update(
+            $updatedManifest,
+            [
+                'id' => $app->getId(),
+                'roleId' => $app->getAclRoleId(),
+            ],
+            $this->context
+        );
+    }
+
+    public function testInstallAppWithFeaturesThatRequireSecretInDevEnvIsSuccessfulWhenSecretIsSet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
+
+        /** @var AppLifecycle $appLifeCycle */
+        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle->install($manifest, true, $this->context);
+
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        static::assertNotNull($app);
+        static::assertTrue($this->didRegisterApp());
+    }
+
+    public function testInstallAppWithFeaturesThatRequireSecretDoesNotThrowExceptionWhenNoSecretSetAndNotInDevEnv(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        static::assertNotNull($app);
     }
 
     private function getAppFlowActionIdFromSequence(string $sequenceId): ?string

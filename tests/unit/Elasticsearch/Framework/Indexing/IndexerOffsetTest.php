@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Feature;
-use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
-use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
-use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\EsProductDefinition;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
@@ -25,22 +21,10 @@ class IndexerOffsetTest extends TestCase
 {
     public function testItConvertsDefinitionsToSerializableNamesAndCanDoAnDefinitionRoundTrip(): void
     {
-        $definitions = [
-            new ElasticsearchProductDefinition(
-                new ProductDefinition(),
-                $this->createMock(Connection::class),
-                [],
-                new EventDispatcher(),
-                $this->createMock(AbstractProductSearchQueryBuilder::class),
-                $this->createMock(EsProductDefinition::class)
-            ),
-            new MockElasticsearchDefinition(),
-        ];
-
         $timestamp = (new \DateTime())->getTimestamp();
         $offset = new IndexerOffset(
             ['foo', 'bar'],
-            $definitions,
+            ['product', 'product_manufacturer'],
             $timestamp
         );
 
@@ -73,11 +57,9 @@ class IndexerOffsetTest extends TestCase
     {
         Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
 
-        $definitions = [];
-
         $offset = new IndexerOffset(
             ['foo', 'bar'],
-            $definitions,
+            [],
             (new \DateTime())->getTimestamp()
         );
 
@@ -88,26 +70,34 @@ class IndexerOffsetTest extends TestCase
         static::assertEquals('bar', $offset->getLanguageId());
         static::assertFalse($offset->hasNextLanguage());
     }
-}
 
-/**
- * @internal
- */
-class MockElasticsearchDefinition extends AbstractElasticsearchDefinition
-{
-    public function getEntityDefinition(): EntityDefinition
+    public function testSerialize(): void
     {
-        return new ProductManufacturerDefinition();
-    }
+        $serialize = new Serializer(
+            [
+                new ObjectNormalizer(),
+            ],
+            [
+                new JsonEncoder(null),
+            ]
+        );
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getMapping(Context $context): array
-    {
-        return [
-            '_source' => ['includes' => ['id']],
-            'properties' => [],
-        ];
+        $before = new IndexerOffset(
+            ['foo', 'bar'],
+            ['product', 'product_manufacturer'],
+            (new \DateTime())->getTimestamp()
+        );
+        $data = $serialize->serialize(
+            $before,
+            'json'
+        );
+
+        $after = $serialize->deserialize($data, IndexerOffset::class, 'json', [
+            AbstractNormalizer::DEFAULT_CONSTRUCTOR_ARGUMENTS => [
+                IndexerOffset::class => ['mappingDefinitions' => []],
+            ],
+        ]);
+
+        static::assertEquals($before, $after);
     }
 }

@@ -14,7 +14,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
  */
 class ElasticsearchRegistryTest extends TestCase
 {
-    public function testRegistery(): void
+    public function testRegistry(): void
     {
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
         $definition
@@ -30,5 +30,7 @@ class ElasticsearchRegistryTest extends TestCase
 
         static::assertFalse($registry->has('category'));
         static::assertNull($registry->get('category'));
+
+        static::assertEquals(['product'], $registry->getDefinitionNames());
     }
 }

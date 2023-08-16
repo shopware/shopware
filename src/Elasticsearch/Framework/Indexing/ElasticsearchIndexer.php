@@ -240,7 +240,7 @@ class ElasticsearchIndexer
 
         return new IndexerOffset(
             array_values($languages->getIds()),
-            $this->registry->getDefinitions(),
+            $this->registry->getDefinitionNames(),
             $timestamp->getTimestamp()
         );
     }
@@ -413,7 +413,7 @@ class ElasticsearchIndexer
         $timestamp = new \DateTime();
         $this->createLanguageIndex($language, $timestamp);
 
-        $offset = new IndexerOffset([$language->getId()], $this->registry->getDefinitions(), $timestamp->getTimestamp());
+        $offset = new IndexerOffset([$language->getId()], $this->registry->getDefinitionNames(), $timestamp->getTimestamp());
         while ($message = $this->iterate($offset)) {
             $offset = $message->getOffset();
 

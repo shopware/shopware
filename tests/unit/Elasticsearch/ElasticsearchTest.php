@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Elasticsearch;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
@@ -27,6 +28,11 @@ class ElasticsearchTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'prod');
 
+        $framework = new FrameworkBundle();
+        $frameworkExtension = $framework->getContainerExtension();
+        static::assertNotNull($frameworkExtension);
+        $container->registerExtension($frameworkExtension);
+
         $bundle = new Elasticsearch();
         $extension = $bundle->getContainerExtension();
         static::assertInstanceOf(ExtensionInterface::class, $extension);
@@ -40,6 +46,11 @@ class ElasticsearchTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 1);
+
+        $framework = new FrameworkBundle();
+        $frameworkExtension = $framework->getContainerExtension();
+        static::assertNotNull($frameworkExtension);
+        $container->registerExtension($frameworkExtension);
 
         $bundle = new Elasticsearch();
         $extension = $bundle->getContainerExtension();

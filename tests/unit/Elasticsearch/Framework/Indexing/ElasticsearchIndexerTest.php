@@ -201,12 +201,12 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $offset = new IndexerOffset([$this->language1->getId()], [$this->createDefinition('foo')], null);
+        $offset = new IndexerOffset([$this->language1->getId()], ['foo'], null);
 
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Definition foo not found');
 
-        $msg = $indexer->iterate($offset);
+        $indexer->iterate($offset);
     }
 
     public function testIterateWithMessageMultipleDefinitions(): void

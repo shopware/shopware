@@ -88,7 +88,8 @@
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden.",
-    "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden."
+    "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden.",
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig."
   },
   "account": {
     "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut.",

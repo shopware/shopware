@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -23,11 +22,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MediaFixtures;
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
 
     /**
      * @var EntityRepository
@@ -48,7 +42,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
@@ -132,11 +125,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $url = $media->getPath();
-        } else {
-            $url = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $url = $media->getPath();
 
         $this->getPublicFilesystem()->writeStream(
             $url,

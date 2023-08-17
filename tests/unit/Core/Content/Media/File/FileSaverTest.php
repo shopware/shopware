@@ -14,7 +14,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -45,7 +44,6 @@ class FileSaverTest extends TestCase
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
         $metadataLoader = $this->createMock(MetadataLoader::class);
@@ -57,7 +55,6 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $filesystemPublic,
             $filesystemPrivate,
-            $urlGenerator,
             $thumbnailService,
             $metadataLoader,
             $typeDetector,

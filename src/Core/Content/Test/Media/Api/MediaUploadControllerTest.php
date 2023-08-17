@@ -6,13 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,8 +31,6 @@ class MediaUploadControllerTest extends TestCase
 
     private EntityRepository $mediaRepository;
 
-    private UrlGeneratorInterface $urlGenerator;
-
     private string $mediaId;
 
     private Context $context;
@@ -46,7 +42,6 @@ class MediaUploadControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         $this->context = Context::createDefaultContext();
         $this->mediaId = $this->getEmptyMedia()->getId();
@@ -98,11 +93,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaPath = $media->getPath();
-        } else {
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $mediaPath = $media->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith($media->getId() . '.' . $media->getFileExtension(), $mediaPath);
@@ -135,11 +126,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaPath = $media->getPath();
-        } else {
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $mediaPath = $media->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertIsString($media->getFileName());
@@ -185,11 +172,7 @@ class MediaUploadControllerTest extends TestCase
             $location
         );
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $path = $media->getPath();
-        } else {
-            $path = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $path = $media->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($path));
 

@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -45,8 +44,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     private GenerateThumbnailsCommand $thumbnailCommand;
 
-    private UrlGeneratorInterface $urlGenerator;
-
     private Context $context;
 
     /**
@@ -58,7 +55,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = Context::createDefaultContext();
 
@@ -334,21 +330,15 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaPng = $this->getPngWithFolder();
         $mediaJpg = $this->getJpgWithFolder();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaPng->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
-        }
+        $filePath = $mediaPng->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaJpg->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        }
+        $filePath = $mediaJpg->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
@@ -368,22 +358,14 @@ class GenerateThumbnailsCommandTest extends TestCase
             ],
         ], $this->context);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaPdf->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
-        }
+        $filePath = $mediaPdf->getPath();
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaJpg->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        }
+        $filePath = $mediaJpg->getPath();
 
         $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }

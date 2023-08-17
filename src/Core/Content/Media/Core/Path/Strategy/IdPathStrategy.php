@@ -20,6 +20,6 @@ class IdPathStrategy extends AbstractMediaPathStrategy
 
     protected function value(MediaLocationStruct|ThumbnailLocationStruct $location): ?string
     {
-        return $location->id;
+        return $location instanceof MediaLocationStruct ? $location->id : $location->media->id;
     }
 }

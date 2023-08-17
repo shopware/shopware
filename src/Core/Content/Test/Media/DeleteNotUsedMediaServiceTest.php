@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Media;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DeleteNotUsedMediaService;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -66,18 +65,10 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $withProduct = $this->getMediaWithProduct();
         $withManufacturer = $this->getMediaWithManufacturer();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $firstPath = $txt->getPath();
-            $secondPath = $png->getPath();
-            $thirdPath = $withProduct->getPath();
-            $fourthPath = $withManufacturer->getPath();
-        } else {
-            $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-            $firstPath = $urlGenerator->getRelativeMediaUrl($txt);
-            $secondPath = $urlGenerator->getRelativeMediaUrl($png);
-            $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
-            $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
-        }
+        $firstPath = $txt->getPath();
+        $secondPath = $png->getPath();
+        $thirdPath = $withProduct->getPath();
+        $fourthPath = $withManufacturer->getPath();
 
         $this->getPublicFilesystem()->writeStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
         $this->getPublicFilesystem()->writeStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));

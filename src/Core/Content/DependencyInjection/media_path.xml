@@ -9,10 +9,11 @@
             <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" />
 
-            <!-- now trigger "new" media path handling and url generation -->
-            <tag name="kernel.event_listener" event="media.loaded" method="loaded" priority="50" />
+            <!-- trigger "new" media path handling and url generation -->
+            <tag name="kernel.event_listener" event="media.loaded" method="loaded" priority="20" />
 
-            <!-- at least, trigger legacy url generation to have a fallback strategy -->
+            <!-- at least trigger  -->
+            <tag name="kernel.event_listener" event="media.loaded" method="legacyPath" priority="10" />
             <tag name="kernel.event_listener" event="media.loaded" method="legacy" priority="0" />
         </service>
 

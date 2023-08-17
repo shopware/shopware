@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,8 +34,6 @@ class DownloadResponseGeneratorTest extends TestCase
 
     private Filesystem&MockObject $privateFilesystem;
 
-    private MockObject&UrlGeneratorInterface $urlGenerator;
-
     private DownloadResponseGenerator $downloadResponseGenerator;
 
     private MockObject&SalesChannelContext $salesChannelContext;
@@ -47,14 +44,9 @@ class DownloadResponseGeneratorTest extends TestCase
         $this->privateFilesystem = $this->createMock(Filesystem::class);
         $publicFilesystem = $this->createMock(Filesystem::class);
 
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $this->urlGenerator->method('getAbsoluteMediaUrl')->willReturn('foobar.txt');
-        $this->urlGenerator->method('getRelativeMediaUrl')->willReturn('foobar.txt');
-
         $this->downloadResponseGenerator = new DownloadResponseGenerator(
             $publicFilesystem,
             $this->privateFilesystem,
-            $this->urlGenerator,
             $this->mediaService,
             'php',
             $this->createMock(AbstractMediaUrlGenerator::class)
@@ -73,7 +65,6 @@ class DownloadResponseGeneratorTest extends TestCase
         $downloadResponseGenerator = new DownloadResponseGenerator(
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->urlGenerator,
             $this->mediaService,
             'php',
             $this->createMock(AbstractMediaUrlGenerator::class)
@@ -119,7 +110,6 @@ class DownloadResponseGeneratorTest extends TestCase
         $this->downloadResponseGenerator = new DownloadResponseGenerator(
             $privateFilesystem,
             $publicFilesystem,
-            $this->urlGenerator,
             $this->mediaService,
             $strategy ?? 'php',
             $generator

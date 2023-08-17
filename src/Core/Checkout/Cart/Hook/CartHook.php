@@ -48,6 +48,7 @@ class CartHook extends Hook implements CartAware
             CartFacadeHookFactory::class,
             PriceFactoryFactory::class,
             SystemConfigFacadeHookFactory::class,
+            RequestFacadeFactory::class,
         ];
     }
 

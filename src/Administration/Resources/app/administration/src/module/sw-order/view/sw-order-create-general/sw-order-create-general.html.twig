@@ -11,6 +11,10 @@
         />
     </sw-card>
 
+    <sw-extension-component-section
+        position-identifier="sw-order-create-base-line-items__before"
+    />
+
     <sw-card
         class="sw-order-create-general__line-items"
         position-identifier="sw-order-create-line-items"
@@ -39,7 +43,6 @@
                     class="sw-order-create-summary"
                     columns="1fr 1fr"
                 >
-
                     <sw-description-list
                         class="sw-order-create-summary__data"
                         grid="1fr 1fr"
@@ -118,4 +121,8 @@
             </sw-card-section>
         </template>
     </sw-card>
+
+    <sw-extension-component-section
+        position-identifier="sw-order-create-base-line-items__after"
+    />
 </div>

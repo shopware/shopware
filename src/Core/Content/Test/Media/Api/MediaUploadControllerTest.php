@@ -11,7 +11,6 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -94,11 +93,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaPath = $media->getPath();
-        } else {
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $mediaPath = $media->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith($media->getId() . '.' . $media->getFileExtension(), $mediaPath);
@@ -131,11 +126,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $media = $this->getMediaEntity();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaPath = $media->getPath();
-        } else {
-            $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $mediaPath = $media->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertIsString($media->getFileName());
@@ -181,11 +172,7 @@ class MediaUploadControllerTest extends TestCase
             $location
         );
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $path = $media->getPath();
-        } else {
-            $path = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $path = $media->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($path));
 

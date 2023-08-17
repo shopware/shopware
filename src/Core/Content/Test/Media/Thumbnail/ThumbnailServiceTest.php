@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -60,11 +59,7 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $media->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $filePath = $media->getPath();
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
 
         \assert($resource !== false);
@@ -129,11 +124,7 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $media->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $filePath = $media->getPath();
 
         $this->getPublicFilesystem()->write($filePath, 'this is the content of the file, which is not a image');
 
@@ -170,11 +161,7 @@ class ThumbnailServiceTest extends TestCase
         );
         $media->getMediaFolder()->getConfiguration()->setThumbnailQuality(100);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $media->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $filePath = $media->getPath();
         $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'rb');
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -211,11 +198,7 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolderWithoutThumbnails();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $media->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $filePath = $media->getPath();
         $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb');
         static::assertNotFalse($resource);
 
@@ -357,11 +340,7 @@ class ThumbnailServiceTest extends TestCase
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
         \assert($resource !== false);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $url = $media->getPath();
-        } else {
-            $url = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $url = $media->getPath();
 
         $this->getPublicFilesystem()->writeStream($url, $resource);
 
@@ -488,11 +467,7 @@ class ThumbnailServiceTest extends TestCase
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
         \assert($resource !== false);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $url = $media->getPath();
-        } else {
-            $url = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $url = $media->getPath();
 
         $this->getPublicFilesystem()->writeStream($url, $resource);
 
@@ -578,12 +553,6 @@ class ThumbnailServiceTest extends TestCase
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
-
-        $thumbnail = $media->getThumbnails()?->first();
-
-        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
-
-        $thumbnailPath = $thumbnail->getPath();
 
         $thumbnail = $media->getThumbnails()?->first();
 

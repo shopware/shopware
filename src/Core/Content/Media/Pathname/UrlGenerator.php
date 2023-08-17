@@ -23,8 +23,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
      */
     public function __construct(
         private readonly PathnameStrategyInterface $pathnameStrategy,
-        private readonly FilesystemOperator $filesystem,
-        private readonly AbstractMediaUrlGenerator $generator
+        private readonly FilesystemOperator $filesystem
     ) {
     }
 
@@ -37,11 +36,6 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
-
-        // already migrated? delegate to new service
-        if ($media->getPath()) {
-            return $media->getPath();
-        }
 
         $this->validateMedia($media);
 
@@ -63,16 +57,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
 
-        // already migrated? delegate to new service
-        if ($media->getPath()) {
-            $params = ['path' => $media->getPath(), 'updatedAt' => $media->getUpdatedAt()];
-
-            $url = $this->generator->generate([$params]);
-
-            return $url[0];
-        }
-
-        return $this->filesystem->publicUrl($this->getRelativeMediaUrl($media));
+        return $this->filesystem->publicUrl($media->getPath());
     }
 
     /**
@@ -84,11 +69,6 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
-
-        // already migrated?
-        if ($thumbnail->getPath()) {
-            return $thumbnail->getPath();
-        }
 
         $this->validateMedia($media);
 
@@ -109,15 +89,6 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
-
-        // already migrated? delegate to new service
-        if ($thumbnail->getPath()) {
-            $params = ['path' => $thumbnail->getPath(), 'updatedAt' => $thumbnail->getUpdatedAt()];
-
-            $url = $this->generator->generate([$params]);
-
-            return $url[0];
-        }
 
         return $this->filesystem->publicUrl($this->getRelativeThumbnailUrl($media, $thumbnail));
     }

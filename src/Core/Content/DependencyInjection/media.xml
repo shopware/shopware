@@ -149,7 +149,6 @@
         <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

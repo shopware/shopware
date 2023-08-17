@@ -44,8 +44,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     private GenerateThumbnailsCommand $thumbnailCommand;
 
-    private UrlGeneratorInterface $urlGenerator;
-
     private Context $context;
 
     /**
@@ -332,21 +330,15 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaPng = $this->getPngWithFolder();
         $mediaJpg = $this->getJpgWithFolder();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaPng->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
-        }
+        $filePath = $mediaPng->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaJpg->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        }
+        $filePath = $mediaJpg->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
@@ -366,22 +358,14 @@ class GenerateThumbnailsCommandTest extends TestCase
             ],
         ], $this->context);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaPdf->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
-        }
+        $filePath = $mediaPdf->getPath();
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $filePath = $mediaJpg->getPath();
-        } else {
-            $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        }
+        $filePath = $mediaJpg->getPath();
 
         $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }

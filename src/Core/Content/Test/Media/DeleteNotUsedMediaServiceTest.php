@@ -65,18 +65,10 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $withProduct = $this->getMediaWithProduct();
         $withManufacturer = $this->getMediaWithManufacturer();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $firstPath = $txt->getPath();
-            $secondPath = $png->getPath();
-            $thirdPath = $withProduct->getPath();
-            $fourthPath = $withManufacturer->getPath();
-        } else {
-            $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-            $firstPath = $urlGenerator->getRelativeMediaUrl($txt);
-            $secondPath = $urlGenerator->getRelativeMediaUrl($png);
-            $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
-            $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
-        }
+        $firstPath = $txt->getPath();
+        $secondPath = $png->getPath();
+        $thirdPath = $withProduct->getPath();
+        $fourthPath = $withManufacturer->getPath();
 
         $this->getPublicFilesystem()->writeStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
         $this->getPublicFilesystem()->writeStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));

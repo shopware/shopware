@@ -15,7 +15,6 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -200,14 +199,6 @@ class FileSaver
             return;
         }
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $oldMediaFilePath = $media->getPath();
-        } else {
-            $oldMediaFilePath = Feature::silent('v6.6.0.0', function () use ($media) {
-                return $this->urlGenerator->getRelativeMediaUrl($media);
-            });
-        }
-
         try {
             $this->getFileSystem($media)->delete($media->getPath());
         } catch (UnableToDeleteFile) {
@@ -224,13 +215,7 @@ class FileSaver
             throw MediaException::cannotOpenSourceStreamToRead($mediaFile->getFileName());
         }
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $path = $media->getPath();
-        } else {
-            $path = Feature::silent('v6.6.0.0', function () use ($media) {
-                return $this->urlGenerator->getRelativeMediaUrl($media);
-            });
-        }
+        $path = $media->getPath();
 
         try {
             $this->getFileSystem($media)->writeStream($path, $stream);

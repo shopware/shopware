@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Media\Domain\Path;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -37,6 +36,10 @@ class MediaUrlLoader
      */
     public function loaded(iterable $entities): void
     {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return;
+        }
+
         $mapping = $this->map($entities);
 
         if (empty($mapping)) {
@@ -68,16 +71,58 @@ class MediaUrlLoader
     }
 
     /**
+     * @param iterable<MediaEntity> $entities
+     *
      * @deprecated tag:v6.6.0 - reason:remove-subscriber - Will be removed, this function is only used to fall back to legacy media url generation. With 6.6, all media paths should be stored in the database.
      */
-    public function legacy(EntityLoadedEvent $event): void
+    public function legacyPath(iterable $entities): void
     {
         if (Feature::isActive('v6.6.0.0')) {
             return;
         }
 
-        /** @var MediaEntity $media */
-        foreach ($event->getEntities() as $media) {
+        foreach ($entities as $media) {
+            if (!$media->hasFile() || $media->isPrivate()) {
+                continue;
+            }
+
+            if (!empty($media->getPath())) {
+                continue;
+            }
+
+            $media->setPath($this->legacyGenerator->getRelativeMediaUrl($media));
+
+            if ($media->getThumbnails() === null) {
+                continue;
+            }
+
+            foreach ($media->getThumbnails() as $thumbnail) {
+                if (!empty($thumbnail->getPath())) {
+                    continue;
+                }
+
+                $thumbnail->setPath(
+                    $this->legacyGenerator->getRelativeThumbnailUrl($media, $thumbnail)
+                );
+            }
+        }
+    }
+
+    /**
+     * @param iterable<MediaEntity> $entities
+     *
+     * @deprecated tag:v6.6.0 - reason:remove-subscriber - Will be removed, this function is only used to fall back to legacy media url generation. With 6.6, all media paths should be stored in the database.
+     */
+    public function legacy(iterable $entities): void
+    {
+        if (Feature::isActive('v6.6.0.0')) {
+            return;
+        }
+
+        foreach ($entities as $media) {
+            if (!$media instanceof MediaEntity) {
+                continue;
+            }
             if (!$media->hasFile() || $media->isPrivate()) {
                 continue;
             }
@@ -114,8 +159,11 @@ class MediaUrlLoader
         $mapped = [];
 
         foreach ($entities as $entity) {
-            \assert($entity instanceof Entity);
             if (!$entity->has('path') || empty($entity->get('path'))) {
+                continue;
+            }
+            // don't generate private urls
+            if (!$entity->has('private') || $entity->get('private')) {
                 continue;
             }
 

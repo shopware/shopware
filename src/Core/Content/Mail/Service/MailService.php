@@ -10,14 +10,12 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -299,11 +297,7 @@ class MailService extends AbstractMailService
 
         $urls = [];
         foreach ($media ?? [] as $mediaItem) {
-            if (Feature::isActive('v6.6.0.0')) {
-                $urls[] = $mediaItem->getPath();
-            } else {
-                $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
-            }
+            $urls[] = $mediaItem->getPath();
         }
 
         return $urls;

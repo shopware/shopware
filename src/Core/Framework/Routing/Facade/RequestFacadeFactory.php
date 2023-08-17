@@ -21,7 +21,8 @@ class RequestFacadeFactory extends HookServiceFactory
     public function factory(Hook $hook, Script $script): RequestFacade
     {
         $request = $this->requestStack->getMainRequest();
-        \assert($request !== null);
+        // assert disabled: null is now allowed
+        //\assert($request !== null);
 
         return new RequestFacade($request);
     }

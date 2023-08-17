@@ -45,7 +45,7 @@ final class RequestFacade
     /**
      * @internal
      */
-    public function __construct(private readonly Request $request)
+    public function __construct(private readonly ?Request $request)
     {
     }
 
@@ -56,7 +56,7 @@ final class RequestFacade
      */
     public function ip(): ?string
     {
-        return $this->request->getClientIp();
+        return $this->request?->getClientIp();
     }
 
     /**
@@ -66,7 +66,7 @@ final class RequestFacade
      */
     public function scheme(): string
     {
-        return $this->request->getScheme();
+        return $this->request?->getScheme();
     }
 
     /**
@@ -76,7 +76,7 @@ final class RequestFacade
      */
     public function method(): string
     {
-        return $this->request->getMethod();
+        return $this->request?->getMethod();
     }
 
     /**
@@ -86,7 +86,7 @@ final class RequestFacade
      */
     public function uri(): string
     {
-        return $this->request->attributes->get('sw-original-request-uri', $this->request->getRequestUri());
+        return $this->request?->attributes->get('sw-original-request-uri', $this->request?->getRequestUri());
     }
 
     /**
@@ -96,7 +96,7 @@ final class RequestFacade
      */
     public function pathInfo(): string
     {
-        return $this->request->getPathInfo();
+        return $this->request?->getPathInfo();
     }
 
     /**
@@ -106,7 +106,7 @@ final class RequestFacade
      */
     public function query(): array
     {
-        return $this->request->query->all();
+        return $this->request?->query->all();
     }
 
     /**
@@ -117,7 +117,7 @@ final class RequestFacade
      */
     public function request(): array
     {
-        return $this->request->request->all();
+        return $this->request?->request->all();
     }
 
     /**
@@ -128,7 +128,7 @@ final class RequestFacade
      */
     public function headers(): array
     {
-        $headers = array_change_key_case($this->request->headers->all());
+        $headers = array_change_key_case($this->request?->headers->all());
 
         return array_intersect_key($headers, array_flip(self::ALLOWED_PARAMETERS));
     }
@@ -140,6 +140,6 @@ final class RequestFacade
      */
     public function cookies(): array
     {
-        return $this->request->cookies->all();
+        return $this->request?->cookies->all();
     }
 }

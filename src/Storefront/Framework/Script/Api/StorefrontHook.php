@@ -87,8 +87,6 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
             RepositoryWriterFacadeHookFactory::class,
             ScriptResponseFactoryFacadeHookFactory::class,
             RequestFacadeFactory::class,
-            CartFacadeHookFactory::class,
-            PriceFactoryFactory::class,
         ];
     }
 

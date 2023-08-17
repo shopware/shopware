@@ -11,6 +11,8 @@ const { Mixin, Filter } = Shopware;
 export default {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -67,7 +69,11 @@ export default {
             }
 
             if (elemData?.id) {
-                return this.element.data.media.url;
+                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
+                    return this.element.data.media.url;
+                }
+
+                return `${this.element.data.media.url}?${Shopware.Utils.createId()}`;
             }
 
             if (elemData?.url) {

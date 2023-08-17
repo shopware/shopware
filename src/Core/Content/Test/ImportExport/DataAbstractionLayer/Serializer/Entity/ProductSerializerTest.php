@@ -108,7 +108,12 @@ class ProductSerializerTest extends TestCase
         $deserialized = iterator_to_array($iterator);
 
         static::assertSame($product->getId(), $deserialized['id']);
-        static::assertSame($product->getTranslations()->first()->getName(), $deserialized['translations'][Defaults::LANGUAGE_SYSTEM]['name']);
+        $translations = $product->getTranslations();
+        static::assertNotNull($translations);
+
+        $first = $translations->first();
+        static::assertNotNull($first);
+        static::assertSame($first->getName(), $deserialized['translations'][Defaults::LANGUAGE_SYSTEM]['name']);
         static::assertSame($product->getStock(), $deserialized['stock']);
         static::assertSame($product->getProductNumber(), $deserialized['productNumber']);
         static::assertSame($product->getActive(), $deserialized['active']);

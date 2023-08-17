@@ -5,16 +5,17 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Command;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Core\Path\Strategy\PlainPathStrategy;
-use Shopware\Core\Content\Media\Domain\Path\MediaPathUpdater;
+use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
+use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
+use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
+use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
 use Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand;
-use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
-use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -25,7 +26,8 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class UpdatePathTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @dataProvider commandProvider
@@ -52,8 +54,8 @@ class UpdatePathTest extends TestCase
         $command = new UpdatePathCommand(
             new MediaPathUpdater(
                 new PlainPathStrategy(),
-                $this->getContainer()->get(SqlMediaLocationBuilder::class),
-                $this->getContainer()->get(SqlMediaPathStorage::class)
+                $this->getContainer()->get(MediaLocationBuilder::class),
+                $this->getContainer()->get(MediaPathStorage::class)
             ),
             $this->getContainer()->get(IteratorFactory::class)
         );

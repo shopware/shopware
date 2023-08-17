@@ -2,8 +2,11 @@
 
 namespace Shopware\Storefront\Test\Framework\Twig\Extension;
 
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
+use Shopware\Core\Content\Media\Core\Params\UrlParams;
+use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -92,7 +95,10 @@ class UrlEncodingTwigFilterTest extends TestCase
     public function testItEncodesTheUrl(): void
     {
         $filter = new UrlEncodingTwigFilter();
-        $urlGenerator = $this->getContainer()->get(AbstractMediaUrlGenerator::class);
+
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+
+        $urlGenerator = new MediaUrlGenerator($filesystem);
         $uploadTime = new \DateTime();
 
         $media = new MediaEntity();
@@ -102,7 +108,7 @@ class UrlEncodingTwigFilterTest extends TestCase
         $media->setUploadedAt($uploadTime);
         $media->setFileName('(image with spaces and brackets)');
 
-        $urls = $urlGenerator->generate(['foo' => ['path' => '(image with spaces and brackets).png']]);
+        $urls = $urlGenerator->generate(['foo' => UrlParams::fromMedia($media)]);
 
         static::assertArrayHasKey('foo', $urls);
         $url = $urls['foo'];

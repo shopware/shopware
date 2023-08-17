@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Infrastructure\Command;
 
-use Shopware\Core\Content\Media\Domain\Path\MediaPathUpdater;
+use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Infrastructure\Path;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Params\UrlParams;
+use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaException;
 
@@ -12,15 +14,14 @@ use Shopware\Core\Content\Media\MediaException;
  * @internal
  *
  * @covers \Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator
+ * @covers \Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator
  */
 class MediaUrlGeneratorTest extends TestCase
 {
     /**
-     * @param array{path:string, updatedAt?: \DateTimeInterface|null} $params
-     *
      * @dataProvider generateProvider
      */
-    public function testGenerate(array $params, ?string $expected): void
+    public function testGenerate(UrlParams $params, ?string $expected): void
     {
         $generator = new MediaUrlGenerator(
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
@@ -38,32 +39,22 @@ class MediaUrlGeneratorTest extends TestCase
     public static function generateProvider(): \Generator
     {
         yield 'Test with empty path' => [
-            ['path' => ''],
+            new UrlParams('id', UrlParamsSource::MEDIA, '', null),
             'http://localhost:8000/',
         ];
 
-        yield 'Test with null path' => [
-            ['path' => null],
-            null,
-        ];
-
         yield 'Test with path' => [
-            ['path' => 'test.jpg'],
+            new UrlParams('id', UrlParamsSource::MEDIA, 'test.jpg', null),
             'http://localhost:8000/test.jpg',
         ];
 
         yield 'Test with longer path' => [
-            ['path' => 'media/foo/3a/test.jpg'],
+            new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test.jpg', null),
             'http://localhost:8000/media/foo/3a/test.jpg',
         ];
 
-        yield 'Test with null date' => [
-            ['path' => 'test.jpg', 'createdAt' => null],
-            'http://localhost:8000/test.jpg',
-        ];
-
         yield 'Test with date' => [
-            ['path' => 'test.jpg', 'updatedAt' => new \DateTimeImmutable('2021-01-01')],
+            new UrlParams('id', UrlParamsSource::MEDIA, 'test.jpg', new \DateTimeImmutable('2021-01-01')),
             'http://localhost:8000/test.jpg?1609459200',
         ];
     }

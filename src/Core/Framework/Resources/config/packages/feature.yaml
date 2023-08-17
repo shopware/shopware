@@ -10,6 +10,10 @@ shopware:
       - name: VUE3
         default: false
         major: true
+      - name: media_path
+        default: false
+        major: true
+        description: "Enables new media path behavior, which calls new services to generate media urls"
       - name: ES_MULTILINGUAL_INDEX
         default: false
         major: true

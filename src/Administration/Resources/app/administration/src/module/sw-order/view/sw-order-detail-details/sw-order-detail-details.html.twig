@@ -287,6 +287,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_details_custom_fields %}
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-custom-fields__before"
+    />
+
     <sw-card
         v-if="customFieldSets.length > 0"
         position-identifier="sw-order-detail-details-custom-fields"
@@ -298,8 +302,11 @@
             :sets="customFieldSets"
         />
     </sw-card>
-    {% endblock %}
 
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-custom-fields__after"
+    />
+    {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_state_history_modal %}
     <sw-order-state-history-modal

@@ -26,6 +26,7 @@ async function createWrapper() {
             'sw-card-section': true,
             'sw-description-list': true,
             'sw-order-line-items-grid-sales-channel': true,
+            'sw-extension-component-section': true,
         },
     });
 }

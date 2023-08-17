@@ -41,7 +41,7 @@ variables:
         value: src/
         description: 'Defines the src dir. Use "" (empty string) if it starts in the root dir.'
     MYSQL_IMAGE:
-        value: mysql:8.0
+        value: mysql:8.0.33
         description: 'database image to use. Possible values: "mysql:8.0.19" (also change $MYSQL_CMD!), "mariadb:10.3", "mariadb:10.4"'
     MYSQL_CMD:
         value: mysqld

@@ -28,21 +28,26 @@ class IndexerOffset
 
     /**
      * @param list<string> $languages
-     * @param iterable<AbstractElasticsearchDefinition> $definitions
+     * @param iterable<AbstractElasticsearchDefinition>|iterable<string> $mappingDefinitions
      * @param array{offset: int|null}|null $lastId
      *
      * @deprecated tag:v6.6.0 - Parameter $languages will be removed.
      */
     public function __construct(
         protected array $languages,
-        iterable $definitions,
+        iterable $mappingDefinitions,
         protected ?int $timestamp,
         protected ?array $lastId = null
     ) {
         $mapping = [];
-        /** @var AbstractElasticsearchDefinition $definition */
-        foreach ($definitions as $definition) {
-            $mapping[] = $definition->getEntityDefinition()->getEntityName();
+        /** @var AbstractElasticsearchDefinition|string $mappingDefinition */
+        foreach ($mappingDefinitions as $mappingDefinition) {
+            if ($mappingDefinition instanceof AbstractElasticsearchDefinition) {
+                Feature::triggerDeprecationOrThrow('v6.6.0.0', 'Passing definitions objects is deprecated. Pass the entity name instead.');
+                $mapping[] = $mappingDefinition->getEntityDefinition()->getEntityName();
+            } else {
+                $mapping[] = $mappingDefinition;
+            }
         }
 
         $this->allDefinitions = $mapping;
@@ -170,5 +175,53 @@ class IndexerOffset
     public function setLastId(?array $lastId): void
     {
         $this->lastId = $lastId;
+    }
+
+    /**
+     * @internal This method is internal and will be used by Symfony serializer
+     *
+     * @return array<string>
+     */
+    public function getAllDefinitions(): array
+    {
+        return $this->allDefinitions;
+    }
+
+    /**
+     * @param list<string> $allDefinitions
+     *
+     * @internal This method is internal and will be used by Symfony serializer
+     */
+    public function setAllDefinitions(array $allDefinitions): void
+    {
+        $this->allDefinitions = $allDefinitions;
+    }
+
+    /**
+     * @param list<string> $definitions
+     *
+     * @internal This method is internal and will be used by Symfony serializer
+     */
+    public function setDefinitions(array $definitions): void
+    {
+        $this->definitions = $definitions;
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:remove-getter-setter - will be removed.
+     *
+     * @internal This method is internal and will be used by Symfony serializer
+     */
+    public function setLanguageId(?string $languageId): void
+    {
+        $this->languageId = $languageId;
+    }
+
+    /**
+     * @internal This method is internal and will be used by Symfony serializer
+     */
+    public function setDefinition(?string $definition): void
+    {
+        $this->definition = $definition;
     }
 }

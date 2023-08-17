@@ -1,4 +1,16 @@
 {
+  "global": {
+    "default": {
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "save": "Save",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "confirm": "Confirm",
+      "noteRequiredFields": "Fields marked with asterisks (*) are required."
+    }
+  },
   "general": {
     "homeLink": "Home",
     "menuLink": "Menu",
@@ -76,7 +88,8 @@
       "basic-captcha-invalid": "Incorrect input. Please try again."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
-    "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found."
+    "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
+    "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
   },
   "account": {
     "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",

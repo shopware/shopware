@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
-use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -67,7 +67,7 @@ class OpenModalResponseFactoryTest extends TestCase
      */
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
     {
-        static::expectException(ActionProcessException::class);
+        static::expectException(AppException::class);
         static::expectExceptionMessage($message);
 
         $this->factory->create(

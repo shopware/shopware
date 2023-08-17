@@ -108,7 +108,7 @@ PHP unit:
     needs: []
     timeout: 30m
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
         -   name: redis
@@ -149,7 +149,7 @@ PHP unit:
 PHP unit Elasticsearch:
   extends: PHP unit
   services:
-    - name: mariadb:10.4
+    - name: mariadb:10.4.30
       alias: database
       entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     - name: redis
@@ -169,7 +169,7 @@ PHP bench:
     timeout: 30m
     needs: []
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
         -   name: redis
@@ -268,7 +268,7 @@ PHP migration coverage:
     needs: []
     timeout: 10m
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     variables:
@@ -339,23 +339,23 @@ PHP Full:
             - .gitlab/stages/02-unit.yml
     parallel:
         matrix:
-            -   MYSQL_IMAGE: mysql:8.0
+            -   MYSQL_IMAGE: mysql:8.0.33
                 DEV_IMAGE: [ "shopware/development:8.1-composer-2" , "shopware/development:8.2-composer-2"]
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-            -   MYSQL_IMAGE: mariadb:10.4
+            -   MYSQL_IMAGE: mariadb:10.4.30
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
-            -   MYSQL_IMAGE: mariadb:10.5
+            -   MYSQL_IMAGE: mariadb:10.5.21
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'
-            -   MYSQL_IMAGE: mariadb:10.11
+            -   MYSQL_IMAGE: mariadb:10.11.4
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
-            -   MYSQL_IMAGE: mariadb:11
+            -   MYSQL_IMAGE: mariadb:11.0.2
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
@@ -421,7 +421,7 @@ PHP Full quarantined:
       - !reference [ .rules, long-running ]
     parallel:
         matrix:
-            - MYSQL_IMAGE: mariadb:10.4
+            - MYSQL_IMAGE: mariadb:10.4.30
               DEV_IMAGE: shopware/development:8.1-composer-2
               FEATURE_ALL: 'false'
               ALLOW_FAILURE: 'true'

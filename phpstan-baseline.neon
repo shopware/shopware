@@ -6691,21 +6691,6 @@ parameters:
 			path: src/Core/Framework/Api/OAuth/AccessToken.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getByAccessKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getIntegrationByAccessKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getUserByAccessKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
-
-		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/OAuth/RefreshTokenRepository.php
@@ -6986,16 +6971,6 @@ parameters:
 			path: src/Core/Framework/App/ActionButton/AppActionLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Executor\\:\\:executeHttpRequest\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Executor.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\ActionButtonResponseFactory\\:\\:createFromResponse\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/ActionButtonResponseFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\ActionButtonResponseFactoryInterface\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/Response/ActionButtonResponseFactoryInterface.php
@@ -7004,26 +6979,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\NotificationResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/Response/NotificationResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenModalResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenModalResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenModalResponseFactory\\:\\:validate\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenModalResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenNewTabResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenNewTabResponseFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\OpenNewTabResponseFactory\\:\\:validate\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Response/OpenNewTabResponseFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\Response\\\\ReloadDataResponseFactory\\:\\:create\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
@@ -12769,31 +12724,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\Aggregate\\\\LocaleTranslation\\\\LocaleTranslationCollection\\:\\:getLocaleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Locale/Aggregate/LocaleTranslation/LocaleTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:getLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:getLocalesForLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:resolveParentLanguages\\(\\) has parameter \\$languages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:resolveParentLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Locale\\\\LanguageLocaleCodeProvider\\:\\:\\$languages type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\Aggregate\\\\NumberRangeTranslation\\\\NumberRangeTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"

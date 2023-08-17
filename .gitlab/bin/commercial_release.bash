@@ -4,6 +4,7 @@ set -x
 set -e
 
 PLATFORM_TAG=$1
+COMMERCIAL_REMOTE_URL=${2:-"https://gitlab.shopware.com/shopware/6/product/commercial"}
 COMMERCIAL_VERSION="$(echo ${PLATFORM_TAG} | cut -d '.' -f2,3,4)"
 COMMERCIAL_TAG="v${COMMERCIAL_VERSION}"
 
@@ -11,18 +12,10 @@ COMMERCIAL_TAG="v${COMMERCIAL_VERSION}"
 BRANCH=$(git branch --contains tags/$PLATFORM_TAG | grep saas/ | sort | head -n 1)
 
 # clone the matching commercial branch
-echo "Clone commercial branch '${BRANCH}'"
-
-if [[ $CI ]]; then
-    git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/commercial commercial --branch $BRANCH
-else
-    # local checkout
-    git clone https://gitlab.shopware.com/shopware/6/product/commercial commercial --branch $BRANCH
-fi
+echo "Clone commercial branch '${BRANCH}' from $COMMERCIAL_REMOTE_URL"
+git clone $COMMERCIAL_REMOTE_URL commercial --branch $BRANCH
 
 cd commercial
-
-
 
 # allow the current minor or newer (required for the update, it breaks if you only allow patch releases for some reason)
 CORE_REQUIRE="shopware/core:~$(echo ${PLATFORM_TAG} | cut -d '.' -f1,2,3)"

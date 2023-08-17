@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\Context;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -260,6 +263,85 @@ class RegisterRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testValidateBillingAddressVatIdsWithBusinessAccountThrowException(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $customerRepository = new StaticEntityRepository([
+            new EntityCollection([$customerEntity]),
+            new CustomerDefinition(),
+        ]);
+
+        $definition = new DataValidationDefinition('address.create');
+
+        $addressValidation = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidation->method('create')->willReturn($definition);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function ($event) {
+            if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
+                $definition = new DataValidationDefinition('address.create');
+
+                $definition->add('company', new NotBlank());
+                $definition->set('zipcode', new CustomerZipCode(['countryId' => '123']));
+
+                static::assertNull($event->getData()->get('shippingAddress'));
+                static::assertSame($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+                static::assertEquals($event->getDefinition()->getProperties(), $definition->getProperties());
+            }
+
+            return $event;
+        });
+
+        $register = new RegisterRoute(
+            $dispatcher,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(DataValidator::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $addressValidation,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [
+                'id' => Uuid::randomHex(),
+                'countryId' => '123',
+            ],
+            'vatIds' => ['123'],
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+        ];
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::expectException(CountryNotFoundException::class);
+        } else {
+            static::expectException(CustomerException::class);
+        }
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }

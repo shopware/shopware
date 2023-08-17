@@ -16,8 +16,6 @@ class ProductUpdater implements EventSubscriberInterface
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.6.0 - MultilingualEsIndexer will always be available since 6.6
      */
     public function __construct(
         private readonly ElasticsearchIndexer $indexer,

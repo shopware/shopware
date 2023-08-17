@@ -38,6 +38,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('index_settings')->variablePrototype()->end()->end()
                 ->arrayNode('analysis')->performNoDeepMerging()->variablePrototype()->end()->end()
+                ->arrayNode('language_analyzer_mapping')->defaultValue([])->scalarPrototype()->end()->end()
                 ->arrayNode('dynamic_templates')->performNoDeepMerging()->variablePrototype()->end()->end()
                 ->arrayNode('product')
                     ->children()

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -196,7 +195,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getParentLanguageId(?string $languageId): ?string
     {
         if ($languageId === null || !Uuid::isValid($languageId)) {
-            throw new LanguageNotFoundException($languageId);
+            throw RoutingException::languageNotFound($languageId);
         }
         $data = $this->connection->createQueryBuilder()
             ->select(['LOWER(HEX(language.parent_id))'])
@@ -207,7 +206,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->fetchFirstColumn();
 
         if (empty($data)) {
-            throw new LanguageNotFoundException($languageId);
+            throw RoutingException::languageNotFound($languageId);
         }
 
         return $data[0];

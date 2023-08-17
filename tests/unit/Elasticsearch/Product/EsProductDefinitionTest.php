@@ -34,6 +34,7 @@ class EsProductDefinitionTest extends TestCase
                 'fields' => [
                     'search' => [
                         'type' => 'text',
+                        'analyzer' => 'sw_english_analyzer',
                     ],
                     'ngram' => [
                         'type' => 'text',
@@ -47,6 +48,7 @@ class EsProductDefinitionTest extends TestCase
                 'fields' => [
                     'search' => [
                         'type' => 'text',
+                        'analyzer' => 'sw_german_analyzer',
                     ],
                     'ngram' => [
                         'type' => 'text',
@@ -83,8 +85,9 @@ class EsProductDefinitionTest extends TestCase
     public function testMapping(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::exactly(2))->method('fetchFirstColumn')->willReturn([
-            'lang_en', 'lang_de',
+        $connection->expects(static::exactly(2))->method('fetchAllKeyValue')->willReturn([
+            'lang_en' => 'en-GB',
+            'lang_de' => 'de-DE',
         ]);
 
         $definition = new EsProductDefinition(
@@ -92,7 +95,11 @@ class EsProductDefinitionTest extends TestCase
             $connection,
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            [
+                'en' => 'sw_english_analyzer',
+                'de' => 'sw_german_analyzer',
+            ]
         );
 
         $expectedMapping = [
@@ -363,8 +370,9 @@ class EsProductDefinitionTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
-            'lang_en', 'lang_de',
+        $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+            'lang_en' => 'en-GB',
+            'lang_de' => 'de-DE',
         ]);
 
         $definition = new EsProductDefinition(
@@ -375,7 +383,11 @@ class EsProductDefinitionTest extends TestCase
                 'test2' => 'unknown',
             ],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -425,7 +437,11 @@ class EsProductDefinitionTest extends TestCase
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         static::assertSame($productDefinition, $definition->getEntityDefinition());
@@ -445,7 +461,11 @@ class EsProductDefinitionTest extends TestCase
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
-            $searchQueryBuilder
+            $searchQueryBuilder,
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         $criteria = new Criteria();
@@ -472,7 +492,11 @@ class EsProductDefinitionTest extends TestCase
             $connection,
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
 
         $uuid = $this->ids->get('product-1');
@@ -558,7 +582,11 @@ class EsProductDefinitionTest extends TestCase
             $connection,
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
+            $this->createMock(AbstractProductSearchQueryBuilder::class),
+            [
+                'en' => 'english',
+                'de' => 'german',
+            ]
         );
         $uuid = $this->ids->get('product-1');
         $documents = $definition->fetch([$uuid], Context::createDefaultContext());

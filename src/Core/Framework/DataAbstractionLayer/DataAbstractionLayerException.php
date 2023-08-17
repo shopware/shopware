@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -22,10 +23,12 @@ class DataAbstractionLayerException extends HttpException
 
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
 
+    final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
+
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
         if (!Feature::isActive('v6.6.0.0')) {
-            new InvalidSerializerFieldException($expectedClass, $field);
+            return new InvalidSerializerFieldException($expectedClass, $field);
         }
 
         return new self(
@@ -79,6 +82,23 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_API_CRITERIA_IDS,
             $previous->getMessage(),
             $previous->getParameters(),
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
+     */
+    public static function invalidLanguageId(?string $languageId): HttpException
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new LanguageNotFoundException($languageId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_LANGUAGE_ID,
+            'The provided language id "{{ languageId }}" is invalid.',
+            ['languageId' => $languageId]
         );
     }
 }

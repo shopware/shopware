@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('customer-order')]
@@ -49,6 +50,7 @@ class CustomerException extends HttpException
     public const CUSTOMER_RECOVERY_HASH_EXPIRED = 'CHECKOUT__CUSTOMER_RECOVERY_HASH_EXPIRED';
     public const WISHLIST_IS_NOT_ACTIVATED = 'CHECKOUT__WISHLIST_IS_NOT_ACTIVATED';
     public const WISHLIST_NOT_FOUND = 'CHECKOUT__WISHLIST_NOT_FOUND';
+    public const COUNTRY_NOT_FOUND = 'CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND';
     public const DUPLICATE_WISHLIST_PRODUCT = 'CHECKOUT__DUPLICATE_WISHLIST_PRODUCT';
     public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
     public const LEGACY_PASSWORD_ENCODER_NOT_FOUND = 'CHECKOUT__LEGACY_PASSWORD_ENCODER_NOT_FOUND';
@@ -141,6 +143,20 @@ class CustomerException extends HttpException
     public static function addressNotFound(string $id): AddressNotFoundException
     {
         return new AddressNotFoundException($id);
+    }
+
+    public static function countryNotFound(string $countryId): HttpException
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new CountryNotFoundException($countryId);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::COUNTRY_NOT_FOUND,
+            'Country with id "{{ countryId }}" not found.',
+            ['countryId' => $countryId]
+        );
     }
 
     public static function badCredentials(): BadCredentialsException

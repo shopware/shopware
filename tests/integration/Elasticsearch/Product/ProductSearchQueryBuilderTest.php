@@ -197,6 +197,29 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testSearchWithStopWord(IdsCollection $ids): void
+    {
+        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
+
+        $this->setSearchConfiguration(false, ['name', 'description']);
+        $this->setSearchScores([]);
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTerm('the');
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+
+        /** @var array<string> $resultIds */
+        $resultIds = $result->getIds();
+
+        static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testScoring(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, ['name', 'description', 'customSearchKeywords']);

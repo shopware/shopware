@@ -6,7 +6,7 @@
   needs: [ Build, 'Jest (Administration)' ]
   dependencies: [ Build ]
   services:
-    - name: mariadb:10.4
+    - name: mariadb:10.4.30
       alias: database
   variables:
     APP_ENV: e2e
@@ -260,7 +260,7 @@ E2E Changed install NL scenarios:
   needs: [ Build, 'Jest (Administration)' ]
   dependencies: [ Build ]
   services:
-    -   name: mysql:8.0
+    -   name: mysql:8.0.33
         alias: database
   variables:
     APP_ENV: e2e

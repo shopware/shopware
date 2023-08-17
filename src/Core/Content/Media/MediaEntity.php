@@ -580,6 +580,7 @@ class MediaEntity extends Entity
     {
         $data = parent::jsonSerialize();
         unset($data['metaDataRaw'], $data['mediaTypeRaw']);
+        $data['hasFile'] = $this->hasFile();
 
         return $data;
     }

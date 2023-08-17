@@ -96,8 +96,8 @@
             <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
             <argument type="service" id="messenger.bus.shopware" />
             <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder" />
-            <argument type="service" id="Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy" />
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder" />
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy" />
             <argument>%shopware.filesystem.allowed_extensions%</argument>
             <argument>%shopware.filesystem.private_allowed_extensions%</argument>
         </service>
@@ -330,7 +330,6 @@
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>

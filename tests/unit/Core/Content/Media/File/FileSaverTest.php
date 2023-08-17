@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;

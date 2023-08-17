@@ -3,8 +3,7 @@
 namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
-use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,22 +17,16 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
     }
 
     /**
-     * @param array<string|int, array{path:string, updatedAt?: \DateTimeInterface|null}> $paths {"some-key" => {"path": "../test.png", "updatedAt": "2020..."}, "id" => {}}
-     *
-     * @return array<string|int, string> [key => url]
+     * {@inheritdoc}
      */
     public function generate(array $paths): array
     {
         $urls = [];
         foreach ($paths as $key => $value) {
-            if (!isset($value['path'])) {
-                throw MediaException::invalidUrlGeneratorParameter($key);
-            }
+            $url = $this->filesystem->publicUrl($value->path);
 
-            $url = $this->filesystem->publicUrl($value['path']);
-
-            if (isset($value['updatedAt']) && $value['updatedAt'] instanceof \DateTimeInterface) {
-                $url .= '?' . $value['updatedAt']->getTimestamp();
+            if ($value->updatedAt !== null) {
+                $url .= '?' . $value->updatedAt->getTimestamp();
             }
 
             $urls[$key] = $url;

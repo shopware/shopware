@@ -20,8 +20,6 @@ class NoDALAutoloadTest extends RuleTestCase
      */
     public function testRule(): void
     {
-        return;
-
         // not in a class, ignore
         $this->analyse([__DIR__ . '/data/NoDalAutoload/not-in-class.php'], []);
 

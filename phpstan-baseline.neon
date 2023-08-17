@@ -12716,11 +12716,6 @@ parameters:
 			path: tests/integration/Core/Content/Flow/Dispatching/Action/FlowMailVariablesTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$property\\-\\>getValue\\(\\$renderer\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: tests/integration/Core/Content/Mail/Service/MailServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Framework\\\\App\\\\AppUrlChangeResolver\\\\MoveShopPermanentlyStrategyTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/Core/Framework/App/AppUrlChangeResolver/MoveShopPermanentlyStrategyTest.php

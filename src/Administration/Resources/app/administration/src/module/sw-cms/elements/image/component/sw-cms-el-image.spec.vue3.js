@@ -108,7 +108,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
         });
 
         const img = wrapper.find('img');
-        expect(img.attributes('src')).toBe(mediaDataMock.url);
+        expect(img.attributes('src')).toContain(mediaDataMock.url);
     });
 
     it('should show default image if demo value is undefined', async () => {

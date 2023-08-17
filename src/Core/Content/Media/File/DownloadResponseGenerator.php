@@ -6,7 +6,8 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
-use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
+use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
@@ -60,9 +61,7 @@ class DownloadResponseGenerator
     private function getDefaultResponse(MediaEntity $media, SalesChannelContext $context, FilesystemOperator $fileSystem): Response
     {
         if (!$media->isPrivate()) {
-            $params = ['path' => $media->getPath(), 'updatedAt' => $media->getUpdatedAt()];
-
-            $url = $this->mediaUrlGenerator->generate([$params]);
+            $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
 
             return new RedirectResponse((string) array_shift($url));
         }

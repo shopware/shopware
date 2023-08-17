@@ -3,20 +3,19 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
+use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
+use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
+use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
-use Shopware\Core\Content\Media\Domain\Event\UpdateMediaPathEvent;
-use Shopware\Core\Content\Media\Domain\Event\UpdateThumbnailPathEvent;
-use Shopware\Core\Content\Media\Domain\Path\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -578,7 +577,7 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get(TypeDetector::class),
             $this->getContainer()->get('messenger.bus.shopware'),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(SqlMediaLocationBuilder::class),
+            $this->getContainer()->get(MediaLocationBuilder::class),
             $this->getContainer()->get(AbstractMediaPathStrategy::class),
             $allowed,
             $allowedPrivate

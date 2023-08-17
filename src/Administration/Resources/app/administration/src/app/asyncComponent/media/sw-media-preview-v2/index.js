@@ -21,7 +21,7 @@ const { fileReader } = Shopware.Utils;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     playableVideoFormats: [
         'video/mp4',
@@ -227,7 +227,11 @@ export default {
                 return this.trueSource.href;
             }
 
-            return this.trueSource.url;
+            if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
+                return this.trueSource.url;
+            }
+
+            return `${this.trueSource.url}?${Shopware.Utils.createId()}`;
         },
 
         isUrl() {
@@ -272,7 +276,15 @@ export default {
 
             const sources = [];
             this.trueSource.thumbnails.forEach((thumbnail) => {
-                const encoded = encodeURI(thumbnail.url);
+                let url;
+
+                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
+                    url = thumbnail.url;
+                } else {
+                    url = `${thumbnail.url}?${Shopware.Utils.createId()}`;
+                }
+
+                const encoded = encodeURI(url);
                 sources.push(`${encoded} ${thumbnail.width}w`);
             });
 

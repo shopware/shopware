@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -323,7 +324,12 @@ class MediaRepositoryTest extends TestCase
         $this->runWorker();
 
         static::assertFalse($this->getPublicFilesystem()->has((string) $mediaPath));
-        static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
+
+        if (Feature::isActive('v6.6.0.0')) {
+            static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
+        } else {
+            static::assertTrue($this->getPublicFilesystem()->has((string) $thumbnailPath));
+        }
     }
 
     public function testDeleteMediaDeletesOnlyFilesForGivenMediaId(): void

@@ -26,6 +26,14 @@ jobs:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
     services:
+      database:
+        image: mysql:8.0.33
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: root
+        options: '--mount="type=tmpfs,destination=/var/lib/mysql" --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=2s --health-retries=3'
+        ports:
+          - "3306:3306"
       elasticsearch:
         image: elastic/elasticsearch:7.8.0
         env:

@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup Composer
         run: |
-          composer install
+          composer install -o
 
       - name: Run PHPUnit
         run: |

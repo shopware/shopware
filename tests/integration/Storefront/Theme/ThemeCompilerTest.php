@@ -603,7 +603,7 @@ PHP_EOL;
 
         // Ensure feature flag mixin SCSS file is given
         $featureMixin = file_get_contents(
-            __DIR__ . '/../../../../../src/Storefront/Resources/app/storefront/src/scss/abstract/functions/feature.scss'
+            __DIR__ . '/../../../../src/Storefront/Resources/app/storefront/src/scss/abstract/functions/feature.scss'
         );
 
         $testScss = <<<PHP_EOL

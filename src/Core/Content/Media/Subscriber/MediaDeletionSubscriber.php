@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,7 +43,6 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly EntityRepository $thumbnailRepository,
         private readonly MessageBusInterface $messageBus,
@@ -130,17 +128,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
 
             if ($mediaEntity->isPrivate()) {
-                if (Feature::isActive('v6.6.0.0')) {
-                    $privatePaths[] = $mediaEntity->getPath();
-                } else {
-                    $privatePaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
-                }
+                $privatePaths[] = $mediaEntity->getPath();
             } else {
-                if (Feature::isActive('v6.6.0.0')) {
-                    $publicPaths[] = $mediaEntity->getPath();
-                } else {
-                    $publicPaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
-                }
+                $publicPaths[] = $mediaEntity->getPath();
             }
 
             if (!$mediaEntity->getThumbnails()) {
@@ -222,18 +212,10 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if (Feature::isActive('v6.6.0.0')) {
-                if ($media->isPrivate()) {
-                    $privatePaths[] = $thumbnail->getPath();
-                } else {
-                    $publicPaths[] = $thumbnail->getPath();
-                }
+            if ($media->isPrivate()) {
+                $privatePaths[] = $thumbnail->getPath();
             } else {
-                if ($media->isPrivate()) {
-                    $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
-                } else {
-                    $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
-                }
+                $publicPaths[] = $thumbnail->getPath();
             }
         }
 

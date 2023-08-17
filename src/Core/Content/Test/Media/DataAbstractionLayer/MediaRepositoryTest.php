@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -26,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -126,11 +124,7 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $path = $media->getPath();
-        } else {
-            $path = $urlGenerator->getRelativeMediaUrl($media);
-        }
+        $path = $media->getPath();
 
         // simulate file
         $fileSystem->write($path, 'foo');
@@ -267,11 +261,7 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaPath = $media->getPath();
-        } else {
-            $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
-        }
+        $mediaPath = $media->getPath();
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -313,16 +303,11 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaPath = $media->getPath();
+        $mediaPath = $media->getPath();
 
-            static::assertNotNull($media->getThumbnails());
-            static::assertNotNull($media->getThumbnails()->first());
-            $thumbnailPath = $media->getThumbnails()->first()->getPath();
-        } else {
-            $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
-            $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]));
-        }
+        static::assertNotNull($media->getThumbnails());
+        static::assertNotNull($media->getThumbnails()->first());
+        $thumbnailPath = $media->getThumbnails()->first()->getPath();
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -437,11 +422,7 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $secondPath = $secondMedia->getPath();
-        } else {
-            $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
-        }
+        $secondPath = $secondMedia->getPath();
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -533,11 +514,7 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $mediaUrl = $media->getPath();
-        } else {
-            $mediaUrl = $urlGenerator->getRelativeMediaUrl($media);
-        }
+        $mediaUrl = $media->getPath();
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);

@@ -7,7 +7,6 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Path\Strategy\BCStrategy;
 use Shopware\Core\Content\Media\Core\Path\Strategy\PathStrategyFactory;
-use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Domain\Path\Struct\MediaLocationStruct;
 use Shopware\Core\Content\Media\Domain\Path\Struct\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy;
@@ -36,7 +35,6 @@ class BCStrategyTest extends TestCase
             new UrlGenerator(
                 new PlainPathnameStrategy(),
                 new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
-                $this->getContainer()->get(AbstractMediaUrlGenerator::class)
             )
         );
 

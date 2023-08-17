@@ -10,7 +10,6 @@ use Shopware\Core\Content\Media\Domain\Path\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -33,7 +32,6 @@ class DownloadResponseGenerator
     public function __construct(
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly MediaService $mediaService,
         private readonly string $localPrivateDownloadStrategy,
         private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
@@ -47,11 +45,7 @@ class DownloadResponseGenerator
     ): Response {
         $fileSystem = $this->getFileSystem($media);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $path = $media->getPath();
-        } else {
-            $path = $this->urlGenerator->getRelativeMediaUrl($media);
-        }
+        $path = $media->getPath();
 
         try {
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
@@ -75,11 +69,7 @@ class DownloadResponseGenerator
 
         switch ($this->localPrivateDownloadStrategy) {
             case self::X_SENDFILE_DOWNLOAD_STRATEGRY:
-                if (Feature::isActive('v6.6.0.0')) {
-                    $location = $media->getPath();
-                } else {
-                    $location = $this->urlGenerator->getRelativeMediaUrl($media);
-                }
+                $location = $media->getPath();
 
                 $stream = $fileSystem->readStream($location);
                 $location = \is_resource($stream) ? stream_get_meta_data($stream)['uri'] : $location;
@@ -89,11 +79,7 @@ class DownloadResponseGenerator
 
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGRY:
-                if (Feature::isActive('v6.6.0.0')) {
-                    $location = $media->getPath();
-                } else {
-                    $location = $this->urlGenerator->getRelativeMediaUrl($media);
-                }
+                $location = $media->getPath();
 
                 $response = new Response(null, 200, $this->getStreamHeaders($media));
                 $response->headers->set('X-Accel-Redirect', $location);

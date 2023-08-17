@@ -24,6 +24,20 @@ class ElasticsearchRegistry
         return $this->definitions;
     }
 
+    /**
+     * @return iterable<string>
+     */
+    public function getDefinitionNames(): iterable
+    {
+        $names = [];
+
+        foreach ($this->getDefinitions() as $definition) {
+            $names[] = $definition->getEntityDefinition()->getEntityName();
+        }
+
+        return $names;
+    }
+
     public function get(string $entityName): ?AbstractElasticsearchDefinition
     {
         foreach ($this->getDefinitions() as $definition) {

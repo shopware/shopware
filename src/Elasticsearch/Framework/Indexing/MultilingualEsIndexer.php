@@ -141,7 +141,7 @@ class MultilingualEsIndexer
 
         return new IndexerOffset(
             [],
-            $this->registry->getDefinitions(),
+            $this->registry->getDefinitionNames(),
             $timestamp->getTimestamp()
         );
     }

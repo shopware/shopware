@@ -121,7 +121,7 @@ class MultilingualEsIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $offset = new IndexerOffset([], [$this->createDefinition('product')], null);
+        $offset = new IndexerOffset([], ['product'], null);
 
         $msg = $indexer->iterate($offset);
 
@@ -141,7 +141,7 @@ class MultilingualEsIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $offset = new IndexerOffset([], [$this->createDefinition('foo')], null);
+        $offset = new IndexerOffset([], ['foo'], null);
 
         static::expectException(IndexingException::class);
         static::expectExceptionMessage('Elasticsearch definition of foo not found');

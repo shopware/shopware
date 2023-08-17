@@ -65,5 +65,8 @@ return [
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to the non-covariant Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute#getDecorated\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractResetPasswordRoute to Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractCustomerRecoveryIsExpiredRoute',
+
+        // Renaming of arguments
+        'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions'
     ],
 ];

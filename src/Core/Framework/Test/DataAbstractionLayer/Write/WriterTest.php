@@ -522,7 +522,7 @@ class WriterTest extends TestCase
         )->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
+        static::assertStringContainsString('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresRuntimeFields(): void

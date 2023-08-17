@@ -17,17 +17,11 @@ class PlainPathStrategyTest extends TestCase
     /**
      * @dataProvider strategyProvider
      */
-    public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, ?string $expected): void
+    public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, string $expected): void
     {
         $strategy = new PlainPathStrategy();
 
         $generate = $strategy->generate([$struct]);
-
-        if ($expected === null) {
-            static::assertArrayNotHasKey($struct->id, $generate);
-
-            return;
-        }
 
         static::assertArrayHasKey($struct->id, $generate);
 
@@ -38,7 +32,7 @@ class PlainPathStrategyTest extends TestCase
     {
         yield 'Test without extension' => [
             new MediaLocationStruct('foo', null, 'test', null),
-            null,
+            'media/test',
         ];
 
         yield 'Test with extension' => [

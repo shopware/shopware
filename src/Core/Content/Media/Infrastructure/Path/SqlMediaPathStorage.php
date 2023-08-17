@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\Core\Path\MediaPathStorage;
+use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore (see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaPathStorageTest)
+ */
 #[Package('core')]
 class SqlMediaPathStorage implements MediaPathStorage
 {

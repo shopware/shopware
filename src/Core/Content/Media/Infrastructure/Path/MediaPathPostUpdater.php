@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\Domain\Path\MediaPathUpdater;
+use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;

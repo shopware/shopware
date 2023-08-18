@@ -193,7 +193,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_empty_state %}
     <sw-empty-state
-        v-if="products.length <= 0 && !searchTerm"
+        v-if="products.length <= 0 && !searchTerm && !isLoading"
         :show-description="false"
         :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
     >

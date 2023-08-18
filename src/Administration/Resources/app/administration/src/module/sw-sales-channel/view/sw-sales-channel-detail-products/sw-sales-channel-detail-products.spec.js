@@ -5,6 +5,7 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { shallowMount } from '@vue/test-utils';
 import swSalesChannelDetailProducts from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
+import 'src/app/component/base/sw-card';
 
 Shopware.Component.register('sw-sales-channel-detail-products', swSalesChannelDetailProducts);
 
@@ -25,14 +26,7 @@ function mockCriteria() {
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-products'), {
         stubs: {
-            'sw-card': {
-                template: `
-                    <div class="sw-card">
-                        <slot></slot>
-                        <slot name="grid"></slot>
-                    </div>
-                `,
-            },
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-container': {
                 template: `
                     <div class="sw-container">
@@ -71,6 +65,9 @@ async function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-sales-channel-products-assignment-modal': true,
             'sw-context-menu-item': true,
+            'sw-extension-component-section': true,
+            'sw-loader': true,
+            'sw-ignore-class': true,
         },
         provide: {
             repositoryFactory: {
@@ -467,5 +464,20 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
         expect(wrapper.vm.isProductRemovable(variantProductMocks[0])).toBe(false);
         expect(wrapper.vm.isProductRemovable(variantProductMocks[1])).toBe(true);
+    });
+
+    it('should render loading state when loading product entities', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+        expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
+    });
+
+    it('should render empty state when products are loaded and empty', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-empty-state').exists()).toBe(true);
     });
 });

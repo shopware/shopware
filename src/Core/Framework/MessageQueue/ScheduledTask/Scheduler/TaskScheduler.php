@@ -20,8 +20,11 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @final
+ */
 #[Package('core')]
-final class TaskScheduler
+class TaskScheduler
 {
     /**
      * @internal

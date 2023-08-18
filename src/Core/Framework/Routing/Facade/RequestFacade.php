@@ -62,9 +62,9 @@ final class RequestFacade
     /**
      * The scheme method returns the request scheme
      *
-     * @return string request scheme
+     * @return string|null request scheme
      */
-    public function scheme(): string
+    public function scheme(): ?string
     {
         return $this->request?->getScheme();
     }
@@ -72,9 +72,9 @@ final class RequestFacade
     /**
      * The method returns the request method in upper case
      *
-     * @return string request method in upper case
+     * @return string|null request method in upper case
      */
-    public function method(): string
+    public function method(): ?string
     {
         return $this->request?->getMethod();
     }
@@ -82,9 +82,9 @@ final class RequestFacade
     /**
      * The method `uri` returns the request uri with the resolved url
      *
-     * @return string request uri
+     * @return string|null request uri
      */
-    public function uri(): string
+    public function uri(): ?string
     {
         return $this->request?->attributes->get('sw-original-request-uri', $this->request?->getRequestUri());
     }
@@ -92,9 +92,9 @@ final class RequestFacade
     /**
      * The method `pathInfo` returns the request path info. The path info can be also an internal link when a seo url is used.
      *
-     * @return string request path info
+     * @return string|null request path info
      */
-    public function pathInfo(): string
+    public function pathInfo(): ?string
     {
         return $this->request?->getPathInfo();
     }
@@ -102,9 +102,9 @@ final class RequestFacade
     /**
      * The method `query` returns all query parameters as an array
      *
-     * @return array<string, mixed> request query parameters
+     * @return array<string, mixed>|null request query parameters
      */
-    public function query(): array
+    public function query(): ?array
     {
         return $this->request?->query->all();
     }
@@ -113,9 +113,9 @@ final class RequestFacade
      * The method `request` returns all post parameters as an array.
      * On `application/json` requests this contains also the json body parsed as an array.
      *
-     * @return array<string, mixed> request post parameters
+     * @return array<string, mixed>|null request post parameters
      */
-    public function request(): array
+    public function request(): ?array
     {
         return $this->request?->request->all();
     }
@@ -126,9 +126,13 @@ final class RequestFacade
      *
      * @return array<string, array<int, string|null>|string|null> request headers
      */
-    public function headers(): array
+    public function headers(): ?array
     {
-        $headers = array_change_key_case($this->request?->headers->all());
+        if (!$this-request) {
+            return null;
+        }
+        
+        $headers = array_change_key_case($this->request->headers->all());
 
         return array_intersect_key($headers, array_flip(self::ALLOWED_PARAMETERS));
     }
@@ -136,9 +140,9 @@ final class RequestFacade
     /**
      * The method `cookies` returns all request cookies as an array.
      *
-     * @return array<string, array<mixed>|bool|float|int|string> request cookies
+     * @return array<string, array<mixed>|bool|float|int|string>|null request cookies
      */
-    public function cookies(): array
+    public function cookies(): ?array
     {
         return $this->request?->cookies->all();
     }

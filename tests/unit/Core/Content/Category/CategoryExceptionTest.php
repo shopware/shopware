@@ -47,4 +47,13 @@ class CategoryExceptionTest extends TestCase
         static::assertEquals('Footer category, for sales channel sales-channel-name, is not set', $exception->getMessage());
         static::assertEquals(['salesChannelName' => $salesChannelName], $exception->getParameters());
     }
+
+    public function testAfterCategoryNotFound(): void
+    {
+        $exception = CategoryException::afterCategoryNotFound();
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertEquals(CategoryException::AFTER_CATEGORY_NOT_FOUND, $exception->getErrorCode());
+        static::assertEquals('Category to insert after not found.', $exception->getMessage());
+    }
 }

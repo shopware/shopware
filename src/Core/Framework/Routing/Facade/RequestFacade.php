@@ -124,11 +124,11 @@ final class RequestFacade
      * The method `headers` returns all request headers as an array.
      * It is possible to access only the following headers: content-type, content-length, accept, accept-language, user-agent, referer
      *
-     * @return array<string, array<int, string|null>|string|null> request headers
+     * @return array<string, array<int, string|null>|string|null>|null request headers
      */
     public function headers(): ?array
     {
-        if (!$this-request) {
+        if (!$this->request) {
             return null;
         }
         

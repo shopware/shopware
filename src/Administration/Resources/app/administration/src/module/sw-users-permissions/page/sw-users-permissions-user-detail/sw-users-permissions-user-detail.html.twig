@@ -425,15 +425,14 @@
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-            <template v-if="showSecretAccessKey">
+            <template>
                 <sw-text-field
-                    v-if="secretAccessKeyFieldIsText"
+                    v-if="showSecretAccessKey"
                     {% if VUE3 %}
                     v-model:value="currentIntegration.secretAccessKey"
                     {% else %}
                     v-model="currentIntegration.secretAccessKey"
                     {% endif %}
-                    :type="secretAccessKeyFieldType"
                     :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                     :disabled="true"
                     :password-toggle-able="false"
@@ -442,13 +441,12 @@
                 />
 
                 <sw-password-field
-                    v-if="secretAccessKeyFieldIsPassword"
+                    v-else
                     {% if VUE3 %}
                     v-model:value="currentIntegration.secretAccessKey"
                     {% else %}
                     v-model="currentIntegration.secretAccessKey"
                     {% endif %}
-                    :type="secretAccessKeyFieldType"
                     :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                     :disabled="true"
                     :password-toggle-able="false"

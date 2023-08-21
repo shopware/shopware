@@ -431,9 +431,9 @@ export default {
                     link.remove();
                 }
 
-                this.isLoadingPreview = false;
-
                 return response;
+            }).finally(() => {
+                this.isLoadingPreview = false;
             });
         },
 

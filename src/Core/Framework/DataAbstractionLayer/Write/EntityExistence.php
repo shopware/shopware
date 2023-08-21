@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class EntityExistence
 {
+    /**
+     * @param array<string, mixed> $primaryKey
+     * @param array<string, mixed> $state
+     */
     public function __construct(
         private readonly ?string $entityName,
         // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
@@ -22,11 +26,32 @@ class EntityExistence
     ) {
     }
 
+    /**
+     * @internal
+     *
+     * @param array<string, mixed> $primaryKey
+     */
+    public static function createForEntity(?string $entity, array $primaryKey): self
+    {
+        return new self($entity, $primaryKey, false, false, false, []);
+    }
+
+    /**
+     * @internal
+     */
+    public static function createEmpty(): self
+    {
+        return new self(null, [], false, false, false, []);
+    }
+
     public function exists(): bool
     {
         return $this->exists;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;
@@ -61,6 +86,9 @@ class EntityExistence
         return !$this->isChild();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getState(): array
     {
         return $this->state;

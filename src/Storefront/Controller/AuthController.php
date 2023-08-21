@@ -178,7 +178,7 @@ class AuthController extends StorefrontController
 
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException | UnauthorizedHttpException | CustomerOptinNotCompletedException | CustomerAuthThrottledException $e) {
+        } catch (BadCredentialsException|UnauthorizedHttpException|CustomerOptinNotCompletedException|CustomerAuthThrottledException $e) {
             if ($e instanceof CustomerOptinNotCompletedException) {
                 $errorSnippet = $e->getSnippetKey();
             }
@@ -252,7 +252,7 @@ class AuthController extends StorefrontController
 
         try {
             $page = $this->recoverPasswordPageLoader->load($request, $context, $hash);
-        } catch (ConstraintViolationException) {
+        } catch (ConstraintViolationException|CustomerNotFoundByHashException) {
             $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
@@ -286,7 +286,11 @@ class AuthController extends StorefrontController
 
             $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
+            if ($formViolations->getViolations('newPassword')->count() === 1) {
+                $this->addFlash(self::DANGER, $this->trans('account.passwordNotIdentical'));
+            } else {
+                $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
+            }
 
             return $this->forwardToRoute(
                 'frontend.account.recover.password.page',

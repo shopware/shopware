@@ -150,7 +150,11 @@
                                 class="favorite-switch"
                                 :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
                                 :value="isFavorite(item.id)"
+                                {% if VUE3 %}
+                                @update:value="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
+                                {% else %}
                                 @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
+                                {% endif %}
                             />
                         </template>
                         {% endblock %}

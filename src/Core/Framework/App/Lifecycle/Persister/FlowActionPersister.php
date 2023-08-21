@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\App\FlowAction\FlowAction;
+use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,7 +23,7 @@ class FlowActionPersister
     ) {
     }
 
-    public function updateActions(FlowAction $flowAction, string $appId, Context $context, string $defaultLocale): void
+    public function updateActions(Action $flowAction, string $appId, Context $context, string $defaultLocale): void
     {
         /** @var array<string, string> $existingFlowActions */
         $existingFlowActions = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_action WHERE app_id = :appId', [

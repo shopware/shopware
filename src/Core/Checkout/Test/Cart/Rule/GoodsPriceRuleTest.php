@@ -33,8 +33,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class GoodsPriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

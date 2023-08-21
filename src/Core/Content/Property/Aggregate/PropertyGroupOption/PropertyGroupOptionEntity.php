@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class PropertyGroupOptionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

@@ -21,8 +21,8 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 #[Package('system-settings')]
 class UserEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

@@ -22,8 +22,8 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 #[Package('business-ops')]
 class RuleEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -101,7 +101,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     /**
      * @throws IllegalTransitionException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      */
     private function transitState(string $machine, string $orderId, string $toPlace, Context $context): void
     {
@@ -112,7 +112,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
         $data = new ParameterBag();
         $machineId = $machine === self::ORDER ? $orderId : $this->getMachineId($machine, $orderId);
         if (!$machineId) {
-            throw new StateMachineNotFoundException($machine);
+            throw StateMachineException::stateMachineNotFound($machine);
         }
 
         $actionName = $this->getAvailableActionName($machine, $machineId, $toPlace);
@@ -134,7 +134,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
                 return;
             default:
-                throw new StateMachineNotFoundException($machine);
+                throw StateMachineException::stateMachineNotFound($machine);
         }
     }
 

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('content')]
 class MediaThumbnailSizeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var int

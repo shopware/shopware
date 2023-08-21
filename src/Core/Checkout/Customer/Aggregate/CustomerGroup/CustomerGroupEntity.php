@@ -13,8 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 #[Package('customer-order')]
 class CustomerGroupEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

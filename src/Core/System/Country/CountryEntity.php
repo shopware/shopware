@@ -18,8 +18,8 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 #[Package('system-settings')]
 class CountryEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

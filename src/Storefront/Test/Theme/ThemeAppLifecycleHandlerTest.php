@@ -21,8 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ThemeAppLifecycleHandlerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private EventDispatcherInterface $eventDispatcher;
 

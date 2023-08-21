@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,7 +37,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
     ) {
     }
 
-    public function getDecorated(): AbstractResetPasswordRoute
+    public function getDecorated(): AbstractCustomerRecoveryIsExpiredRoute
     {
         throw new DecorationPatternException(self::class);
     }
@@ -52,13 +52,14 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
         $customerHashCriteria = new Criteria();
         $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
 
+        /** @var CustomerRecoveryEntity|null $customerRecovery */
         $customerRecovery = $this->customerRecoveryRepository->search(
             $customerHashCriteria,
             $context->getContext()
         )->first();
 
-        if (!$customerRecovery) {
-            throw new CustomerNotFoundByHashException($hash);
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         return new CustomerRecoveryIsExpiredResponse($this->isExpired($customerRecovery));

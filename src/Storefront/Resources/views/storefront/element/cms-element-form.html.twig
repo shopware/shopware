@@ -1,5 +1,5 @@
 {% block element_form %}
-    {%  set config = element.fieldConfig.elements %}
+    {% set config = element.fieldConfig.elements %}
 
     <div class="cms-element-{{ element.type }}">
         <div class="row justify-content-center">
@@ -15,7 +15,7 @@
                                     <div class="card-title mb-4">
                                         {% if element.config.title.value %}
                                             {{ element.config.title.value }}
-                                        {%  else %}
+                                        {% else %}
                                             {{ "contact.headline"|trans }}
                                         {% endif %}
                                     </div>
@@ -34,7 +34,7 @@
                                     <div class="card-title mb-4">
                                         {% if element.config.title.value %}
                                             {{ element.config.title.value }}
-                                        {%  else %}
+                                        {% else %}
                                             {{ "newsletter.headline"|trans }}
                                         {% endif %}
                                     </div>

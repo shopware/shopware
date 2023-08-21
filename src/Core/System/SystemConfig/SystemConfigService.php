@@ -24,7 +24,6 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
-use function json_decode;
 
 #[Package('system-settings')]
 class SystemConfigService implements ResetInterface
@@ -51,7 +50,8 @@ class SystemConfigService implements ResetInterface
         private readonly Connection $connection,
         private readonly ConfigReader $configReader,
         private readonly AbstractSystemConfigLoader $loader,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly bool $fineGrainedCache
     ) {
     }
 
@@ -65,8 +65,14 @@ class SystemConfigService implements ResetInterface
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
-        foreach (array_keys($this->keys) as $trace) {
-            $this->traces[$trace][self::buildName($key)] = true;
+        if ($this->fineGrainedCache) {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace][self::buildName($key)] = true;
+            }
+        } else {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace]['global.system.config'] = true;
+            }
         }
 
         $config = $this->loader->load($salesChannelId);
@@ -185,7 +191,7 @@ class SystemConfigService implements ResetInterface
 
         foreach ($configs as [$key, $value]) {
             if ($value !== null) {
-                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+                $value = \json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
 
                 if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
                     $value = null;
@@ -247,6 +253,9 @@ class SystemConfigService implements ResetInterface
 
             $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
             $this->eventDispatcher->dispatch($event);
+
+            // Use modified value provided by potential event subscribers.
+            $value = $event->getValue();
 
             // On null value, delete the config
             if ($value === null) {

@@ -105,7 +105,7 @@ class ProductStreamIndexer extends EntityIndexer
 
             try {
                 $serialized = $this->buildPayload($filter);
-            } catch (InvalidFilterQueryException | SearchRequestException) {
+            } catch (InvalidFilterQueryException|SearchRequestException) {
                 $invalid = true;
             } finally {
                 $update->execute([

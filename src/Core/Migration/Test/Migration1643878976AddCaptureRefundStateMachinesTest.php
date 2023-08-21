@@ -17,8 +17,8 @@ use Shopware\Core\Migration\V6_4\Migration1643878976AddCaptureRefundStateMachine
 #[Package('core')]
 class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

@@ -17,8 +17,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class MessageQueueStatsSubscriberTest extends TestCase
 {
-    use QueueTestBehaviour;
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     public function testListener(): void
     {

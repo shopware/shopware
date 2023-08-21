@@ -75,6 +75,7 @@
       "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Erweiterung deaktiviert.",
       "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller.",
+      "appIsNotCompatible": "Die Erweiterung \"{name}\" ist nicht kompatibel mit dieser Shopware Version",
       "appLicenseCouldNotBeVerified": {
         "title": "Die Lizenz dieser Erweiterung konnte nicht überprüft werden",
         "message": "Stelle sicher, dass Deine Lizenzdomain korrekt gesetzt ist und Du mit Deinem Shopware Account angemeldet bist, auf welchen diese Erweiterung lizenziert ist.",

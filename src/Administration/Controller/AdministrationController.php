@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -38,7 +37,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use function version_compare;
 
 #[Route(defaults: ['_routeScope' => ['administration']])]
 #[Package('administration')]
@@ -137,7 +135,7 @@ class AdministrationController extends AbstractController
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
         if ($searchConfigId === false) {
-            throw new LanguageNotFoundException($context->getLanguageId());
+            throw RoutingException::languageNotFound($context->getLanguageId());
         }
 
         $deLanguageId = $this->fetchLanguageIdByName('de-DE', $this->connection);
@@ -176,7 +174,7 @@ class AdministrationController extends AbstractController
     {
         $params = [];
         if (!$request->request->has('email')) {
-            throw new \InvalidArgumentException('Parameter "email" is missing.');
+            throw RoutingException::missingRequestParameter('email');
         }
 
         $email = (string) $request->request->get('email');
@@ -223,7 +221,7 @@ class AdministrationController extends AbstractController
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('html')) {
-            throw new \InvalidArgumentException('Parameter "html" is missing.');
+            throw RoutingException::missingRequestParameter('html');
         }
 
         $html = (string) $request->request->get('html');
@@ -239,7 +237,7 @@ class AdministrationController extends AbstractController
         $property = $this->definitionInstanceRegistry->getByEntityName($entityName)->getField($propertyName);
 
         if ($property === null) {
-            throw new \InvalidArgumentException('Invalid field property provided.');
+            throw RoutingException::invalidRequestParameter($field);
         }
 
         $flag = $property->getFlag(AllowHtml::class);
@@ -278,7 +276,7 @@ class AdministrationController extends AbstractController
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
 
-        usort($sortedSupportedApiVersions, fn (int $version1, int $version2) => version_compare((string) $version1, (string) $version2));
+        usort($sortedSupportedApiVersions, fn (int $version1, int $version2) => \version_compare((string) $version1, (string) $version2));
 
         return array_pop($sortedSupportedApiVersions);
     }

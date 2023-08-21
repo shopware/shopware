@@ -11,7 +11,12 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'searchRankingService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'searchRankingService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),
@@ -208,6 +213,12 @@ export default {
         },
 
         selectedItems() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:selection', this.selectedItems);
+
+                return;
+            }
+
             this.$emit('media-selection-change', this.selectedItems);
         },
 

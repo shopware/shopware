@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -112,7 +113,7 @@ class GenerateThumbnailsCommand extends Command
         $rawInput = $input->getOption('batch-size');
 
         if (!is_numeric($rawInput)) {
-            throw new \UnexpectedValueException('Batch size must be numeric');
+            throw MediaException::invalidBatchSize();
         }
 
         return (int) $rawInput;
@@ -131,12 +132,7 @@ class GenerateThumbnailsCommand extends Command
         $searchResult = $this->mediaFolderRepository->search($criteria, $context);
 
         if ($searchResult->getTotal() === 0) {
-            throw new \UnexpectedValueException(
-                sprintf(
-                    'Could not find a folder with the name: "%s"',
-                    $rawInput
-                )
-            );
+            throw MediaException::mediaFolderNameNotFound($rawInput);
         }
 
         return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 class ChangelogDefinition
 {
     private const VIOLATION_MESSAGE_SECTION_SEPARATOR = 'You should use "___" to separate %s and %s section';
-    private const VIOLATION_MESSAGE_STARTING_KEYWORD = "Changelog entry \"%s\" does not start with a valid keyword.\nPlease have look at the handbook: https://handbook.shopware.com/Product/Guides/Development/WritingChangelog#changelog-entries";
+    private const VIOLATION_MESSAGE_STARTING_KEYWORD = "Changelog entry \"%s\" does not start with a valid keyword (%s).\nPlease have look at the handbook: https://handbook.shopware.com/Product/Guides/Development/WritingChangelog#changelog-entries";
 
     #[Assert\NotBlank(message: 'The title should not be blank')]
     private string $title;
@@ -280,10 +280,10 @@ to
 self
 ```
 EOD;
-        $template = str_replace('%FEATURE_FLAG%', ($this->flag ? 'flag: ' . $this->flag : ''), $template);
-        $template = str_replace('%AUTHOR%', ($this->author ? 'author: ' . $this->author : ''), $template);
-        $template = str_replace('%AUTHOR_EMAIL%', ($this->authorEmail ? 'author_email: ' . $this->authorEmail : ''), $template);
-        $template = str_replace('%AUTHOR_GITHUB%', ($this->authorGitHub ? 'author_github: ' . $this->authorGitHub : ''), $template);
+        $template = str_replace('%FEATURE_FLAG%', $this->flag ? 'flag: ' . $this->flag : '', $template);
+        $template = str_replace('%AUTHOR%', $this->author ? 'author: ' . $this->author : '', $template);
+        $template = str_replace('%AUTHOR_EMAIL%', $this->authorEmail ? 'author_email: ' . $this->authorEmail : '', $template);
+        $template = str_replace('%AUTHOR_GITHUB%', $this->authorGitHub ? 'author_github: ' . $this->authorGitHub : '', $template);
         $template = str_replace("\n\n", "\n", $template);
 
         return trim($template);
@@ -318,7 +318,7 @@ EOD;
                     continue 2;
                 }
             }
-            $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry))
+            $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry, implode(', ', array_column(ChangelogKeyword::cases(), 'value'))))
                 ->atPath($currentSection->name)
                 ->addViolation();
         }

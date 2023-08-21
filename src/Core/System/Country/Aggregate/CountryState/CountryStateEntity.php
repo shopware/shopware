@@ -14,8 +14,8 @@ use Shopware\Core\System\Country\CountryEntity;
 #[Package('system-settings')]
 class CountryStateEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

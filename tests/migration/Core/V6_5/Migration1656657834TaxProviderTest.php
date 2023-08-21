@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_5\Migration1674204177TaxProvider;
  *
  * @covers \Shopware\Core\Migration\V6_5\Migration1674204177TaxProvider
  */
-class Migration1674204177TaxProviderTest extends TestCase
+class Migration1656657834TaxProviderTest extends TestCase
 {
     use KernelTestBehaviour;
 

@@ -45,6 +45,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
             <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.tagging.each_config%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>
 

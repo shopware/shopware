@@ -145,8 +145,6 @@ export default Component.wrapComponentConfig({
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 const errorMessage = error?.response?.data?.errors?.[0]?.detail || '';
 
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     message: errorMessage,

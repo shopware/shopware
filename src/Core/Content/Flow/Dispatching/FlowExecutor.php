@@ -12,7 +12,7 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
-use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
+use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -130,7 +130,12 @@ class FlowExecutor
         }
 
         $action = $this->actions[$sequence->action] ?? null;
-        $action?->handleFlow($event);
+
+        if (!$action instanceof FlowAction) {
+            return;
+        }
+
+        $action->handleFlow($event);
     }
 
     private function callApp(ActionSequence $sequence, StorableFlow $event): void

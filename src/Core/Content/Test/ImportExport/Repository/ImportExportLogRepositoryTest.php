@@ -139,11 +139,10 @@ class ImportExportLogRepositoryTest extends TestCase
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
             static::assertNotNull($entry);
-            array_push($data, $entry);
+            $data[] = $entry;
         }
 
         try {
-            static::assertNotNull($data);
             $this->logRepository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {

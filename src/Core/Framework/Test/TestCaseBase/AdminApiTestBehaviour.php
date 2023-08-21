@@ -58,7 +58,7 @@ trait AdminApiTestBehaviour
                 ['ids' => ArrayParameterType::STRING]
             );
         } catch (\Exception) {
-            //nth
+            // nth
         }
 
         $this->apiUsernames = [];

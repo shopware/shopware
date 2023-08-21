@@ -13,10 +13,13 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
-        <sw-field
+        <sw-switch-field
             v-if="!bulkEditData?.statusMails?.isChanged"
+            {% if VUE3 %}
+            v-model:value="isFlowTriggered"
+            {% else %}
             v-model="isFlowTriggered"
-            type="switch"
+            {% endif %}
             name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"
             class="sw-bulk-edit-save-modal-confirm__trigger-flows-switch"
             :label="$tc('sw-bulk-edit.modal.confirm.switchLabel')"

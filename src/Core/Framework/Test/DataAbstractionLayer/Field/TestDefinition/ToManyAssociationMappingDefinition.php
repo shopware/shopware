@@ -31,8 +31,8 @@ class ToManyAssociationMappingDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('to_many_id', 'toManyId', ToManyAssociationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('to_many_dependency_id', 'toManyDependencyId', ToManyAssociationDependencyDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new ManyToOneAssociationField('toMany', 'to_many', ToManyAssociationDefinition::class)),
-            (new ManyToOneAssociationField('toManyDependency', 'to_many_dependency', ToManyAssociationDependencyDefinition::class)),
+            new ManyToOneAssociationField('toMany', 'to_many', ToManyAssociationDefinition::class),
+            new ManyToOneAssociationField('toManyDependency', 'to_many_dependency', ToManyAssociationDependencyDefinition::class),
         ]);
     }
 }

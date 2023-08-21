@@ -19,6 +19,7 @@ framework:
     secret: "%env(APP_SECRET)%"
     validation:
         enable_annotations: true
+        email_validation_mode: html5
     default_locale:  en_GB
     http_method_override: true
     mailer:
@@ -81,6 +82,8 @@ framework:
             log_level: notice
         Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException:
             log_level: notice
+        Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException:
+            log_level: notice
         # Shopware exceptions
         Shopware\Core\Content\Product\Exception\ProductNotFoundException:
             log_level: notice
@@ -88,14 +91,86 @@ framework:
             log_level: notice
         Shopware\Core\Content\Cms\Exception\PageNotFoundException:
             log_level: notice
+        Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\BadCredentialsException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException:
+            log_level: notice
         Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
+            log_level: notice
+        Shopware\Core\Checkout\Cart\Exception\InvalidCartException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\EmptyCartException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\PaymentMethodNotChangeableException:
+            log_level: notice
+        Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException:
+            log_level: notice
+        Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException:
+            log_level: notice
+        Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException:
+            log_level: notice
+        Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException:
             log_level: notice
         Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException:
             log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException:
+            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException:
             log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
         Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException:
             log_level: notice
         Shopware\Core\System\StateMachine\Exception\IllegalTransitionException:
@@ -103,6 +178,8 @@ framework:
         Shopware\Core\Framework\Api\Exception\MissingPrivilegeException:
             log_level: notice
         Shopware\Core\Framework\Validation\Exception\ConstraintViolationException:
+            log_level: notice
+        Shopware\Core\Framework\Validation\WriteConstraintViolationException:
             log_level: notice
         Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
             log_level: notice
@@ -131,4 +208,47 @@ framework:
         Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException:
+            log_level: notice
+        Shopware\Core\Content\Media\Exception\MediaNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
+            log_level: notice
+        Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException:
+            log_level: notice
+        Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
+            log_level: notice
+        Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException:
+            log_level: notice
+        Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
+            log_level: notice
+        Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
+            log_level: notice
+        Shopware\Core\Framework\App\Exception\AppRegistrationException:
+            log_level: notice
+        Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException:
+            log_level: notice
+        Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\Media\Exception\MissingFileException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\ProductExport\Exception\RenderHeaderException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\ProductExport\Exception\RenderFooterException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\ProductExport\Exception\RenderProductException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\Content\Media\Exception\UploadException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\System\Country\Exception\CountryStateNotFoundException:
+            log_level: notice
+        # deprecated tag:v6.6.0 - Exception will be removed
+        Shopware\Core\System\Country\Exception\CountryNotFoundException:
             log_level: notice

@@ -17,7 +17,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use function print_r;
 
 /**
  * @internal
@@ -74,9 +73,9 @@ class AclAnnotationValidatorTest extends TestCase
         }
 
         if ($pass) {
-            static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertNull($exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         } else {
-            static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         }
     }
 
@@ -112,7 +111,7 @@ class AclAnnotationValidatorTest extends TestCase
             $exception = $e;
         }
 
-        static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+        static::assertNull($exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
     public function testValidateAppRequestFail(): void
@@ -147,7 +146,7 @@ class AclAnnotationValidatorTest extends TestCase
             $exception = $e;
         }
 
-        static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+        static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
     /**
@@ -189,7 +188,7 @@ class AclAnnotationValidatorTest extends TestCase
 
     private function registerActionButton(string $appName, string $actionId): void
     {
-        $iconRaw = \file_get_contents(__DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test/icon.png');
+        $iconRaw = \file_get_contents(__DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test/icon.png');
         static::assertNotFalse($iconRaw);
 
         $this->appRepository->create([[

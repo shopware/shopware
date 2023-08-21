@@ -27,9 +27,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  */
 class JsonSalesChannelEntityEncoderTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
     use AssertValuesTrait;
+    use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     public static function emptyInputProvider(): array
     {

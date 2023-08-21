@@ -15,8 +15,8 @@ use Shopware\Core\System\Tag\TagCollection;
 #[Package('content')]
 class LandingPageEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var bool

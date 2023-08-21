@@ -96,6 +96,10 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\AppController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\App\Api\AppJWTGenerateRoute"/>
+        </service>
+
         <service id="Shopware\Storefront\Controller\CartLineItemController">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>

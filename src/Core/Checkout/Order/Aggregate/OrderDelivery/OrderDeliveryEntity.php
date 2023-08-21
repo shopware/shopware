@@ -16,8 +16,8 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 #[Package('customer-order')]
 class OrderDeliveryEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

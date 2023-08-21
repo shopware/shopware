@@ -282,57 +282,57 @@ class LineItemDimensionWidthRuleTest extends TestCase
     {
         yield 'only matching products / equals / match' => [
             [
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(100)),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(100),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
 
         yield 'only matching products / not equals / no match' => [
             [
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(100)),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(100),
             ],
             MatchAllLineItemsRule::OPERATOR_NEQ, false,
         ];
 
         yield 'only one matching product / equals / match' => [
             [
-                (self::createLineItemWithWidth(100)),
+                self::createLineItemWithWidth(100),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
 
         yield 'only one matching product / not equals / no match' => [
             [
-                (self::createLineItemWithWidth(100)),
+                self::createLineItemWithWidth(100),
             ],
             MatchAllLineItemsRule::OPERATOR_NEQ, false,
         ];
 
         yield 'matching and not matching products / equals / not match' => [
             [
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(500)),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(500),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, false,
         ];
 
         yield 'matching and not matching products / not equals / not match' => [
             [
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(500)),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(500),
             ],
             MatchAllLineItemsRule::OPERATOR_NEQ, false,
         ];
 
         yield 'matching products and one promotion / equals / match' => [
             [
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItemWithWidth(100)),
-                (self::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A'),
+                self::createLineItemWithWidth(100),
+                self::createLineItemWithWidth(100),
+                self::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A'),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];

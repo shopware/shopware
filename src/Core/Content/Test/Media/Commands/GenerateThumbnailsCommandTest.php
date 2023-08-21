@@ -3,9 +3,12 @@
 namespace Shopware\Core\Content\Test\Media\Commands;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -13,7 +16,6 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
@@ -28,29 +30,23 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class GenerateThumbnailsCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CommandTestBehaviour;
+    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaCollection>
      */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaFolderCollection>
      */
-    private $mediaFolderRepository;
+    private EntityRepository $mediaFolderRepository;
 
-    /**
-     * @var GenerateThumbnailsCommand
-     */
-    private $thumbnailCommand;
+    private GenerateThumbnailsCommand $thumbnailCommand;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     private Context $context;
 
@@ -85,9 +81,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*Generated\s*2.*/', $string);
         static::assertMatchesRegularExpression('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
-        $mediaResult = $this->getNewMediaEntities();
-        /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        $medias = $this->getNewMediaEntities();
+        foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
             static::assertEquals(
@@ -114,9 +109,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*Generated\s*2.*/', $string);
         static::assertMatchesRegularExpression('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
-        $mediaResult = $this->getNewMediaEntities();
-        /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        $medias = $this->getNewMediaEntities();
+        foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
             static::assertEquals(
@@ -143,9 +137,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*Generated\s*1.*/', $string);
         static::assertMatchesRegularExpression('/.*Skipped\s*' . (\count($this->initialMediaIds) + 1) . '.*/', $string);
 
-        $mediaResult = $this->getNewMediaEntities();
-        /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        $medias = $this->getNewMediaEntities();
+        foreach ($medias as $updatedMedia) {
             if (str_starts_with((string) $updatedMedia->getMimeType(), 'image')) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertNotNull($thumbnails);
@@ -170,9 +163,8 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
-        $mediaResult = $this->getNewMediaEntities();
-        /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        $medias = $this->getNewMediaEntities();
+        foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
             static::assertEquals(2, $thumbnails->count());
@@ -199,9 +191,8 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
-        $mediaResult = $this->getNewMediaEntities();
-        /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult->getEntities() as $updatedMedia) {
+        $medias = $this->getNewMediaEntities();
+        foreach ($medias as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertNotNull($thumbnails);
             static::assertEquals(0, $thumbnails->count());
@@ -210,7 +201,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testCommandAbortsIfNoFolderCanBeFound(): void
     {
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Could not find a folder with the name: "non-existing-folder"');
 
         $input = new StringInput('--folder-name="non-existing-folder"');
@@ -220,8 +211,10 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     public function testItThrowsExceptionOnNonNumericLimit(): void
     {
-        $this->expectException(\Exception::class);
-        $input = new StringInput('-i test');
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Provided batch size is invalid.');
+
+        $input = new StringInput('--batch-size "test"');
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
@@ -382,7 +375,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
-    private function getNewMediaEntities(): EntitySearchResult
+    private function getNewMediaEntities(): MediaCollection
     {
         if (!empty($this->initialMediaIds)) {
             $criteria = new Criteria($this->initialMediaIds);
@@ -401,6 +394,6 @@ class GenerateThumbnailsCommandTest extends TestCase
             ));
         }
 
-        return $this->mediaRepository->search($criteria, $this->context);
+        return $this->mediaRepository->search($criteria, $this->context)->getEntities();
     }
 }

@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppFlowActionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $appId;
 

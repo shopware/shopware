@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Rule\Rule;
 #[Package('checkout')]
 class PromotionEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     final public const CODE_TYPE_NO_CODE = 'no_code';
 

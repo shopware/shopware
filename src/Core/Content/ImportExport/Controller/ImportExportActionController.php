@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\Controller;
 
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -12,7 +11,6 @@ use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -48,8 +46,6 @@ class ImportExportActionController extends AbstractController
         private readonly DownloadService $downloadService,
         private readonly EntityRepository $profileRepository,
         private readonly DataValidator $dataValidator,
-        private readonly ImportExportLogDefinition $logDefinition,
-        private readonly ApiVersionConverter $apiVersionConverter,
         private readonly ImportExportFactory $importExportFactory,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly MessageBusInterface $messageBus,
@@ -101,7 +97,7 @@ class ImportExportActionController extends AbstractController
             );
         }
 
-        return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log)]);
+        return new JsonResponse(['log' => $log->jsonSerialize()]);
     }
 
     #[Route(path: '/api/_action/import-export/process', name: 'api.action.import_export.process', methods: ['POST'])]

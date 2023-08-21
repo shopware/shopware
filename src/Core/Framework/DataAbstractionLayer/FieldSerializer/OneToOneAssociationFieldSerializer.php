@@ -62,7 +62,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
                 );
             }
 
-            //id provided? otherwise set new one to return it and yield the id into the FkField
+            // id provided? otherwise set new one to return it and yield the id into the FkField
             if (isset($value[$pkField->getPropertyName()])) {
                 $id = $value[$pkField->getPropertyName()];
             } else {

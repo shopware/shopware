@@ -27,7 +27,11 @@
             :disabled="isLoading"
             :process-success="isSaveSuccessful"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-customer.detail.buttonSave') }}
@@ -46,6 +50,7 @@
                 position-identifier="sw-customer-create-base-form"
             >
                 <sw-customer-base-form
+                    v-if="customer"
                     :is-loading="isLoading"
                     :customer="customer"
                     @sales-channel-change="onChangeSalesChannel"
@@ -60,6 +65,7 @@
                 position-identifier="sw-customer-create-address-form"
             >
                 <sw-customer-address-form
+                    v-if="customer"
                     v-bind="{ customer, address }"
                 />
             </sw-card>

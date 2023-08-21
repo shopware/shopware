@@ -28,8 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class StoreControllerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     private Context $defaultContext;
 

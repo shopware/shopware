@@ -1,4 +1,5 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import template from './index.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
@@ -15,7 +16,9 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('notification'),
     ],
 
+
     inject: ['repositoryFactory', 'acl'],
+
 
     props: {
         /**
@@ -33,14 +36,31 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('unit');
         },
 
+        customFieldSetRepository(): Repository<'custom_field_set'> {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria(): Criteria {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
+
+            return criteria;
+        },
+
         ...mapPropertyErrors('unit', ['name', 'shortCode']),
     },
 
-    data(): { unit: Entity<'unit'>|null, isLoading: boolean, isSaveSuccessful: boolean } {
+    data(): {
+        unit: Entity<'unit'>|null,
+        isLoading: boolean,
+        isSaveSuccessful: boolean,
+        customFieldSets: Entity<'custom_field_set'>[]
+        } {
         return {
             unit: null,
             isLoading: true,
             isSaveSuccessful: false,
+            customFieldSets: [],
         };
     },
 
@@ -61,14 +81,25 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        if (this.unitId !== null) {
-            this.loadUnit();
+        this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
+            this.customFieldSets = result;
 
-            return;
-        }
+            if (this.unitId !== null) {
+                this.loadUnit();
 
-        this.unit = this.unitRepository.create(Shopware.Context.api);
-        this.isLoading = false;
+                return;
+            }
+
+            this.unit = this.unitRepository.create(Shopware.Context.api);
+            this.isLoading = false;
+        }).catch(() => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            this.createNotificationError({
+                message: this.$tc('sw-settings-units.notification.errorMessage'),
+            });
+
+            this.isLoading = false;
+        });
     },
 
     methods: {
@@ -80,7 +111,6 @@ export default Component.wrapComponentConfig({
 
                 this.isLoading = false;
             }).catch((error: { message: string }) => {
-                // @ts-expect-error - Mixin methods are not recognized
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc(error.message),
@@ -94,14 +124,13 @@ export default Component.wrapComponentConfig({
             }
 
             this.isLoading = true;
-            this.unitRepository.save(this.unit, Shopware.Context.api).then(() => {
+            this.unitRepository.save(this.unit).then(() => {
                 this.isSaveSuccessful = true;
 
                 void this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit?.id ?? '' } });
 
                 this.isLoading = false;
             }).catch(() => {
-                // @ts-expect-error - Mixin methods are not recognized
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-settings-units.notification.errorMessage'),

@@ -28,9 +28,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Package('business-ops')]
 class ChangeCustomerGroupActionTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private EntityRepository $flowRepository;
 

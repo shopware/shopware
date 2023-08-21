@@ -23,8 +23,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class MergeWishlistProductRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

@@ -58,10 +58,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class RecalculationServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     protected SalesChannelContext $salesChannelContext;
 
@@ -97,12 +97,9 @@ class RecalculationServiceTest extends TestCase
     {
         $parentProductId = Uuid::randomHex();
         $childProductId = Uuid::randomHex();
-        $rootProductId = Uuid::randomHex();
-
-        // to test the sorting rootProductId has to be smaller than parentProductId as the default sorting would be by id
-        while (strcasecmp($parentProductId, $rootProductId) < 0) {
-            $rootProductId = Uuid::randomHex();
-        }
+        // to test the sorting, the parentId has to be greater than the rootId
+        $parentProductId = substr_replace($parentProductId, '0', 0, 1);
+        $rootProductId = substr_replace($parentProductId, 'f', 0, 1);
 
         $cart = $this->generateDemoCart($parentProductId, $rootProductId);
 

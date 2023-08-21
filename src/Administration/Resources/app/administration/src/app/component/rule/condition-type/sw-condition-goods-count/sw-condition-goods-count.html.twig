@@ -13,7 +13,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_condition_goods_count_field_count %}
         <sw-number-field
+            {% if VUE3 %}
+            v-model:value="count"
+            {% else %}
             v-model="count"
+            {% endif %}
             class="sw-contidion-goods-count__numfield"
             size="medium"
             number-type="int"

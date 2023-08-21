@@ -39,8 +39,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CachedProductReviewRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private SalesChannelContext $context;
 

@@ -299,7 +299,7 @@ EOL;
                 $delete = 'SET NULL';
             }
 
-            //skip foreign key to prevent bi-directional foreign key
+            // skip foreign key to prevent bi-directional foreign key
             if ($hasOneToMany) {
                 continue;
             }

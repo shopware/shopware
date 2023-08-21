@@ -5,8 +5,7 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -60,24 +59,21 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         return $jwtToken->toString();
     }
 
-    /**
-     * @throws InvalidTokenException
-     */
     public function parseToken(string $token): TokenStruct
     {
         try {
             /** @var UnencryptedToken $jwtToken */
             $jwtToken = $this->configuration->parser()->parse($token);
-        } catch (\Throwable) {
-            throw new InvalidTokenException($token);
+        } catch (\Throwable $e) {
+            throw PaymentException::invalidToken($token, $e);
         }
 
         if (!$this->configuration->validator()->validate($jwtToken, ...$this->configuration->validationConstraints())) {
-            throw new InvalidTokenException($token);
+            throw PaymentException::invalidToken($token);
         }
 
         if (!$this->has($token)) {
-            throw new TokenInvalidatedException($token);
+            throw PaymentException::tokenInvalidated($token);
         }
 
         $errorUrl = $jwtToken->claims()->get('eul');

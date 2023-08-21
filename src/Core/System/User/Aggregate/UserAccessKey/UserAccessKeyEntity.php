@@ -11,8 +11,8 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('system-settings')]
 class UserAccessKeyEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

@@ -147,11 +147,11 @@ class TreeIndexerTest extends TestCase
         ], $this->context);
 
         /**
-        Category A
-        ├── Category B
-        ├── Category C
-        │  └── Category D
-        │  └── Category E
+         * Category A
+         * ├── Category B
+         * ├── Category C
+         * │  └── Category D
+         * │  └── Category E
          */
         $categories = $this->categoryRepository->search(
             new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
@@ -206,13 +206,13 @@ class TreeIndexerTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
 
-        //update parent of last category in version scope
+        // update parent of last category in version scope
         $updated = ['id' => $categoryD, 'parentId' => $categoryA];
 
         $this->categoryRepository->update([$updated], $versionContext);
 
         /** @var CategoryEntity $category */
-        //check that the path updated
+        // check that the path updated
         $category = $this->categoryRepository->search(new Criteria([$categoryD]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|', $category->getPath());
@@ -223,7 +223,7 @@ class TreeIndexerTest extends TestCase
 
         $this->categoryRepository->merge($versionId, $this->context);
 
-        //test after merge the path is updated too
+        // test after merge the path is updated too
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(new Criteria([$categoryD]), $this->context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);

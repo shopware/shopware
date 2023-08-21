@@ -31,7 +31,11 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="onSaveFinish"
+            {% else %}
             @process-finish="onSaveFinish"
+            {% endif %}
             @click="saveMailerSettings"
         >
             {{ $tc('sw-settings-mailer.general.buttonSave') }}
@@ -99,10 +103,13 @@
                         </option>
                     </sw-select-field>
 
-                    <sw-field
+                    <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
+                        {% if VUE3 %}
+                        v-model:value="mailerSettings['core.mailerSettings.sendMailOptions']"
+                        {% else %}
                         v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
-                        type="radio"
+                        {% endif %}
                         :options="emailSendmailOptions"
                     />
                     {% endblock %}
@@ -111,7 +118,11 @@
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
                 <sw-switch-field
                     v-if="!isSmtpMode"
+                    {% if VUE3 %}
+                    v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
+                    {% else %}
                     v-model="mailerSettings['core.mailerSettings.disableDelivery']"
+                    {% endif %}
                     size="small"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />

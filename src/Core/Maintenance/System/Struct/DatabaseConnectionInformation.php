@@ -30,7 +30,7 @@ class DatabaseConnectionInformation extends Struct
 
     public static function fromEnv(): self
     {
-        $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
+        $dsn = trim((string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL')));
         if ($dsn === '') {
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' not defined.');
         }

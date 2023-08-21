@@ -27,8 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class RepositoryWriterFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 

@@ -24,7 +24,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
             $value = $parameters->getContext()->getContext()->getVersionId();
         }
 
-        //write version id of current object to write context
+        // write version id of current object to write context
         $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), 'versionId', $value);
 
         $data[$field->getPropertyName()] = $value;

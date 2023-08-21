@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class PromotionCodeOfTypeRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 
@@ -151,7 +151,7 @@ class PromotionCodeOfTypeRuleTest extends TestCase
         if ($typeOfPromotionCode !== null) {
             $lineItemCollection = new LineItemCollection([
                 $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
-                ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE))->setPayloadValue(
+                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE)->setPayloadValue(
                     'promotionCodeType',
                     $typeOfPromotionCode
                 ),
@@ -183,7 +183,7 @@ class PromotionCodeOfTypeRuleTest extends TestCase
         if ($typeOfPromotionCode !== null) {
             $lineItemCollection = new LineItemCollection([
                 $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
-                ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE))->setPayloadValue(
+                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE)->setPayloadValue(
                     'promotionCodeType',
                     $typeOfPromotionCode
                 ),

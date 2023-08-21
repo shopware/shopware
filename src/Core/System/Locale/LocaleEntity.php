@@ -13,8 +13,8 @@ use Shopware\Core\System\User\UserCollection;
 #[Package('system-settings')]
 class LocaleEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

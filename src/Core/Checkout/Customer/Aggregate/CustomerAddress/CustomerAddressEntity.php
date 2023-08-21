@@ -14,8 +14,8 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 #[Package('customer-order')]
 class CustomerAddressEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $customerId;
 

@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ProductExportControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private Context $context;
 

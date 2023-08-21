@@ -11,10 +11,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function array_map;
-use function implode;
-use function iterator_to_array;
-use function sprintf;
 
 /**
  * @internal
@@ -110,7 +106,7 @@ class ChangelogProcessor
 
     protected function getTargetUpgradeFile(string $version, bool $realPath = true): string
     {
-        return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
+        return ($realPath ? $this->getUpgradeDir() . '/' : '') . \sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
     }
 
     /**
@@ -118,7 +114,7 @@ class ChangelogProcessor
      */
     protected function getTargetNextMajorUpgradeFile(string $version, bool $realPath = true): string
     {
-        return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getNextMajorVersion($version));
+        return ($realPath ? $this->getUpgradeDir() . '/' : '') . \sprintf('UPGRADE-%s.md', $this->getNextMajorVersion($version));
     }
 
     /**
@@ -136,9 +132,9 @@ class ChangelogProcessor
 
                 $issues = $this->validator->validate($definition);
                 if ($issues->count()) {
-                    $messages = array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), iterator_to_array($issues));
+                    $messages = \array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), \iterator_to_array($issues));
 
-                    throw new \InvalidArgumentException(sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), implode(', ', $messages)));
+                    throw new \InvalidArgumentException(\sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), \implode(', ', $messages)));
                 }
 
                 $featureFlagDefaultOn = false;

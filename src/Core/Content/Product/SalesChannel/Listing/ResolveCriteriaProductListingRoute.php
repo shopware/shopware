@@ -3,7 +3,11 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
+use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,12 +18,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('inventory')]
 class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 {
+    public const STATE = 'listing-route-context';
+
     /**
      * @internal
      */
     public function __construct(
         private readonly AbstractProductListingRoute $decorated,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CompositeListingProcessor $processor
     ) {
     }
 
@@ -31,10 +38,32 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
     #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
+        $criteria->addState(self::STATE);
+
+        $this->processor->prepare($request, $criteria, $context);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $context->getContext()->addState(ProductListingFeaturesSubscriber::HANDLED_STATE);
+        }
+
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $context)
         );
 
-        return $this->getDecorated()->load($categoryId, $request, $context, $criteria);
+        $response = $this->getDecorated()->load($categoryId, $request, $context, $criteria);
+
+        $response->getResult()->addCurrentFilter('navigationId', $categoryId);
+
+        $this->processor->process($request, $response->getResult(), $context);
+
+        $this->eventDispatcher->dispatch(
+            new ProductListingResultEvent($request, $response->getResult(), $context)
+        );
+
+        $response->getResult()->getAvailableSortings()->removeByKey(
+            ResolvedCriteriaProductSearchRoute::DEFAULT_SEARCH_SORT
+        );
+
+        return $response;
     }
 }

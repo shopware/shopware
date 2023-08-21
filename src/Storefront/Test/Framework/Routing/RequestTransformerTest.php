@@ -23,6 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @phpstan-type SalesChannel array{id: string, name: string, active: bool, languages: array{id: string}[], domains: array{id: string, url: string, languageId: string, currencyId: string, snippetSetId: string}[]}
  */
 class RequestTransformerTest extends TestCase
 {
@@ -37,10 +39,13 @@ class RequestTransformerTest extends TestCase
 
     protected function setUp(): void
     {
+        /** @var list<string> $registeredApiPrefixes */
+        $registeredApiPrefixes = $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes');
+
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
             $this->getContainer()->get(SeoResolver::class),
-            $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
+            $registeredApiPrefixes,
             $this->getContainer()->get(DomainLoader::class)
         );
 
@@ -50,7 +55,7 @@ class RequestTransformerTest extends TestCase
     /**
      * @dataProvider domainProvider
      *
-     * @param array[]           $salesChannels
+     * @param array<string, string|array<string, string>> $salesChannels
      * @param ExpectedRequest[] $requests
      */
     public function testDomainResolving(array $salesChannels, array $requests): void
@@ -62,7 +67,9 @@ class RequestTransformerTest extends TestCase
 
         foreach ($requests as $expectedRequest) {
             if ($expectedRequest->exception) {
-                $this->expectException($expectedRequest->exception);
+                $exception = $expectedRequest->exception;
+
+                $this->expectException($exception);
             }
 
             $request = Request::create($expectedRequest->url);
@@ -85,6 +92,9 @@ class RequestTransformerTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{0: SalesChannel[], 1: ExpectedRequest[]}>
+     */
     public static function domainProvider(): array
     {
         $germanId = Uuid::randomHex();
@@ -101,6 +111,7 @@ class RequestTransformerTest extends TestCase
                     new ExpectedRequest('http://german.test', '', '/', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
                     new ExpectedRequest('http://german.test/', '', '/', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
                     new ExpectedRequest('http://german.test/foobar', '', '/foobar', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+                    new ExpectedRequest('http://german.test//foobar', '', '/foobar', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
                 ],
             ],
             'two' => [
@@ -263,6 +274,9 @@ class RequestTransformerTest extends TestCase
         static::assertSame('http://base.test' . $resolvedUrl, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public static function seoRedirectProvider(): iterable
     {
         yield 'Use with base url' => [
@@ -290,11 +304,15 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
+    /**
+     * @return SalesChannel
+     */
     private static function getEnglishSalesChannel(string $salesChannelId, string $domainId, string $url): array
     {
         return [
             'id' => $salesChannelId,
             'name' => 'english',
+            'active' => true,
             'languages' => [
                 ['id' => Defaults::LANGUAGE_SYSTEM],
             ],
@@ -310,11 +328,15 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
+    /**
+     * @return SalesChannel
+     */
     private static function getGermanSalesChannel(string $salesChannelId, string $domainId, string $url): array
     {
         return [
             'id' => $salesChannelId,
             'name' => 'german',
+            'active' => true,
             'languages' => [
                 ['id' => 'de-DE'],
             ],
@@ -330,6 +352,9 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
+    /**
+     * @return SalesChannel
+     */
     private static function getSalesChannelWithGerAndUkDomain(
         string $salesChannelId,
         string $gerDomainId,
@@ -340,6 +365,7 @@ class RequestTransformerTest extends TestCase
         return [
             'id' => $salesChannelId,
             'name' => 'english',
+            'active' => true,
             'languages' => [
                 ['id' => Defaults::LANGUAGE_SYSTEM],
                 ['id' => self::LOCALE_DE_DE_ISO],
@@ -363,6 +389,9 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
+    /**
+     * @return SalesChannel
+     */
     private static function getInactiveSalesChannel(string $salesChannelId, string $domainId, string $url): array
     {
         return [
@@ -384,6 +413,9 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<mixed> $salesChannels
+     */
     private function createSalesChannels(array $salesChannels): EntityWrittenContainerEvent
     {
         $snippetSetEN = $this->getSnippetSetIdForLocale(self::LOCALE_EN_GB_ISO);

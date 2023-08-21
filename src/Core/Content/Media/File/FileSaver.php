@@ -6,15 +6,9 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
-use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
-use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\FileExtensionNotSupportedException;
-use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
-use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
-use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
@@ -61,11 +55,7 @@ class FileSaver
     }
 
     /**
-     * @throws DuplicatedMediaFileNameException
-     * @throws EmptyMediaFilenameException
-     * @throws IllegalFileNameException
-     * @throws MediaNotFoundException
-     * @throws FileExtensionNotSupportedException
+     * @throws MediaException
      */
     public function persistFileToMedia(
         MediaFile $mediaFile,
@@ -119,7 +109,7 @@ class FileSaver
         $fileExtension = $currentMedia->getFileExtension();
 
         if (!$currentMedia->hasFile() || !$fileExtension) {
-            throw new MissingFileException($mediaId);
+            throw MediaException::missingFile($mediaId);
         }
 
         if ($destination === $currentMedia->getFileName()) {
@@ -149,7 +139,7 @@ class FileSaver
                 $this->getFileSystem($currentMedia)
             );
         } catch (\Exception) {
-            throw new CouldNotRenameFileException($currentMedia->getId(), (string) $currentMedia->getFileName());
+            throw MediaException::couldNotRenameFile($currentMedia->getId(), (string) $currentMedia->getFileName());
         }
 
         foreach ($currentMedia->getThumbnails() ?? [] as $thumbnail) {
@@ -207,7 +197,7 @@ class FileSaver
         try {
             $this->getFileSystem($media)->delete($oldMediaFilePath);
         } catch (UnableToDeleteFile) {
-            //nth
+            // nth
         }
 
         $this->thumbnailService->deleteThumbnails($media, $context);
@@ -217,7 +207,7 @@ class FileSaver
     {
         $stream = fopen($mediaFile->getFileName(), 'rb');
         if (!\is_resource($stream)) {
-            throw new \RuntimeException('Could not open stream for file ' . $mediaFile->getFileName());
+            throw MediaException::cannotOpenSourceStreamToRead($mediaFile->getFileName());
         }
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
@@ -298,11 +288,11 @@ class FileSaver
             $this->getFileSystem($oldMedia)->move($newFileName, $oldFileName);
         }
 
-        throw new CouldNotRenameFileException($oldMedia->getId(), (string) $oldMedia->getFileName());
+        throw MediaException::couldNotRenameFile($oldMedia->getId(), (string) $oldMedia->getFileName());
     }
 
     /**
-     * @throws MediaNotFoundException
+     * @throws MediaException
      */
     private function findMediaById(string $mediaId, Context $context): MediaEntity
     {
@@ -314,15 +304,14 @@ class FileSaver
             ->get($mediaId);
 
         if ($currentMedia === null) {
-            throw new MediaNotFoundException($mediaId);
+            throw MediaException::mediaNotFound($mediaId);
         }
 
         return $currentMedia;
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws IllegalFileNameException
+     * @throws MediaException
      */
     private function validateFileName(string $destination): string
     {
@@ -333,7 +322,7 @@ class FileSaver
     }
 
     /**
-     * @throws FileExtensionNotSupportedException
+     * @throws MediaException
      */
     private function validateFileExtension(MediaFile $mediaFile, string $mediaId, bool $isPrivate = false): void
     {
@@ -348,11 +337,11 @@ class FileSaver
             }
         }
 
-        throw new FileExtensionNotSupportedException($mediaId, $fileExtension);
+        throw MediaException::fileExtensionNotSupported($mediaId, $fileExtension);
     }
 
     /**
-     * @throws DuplicatedMediaFileNameException
+     * @throws MediaException
      */
     private function ensureFileNameIsUnique(
         MediaEntity $currentMedia,
@@ -376,10 +365,7 @@ class FileSaver
                 continue;
             }
 
-            throw new DuplicatedMediaFileNameException(
-                $destination,
-                $fileExtension
-            );
+            throw MediaException::duplicatedMediaFileName($destination, $fileExtension);
         }
     }
 

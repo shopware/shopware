@@ -84,7 +84,7 @@ class Calculator
         $definition = $lineItem->getPriceDefinition();
 
         if ($definition instanceof AbsolutePriceDefinition) {
-            //reduce line items for provided filter
+            // reduce line items for provided filter
             $prices = $this->filterLineItems($calculated, $definition->getFilter(), $context)
                 ->getPrices();
 
@@ -92,7 +92,7 @@ class Calculator
         }
 
         if ($definition instanceof PercentagePriceDefinition) {
-            //reduce line items for provided filter
+            // reduce line items for provided filter
             $prices = $this->filterLineItems($calculated, $definition->getFilter(), $context)
                 ->getPrices();
 

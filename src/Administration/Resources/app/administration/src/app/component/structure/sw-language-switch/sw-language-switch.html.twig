@@ -70,7 +70,11 @@
         size="medium"
         required
         :value="languageId"
+        {% if VUE3 %}
+        @update:value="onInput"
+        {% else %}
         @change="onInput"
+        {% endif %}
     />
     {% endblock %}
 </div>

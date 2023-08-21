@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -117,11 +118,13 @@ class TwigSwIncludeTest extends TestCase
         static::assertSame('b/TestPlugin1_b/TestPlugin2_b', $template->render(['child' => 'b']));
     }
 
+    /**
+     * @param BundleFixture[] $bundles
+     */
     private function initTwig(array $bundles): Environment
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
-        /** @var BundleFixture $bundle */
         foreach ($bundles as $bundle) {
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
@@ -135,6 +138,11 @@ class TwigSwIncludeTest extends TestCase
             ->method('getBundles')
             ->willReturn($bundles);
 
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->expects(static::any())
+            ->method('getScopes')
+            ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
@@ -144,10 +152,11 @@ class TwigSwIncludeTest extends TestCase
                     $kernel,
                     $this->getContainer()->get(Connection::class)
                 ),
-            ])
+            ]),
+            $scopeDetector,
         );
 
-        $twig->addExtension(new NodeExtension($templateFinder));
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
         $twig->getExtension(NodeExtension::class)->getFinder();
 
         return $twig;

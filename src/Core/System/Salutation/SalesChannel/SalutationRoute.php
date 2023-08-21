@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,8 +17,10 @@ class SalutationRoute extends AbstractSalutationRoute
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SalutationCollection> $salutationRepository
      */
-    public function __construct(private readonly SalesChannelRepository $salesChannelRepository)
+    public function __construct(private readonly SalesChannelRepository $salutationRepository)
     {
     }
 
@@ -29,6 +32,6 @@ class SalutationRoute extends AbstractSalutationRoute
     #[Route(path: '/store-api/salutation', name: 'store-api.salutation', methods: ['GET', 'POST'], defaults: ['_entity' => 'salutation'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
-        return new SalutationRouteResponse($this->salesChannelRepository->search($criteria, $context));
+        return new SalutationRouteResponse($this->salutationRepository->search($criteria, $context));
     }
 }

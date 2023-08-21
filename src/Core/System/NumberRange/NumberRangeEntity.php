@@ -14,8 +14,8 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEn
 #[Package('checkout')]
 class NumberRangeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null

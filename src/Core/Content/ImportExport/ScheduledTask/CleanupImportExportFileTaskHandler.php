@@ -14,7 +14,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler(handles: CleanupImportExportFileTask::class)]
 #[Package('system-settings')]
-
 final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
 {
     /**

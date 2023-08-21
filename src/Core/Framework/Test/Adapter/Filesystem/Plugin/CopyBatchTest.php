@@ -35,7 +35,7 @@ class CopyBatchTest extends TestCase
     public function testConstructor(): void
     {
         static::expectException(\InvalidArgumentException::class);
-        //@phpstan-ignore-next-line
+        // @phpstan-ignore-next-line
         new CopyBatchInput(null, []);
     }
 }

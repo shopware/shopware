@@ -352,6 +352,7 @@ EOF
                     'code' => ['type' => 'string', 'description' => 'An application-specific error code, expressed as a string value.'],
                     'title' => ['type' => 'string', 'description' => 'A short, human-readable summary of the problem. It **SHOULD NOT** change from occurrence to occurrence of the problem, except for purposes of localization.'],
                     'detail' => ['type' => 'string', 'description' => 'A human-readable explanation specific to this occurrence of the problem.'],
+                    'description' => ['type' => 'string', 'description' => 'A human-readable description of the problem.'],
                     'source' => [
                         'type' => 'object',
                         'properties' => [

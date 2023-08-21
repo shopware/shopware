@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -48,7 +49,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw new CustomerWishlistNotActivatedException();
+            throw CustomerException::customerWishlistNotActivated();
         }
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
@@ -86,7 +87,12 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      */
     private function buildUpsertProducts(RequestDataBag $data, string $wishlistId, SalesChannelContext $context): array
     {
-        $ids = array_unique(array_filter($data->get('productIds')->all()));
+        $productIds = $data->get('productIds');
+        if (!$productIds instanceof DataBag) {
+            throw CustomerException::productIdsParameterIsMissing();
+        }
+
+        $ids = array_unique(array_filter($productIds->all()));
 
         if (\count($ids) === 0) {
             return [];

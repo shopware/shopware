@@ -35,8 +35,8 @@ class AclUserRoleDefinition extends MappingEntityDefinition
             (new FkField('acl_role_id', 'aclRoleId', AclRoleDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class)),
-            (new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class)),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class),
+            new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class),
         ]);
     }
 }

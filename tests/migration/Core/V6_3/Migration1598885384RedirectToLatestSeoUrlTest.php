@@ -57,8 +57,8 @@ class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase
             !$seoUrlPresent,
             $this->readConfigValue($this->connection),
             $seoUrlPresent
-                ? sprintf('The "Redirect to latest SEO-URL" setting should have been inactive, since there are already SEO-URLs present.')
-                : sprintf('The "Redirect to latest SEO-URL" setting should have been active, since there are no SEO-URLs present.')
+                ? 'The "Redirect to latest SEO-URL" setting should have been inactive, since there are already SEO-URLs present.'
+                : 'The "Redirect to latest SEO-URL" setting should have been active, since there are no SEO-URLs present.'
         );
     }
 

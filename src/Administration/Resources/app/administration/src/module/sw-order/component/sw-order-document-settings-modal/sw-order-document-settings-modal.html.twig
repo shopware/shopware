@@ -15,14 +15,22 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_document_settings_modal_form_document_number %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="documentConfig.documentNumber"
+            {% else %}
             v-model="documentConfig.documentNumber"
+            {% endif %}
             :label="$tc('sw-order.documentModal.labelDocumentNumber')"
         />
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_document_settings_modal_form_document_date %}
         <sw-datepicker
+            {% if VUE3 %}
+            v-model:value="documentConfig.documentDate"
+            {% else %}
             v-model="documentConfig.documentDate"
+            {% endif %}
             date-type="date"
             required
             :label="$tc('sw-order.documentModal.labelDocumentDate')"
@@ -36,7 +44,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_file_upload_toggle %}
     <sw-switch-field
+        {% if VUE3 %}
+        v-model:value="uploadDocument"
+        {% else %}
         v-model="uploadDocument"
+        {% endif %}
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
     />
@@ -86,7 +98,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_comment %}
     <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="documentConfig.documentComment"
+        {% else %}
         v-model="documentConfig.documentComment"
+        {% endif %}
         class="sw-order-document-settings-modal__comment"
         :label="$tc('sw-order.documentModal.labelDocumentComment')"
     />

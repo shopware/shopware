@@ -139,7 +139,7 @@ class LineItemInProductStreamRuleTest extends TestCase
             $this->createLineItemWithProductStreams(['1']),
             $this->createLineItemWithProductStreams($lineItemCategoryIds),
         ]);
-        $containerLineItem = ($this->createContainerLineItem($lineItemCollection))->setPayloadValue('streamIds', ['1']);
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection)->setPayloadValue('streamIds', ['1']);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(

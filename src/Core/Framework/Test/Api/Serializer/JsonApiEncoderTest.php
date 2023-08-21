@@ -45,8 +45,8 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class JsonApiEncoderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private Connection $connection;
 

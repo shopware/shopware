@@ -28,7 +28,7 @@ abstract class ManifestChangedEvent extends AppChangedEvent
         return $this->manifest;
     }
 
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [
             'appVersion' => $this->manifest->getMetadata()->getVersion(),

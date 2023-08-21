@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -38,8 +39,8 @@ use Symfony\Component\HttpFoundation\Request;
 class DocumentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -128,7 +129,11 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        } else {
+            static::assertEquals(404, $browser->getResponse()->getStatusCode());
+        }
     }
 
     private function login(string $email, string $password): KernelBrowser

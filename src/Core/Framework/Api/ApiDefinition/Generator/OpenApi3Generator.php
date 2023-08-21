@@ -46,7 +46,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
+     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return OpenApiSpec
      */
@@ -128,7 +128,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             try {
                 $definition->getEntityName();
             } catch (\Exception) {
-                //mapping tables has no repository, skip them
+                // mapping tables has no repository, skip them
                 continue;
             }
 
@@ -233,11 +233,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (str_ends_with($definition->getEntityName(), '_translation')) {
             return false;
         }
 
-        if (mb_strpos($definition->getEntityName(), 'version') === 0) {
+        if (str_starts_with($definition->getEntityName(), 'version')) {
             return false;
         }
 

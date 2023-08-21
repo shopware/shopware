@@ -36,9 +36,9 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class JsonEntityEncoderTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
     use AssertValuesTrait;
+    use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     public static function emptyInputProvider(): array
     {

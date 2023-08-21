@@ -295,7 +295,7 @@ class VersionManager
                 continue;
             }
 
-            //set data and payload cursor to root or extensions to simplify following if conditions
+            // set data and payload cursor to root or extensions to simplify following if conditions
             $dataCursor = $data;
 
             $payloadCursor = &$payload;
@@ -341,14 +341,14 @@ class VersionManager
                 continue;
             }
 
-            //scalar value? assign directly
+            // scalar value? assign directly
             if (!$field instanceof AssociationField) {
                 $payloadCursor[$field->getPropertyName()] = $value;
 
                 continue;
             }
 
-            //many to one should be skipped because it is no part of the root entity
+            // many to one should be skipped because it is no part of the root entity
             if ($field instanceof ManyToOneAssociationField) {
                 continue;
             }
@@ -451,13 +451,9 @@ class VersionManager
                 'created_at' => $date,
             ],
             ['id' => $commitId],
-            new EntityExistence(
+            EntityExistence::createForEntity(
                 $this->versionCommitDefinition->getEntityName(),
                 ['id' => Uuid::fromBytesToHex($commitId)],
-                false,
-                false,
-                false,
-                []
             ),
             ''
         );
@@ -505,13 +501,9 @@ class VersionManager
                         'created_at' => $date,
                     ],
                     ['id' => $id],
-                    new EntityExistence(
+                    EntityExistence::createForEntity(
                         $this->versionCommitDataDefinition->getEntityName(),
                         ['id' => Uuid::fromBytesToHex($id)],
-                        false,
-                        false,
-                        false,
-                        []
                     ),
                     ''
                 );
@@ -577,7 +569,7 @@ class VersionManager
         bool $cloneChildren,
         int $childCounter = 1
     ): void {
-        //add all cascade delete associations
+        // add all cascade delete associations
         $cascades = $definition->getFields()->filter(function (Field $field) {
             /** @var CascadeDelete|null $flag */
             $flag = $field->getFlag(CascadeDelete::class);
@@ -593,7 +585,7 @@ class VersionManager
                 continue;
             }
 
-            //many to one shouldn't be cascaded
+            // many to one shouldn't be cascaded
             if ($cascade instanceof ManyToOneAssociationField) {
                 continue;
             }
@@ -602,14 +594,14 @@ class VersionManager
 
             $childrenAware = $reference->isChildrenAware();
 
-            //first level of parent-child tree?
+            // first level of parent-child tree?
             if ($childrenAware && $reference !== $definition) {
-                //where product.children.parentId IS NULL
+                // where product.children.parentId IS NULL
                 $nested->addFilter(new EqualsFilter($reference->getEntityName() . '.parentId', null));
             }
 
             if ($cascade instanceof ChildrenAssociationField) {
-                //break endless loop
+                // break endless loop
                 if ($childCounter >= 30 || !$cloneChildren) {
                     $criteria->removeAssociation($cascade->getPropertyName());
 

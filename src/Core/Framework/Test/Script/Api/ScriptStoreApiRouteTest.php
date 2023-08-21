@@ -19,8 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptStoreApiRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

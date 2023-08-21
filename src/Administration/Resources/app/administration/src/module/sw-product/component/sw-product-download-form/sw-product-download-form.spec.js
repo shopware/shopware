@@ -171,7 +171,7 @@ describe('module/sw-product/component/sw-product-download-form', () => {
 
     it('should accept only file extensions of the config service', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm.fileAccept).toBe('*/png,*/svg,*/jpg,*/pdf');
+        expect(wrapper.vm.fileAccept).toBe('png, svg, jpg, pdf');
     });
 
     it('should have an error state', async () => {

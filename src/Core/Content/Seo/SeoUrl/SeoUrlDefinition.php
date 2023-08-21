@@ -62,7 +62,7 @@ class SeoUrlDefinition extends EntityDefinition
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
 
-            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false)),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
 
             (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware(), new Runtime()),
         ]);

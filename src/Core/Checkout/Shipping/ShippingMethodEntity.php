@@ -19,8 +19,8 @@ use Shopware\Core\System\Tax\TaxEntity;
 #[Package('checkout')]
 class ShippingMethodEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     final public const TAX_TYPE_AUTO = 'auto';
     final public const TAX_TYPE_FIXED = 'fixed';

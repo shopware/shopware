@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -39,6 +38,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
+        /** @var array<string, mixed> $attributes */
         $attributes = $data->getValue();
         if ($attributes === null) {
             yield $field->getStorageName() => null;
@@ -53,7 +53,6 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         }
 
         // set fields dynamically
-        /** @var array<string, mixed> $attributes */
         $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
@@ -81,7 +80,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         if ($value) {
             // set fields dynamically
-            /** @var array<string> $attributes */
+            /** @var list<string> $attributes */
             $attributes = array_keys(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR));
 
             $field->setPropertyMapping($this->getFields($attributes));
@@ -91,9 +90,9 @@ class CustomFieldsSerializer extends JsonFieldSerializer
     }
 
     /**
-     * @param array<string> $attributeNames
+     * @param list<string> $attributeNames
      *
-     * @return array<Field>
+     * @return list<Field>
      */
     private function getFields(array $attributeNames): array
     {
@@ -119,7 +118,27 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
             $definition = $this->definitionRegistry->getByEntityName($entityName);
 
-            $pks = Uuid::fromHexToBytesList($existence->getPrimaryKey());
+            $pks = array_combine(
+                array_keys($existence->getPrimaryKey()),
+                array_map(
+                    function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
+                        $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
+                        /** @var Field|null $field */
+                        $field = $definition->getFields()->getByStorageName($pkFieldStorageName);
+                        if (!$field) {
+                            return $pkFieldValue;
+                        }
+
+                        return $field->getSerializer()->encode(
+                            $field,
+                            $existence,
+                            new KeyValuePair($field->getPropertyName(), $pkFieldValue, true),
+                            $parameters,
+                        )->current();
+                    },
+                    array_keys($existence->getPrimaryKey()),
+                ),
+            );
 
             $jsonUpdateCommand = new JsonUpdateCommand(
                 $definition,

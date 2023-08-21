@@ -59,6 +59,7 @@ async function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-entity-listing': true,
             'sw-empty-state': true,
+            'router-link': true,
         },
     });
 }

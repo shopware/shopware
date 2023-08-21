@@ -63,7 +63,7 @@ class DocsAppEventCommand extends Command
                 'hookable-events-list.md.twig',
                 ['eventDocs' => $eventsDoc]
             );
-        } catch (LoaderError | RuntimeError | SyntaxError $e) {
+        } catch (LoaderError|RuntimeError|SyntaxError $e) {
             throw new \RuntimeException('Can not render Webhook Events', $e->getCode(), $e);
         } finally {
             $this->twig->setLoader($originalLoader);

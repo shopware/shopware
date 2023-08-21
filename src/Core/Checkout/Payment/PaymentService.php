@@ -2,25 +2,23 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -36,6 +34,9 @@ use Symfony\Component\HttpFoundation\Request;
 class PaymentService
 {
     /**
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
+     * @param EntityRepository<OrderCollection> $orderRepository
+     *
      * @internal
      */
     public function __construct(
@@ -46,16 +47,12 @@ class PaymentService
         private readonly OrderTransactionStateHandler $transactionStateHandler,
         private readonly LoggerInterface $logger,
         private readonly EntityRepository $orderRepository,
-        private readonly SalesChannelContextServiceInterface $contextService
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
-    /**
-     * @throws AsyncPaymentProcessException
-     * @throws InvalidOrderException
-     * @throws SyncPaymentProcessException
-     * @throws UnknownPaymentMethodException
-     */
     public function handlePaymentByOrder(
         string $orderId,
         RequestDataBag $dataBag,
@@ -64,17 +61,18 @@ class PaymentService
         ?string $errorUrl = null
     ): ?RedirectResponse {
         if (!Uuid::isValid($orderId)) {
-            throw new InvalidOrderException($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         $criteria = new Criteria([$orderId]);
         $criteria->setTitle('payment-service::load-order');
+        /** @var OrderEntity $order */
         $order = $this->orderRepository
             ->search($criteria, $context->getContext())
             ->first();
 
         if ($order === null) {
-            throw new InvalidOrderException($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
@@ -90,10 +88,12 @@ class PaymentService
 
         try {
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
-        } catch (PaymentProcessException $e) {
+        } catch (PaymentProcessException|PaymentException $e) {
             $transactionId = $e->getOrderTransactionId();
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
-            $this->transactionStateHandler->fail($transactionId, $context->getContext());
+            if ($transactionId !== null) {
+                $this->transactionStateHandler->fail($transactionId, $context->getContext());
+            }
             if ($errorUrl !== null) {
                 $errorUrl .= (parse_url($errorUrl, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $e->getErrorCode();
 
@@ -104,79 +104,79 @@ class PaymentService
         }
     }
 
-    /**
-     * @throws AsyncPaymentFinalizeException
-     * @throws InvalidTransactionException
-     * @throws TokenExpiredException
-     * @throws UnknownPaymentMethodException
-     */
     public function finalizeTransaction(string $paymentToken, Request $request, SalesChannelContext $context): TokenStruct
     {
         $token = $this->tokenFactory->parseToken($paymentToken);
 
         if ($token->isExpired()) {
-            $token->setException(new TokenExpiredException($paymentToken));
-            $this->tokenFactory->invalidateToken($token->getToken());
+            $token->setException(PaymentException::tokenExpired($paymentToken));
+            if ($token->getToken() !== null) {
+                $this->tokenFactory->invalidateToken($token->getToken());
+            }
 
             return $token;
+        }
+
+        if ($token->getPaymentMethodId() === null) {
+            throw PaymentException::invalidToken($paymentToken);
         }
 
         $transactionId = $token->getTransactionId();
 
         if ($transactionId === null || !Uuid::isValid($transactionId)) {
-            throw new AsyncPaymentProcessException((string) $transactionId, 'Payment JWT didn\'t contain a valid orderTransactionId');
+            throw PaymentException::asyncProcessInterrupted((string) $transactionId, 'Payment JWT didn\'t contain a valid orderTransactionId');
         }
 
-        $transaction = $this->getPaymentTransactionStruct($transactionId, $context->getContext());
+        $transaction = $this->getPaymentTransactionStruct($transactionId, $context);
 
-        $paymentHandler = $this->getPaymentHandlerById($token->getPaymentMethodId(), $context->getContext());
+        $paymentHandler = $this->getPaymentHandlerById($token->getPaymentMethodId());
 
         try {
             $paymentHandler->finalize($transaction, $request, $context);
-        } catch (CustomerCanceledAsyncPaymentException $e) {
-            $this->transactionStateHandler->cancel($transactionId, $context->getContext());
-            $token->setException($e);
-        } catch (PaymentProcessException $e) {
-            $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
-            $this->transactionStateHandler->fail($transactionId, $context->getContext());
+        } catch (CustomerCanceledAsyncPaymentException|PaymentException $e) {
+            if ($e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
+                $this->transactionStateHandler->cancel($transactionId, $context->getContext());
+            } else {
+                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+                $this->transactionStateHandler->fail($transactionId, $context->getContext());
+            }
             $token->setException($e);
         } finally {
-            $this->tokenFactory->invalidateToken($token->getToken());
+            if ($token->getToken() !== null) {
+                $this->tokenFactory->invalidateToken($token->getToken());
+            }
         }
 
         return $token;
     }
 
-    /**
-     * @throws UnknownPaymentMethodException
-     */
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): AsynchronousPaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId): AsynchronousPaymentHandlerInterface
     {
         $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethodId);
 
         if (!$handler) {
-            throw new UnknownPaymentMethodException($paymentMethodId);
+            throw PaymentException::unknownPaymentMethod($paymentMethodId);
         }
 
         return $handler;
     }
 
-    /**
-     * @throws InvalidTransactionException
-     */
-    private function getPaymentTransactionStruct(string $orderTransactionId, Context $context): AsyncPaymentTransactionStruct
+    private function getPaymentTransactionStruct(string $orderTransactionId, SalesChannelContext $context): AsyncPaymentTransactionStruct
     {
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->setTitle('payment-service::load-transaction');
         $criteria->addAssociation('order');
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
-        /** @var OrderTransactionEntity|null $orderTransaction */
-        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
-        if ($orderTransaction === null) {
-            throw new InvalidTransactionException($orderTransactionId);
+        $this->eventDispatcher->dispatch(new FinalizePaymentOrderTransactionCriteriaEvent($orderTransactionId, $criteria, $context));
+
+        /** @var OrderTransactionEntity|null $orderTransaction */
+        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context->getContext())->first();
+
+        if ($orderTransaction === null || $orderTransaction->getOrder() === null) {
+            throw PaymentException::invalidTransaction($orderTransactionId);
         }
 
-        return new AsyncPaymentTransactionStruct($orderTransaction, $orderTransaction->getOrder(), '');
+        return $this->paymentTransactionStructFactory->async($orderTransaction, $orderTransaction->getOrder(), '');
     }
 }

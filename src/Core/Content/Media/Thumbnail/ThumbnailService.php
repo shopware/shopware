@@ -9,10 +9,9 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
-use Shopware\Core\Content\Media\Exception\ThumbnailNotSupportedException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -45,7 +44,7 @@ class ThumbnailService
 
         foreach ($collection as $media) {
             if ($media->getThumbnails() === null) {
-                throw new \RuntimeException('Thumbnail association not loaded - please pre load media thumbnails');
+                throw MediaException::thumbnailAssociationNotLoaded();
             }
 
             if (!$this->mediaCanHaveThumbnails($media, $context)) {
@@ -104,8 +103,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws ThumbnailNotSupportedException
-     * @throws ThumbnailCouldNotBeSavedException
+     * @throws MediaException
      */
     public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
     {
@@ -178,8 +176,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws ThumbnailNotSupportedException
-     * @throws ThumbnailCouldNotBeSavedException
+     * @throws MediaException
      *
      * @return list<array{mediaId: string, width: int, height: int}>
      */
@@ -200,7 +197,7 @@ class ThumbnailService
 
         $type = $media->getMediaType();
         if ($type === null) {
-            throw new \RuntimeException(\sprintf('Media type, for id %s, not loaded', $media->getId()));
+            throw MediaException::mediaTypeNotLoaded($media->getId());
         }
 
         try {
@@ -260,7 +257,7 @@ class ThumbnailService
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
         if ($image === false) {
-            throw new ThumbnailNotSupportedException($media->getId());
+            throw MediaException::thumbnailNotSupported($media->getId());
         }
 
         if (\function_exists('exif_read_data')) {
@@ -292,7 +289,7 @@ class ThumbnailService
         }
 
         if ($image === false) {
-            throw new ThumbnailNotSupportedException($media->getId());
+            throw MediaException::thumbnailNotSupported($media->getId());
         }
 
         return $image;
@@ -376,7 +373,7 @@ class ThumbnailService
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
         if ($thumbnail === false) {
-            throw new \RuntimeException('Can not create image handle');
+            throw MediaException::cannotCreateImage();
         }
 
         if (!$type->is(ImageType::TRANSPARENT)) {
@@ -422,7 +419,7 @@ class ThumbnailService
                 break;
             case 'image/webp':
                 if (!\function_exists('imagewebp')) {
-                    throw new ThumbnailCouldNotBeSavedException($url);
+                    throw MediaException::thumbnailCouldNotBeSaved($url);
                 }
 
                 imagewebp($thumbnail, null, $quality);
@@ -435,7 +432,7 @@ class ThumbnailService
         try {
             $this->getFileSystem($media)->write($url, (string) $imageFile);
         } catch (\Exception) {
-            throw new ThumbnailCouldNotBeSavedException($url);
+            throw MediaException::thumbnailCouldNotBeSaved($url);
         }
     }
 
@@ -469,7 +466,7 @@ class ThumbnailService
     private function deleteAssociatedThumbnails(MediaEntity $media, Context $context): void
     {
         if (!$media->getThumbnails()) {
-            throw new \RuntimeException('Media contains no thumbnails');
+            throw MediaException::mediaContainsNoThumbnails();
         }
 
         $delete = $media->getThumbnails()->getIds();

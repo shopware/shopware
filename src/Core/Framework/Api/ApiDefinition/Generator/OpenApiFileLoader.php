@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
@@ -28,9 +29,8 @@ class OpenApiFileLoader
     {
         $spec = [
             'paths' => [],
-            'components' => [
-                'schemas' => [],
-            ],
+            'components' => [],
+            'tags' => [],
         ];
 
         if (empty($this->paths)) {
@@ -41,12 +41,20 @@ class OpenApiFileLoader
         $finder->in($this->paths)->name('*.json');
 
         foreach ($finder as $entry) {
-            $data = json_decode((string) file_get_contents($entry->getPathname()), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+            try {
+                $data = json_decode((string) file_get_contents($entry->getPathname()), true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $exception) {
+                throw ApiException::invalidSchemaDefinitions($entry->getPathname(), $exception);
+            }
 
             $spec['paths'] = \array_replace_recursive($spec['paths'], $data['paths'] ?? []);
-            $spec['components']['schemas'] = array_merge(
-                $spec['components']['schemas'],
-                $data['components']['schemas'] ?? []
+            $spec['components'] = array_merge_recursive(
+                $spec['components'],
+                $data['components'] ?? []
+            );
+            $spec['tags'] = array_merge_recursive(
+                $spec['tags'],
+                $data['tags'] ?? []
             );
         }
 

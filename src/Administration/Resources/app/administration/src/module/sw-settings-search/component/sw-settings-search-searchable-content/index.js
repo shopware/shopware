@@ -165,7 +165,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesName'),
+                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesValue'),
                     value: 'properties.name',
                     defaultConfigs: {
                         searchable: false,
@@ -230,7 +230,7 @@ export default {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
-                align: 'right',
+                align: 'center',
                 sortable: true,
             }, {
                 property: 'tokenize',

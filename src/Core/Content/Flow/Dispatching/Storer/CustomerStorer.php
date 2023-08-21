@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,7 +39,10 @@ class CustomerStorer extends FlowStorer
             return $stored;
         }
 
-        $stored[CustomerAware::CUSTOMER_ID] = $event->getCustomerId();
+        try {
+            $stored[CustomerAware::CUSTOMER_ID] = $event->getCustomerId();
+        } catch (CustomerDeletedException) {
+        }
 
         return $stored;
     }

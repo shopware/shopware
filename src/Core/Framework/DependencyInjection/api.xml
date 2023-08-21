@@ -41,7 +41,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="api.request_criteria_builder"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
             <call method="setContainer">
@@ -97,7 +96,6 @@
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">

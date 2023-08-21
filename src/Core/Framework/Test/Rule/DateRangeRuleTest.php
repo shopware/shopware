@@ -24,8 +24,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class DateRangeRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 
@@ -221,6 +221,27 @@ class DateRangeRuleTest extends TestCase
                 '2021-01-02 00:00:00 UTC',
                 false,
             ],
+            [
+                '2021-01-01 11:00:00 UTC',
+                '2021-01-02 10:00:00 UTC',
+                false,
+                '2021-01-01 10:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 11:00:00 UTC',
+                '2021-01-02 10:00:00 UTC',
+                false,
+                '2021-01-02 10:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 11:00:00 UTC',
+                '2021-01-02 10:00:00 UTC',
+                false,
+                '2021-01-03 10:00:00 UTC',
+                false,
+            ],
 
             // from and to set, useTime = true
             [
@@ -336,7 +357,7 @@ class DateRangeRuleTest extends TestCase
                 '2021-01-02 00:00:00 +02:00',
                 false,
                 '2021-01-01 21:59:59 UTC',
-                false,
+                true,
             ],
             // with useTime = true
             [

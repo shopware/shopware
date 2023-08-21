@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
-use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('content')]
@@ -23,7 +23,7 @@ class StrategyFactory
     }
 
     /**
-     * @throws StrategyNotFoundException
+     * @throws MediaException
      */
     private function findStrategyByName(string $strategyName): PathnameStrategyInterface
     {
@@ -33,6 +33,6 @@ class StrategyFactory
             }
         }
 
-        throw new StrategyNotFoundException($strategyName);
+        throw MediaException::strategyNotFound($strategyName);
     }
 }

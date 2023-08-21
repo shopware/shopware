@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionC
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -20,11 +21,15 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
+/**
+ * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
+ */
 #[Package('core')]
 class AppEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -74,22 +79,22 @@ class AppEntity extends Entity
     protected ?string $baseAppUrl = null;
 
     /**
-     * @var mixed[]
+     * @var list<Module>
      */
     protected array $modules;
 
     /**
-     * @var mixed[]|null
+     * @var Module|null
      */
     protected ?array $mainModule = null;
 
     /**
-     * @var mixed[]
+     * @var list<Cookie>
      */
     protected array $cookies;
 
     /**
-     * @var string[]|null
+     * @var list<string>|null
      */
     protected ?array $allowedHosts = null;
 
@@ -214,6 +219,11 @@ class AppEntity extends Entity
     protected $flowActions;
 
     /**
+     * @var AppFlowEventCollection|null
+     */
+    protected $flowEvents;
+
+    /**
      * @var int
      */
     protected $templateLoadPriority;
@@ -312,7 +322,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return mixed[]
+     * @return list<Module>
      */
     public function getModules(): array
     {
@@ -320,7 +330,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param mixed[] $modules
+     * @param list<Module> $modules
      */
     public function setModules(array $modules): void
     {
@@ -328,7 +338,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return mixed[]|null
+     * @return Module|null
      */
     public function getMainModule(): ?array
     {
@@ -336,7 +346,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param mixed[] $mainModule
+     * @param Module $mainModule
      */
     public function setMainModule(array $mainModule): void
     {
@@ -344,7 +354,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return mixed[]
+     * @return list<Cookie>
      */
     public function getCookies(): array
     {
@@ -352,7 +362,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param mixed[] $cookies
+     * @param list<Cookie> $cookies
      */
     public function setCookies(array $cookies): void
     {
@@ -360,7 +370,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return list<string>|null
      */
     public function getAllowedHosts(): ?array
     {
@@ -368,7 +378,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param string[]|null $allowedHosts
+     * @param list<string>|null $allowedHosts
      */
     public function setAllowedHosts(?array $allowedHosts): void
     {
@@ -641,6 +651,16 @@ class AppEntity extends Entity
     public function setFlowActions(AppFlowActionCollection $flowActions): void
     {
         $this->flowActions = $flowActions;
+    }
+
+    public function getFlowEvents(): ?AppFlowEventCollection
+    {
+        return $this->flowEvents;
+    }
+
+    public function setFlowEvents(AppFlowEventCollection $flowEvents): void
+    {
+        $this->flowEvents = $flowEvents;
     }
 
     public function jsonSerialize(): array

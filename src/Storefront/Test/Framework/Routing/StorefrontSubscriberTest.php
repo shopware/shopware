@@ -23,8 +23,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class StorefrontSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;

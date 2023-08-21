@@ -134,7 +134,7 @@ class Migration1663238480FixMailTemplateFallbackChainUsageTest extends TestCase
                 static::fail('mail template content empty');
             }
 
-            array_push($translations, array_merge($template, ['content_html' => $translation['content_html'], 'content_plain' => $translation['content_plain']]));
+            $translations[] = array_merge($template, ['content_html' => $translation['content_html'], 'content_plain' => $translation['content_plain']]);
         }
 
         return $translations;

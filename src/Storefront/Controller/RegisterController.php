@@ -177,6 +177,10 @@ class RegisterController extends StorefrontController
                 throw RoutingException::missingRequestParameter('errorRoute');
             }
 
+            if (empty($request->request->get('errorRoute'))) {
+                $request->request->set('errorRoute', 'frontend.account.register.page');
+            }
+
             $params = $this->decodeParam($request, 'errorParameters');
 
             // this is to show the correct form because we have different usecases (account/register||checkout/register)
@@ -198,7 +202,7 @@ class RegisterController extends StorefrontController
                 ->confirm($queryDataBag->toRequestDataBag(), $context)
                 ->getCustomer()
                 ->getId();
-        } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException) {
+        } catch (CustomerNotFoundByHashException|CustomerAlreadyConfirmedException|ConstraintViolationException) {
             $this->addFlash(self::DANGER, $this->trans('account.confirmationIsAlreadyDone'));
 
             return $this->redirectToRoute('frontend.account.register.page');
@@ -251,8 +255,6 @@ class RegisterController extends StorefrontController
     private function getAdditionalRegisterValidationDefinitions(DataBag $data, SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('storefront.confirmation');
-
-        $definition->add('salutationId', new NotBlank());
 
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannel()->getId())) {
             $definition->add('emailConfirmation', new NotBlank(), new EqualTo([

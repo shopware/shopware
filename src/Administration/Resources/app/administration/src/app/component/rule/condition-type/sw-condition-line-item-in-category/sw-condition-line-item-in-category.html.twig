@@ -19,7 +19,11 @@
         entity="category"
         :entity-collection="categories"
         description-position="bottom"
+        {% if VUE3 %}
+        @update:entityCollection="setCategoryIds"
+        {% else %}
         @change="setCategoryIds"
+        {% endif %}
     >
         <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -29,13 +29,21 @@ async function createWrapper(options = {}) {
         provide: { userInputSanitizeService },
         stubs: {
             'sw-circle-icon': { template: '<i/>' },
+            'sw-base-field': true,
         },
         ...options,
     });
 }
 
 describe('asyncComponents/form/sw-code-editor', () => {
-    Shopware.Service().register('userInputSanitizeService', () => userInputSanitizeService);
+    beforeAll(() => {
+        Shopware.Service().register('userInputSanitizeService', () => userInputSanitizeService);
+
+        Shopware.Context.app.config.settings = {
+            enableHtmlSanitizer: true,
+        };
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -82,6 +90,39 @@ describe('asyncComponents/form/sw-code-editor', () => {
 
         await wrapper.vm.editor.setValue(vulnerableInput, 1);
         await wrapper.vm.sanitizeEditorInput(vulnerableInput);
+        expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
+    });
+
+    it('should not call api to sanitize content when enableHtmlSanitizer is false', async () => {
+        serviceShouldWork = true;
+
+        let wrapper = await createWrapper({
+            propsData: {
+                sanitizeInput: true,
+            },
+        });
+
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.onBlur();
+
+        expect(wrapper.vm.contentWasSanitized).toBe(true);
+        expect(wrapper.vm.editor.getValue()).toBe(sanitizedInput);
+
+        Shopware.Context.app.config.settings = {
+            enableHtmlSanitizer: false,
+        };
+        wrapper = await createWrapper({
+            propsData: {
+                sanitizeInput: true,
+            },
+        });
+
+        wrapper.vm.contentWasSanitized = false;
+
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.onBlur();
+
+        expect(wrapper.vm.contentWasSanitized).toBe(false);
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
     });
 });

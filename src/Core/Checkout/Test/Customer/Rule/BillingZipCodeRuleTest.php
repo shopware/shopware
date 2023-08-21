@@ -27,8 +27,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Package('business-ops')]
 class BillingZipCodeRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

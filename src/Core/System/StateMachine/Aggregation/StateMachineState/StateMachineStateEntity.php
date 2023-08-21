@@ -18,8 +18,8 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 #[Package('checkout')]
 class StateMachineStateEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

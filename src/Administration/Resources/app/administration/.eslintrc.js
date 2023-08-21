@@ -29,6 +29,9 @@ const baseRules = {
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],
+    'vue/multi-word-component-names': ['error', {
+        ignores: ['index.html'],
+    }],
 };
 
 module.exports = {
@@ -93,7 +96,7 @@ module.exports = {
     overrides: [
         {
             extends: [
-                'plugin:vue/recommended',
+                'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
             ],
             files: ['**/*.js'],
@@ -129,6 +132,11 @@ module.exports = {
                         'renderError',
                     ],
                 }],
+                // Reenable this rule with vue 3
+                'vue/no-deprecated-destroyed-lifecycle': 'off',
+                'vue/no-deprecated-events-api': 'off',
+                'vue/require-slots-as-functions': 'off',
+                'vue/no-deprecated-props-default-this': 'off',
             },
         }, {
             extends: [

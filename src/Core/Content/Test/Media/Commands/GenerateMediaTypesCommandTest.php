@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -24,8 +25,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class GenerateMediaTypesCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CommandTestBehaviour;
+    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**
@@ -116,7 +117,9 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Provided batch size is invalid.');
+
         $this->createValidMediaFiles();
 
         $input = new StringInput('-b "test"');

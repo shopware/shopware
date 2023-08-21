@@ -26,7 +26,7 @@ export default class ExtensionErrorService {
 
     handleError(error, translator) {
         return this._translateRawNotification(
-            this._getNotification(error, translator),
+            { ...this._getNotification(error, translator), parameters: error?.meta?.parameters || {} },
             translator,
         );
     }
@@ -42,8 +42,8 @@ export default class ExtensionErrorService {
 
     _translateRawNotification(notification, translator) {
         return {
-            title: translator.$tc(notification.title),
-            message: translator.$tc(notification.message),
+            title: translator.$t(notification.title, notification.parameters),
+            message: translator.$t(notification.message, notification.parameters),
             autoClose: notification.autoClose !== false,
             actions: notification.actions ?? [],
         };

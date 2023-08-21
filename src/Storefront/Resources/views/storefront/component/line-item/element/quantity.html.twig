@@ -4,7 +4,7 @@
     {% endif %}
 
     {% if formAction is not defined %}
-        {% set formAction = path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id } ) %}
+        {% set formAction = path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id }) %}
     {% endif %}
 
     {% if showQuantitySelect is not defined %}
@@ -66,7 +66,7 @@
                                                 type="button"
                                                 class="btn btn-outline-light btn-minus js-btn-minus"
                                             >
-                                                {% sw_icon 'minus' style {'size': 'xs'}  %}
+                                                {% sw_icon 'minus' style {'size': 'xs'} %}
                                             </button>
                                             <input
                                                 {% if isDigital %}disabled="disabled"{% endif %}

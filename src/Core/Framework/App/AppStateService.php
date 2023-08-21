@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
-use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
@@ -32,7 +32,8 @@ class AppStateService
         private readonly ScriptPersister $scriptPersister,
         private readonly PaymentMethodStateService $paymentMethodStateService,
         private readonly ScriptExecutor $scriptExecutor,
-        private readonly RuleConditionPersister $ruleConditionPersister
+        private readonly RuleConditionPersister $ruleConditionPersister,
+        private readonly FlowEventPersister $flowEventPersister
     ) {
     }
 
@@ -42,7 +43,7 @@ class AppStateService
         $app = $this->appRepo->search(new Criteria([$appId]), $context)->first();
 
         if (!$app) {
-            throw new AppNotFoundException($appId);
+            throw AppException::notFound($appId);
         }
         if ($app->isActive()) {
             return;
@@ -68,7 +69,7 @@ class AppStateService
         $app = $this->appRepo->search(new Criteria([$appId]), $context)->first();
 
         if (!$app) {
-            throw new AppNotFoundException($appId);
+            throw AppException::notFound($appId);
         }
         if (!$app->isActive()) {
             return;
@@ -88,5 +89,6 @@ class AppStateService
         $this->scriptPersister->deactivateAppScripts($appId, $context);
         $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
         $this->ruleConditionPersister->deactivateConditionScripts($appId, $context);
+        $this->flowEventPersister->deactivateFlow($appId);
     }
 }

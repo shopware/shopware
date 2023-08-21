@@ -232,13 +232,55 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor">
+            <argument type="tagged_iterator" tag="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler" />
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler" />
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler"/>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler"/>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler">
+            <argument type="service" id="property_group_option.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <instanceof id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler">
+            <tag name="shopware.listing.filter.handler" />
+        </instanceof>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor">
+            <tag name="shopware.listing.processor"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="product_sorting.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AggregationListingProcessor">
+            <argument type="tagged_iterator" tag="shopware.listing.filter.handler" />
+            <argument type="service" id="event_dispatcher" />
+            <tag name="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AssociationLoadingListingProcessor">
+            <tag name="shopware.listing.processor"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\BehaviorListingProcessor">
+            <tag name="shopware.listing.processor" priority="-1000"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.listing.processor"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="property_group_option.repository"/>
-            <argument type="service" id="product_sorting.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
@@ -257,6 +299,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" decoration-priority="-1000" public="true">
@@ -270,7 +313,6 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
         </service>
 
@@ -279,6 +321,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\CachedProductSearchRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" decoration-priority="-1000" public="true">
@@ -293,6 +336,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute.inner"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute" public="true">
@@ -312,7 +356,6 @@
         <!-- decorated by cached route -->
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader" />
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>

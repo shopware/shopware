@@ -42,6 +42,7 @@ class DeleteNotUsedMediaCommand extends Command
         $this->addOption('offset', null, InputOption::VALUE_OPTIONAL, 'The offset to start from');
         $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'The offset to start from', 20);
         $this->addOption('dry-run', description: 'Show list of files to be deleted');
+        $this->addOption('report', description: 'Generate a list of files to be deleted');
     }
 
     /**
@@ -57,6 +58,16 @@ class DeleteNotUsedMediaCommand extends Command
             $io->error('Your database does not support the JSON_OVERLAPS function. Please update your database to MySQL 8.0 or MariaDB 10.9 or higher.');
 
             return self::FAILURE;
+        }
+
+        if ($input->getOption('report') && $input->getOption('dry-run')) {
+            $io->error('The options --report and --dry-run cannot be used together, pick one or the other.');
+
+            return self::FAILURE;
+        }
+
+        if ($input->getOption('report')) {
+            return $this->report($input, $output);
         }
 
         if ($input->getOption('dry-run')) {
@@ -89,6 +100,32 @@ class DeleteNotUsedMediaCommand extends Command
         return self::SUCCESS;
     }
 
+    private function report(InputInterface $input, OutputInterface $output): int
+    {
+        $mediaBatches = $this->unusedMediaPurger->getNotUsedMedia(
+            $input->getOption('limit') ? (int) $input->getOption('limit') : 50,
+            $input->getOption('offset') ? (int) $input->getOption('offset') : null,
+            (int) $input->getOption('grace-period-days'),
+            $input->getOption('folder-entity'),
+        );
+
+        $output->write(implode(',', array_map(fn ($col) => sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
+        foreach ($mediaBatches as $mediaBatch) {
+            foreach ($mediaBatch as $media) {
+                $row = [
+                    $media->getFileNameIncludingExtension(),
+                    $media->getTitle(),
+                    $media->getUploadedAt()?->format('F jS, Y'),
+                    MemorySizeCalculator::formatToBytes($media->getFileSize() ?? 0),
+                ];
+
+                $output->write(sprintf("\n%s", implode(',', array_map(fn ($col) => sprintf('"%s"', $col), $row))));
+            }
+        }
+
+        return self::SUCCESS;
+    }
+
     private function dryRun(InputInterface $input, OutputInterface $output): int
     {
         $cursor = new Cursor($output);
@@ -109,7 +146,7 @@ class DeleteNotUsedMediaCommand extends Command
             }
 
             if ($batchNum === 0) {
-                //we only clear the screen when we actually have some unused media
+                // we only clear the screen when we actually have some unused media
                 $cursor->clearScreen();
             }
 
@@ -140,7 +177,7 @@ class DeleteNotUsedMediaCommand extends Command
             );
 
             if (\count($medias) < 20) {
-                //last batch
+                // last batch
                 return true;
             }
 
@@ -179,7 +216,7 @@ class DeleteNotUsedMediaCommand extends Command
             }
         }
 
-        //last remaining batch
+        // last remaining batch
         if (\count($batch) > 0) {
             return $callback($i++, $batch);
         }

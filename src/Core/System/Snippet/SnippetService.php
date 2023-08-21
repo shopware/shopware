@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -209,6 +210,9 @@ class SnippetService
         return $result;
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - will be removed, use findSnippetSetId instead
+     */
     public function getSnippetSet(string $salesChannelId, string $languageId, string $locale, Context $context): ?SnippetSetEntity
     {
         $criteria = new Criteria();
@@ -224,12 +228,44 @@ class SnippetService
         if ($salesChannelDomain === null) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('iso', $locale));
+            /** @var SnippetSetEntity|null $snippetSet */
             $snippetSet = $this->snippetSetRepository->search($criteria, $context)->first();
         } else {
             $snippetSet = $salesChannelDomain->getSnippetSet();
         }
 
         return $snippetSet;
+    }
+
+    public function findSnippetSetId(string $salesChannelId, string $languageId, string $locale): string
+    {
+        $snippetSetId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(`snippet_set`.`id`))
+            FROM `sales_channel_domain`
+            INNER JOIN `snippet_set` ON `sales_channel_domain`.`snippet_set_id` = `snippet_set`.`id`
+            WHERE `sales_channel_domain`.`sales_channel_id` = :salesChannelId AND `sales_channel_domain`.`language_id` = :languageId
+            LIMIT 1',
+            [
+                'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+                'languageId' => Uuid::fromHexToBytes($languageId),
+            ]
+        );
+
+        if ($snippetSetId) {
+            return $snippetSetId;
+        }
+
+        $sets = $this->connection->fetchAllKeyValue(
+            'SELECT iso, LOWER(HEX(id)) FROM snippet_set WHERE iso IN (:locales) LIMIT 2',
+            ['locales' => array_unique([$locale, 'en-GB'])],
+            ['locales' => ArrayParameterType::STRING]
+        );
+
+        if (isset($sets[$locale])) {
+            return $sets[$locale];
+        }
+
+        return array_pop($sets);
     }
 
     /**
@@ -299,6 +335,10 @@ class SnippetService
      */
     private function getUsedThemes(?string $salesChannelId = null): array
     {
+        if (!$this->container->has(StorefrontPluginRegistry::class)) {
+            return [];
+        }
+
         if (!$salesChannelId || $this->salesChannelThemeLoader === null) {
             return [StorefrontPluginRegistry::BASE_THEME_NAME];
         }

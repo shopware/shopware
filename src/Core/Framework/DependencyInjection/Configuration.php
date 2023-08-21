@@ -349,6 +349,10 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('exclude_events')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('error_code_log_levels')
+                    ->useAttributeAsKey('name')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -361,6 +365,19 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
+                ->arrayNode('tagging')
+                    ->children()
+                        ->booleanNode('each_snippet')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('each_config')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('each_theme_config')
+                            ->defaultTrue()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('invalidation')
                     ->children()
                         ->integerNode('delay')
@@ -530,6 +547,9 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->booleanNode('enabled')
+                    ->defaultTrue()
+                ->end()
                 ->variableNode('cache_dir')
                     ->defaultValue('%kernel.cache_dir%')
                 ->end()

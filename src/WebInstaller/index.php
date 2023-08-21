@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use App\Kernel;
+use Shopware\WebInstaller\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,7 +14,6 @@ if (file_exists($configEnv)) {
     $dotenv->usePutenv(false)->load($configEnv);
 }
 
-$debug = (bool) ($_SERVER['APP_DEBUG'] ?? 0);
 $debug = true;
 
 $kernel = new Kernel($_SERVER['APP_ENV'] ?? 'prod', $debug);

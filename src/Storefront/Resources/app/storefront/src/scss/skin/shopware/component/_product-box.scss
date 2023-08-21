@@ -9,7 +9,8 @@ Styling for productbox component.
     background-color: $white;
 
     .card-body {
-        padding: $spacer;
+        --#{$prefix}card-spacer-y: #{$spacer};
+        --#{$prefix}card-spacer-x: #{$spacer};
     }
 }
 

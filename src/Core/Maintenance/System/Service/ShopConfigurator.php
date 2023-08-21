@@ -330,7 +330,7 @@ class ShopConfigurator
             WHERE LOWER(language.name) = LOWER("english")'
         );
 
-        //Always use the English name since we don't have the name in the language itself
+        // Always use the English name since we don't have the name in the language itself
         $name = $this->connection->fetchOne(
             '
             SELECT locale_translation.name

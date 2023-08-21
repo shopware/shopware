@@ -44,7 +44,10 @@ Shopware.Component.register('sw-extension-sdk-module', {
     },
 
     watch: {
-        $route() {
+        /**
+         * When user changes from one app module to another the iframe should reload
+         */
+        'module.locationId'() {
             if (!this.$refs.iframeRenderer) {
                 return;
             }

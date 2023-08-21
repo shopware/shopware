@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -47,8 +49,8 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class PreparedPaymentServiceTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     private PreparedPaymentService $paymentService;
 
@@ -112,7 +114,11 @@ class PreparedPaymentServiceTest extends TestCase
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
         PreparedTestPaymentHandler::$fail = true;
 
-        $this->expectException(ValidatePreparedPaymentException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(ValidatePreparedPaymentException::class);
+        }
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'this is supposed to fail');
         $this->paymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -122,7 +128,10 @@ class PreparedPaymentServiceTest extends TestCase
         $cart = Generator::createCart();
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $this->expectException(UnknownPaymentMethodException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(UnknownPaymentMethodException::class);
+        }
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
         $this->paymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
     }
@@ -166,7 +175,13 @@ class PreparedPaymentServiceTest extends TestCase
         $struct = new ArrayStruct(['testStruct']);
         PreparedTestPaymentHandler::$fail = true;
 
-        $this->expectException(CapturePreparedPaymentException::class);
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'this is supposed to fail');
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(CapturePreparedPaymentException::class);
+        }
+
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
 
@@ -180,7 +195,10 @@ class PreparedPaymentServiceTest extends TestCase
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
 
-        $this->expectException(UnknownPaymentMethodException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(UnknownPaymentMethodException::class);
+        }
+        $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
@@ -207,7 +225,11 @@ class PreparedPaymentServiceTest extends TestCase
         $order = $this->loadOrder($orderId, $salesChannelContext, false);
         $struct = new ArrayStruct(['testStruct']);
 
-        $this->expectException(InvalidOrderException::class);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->expectException(InvalidOrderException::class);
+        }
+        $this->expectException(PaymentException::class);
+
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
 

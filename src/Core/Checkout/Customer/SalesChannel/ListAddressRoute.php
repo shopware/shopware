@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,6 +20,8 @@ class ListAddressRoute extends AbstractListAddressRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
      */
     public function __construct(
         private readonly EntityRepository $addressRepository,

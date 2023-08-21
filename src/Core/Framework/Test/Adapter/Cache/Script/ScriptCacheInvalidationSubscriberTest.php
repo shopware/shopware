@@ -15,8 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ScriptCacheInvalidationSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @dataProvider invalidationCasesProvider

@@ -107,6 +107,51 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
+### get()
+
+* `get()` returns the line-item with the given id from this collection.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
+
+    The line-item with the given id, or null if it does not exist.
+* **Arguments:**
+    * *`string`* **id**: The id of the line-item that should be returned.
+### has()
+
+* `has()` checks if a line-item with the given id exists in this collection.
+
+    
+* **Returns** `bool`
+
+    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
+### remove()
+
+* `remove()` removes the given line-item or the line-item with the given id from this collection.
+
+    
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
+* **Examples:**
+    * Add and then remove a product line-item from the cart.
+
+        {% raw %}
+        ```twig
+        {% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% do services.cart.products.remove(hook.ids.get('p1')) %}
+        ```
+        {% endraw %}
 ### surcharge()
 
 * The `surcharge()` methods creates a new surcharge line-item with the given type and value.
@@ -150,51 +195,6 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
-### get()
-
-* `get()` returns the line-item with the given id from this collection.
-
-    
-* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
-
-    The line-item with the given id, or null if it does not exist.
-* **Arguments:**
-    * *`string`* **id**: The id of the line-item that should be returned.
-### remove()
-
-* `remove()` removes the given line-item or the line-item with the given id from this collection.
-
-    
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
-* **Examples:**
-    * Add and then remove a product line-item from the cart.
-
-        {% raw %}
-        ```twig
-        {% do services.cart.products.add(hook.ids.get('p1')) %}
-		
-		{% do services.cart.products.remove(hook.ids.get('p1')) %}
-        ```
-        {% endraw %}
-### has()
-
-* `has()` checks if a line-item with the given id exists in this collection.
-
-    
-* **Returns** `bool`
-
-    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\CartPriceFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/CartPriceFacade.php) {#cartpricefacade}
 
@@ -439,6 +439,51 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
+### get()
+
+* `get()` returns the line-item with the given id from this collection.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
+
+    The line-item with the given id, or null if it does not exist.
+* **Arguments:**
+    * *`string`* **id**: The id of the line-item that should be returned.
+### has()
+
+* `has()` checks if a line-item with the given id exists in this collection.
+
+    
+* **Returns** `bool`
+
+    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
+### remove()
+
+* `remove()` removes the given line-item or the line-item with the given id from this collection.
+
+    
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
+* **Examples:**
+    * Add and then remove a product line-item from the cart.
+
+        {% raw %}
+        ```twig
+        {% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% do services.cart.products.remove(hook.ids.get('p1')) %}
+        ```
+        {% endraw %}
 ### surcharge()
 
 * The `surcharge()` methods creates a new surcharge line-item with the given type and value.
@@ -482,51 +527,6 @@ The ContainerFacade allows you to wrap multiple line-items inside a container li
 		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
-### get()
-
-* `get()` returns the line-item with the given id from this collection.
-
-    
-* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
-
-    The line-item with the given id, or null if it does not exist.
-* **Arguments:**
-    * *`string`* **id**: The id of the line-item that should be returned.
-### remove()
-
-* `remove()` removes the given line-item or the line-item with the given id from this collection.
-
-    
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
-* **Examples:**
-    * Add and then remove a product line-item from the cart.
-
-        {% raw %}
-        ```twig
-        {% do services.cart.products.add(hook.ids.get('p1')) %}
-		
-		{% do services.cart.products.remove(hook.ids.get('p1')) %}
-        ```
-        {% endraw %}
-### has()
-
-* `has()` checks if a line-item with the given id exists in this collection.
-
-    
-* **Returns** `bool`
-
-    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\DiscountFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/DiscountFacade.php) {#discountfacade}
 
@@ -824,6 +824,14 @@ The ItemsFacade is a wrapper around a collection of line-items.
     The line-item with the given id, or null if it does not exist.
 * **Arguments:**
     * *`string`* **id**: The id of the line-item that should be returned.
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
 ### has()
 
 * `has()` checks if a line-item with the given id exists in this collection.
@@ -851,14 +859,6 @@ The ItemsFacade is a wrapper around a collection of line-items.
 		{% do services.cart.products.remove(hook.ids.get('p1')) %}
         ```
         {% endraw %}
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\PriceFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/PriceFacade.php) {#pricefacade}
 
@@ -1099,6 +1099,24 @@ The ProductsFacade is a wrapper around a collection of product line-items.
     * *`int`* **quantity**: Optionally provide the quantity with which the product line-item should be created, defaults to 1.
 
         Default: `1`
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
+### has()
+
+* `has()` checks if a line-item with the given id exists in this collection.
+
+    
+* **Returns** `bool`
+
+    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
 ### remove()
 
 * `remove()` removes the given line-item or the line-item with the given id from this collection.
@@ -1116,24 +1134,6 @@ The ProductsFacade is a wrapper around a collection of product line-items.
 		{% do services.cart.products.remove(hook.ids.get('p1')) %}
         ```
         {% endraw %}
-### has()
-
-* `has()` checks if a line-item with the given id exists in this collection.
-
-    
-* **Returns** `bool`
-
-    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\StatesFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/StatesFacade.php) {#statesfacade}
 

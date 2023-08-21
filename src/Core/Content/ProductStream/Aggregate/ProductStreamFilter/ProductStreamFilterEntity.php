@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class ProductStreamFilterEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

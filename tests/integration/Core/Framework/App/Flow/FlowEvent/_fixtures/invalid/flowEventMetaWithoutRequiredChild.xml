@@ -1,0 +1,7 @@
+<flow-extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gitlab.shopware.com/shopware/6/product/platform/-/raw/7a0708804d0669cb63cc5f677b034bedec43e64e/src/Core/Framework/App/Flow/Schema/flow-1.0.xsd">
+    <flow-events>
+        <flow-event>
+            <name>tada</name>
+        </flow-event>
+    </flow-events>
+</flow-extensions>

@@ -139,11 +139,11 @@ class ChildCountIndexerTest extends TestCase
         ], $this->context);
 
         /**
-        Category A
-        ├── Category B
-        ├── Category C
-        │  └── Category D
-        │  └── Category E
+         * Category A
+         * ├── Category B
+         * ├── Category C
+         * │  └── Category D
+         * │  └── Category E
          */
         $categories = $this->categoryRepository->search(
             new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),

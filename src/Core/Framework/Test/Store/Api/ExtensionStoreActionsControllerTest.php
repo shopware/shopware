@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ExtensionStoreActionsControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testRefreshExtensions(): void
     {

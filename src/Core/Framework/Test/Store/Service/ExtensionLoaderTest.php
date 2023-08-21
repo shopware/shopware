@@ -30,8 +30,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  */
 class ExtensionLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use ExtensionBehaviour;
+    use IntegrationTestBehaviour;
 
     private ExtensionLoader $extensionLoader;
 

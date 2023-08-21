@@ -21,8 +21,8 @@ use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 #[Package('core')]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use MigrationUntouchedDbTestTrait;
 
     /**
@@ -316,7 +316,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function setupDB(Connection $orgConnection): Connection
     {
-        //Be sure that we are on the no migrations db
+        // Be sure that we are on the no migrations db
         static::assertStringContainsString('_no_migrations', $this->databaseName, 'Wrong DB ' . $this->databaseName);
 
         $orgConnection->executeStatement('DROP DATABASE IF EXISTS `' . $this->databaseName . '`');

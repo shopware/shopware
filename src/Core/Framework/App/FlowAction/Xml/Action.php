@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.6.0 - Will be move to Shopware\Core\Framework\App\Flow\Action\Xml
  */
 #[Package('core')]
 class Action extends XmlElement
@@ -31,21 +34,41 @@ class Action extends XmlElement
 
     public function getMeta(): Metadata
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
+
         return $this->meta;
     }
 
     public function getHeaders(): Headers
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
+
         return $this->headers;
     }
 
     public function getParameters(): Parameters
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
+
         return $this->parameters;
     }
 
     public function getConfig(): Config
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
+
         return $this->config;
     }
 
@@ -54,6 +77,11 @@ class Action extends XmlElement
      */
     public function toArray(string $defaultLocale): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
+
         $data = parent::toArray($defaultLocale);
 
         return array_merge($data, [
@@ -73,6 +101,11 @@ class Action extends XmlElement
 
     public static function fromXml(\DOMElement $element): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Action')
+        );
+
         return new self(self::parse($element));
     }
 
@@ -84,7 +117,6 @@ class Action extends XmlElement
         /** @var array<string, mixed> $parameters */
         $parameters = array_map(fn ($parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
 
-        /** @var string $parameters */
         $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
 
         /** @var string $parameters */

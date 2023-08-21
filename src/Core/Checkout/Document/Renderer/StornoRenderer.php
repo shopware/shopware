@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -15,6 +16,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -183,6 +185,10 @@ final class StornoRenderer extends AbstractDocumentRenderer
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if ($order === null) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw DocumentException::orderNotFound($orderId);
+            }
+
             throw new InvalidOrderException($orderId);
         }
 

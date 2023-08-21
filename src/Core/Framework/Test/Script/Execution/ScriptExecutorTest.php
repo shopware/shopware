@@ -22,8 +22,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class ScriptExecutorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private ScriptExecutor $executor;
 

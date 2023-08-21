@@ -26,8 +26,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('business-ops')]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CartRuleHelperTrait;
+    use KernelTestBehaviour;
 
     private LineItemDimensionHeightRule $rule;
 

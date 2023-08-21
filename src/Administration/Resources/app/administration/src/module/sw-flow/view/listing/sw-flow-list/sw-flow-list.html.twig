@@ -57,10 +57,15 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_list_grid_columns_event_name %}
             <template #column-eventName="{ item }">
-                <strong>
-                    {{ $tc('global.businessEvents.' + getTranslatedEventName(item.eventName)) }}
-                </strong>
-                <p>{{ item.eventName }}</p>
+                <div v-if="isValidTrigger(item.eventName)">
+                    <strong>
+                        {{ getTranslatedEventName(item.eventName) }}
+                    </strong>
+                    <p>{{ item.eventName }}</p>
+                </div>
+                <div v-else>
+                    <p>{{ $tc('sw-flow.list.unknownTrigger') }}</p>
+                </div>
             </template>
             {% endblock %}
             {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -41,7 +42,7 @@ class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
         return self::NAME;
     }
 
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [];
     }

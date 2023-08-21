@@ -21,9 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('business-ops')]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
-    use OrderActionTrait;
-    use CacheTestBehaviour;
     use AdminApiTestBehaviour;
+    use CacheTestBehaviour;
+    use OrderActionTrait;
 
     private EntityRepository $flowRepository;
 

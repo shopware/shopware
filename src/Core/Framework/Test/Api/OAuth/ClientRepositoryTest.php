@@ -19,13 +19,13 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ClientRepositoryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testLoginFailsForInactiveApp(): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
+        $fixturesPath = __DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test';
 
         $this->loadAppsFromDir($fixturesPath, false);
 

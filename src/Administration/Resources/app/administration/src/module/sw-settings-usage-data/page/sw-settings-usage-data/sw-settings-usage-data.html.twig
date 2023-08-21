@@ -40,10 +40,18 @@
                 <sw-settings-usage-data-intro />
 
                 <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="shareUsageData"
+                    {% else %}
                     v-model="shareUsageData"
+                    {% endif %}
                     :label="$tc('sw-settings-usage-data.general.shareUsageData')"
                     :disabled="!isAdmin"
+                    {% if VUE3 %}
+                    @update:value="saveSystemConfig"
+                    {% else %}
                     @change="saveSystemConfig"
+                    {% endif %}
                 />
 
                 <sw-alert

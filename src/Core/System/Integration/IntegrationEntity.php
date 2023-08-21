@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('system-settings')]
 class IntegrationEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

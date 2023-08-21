@@ -640,9 +640,9 @@ class ThemeTest extends TestCase
                 return $this->kernel->getCharset();
             }
 
-            public function __call($name, $arguments) /* @phpstan-ignore-line  */
+            public function __call($name, $arguments) /* @phpstan-ignore-line */
             {
-                return $this->kernel->$name(...\func_get_args()); /* @phpstan-ignore-line  */
+                return $this->kernel->$name(...\func_get_args()); /* @phpstan-ignore-line */
             }
         };
 
@@ -771,7 +771,7 @@ class ThemeTest extends TestCase
                 Context::createDefaultContext()
             );
         } catch (ThemeCompileException $e) {
-            //ignore files not found exception
+            // ignore files not found exception
 
             if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "src/Storefront/Resources/app/storefront/dist/js/vendor-node.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
                 throw $e;

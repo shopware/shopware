@@ -113,7 +113,7 @@ class StorableFlow extends Struct
      *
      * @param callable(StorableFlow): mixed $closure
      */
-    public function lazy(string $key, callable $closure/*, array $args = []*/): void
+    public function lazy(string $key, callable $closure/* , array $args = [] */): void
     {
         if (\func_num_args() === 3) {
             $args = func_get_arg(2);

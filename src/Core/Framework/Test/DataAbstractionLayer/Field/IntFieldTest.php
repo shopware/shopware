@@ -31,14 +31,14 @@ class IntFieldTest extends TestCase
         try {
             $serializer->encode(
                 $this->getIntField(),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current();
         } catch (WriteConstraintViolationException $e) {
             static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             /* Unexpected language has to be fixed NEXT-9419 */
-            //static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
+            // static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
 
             throw $e;
         }
@@ -55,14 +55,14 @@ class IntFieldTest extends TestCase
         try {
             $serializer->encode(
                 $this->getIntField(),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current();
         } catch (WriteConstraintViolationException $e) {
             static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             /* Unexpected language has to be fixed NEXT-9419 */
-            //static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
+            // static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
 
             throw $e;
         }
@@ -80,7 +80,7 @@ class IntFieldTest extends TestCase
             0,
             $serializer->encode(
                 $field,
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current()
@@ -97,7 +97,7 @@ class IntFieldTest extends TestCase
             15,
             $serializer->encode(
                 $this->getIntField(),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current()
@@ -113,7 +113,7 @@ class IntFieldTest extends TestCase
         static::assertNull(
             $serializer->encode(
                 $this->getIntField(false),
-                $this->getEntityExisting(),
+                EntityExistence::createEmpty(),
                 $data,
                 $this->getWriteParameterBagMock()
             )->current()
@@ -126,11 +126,6 @@ class IntFieldTest extends TestCase
         $mockBuilder->disableOriginalConstructor();
 
         return $mockBuilder->getMock();
-    }
-
-    private function getEntityExisting(): EntityExistence
-    {
-        return new EntityExistence(null, [], true, false, false, []);
     }
 
     private function getIntField(bool $required = true): IntField

@@ -32,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -194,12 +193,16 @@ class WriteCommandExtractor
 
         /** @var Field&StorageAware $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
-            $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
+            $parameters->getContext()->set(
+                $parameters->getDefinition()->getEntityName(),
+                $pkField->getPropertyName(),
+                $pkField->getSerializer()->decode($pkField, $pkData[$pkField->getStorageName()]),
+            );
         }
 
         if ($definition instanceof MappingEntityDefinition) {
             // gateway will execute always a replace into
-            $existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
+            $existence = EntityExistence::createForEntity($definition->getEntityName(), []);
         } else {
             $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
         }
@@ -320,7 +323,7 @@ class WriteCommandExtractor
     private function skipField(Field $field, EntityExistence $existence): bool
     {
         if ($existence->isChild() && $field->is(Inherited::class)) {
-            //inherited field of a child is never required
+            // inherited field of a child is never required
             return true;
         }
 
@@ -464,7 +467,7 @@ class WriteCommandExtractor
             /** @var array<string, string> $values */
             $values = $pkField->getSerializer()->encode(
                 $pkField,
-                new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []),
+                EntityExistence::createForEntity($parameters->getDefinition()->getEntityName(), []),
                 new KeyValuePair($pkField->getPropertyName(), $id, true),
                 $parameters
             );

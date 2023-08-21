@@ -23,7 +23,7 @@ trait AssignArrayTrait
 
             try {
                 $this->$key = $value; /* @phpstan-ignore-line */
-            } catch (\Error | \Exception $error) {
+            } catch (\Error|\Exception $error) {
                 // nth
             }
         }

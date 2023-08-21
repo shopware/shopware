@@ -43,8 +43,8 @@ use Shopware\Core\System\Tax\TaxEntity;
  */
 class EntityExtensionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection

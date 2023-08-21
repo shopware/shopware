@@ -1,0 +1,37 @@
+<flow-extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gitlab.shopware.com/shopware/6/product/platform/-/raw/7a0708804d0669cb63cc5f677b034bedec43e64e/src/Core/Framework/App/Flow/Schema/flow-1.0.xsd">
+    <flow-events>
+        <flow-event>
+            <name>swag.before.open_the_doors</name>
+            <aware>customerAware</aware>
+        </flow-event>
+    </flow-events>
+    <flow-actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gitlab.shopware.com/shopware/6/product/platform/-/raw/next-19083/update-app-manifest-xsd-for-flow-action/src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd">
+        <flow-action>
+            <meta>
+                <name>abc.cde.ccc</name>
+                <label>First action app</label>
+                <label lang="de-DE">First action app DE</label>
+                <url>https://example.xyz</url>
+            </meta>
+            <headers>
+                <parameter type="string" name="content-type" value="application/json"/>
+            </headers>
+            <parameters>
+                <parameter type="string" name="to" value="{{ customer.name }}"/>
+            </parameters>
+            <config>
+                <input-field>
+                    <name>textField</name>
+                    <label>To</label>
+                    <label lang="de-DE">To DE</label>
+                    <place-holder>Enter to...</place-holder>
+                    <place-holder lang="de-DE">Enter to DE...</place-holder>
+                    <helpText>Help text</helpText>
+                    <helpText lang="de-DE">Help text DE</helpText>
+                    <required>true</required>
+                    <defaultValue>Shopware 6</defaultValue>
+                </input-field>
+            </config>
+        </flow-action>
+    </flow-actions>
+</flow-extensions>

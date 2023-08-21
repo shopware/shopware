@@ -29,8 +29,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntityScoreBuilderTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private EntityDefinition $testDefinition;
 

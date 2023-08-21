@@ -67,6 +67,8 @@ $input-btn-padding-x: 0.5625rem !default;
 
 $input-placeholder-color: #c3c3c3 !default;
 
+$form-label-margin-bottom: 3px !default;
+
 // Buttons
 $btn-padding-y: 2px !default;
 $btn-padding-x: 12px !default;
@@ -81,6 +83,10 @@ $btn-padding-y-lg: 2px !default;
 $btn-padding-x-lg: 12px !default;
 $btn-font-size-lg: 16px !default;
 $btn-line-height-lg: 38px !default;
+
+$btn-font-weight: 600 !default;
+$btn-link-disabled-color: $gray-300 !default;
+$btn-disabled-opacity: 1 !default;
 
 // Forms
 $enable-validation-icons: false !default;
@@ -116,6 +122,9 @@ $spinner-border-width: 2px !default;
 // Modals
 $modal-header-padding-y: 10px !default;
 $modal-header-padding-x: 10px !default;
+$modal-content-border-width: 0 !default;
+$modal-content-box-shadow-xs: 0 43px 43px -6px rgba(#000, 0.2) !default;
+$modal-content-box-shadow-sm-up: 0 43px 43px -6px rgba(#000, 0.2) !default;
 
 // Breadcrumb
 $breadcrumb-bg: transparent !default;
@@ -124,9 +133,29 @@ $breadcrumb-border-radius: 0 !default;
 // Cards
 $card-border-color: transparent !default;
 $card-bg: transparent !default;
+$card-spacer-y: 0 !default;
+$card-spacer-x: 0 !default;
 
 // Tables
 $table-striped-bg: #f9f9f9 !default;
 
 // Switch
 $custom-switch-indicator-border-radius: 0.5rem;
+
+// OffCanvas
+$offcanvas-padding-y: $grid-gutter-width / 2 !default;
+$offcanvas-padding-x: $grid-gutter-width / 2 !default;
+$offcanvas-border-width: 0 !default;
+$offcanvas-border-color: transparent !default;
+$offcanvas-backdrop-opacity: 1 !default;
+
+
+// Alerts
+$alert-padding-x: 0 !default;
+$alert-padding-y: 0 !default;
+$alert-border-width: 0 !default;
+
+// Badges
+$badge-border-radius: 50px !default;
+$badge-padding-x: 5px !default;
+$badge-padding-y: 0 !default;

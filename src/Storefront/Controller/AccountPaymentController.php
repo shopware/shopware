@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -56,7 +57,7 @@ class AccountPaymentController extends StorefrontController
                 $context,
                 $customer
             );
-        } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
+        } catch (UnknownPaymentMethodException|InvalidUuidException|PaymentException $exception) {
             $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
 
             return $this->forwardToRoute('frontend.account.payment.page', ['success' => false]);

@@ -112,7 +112,7 @@ class RefreshAppCommand extends Command
         foreach ($refreshableManifests as $refreshableManifest) {
             try {
                 $this->manifestValidator->validate($refreshableManifest, $context);
-            } catch (AppValidationException | XmlParsingException $e) {
+            } catch (AppValidationException|XmlParsingException $e) {
                 $invalids[] = $e->getMessage();
             }
         }

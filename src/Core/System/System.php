@@ -10,6 +10,7 @@ use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityComp
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -56,6 +57,8 @@ class System extends Bundle
     public function boot(): void
     {
         parent::boot();
+
+        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
         $this->container->get(CustomEntityRegistrar::class)->register();
     }

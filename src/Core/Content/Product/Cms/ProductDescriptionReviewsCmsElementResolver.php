@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -161,13 +162,14 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         $criteria->setOffset(0);
         $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
-        $customerReviews = $this->productReviewRoute
+        return $this->productReviewRoute
             ->load($productId, new Request(), $context, $criteria)
-            ->getResult();
-
-        return $customerReviews->first();
+            ->getResult()->getEntities()->first();
     }
 
+    /**
+     * @param EntitySearchResult<ProductReviewCollection> $reviews
+     */
     private function getReviewRatingMatrix(EntitySearchResult $reviews): RatingMatrix
     {
         $aggregation = $reviews->getAggregations()->get('ratingMatrix');

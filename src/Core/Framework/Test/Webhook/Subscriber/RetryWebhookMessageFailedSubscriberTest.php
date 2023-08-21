@@ -23,8 +23,8 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
  */
 class RetryWebhookMessageFailedSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use GuzzleTestClientBehaviour;
+    use IntegrationTestBehaviour;
 
     private Context $context;
 

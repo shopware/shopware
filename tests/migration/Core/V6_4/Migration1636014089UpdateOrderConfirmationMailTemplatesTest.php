@@ -18,8 +18,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
  */
 class Migration1636014089UpdateOrderConfirmationMailTemplatesTest extends TestCase
 {
-    use MigrationTestTrait;
     use ImportTranslationsTrait;
+    use MigrationTestTrait;
 
     private const CODE_EN = 'en-GB';
     private const CODE_DE = 'de-DE';

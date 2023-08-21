@@ -14,21 +14,6 @@ lowercase() {
   echo "${1}" | tr '[:upper:]' '[:lower:]'
 }
 
-# Fetches the current release of splitsh-lite from github.
-#
-# [1]: (optional) An alternative download URL
-fetch_splitsh() {
-  local archive_url="${1:-https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz}"
-
-  if [ -x "${PLATFORM_DIR}/splitsh-lite" ]; then
-    return 0
-  else
-    curl -sSLo "${PLATFORM_DIR}/splitsh.tar.gz" "${archive_url:-}"
-    tar -C "${PLATFORM_DIR}" -xzf "splitsh.tar.gz"
-    chmod +x "${PLATFORM_DIR}/splitsh-lite"
-  fi
-}
-
 # Creates a split repository for a subpackage of platform.
 #
 # [1]: A subpackage. e.g.: "Administration"
@@ -36,28 +21,16 @@ split_repo() {
   local package="${1}"
   local package_lower=$(lowercase "${package}")
 
-  local splitsh_bin="${PLATFORM_DIR}/splitsh-lite"
   local split_repos_dir="${PLATFORM_DIR}/repos"
   local split_repo_dir="${PLATFORM_DIR}/repos/$(lowercase ${package})"
   local tmp_target_repo_dir="$(mktemp -d)/"
   local default_branch="$(git config --global init.defaultBranch)"; default_branch=${default_branch:-trunk}
-  local splitsh_db_backup="${PLATFORM_DIR}/.splitsh.db.bak"
-  local splitsh_db="${PLATFORM_DIR}/.git/splitsh.db"
 
   git config --global --add safe.directory "${PLATFORM_DIR}" # TODO: Find out why this is necessary in CI.
 
-  stat -t "${splitsh_bin}" > /dev/null
-
   mkdir -p "${split_repos_dir}"
 
-  if [ -e "${splitsh_db_backup}" ]; then
-    mv "${splitsh_db_backup}" "${splitsh_db}"
-  fi
-
-  "${splitsh_bin}" --path="${PLATFORM_DIR}" --prefix="src/${package}/" --target="refs/heads/${package_lower}" \
-  || "${splitsh_bin}" --path="${PLATFORM_DIR}" --prefix="src/${package}/" --target="refs/heads/${package_lower}" --scratch # Retry without cache, in case of a failure.
-
-  cp "${splitsh_db}" "${splitsh_db_backup}"
+  git -C "${PLATFORM_DIR}" subtree split -q -P src/${package}/  -b ${package_lower}
 
   git -C "${PLATFORM_DIR}" remote remove "tmp_target_repo" > /dev/null 2>&1 || true
 

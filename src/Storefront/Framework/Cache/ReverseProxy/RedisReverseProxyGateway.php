@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
-use function sprintf;
 
 #[Package('storefront')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
@@ -86,7 +85,7 @@ LUA;
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
                 }
 
                 throw $reason;
@@ -110,7 +109,7 @@ LUA;
             'concurrency' => $this->concurrency,
             'rejected' => function (\Throwable $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
                 }
 
                 throw $reason;

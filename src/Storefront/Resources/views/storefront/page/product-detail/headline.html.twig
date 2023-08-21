@@ -22,9 +22,18 @@
                            title="{{ page.product.manufacturer.translated.name }}">
                             {% if page.product.manufacturer.media %}
                                 {% block page_product_detail_manufacturer_logo %}
-                                    <img src="{{ page.product.manufacturer.media|sw_encode_media_url }}"
-                                         class="product-detail-manufacturer-logo"
-                                         alt="{{ page.product.manufacturer.translated.name }}"/>
+                                    {% set attributes = {
+                                        'class': 'product-detail-manufacturer-logo',
+                                        'alt': page.product.manufacturer.translated.name,
+                                        'title': page.product.manufacturer.translated.name
+                                    } %}
+
+                                    {% sw_thumbnails 'product-detail-manufacturer-image-thumbnails' with {
+                                        media: page.product.manufacturer.media,
+                                        sizes: {
+                                            'default': '200px'
+                                        }
+                                    } %}
                                 {% endblock %}
                             {% else %}
                                 {% block page_product_detail_manufacturer_text %}

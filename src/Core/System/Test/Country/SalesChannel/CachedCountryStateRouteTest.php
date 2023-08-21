@@ -29,8 +29,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('system-settings')]
 class CachedCountryStateRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private const ALL_TAG = 'test-tag';
 

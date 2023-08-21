@@ -21,7 +21,7 @@ class Module extends XmlElement
     /**
      * @var string|null
      */
-    protected $source = null;
+    protected $source;
 
     /**
      * @var string

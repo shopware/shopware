@@ -9,6 +9,8 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
@@ -29,8 +31,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class RepositoryFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -43,7 +45,7 @@ class RepositoryFacadeTest extends TestCase
 
     /**
      * @param array<string, array<int, mixed>> $criteria
-     * @param callable(EntitySearchResult): void $expectation
+     * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
      *
      * @dataProvider withoutAppTestCases
      */

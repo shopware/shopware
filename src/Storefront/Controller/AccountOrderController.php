@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -107,7 +108,7 @@ class AccountOrderController extends StorefrontController
             $page = $this->orderPageLoader->load($request, $context);
 
             $this->hook(new AccountOrderPageLoadedHook($page, $context));
-        } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException | CustomerAuthThrottledException $exception) {
+        } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
                 [
@@ -148,10 +149,17 @@ class AccountOrderController extends StorefrontController
         $deliveriesCriteria = $criteria->getAssociation('deliveries');
         $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 
-        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+        try {
+            /** @var OrderEntity|null $order */
+            $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+        } catch (InvalidUuidException) {
+            $order = null;
+        }
 
         if ($order === null) {
-            throw OrderException::orderNotFound($orderId);
+            $this->addFlash(self::DANGER, $this->trans('error.' . OrderException::ORDER_ORDER_NOT_FOUND_CODE));
+
+            return $this->redirectToRoute('frontend.account.order.page');
         }
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
@@ -164,7 +172,7 @@ class AccountOrderController extends StorefrontController
         }
 
         /** @var OrderDeliveryEntity|null $mostCurrentDelivery */
-        $mostCurrentDelivery = $order->getDeliveries()->last();
+        $mostCurrentDelivery = $order->getDeliveries()?->last();
 
         if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
             $this->contextSwitchRoute->switchContext(
@@ -175,7 +183,13 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
         }
 
-        $page = $this->accountEditOrderPageLoader->load($request, $context);
+        try {
+            $page = $this->accountEditOrderPageLoader->load($request, $context);
+        } catch (OrderException $exception) {
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode(), ['%orderNumber%' => $order->getOrderNumber()]));
+
+            return $this->redirectToRoute('frontend.account.order.page');
+        }
 
         $this->hook(new AccountEditOrderPageLoadedHook($page, $context));
 

@@ -3,10 +3,11 @@
 namespace Shopware\Core\System\Test\Tag\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\Service\FilterTagIdsService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -24,9 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class FilterTagIdsServiceTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
-    use OrderFixture;
+    use KernelTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -130,7 +131,7 @@ class FilterTagIdsServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addSorting(new CountSorting('products.id', FieldSorting::DESCENDING));
 
-        (Context::createDefaultContext())->enableInheritance(function (Context $context) use ($criteria): void {
+        Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria): void {
             $filteredTagIdsStruct = $this->filterTagIdsService->filterIds(
                 new Request(),
                 $criteria,
@@ -301,8 +302,9 @@ class FilterTagIdsServiceTest extends TestCase
 
         $this->getContainer()->get('tag.repository')->create($tags, $context);
 
-        $order = $this->getOrderData($this->ids->get('o1'), $context);
-        $this->getContainer()->get('order.repository')->create($order, $context);
+        $order = $this->getOrderFixture($this->ids->get('o1'), $context->getVersionId());
+
+        $this->getContainer()->get('order.repository')->create([$order], $context);
 
         $versionId = $this->getContainer()->get('order.repository')->createVersion(
             $this->ids->get('o1'),
@@ -311,7 +313,7 @@ class FilterTagIdsServiceTest extends TestCase
             Uuid::randomHex()
         );
 
-        $versionContext = (Context::createDefaultContext())->createWithVersionId($versionId);
+        $versionContext = Context::createDefaultContext()->createWithVersionId($versionId);
 
         $orders = [
             [
@@ -325,5 +327,69 @@ class FilterTagIdsServiceTest extends TestCase
         $this->getContainer()->get('order.repository')->update($orders, $versionContext);
 
         return $versionContext;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getOrderFixture(string $orderId, string $orderVersionId): array
+    {
+        return [
+            'id' => $orderId,
+            'versionId' => $orderVersionId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'customerId' => Uuid::randomHex(),
+            'billingAddressId' => Uuid::randomHex(),
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1.00,
+            'price' => [
+                'netPrice' => 1000.00,
+                'totalPrice' => 1000.00,
+                'positionPrice' => 1000.00,
+                'calculatedTaxes' => [
+                    [
+                        'tax' => 0.0,
+                        'taxRate' => 0.0,
+                        'price' => 0.00,
+                        'extensions' => [],
+                    ],
+                ],
+                'taxRules' => [
+                    [
+                        'taxRate' => 0.0,
+                        'extensions' => [],
+                        'percentage' => 100.0,
+                    ],
+                ],
+                'taxStatus' => 'gross',
+                'rawTotal' => 1000.00,
+            ],
+            'shippingCosts' => [
+                'unitPrice' => 0.0,
+                'totalPrice' => 0.0,
+                'listPrice' => null,
+                'referencePrice' => null,
+                'quantity' => 1,
+                'calculatedTaxes' => [
+                    [
+                        'tax' => 0.0,
+                        'taxRate' => 0.0,
+                        'price' => 0.0,
+                        'extensions' => [],
+                    ],
+                ],
+                'taxRules' => [
+                    [
+                        'taxRate' => 0.0,
+                        'extensions' => [],
+                        'percentage' => 100,
+                    ],
+                ],
+            ],
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'stateId' => Uuid::randomHex(),
+            'orderDateTime' => new \DateTime(),
+        ];
     }
 }

@@ -8,10 +8,14 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be move to Shopware\Core\Framework\App\Flow\Action
+ */
 #[Package('core')]
 class AppFlowActionProvider
 {
@@ -30,6 +34,11 @@ class AppFlowActionProvider
      */
     public function getWebhookPayloadAndHeaders(StorableFlow $flow, string $appFlowActionId): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider')
+        );
+
         $context = $flow->getContext();
 
         $appFlowActionData = $this->getAppFlowActionData($appFlowActionId);

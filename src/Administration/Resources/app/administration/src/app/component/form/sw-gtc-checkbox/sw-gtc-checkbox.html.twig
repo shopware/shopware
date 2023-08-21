@@ -5,7 +5,11 @@
     {% block sw_gtc_checkbox_input %}
     <sw-checkbox-field
         :value="value"
+        {% if VUE3 %}
+        @update:value="onChange"
+        {% else %}
         @change="onChange"
+        {% endif %}
     >
         <template #label>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

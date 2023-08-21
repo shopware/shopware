@@ -10,6 +10,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @Annotation
  *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
+ *
+ * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
  */
 #[Package('customer-order')]
 class CustomerZipCode extends Constraint

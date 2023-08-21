@@ -6,8 +6,16 @@
         display: flex;
         flex-direction: column;
         margin: auto;
-        max-width: 870px;
+        max-width: $content-width;
         transition: max-width 0.3s ease-in-out;
+    }
+
+    &__warning-unknow-trigger {
+        p {
+            &:nth-child(2) {
+                margin-top: 20px;
+            }
+        }
     }
 
     &__warning-box.sw-alert {

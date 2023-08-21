@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('content')]
 class MediaFolderConfigurationEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var MediaFolderCollection

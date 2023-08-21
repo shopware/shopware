@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class LineItemsInCartCountRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

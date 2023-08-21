@@ -31,12 +31,20 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_detail_actions_save %}
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-document-detail__save-action"
             :disabled="isLoading || !acl.can('document.editor')"
             variant="primary"
+            {% if VUE3 %}
+            @update:processSuccess="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-document.detail.buttonSave') }}
@@ -78,7 +86,11 @@
                         {% block sw_document_detail_base_general_input_type %}
                         <sw-entity-single-select
                             id="documentConfigTypes"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.documentTypeId"
+                            {% else %}
                             v-model="documentConfig.documentTypeId"
+                            {% endif %}
                             v-tooltip="{
                                 showDelay: 300,
                                 message: $tc('sw-settings-document.detail.disabledTypeSelect'),
@@ -165,9 +177,12 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_name %}
                         <div class="sw-settings-document-detail__field_name">
-                            <sw-field
+                            <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="documentConfig.name"
+                                {% else %}
                                 v-model="documentConfig.name"
-                                type="text"
+                                {% endif %}
                                 :label="$tc('sw-settings-document.detail.labelName')"
                                 :placeholder="$tc('sw-settings-document.detail.placeholderName')"
                                 :disabled="!acl.can('document.editor')"
@@ -185,7 +200,11 @@
                             class="media-column"
                         >
                             <sw-media-field
+                                {% if VUE3 %}
+                                v-model:mediaId="documentConfig.logoId"
+                                {% else %}
                                 v-model="documentConfig.logoId"
+                                {% endif %}
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelOptionMedia')"
                             />
@@ -194,9 +213,12 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_file_name_prefix %}
                         <div class="sw-settings-document-detail__field_file_name_prefix">
-                            <sw-field
+                            <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="documentConfig.filenamePrefix"
+                                {% else %}
                                 v-model="documentConfig.filenamePrefix"
-                                type="text"
+                                {% endif %}
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
                             />
@@ -205,9 +227,12 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_detail_content_field_file_name_suffix %}
                         <div class="sw-settings-document-detail__field_file_name_suffix">
-                            <sw-field
+                            <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="documentConfig.filenameSuffix"
+                                {% else %}
                                 v-model="documentConfig.filenameSuffix"
-                                type="text"
+                                {% endif %}
                                 :disabled="!acl.can('document.editor')"
                                 :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
                             />
@@ -242,7 +267,11 @@
                         {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
                         <sw-checkbox-field
                             v-if="isShowDivergentDeliveryAddress"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.config.displayDivergentDeliveryAddress"
+                            {% else %}
                             v-model="documentConfig.config.displayDivergentDeliveryAddress"
+                            {% endif %}
                             class="sw-settings-document-detail__field_divergent_delivery_address"
                             :disabled="!acl.can('document.editor')"
                             :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
@@ -253,7 +282,11 @@
                         {% block sw_settings_document_detail_content_field_additional_note_delivery %}
                         <sw-checkbox-field
                             v-if="isShowDisplayNoteDelivery"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.config.displayAdditionalNoteDelivery"
+                            {% else %}
                             v-model="documentConfig.config.displayAdditionalNoteDelivery"
+                            {% endif %}
                             class="sw-settings-document-detail__field_additional_note_delivery"
                             :disabled="!acl.can('document.editor')"
                             :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
@@ -264,7 +297,11 @@
                         {% block sw_settings_document_detail_content_field_customer_vat_id %}
                         <sw-checkbox-field
                             v-if="isShowDisplayNoteDelivery"
+                            {% if VUE3 %}
+                            v-model:value="documentConfig.config.displayCustomerVatId"
+                            {% else %}
                             v-model="documentConfig.config.displayCustomerVatId"
+                            {% endif %}
                             class="sw-settings-document-detail__field_customer_vat_id"
                             :disabled="!acl.can('document.editor')"
                             :label="$tc('sw-settings-document.detail.labelDisplayCustomerVatId')"
@@ -275,7 +312,11 @@
                         {% block sw_settings_document_detail_content_field_delivery_countries %}
                         <sw-entity-multi-id-select
                             v-if="showCountriesSelect"
+                            {% if VUE3 %}
+                            v-model:ids="documentConfig.config.deliveryCountries"
+                            {% else %}
                             v-model="documentConfig.config.deliveryCountries"
+                            {% endif %}
                             class="sw-settings-document-detail__field_delivery_countries"
                             :repository="countryRepository"
                             :disabled="!acl.can('document.editor')"

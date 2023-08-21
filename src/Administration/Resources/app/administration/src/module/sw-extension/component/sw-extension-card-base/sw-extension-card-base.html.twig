@@ -15,7 +15,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_activation_switch_switch %}
         <sw-switch-field
+            {% if VUE3 %}
+            v-modle:value="isActive"
+            {% else %}
             v-model="isActive"
+            {% endif %}
             v-tooltip="{
                 showDelay: 300,
                 message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),

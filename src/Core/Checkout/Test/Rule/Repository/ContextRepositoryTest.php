@@ -20,8 +20,8 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 #[Package('business-ops')]
 class ContextRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository

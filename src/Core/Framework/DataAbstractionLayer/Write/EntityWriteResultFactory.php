@@ -385,12 +385,12 @@ class EntityWriteResultFactory
             /** @var StorageAware&Field $field */
             $field = $fields->first();
 
-            return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
+            return $field->getSerializer()->decode($field, $primaryKey[$field->getStorageName()]);
         }
 
         /** @var StorageAware&Field $field */
         foreach ($fields as $field) {
-            $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
+            $data[$field->getPropertyName()] = $field->getSerializer()->decode($field, $primaryKey[$field->getStorageName()]);
         }
 
         return $data;
@@ -436,7 +436,7 @@ class EntityWriteResultFactory
 
             $key = $command->getPrimaryKey()[$primaryKey->getStorageName()];
 
-            $convertedPayload[$primaryKey->getPropertyName()] = Uuid::fromBytesToHex($key);
+            $convertedPayload[$primaryKey->getPropertyName()] = $primaryKey->getSerializer()->decode($primaryKey, $key);
         }
 
         return $convertedPayload;

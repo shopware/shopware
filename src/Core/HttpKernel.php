@@ -10,6 +10,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -163,7 +164,7 @@ class HttpKernel
         }
 
         $middlewares = [];
-        if (InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+        if ($this->environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
             $middlewares = [new ProfilingMiddleware()];
         }
 
@@ -171,7 +172,8 @@ class HttpKernel
 
         $pluginLoader = $this->createPluginLoader($connection);
 
-        $cacheId = (new CacheIdLoader($connection))->load();
+        $storage = new MySQLKeyValueStorage($connection);
+        $cacheId = (new CacheIdLoader($storage))->load();
 
         return $this->kernel = new static::$kernelClass(
             $this->environment,

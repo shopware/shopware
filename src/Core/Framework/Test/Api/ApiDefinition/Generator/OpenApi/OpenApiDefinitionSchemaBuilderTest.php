@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  */
 class OpenApiDefinitionSchemaBuilderTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var OpenApiDefinitionSchemaBuilder

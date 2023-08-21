@@ -41,9 +41,9 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('customer-order')]
 class DocumentGeneratorControllerTest extends TestCase
 {
-    use DocumentTrait;
     use AdminApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -457,7 +457,7 @@ class DocumentGeneratorControllerTest extends TestCase
     {
         $ids = [];
         foreach ($data as $value) {
-            array_push($ids, $value['documentId']);
+            $ids[] = $value['documentId'];
         }
 
         return $ids;

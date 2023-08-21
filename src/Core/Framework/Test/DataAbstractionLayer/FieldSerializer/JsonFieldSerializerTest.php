@@ -27,9 +27,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class JsonFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var JsonFieldSerializer

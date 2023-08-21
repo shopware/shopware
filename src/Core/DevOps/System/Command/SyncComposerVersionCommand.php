@@ -8,7 +8,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use const PHP_EOL;
 
 /**
  * @internal
@@ -60,7 +59,7 @@ class SyncComposerVersionCommand extends Command
                 continue;
             }
 
-            file_put_contents($bundleJsonPath, json_encode($bundleJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . PHP_EOL);
+            file_put_contents($bundleJsonPath, json_encode($bundleJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . \PHP_EOL);
         }
 
         if ($isDryMode) {

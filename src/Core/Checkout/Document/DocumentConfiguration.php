@@ -197,14 +197,10 @@ class DocumentConfiguration extends Struct
     /**
      * @param string                     $name
      * @param array|bool|int|string|null $value
-     *
-     * @return $this
      */
-    public function __set($name, $value)
+    public function __set($name, $value): void
     {
         $this->$name = $value; /* @phpstan-ignore-line */
-
-        return $this;
     }
 
     /**

@@ -102,6 +102,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
+            <argument>%shopware.cache.tagging.each_theme_config%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -136,6 +137,8 @@
         <service id="Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter" public="false">
             <tag name="twig.extension"/>
         </service>
+
+        <service id="Shopware\Core\System\Salutation\AbstractSalutationsSorter" class="Shopware\Core\System\Salutation\SalutationSorter"/>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
@@ -315,6 +318,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
@@ -358,6 +362,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader">
@@ -401,6 +406,7 @@
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader">
@@ -644,6 +650,7 @@
         <service id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader" decorates="Shopware\Core\Framework\App\Template\TemplateLoader">
             <argument type="service" id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader.inner"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument>%kernel.project_dir%</argument>
         </service>
 

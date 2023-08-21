@@ -53,6 +53,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="theme_child.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
@@ -77,11 +78,11 @@
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoader" decorates="Shopware\Storefront\Theme\ResolvedConfigLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Storefront\Theme\CachedResolvedConfigLoader.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument>%shopware.cache.tagging.each_theme_config%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -318,6 +319,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
         </service>
 
     </services>

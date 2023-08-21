@@ -122,7 +122,7 @@ class LineItemCreationDateRuleTest extends TestCase
     public function testItemWithoutCreationDateIsFalse(): void
     {
         $scope = new LineItemScope(
-            (new LineItem(Uuid::randomHex(), 'product', null, 3)),
+            new LineItem(Uuid::randomHex(), 'product', null, 3),
             $this->createMock(SalesChannelContext::class)
         );
 
@@ -143,7 +143,7 @@ class LineItemCreationDateRuleTest extends TestCase
     public function testInvalidDateValueIsFalse(): void
     {
         $scope = new LineItemScope(
-            (new LineItem(Uuid::randomHex(), 'product', null, 3)),
+            new LineItem(Uuid::randomHex(), 'product', null, 3),
             $this->createMock(SalesChannelContext::class)
         );
 

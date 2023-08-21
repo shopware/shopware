@@ -21,8 +21,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class AndRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository

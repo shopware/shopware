@@ -7,6 +7,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
@@ -25,6 +27,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
@@ -33,8 +36,8 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
  */
 class SalesChannelRepositoryFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -50,7 +53,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     /**
      * @param array<string, array<int, mixed>> $criteria
-     * @param callable(EntitySearchResult): void $expectation
+     * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
      *
      * @dataProvider testCases
      */
@@ -382,22 +385,22 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     {
         $this->loadAppsFromDir($appDir);
 
-        /** @var string $appId */
         $appId = $this->getContainer()->get('app.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        static::assertIsString($appId);
 
         return $appId;
     }
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Standard rate'));
 
-        /** @var string $taxId */
         $taxId = $taxRepository->searchIds($criteria, $this->context->getContext())->firstId();
+        static::assertIsString($taxId);
 
         return $taxId;
     }

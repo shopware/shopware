@@ -191,7 +191,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertInstanceOf(DocumentGenerationException::class, $errors[$orderId]);
         static::assertEquals(
             "Unable to generate document. Can not generate credit note document because no invoice document exists. OrderId: $orderId",
-            ($errors[$orderId]->getMessage())
+            $errors[$orderId]->getMessage()
         );
     }
 
@@ -229,7 +229,7 @@ class CreditNoteRendererTest extends TestCase
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertEquals(
                     "Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: $orderId",
-                    ($errors[$orderId]->getMessage())
+                    $errors[$orderId]->getMessage()
                 );
             },
         ];

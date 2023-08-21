@@ -10,6 +10,7 @@ on:
       - 'changelog/**/*.md'
       - 'src/**/snippet/**/*.json'
       - '**.php'
+      - '.github/workflows/01-php-lint.yml'
 
 jobs:
   build:
@@ -34,10 +35,9 @@ jobs:
       - name: Check Code
         run: |
           composer run ecs -- --no-progress-bar
-          composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
+          composer run phpstan -- --error-format=github --no-progress | tee phpstan-report.json
           composer run lint:changelog
           composer run lint:snippets
-          # TODO: Re-Enable BC-Check after 6.5 RC release
-          # git remote add bc-checker-upstream https://github.com/shopware/platform.git
-          # git fetch bc-checker-upstream
-          # composer run bc-check
+          git remote add bc-checker-upstream https://github.com/shopware/platform.git
+          git fetch bc-checker-upstream
+          composer run bc-check

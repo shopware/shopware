@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Composer\Package\Version\VersionParser;
+use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 use Shopware\Core\Framework\Log\Package;
 
@@ -57,6 +59,11 @@ class Metadata extends XmlElement
     protected $license;
 
     /**
+     * @var string|null
+     */
+    protected $compatibility;
+
+    /**
      * @var string
      */
     protected $version;
@@ -75,6 +82,8 @@ class Metadata extends XmlElement
      * @var string[]
      */
     protected $privacyPolicyExtensions = [];
+
+    protected ?string $url = null;
 
     /**
      * @param array<int|string, mixed> $data
@@ -161,6 +170,15 @@ class Metadata extends XmlElement
     public function getLicense(): ?string
     {
         return $this->license;
+    }
+
+    public function getCompatibility(): ConstraintInterface
+    {
+        $constraint = $this->compatibility ?? '>=6.4.0';
+
+        $parser = new VersionParser();
+
+        return $parser->parseConstraints($constraint);
     }
 
     public function getVersion(): string

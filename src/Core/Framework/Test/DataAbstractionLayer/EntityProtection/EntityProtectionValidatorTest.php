@@ -23,9 +23,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntityProtectionValidatorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     protected function setUp(): void
     {

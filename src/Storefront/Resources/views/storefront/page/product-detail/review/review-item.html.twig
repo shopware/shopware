@@ -15,7 +15,7 @@
 
         {% block page_product_detail_review_item_meta_author %}
             <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
-                <meta itemprop="name" content="{{ review.externalUser }}"/>
+                <meta itemprop="name" content="{{ review.externalUser }}">
             </div>
         {% endblock %}
 
@@ -34,7 +34,7 @@
 
                 {% block page_product_detail_review_item_info_date %}
                     <div class="col-12 product-detail-review-item-date">
-                        <p><small>{{ review.createdAt|date }}</small></p>
+                        <p><small>{{ review.createdAt|format_date('long') }} {{ review.createdAt|format_time('short') }}</small></p>
                     </div>
                 {% endblock %}
 

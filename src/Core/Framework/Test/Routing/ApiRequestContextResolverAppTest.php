@@ -22,11 +22,11 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class ApiRequestContextResolverAppTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
-    private static string $fixturesPath = __DIR__ . '/../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures';
+    private static string $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
 
     public function testCanReadWithPermission(): void
     {

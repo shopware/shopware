@@ -127,11 +127,10 @@ describe('Form auto submit plugin', () => {
     it('should update redirect parameters on form change not existing in form', () => {
         createPlugin({ changeTriggerSelectors: ['.form-unsubscribe', '.form-name'] });
 
-        global.window = Object.create(window);
         Object.defineProperty(window, 'location', {
             value: {
-                search: '?important=0&test=1'
-            }
+                search: '?important=0&test=1',
+            },
         });
 
         const emailField = document.querySelector('.form-email');

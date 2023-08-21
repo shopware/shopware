@@ -31,10 +31,11 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
 
     excludePaths:
-        - src/WebInstaller/src/Resources/
+        - src/WebInstaller/Resources/
         - src/WebInstaller/ecs.php
         - src/WebInstaller/vendor
-        - src/WebInstaller/tests/_fixtures
+        - src/WebInstaller/Tests/_fixtures
+        - tests/e2e/cypress
 
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # vendor patches over autoload files
@@ -59,10 +60,10 @@ parameters:
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/php/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
+        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
-        - tests/unit/php/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+        - tests/unit/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
@@ -71,8 +72,8 @@ parameters:
             message: '#Service ".*" is not registered in the container\.#'
             paths:
                 - src/**/*Test.php
-                - tests/unit/php
-                - tests/integration/php
+                - tests/unit
+                - tests/integration
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
@@ -95,9 +96,7 @@ parameters:
         -
             message: '#Unsafe usage of new static\(\)#'
             path: src/Core/Framework/Struct/Collection.php
-        -
-            message: '#Access to private property#'
-            path: src/Core/Framework/Api/Controller/CacheController.php
+
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
@@ -161,14 +160,13 @@ parameters:
                 - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
                 - src/Core/Content/Product/ProductDefinition.php
                 - src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaDefinition.php
-                - src/Core/Content/ImportExport/Aggregate/ImportExportLog/ImportExportLogDefinition.php
                 - src/Core/Checkout/Shipping/ShippingMethodDefinition.php
                 - src/Core/Checkout/Payment/PaymentMethodDefinition.php
                 - src/Core/System/NumberRange/NumberRangeDefinition.php
 
         - # NEXT-25276 - Needs to be fixed with the update ot PHPUnit 10
             message: '#deprecated interface PHPUnit\\Framework\\TestListener#'
-            path: src/Core/Framework/Test/TestCaseBase/DatadogListener.php
+            path: src/Core/Test/PHPUnit/Extension/DatadogListener.php
 
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*class Shopware\\#'
@@ -205,11 +203,26 @@ parameters:
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
+        - # Remove with NEXT-24549
+            message: '#Method Shopware\\Tests\\Migration\\Core\\V6_3\\Migration1596441551CustomerGroupRegistrationTest::changeDefaultLanguageToDutch\(\) is unused#'
+            path: tests/migration/Core/V6_3/Migration1596441551CustomerGroupRegistrationTest.php
+
+        - # Google Cloud Storage filesystem closes the stream even though it should not
+            message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
+            paths:
+                - src/Core/Framework/Plugin/Util/AssetService.php
+                - src/Core/Content/Media/File/FileSaver.php
+
+        - # Will be fixed with NEXT-26122
+            message: '#Doing instanceof PHPStan\\Type\\.* is error-prone and deprecated. Use Type::.*\(\) instead#'
+            paths:
+                - src/Core/DevOps/StaticAnalyze/PHPStan/Rules/NoFlowStoreFunctionRule.php
+
         # Tests for Abstract classes should reflect the class naming, but not be abstract itself
         -
             message: '#Class name starting with "Abstract" must have an `abstract` keyword#'
             paths:
-                - tests/unit/php
+                - tests/unit
 
         # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
         -
@@ -218,27 +231,37 @@ parameters:
                 - src/Core/Framework/Test/Store/_fixtures/AppStoreTestPlugin/*
                 - src/Core/Framework/Test/Plugin/_fixture/plugins/*
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
-                - tests/integration/php/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
+                - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
+
+        # NEXT-29041 - Needs to be fixed with a script, rest goes to baseline
+        - '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
+        - '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
+
+        - # NEXT-29076 - Will be fixed separately, as they also need a generic type template
+            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
+                - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
+                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/RepositoryIterator.php
+                - src/Core/Framework/DataAbstractionLayer/Dbal/Common/SalesChannelRepositoryIterator.php
+
+        - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
+            message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
+                - src/Core/Framework/DataAbstractionLayer/EntityRepository.php
+                - src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+
+        - # It is not possible to specify the type of the EntitySearchResult, as the CmsSlotDataResolver and the ElementDataCollection are used for multiple entities at the same time
+            message: '#.* with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.*not specify its types: TElement#'
+            paths:
+                - src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
+                - src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
+        - '#Parameter \#2 \$entitySearchResult of method Shopware\\Core\\Content\\Cms\\DataResolver\\Element\\ElementDataCollection::add\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\.*Collection> given#'
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
-
-# Activate again when https://github.com/symplify/phpstan-rules/pull/25 is released
-#    -
-#        class: Symplify\PHPStanRules\Rules\ForbiddenThisArgumentRule
-#        tags: [phpstan.rules.rule]
-#        arguments:
-#            allowedCallerClasses:
-#                - Shopware\Core\Framework\Feature
-#                - Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter
-#                - Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition
-#                - Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer
-#                - Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer
-#                - Shopware\Core\Framework\Struct\Collection
-#                - Shopware\Core\Checkout\Document\DocumentConfigurationFactory
-#                - Symfony\Component\Validator\Validator\ValidatorInterface
-#                - Twig\Compiler
 
 rules:
     # rules from https://github.com/symplify/phpstan-rules
@@ -260,13 +283,9 @@ rules:
 
     # explicit naming
     - Symplify\PHPStanRules\Rules\NoParentMethodCallOnNoOverrideProcessRule
-    # Activate again when https://github.com/symplify/phpstan-rules/pull/19 is released
-    # - Symplify\PHPStanRules\Rules\RequireThisOnParentMethodCallRule
-    - Symplify\PHPStanRules\Rules\RequireThisCallOnLocalMethodRule
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
-    - Symplify\PHPStanRules\Symfony\Rules\PreventDoubleSetParameterRule
 
     # complexity rules
     - Symplify\PHPStanRules\Rules\Explicit\NoMixedCallableRule
@@ -279,7 +298,9 @@ rules:
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
     - Symplify\PHPStanRules\Rules\RequiredAbstractClassKeywordRule
-    # activate again when https://github.com/symplify/phpstan-rules/pull/40 is released
-    # - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
+    - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
+
+    # test rules
+    - Symplify\PHPStanRules\Rules\NoConstructorInTestRule

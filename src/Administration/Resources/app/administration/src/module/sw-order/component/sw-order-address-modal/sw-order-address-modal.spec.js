@@ -15,6 +15,7 @@ async function createWrapper() {
         stubs: {
             'sw-modal': true,
             'sw-tabs': true,
+            'sw-tabs-item': true,
         },
         provide: {
             repositoryFactory: {

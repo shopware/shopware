@@ -27,8 +27,7 @@
             @item-remove="remove"
             @last-item-delete="removeLastItem"
             @search-term-change="onSearchTermChange"
-            @hook:mounted="mountedComponent"
-            @hook:beforeDestroy="beforeDestroyComponent"
+            @key-down-enter="onSelectionListKeyDownEnter"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_tag_select_base_selection_list %}
@@ -103,5 +102,13 @@
         </div>
     </template>
     {% endblock %}
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
 </sw-select-base>
 {% endblock %}

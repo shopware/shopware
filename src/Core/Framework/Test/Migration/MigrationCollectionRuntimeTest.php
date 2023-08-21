@@ -218,7 +218,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         try {
             $this->exceptionMigrationCollection->migrateInPlace();
         } catch (\Exception) {
-            //nth
+            // nth
         }
 
         $migrations = $this->getMigrations();
@@ -235,7 +235,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         try {
             $this->exceptionMigrationCollection->migrateInPlace();
         } catch (\Exception) {
-            //nth
+            // nth
         }
 
         $this->validMigrationCollection->migrateDestructiveInPlace();
@@ -243,7 +243,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         try {
             $this->exceptionMigrationCollection->migrateDestructiveInPlace();
         } catch (\Exception) {
-            //nth
+            // nth
         }
 
         $migrations = $this->getMigrations();

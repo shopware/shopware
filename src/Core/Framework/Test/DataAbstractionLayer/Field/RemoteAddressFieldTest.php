@@ -46,7 +46,7 @@ class RemoteAddressFieldTest extends TestCase
         $this->expectException(DataAbstractionLayerException::class);
         $serializer->encode(
             (new IntField('remote_address', 'remoteAddress'))->addFlags(new ApiAware()),
-            $this->getEntityExisting(),
+            EntityExistence::createEmpty(),
             $data,
             $this->getWriteParameterBagMock()
         )->current();
@@ -59,7 +59,7 @@ class RemoteAddressFieldTest extends TestCase
 
         $serializer->encode(
             $this->getRemoteAddressField(),
-            $this->getEntityExisting(),
+            EntityExistence::createEmpty(),
             $data,
             $this->getWriteParameterBagMock()
         )->current();
@@ -238,11 +238,6 @@ class RemoteAddressFieldTest extends TestCase
         $mockBuilder->disableOriginalConstructor();
 
         return $mockBuilder->getMock();
-    }
-
-    private function getEntityExisting(): EntityExistence
-    {
-        return new EntityExistence(null, [], true, false, false, []);
     }
 
     private function getRemoteAddressField(): RemoteAddressField

@@ -34,8 +34,8 @@ use Symfony\Component\HttpFoundation\Request;
 class CrossSellingRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;
 

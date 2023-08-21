@@ -235,7 +235,7 @@ class EntityDefinitionQueryHelper
 
         $field = $fields->get($associationKey);
 
-        //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
+        // case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
         if (!$field instanceof AssociationField && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
@@ -442,7 +442,7 @@ class EntityDefinitionQueryHelper
                 );
             }
 
-            //check if current field is a translated field of the origin definition
+            // check if current field is a translated field of the origin definition
             $origin = $definition->getFields()->get($field->getPropertyName());
             if (!$origin instanceof TranslatedField) {
                 continue;
@@ -450,7 +450,7 @@ class EntityDefinitionQueryHelper
 
             $selects[] = self::escape($root . '.translation.' . $field->getPropertyName());
 
-            //add selection for resolved parent-child and language inheritance
+            // add selection for resolved parent-child and language inheritance
             $query->addSelect(
                 sprintf('COALESCE(%s)', implode(',', $selects)) . ' as '
                 . self::escape($root . '.' . $field->getPropertyName())

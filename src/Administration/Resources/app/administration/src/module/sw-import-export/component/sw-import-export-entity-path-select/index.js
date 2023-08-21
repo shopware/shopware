@@ -128,6 +128,12 @@ export default {
                 return this.value || '';
             },
             set(newValue) {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
+                    return;
+                }
+
                 this.$emit('change', newValue);
             },
         },

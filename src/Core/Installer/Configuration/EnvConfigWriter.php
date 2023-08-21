@@ -74,7 +74,7 @@ EOT;
     public function writeConfig(DatabaseConnectionInformation $info, array $shop): void
     {
         $uniqueId = $this->idGenerator->getUniqueId();
-        $secret = (Key::createNewRandomKey())->saveToAsciiSafeString();
+        $secret = Key::createNewRandomKey()->saveToAsciiSafeString();
 
         // Copy flex default .env if missing
         if (!file_exists($this->projectDir . '/.env')) {

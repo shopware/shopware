@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
@@ -50,6 +51,9 @@ class ImportExportLogDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        // @deprecated tag:v6.6.0 - Variable $autoload will be removed in the next major as it will be false by default
+        $autoload = !Feature::isActive('v6.6.0.0');
+
         $fields = [
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('activity', 'activity'))->addFlags(new Required()),
@@ -62,10 +66,10 @@ class ImportExportLogDefinition extends EntityDefinition
             new StringField('username', 'username'),
             new StringField('profile_name', 'profileName'),
             (new JsonField('config', 'config', [], []))->addFlags(new Required()),
-            (new JsonField('result', 'result', [], [])),
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class)),
+            new JsonField('result', 'result', [], []),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class),
             new ManyToOneAssociationField('profile', 'profile_id', ImportExportProfileDefinition::class, 'id'),
-            new OneToOneAssociationField('file', 'file_id', 'id', ImportExportFileDefinition::class, true),
+            new OneToOneAssociationField('file', 'file_id', 'id', ImportExportFileDefinition::class, $autoload),
             new OneToOneAssociationField('invalidRecordsLog', 'invalid_records_log_id', 'id', ImportExportLogDefinition::class, false),
             new OneToOneAssociationField('failedImportLog', 'id', 'invalid_records_log_id', ImportExportLogDefinition::class),
         ];

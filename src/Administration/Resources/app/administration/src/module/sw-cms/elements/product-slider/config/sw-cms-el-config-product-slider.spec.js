@@ -60,7 +60,7 @@ async function createWrapper(customCmsElementConfig) {
             },
             'sw-tabs-item': true,
             'sw-container': true,
-            'sw-field': true,
+            'sw-text-field': true,
             'sw-single-select': true,
             'sw-select-base': await Shopware.Component.build('sw-select-base'),
             'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Composer\Semver\VersionParser;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Defaults;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
@@ -16,14 +18,13 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
-use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
-use Shopware\Core\Framework\App\FlowAction\FlowAction;
+use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
@@ -87,7 +88,10 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly FlowActionPersister $flowBuilderActionPersister,
         private readonly ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly CustomEntityLifecycleService $customEntityLifecycleService
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
+        private readonly string $shopwareVersion,
+        private readonly FlowEventPersister $flowEventPersister,
+        private readonly string $env
     ) {
     }
 
@@ -98,9 +102,11 @@ class AppLifecycle extends AbstractAppLifecycle
 
     public function install(Manifest $manifest, bool $activate, Context $context): void
     {
+        $this->ensureIsCompatible($manifest);
+
         $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
         if ($app) {
-            throw new AppAlreadyInstalledException($manifest->getMetadata()->getName());
+            throw AppException::alreadyInstalled($manifest->getMetadata()->getName());
         }
 
         $defaultLocale = $this->getDefaultLocale($context);
@@ -127,6 +133,8 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     public function update(Manifest $manifest, array $app, Context $context): void
     {
+        $this->ensureIsCompatible($manifest);
+
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
         $appEntity = $this->updateApp($manifest, $metadata, $app['id'], $app['roleId'], $defaultLocale, $context, false);
@@ -150,6 +158,14 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssets($appEntity->getName());
         $this->customEntitySchemaUpdater->update();
+    }
+
+    public function ensureIsCompatible(Manifest $manifest): void
+    {
+        $versionParser = new VersionParser();
+        if (!$manifest->getMetadata()->getCompatibility()->matches($versionParser->parseConstraints($this->shopwareVersion))) {
+            throw AppException::notCompatible($manifest->getMetadata()->getName());
+        }
     }
 
     /**
@@ -200,6 +216,14 @@ class AppLifecycle extends AbstractAppLifecycle
         // Refetch app to get secret after registration
         $app = $this->loadApp($id, $context);
 
+        try {
+            $this->assertAppSecretIsPresentForApplicableFeatures($app, $manifest);
+        } catch (AppException $e) {
+            $this->removeAppAndRole($app, $context);
+
+            throw $e;
+        }
+
         $flowActions = $this->appLoader->getFlowActions($app);
 
         if ($flowActions) {
@@ -211,8 +235,14 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
         });
 
-        // we need a app secret to securely communicate with apps
-        // therefore we only install action-buttons, webhooks and modules if we have a secret
+        $flowEvents = $this->appLoader->getFlowEvents($app);
+
+        if ($flowEvents) {
+            $this->flowEventPersister->updateEvents($flowEvents, $id, $context, $defaultLocale);
+        }
+
+        // we need an app secret to securely communicate with apps
+        // therefore we only install webhooks, modules, tax providers and payment methods if we have a secret
         if ($app->getAppSecret()) {
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->taxProviderPersister->updateTaxProviders($manifest, $id, $defaultLocale, $context);
@@ -400,10 +430,10 @@ class AppLifecycle extends AbstractAppLifecycle
                 $currentPrivileges = array_merge($currentPrivileges, $newPrivileges);
                 $currentPrivileges = array_unique($currentPrivileges);
 
-                array_push($dataUpdate, [
+                $dataUpdate[] = [
                     'id' => $role->getId(),
                     'privileges' => $currentPrivileges,
-                ]);
+                ];
             }
         }
 
@@ -430,10 +460,10 @@ class AppLifecycle extends AbstractAppLifecycle
             if (($key = array_search($appPrivileges, $currentPrivileges, true)) !== false) {
                 unset($currentPrivileges[$key]);
 
-                array_push($dataUpdate, [
+                $dataUpdate[] = [
                     'id' => $role->getId(),
                     'privileges' => $currentPrivileges,
-                ]);
+                ];
             }
         }
 
@@ -470,7 +500,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         if ($configError) {
             // only one error can be in the returned collection
-            throw new InvalidAppConfigurationException($configError);
+            throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
         }
 
         $this->systemConfigService->saveConfig($config, $app->getName() . '.config.', $install);
@@ -503,12 +533,12 @@ class AppLifecycle extends AbstractAppLifecycle
     /**
      * @return array<array<string, array{name: string, eventName: string, url: string, appId: string, active: bool, errorCount: int}>>
      */
-    private function getWebhooks(Manifest $manifest, ?FlowAction $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
+    private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {
         $actions = [];
 
         if ($flowActions) {
-            $actions = $flowActions->getActions() ? $flowActions->getActions()->getActions() : [];
+            $actions = $flowActions->getActions()?->getActions() ?? [];
         }
 
         $webhooks = array_map(function ($action) use ($appId) {
@@ -529,7 +559,7 @@ class AppLifecycle extends AbstractAppLifecycle
             return $webhooks;
         }
 
-        $manifestWebhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
+        $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
         $webhooks = array_merge($webhooks, array_map(function ($webhook) use ($defaultLocale, $appId) {
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
@@ -548,5 +578,43 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return $this->appLoader->loadFile($manifest->getPath(), $iconPath);
+    }
+
+    /**
+     * Certain app features require an app secret to be set, if these features are used but no app secret
+     * is set, we throw an exception in dev mode so the developer is aware
+     */
+    private function assertAppSecretIsPresentForApplicableFeatures(AppEntity $app, Manifest $manifest): void
+    {
+        if ($app->getAppSecret()) {
+            return;
+        }
+
+        if ($this->env !== 'dev') {
+            return;
+        }
+
+        $usedFeatures = [];
+
+        if (\count($manifest->getAdmin()?->getModules() ?? []) > 0) {
+            // if there is no app secret but the manifest specifies modules, throw an exception in dev mode
+            $usedFeatures[] = 'Admin Modules';
+        }
+
+        if (\count($manifest->getPayments()?->getPaymentMethods() ?? []) > 0) {
+            $usedFeatures[] = 'Payment Methods';
+        }
+
+        if (\count($manifest->getTax()?->getTaxProviders() ?? []) > 0) {
+            $usedFeatures[] = 'Tax providers';
+        }
+
+        if (\count($manifest->getWebhooks()?->getWebhooks() ?? []) > 0) {
+            $usedFeatures[] = 'Webhooks';
+        }
+
+        if (\count($usedFeatures) > 0) {
+            throw AppException::appSecretRequiredForFeatures($app->getName(), $usedFeatures);
+        }
     }
 }

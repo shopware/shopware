@@ -32,8 +32,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class OrderTotalAmountRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use OrderFixture;
 
     private EntityRepository $ruleRepository;

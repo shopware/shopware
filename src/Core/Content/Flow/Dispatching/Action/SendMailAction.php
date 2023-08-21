@@ -264,12 +264,12 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     /**
      * @param array<string, mixed> $recipients
-     * @param array<string, mixed> $mailStructRecipients
+     * @param array<string, string> $mailStructRecipients
      * @param array<int|string, mixed> $contactFormData
      *
      * @return array<int|string, string>
      */
-    private function getRecipients(array $recipients, array $mailStructRecipients, array $contactFormData): array
+    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData): array
     {
         switch ($recipients['type']) {
             case self::RECIPIENT_CONFIG_CUSTOM:

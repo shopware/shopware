@@ -2,7 +2,7 @@
     "stub": "stub.php",
     "main": false,
     "files": ["index.php"],
-    "directories": ["bin", "src"],
+    "directories": ["."],
     "finder": [
         {
             "name": "*",

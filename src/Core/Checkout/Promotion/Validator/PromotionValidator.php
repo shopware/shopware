@@ -8,7 +8,7 @@ use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -83,13 +83,12 @@ class PromotionValidator implements EventSubscriberInterface
 
             switch ($command->getDefinition()::class) {
                 case PromotionDefinition::class:
-
                     /** @var string $promotionId */
                     $promotionId = $command->getPrimaryKey()['id'];
 
                     try {
                         $promotion = $this->getPromotionById($promotionId);
-                    } catch (ResourceNotFoundException) {
+                    } catch (PromotionException) {
                         $promotion = [];
                     }
 
@@ -103,13 +102,12 @@ class PromotionValidator implements EventSubscriberInterface
                     break;
 
                 case PromotionDiscountDefinition::class:
-
                     /** @var string $discountId */
                     $discountId = $command->getPrimaryKey()['id'];
 
                     try {
                         $discount = $this->getDiscountById($discountId);
-                    } catch (ResourceNotFoundException) {
+                    } catch (PromotionException) {
                         $discount = [];
                     }
 
@@ -133,9 +131,9 @@ class PromotionValidator implements EventSubscriberInterface
      * This function collects all database data that might be
      * required for any of the received entities and values.
      *
-     * @param list<WriteCommand> $writeCommands
+     * @param array<WriteCommand> $writeCommands
      *
-     * @throws ResourceNotFoundException
+     * @throws PromotionException
      * @throws Exception
      */
     private function collect(array $writeCommands): void
@@ -371,7 +369,7 @@ class PromotionValidator implements EventSubscriberInterface
     }
 
     /**
-     * @throws ResourceNotFoundException
+     * @throws PromotionException
      *
      * @return array<string, mixed>
      */
@@ -383,11 +381,11 @@ class PromotionValidator implements EventSubscriberInterface
             }
         }
 
-        throw new ResourceNotFoundException('promotion', [$id]);
+        throw PromotionException::promotionsNotFound([$id]);
     }
 
     /**
-     * @throws ResourceNotFoundException
+     * @throws PromotionException
      *
      * @return array<string, mixed>
      */
@@ -399,7 +397,7 @@ class PromotionValidator implements EventSubscriberInterface
             }
         }
 
-        throw new ResourceNotFoundException('promotion_discount', [$id]);
+        throw PromotionException::discountsNotFound([$id]);
     }
 
     /**

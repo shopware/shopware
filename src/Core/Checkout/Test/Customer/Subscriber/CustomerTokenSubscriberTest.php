@@ -20,7 +20,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use function json_decode;
 
 /**
  * @internal
@@ -28,9 +27,9 @@ use function json_decode;
 #[Package('customer-order')]
 class CustomerTokenSubscriberTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use RequestStackTestBehaviour;
 
     private Connection $connection;
@@ -69,7 +68,7 @@ class CustomerTokenSubscriberTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true, 512, \JSON_THROW_ON_ERROR)
+            \json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 
@@ -116,7 +115,7 @@ class CustomerTokenSubscriberTest extends TestCase
             [
                 'customerId' => '1234',
             ],
-            json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true, 512, \JSON_THROW_ON_ERROR)
+            \json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 

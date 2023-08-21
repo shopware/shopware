@@ -11,7 +11,7 @@ class DocumentGenerationException extends ShopwareHttpException
 {
     public function __construct(string $message = '')
     {
-        $message = sprintf('Unable to generate document. ' . $message);
+        $message = 'Unable to generate document. ' . $message;
         parent::__construct($message);
     }
 

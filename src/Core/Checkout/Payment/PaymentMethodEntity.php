@@ -19,8 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 #[Package('checkout')]
 class PaymentMethodEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -136,6 +136,8 @@ class PaymentMethodEntity extends Entity
     protected bool $prepared = false;
 
     protected bool $refundable = false;
+
+    protected bool $recurring = false;
 
     public function getPluginId(): ?string
     {
@@ -394,5 +396,15 @@ class PaymentMethodEntity extends Entity
     public function setRefundable(bool $refundable): void
     {
         $this->refundable = $refundable;
+    }
+
+    public function isRecurring(): bool
+    {
+        return $this->recurring;
+    }
+
+    public function setRecurring(bool $recurring): void
+    {
+        $this->recurring = $recurring;
     }
 }

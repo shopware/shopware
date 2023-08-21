@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductDownloadEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $productId;
 

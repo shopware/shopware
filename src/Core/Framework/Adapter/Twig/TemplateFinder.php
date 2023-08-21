@@ -25,13 +25,14 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
         private readonly Environment $twig,
         private readonly LoaderInterface $loader,
         private readonly string $cacheDir,
-        private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder
+        private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
+        private readonly TemplateScopeDetector $templateScopeDetector,
     ) {
     }
 
     public function getTemplateName(string $template): string
     {
-        //remove static template inheritance prefix
+        // remove static template inheritance prefix
         if (mb_strpos($template, '@') !== 0) {
             return $template;
         }
@@ -133,6 +134,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
         }
 
         $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
+
         $this->defineCache($namespaceHierarchy);
 
         return $this->namespaceHierarchy = array_keys($namespaceHierarchy);
@@ -148,6 +150,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
             $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
             $fileSystemCache->setConfigHash($configHash);
+            $fileSystemCache->setTemplateScopes($this->templateScopeDetector->getScopes());
             // Set individual twig cache for different configurations
             $this->twig->setCache($fileSystemCache);
         }

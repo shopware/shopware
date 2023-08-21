@@ -40,8 +40,8 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('customer-order')]
 class OrderRepositoryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private EntityRepository $orderRepository;
 

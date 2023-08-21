@@ -22,8 +22,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
-use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
-use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
@@ -34,7 +32,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Seo\CachedSeoResolver;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
@@ -44,11 +41,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -72,105 +64,22 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
-use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxDefinition;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal - The functions inside this class are no public-api and can be changed without previous deprecation
- */
 #[Package('core')]
-class CacheInvalidationSubscriber implements EventSubscriberInterface
+class CacheInvalidationSubscriber
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly bool $fineGrainedCacheSnippet,
+        private readonly bool $fineGrainedCacheConfig
     ) {
-    }
-
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            CategoryIndexerEvent::class => [
-                ['invalidateCategoryRouteByCategoryIds', 2000],
-                ['invalidateListingRouteByCategoryIds', 2001],
-            ],
-            LandingPageIndexerEvent::class => [
-                ['invalidateIndexedLandingPages', 2000],
-            ],
-            ProductIndexerEvent::class => [
-                ['invalidateSearch', 2000],
-                ['invalidateListings', 2001],
-                ['invalidateProductIds', 2002],
-                ['invalidateDetailRoute', 2004],
-                ['invalidateStreamsAfterIndexing', 2005],
-                ['invalidateReviewRoute', 2006],
-            ],
-            ProductNoLongerAvailableEvent::class => [
-                ['invalidateSearch', 2000],
-                ['invalidateListings', 2001],
-                ['invalidateProductIds', 2002],
-                ['invalidateDetailRoute', 2004],
-                ['invalidateStreamsAfterIndexing', 2005],
-                ['invalidateReviewRoute', 2006],
-            ],
-            EntityWrittenContainerEvent::class => [
-                ['invalidateCmsPageIds', 2001],
-                ['invalidateCurrencyRoute', 2002],
-                ['invalidateLanguageRoute', 2003],
-                ['invalidateNavigationRoute', 2004],
-                ['invalidatePaymentMethodRoute', 2005],
-                ['invalidateProductAssignment', 2006],
-                ['invalidateManufacturerFilters', 2007],
-                ['invalidatePropertyFilters', 2008],
-                ['invalidateCrossSellingRoute', 2009],
-                ['invalidateContext', 2010],
-                ['invalidateShippingMethodRoute', 2011],
-                ['invalidateSnippets', 2012],
-                ['invalidateStreamsBeforeIndexing', 2013],
-                ['invalidateStreamIds', 2014],
-                ['invalidateCountryRoute', 2015],
-                ['invalidateSalutationRoute', 2016],
-                ['invalidateInitialStateIdLoader', 2017],
-                ['invalidateCountryStateRoute', 2018],
-            ],
-            SeoUrlUpdateEvent::class => [
-                ['invalidateSeoUrls', 2000],
-            ],
-            RuleIndexerEvent::class => [
-                ['invalidateRules', 2000],
-            ],
-            PluginPostInstallEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostActivateEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostUpdateEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostDeactivateEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            PluginPostUninstallEvent::class => [
-                ['invalidateRules', 2000],
-                ['invalidateConfig', 2001],
-            ],
-            SystemConfigChangedEvent::class => [
-                ['invalidateConfigKey', 2000],
-            ],
-            SitemapGeneratedEvent::class => [
-                ['invalidateSitemap', 2000],
-            ],
-        ];
     }
 
     public function invalidateInitialStateIdLoader(EntityWrittenContainerEvent $event): void
@@ -197,17 +106,35 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         ]);
     }
 
-    public function invalidateConfigKey(SystemConfigChangedEvent $event): void
+    public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
+        $keys = [];
+
+        if ($this->fineGrainedCacheConfig) {
+            /** @var list<string> $keys */
+            $keys = array_map(
+                static fn (string $key) => SystemConfigService::buildName($key),
+                $event->getWebhookPayload()['changes']
+            );
+        } else {
+            $keys[] = 'global.system.config';
+        }
+
         // invalidates the complete cached config and routes which access a specific key
         $this->cacheInvalidator->invalidate([
-            SystemConfigService::buildName($event->getKey()),
+            ...$keys,
             CachedSystemConfigLoader::CACHE_TAG,
         ]);
     }
 
     public function invalidateSnippets(EntityWrittenContainerEvent $event): void
     {
+        if (!$this->fineGrainedCacheSnippet) {
+            $this->cacheInvalidator->invalidate(['shopware.translator']);
+
+            return;
+        }
+
         // invalidates all http cache items where the snippets used
         $snippets = $event->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
 
@@ -251,49 +178,45 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
-        $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME))
-        );
+        /** @var list<string> $ids */
+        $ids = array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME));
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateProductIds(ProductChangedEventInterface $event): void
     {
         // invalidates all routes which loads products in nested unknown objects, like cms listing elements or cross selling elements
-        $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds())
-        );
+        $this->cacheInvalidator->invalidate(array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds()));
     }
 
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME))
-        );
+        /** @var list<string> $ids */
+        $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the category route cache when a category changed
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds())
-        );
+        /** @var list<string> $ids */
+        $ids = array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds());
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the product listing route each time a category changed
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds())
-        );
+        $this->cacheInvalidator->invalidate(array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds()));
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedLandingPageRoute::class, 'buildName'], $event->getIds())
-        );
+        /** @var list<string> $ids */
+        $ids = array_map([CachedLandingPageRoute::class, 'buildName'], $event->getIds());
+        $this->cacheInvalidator->invalidate($ids);
     }
 
     public function invalidateCurrencyRoute(EntityWrittenContainerEvent $event): void
@@ -326,6 +249,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
         if (empty($tags)) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
+            /** @var list<string> $tags */
             $tags = array_map(
                 [CachedCountryStateRoute::class, 'buildName'],
                 $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
@@ -368,7 +292,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidateDetailRoute(ProductChangedEventInterface $event): void
     {
-        //invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
+        // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
             array_map([CachedProductDetailRoute::class, 'buildName'], $event->getIds())
         );
@@ -376,19 +300,17 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidateProductAssignment(EntityWrittenContainerEvent $event): void
     {
-        //invalidates the product listing route, each time a product - category assignment changed
+        // invalidates the product listing route, each time a product - category assignment changed
         $ids = $event->getPrimaryKeys(ProductCategoryDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'categoryId');
 
-        $this->cacheInvalidator->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $ids)
-        );
+        $this->cacheInvalidator->invalidate(array_map([CachedProductListingRoute::class, 'buildName'], $ids));
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
     {
-        //invalidates the context cache - each time one of the entities which are considered inside the context factory changed
+        // invalidates the context cache - each time one of the entities which are considered inside the context factory changed
         $ids = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
         $keys = array_map([CachedSalesChannelContextFactory::class, 'buildName'], $ids);
         $keys = array_merge($keys, array_map([CachedBaseContextFactory::class, 'buildName'], $ids));
@@ -421,6 +343,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
+        /** @var list<string> $keys */
         $keys = array_filter(array_unique($keys));
 
         if (empty($keys)) {
@@ -665,7 +588,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedShippingAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the shipping assignment of a sales channel
+        // Used to detect changes to the shipping assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelShippingMethodDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -702,7 +625,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedPaymentAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the language assignment of a sales channel
+        // Used to detect changes to the language assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelPaymentMethodDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -721,6 +644,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
+        /** @var list<string> $ids */
         $ids = array_map([CachedNavigationRoute::class, 'buildName'], $ids);
         $ids[] = CachedNavigationRoute::BASE_NAVIGATION_TAG;
 
@@ -754,7 +678,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        //Used to detect changes to the country itself and invalidate the route for all sales channels in which the country is assigned.
+        // Used to detect changes to the country itself and invalidate the route for all sales channels in which the country is assigned.
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_country WHERE country_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -774,7 +698,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedCountryAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the country assignment of a sales channel
+        // Used to detect changes to the country assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelCountryDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -805,7 +729,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        //Used to detect changes to the language itself and invalidate the route for all sales channels in which the language is assigned.
+        // Used to detect changes to the language itself and invalidate the route for all sales channels in which the language is assigned.
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_language WHERE language_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -825,7 +749,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedLanguageAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the language assignment of a sales channel
+        // Used to detect changes to the language assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelLanguageDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');
@@ -844,7 +768,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        //Used to detect changes to the currency itself and invalidate the route for all sales channels in which the currency is assigned.
+        // Used to detect changes to the currency itself and invalidate the route for all sales channels in which the currency is assigned.
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_currency WHERE currency_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -864,7 +788,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
      */
     private function getChangedCurrencyAssignments(EntityWrittenContainerEvent $event): array
     {
-        //Used to detect changes to the currency assignment of a sales channel
+        // Used to detect changes to the currency assignment of a sales channel
         $ids = $event->getPrimaryKeys(SalesChannelCurrencyDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'salesChannelId');

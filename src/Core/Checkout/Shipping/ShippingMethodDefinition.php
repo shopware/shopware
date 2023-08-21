@@ -79,7 +79,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new StringField('tax_type', 'taxType', 50))->addFlags(new ApiAware(), new Required()),
-            (new FkField('tax_id', 'taxId', TaxDefinition::class)),
+            new FkField('tax_id', 'taxId', TaxDefinition::class),
             (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class, 'id', true))->addFlags(new ApiAware()),
             (new TranslatedField('description'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new TranslatedField('trackingUrl'))->addFlags(new ApiAware()),

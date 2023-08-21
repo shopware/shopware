@@ -48,9 +48,9 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class PluginLifecycleServiceTest extends TestCase
 {
-    use PluginTestsHelper;
-    use MigrationTestBehaviour;
     use KernelTestBehaviour;
+    use MigrationTestBehaviour;
+    use PluginTestsHelper;
 
     private const PLUGIN_NAME = 'SwagTest';
     private const DEPENDENT_PLUGIN_NAME = self::PLUGIN_NAME . 'Extension';

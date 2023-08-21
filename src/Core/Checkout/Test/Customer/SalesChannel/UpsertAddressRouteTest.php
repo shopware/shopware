@@ -35,8 +35,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('customer-order')]
 class UpsertAddressRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 
@@ -245,7 +245,7 @@ class UpsertAddressRouteTest extends TestCase
             ->method('upsert')
             ->with([
                 [
-                    'salutationId' => null,
+                    'salutationId' => '1',
                     'firstName' => null,
                     'lastName' => null,
                     'street' => null,
@@ -279,7 +279,8 @@ class UpsertAddressRouteTest extends TestCase
             new EventDispatcher(),
             $this->createMock(DataValidationFactoryInterface::class),
             $this->createMock(SystemConfigService::class),
-            $storeApiCustomFieldMapper
+            $storeApiCustomFieldMapper,
+            $this->createMock(EntityRepository::class),
         );
 
         $customer = new CustomerEntity();
@@ -289,6 +290,7 @@ class UpsertAddressRouteTest extends TestCase
                 'bla' => 'bla',
                 'mapped' => 1,
             ],
+            'salutationId' => '1',
         ]), $this->createMock(SalesChannelContext::class), $customer);
     }
 

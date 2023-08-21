@@ -28,9 +28,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Package('business-ops')]
 trait OrderActionTrait
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private KernelBrowser $browser;
 

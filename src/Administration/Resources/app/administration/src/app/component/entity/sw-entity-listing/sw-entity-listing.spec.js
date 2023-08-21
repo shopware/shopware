@@ -35,6 +35,7 @@ async function createWrapper(propsData = {}) {
             'sw-pagination': true,
             'sw-checkbox-field': true,
             'sw-context-menu-item': true,
+            'sw-data-grid-skeleton': true,
         },
         provide: {},
         propsData: {
@@ -164,5 +165,53 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(elements.wrappers).toHaveLength(3);
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
+    });
+
+    it('should show delete id', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm.deleteId).toBeNull();
+        wrapper.vm.showDelete('123');
+        expect(wrapper.vm.deleteId).toBe('123');
+    });
+
+    it('should refresh delete id when close delete modal', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.showDelete('123');
+        expect(wrapper.vm.deleteId).toBe('123');
+        wrapper.vm.closeModal();
+        expect(wrapper.vm.deleteId).toBeNull();
+    });
+
+    it('should able to apply result when items prop has been changed', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.applyResult = jest.fn();
+        await wrapper.setProps({
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                { id: 'id1', name: 'item1' },
+                { id: 'id2', name: 'item2' },
+                { id: 'id3', name: 'item3' },
+            ]),
+        });
+
+        await flushPromises();
+        expect(wrapper.vm.applyResult).toHaveBeenCalled();
+    });
+
+    it('should call emit when user click bulk edit button', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.$emit = jest.fn();
+        wrapper.vm.onClickBulkEdit();
+
+        await flushPromises();
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith('bulk-edit-modal-open');
+    });
+
+    it('should call emit when user close bulk edit modal', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.$emit = jest.fn();
+        wrapper.vm.onCloseBulkEditModal();
+
+        await flushPromises();
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith('bulk-edit-modal-close');
     });
 });

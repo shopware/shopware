@@ -27,7 +27,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_detail_actions_save %}
         <sw-button-process
+            {% if VUE3 %}
+            v-model:processSuccess="isSaveSuccessful"
+            {% else %}
             v-model="isSaveSuccessful"
+            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-shipping-method-detail__save-action"
             :is-loading="isProcessLoading"
@@ -84,9 +88,12 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_name %}
-                        <sw-field
+                        <sw-text-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.name"
+                            {% else %}
                             v-model="shippingMethod.name"
-                            type="text"
+                            {% endif %}
                             required
                             :disabled="!acl.can('shipping.editor')"
                             :error="shippingMethodNameError"
@@ -96,9 +103,12 @@
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_position %}
-                        <sw-field
+                        <sw-number-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.position"
+                            {% else %}
                             v-model="shippingMethod.position"
-                            type="number"
+                            {% endif %}
                             class="sw-settings-shipping-detail__field-position"
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelPosition')"
@@ -107,9 +117,12 @@
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_active %}
-                        <sw-field
+                        <sw-switch-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.active"
+                            {% else %}
                             v-model="shippingMethod.active"
-                            type="switch"
+                            {% endif %}
                             bordered
                             :disabled="!acl.can('shipping.editor')"
                             :label="$tc('sw-settings-shipping.detail.labelActive')"
@@ -123,7 +136,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_shipping_detail_base_content_field_description %}
                         <sw-textarea-field
+                            {% if VUE3 %}
+                            v-model:value="shippingMethod.description"
+                            {% else %}
                             v-model="shippingMethod.description"
+                            {% endif %}
                             :value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
                             :disabled="!acl.can('shipping.editor')"
@@ -159,7 +176,11 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_field_delivery_time %}
                     <sw-entity-single-select
+                        {% if VUE3 %}
+                        v-model:value="shippingMethod.deliveryTimeId"
+                        {% else %}
                         v-model="shippingMethod.deliveryTimeId"
+                        {% endif %}
                         class="sw-settings-shipping-detail__delivery-time"
                         entity="delivery_time"
                         :disabled="!acl.can('shipping.editor')"
@@ -174,9 +195,12 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
-                    <sw-field
+                    <sw-text-field
+                        {% if VUE3 %}
+                        v-model:value="shippingMethod.trackingUrl"
+                        {% else %}
                         v-model="shippingMethod.trackingUrl"
-                        type="text"
+                        {% endif %}
                         :disabled="!acl.can('shipping.editor')"
                         :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                         :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"

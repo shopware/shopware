@@ -10,6 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class RefreshToken implements RefreshTokenEntityInterface
 {
-    use RefreshTokenTrait;
     use EntityTrait;
+    use RefreshTokenTrait;
 }

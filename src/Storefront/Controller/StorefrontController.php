@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -27,7 +28,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\Attribute\Required;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 #[Package('storefront')]
 abstract class StorefrontController extends AbstractController
@@ -54,6 +59,8 @@ abstract class StorefrontController extends AbstractController
         $services[TemplateFinder::class] = TemplateFinder::class;
         $services[SeoUrlPlaceholderHandlerInterface::class] = SeoUrlPlaceholderHandlerInterface::class;
         $services[ScriptExecutor::class] = ScriptExecutor::class;
+        $services['translator'] = TranslatorInterface::class;
+        $services[RequestTransformerInterface::class] = RequestTransformerInterface::class;
 
         return $services;
     }
@@ -88,7 +95,7 @@ abstract class StorefrontController extends AbstractController
         }
 
         if (!$response instanceof StorefrontResponse) {
-            throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
+            throw StorefrontException::unSupportStorefrontResponse();
         }
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
@@ -266,12 +273,14 @@ abstract class StorefrontController extends AbstractController
         $view = $this->getTemplateFinder()->find($view);
 
         if ($this->twig !== null) {
-            return $this->twig->render($view, $parameters);
+            try {
+                return $this->twig->render($view, $parameters);
+            } catch (LoaderError|RuntimeError|SyntaxError $e) {
+                throw StorefrontException::cannotRenderView($view, $e->getMessage(), $parameters);
+            }
         }
 
-        throw new \Exception(
-            sprintf('Class %s does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', static::class)
-        );
+        throw StorefrontException::dontHaveTwigInjected(static::class);
     }
 
     protected function getTemplateFinder(): TemplateFinder

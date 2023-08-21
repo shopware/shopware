@@ -12,8 +12,8 @@ use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 #[Package('core')]
 class EmailField extends Field
 {
-    use TranslatableTrait;
     use RequiredTrait;
+    use TranslatableTrait;
 
     protected string $type = 'email';
 

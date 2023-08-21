@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Cms\CmsExtensions;
-use Shopware\Core\Framework\App\FlowAction\FlowAction;
+use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
+use Shopware\Core\Framework\App\Flow\Action\Action;
+use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -15,6 +18,10 @@ use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 #[Package('core')]
 abstract class AbstractAppLoader
 {
+    public function __construct(private readonly ConfigReader $configReader)
+    {
+    }
+
     abstract public function getDecorated(): AbstractAppLoader;
 
     /**
@@ -25,22 +32,89 @@ abstract class AbstractAppLoader
     /**
      * @return array<mixed>|null
      */
-    abstract public function getConfiguration(AppEntity $app): ?array;
+    public function getConfiguration(AppEntity $app): ?array
+    {
+        $configPath = $this->locatePath($app->getPath(), 'Resources/config/config.xml');
+
+        if ($configPath === null) {
+            return null;
+        }
+
+        return $this->configReader->read($configPath);
+    }
 
     abstract public function deleteApp(string $technicalName): void;
 
-    abstract public function getCmsExtensions(AppEntity $app): ?CmsExtensions;
+    public function getCmsExtensions(AppEntity $app): ?CmsManifest
+    {
+        $configPath = $this->locatePath($app->getPath(), 'Resources/cms.xml');
 
-    abstract public function getAssetPathForAppPath(string $appPath): string;
+        if ($configPath === null) {
+            return null;
+        }
 
-    abstract public function getEntities(AppEntity $app): ?CustomEntityXmlSchema;
+        return CmsManifest::createFromXmlFile($configPath);
+    }
 
-    abstract public function getFlowActions(AppEntity $app): ?FlowAction;
+    public function getFlowActions(AppEntity $app): ?Action
+    {
+        $configPath = $this->locatePath($app->getPath(), 'Resources/flow.xml');
+
+        if ($configPath !== null) {
+            return Action::createFromXmlFile($configPath);
+        }
+
+        $configPath = $this->locatePath($app->getPath(), 'Resources/flow-action.xml');
+
+        if (!Feature::isActive('v6.6.0.0') && $configPath !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                'The flow-action.xml is deprecated and will be removed in v6.6.0.0. Use flow.xml instead.'
+            );
+
+            return Action::createFromXmlFile($configPath);
+        }
+
+        return null;
+    }
+
+    public function getFlowEvents(AppEntity $app): ?Event
+    {
+        $configPath = $this->locatePath($app->getPath(), 'Resources/flow.xml');
+
+        if ($configPath === null) {
+            return null;
+        }
+
+        return Event::createFromXmlFile($configPath);
+    }
 
     /**
      * @return array<string, string>
      */
-    abstract public function getSnippets(AppEntity $app): array;
+    public function getSnippets(AppEntity $app): array
+    {
+        $path = $this->locatePath($app->getPath(), 'Resources/app/administration/snippet');
 
-    abstract public function loadFile(string $rootPath, string $filePath): ?string;
+        if ($path === null) {
+            return [];
+        }
+
+        $finder = new Finder();
+        $finder->in($path)
+            ->files()
+            ->name('*.json');
+
+        $snippets = [];
+
+        foreach ($finder->files() as $file) {
+            $snippets[$file->getFilenameWithoutExtension()] = $file->getContents();
+        }
+
+        return $snippets;
+    }
+
+    abstract public function loadFile(string $appPath, string $filePath): ?string;
+
+    abstract public function locatePath(string $appPath, string $filePath): ?string;
 }

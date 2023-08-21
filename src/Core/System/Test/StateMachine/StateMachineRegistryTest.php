@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
@@ -29,13 +29,10 @@ use Shopware\Core\Test\TestDefaults;
  */
 class StateMachineRegistryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private string $stateMachineId;
 
@@ -47,19 +44,9 @@ class StateMachineRegistryTest extends TestCase
 
     private string $stateMachineName;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var EntityRepository
-     */
-    private $stateMachineRepository;
-
-    private string $stateMachineWithoutInitialId;
-
-    private string $stateMachineWithoutInitialName;
+    private EntityRepository $stateMachineRepository;
 
     protected function setUp(): void
     {
@@ -72,9 +59,6 @@ class StateMachineRegistryTest extends TestCase
         $this->openId = Uuid::randomHex();
         $this->inProgressId = Uuid::randomHex();
         $this->closedId = Uuid::randomHex();
-
-        $this->stateMachineWithoutInitialId = Uuid::randomHex();
-        $this->stateMachineWithoutInitialName = 'test_broken_state_machine';
 
         $nullableTable = <<<EOF
 DROP TABLE IF EXISTS _test_nullable;
@@ -96,7 +80,7 @@ EOF;
 
     public function testNonExistingStateMachine(): void
     {
-        $this->expectException(StateMachineNotFoundException::class);
+        $this->expectException(StateMachineException::class);
 
         $context = Context::createDefaultContext();
 
@@ -110,7 +94,6 @@ EOF;
 
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineName, $context);
 
-        static::assertNotNull($stateMachine);
         static::assertNotNull($stateMachine->getStates());
         static::assertEquals(3, $stateMachine->getStates()->count());
         static::assertNotNull($stateMachine->getTransitions());
@@ -132,12 +115,12 @@ EOF;
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()->getTechnicalName());
+                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
             }
 
             if ($transition->getActionName() === 'retour') {
                 $retourActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()->getTechnicalName());
+                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
             }
         }
 
@@ -301,20 +284,6 @@ EOF;
                     ['actionName' => 'close', 'fromStateId' => $this->inProgressId, 'toStateId' => $this->closedId],
 
                     ['actionName' => 'reopen', 'fromStateId' => $this->closedId, 'toStateId' => $this->openId],
-                ],
-            ],
-        ], $context);
-    }
-
-    private function createStateMachineWithoutInitialState(Context $context): void
-    {
-        $this->stateMachineRepository->upsert([
-            [
-                'id' => $this->stateMachineWithoutInitialId,
-                'technicalName' => $this->stateMachineWithoutInitialName,
-                'translations' => [
-                    'en-GB' => ['name' => 'Order state'],
-                    'de-DE' => ['name' => 'Bestellungsstatus'],
                 ],
             ],
         ], $context);

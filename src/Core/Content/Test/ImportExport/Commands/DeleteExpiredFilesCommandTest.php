@@ -124,7 +124,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
         static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
 
         $results = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
-        static::assertEquals(($num - $numExpired), \count($results));
+        static::assertEquals($num - $numExpired, \count($results));
 
         $expectedIds = array_diff(array_column($data, 'id'), $expiredIds);
         foreach ($results as $result) {

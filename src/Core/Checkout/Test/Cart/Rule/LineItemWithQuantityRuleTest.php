@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class LineItemWithQuantityRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 

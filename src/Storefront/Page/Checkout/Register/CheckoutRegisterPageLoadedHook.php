@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Hook\CartAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -17,7 +19,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * @final
  */
 #[Package('storefront')]
-class CheckoutRegisterPageLoadedHook extends PageLoadedHook
+class CheckoutRegisterPageLoadedHook extends PageLoadedHook implements CartAware
 {
     use SalesChannelContextAwareTrait;
 
@@ -33,11 +35,20 @@ class CheckoutRegisterPageLoadedHook extends PageLoadedHook
 
     public function getName(): string
     {
+        if ($this->getCart()->getSource()) {
+            return self::HOOK_NAME . '-' . $this->getCart()->getSource();
+        }
+
         return self::HOOK_NAME;
     }
 
     public function getPage(): CheckoutRegisterPage
     {
         return $this->page;
+    }
+
+    public function getCart(): Cart
+    {
+        return $this->page->getCart();
     }
 }

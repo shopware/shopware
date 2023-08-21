@@ -323,9 +323,33 @@
                 },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
+                },
+                "tagging": {
+                    "$ref": "#/definitions/cache_tags"
                 }
             },
             "title": "Cache"
+        },
+        "cache_tags": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "each_snippet": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If enabled, each snippet will be cached with a unique tag. This allows to invalidate a single snippet. If disabled, the whole page will be invalidated on each snippet change."
+                },
+                "each_config": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If enabled, each config will be cached with a unique tag. This allows to invalidate a single config. If disabled, the whole page will be invalidated on each config change."
+                },
+                "each_theme_config": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If enabled, each theme config will be cached with a unique tag. This allows to invalidate a single theme config. If disabled, the whole page will be invalidated on each theme config change."
+                }
+            }
         },
         "cache_invalidation": {
             "type": "object",
@@ -548,6 +572,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
                 "cache_dir": {
                     "type": "string"
                 },
@@ -707,6 +734,10 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "error_code_log_levels": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"}
                 }
             },
             "title": "Logger"

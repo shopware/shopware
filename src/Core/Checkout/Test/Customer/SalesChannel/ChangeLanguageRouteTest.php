@@ -20,8 +20,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Package('customer-order')]
 class ChangeLanguageRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

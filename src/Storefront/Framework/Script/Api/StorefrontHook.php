@@ -29,8 +29,8 @@ use Shopware\Storefront\Page\Page;
 #[Package('core')]
 class StorefrontHook extends Hook implements SalesChannelContextAware, StoppableHook
 {
-    use StoppableHookTrait;
     use ScriptResponseAwareTrait;
+    use StoppableHookTrait;
 
     final public const HOOK_NAME = 'storefront-{hook}';
 

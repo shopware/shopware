@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -62,8 +63,9 @@ class TaxRuleDefinition extends EntityDefinition
                 new StringField('toZipCode', 'toZipCode'),
             ]),
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id', $autoload)),
-            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id')),
+            new DateTimeField('active_from', 'activeFrom'),
+            new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id', $autoload),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id'),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'),
         ]);
     }

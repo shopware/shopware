@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Media\TypeDetector;
 
 use Shopware\Core\Content\Media\Exception\StreamNotReadableException;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('content')]
@@ -59,7 +61,7 @@ class ImageTypeDetector implements TypeDetectorInterface
      * * a static 4-byte sequence (\x00\x21\xF9\x04)
      * * 4 variable bytes
      * * a static 2-byte sequence (\x00\x2C) (some variants may use \x00\x21)
-
+     *
      * We read through the file till we reach the end of the file, or we've found
      * at least 2 frame headers
      */
@@ -71,9 +73,13 @@ class ImageTypeDetector implements TypeDetectorInterface
         $count = 0;
 
         while (!feof($fh) && $count < 2) {
-            $chunk = fread($fh, 1024 * 100); //read 100kb at a time
+            $chunk = fread($fh, 1024 * 100); // read 100kb at a time
             if ($chunk === false) {
-                throw new StreamNotReadableException('Animated gif file not readable');
+                if (!Feature::isActive('v6.6.0.0')) {
+                    throw new StreamNotReadableException('Animated gif file not readable');
+                }
+
+                throw MediaException::cannotOpenSourceStreamToRead($filename);
             }
             $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s', $chunk, $matches);
         }
@@ -95,7 +101,11 @@ class ImageTypeDetector implements TypeDetectorInterface
         $result = false;
         $fh = fopen($filename, 'rb');
         if ($fh === false) {
-            throw new StreamNotReadableException('Webp File not readable');
+            if (!Feature::isActive('v6.6.0.0')) {
+                throw new StreamNotReadableException('Webp File not readable');
+            }
+
+            throw MediaException::cannotOpenSourceStreamToRead($filename);
         }
         fread($fh, 12);
         if (fread($fh, 4) === 'VP8X') {
@@ -103,7 +113,11 @@ class ImageTypeDetector implements TypeDetectorInterface
             fseek($fh, 20);
             $extendedFlags = fread($fh, 1);
             if ($extendedFlags === false) {
-                throw new StreamNotReadableException('Webp File not readable');
+                if (!Feature::isActive('v6.6.0.0')) {
+                    throw new StreamNotReadableException('Webp File not readable');
+                }
+
+                throw MediaException::cannotOpenSourceStreamToRead($filename);
             }
             // move the bits of $extendedFlags one bit position to the right so that the animation bit flag is on the first position
             // [00101100] & [00000001] results to [00000000], [00101101] & [00000001] results to [00000001]

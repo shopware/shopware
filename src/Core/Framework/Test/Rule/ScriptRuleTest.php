@@ -35,8 +35,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Package('business-ops')]
 class ScriptRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 
@@ -277,7 +277,7 @@ class ScriptRuleTest extends TestCase
 
     private function installApp(): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures';
+        $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
 
         $manifest = Manifest::createFromXmlFile($fixturesPath . '/test/manifest.xml');
         $this->appLifecycle->install($manifest, false, $this->context);

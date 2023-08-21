@@ -24,8 +24,8 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class WriteProtectedFlagTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

@@ -45,7 +45,11 @@
                 :disabled="currentEditElement === item.data.id"
                 :ghost-value="checkedGhost"
                 :value="checked"
+                {% if VUE3 %}
+                @update:value="toggleItemCheck($event, item)"
+                {% else %}
                 @change="toggleItemCheck($event, item)"
+                {% endif %}
             />
         </div>
         {% endblock %}
@@ -270,7 +274,6 @@
                 :key="child.id"
                 :item="child"
                 :dragged-item="draggedItem"
-                :parent-scope="parentScope"
                 :new-element-id="newElementId"
                 :translation-context="translationContext"
                 :on-change-route="onChangeRoute"

@@ -13,7 +13,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
-use function array_merge;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('system-settings')]
@@ -87,6 +86,6 @@ class AclController extends AbstractController
             }
         }
 
-        return array_merge(...$permissions);
+        return \array_merge(...$permissions);
     }
 }

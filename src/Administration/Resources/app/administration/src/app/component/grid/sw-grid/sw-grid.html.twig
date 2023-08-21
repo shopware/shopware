@@ -30,8 +30,16 @@
                     >
                         <div class="sw-grid__cell-content">
                             <sw-checkbox-field
+                                {% if VUE3 %}
+                                v-model:value="allSelectedChecked"
+                                {% else %}
                                 v-model="allSelectedChecked"
+                                {% endif %}
+                                {% if VUE3 %}
+                                @update:value="selectAll"
+                                {% else %}
                                 @change="selectAll"
+                                {% endif %}
                             />
                         </div>
                     </div>
@@ -131,7 +139,11 @@
                                 <div class="sw-grid__cell-content">
                                     <sw-checkbox-field
                                         :value="isSelected(item.id)"
+                                        {% if VUE3 %}
+                                        @update:value="selectItem($event, item)"
+                                        {% else %}
                                         @change="selectItem($event, item)"
+                                        {% endif %}
                                     />
                                 </div>
                             </div>

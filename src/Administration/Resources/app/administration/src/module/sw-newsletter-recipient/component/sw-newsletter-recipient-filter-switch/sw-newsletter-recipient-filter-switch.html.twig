@@ -4,11 +4,14 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_filter_switch_field %}
     <slot name="field">
-        <sw-field
-            type="switch"
+        <sw-switch-field
             :name="id"
             :label="label"
+            {% if VUE3 %}
+            @update:value="onChange"
+            {% else %}
             @change="onChange"
+            {% endif %}
         />
     </slot>
     {% endblock %}

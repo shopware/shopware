@@ -100,7 +100,11 @@
             />
             <sw-media-library
                 ref="mediaLibrary"
+                {% if VUE3 %}
+                v-model:selection="selectedItems"
+                {% else %}
                 v-model="selectedItems"
+                {% endif %}
                 class="sw-media-index__media-library"
                 :folder-id="routeFolderId"
                 :pending-uploads="uploads"

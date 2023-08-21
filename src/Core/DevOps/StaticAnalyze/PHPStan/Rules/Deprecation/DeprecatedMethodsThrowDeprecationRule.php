@@ -32,6 +32,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
+        // Only the route on controller will be removed
+        'reason:remove-route',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
         'reason:becomes-internal',
         // New function parameter will be added
@@ -44,6 +46,14 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:class-hierarchy-change',
         // If we change the visibility of a method we can't know from where it was called and whether the call will be valid in the future, therefore they do not trigger deprecations.
         'reason:visibility-change',
+        // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
+        'reason:remove-exception',
+        // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
+        'reason:remove-getter-setter',
+        // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
+        'reason:blue-green-deployment',
+        // The constraint can still be used, just not via an annotation
+        'reason:remove-constraint-annotation',
     ];
 
     public function getNodeType(): string

@@ -4,11 +4,10 @@ namespace Shopware\Core\Framework\App\Payment\Payload;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
@@ -72,15 +71,15 @@ class PayloadService
 
         if (!$jsonPayload) {
             if ($payload instanceof PaymentPayloadInterface) {
-                throw new AsyncPaymentProcessException($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
+                throw PaymentException::asyncProcessInterrupted($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
             }
 
-            throw new ValidatePreparedPaymentException(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
+            throw PaymentException::validatePreparedPaymentInterrupted(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
         }
 
         $secret = $app->getAppSecret();
         if ($secret === null) {
-            throw new AppRegistrationException('App secret missing');
+            throw AppException::registrationFailed($app->getName(), 'App secret is missing');
         }
 
         return [

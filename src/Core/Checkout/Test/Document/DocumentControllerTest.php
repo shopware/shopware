@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
+use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -44,9 +46,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('customer-order')]
 class DocumentControllerTest extends TestCase
 {
-    use DocumentTrait;
     use AdminApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
+    use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -173,7 +175,11 @@ class DocumentControllerTest extends TestCase
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__INVALID_ORDER_ID');
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
+        } else {
+            static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        }
 
         $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, 'wrong deep link code');
         $this->getBrowser()->request('GET', $endpoint);
@@ -181,7 +187,11 @@ class DocumentControllerTest extends TestCase
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
-        static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__INVALID_ORDER_ID');
+        if (!Feature::isActive('v6.6.0.0')) {
+            static::assertEquals('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
+        } else {
+            static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        }
 
         $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
 
@@ -210,7 +220,7 @@ class DocumentControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', $endpoint);
 
-        static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
+        static::assertEquals(Response::HTTP_FORBIDDEN, $this->getBrowser()->getResponse()->getStatusCode());
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response['errors']);
         static::assertEquals($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
@@ -414,6 +424,8 @@ class DocumentControllerTest extends TestCase
         ];
 
         static::assertNotNull($document = $this->createDocuments($order->getId(), $documentTypes, $this->context)->first());
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
         $documentId = $document->getId();
 
         $this->getBrowser()->request(
@@ -465,6 +477,7 @@ class DocumentControllerTest extends TestCase
         ];
 
         static::assertNotNull($document = $this->createDocuments($order->getId(), $documentTypes, $this->context)->first());
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
         $documentId = $document->getId();
 
         $this->getBrowser()->request(
@@ -540,9 +553,10 @@ class DocumentControllerTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
-        return $order->first();
+        return $order;
     }
 
     /**
@@ -555,7 +569,7 @@ class DocumentControllerTest extends TestCase
         $ids = [];
 
         foreach ($data as $value) {
-            array_push($ids, $value['documentId']);
+            $ids[] = $value['documentId'];
         }
 
         return $ids;

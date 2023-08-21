@@ -319,11 +319,13 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContentAndDateTimeValue(): void
     {
+        $releaseDate = new \DateTime('2023-06-28T14:27:29');
         $product = new ProductEntity();
         $product->setName('TextProduct');
-        $product->setReleaseDate(new \DateTime());
+        $product->setReleaseDate($releaseDate);
+        $request = new Request();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), $request, $this->createMock(ProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -342,6 +344,11 @@ class TextTypeDataResolverTest extends TestCase
         static::assertInstanceOf(TextStruct::class, $textStruct);
         $content = $textStruct->getContent();
         static::assertIsString($content);
-        static::assertNotFalse(strtotime($content));
+
+        $formatter = new \IntlDateFormatter($request->getLocale(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM);
+        $actualReleaseDate = new \DateTime();
+        $actualReleaseDate->setTimestamp((int) $formatter->parse($content));
+
+        static::assertEquals($releaseDate, $actualReleaseDate);
     }
 }

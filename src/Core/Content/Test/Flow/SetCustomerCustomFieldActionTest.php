@@ -20,8 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('business-ops')]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
-    use OrderActionTrait;
     use CacheTestBehaviour;
+    use OrderActionTrait;
 
     private EntityRepository $flowRepository;
 

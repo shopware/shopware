@@ -26,8 +26,10 @@ class ThemeConfigValueAccessor
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractResolvedConfigLoader $themeConfigLoader)
-    {
+    public function __construct(
+        private readonly AbstractResolvedConfigLoader $themeConfigLoader,
+        private readonly bool $fineGrainedCache
+    ) {
     }
 
     public static function buildName(string $key): string
@@ -40,8 +42,14 @@ class ThemeConfigValueAccessor
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
-        foreach (array_keys($this->keys) as $trace) {
-            $this->traces[$trace][self::buildName($key)] = true;
+        if ($this->fineGrainedCache) {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace][self::buildName($key)] = true;
+            }
+        } else {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace]['shopware.theme'] = true;
+            }
         }
 
         $config = $this->getThemeConfig($context, $themeId);

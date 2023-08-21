@@ -142,7 +142,10 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_customer_name %}
                 <template #column-orderCustomer.firstName="{ item }">
-                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                    <router-link
+                        v-if="item.orderCustomer"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }
+                        ">
                         {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                     </router-link>
                 </template>
@@ -372,6 +375,7 @@
                         {% block sw_order_list_bulk_edit_grid_columns_customer_name %}
                         <template #column-orderCustomer.firstName="{ item }">
                             <router-link
+                                v-if="item.orderCustomer"
                                 :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
                                 target="_blank"
                                 rel="noreferrer noopener"

@@ -132,7 +132,7 @@ class LineItemOfManufacturerRuleTest extends TestCase
             $this->createLineItemWithManufacturer('1'),
             $this->createLineItemWithManufacturer($lineItemManufacturerId),
         ]);
-        $containerLineItem = ($this->createContainerLineItem($lineItemCollection))->setPayloadValue('manufacturerId', '1');
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection)->setPayloadValue('manufacturerId', '1');
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(

@@ -37,6 +37,11 @@ $sw-field-color-inherited: $color-module-purple-900;
         margin-left: 10px;
     }
 
+    .sw-field__hint {
+        margin-bottom: 0;
+        margin-left: 10px;
+    }
+
     .sw-field__checkbox {
         width: 16px;
         height: 16px;
@@ -153,6 +158,10 @@ $sw-field-color-inherited: $color-module-purple-900;
             label {
                 cursor: not-allowed;
             }
+        }
+
+        .sw-field__hint {
+            cursor: not-allowed;
         }
     }
 }

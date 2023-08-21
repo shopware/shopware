@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class WebhookEventLogEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected ?string $appName = null;
 

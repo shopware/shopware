@@ -27,6 +27,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     props: {
         error: {
             type: Object,
@@ -122,12 +124,22 @@ Component.extend('sw-url-field', 'sw-text-field', {
             } else {
                 this.currentValue = validated;
 
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', this.url);
+                    return;
+                }
+
                 this.$emit('input', this.url);
             }
         },
 
         handleEmptyUrl() {
             this.currentValue = '';
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', '');
+                return;
+            }
 
             this.$emit('input', '');
         },
@@ -165,6 +177,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             this.sslActive = !this.sslActive;
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.url);
+                return;
+            }
+
             this.$emit('input', this.url);
         },
 

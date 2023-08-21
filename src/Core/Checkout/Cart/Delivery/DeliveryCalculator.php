@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
-use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -55,8 +55,9 @@ class DeliveryCalculator
     private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
-
-        if ($delivery->getShippingCosts()->getUnitPrice() > 0 || $cart->hasExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS)) {
+        $manualShippingCost = $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS);
+        $manualShippingCost = $manualShippingCost instanceof CalculatedPrice ? $manualShippingCost : null;
+        if ($delivery->getShippingCosts()->getUnitPrice() > 0 || $manualShippingCost) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
                 new PriceCollection([
@@ -68,7 +69,8 @@ class DeliveryCalculator
                     ),
                 ]),
                 $delivery->getPositions()->getLineItems(),
-                $context
+                $context,
+                $manualShippingCost
             );
 
             $delivery->setShippingCosts($costs);
@@ -94,7 +96,7 @@ class DeliveryCalculator
         $key = DeliveryProcessor::buildKey($delivery->getShippingMethod()->getId());
 
         if (!$data->has($key)) {
-            throw new ShippingMethodNotFoundException($delivery->getShippingMethod()->getId());
+            throw ShippingException::shippingMethodNotFound($delivery->getShippingMethod()->getId());
         }
 
         /** @var ShippingMethodEntity $shippingMethod */
@@ -160,7 +162,7 @@ class DeliveryCalculator
         return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
     }
 
-    private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context): CalculatedPrice
+    private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context, ?CalculatedPrice $manualShippingCost = null): CalculatedPrice
     {
         switch ($shippingMethod->getTaxType()) {
             case ShippingMethodEntity::TAX_TYPE_HIGHEST:
@@ -184,7 +186,11 @@ class DeliveryCalculator
                 );
         }
 
-        $price = $this->getCurrencyPrice($priceCollection, $context);
+        if ($manualShippingCost !== null) {
+            $price = $manualShippingCost->getTotalPrice();
+        } else {
+            $price = $this->getCurrencyPrice($priceCollection, $context);
+        }
 
         $definition = new QuantityPriceDefinition($price, $rules, 1);
 

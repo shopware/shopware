@@ -4,7 +4,7 @@ Percy:
     stage: visual
     timeout: 1h
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.4.30
             alias: database
     dependencies: [ Build ]
     variables:
@@ -25,8 +25,10 @@ Percy:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:
+        - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
         - npm --prefix tests/e2e ci
         - bin/console e2e:dump-db
+        - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
         - composer run e2e:percy -- exec -- cypress run
             --config retries=2
             --browser chrome

@@ -43,14 +43,14 @@ class StringFieldTest extends TestCase
             try {
                 $serializer->encode(
                     $this->getStringField($name, $flags),
-                    $this->getEntityExisting(),
+                    EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current();
             } catch (WriteConstraintViolationException $e) {
                 static::assertSame('/' . $name, $e->getViolations()->get(0)->getPropertyPath());
                 /* Unexpected language has to be fixed NEXT-9419 */
-                //static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
+                // static::assertSame($expected, $e->getViolations()->get(0)->getMessage());
 
                 throw $e;
             }
@@ -61,7 +61,7 @@ class StringFieldTest extends TestCase
                 $expected,
                 $serializer->encode(
                     $this->getStringField($name, $flags),
-                    $this->getEntityExisting(),
+                    EntityExistence::createEmpty(),
                     $data,
                     $this->getWriteParameterBagMock()
                 )->current()

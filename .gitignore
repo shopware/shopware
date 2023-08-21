@@ -18,6 +18,7 @@ Thumbs.db
 
 # Composer
 /composer.phar
+/auth.json
 /vendor/*
 /composer.lock
 

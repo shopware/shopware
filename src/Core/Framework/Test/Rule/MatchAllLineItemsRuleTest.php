@@ -28,9 +28,9 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('business-ops')]
 class MatchAllLineItemsRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
     use CartRuleHelperTrait;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository
@@ -203,7 +203,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductC),
         ]);
 
-        $promotionLineItem = ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A');
+        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A');
         $lineItemCollection->add($promotionLineItem);
 
         $cart = $this->createCart($lineItemCollection);

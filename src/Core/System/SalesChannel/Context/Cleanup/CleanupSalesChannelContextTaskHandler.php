@@ -14,7 +14,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler(handles: CleanupSalesChannelContextTask::class)]
 #[Package('sales-channel')]
-
 final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
 {
     /**

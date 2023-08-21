@@ -1,8 +1,4 @@
 {
-    "require-dev": {
-        "roave/backward-compatibility-check": "^8.0",
-        "symplify/vendor-patches": "^11.1"
-    },
     "bin": [
         "bin/bc-check"
     ],
@@ -11,16 +7,7 @@
             "Shopware\\RoaveBackwardCompatibility\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Shopware\\RoaveBackwardCompatibility\\Tests\\": "tests/"
-        }
-    },
     "config": {
-        "platform": {
-            "ext-bcmath": "8.0.12",
-            "composer-runtime-api": "2.2.0"
-        },
         "allow-plugins": {
             "ocramius/package-versions": true,
             "cweagans/composer-patches": true,
@@ -29,16 +16,15 @@
         }
     },
     "require": {
-        "cweagans/composer-patches": "^1.7",
-        "doctrine/annotations": "^1.13",
-        "phpdocumentor/reflection-docblock": "^5.3.0"
+        "roave/backward-compatibility-check": "^8.0",
+        "cweagans/composer-patches": "^1.7"
     },
     "extra": {
         "patches": {
             "roave/backward-compatibility-check": {
+                "Skip experimental annotations": "patches/skip-experimental.patch",
                 "Add exclude errors": "patches/add-exclude-errors.patch",
-                "Add exclude files": "patches/add-exclude-files.patch",
-                "Add Composer 2": "patches/add-composer-2.patch"
+                "Add exclude files": "patches/add-exclude-files.patch"
             }
         }
     }

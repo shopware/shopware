@@ -94,7 +94,11 @@
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
                                 :value="allSelectedChecked"
+                                {% if VUE3 %}
+                                @update:value="selectAll"
+                                {% else %}
                                 @change="selectAll"
+                                {% endif %}
                             />
                             {% endblock %}
                         </div>
@@ -127,7 +131,15 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_data_grid_header_columns_icon %}
                                 <sw-icon
-                                    v-if="column.iconLabel"
+                                    v-if="column.iconLabel && column.iconTooltip"
+                                    :name="column.iconLabel"
+                                    v-tooltip="column.iconTooltip"
+                                >
+                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                                </sw-icon>
+
+                                <sw-icon
+                                    v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
                                     {{ $te(column.label) ? $tc(column.label) : column.label }}
@@ -307,7 +319,11 @@
                                 <sw-checkbox-field
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
+                                    {% if VUE3 %}
+                                    @update:value="selectItem($event, item)"
+                                    {% else %}
                                     @change="selectItem($event, item)"
+                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>

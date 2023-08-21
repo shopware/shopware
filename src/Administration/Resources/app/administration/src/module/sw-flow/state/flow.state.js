@@ -16,6 +16,7 @@ export default {
         },
         originFlow: {},
         triggerEvent: {},
+        triggerEvents: [],
         triggerActions: [],
         invalidSequences: [],
         stateMachineState: [],
@@ -26,6 +27,7 @@ export default {
         customerGroups: [],
         restrictedRules: [],
         appActions: [],
+        originAvailableActions: [],
     },
 
     mutations: {
@@ -58,6 +60,10 @@ export default {
 
         setTriggerEvent(state, event) {
             state.triggerEvent = event;
+        },
+
+        setTriggerEvents(state, events) {
+            state.triggerEvents = events;
         },
 
         setEventName(state, eventName) {
@@ -199,12 +205,15 @@ export default {
         },
 
         availableActions(state) {
+            state.originAvailableActions = [];
+
             if (!state.triggerEvent || !state.triggerActions) return [];
 
             const availableAction = [];
 
             state.triggerActions.forEach((action) => {
                 if (!action.requirements.length) {
+                    state.originAvailableActions.push(action.name);
                     availableAction.push(action.name);
                     return;
                 }
@@ -214,6 +223,10 @@ export default {
 
                 if (!isActive) {
                     return;
+                }
+
+                if (!state.originAvailableActions.includes(action.name)) {
+                    state.originAvailableActions.push(action.name);
                 }
 
                 const actionType = Service('flowBuilderService').mapActionType(action.name);
@@ -260,6 +273,14 @@ export default {
         actionGroups() {
             return Service('flowBuilderService').getGroups();
         },
+
+        triggerEvents(state) {
+            return state.triggerEvents;
+        },
+
+        hasAvailableAction: (state) => (actionName) => {
+            return state.originAvailableActions.some(name => name === actionName);
+        },
     },
 
     actions: {
@@ -274,6 +295,17 @@ export default {
                 .getRestrictedRules(`flowTrigger.${id}`)
                 .then((result) => {
                     commit('setRestrictedRules', result);
+                });
+        },
+
+        fetchTriggerActions({ commit }) {
+            Service('businessEventService')
+                .getBusinessEvents()
+                .then((result) => {
+                    commit('setTriggerEvents', result);
+                })
+                .catch(() => {
+                    commit('setTriggerEvents', []);
                 });
         },
     },

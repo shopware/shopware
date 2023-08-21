@@ -51,8 +51,8 @@ class DynamicMappingEntityDefinition extends MappingEntityDefinition
             (new FkField($this->reference . '_id', self::kebabCaseToCamelCase($this->reference) . 'Id', $this->reference, 'id'))
                 ->addFlags(new Required(), new PrimaryKey()),
 
-            (new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->reference), $this->reference . '_id', $this->reference, 'id', false)),
-            (new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->source), $this->source . '_id', $this->source, 'id', false)),
+            new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->reference), $this->reference . '_id', $this->reference, 'id', false),
+            new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->source), $this->source . '_id', $this->source, 'id', false),
         ]);
 
         $definition = $this->registry->getByEntityName($this->source);

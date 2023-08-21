@@ -130,6 +130,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                 },
             },
         });
+        State.commit('context/setApiLanguageId', '123456789');
     });
 
     it('should turn on layout modal', async () => {
@@ -264,5 +265,43 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
 
         expect(cmsForm.exists()).toBeFalsy();
         expect(infoNoConfig.exists()).toBeTruthy();
+    });
+
+    it('should update new content of slotConfig in product', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.State.commit('swProductDetail/setProduct', {
+            slotConfig: {
+                elementId: {
+                    content: {
+                        value: 'InitialValue',
+                    },
+                },
+            },
+        });
+
+        const element = {
+            id: 'elementId',
+            config: {
+                content: {
+                    value: 'New content',
+                },
+            },
+        };
+
+        wrapper.vm.elementUpdate(element);
+
+        expect(wrapper.vm.product.slotConfig[element.id].content.value).toBe(element.config.content.value);
+    });
+
+    it('should call handleGetCmsPage when languageId changes', async () => {
+        const wrapper = await createWrapper();
+        const handleGetCmsPageMock = jest.spyOn(wrapper.vm, 'handleGetCmsPage');
+
+        State.commit('context/setApiLanguageId', '123');
+
+        await flushPromises();
+
+        expect(handleGetCmsPageMock).toHaveBeenCalled();
     });
 });

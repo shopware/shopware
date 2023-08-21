@@ -18,6 +18,11 @@ export default {
             required: false,
             default: false,
         },
+        isUnknownTrigger: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

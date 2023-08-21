@@ -76,7 +76,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
-            <argument>%kernel.project_dir%/</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
@@ -86,6 +86,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
@@ -128,6 +129,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppPayloadServiceHelper">
@@ -139,6 +141,7 @@
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -221,6 +224,9 @@
             <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -260,7 +266,6 @@
             <argument>%shopware.app_dir%</argument>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
         </service>
 
         <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">
@@ -350,6 +355,12 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Api\AppJWTGenerateRoute" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
@@ -519,7 +530,11 @@
             <tag name="shopware.entity.definition" />
         </service>
 
-        <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionLoadedSubscriber">
+        <service id="Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -538,8 +553,19 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider">
             <argument type="tagged_iterator" tag="shopware.app_delta"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister">
+            <argument type="service" id="app_flow_event.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>

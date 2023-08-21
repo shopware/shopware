@@ -56,6 +56,12 @@ class CookieProvider implements CookieProviderInterface
                 'cookie' => 'wishlist-enabled',
                 'value' => '1',
             ],
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
+                'cookie' => 'youtube-video',
+                'expiration' => '30',
+                'value' => '1',
+            ],
         ],
     ];
 

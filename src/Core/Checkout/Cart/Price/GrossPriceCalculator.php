@@ -62,7 +62,7 @@ class GrossPriceCalculator
 
     private function getUnitPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): float
     {
-        //item price already calculated?
+        // item price already calculated?
         if ($definition->isCalculated()) {
             return $this->priceRounding->cashRound($definition->getPrice(), $config);
         }

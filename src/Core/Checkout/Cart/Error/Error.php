@@ -10,14 +10,14 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 #[Package('checkout')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
-    //allows json_encode and to decode object via json serializer
-    use JsonSerializableTrait;
-
-    //allows to assign array data to this object
+    // allows to assign array data to this object
     use AssignArrayTrait;
 
-    //allows to create a new instance with all data of the provided object
+    // allows to create a new instance with all data of the provided object
     use CreateFromTrait;
+
+    // allows json_encode and to decode object via json serializer
+    use JsonSerializableTrait;
 
     final public const LEVEL_NOTICE = 0;
 

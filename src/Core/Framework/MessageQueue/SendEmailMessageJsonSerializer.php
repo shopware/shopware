@@ -37,7 +37,21 @@ class SendEmailMessageJsonSerializer implements NormalizerInterface, Denormalize
      */
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = [])
     {
-        return unserialize(stripslashes($data[__CLASS__]));
+        /** @var string $value */
+        $value = $data[__CLASS__];
+
+        // @deprecated tag:v6.6.0 - Remove this workaround
+        if (str_starts_with($value, 'O:')) {
+            return unserialize(stripslashes($value));
+        }
+
+        $value = base64_decode($value, true);
+
+        if ($value === false) {
+            throw MessageQueueException::cannotUnserializeMessage($data[__CLASS__]);
+        }
+
+        return unserialize($value);
     }
 
     /**
@@ -47,6 +61,16 @@ class SendEmailMessageJsonSerializer implements NormalizerInterface, Denormalize
      */
     public function normalize(mixed $object, ?string $format = null, array $context = [])
     {
-        return [__CLASS__ => addslashes(serialize($object))];
+        return [__CLASS__ => base64_encode(serialize($object))];
+    }
+
+    /**
+     * @return array<class-string, bool>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            SendEmailMessage::class => true,
+        ];
     }
 }

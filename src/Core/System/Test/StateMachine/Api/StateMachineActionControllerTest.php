@@ -42,9 +42,9 @@ use Symfony\Component\HttpFoundation\Response;
 class StateMachineActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepository

@@ -24,12 +24,12 @@ class ScheduledTaskController extends AbstractController
     {
         $this->taskScheduler->queueScheduledTasks();
 
-        return $this->json(['message' => 'Success']);
+        return new JsonResponse(['message' => 'Success']);
     }
 
     #[Route(path: '/api/_action/scheduled-task/min-run-interval', name: 'api.action.scheduled-task.min-run-interval', methods: ['GET'])]
     public function getMinRunInterval(): JsonResponse
     {
-        return $this->json(['minRunInterval' => $this->taskScheduler->getMinRunInterval()]);
+        return new JsonResponse(['minRunInterval' => $this->taskScheduler->getMinRunInterval()]);
     }
 }

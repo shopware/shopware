@@ -38,11 +38,6 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
         return '6.2.0.0';
     }
 
-    protected function getParentDefinitionClass(): ?string
-    {
-        return SalesChannelDefinition::class;
-    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -51,7 +46,7 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new BoolField('track_orders', 'trackOrders'),
             new BoolField('anonymize_ip', 'anonymizeIp'),
-            (new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false)),
+            new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false),
         ]);
     }
 }

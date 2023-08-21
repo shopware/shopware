@@ -10,7 +10,6 @@ use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
-use function preg_replace_callback;
 
 #[Package('sales-channel')]
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
@@ -53,7 +52,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                     $seoMapping[$key] = $host . '/' . ltrim($value, '/');
                 }
 
-                return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
+                return (string) \preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
             }
 
             return $content;

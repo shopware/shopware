@@ -223,7 +223,7 @@ class SchemaUpdater
 
                     $mapping->addColumn($referenceName . '_version_id', Types::BINARY, $binary);
 
-                    //primary key is build with source_id, reference_id, reference_version_id
+                    // primary key is build with source_id, reference_id, reference_version_id
                     $mapping->setPrimaryKey([self::id($name), self::id($referenceName), $referenceName . '_version_id']);
 
                     // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both

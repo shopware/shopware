@@ -30,8 +30,8 @@ use Shopware\Core\System\Language\LanguageEntity;
  */
 class EntityExtensionReadTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection

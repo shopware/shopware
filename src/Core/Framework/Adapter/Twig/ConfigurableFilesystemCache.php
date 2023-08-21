@@ -18,6 +18,11 @@ class ConfigurableFilesystemCache extends FilesystemCache
      */
     protected $cacheDirectory;
 
+    /**
+     * @var string[]
+     */
+    protected array $templateScopes = [TemplateScopeDetector::DEFAULT_SCOPE];
+
     public function __construct(
         string $directory,
         int $options = 0
@@ -28,7 +33,7 @@ class ConfigurableFilesystemCache extends FilesystemCache
 
     public function generateKey(string $name, string $className): string
     {
-        $hash = hash('sha256', $className . $this->configHash);
+        $hash = hash('sha256', $className . $this->configHash . implode('', $this->templateScopes));
 
         return $this->cacheDirectory . $hash[0] . $hash[1] . '/' . $hash . '.php';
     }
@@ -36,5 +41,13 @@ class ConfigurableFilesystemCache extends FilesystemCache
     public function setConfigHash(string $configHash): void
     {
         $this->configHash = $configHash;
+    }
+
+    /**
+     * @param string[] $templateScopes
+     */
+    public function setTemplateScopes(array $templateScopes): void
+    {
+        $this->templateScopes = $templateScopes;
     }
 }

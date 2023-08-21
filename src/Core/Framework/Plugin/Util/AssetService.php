@@ -25,6 +25,7 @@ class AssetService
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
+        private readonly FilesystemOperator $privateFilesystem,
         private readonly KernelInterface $kernel,
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
@@ -67,8 +68,14 @@ class AssetService
 
     public function copyAssetsFromApp(string $appName, string $appPath): void
     {
+        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
+
+        if ($publicDirectory === null) {
+            return;
+        }
+
         $this->copyAssetsFromBundleOrApp(
-            $this->appLoader->getAssetPathForAppPath($appPath),
+            $publicDirectory,
             $appName
         );
     }
@@ -115,7 +122,7 @@ class AssetService
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
         if (empty($manifest) || !isset($manifest[$bundleOrAppName])) {
-            //if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
+            // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
             $this->filesystem->deleteDirectory($targetDirectory);
         }
 
@@ -209,12 +216,12 @@ class AssetService
      */
     private function sync(string $originDir, string $targetDirectory, array $localManifest, array $remoteManifest): void
     {
-        //compare the file names and hashes: will return a list of files not present in remote as well
-        //as files with changed hashes
+        // compare the file names and hashes: will return a list of files not present in remote as well
+        // as files with changed hashes
         $uploads = array_keys(array_diff_assoc($localManifest, $remoteManifest));
 
-        //diff the opposite way to find files which are present remote, but not locally.
-        //we use array_diff_key because we don't care about the hash, just the file names
+        // diff the opposite way to find files which are present remote, but not locally.
+        // we use array_diff_key because we don't care about the hash, just the file names
         $removes = array_keys(array_diff_key($remoteManifest, $localManifest));
 
         foreach ($removes as $file) {
@@ -263,10 +270,14 @@ class AssetService
      */
     private function getManifest(): array
     {
+        if ($this->areAssetsStoredLocally()) {
+            return [];
+        }
+
         $hashes = [];
-        if ($this->filesystem->fileExists('asset-manifest.json')) {
+        if ($this->privateFilesystem->fileExists('asset-manifest.json')) {
             $hashes = json_decode(
-                $this->filesystem->read('asset-manifest.json'),
+                $this->privateFilesystem->read('asset-manifest.json'),
                 true,
                 \JSON_THROW_ON_ERROR
             );
@@ -280,9 +291,18 @@ class AssetService
      */
     private function writeManifest(array $manifest): void
     {
-        $this->filesystem->write(
+        if ($this->areAssetsStoredLocally()) {
+            return;
+        }
+
+        $this->privateFilesystem->write(
             'asset-manifest.json',
             json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)
         );
+    }
+
+    private function areAssetsStoredLocally(): bool
+    {
+        return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
     }
 }

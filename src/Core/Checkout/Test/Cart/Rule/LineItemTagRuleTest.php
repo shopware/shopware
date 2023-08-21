@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class LineItemTagRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 
@@ -187,7 +187,7 @@ class LineItemTagRuleTest extends TestCase
     public function testLineItemMatchWithMatchingTags(): void
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-        $lineItem = ($this->createLineItem())->replacePayload(['tagIds' => $tagIds]);
+        $lineItem = $this->createLineItem()->replacePayload(['tagIds' => $tagIds]);
 
         $match = $this->createLineItemTagRule($tagIds)->match(
             new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class))
@@ -199,7 +199,7 @@ class LineItemTagRuleTest extends TestCase
     public function testLineItemMatchWithPartialMatchingTags(): void
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-        $lineItem = ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[0]]]);
+        $lineItem = $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[0]]]);
 
         $match = $this->createLineItemTagRule($tagIds)->match(
             new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class))
@@ -211,7 +211,7 @@ class LineItemTagRuleTest extends TestCase
     public function testLineItemNoMatchWithPartialMatchingUnequalOperatorTags(): void
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-        $lineItem = ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[0]]]);
+        $lineItem = $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[0]]]);
 
         $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
             new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class))
@@ -240,8 +240,8 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[1]]]),
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[2]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[1]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[2]]]),
         ]);
         $cart = $this->createCart($lineItemCollection);
 
@@ -257,8 +257,8 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[0], $tagIds[1]]]),
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[2]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[0], $tagIds[1]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[2]]]),
         ]);
         $cart = $this->createCart($lineItemCollection);
 
@@ -274,8 +274,8 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[0], $tagIds[1]]]),
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[2]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[0], $tagIds[1]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[2]]]),
         ]);
         $containerLineItem = $this->createContainerLineItem($lineItemCollection);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
@@ -293,7 +293,7 @@ class LineItemTagRuleTest extends TestCase
 
         $lineItemCollection = new LineItemCollection([
             $this->createLineItem(),
-            ($this->createLineItem())->replacePayload(['tagIds' => $tagIds]),
+            $this->createLineItem()->replacePayload(['tagIds' => $tagIds]),
         ]);
         $cart = $this->createCart($lineItemCollection);
 
@@ -309,7 +309,7 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $lineItemCollection = new LineItemCollection([
-            ($this->createLineItem())->replacePayload(['tagIds' => [$tagIds[0]]]),
+            $this->createLineItem()->replacePayload(['tagIds' => [$tagIds[0]]]),
         ]);
         $cart = $this->createCart($lineItemCollection);
 
@@ -359,7 +359,7 @@ class LineItemTagRuleTest extends TestCase
         $identifiers = ['kyln123', 'kyln456'];
         if ($tag !== null) {
             $lineItems = [
-                ($this->createLineItem())->replacePayload(['tagIds' => [$tag]]),
+                $this->createLineItem()->replacePayload(['tagIds' => [$tag]]),
             ];
 
             if ($withItemWithoutPayload) {

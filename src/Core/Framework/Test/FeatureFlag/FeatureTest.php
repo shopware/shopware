@@ -594,7 +594,7 @@ class FeatureTest extends TestCase
 
     private function setUpFixtures(): void
     {
-        //init FeatureConfig
+        // init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll(false));
         /** @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $registeredFlags */
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);

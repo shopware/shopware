@@ -17,8 +17,8 @@ use Shopware\Core\Migration\V6_4\Migration1675218708UpdateDeliverOrderedProductD
  */
 class Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplateTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private const FLOW_TEMPLATE_NAME = 'Deliver ordered product downloads';
 

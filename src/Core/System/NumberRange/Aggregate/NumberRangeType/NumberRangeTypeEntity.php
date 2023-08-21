@@ -13,8 +13,8 @@ use Shopware\Core\System\NumberRange\NumberRangeCollection;
 #[Package('checkout')]
 class NumberRangeTypeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string

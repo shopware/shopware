@@ -197,6 +197,9 @@
             {% else %}
             v-model="isSameAsBillingAddress"
             {% endif %}
+            {% if VUE3 %}
+            name="sw-field--isSameAsBillingAddress"
+            {% endif %}
             :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
         />
 

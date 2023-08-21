@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils_v3';
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-product-modal-delivery', { sync: true }), {
         props: {
             product: {},
@@ -13,13 +13,6 @@ async function createWrapper(privileges = []) {
         global: {
             provide: {
                 repositoryFactory: {},
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
-                    },
-                },
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
@@ -39,6 +32,7 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery', () => {
     it('should be a Vue.JS component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -46,6 +40,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
     });
 
     it('should have an disabled save button', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -56,6 +51,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
     });
 
     it('should have an enabled save button', async () => {
+        global.activeAclRoles = ['product.editor'];
         const wrapper = await createWrapper([
             'product.editor',
         ]);

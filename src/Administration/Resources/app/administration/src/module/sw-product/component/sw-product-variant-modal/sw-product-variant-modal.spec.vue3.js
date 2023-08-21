@@ -206,9 +206,6 @@ async function createWrapper() {
                         };
                     },
                 },
-                acl: {
-                    can: () => true,
-                },
                 feature: {
                     isActive: () => true,
                 },
@@ -297,10 +294,12 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort options by their position', async () => {
+        global.activeAclRoles = [];
         const sortedOptions = wrapper.vm.sortOptions(getOptions());
 
         expect(sortedOptions).toEqual([
@@ -311,36 +310,42 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should build variants options', async () => {
+        global.activeAclRoles = [];
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants());
 
         expect(builtVariantOptions).toBe('(material: a, color: b, size: c)');
     });
 
     it('should variant name', async () => {
+        global.activeAclRoles = [];
         const builtVariantName = wrapper.vm.buildVariantName(getVariants());
 
         expect(builtVariantName).toBe('random product (material: a, color: b, size: c)');
     });
 
     it('should omit the parenthesis', async () => {
+        global.activeAclRoles = [];
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ', ', true);
 
         expect(builtVariantOptions).toBe('material: a, color: b, size: c');
     });
 
     it('should use a custom separator', async () => {
+        global.activeAclRoles = [];
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ' - ');
 
         expect(builtVariantOptions).toBe('(material: a - color: b - size: c)');
     });
 
     it('should omit the group name', async () => {
+        global.activeAclRoles = [];
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ', ', false, true);
 
         expect(builtVariantOptions).toBe('(a, b, c)');
     });
 
     it('should get variant price of variant', async () => {
+        global.activeAclRoles = [];
         const variantPriceObject = wrapper.vm.getVariantPrice(getVariants());
         const netPrice = variantPriceObject.net;
         const grossPrice = variantPriceObject.gross;
@@ -350,6 +355,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should get variant price of parent product', async () => {
+        global.activeAclRoles = [];
         const variantPriceObject = wrapper.vm.getVariantPrice(getVariants(false));
         const netPrice = variantPriceObject.net;
         const grossPrice = variantPriceObject.gross;
@@ -359,6 +365,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should return the correct permissions tooltip', async () => {
+        global.activeAclRoles = ['product.editor'];
         const tooltipObject = wrapper.vm.getNoPermissionsTooltip('product.editor');
 
         expect(tooltipObject).toEqual({
@@ -371,6 +378,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should get list groups of product', async () => {
+        global.activeAclRoles = [];
         await flushPromises();
 
         const filterContextMenu = wrapper.find('.sw-product-variant-modal__filter-context-menu');
@@ -384,6 +392,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should able to select filter option', async () => {
+        global.activeAclRoles = [];
         await flushPromises();
         await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
 
@@ -398,6 +407,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     });
 
     it('should able to reset filter option', async () => {
+        global.activeAclRoles = [];
         await flushPromises();
         await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
 

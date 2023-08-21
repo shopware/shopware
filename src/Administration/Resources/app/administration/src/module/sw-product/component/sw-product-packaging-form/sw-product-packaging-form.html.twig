@@ -220,7 +220,11 @@
                     pointer="product.unit"
                     :placeholder="$tc('sw-product.packagingForm.placeholderUnit')"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="updateCurrentValue"
+                    {% else %}
                     @change="updateCurrentValue"
+                    {% endif %}
                 />
 
             </template>

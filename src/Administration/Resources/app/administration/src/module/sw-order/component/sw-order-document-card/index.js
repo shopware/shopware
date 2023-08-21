@@ -1,5 +1,6 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { getCurrentInstance } from 'vue';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
@@ -97,9 +98,17 @@ export default {
 
         documentModal() {
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
-            if (this.$options.components[`sw-order-document-settings-${subComponentName}-modal`]) {
+
+            if (this.feature.isActive('VUE3')) {
+                if (
+                    `sw-order-document-settings-${subComponentName}-modal` in getCurrentInstance().appContext.components
+                ) {
+                    return `sw-order-document-settings-${subComponentName}-modal`;
+                }
+            } else if (this.$options.components[`sw-order-document-settings-${subComponentName}-modal`]) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
+
             return 'sw-order-document-settings-modal';
         },
 

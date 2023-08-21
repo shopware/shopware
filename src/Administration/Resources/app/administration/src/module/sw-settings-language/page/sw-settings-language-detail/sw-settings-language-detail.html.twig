@@ -156,7 +156,11 @@
                                     :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                                     :error="error"
                                     entity="locale"
+                                    {% if VUE3 %}
+                                    @update:value="updateCurrentValue"
+                                    {% else %}
                                     @change="updateCurrentValue"
+                                    {% endif %}
                                 >
                                     <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
                                         <sw-select-result
@@ -202,7 +206,11 @@
                             :help-text="inheritanceTooltipText"
                             entity="language"
                             show-clearable-button
+                            {% if VUE3 %}
+                            @update:value="onInputLanguage"
+                            {% else %}
                             @change="onInputLanguage"
+                            {% endif %}
                         >
                             <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
                                 <sw-select-result

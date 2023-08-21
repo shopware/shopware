@@ -63,7 +63,11 @@
                     :criteria="productCriteria"
                     :context="productSelectContext"
                     show-clearable-button
+                    {% if VUE3 %}
+                    @update:value="onProductChange"
+                    {% else %}
                     @change="onProductChange"
+                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_variant_selected_item %}

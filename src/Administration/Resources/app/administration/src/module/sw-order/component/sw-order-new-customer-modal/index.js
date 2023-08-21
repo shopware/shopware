@@ -168,7 +168,7 @@ export default {
             Shopware.State.dispatch(
                 'error/removeApiError',
                 {
-                    expression: `customer_address.${this.billingAddress.id}.company`,
+                    expression: `customer_address.${this.billingAddress?.id}.company`,
                 },
             );
         },

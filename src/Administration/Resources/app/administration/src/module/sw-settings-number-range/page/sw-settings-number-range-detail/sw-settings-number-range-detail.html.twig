@@ -321,7 +321,11 @@
                             :label="$tc('sw-settings-number-range.detail.labelType')"
                             :criteria="numberRange.type.global ? numberRangeTypeCriteriaGlobal : numberRangeTypeCriteria"
                             :error="numberRangeTypeIdError"
+                            {% if VUE3 %}
+                            @update:value="onChangeType"
+                            {% else %}
                             @change="onChangeType"
+                            {% endif %}
                         />
                         {% endblock %}
 

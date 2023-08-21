@@ -22,7 +22,6 @@ export default Component.wrapComponentConfig({
         'feature',
     ],
 
-
     model: {
         prop: 'value',
         event: 'change',
@@ -58,9 +57,9 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        customerAddresses: EntityCollection<'customer_address'>|[],
-        isLoading: boolean,
-        addressSearchTerm: string,
+        customerAddresses: EntityCollection<'customer_address'> | [];
+        isLoading: boolean;
+        addressSearchTerm: string;
         } {
         return {
             customerAddresses: [],
@@ -74,7 +73,7 @@ export default Component.wrapComponentConfig({
             get(): string {
                 return this.value;
             },
-            set(newValue: string|null): void {
+            set(newValue: string | null): void {
                 if (newValue === null) {
                     return;
                 }
@@ -95,7 +94,7 @@ export default Component.wrapComponentConfig({
 
         addressRepository(): Repository<'customer_address'> {
             return this.repositoryFactory.create(
-                (this.customer.addresses?.entity) ?? 'customer_address',
+                this.customer.addresses?.entity ?? 'customer_address',
                 this.customer.addresses?.source,
             );
         },
@@ -161,7 +160,7 @@ export default Component.wrapComponentConfig({
                     return;
                 }
 
-                result.push(<string> address[property]);
+                result.push(<string>address[property]);
             });
 
             return result.join(', ');
@@ -171,10 +170,14 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
 
             // Get the latest addresses from customer's db
-            return this.addressRepository.search(this.addressCriteria)
-                .then((addresses: EntityCollection<'customer_address'>): void => {
-                    this.customerAddresses = addresses;
-                }).finally(() => {
+            return this.addressRepository
+                .search(this.addressCriteria)
+                .then(
+                    (addresses: EntityCollection<'customer_address'>): void => {
+                        this.customerAddresses = addresses;
+                    },
+                )
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -184,13 +187,15 @@ export default Component.wrapComponentConfig({
 
             this.addressSearchTerm = searchTerm;
 
-            return this.addressRepository.search(this.addressCriteria)
+            return this.addressRepository
+                .search(this.addressCriteria)
                 .then((addresses) => {
                     this.customerAddresses.forEach((address) => {
                         // @ts-expect-error - hidden does not exist on address entity
                         address.hidden = !addresses.has(address.id);
                     });
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },

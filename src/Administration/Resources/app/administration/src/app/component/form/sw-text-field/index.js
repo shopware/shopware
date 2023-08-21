@@ -92,6 +92,12 @@ Component.register('sw-text-field', {
 
     methods: {
         onChange(event) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', event.target.value || '');
+
+                return;
+            }
+
             this.$emit('change', event.target.value || '');
         },
 

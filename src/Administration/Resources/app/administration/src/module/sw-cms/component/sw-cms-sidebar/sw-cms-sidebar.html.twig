@@ -94,7 +94,11 @@
                         :criteria="demoCriteria"
                         :context="demoContext"
                         show-clearable-button
+                        {% if VUE3 %}
+                        @update:value="onDemoEntityChange"
+                        {% else %}
                         @change="onDemoEntityChange"
+                        {% endif %}
                     >
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

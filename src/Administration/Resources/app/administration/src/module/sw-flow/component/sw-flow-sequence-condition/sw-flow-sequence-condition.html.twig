@@ -319,7 +319,11 @@
                             message: $t('sw-restricted-rules.restrictedAssignment.general', {
                                 relation: $t('sw-restricted-rules.restrictedAssignment.flowSequences'),
                             }), }"
+                        {% if VUE3 %}
+                        @update:value="(id, rule) => onRuleChange(rule)"
+                        {% else %}
                         @change="(id, rule) => onRuleChange(rule)"
+                        {% endif %}
                     >
                         <template #before-item-list>
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -61,7 +61,11 @@
                 :label-callback="getCustomFieldName"
                 entity="custom_field"
                 show-clearable-button
+                {% if VUE3 %}
+                @update:value="changeCustomField"
+                {% else %}
                 @change="changeCustomField"
+                {% endif %}
             />
             {% endblock %}
 

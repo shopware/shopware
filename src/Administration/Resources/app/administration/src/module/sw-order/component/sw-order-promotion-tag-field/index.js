@@ -53,7 +53,12 @@ export default {
                 code: this.newTagName,
             };
 
-            this.$emit('change', [...this.value, newTagItem]);
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', [...this.value, newTagItem]);
+            } else {
+                this.$emit('change', [...this.value, newTagItem]);
+            }
+
             this.newTagName = '';
         },
 

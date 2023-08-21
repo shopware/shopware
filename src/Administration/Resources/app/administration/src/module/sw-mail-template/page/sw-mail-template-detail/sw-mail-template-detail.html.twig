@@ -106,7 +106,11 @@
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
                         :disabled="!acl.can('mail_templates.editor')"
                         :error="mailTemplateMailTemplateTypeIdError"
+                        {% if VUE3 %}
+                        @update:value="onChangeType"
+                        {% else %}
                         @change="onChangeType"
+                        {% endif %}
                     />
                     {% endblock %}
 

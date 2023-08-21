@@ -115,7 +115,6 @@ Component.register('sw-single-select', {
 
                     return;
                 }
-
                 this.$emit('change', newValue);
             },
         },

@@ -387,7 +387,11 @@
             entity="sales_channel"
             required
             show-clearable-button
+            {% if VUE3 %}
+            @update:value="onStorefrontSelectionChange"
+            {% else %}
             @change="onStorefrontSelectionChange"
+            {% endif %}
         />
         {% endblock %}
 
@@ -409,7 +413,11 @@
             show-clearable-button
             :disabled="(!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId) || !acl.can('sales_channel.editor')"
             :error="productExportSalesChannelDomainIdError"
+            {% if VUE3 %}
+            @update:value="onStorefrontDomainSelectionChange"
+            {% else %}
             @change="onStorefrontDomainSelectionChange"
+            {% endif %}
         />
         {% endblock %}
 

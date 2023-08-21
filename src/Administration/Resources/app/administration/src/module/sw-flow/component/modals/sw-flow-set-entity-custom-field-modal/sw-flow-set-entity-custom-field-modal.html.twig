@@ -49,7 +49,11 @@
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
             :error="customFieldSetError"
+            {% if VUE3 %}
+            @update:value="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
+            {% else %}
             @change="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
+            {% endif %}
         >
             <template #selection-label-property="{ item }">
                 {{ getInlineSnippet(item.config.label) || item.name }}
@@ -78,7 +82,11 @@
             :criteria="customFieldCriteria"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldPlaceHolder')"
             :error="customFieldError"
+            {% if VUE3 %}
+            @update:value="(id, customField) => onCustomFieldChange(id, customField)"
+            {% else %}
             @change="(id, customField) => onCustomFieldChange(id, customField)"
+            {% endif %}
         >
             <template #selection-label-property="{ item }">
                 {{ getInlineSnippet(item.config.label) || item.name }}

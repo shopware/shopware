@@ -1,10 +1,16 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_card %}
 <sw-card
+    {% if VUE3 %}
+    v-show="!isDataLoading"
+    {% endif %}
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
     :is-loading="isDataLoading"
+    {% if VUE3 %}
+    class="sw-order-detail-base__document-grid"
+    {% endif %}
 >
     <template #grid>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -190,19 +196,27 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_card_grid_column_modal %}
-    <component
-        :is="documentModal"
-        v-if="showModal"
-        :current-document-type="currentDocumentType"
-        :order="order"
-        :is-loading-document="isLoadingDocument"
-        :is-loading-preview="isLoadingPreview"
-        @loading-document="onLoadingDocument"
-        @loading-preview="onLoadingPreview"
-        @page-leave="onCancelCreation"
-        @document-create="onCreateDocument"
-        @preview-show="onPreview"
-    />
+    {% if VUE3 %}
+    <div v-if="showModal">
+    {% endif %}
+        <component
+            :is="documentModal"
+            {% if VUE3 != true %}
+            v-if="showModal"
+            {% endif %}
+            :current-document-type="currentDocumentType"
+            :order="order"
+            :is-loading-document="isLoadingDocument"
+            :is-loading-preview="isLoadingPreview"
+            @loading-document="onLoadingDocument"
+            @loading-preview="onLoadingPreview"
+            @page-leave="onCancelCreation"
+            @document-create="onCreateDocument"
+            @preview-show="onPreview"
+        />
+    {% if VUE3 %}
+    </div>
+    {% endif %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

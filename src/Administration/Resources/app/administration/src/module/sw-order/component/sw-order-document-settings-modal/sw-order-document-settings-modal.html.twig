@@ -49,6 +49,9 @@
         {% else %}
         v-model="uploadDocument"
         {% endif %}
+        {% if VUE3 %}
+        name="sw-field--uploadDocument"
+        {% endif %}
         class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
     />
@@ -102,6 +105,9 @@
         v-model:value="documentConfig.documentComment"
         {% else %}
         v-model="documentConfig.documentComment"
+        {% endif %}
+        {% if VUE3 %}
+        name="sw-field--documentConfig-documentComment"
         {% endif %}
         class="sw-order-document-settings-modal__comment"
         :label="$tc('sw-order.documentModal.labelDocumentComment')"

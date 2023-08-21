@@ -23,7 +23,7 @@ describe('Order: Create credit note', () => {
             });
     });
 
-    it('@base @order: create credit note', {tags: ['pa-customers-orders', 'quarantined']}, () => {
+    it('@base @order: create credit note', {tags: ['pa-customers-orders', 'quarantined', 'VUE3']}, () => {
         const page = new OrderPageObject();
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');

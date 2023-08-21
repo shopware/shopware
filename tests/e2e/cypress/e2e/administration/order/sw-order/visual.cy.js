@@ -28,7 +28,7 @@ describe('Order: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
+    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
@@ -65,7 +65,7 @@ describe('Order: Visual tests', () => {
         cy.takeSnapshot('[Order] Detail', '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders'] }, () => {
+    it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');

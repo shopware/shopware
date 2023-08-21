@@ -188,6 +188,18 @@
                 :is-editing="isEditing"
                 :is-loading="isLoading"
                 :is-save-successful="isSaveSuccessful"
+                {% if VUE3 %}
+                @identifier-change.native="updateIdentifier"
+                @created-by-id-change.native="updateCreatedById"
+                @loading-change.native="onUpdateLoading"
+                @editing-change.native="onUpdateEditing"
+                @save-and-recalculate.native="onSaveAndRecalculate"
+                @recalculate-and-reload.native="onRecalculateAndReload"
+                @reload-entity-data.native="reloadEntityData"
+                @save-and-reload.native="onSaveAndReload"
+                @save-edits.native="onSaveEdits"
+                @error.native="onError"
+                {% else %}
                 @identifier-change="updateIdentifier"
                 @created-by-id-change="updateCreatedById"
                 @loading-change="onUpdateLoading"
@@ -198,6 +210,7 @@
                 @save-and-reload="onSaveAndReload"
                 @save-edits="onSaveEdits"
                 @error="onError"
+                {% endif %}
             />
             {% endblock %}
 

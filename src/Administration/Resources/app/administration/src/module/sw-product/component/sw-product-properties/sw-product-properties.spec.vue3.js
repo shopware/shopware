@@ -78,7 +78,7 @@ const $refsMock = {
     },
 };
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
         global: {
             stubs: {
@@ -163,15 +163,6 @@ async function createWrapper(privileges = []) {
                         },
                     }),
                 },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
-                    },
-                },
             },
         },
     });
@@ -198,6 +189,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be a Vue.JS component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -205,6 +197,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get group ids successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -218,6 +211,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get group ids failed', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -231,6 +225,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -249,6 +244,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties failed', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -267,6 +263,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties failed if having no inputs', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -294,6 +291,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete property value successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -318,6 +316,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete property successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -342,6 +341,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete properties successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -366,6 +366,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties when changing search term', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -381,6 +382,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should turn on add properties modal', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -397,6 +399,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should turn off add properties modal', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -410,6 +413,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should update new properties correctly', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -451,6 +455,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should call a turning off modal function when canceling properties modal', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -463,6 +468,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should save add properties modal failed', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -478,9 +484,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to add properties in filled state', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
@@ -491,6 +496,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to add properties in filled state', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -501,9 +507,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to edit property', async () => {
-        const wrapper = await createWrapper([
-            'property.editor',
-        ]);
+        global.activeAclRoles = ['property.editor'];
+        const wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
@@ -521,6 +526,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to edit property', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -539,9 +545,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to delete property', async () => {
-        const wrapper = await createWrapper([
-            'product.deleter',
-        ]);
+        global.activeAclRoles = ['product.deleter'];
+        const wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
@@ -559,6 +564,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to delete property', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -577,6 +583,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should hide sw-inheritance-switch component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 

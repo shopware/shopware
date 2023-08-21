@@ -14,6 +14,7 @@ import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
+import resetFilters from '../_helper_/restartFilters';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -123,6 +124,7 @@ global.allowedErrors = [
 
 global.flushPromises = flushPromises;
 global.wrapTestComponent = wrapTestComponent;
+global.resetFilters = resetFilters;
 
 let consoleHasError = false;
 let errorArgs = null;

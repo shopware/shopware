@@ -48,6 +48,8 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
     #[Route(path: '/store-api/account/login/customer', name: 'store-api.account.login-as-customer', methods: ['POST'])]
     public function loginAsCustomer(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
+        // TODO: find better way to handle this
+
         $salesChannelIdFromContext = $context->getSalesChannelId();
 
         // in case of existing sales channel set the salesChannelId

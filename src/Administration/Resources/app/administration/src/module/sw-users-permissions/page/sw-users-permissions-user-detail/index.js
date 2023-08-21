@@ -161,18 +161,9 @@ export default {
 
         /**
          * @deprecated tag:v6.6.0 - Will be removed.
-         * Use `secretAccessKeyFieldIsTex` or `secretAccessKeyFieldIsPassword` instead.
          */
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
-        },
-
-        secretAccessKeyFieldIsText() {
-            return this.showSecretAccessKey === 'text';
-        },
-
-        secretAccessKeyFieldIsPassword() {
-            return this.showSecretAccessKey === 'password';
         },
 
         languageId() {

@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
@@ -41,6 +42,8 @@ class RecalculationService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         protected EntityRepository $orderRepository,
@@ -340,12 +343,7 @@ class RecalculationService
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        /** @var ?OrderEntity $order */
-        $order = $this->orderRepository
-            ->search($criteria, $context)
-            ->get($orderId);
-
-        return $order;
+        return $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
     }
 
     /**

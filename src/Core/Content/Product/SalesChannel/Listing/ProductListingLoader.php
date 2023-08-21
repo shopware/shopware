@@ -135,20 +135,6 @@ class ProductListingLoader
         );
     }
 
-    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): void
-    {
-        $salesChannelId = $context->getSalesChannel()->getId();
-
-        $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-        if (!$hide) {
-            return;
-        }
-
-        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
-        $criteria->addFilter($closeoutFilter);
-    }
-
     /**
      * @param array<string> $ids
      *
@@ -202,8 +188,16 @@ class ProductListingLoader
 
         // filter inactive and not available variants
         $criteria = new Criteria(array_values($mapping));
-        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannel()->getId()));
-        $this->handleAvailableStock($criteria, $context);
+        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannelId()));
+
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(
+                $this->productCloseoutFilterFactory->create($context)
+            );
+        }
 
         $this->dispatcher->dispatch(
             new ProductListingPreviewCriteriaEvent($criteria, $context)
@@ -271,7 +265,14 @@ class ProductListingLoader
     {
         $this->addGrouping($criteria);
 
-        $this->handleAvailableStock($criteria, $context);
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(
+                $this->productCloseoutFilterFactory->create($context)
+            );
+        }
 
         return $this->productRepository->searchIds($criteria, $context);
     }

@@ -101,7 +101,14 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             new FieldSorting('wishlists.createdAt', FieldSorting::DESCENDING)
         );
 
-        $criteria = $this->handleAvailableStock($criteria, $context);
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(
+                $this->productCloseoutFilterFactory->create($context)
+            );
+        }
 
         $event = new CustomerWishlistLoaderCriteriaEvent($criteria, $context);
         $this->eventDispatcher->dispatch($event);
@@ -112,22 +119,5 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         $this->eventDispatcher->dispatch($event);
 
         return $products;
-    }
-
-    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): Criteria
-    {
-        $hide = $this->systemConfigService->getBool(
-            'core.listing.hideCloseoutProductsWhenOutOfStock',
-            $context->getSalesChannelId()
-        );
-
-        if (!$hide) {
-            return $criteria;
-        }
-
-        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
-        $criteria->addFilter($closeoutFilter);
-
-        return $criteria;
     }
 }

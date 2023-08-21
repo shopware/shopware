@@ -156,7 +156,7 @@ class CartLineItemControllerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool|string>>
+     * @return list<array{0: string, 1: string, 2?: bool}>
      */
     public static function productNumbers(): array
     {
@@ -174,7 +174,7 @@ class CartLineItemControllerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, string>>
+     * @return list<array{string}>
      */
     public static function promotions(): array
     {

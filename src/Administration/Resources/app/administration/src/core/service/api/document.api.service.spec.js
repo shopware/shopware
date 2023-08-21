@@ -272,6 +272,39 @@ describe('documentService', () => {
         expect(didRequest).toBeTruthy();
     });
 
+    it('handles an error when getDocumentPreview is being called', async () => {
+        const { documentApiService, clientMock } = getDocumentApiService();
+
+        documentApiService.setListener(expectCreateDocumentFailed);
+
+        let didRequest = false;
+        const orderId = '4a4a687257644d52bf481b4c20e59213';
+        const orderDeepLink = 'DEEP_LINK';
+        const type = 'invoice';
+        const errorBody = {
+            errors: [
+                {
+                    detail: 'some-error-detail',
+                },
+            ],
+        };
+
+        clientMock.onGet(`/_action/order/${orderId}/${orderDeepLink}/document/${type}/preview`)
+            .reply(() => {
+                didRequest = true;
+
+                return [
+                    500,
+                    new Blob([JSON.stringify(errorBody)], {
+                        type: 'application/json',
+                    }),
+                ];
+            });
+
+        documentApiService.getDocumentPreview(orderId, orderDeepLink, type, {});
+        expect(didRequest).toBeTruthy();
+    });
+
     it('calls getDocument with correct endpoint', async () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 

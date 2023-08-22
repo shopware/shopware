@@ -4,7 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_header %}
     <template #smart-bar-header>
-        <h2>{{ customer | salutation($tc('sw-customer.general.newCustomer')) }}</h2>
+        <h2>{{ salutationFilter(customer, $tc('sw-customer.general.newCustomer')) }}</h2>
     </template>
     {% endblock %}
 

@@ -100,6 +100,10 @@ export default {
 
             return criteria;
         },
+
+        salutationFilter() {
+            return Shopware.Filter.getByName('salutation');
+        },
     },
 
     watch: {

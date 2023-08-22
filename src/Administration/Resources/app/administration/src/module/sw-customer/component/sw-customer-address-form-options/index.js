@@ -8,6 +8,8 @@ import template from './sw-customer-address-form-options.html.twig';
 export default {
     template,
 
+    emits: ['default-address-change'],
+
     props: {
         customer: {
             type: Object,

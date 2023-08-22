@@ -5,7 +5,7 @@ Build:
     stage: lint
     needs: []
     services:
-      -   name: mariadb:10.10.5
+      -   name: mariadb:10.10
           alias: database
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     rules:

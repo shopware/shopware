@@ -36,8 +36,15 @@ class Migration1678969082DropVariantListingFields extends MigrationStep
         }
 
         if ($this->columnExists($connection, 'product', 'main_variant_id')) {
+            // Maybe FK still exists, so we need to drop it first
+            try {
+                $connection->executeStatement('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.main_variant_id`');
+            } catch (\Exception) {
+                // ignore
+            }
+
             $connection->executeStatement(
-                'ALTER TABLE `product` DROP FOREIGN KEY `fk.product.main_variant_id`, DROP COLUMN `main_variant_id`'
+                'ALTER TABLE `product` DROP COLUMN `main_variant_id`'
             );
         }
     }

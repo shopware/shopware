@@ -8,31 +8,7 @@ const templateTagBefore = '<template>\n';
 const templateTagAfter = '</template>';
 
 function twigPreParser(code) {
-    const addedTemplate = `${templateTagBefore}${code}${templateTagAfter}`;
-
-    /**
-     * convert twig block syntax with html comments to avoid parsing problems
-     * in the abstract syntax tree (AST) they would be VText elements when `{% block %}`
-     * and ignored when `<!--blck -->`
-     * the slight abbreviation is on purpose, so the character count of eslint stays same.
-     * Replacing with html elements, so nesting and block names are available to the linter
-     * failed, because it might lead to invalid vue templates for example slot-templates
-     */
-    const newCode = addedTemplate
-        .replace('{% parent() %}', '<!--prent()-->')
-        .replace(/({# @?)(.*)( #})/gm, (match, p1, p2) => {
-            // parse twig comments @see https://regex101.com/r/vyx15C/1
-            return `<!--${p1.length === 3 ? p2.substr(1) : p2}-->`;
-        })
-        .replace(/{% block/g, '<!--blck')
-        .replace(/{% endblock/g, '<!--endblck')
-        // Replace Vue 3 if/else/endif with VUE 2 code: https://regex101.com/r/anLqLZ/2
-        .replace(/{% if VUE3.*%}\n.*\n *{% else %}\n *(.*)\n *{% endif %}/g, '$1')
-        // Replace Vue 3 if with empty code for a Vue 2 Template: https://regex101.com/r/Bzh8eh/2
-        .replace(/ *{% if VUE3.*%}\n.*\n *{% endif %}\n(.*)/g, '$1')
-        .replace(/ %}/g, '-->');
-
-    return newCode;
+    return `${templateTagBefore}${code}${templateTagAfter}`;
 }
 
 module.exports = {

@@ -36,7 +36,7 @@
             :disabled="!country || !allowSave"
             variant="primary"
             {% if VUE3 %}
-            @update:processSuccess="saveFinish"
+            @update:process-success="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}

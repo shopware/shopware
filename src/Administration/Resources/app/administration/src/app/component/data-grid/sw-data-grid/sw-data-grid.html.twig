@@ -134,8 +134,8 @@
                                 {% block sw_data_grid_header_columns_icon %}
                                 <sw-icon
                                     v-if="column.iconLabel && column.iconTooltip"
-                                    :name="column.iconLabel"
                                     v-tooltip="column.iconTooltip"
+                                    :name="column.iconLabel"
                                 >
                                     {{ $te(column.label) ? $tc(column.label) : column.label }}
                                 </sw-icon>

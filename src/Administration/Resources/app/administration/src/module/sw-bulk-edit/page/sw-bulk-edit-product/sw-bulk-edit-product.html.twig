@@ -213,7 +213,7 @@
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
                             :disabled="!!bulkEditProduct[formField.name].isInherited"
                             {% if VUE3 %}
-                            @update:entityCollection="onRuleChange"
+                            @update:entity-collection="onRuleChange"
                             {% else %}
                             @change="onRuleChange"
                             {% endif %}

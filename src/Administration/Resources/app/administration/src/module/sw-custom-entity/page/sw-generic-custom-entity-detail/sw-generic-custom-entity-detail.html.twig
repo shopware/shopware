@@ -16,7 +16,7 @@
             variant="primary"
             :disabled="isLoading"
             {% if VUE3 %}
-            @update:processSuccess="saveFinish"
+            @update:process-success="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}

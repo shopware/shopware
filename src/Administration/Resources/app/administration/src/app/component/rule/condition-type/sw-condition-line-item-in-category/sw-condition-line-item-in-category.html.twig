@@ -20,7 +20,7 @@
         :entity-collection="categories"
         description-position="bottom"
         {% if VUE3 %}
-        @update:entityCollection="setCategoryIds"
+        @update:entity-collection="setCategoryIds"
         {% else %}
         @change="setCategoryIds"
         {% endif %}

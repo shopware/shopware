@@ -14,7 +14,7 @@
         :advanced-selection-parameters="advanceSelectionParameters"
         v-on="$listeners"
         {% if VUE3 %}
-        @update:entityCollection="onChange"
+        @update:entity-collection="onChange"
         {% else %}
         @change="onChange"
         {% endif %}

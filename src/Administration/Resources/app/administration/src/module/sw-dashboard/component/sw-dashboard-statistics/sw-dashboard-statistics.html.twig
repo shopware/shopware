@@ -78,7 +78,7 @@
                         <template
                             #column-orderDateTime="{ item }"
                         >
-                            {{ dateFilter(item.orderDateTime, {
+                            {{ item.orderDateTime | date({
                             hour: '2-digit',
                             minute: '2-digit',
                             year: undefined,

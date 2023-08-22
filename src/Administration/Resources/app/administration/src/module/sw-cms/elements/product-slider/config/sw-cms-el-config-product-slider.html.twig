@@ -206,7 +206,7 @@
                     :context="productMultiSelectContext"
                     :criteria="productMediaFilter"
                     {% if VUE3 %}
-                    @update:entityCollection="onProductsChange"
+                    @update:entity-collection="onProductsChange"
                     {% else %}
                     @change="onProductsChange"
                     {% endif %}

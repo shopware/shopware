@@ -1,24 +1,17 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_card %}
 
-{% if VUE3 != true %}
-<sw-ignore-class ref="swIgnoreClass">
-{% else %}
+{% if VUE3 %}
 <div class="sw-card-wrapper">
+{% else %}
+    <sw-ignore-class ref="swIgnoreClass">
 {% endif %}
 
-    <sw-extension-component-section
-        v-if="positionIdentifier"
-        :position-identifier="positionIdentifier + '__before'"
-    />
+        <sw-extension-component-section
+            v-if="positionIdentifier"
+            :position-identifier="positionIdentifier + '__before'"
+        />
 
-    <div
-        class="sw-card"
-        :class="cardClasses()"
-        {% if VUE3 %}
-        v-bind="$attrs"
-        {% endif %}
-    >
         <div
             class="sw-card"
             :class="cardClasses()"
@@ -129,13 +122,13 @@
         {% endblock %}
         </div>
 
-    <sw-extension-component-section
-        v-if="positionIdentifier"
-        :position-identifier="positionIdentifier + '__after'"
-    />
+        <sw-extension-component-section
+            v-if="positionIdentifier"
+            :position-identifier="positionIdentifier + '__after'"
+        />
 
 {% if VUE3 != true %}
-</sw-ignore-class>
+    </sw-ignore-class>
 {% else %}
 </div>
 {% endif %}

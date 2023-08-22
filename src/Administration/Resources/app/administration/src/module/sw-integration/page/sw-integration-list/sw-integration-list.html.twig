@@ -100,7 +100,7 @@
                         {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
                         <sw-switch-field
                             {% if VUE3 %}
-                            v-modle:value="currentIntegration.admin"
+                            v-model:value="currentIntegration.admin"
                             {% else %}
                             v-model="currentIntegration.admin"
                             {% endif %}

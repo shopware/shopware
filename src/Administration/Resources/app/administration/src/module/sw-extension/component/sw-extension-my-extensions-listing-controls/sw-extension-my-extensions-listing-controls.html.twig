@@ -5,7 +5,7 @@
     {% block sw_extension_my_extensions_listing_controls_active_switch %}
     <sw-switch-field
         {% if VUE3 %}
-        v-modle:value="filterByActiveState"
+        v-model:value="filterByActiveState"
         {% else %}
         v-model="filterByActiveState"
         {% endif %}

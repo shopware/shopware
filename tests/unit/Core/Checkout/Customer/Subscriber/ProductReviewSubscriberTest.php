@@ -10,8 +10,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinitio
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
@@ -44,14 +44,14 @@ class ProductReviewSubscriberTest extends TestCase
     {
         static::assertEquals([
             'product_review.written' => 'createReview',
-            BeforeDeleteEvent::class => 'detectChangeset',
+            EntityDeleteEvent::class => 'detectChangeset',
             'product_review.deleted' => 'onReviewDeleted',
         ], $this->productReviewSubscriber->getSubscribedEvents());
     }
 
     public function testDetectChangesetWithReviewDeleteEvent(): void
     {
-        $event = BeforeDeleteEvent::create(
+        $event = EntityDeleteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
                 new DeleteCommand(
@@ -79,7 +79,7 @@ class ProductReviewSubscriberTest extends TestCase
 
     public function testDetectChangesetWithInvalidCommands(): void
     {
-        $event = BeforeDeleteEvent::create(
+        $event = EntityDeleteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
                 new DeleteCommand(
@@ -178,7 +178,7 @@ class ProductReviewSubscriberTest extends TestCase
     /**
      * @param string[] $ids
      */
-    private function getEntityWrittenEvent(array $ids, bool $invalidEntity = false): EntityWrittenEvent
+    private function getEntityWrittenEvent(array $ids = [], bool $invalidEntity = false): EntityWrittenEvent
     {
         $entity = $invalidEntity ? ProductDefinition::ENTITY_NAME : ProductReviewDefinition::ENTITY_NAME;
 

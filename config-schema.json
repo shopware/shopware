@@ -95,9 +95,6 @@
                 },
                 "stock": {
                     "$ref": "#/definitions/stock"
-                },
-                "usage_data": {
-                  "$ref": "#/definitions/usage_data"
                 }
             },
             "title": "Shopware"

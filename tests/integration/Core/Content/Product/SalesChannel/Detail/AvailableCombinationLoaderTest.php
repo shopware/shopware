@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
@@ -232,7 +233,7 @@ class AvailableCombinationLoaderTest extends TestCase
     /**
      * @param array<mixed> $a
      */
-    private function ashuffle(array &$a): void
+    private static function ashuffle(array &$a): void
     {
         $keys = array_keys($a);
         shuffle($keys);

@@ -41,7 +41,6 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
                 ->append($this->createStockSection())
-                ->append($this->createUsageDataSection())
             ->end();
 
         return $treeBuilder;
@@ -717,24 +716,6 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enable_stock_management')->defaultTrue()->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function createUsageDataSection(): ArrayNodeDefinition
-    {
-        $treeBuilder = new TreeBuilder('usage_data');
-
-        $rootNode = $treeBuilder->getRootNode();
-        $rootNode
-            ->children()
-                ->arrayNode('gateway')
-                    ->children()
-                        ->scalarNode('base_uri')->end()
-                        ->scalarNode('batch_size')->end()
-                    ->end()
-                ->end()
             ->end();
 
         return $rootNode;

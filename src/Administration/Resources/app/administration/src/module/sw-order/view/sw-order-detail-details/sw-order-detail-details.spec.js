@@ -119,6 +119,7 @@ async function createWrapper(privileges = []) {
             'sw-multi-tag-select': true,
             'sw-textarea-field': true,
             'sw-order-promotion-field': true,
+            'sw-extension-component-section': true,
         },
         provide: {
             acl: {

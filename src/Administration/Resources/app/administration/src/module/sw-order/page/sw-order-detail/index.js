@@ -171,6 +171,12 @@ export default {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-order-detail-base__order',
+                path: 'order',
+                scope: this,
+            });
+
             window.addEventListener('beforeunload', this.beforeDestroyComponent);
 
             Shopware.State.commit(

@@ -21,6 +21,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_general_line_items_card %}
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-line-items__before"
+    />
+
     <sw-card
         class="sw-order-detail-general__line-item-grid-card"
         position-identifier="sw-order-detail-general-line-items"
@@ -144,6 +148,10 @@
         </template>
         {% endblock %}
     </sw-card>
+
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-line-items__after"
+    />
     {% endblock %}
 </div>
 {% endblock %}

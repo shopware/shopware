@@ -45,6 +45,14 @@ export default {
                 this.$tc('sw-customer.detailOrder.emptySearchTitle') :
                 this.$tc('sw-customer.detailOrder.emptyTitle');
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

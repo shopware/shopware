@@ -247,7 +247,11 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_tag %}
                         <sw-entity-tag-select
+                            {% if VUE3 %}
+                            v-model:entityCollection="customer.tags"
+                            {% else %}
                             v-model="customer.tags"
+                            {% endif %}
                             :label="editMode ? $tc('sw-customer.baseForm.labelTags') : ''"
                             class="sw-customer-card__tag-select"
                             :disabled="!editMode"

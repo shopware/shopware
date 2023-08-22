@@ -258,7 +258,7 @@
             </dt>
             <dd class="sw-customer-base__label-last-login">
                 <template v-if="customer.lastLogin">
-                    {{ customer.lastLogin | date }}
+                    {{ dateFilter(customer.lastLogin) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
@@ -275,7 +275,7 @@
             </dt>
             {# price aggregations do not support currencies yet, see NEXT-5069 #}
             <dd class="sw-customer-base__label-turnover">
-                {{ orderAmount | currency('EUR') }}
+                {{ currencyFilter(orderAmount, 'EUR') }}
             </dd>
         </sw-description-list>
         {% endblock %}
@@ -307,7 +307,7 @@
                 class="sw-customer-base__label-birthday"
             >
                 <template v-if="customer.birthday">
-                    {{ customer.birthday | date({ minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
+                    {{ dateFilter(customer.birthday, { minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}

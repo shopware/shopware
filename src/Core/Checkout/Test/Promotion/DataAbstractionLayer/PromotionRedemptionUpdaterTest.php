@@ -136,7 +136,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->createPromotion($voucherA, $voucherA, $promotionRepository, $this->salesChannelContext);
         $this->createPromotion($voucherB, $voucherB, $promotionRepository, $this->salesChannelContext);
 
-        $this->ids->set('customer', $this->createCustomer('shopware', 'johndoe@example.com'));
+        $this->ids->set('customer', $this->createCustomer('johndoe@example.com'));
         $this->createOrder($this->ids->get('customer'));
 
         $lineItems = $this->connection->fetchAllAssociative('SELECT id FROM order_line_item;');

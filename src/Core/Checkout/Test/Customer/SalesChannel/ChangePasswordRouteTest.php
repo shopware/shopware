@@ -42,7 +42,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $this->email = Uuid::randomHex() . '@example.com';
-        $this->customerId = $this->createCustomer('shopware', $this->email);
+        $this->customerId = $this->createCustomer($this->email);
 
         $this->browser
             ->request(

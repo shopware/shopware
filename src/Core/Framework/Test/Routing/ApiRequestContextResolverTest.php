@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -227,7 +228,7 @@ class ApiRequestContextResolverTest extends TestCase
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($ids->get('integration')),
             'access_key' => 'foo',
-            'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'admin' => 0,
@@ -280,7 +281,7 @@ class ApiRequestContextResolverTest extends TestCase
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($ids->get('integration')),
             'access_key' => 'foo',
-            'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'admin' => 0,
@@ -356,7 +357,7 @@ class ApiRequestContextResolverTest extends TestCase
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($ids->get('integration')),
             'access_key' => 'foo',
-            'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'admin' => 0,

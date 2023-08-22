@@ -389,13 +389,12 @@ class CartTaxTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    private function createCustomerAndLogin(string $countryId, ?string $email = null, ?string $password = null): void
+    private function createCustomerAndLogin(string $countryId): void
     {
-        $email ??= Uuid::randomHex() . '@example.com';
-        $password ??= 'shopware';
-        $this->createCustomer($countryId, $password, $email);
+        $email = Uuid::randomHex() . '@example.com';
+        $this->createCustomer($countryId, $email);
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
     }
 
     private function login(?string $email = null, ?string $password = null): void
@@ -422,7 +421,7 @@ class CartTaxTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    private function createCustomer(string $countryId, string $password, ?string $email = null): void
+    private function createCustomer(string $countryId, string $email): void
     {
         $this->customerRepository->create([
             [
@@ -442,7 +441,7 @@ class CartTaxTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

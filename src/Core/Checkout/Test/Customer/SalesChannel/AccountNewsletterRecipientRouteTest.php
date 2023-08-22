@@ -60,8 +60,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
     public function testValidNotSubscribed(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -69,7 +68,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -97,8 +96,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
     public function testValidSubscribed(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $this->newsletterRecipientRepository->create(
             [
@@ -119,7 +117,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 

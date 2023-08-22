@@ -82,8 +82,6 @@ class OrderRouteTest extends TestCase
 
     private string $email;
 
-    private string $password;
-
     private string $defaultPaymentMethodId;
 
     private string $defaultCountryId;
@@ -114,12 +112,11 @@ class OrderRouteTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
         $this->email = Uuid::randomHex() . '@example.com';
-        $this->password = 'shopware';
         $this->customerId = Uuid::randomHex();
         $firstPaymentMethod = $this->getValidPaymentMethods()->first();
         static::assertNotNull($firstPaymentMethod);
         $this->defaultPaymentMethodId = $firstPaymentMethod->getId();
-        $this->orderId = $this->createOrder($this->customerId, $this->email, $this->password);
+        $this->orderId = $this->createOrder($this->customerId, $this->email);
 
         $this->browser
             ->request(
@@ -130,7 +127,7 @@ class OrderRouteTest extends TestCase
                 ['CONTENT_TYPE' => 'application/json'],
                 \json_encode([
                     'email' => $this->email,
-                    'password' => $this->password,
+                    'password' => 'shopware',
                 ], \JSON_THROW_ON_ERROR) ?: ''
             );
 
@@ -538,7 +535,7 @@ class OrderRouteTest extends TestCase
         ]);
 
         $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, $this->customerId, $this->email, $this->password, Context::createDefaultContext());
+        $orderData = $this->getOrderData($orderId, $this->customerId, $this->email);
         unset($orderData[0]['orderCustomer']['customer']['password']);
         $this->orderRepository->create($orderData, Context::createDefaultContext());
 
@@ -704,10 +701,10 @@ class OrderRouteTest extends TestCase
         return $countryRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 
-    private function createOrder(string $customerId, string $email, string $password): string
+    private function createOrder(string $customerId, string $email): string
     {
         $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, $customerId, $email, $password, Context::createDefaultContext());
+        $orderData = $this->getOrderData($orderId, $customerId, $email);
         $this->orderRepository->create($orderData, Context::createDefaultContext());
 
         return $orderId;
@@ -716,7 +713,7 @@ class OrderRouteTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private function getOrderData(string $orderId, string $customerId, string $email, string $password, Context $context): array
+    private function getOrderData(string $orderId, string $customerId, string $email): array
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
@@ -838,7 +835,7 @@ class OrderRouteTest extends TestCase
                         ],
                         'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                         'email' => $email,
-                        'password' => $password,
+                        'password' => TestDefaults::HASHED_PASSWORD,
                         'firstName' => 'Max',
                         'lastName' => 'Mustermann',
                         'salutationId' => $this->getValidSalutationId(),

@@ -240,8 +240,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     private function loginCustomer(bool $isGuest): string
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $customerId = $this->createCustomer($password, $email, $isGuest);
+        $customerId = $this->createCustomer($email, $isGuest);
 
         $token = Random::getAlphanumericString(32);
         $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);

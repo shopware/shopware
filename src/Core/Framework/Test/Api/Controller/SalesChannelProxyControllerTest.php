@@ -222,7 +222,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'customerId' => $customerId,
@@ -241,7 +241,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'salesChannelId' => $salesChannelId,
             'customerId' => $customerId,
@@ -293,7 +293,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $browser = $this->createCart($salesChannel['id']);
 
@@ -322,7 +322,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $permissions = [
             'allowProductPriceOverwrites',
@@ -1017,7 +1017,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         try {
             $salesChannelContext = $this->createDefaultSalesChannelContext();
-            $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+            $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
             $productId = $this->ids->get('p1');
             $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
             $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
@@ -1467,8 +1467,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function createCustomer(
         SalesChannelContext $salesChannelContext,
-        string $email,
-        string $password
+        string $email
     ): string {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -1494,7 +1493,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

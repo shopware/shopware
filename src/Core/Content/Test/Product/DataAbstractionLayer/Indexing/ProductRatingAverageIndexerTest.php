@@ -384,7 +384,6 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $password = 'foo12345';
         $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 
@@ -410,7 +409,7 @@ SQL;
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

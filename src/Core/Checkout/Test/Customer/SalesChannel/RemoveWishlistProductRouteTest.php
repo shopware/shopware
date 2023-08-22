@@ -52,7 +52,7 @@ class RemoveWishlistProductRouteTest extends TestCase
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->customerId = $this->createCustomer('shopware', $email);
+        $this->customerId = $this->createCustomer($email);
 
         $this->browser
             ->request(

@@ -53,7 +53,7 @@ class DocumentRouteTest extends TestCase
         $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->getContainer()->get(DocumentConfigLoader::class)->reset();
         $this->customerId = $this->createCustomer();
-        $this->guestId = $this->createCustomer('shopware@123', 'guest@example.com', true);
+        $this->guestId = $this->createCustomer('guest@example.com', true);
         $this->createOrder($this->customerId);
     }
 

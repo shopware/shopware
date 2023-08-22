@@ -274,7 +274,7 @@ class AdministrationControllerTest extends TestCase
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'random@mail.com',
-                'password' => 'shopware',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'guest' => false,

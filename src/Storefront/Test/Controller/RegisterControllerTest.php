@@ -385,7 +385,7 @@ class RegisterControllerTest extends TestCase
 
         if (!$isGuest) {
             $data['createCustomerAccount'] = true;
-            $data['password'] = '12345678';
+            $data['password'] = TestDefaults::HASHED_PASSWORD;
         }
 
         return new RequestDataBag($data);

@@ -92,8 +92,7 @@ class DeleteCustomerRouteTest extends TestCase
         );
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $id = $this->createCustomer($password, $email);
+        $id = $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -101,7 +100,7 @@ class DeleteCustomerRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 
@@ -137,7 +136,7 @@ class DeleteCustomerRouteTest extends TestCase
 
     public function testDeleteGuestUser(): void
     {
-        $customerId = $this->createCustomer(null, null, true);
+        $customerId = $this->createCustomer(null, true);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel')));
 
         $this->browser

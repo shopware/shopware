@@ -53,7 +53,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $password = 'ThisIsNewPassword';
 
         $newPassword = Uuid::randomHex();
-        $customerId = $this->createCustomer($email, $password);
+        $customerId = $this->createCustomerWithLegacyPassword($email, $password);
 
         $context = Context::createDefaultContext();
 
@@ -85,7 +85,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $email = Uuid::randomHex() . '@shopware.com';
         $password = 'ThisIsNewPassword';
 
-        $customerId = $this->createCustomer($email, $password);
+        $customerId = $this->createCustomerWithLegacyPassword($email, $password);
         $context = Context::createDefaultContext();
 
         $this->getBrowser()->request(
@@ -130,7 +130,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         static::assertNotEmpty($contextToken);
     }
 
-    private function createCustomer(string $email, string $password): string
+    private function createCustomerWithLegacyPassword(string $email, string $password): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();

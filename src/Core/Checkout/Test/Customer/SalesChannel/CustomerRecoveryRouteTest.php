@@ -36,7 +36,7 @@ class CustomerRecoveryRouteTest extends TestCase
     protected function setUp(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer('shopware', $email);
+        $customerId = $this->createCustomer($email);
 
         $this->hash = Random::getAlphanumericString(32);
         $this->hashId = Uuid::randomHex();

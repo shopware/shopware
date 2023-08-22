@@ -51,7 +51,7 @@ class MergeWishlistProductRouteTest extends TestCase
         $this->wishlistProductRepository = $this->getContainer()->get('customer_wishlist_product.repository');
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->customerId = $this->createCustomer('shopware', $email);
+        $this->customerId = $this->createCustomer($email);
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);

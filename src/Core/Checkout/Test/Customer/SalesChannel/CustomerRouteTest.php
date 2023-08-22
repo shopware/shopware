@@ -54,8 +54,7 @@ class CustomerRouteTest extends TestCase
     public function testValid(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $id = $this->createCustomer($password, $email);
+        $id = $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -63,7 +62,7 @@ class CustomerRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => $email,
-                    'password' => $password,
+                    'password' => 'shopware',
                 ]
             );
 

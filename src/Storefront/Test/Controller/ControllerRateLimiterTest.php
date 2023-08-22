@@ -342,7 +342,7 @@ class ControllerRateLimiterTest extends TestCase
     private function createCustomerWithOrder(): OrderEntity
     {
         $orderId = Uuid::randomHex();
-        $customerId = $this->createCustomer('shopware', 'orderTest@example.com', true);
+        $customerId = $this->createCustomer('orderTest@example.com', true);
 
         $this->getContainer()->get('customer.repository')->update([
             [

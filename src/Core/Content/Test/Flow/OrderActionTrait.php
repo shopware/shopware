@@ -38,19 +38,18 @@ trait OrderActionTrait
 
     private ?EntityRepository $customerRepository = null;
 
-    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
+    private function createCustomerAndLogin(): void
     {
-        $email ??= Uuid::randomHex() . '@example.com';
-        $password ??= 'shopware';
-        $this->prepareCustomer($password, $email);
+        $email = Uuid::randomHex() . '@example.com';
+        $this->prepareCustomer($email);
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
     }
 
     /**
      * @param array<string, mixed> $additionalData
      */
-    private function prepareCustomer(string $password, ?string $email = null, array $additionalData = []): void
+    private function prepareCustomer(?string $email = null, array $additionalData = []): void
     {
         static::assertNotNull($this->customerRepository);
 
@@ -72,7 +71,7 @@ trait OrderActionTrait
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

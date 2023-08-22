@@ -55,7 +55,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->addressRepository = $this->getContainer()->get('customer_address.repository');
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -185,7 +185,7 @@ class UpsertAddressRouteTest extends TestCase
 
     public function testCreateAddressForGuest(): void
     {
-        $customerId = $this->createCustomer(null, null, true);
+        $customerId = $this->createCustomer(null, true);
         $contextToken = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 

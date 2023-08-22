@@ -86,7 +86,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function testResetWithTryingToDisableValidation(): void
     {
-        $this->createCustomer('shopware1234', 'foo-test@test.de');
+        $this->createCustomer('foo-test@test.de');
 
         $this->browser
             ->request(
@@ -110,7 +110,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     {
         $email = 'test-disabled@test.de';
 
-        $this->createCustomer('shopware1234', $email, false);
+        $this->createCustomer($email, false);
 
         $this->browser
             ->request(
@@ -135,7 +135,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
      */
     public function testSendMailWithDomainAndLeadingSlash(array $domainUrlTest): void
     {
-        $this->createCustomer('shopware1234', 'foo-test@test.de');
+        $this->createCustomer('foo-test@test.de');
 
         $this->addDomain($domainUrlTest['domain']);
 
@@ -167,7 +167,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function testSendMailWithChangedUrl(): void
     {
-        $this->createCustomer('shopware1234', 'foo-test@test.de');
+        $this->createCustomer('foo-test@test.de');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('core.loginRegistration.pwdRecoverUrl', '/test/rec/password/%%RECOVERHASH%%"');
@@ -245,7 +245,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             ->create([$domain], Context::createDefaultContext());
     }
 
-    private function createCustomer(string $password, ?string $email = null, bool $active = true): string
+    private function createCustomer(?string $email = null, bool $active = true): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -293,7 +293,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

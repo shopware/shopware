@@ -127,7 +127,7 @@ export default {
         onCloseSettingsModal() {
             const childComponent = this.$refs.elementComponentRef;
 
-            if (childComponent.hasOwnProperty('handleUpdateContent')) {
+            if (childComponent && childComponent.hasOwnProperty('handleUpdateContent')) {
                 childComponent.handleUpdateContent();
             }
 

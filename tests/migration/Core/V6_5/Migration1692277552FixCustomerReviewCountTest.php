@@ -14,15 +14,15 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_5\Migration1679584289AddCustomerReviewCount;
+use Shopware\Core\Migration\V6_5\Migration1692277552FixCustomerReviewCount;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_5\Migration1679584289AddCustomerReviewCount
+ * @covers \Shopware\Core\Migration\V6_5\Migration1692277552FixCustomerReviewCount
  */
-class Migration1679584289AddCustomerReviewCountTest extends TestCase
+class Migration1692277552FixCustomerReviewCountTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -34,24 +34,17 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
     {
         $this->ids = new TestDataCollection();
         $this->connection = KernelLifecycleManager::getConnection();
-
-        try {
-            $this->connection->executeStatement(
-                'ALTER TABLE `customer` DROP COLUMN `review_count`;'
-            );
-        } catch (\Throwable) {
-        }
     }
 
     public function testUpdate(): void
     {
-        $migration = new Migration1679584289AddCustomerReviewCount();
+        $migration = new Migration1692277552FixCustomerReviewCount();
 
         $this->createCustomer();
         $this->createProduct();
-        $this->createReview($this->ids->create('review1'));
-        $this->createReview($this->ids->create('review2'));
-        $this->createReview($this->ids->create('review3'));
+        $this->createReview($this->ids->create('review1'), true);
+        $this->createReview($this->ids->create('review2'), false);
+        $this->createReview($this->ids->create('review3'), true);
 
         $migration->update($this->connection);
         $migration->update($this->connection);
@@ -60,7 +53,7 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
             'SELECT `review_count` FROM `customer` WHERE `id` = :customerId;',
             ['customerId' => Uuid::fromHexToBytes($this->ids->get('customer'))],
         );
-        static::assertEquals(3, $reviewCount);
+        static::assertEquals(2, $reviewCount);
 
         // created reviews are deleted over the cascade of the customer
         $this->connection->delete('customer', ['id' => Uuid::fromHexToBytes($this->ids->get('customer'))]);
@@ -131,7 +124,7 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
         $productRepository->create([$product], Context::createDefaultContext());
     }
 
-    private function createReview(string $reviewId): void
+    private function createReview(string $reviewId, bool $status): void
     {
         $review = [
             'id' => Uuid::fromHexToBytes($reviewId),
@@ -140,6 +133,7 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
             'customer_id' => Uuid::fromHexToBytes($this->ids->create('customer')),
             'title' => 'Nice title',
             'content' => 'Nice content',
+            'status' => (int) $status,
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ];

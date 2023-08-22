@@ -79,6 +79,10 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
             sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`;', $tableName, $foreignKeyName)
         );
 
+        $connection->executeStatement(
+            sprintf('ALTER TABLE `%s` DROP INDEX `%s`;', $tableName, $foreignKeyName)
+        );
+
         $addForeignKeySqlStatement = sprintf('
             ALTER TABLE `%s`
             ADD CONSTRAINT `%s` FOREIGN KEY (`%s_id`, `%s_version_id`)

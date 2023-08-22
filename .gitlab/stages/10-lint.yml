@@ -40,6 +40,31 @@ ESLint (Administration):
         reports:
             junit: eslint.junit.xml
 
+Check eslint parser (Administration):
+    extends: .base
+    stage: lint
+    rules:
+        - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+          when: never
+        - if: '$CI_PIPELINE_SOURCE == "pipeline"'
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    before_script:
+      - !reference [ .scripts, init, composer ]
+      - !reference [ .scripts, install-node, script ]
+      - !reference [ .scripts, init, npm, admin ]
+      - composer run admin:generate-entity-schema-types
+    script:
+        - cd src/Administration/Resources/app/administration
+        - output=$(npm run lint:test-parser) || true
+        - echo "$output"
+        - if [[ "$output" =~ "16 problems (14 errors, 2 warnings)" ]]; then
+            echo "Command failed as expected with the correct error message.";
+            exit 0;
+          else
+            echo "Command did not produce the expected error message.";
+            exit 1;
+          fi
+
 ESLint (Storefront):
     extends: .base-no-setup
     stage: lint

@@ -452,11 +452,12 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_bulk %}
         <template #bulk>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_bulk_edit %}
             <span
                 v-if="acl.can('product.editor')"
                 class="link link-primary"
+                role="link"
+                tabindex="0"
                 @click="toggleBulkEditModal"
             >
                 {{ $tc('global.default.bulkEdit') }}
@@ -468,6 +469,8 @@
             <span
                 v-if="acl.can('product.deleter')"
                 class="link link-danger sw-product-variants-overview__bulk-delete-action"
+                role="link"
+                tabindex="0"
                 @click="onClickBulkDelete"
             >
                 {{ $tc('global.default.delete') }}
@@ -619,10 +622,7 @@
         <p
             class="sw-product-variants-overview__modal--confirm-delete-text"
         >
-            {{ toBeDeletedVariantIds.length > 1
-                ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural')
-                : $tc('sw-product.variations.generatedListDeleteModalMessage')
-            }}
+            {{ toBeDeletedVariantIds.length > 1 ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural') : $tc('sw-product.variations.generatedListDeleteModalMessage') }}
         </p>
 
         <template #modal-footer>

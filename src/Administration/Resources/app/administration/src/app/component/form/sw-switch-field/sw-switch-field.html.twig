@@ -8,6 +8,7 @@
 >
     <div class="sw-field--switch__content">
         <div class="sw-field--switch__input">
+            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 {% if VUE3 %}
@@ -21,6 +22,7 @@
                 :disabled="disabled"
                 @change="onChange"
             >
+            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <div class="sw-field__switch-state">
                 <div class="sw-field__switch-state-knob"></div>
             </div>

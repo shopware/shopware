@@ -15,7 +15,7 @@
             :entity-collection="propertyCollection"
             :criteria="criteria"
             {% if VUE3 %}
-            @update:entityCollection="updateCollection"
+            @update:entity-collection="updateCollection"
             {% else %}
             @change="updateCollection"
             {% endif %}

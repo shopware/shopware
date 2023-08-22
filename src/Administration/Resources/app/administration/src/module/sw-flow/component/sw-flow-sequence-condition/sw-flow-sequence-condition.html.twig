@@ -325,10 +325,12 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_sequence_condition_select_selection_before_list %}
                             <ul class="sw-select-result__item-list">
-                                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                                 <li
                                     class="sw-select-result sw-select-result__create-new-rule"
+                                    role="button"
+                                    tabindex="0"
                                     @click="onCreateNewRule"
+                                    @keydown.enter="onCreateNewRule"
                                 >
                                     {{ $tc('sw-flow.rule.createNewRule') }}
                                 </li>

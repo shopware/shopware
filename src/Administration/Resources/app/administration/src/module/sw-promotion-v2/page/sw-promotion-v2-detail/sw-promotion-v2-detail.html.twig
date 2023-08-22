@@ -40,7 +40,7 @@
             :disabled="isLoading || !acl.can('promotion.editor')"
             :process-success="isSaveSuccessful"
             {% if VUE3 %}
-            @update:processSuccess="saveFinish"
+            @update:process-success="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}

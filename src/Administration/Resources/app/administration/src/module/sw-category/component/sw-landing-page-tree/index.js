@@ -170,7 +170,11 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - will emit hypernated event only.
+         */
         checkedElementsCount(count) {
+            this.$emit('landing-page-checked-elements-count', count);
             this.$emit('landingPage-checked-elements-count', count);
         },
 

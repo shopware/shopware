@@ -19,8 +19,7 @@
     </template>
 
     <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-        <li
-            is="sw-select-result"
+        <sw-select-result
             :selected="isSelected(item)"
             v-bind="{ item, index }"
             @item-select="setValue"
@@ -34,6 +33,6 @@
             <template v-else>
                 {{ getCustomerAddress(item) }}
             </template>
-        </li>
+        </sw-select-result>
     </template>
 </sw-single-select>

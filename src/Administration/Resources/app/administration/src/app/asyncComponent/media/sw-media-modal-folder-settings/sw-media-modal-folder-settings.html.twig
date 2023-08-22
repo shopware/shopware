@@ -85,8 +85,7 @@
                     </template>
 
                     <template #result-item="{ isSelected, setValue, item, index, searchTerm, highlightSearchTerm }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             :selected="isSelected(item)"
                             v-bind="{ item, index }"
                             @item-select="setValue"
@@ -99,7 +98,7 @@
                             <template v-else>
                                 {{ getItemName(item) }}
                             </template>
-                        </li>
+                        </sw-select-result>
                     </template>
                 </sw-entity-single-select>
                 {% endblock %}

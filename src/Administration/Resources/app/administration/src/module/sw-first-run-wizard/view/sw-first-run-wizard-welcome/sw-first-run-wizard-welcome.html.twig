@@ -30,8 +30,7 @@
             v-for="languagePlugin in languagePlugins"
             :key="languagePlugin.name"
             :plugin="languagePlugin"
-            @onPluginInstalled="onPluginInstalled"
-            @onPluginRemoved="onPluginRemoved"
+            @on-plugin-installed="onPluginInstalled"
             @extension-activated="$emit('extension-activated', $event)"
         />
     </sw-container>

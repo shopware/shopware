@@ -159,8 +159,7 @@
                                     @change="updateCurrentValue"
                                 >
                                     <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                        <li
-                                            is="sw-select-result"
+                                        <sw-select-result
                                             v-tooltip="{
                                                 showDelay: 300,
                                                 message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
@@ -179,7 +178,7 @@
                                             <template v-else>
                                                 {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                             </template>
-                                        </li>
+                                        </sw-select-result>
                                     </template>
                                 </sw-entity-single-select>
                             </template>
@@ -206,8 +205,7 @@
                             @change="onInputLanguage"
                         >
                             <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: $tc('sw-settings-language.detail.textLanguageHasParent'),
@@ -226,7 +224,7 @@
                                     <template v-else>
                                         {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                     </template>
-                                </li>
+                                </sw-select-result>
                             </template>
                         </sw-entity-single-select>
                         {% endblock %}

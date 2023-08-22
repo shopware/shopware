@@ -8,7 +8,7 @@
     v-bind="$attrs"
     v-on="getListeners"
     {% if VUE3 %}
-    @update:entityCollection="updateIds"
+    @update:entity-collection="updateIds"
     {% else %}
     @change="updateIds"
     {% endif %}

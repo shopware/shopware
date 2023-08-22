@@ -90,10 +90,12 @@
                 flex="minmax(150px, 1fr)"
                 :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldLabel')"
             >
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <span
                     class="sw-custom-field-list__custom-field-label"
+                    role="textbox"
+                    tabindex="0"
                     @click="onCustomFieldEdit(item)"
+                    @keydown.enter="onCustomFieldEdit(item)"
                 >
                     {{ getInlineSnippet(item.config.label) || item.name }}
                 </span>

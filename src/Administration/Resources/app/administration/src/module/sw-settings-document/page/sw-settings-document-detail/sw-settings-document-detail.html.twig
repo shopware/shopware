@@ -41,7 +41,7 @@
             :disabled="isLoading || !acl.can('document.editor')"
             variant="primary"
             {% if VUE3 %}
-            @update:processSuccess="saveFinish"
+            @update:process-success="saveFinish"
             {% else %}
             @process-finish="saveFinish"
             {% endif %}
@@ -134,8 +134,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_document_detail_base_general_input_sales_channel_result_item %}
                             <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: $tc('sw-settings-document.detail.disabledSalesChannel'),
@@ -154,7 +153,7 @@
                                     <template v-else>
                                         {{ item.salesChannel.translated.name }}
                                     </template>
-                                </li>
+                                </sw-select-result>
                             </template>
                             {% endblock %}
                         </sw-multi-select>

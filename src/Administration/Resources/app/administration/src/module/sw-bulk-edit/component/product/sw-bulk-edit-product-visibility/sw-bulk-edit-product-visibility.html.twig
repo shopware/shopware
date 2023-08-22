@@ -36,11 +36,13 @@
         columns="1fr"
         justify="end"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             class="sw-card__quick-link advanced-visibility"
             :class="{ 'is--disabled': disabled }"
+            role="button"
+            tabindex="0"
             @click="openModal"
+            @keydown.enter="openModal"
         >
             {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon
                 name="regular-long-arrow-right"

@@ -32,7 +32,7 @@
             :disabled="isLoading || !acl.can('review.editor')"
             :process-success="isSaveSuccessful"
             {% if VUE3 %}
-            @update:processSuccess="onSaveFinish"
+            @update:process-success="onSaveFinish"
             {% else %}
             @process-finish="onSaveFinish"
             {% endif %}

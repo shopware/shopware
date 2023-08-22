@@ -109,10 +109,12 @@
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_download_file %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="sw-import-export-activity__download-action"
+                role="button"
+                tabindex="0"
                 @click="openProcessFileDownload(item)"
+                @keydown.enter="openProcessFileDownload(item)"
             >
                 <sw-context-menu-item :disabled="type === 'export' && item.state !== 'succeeded'">
                     {{ downloadFileText }}
@@ -139,10 +141,12 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_download_invalid %}
             <template v-if="item.invalidRecordsLog">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
                     class="sw-import-export-activity__download-action"
+                    role="button"
+                    tabindex="0"
                     @click="openProcessFileDownload(item.invalidRecordsLog)"
+                    @keydown.enter="openProcessFileDownload(item.invalidRecordsLog)"
                 >
                     <sw-context-menu-item>
                         {{ $tc('sw-import-export.activity.contextMenu.downloadInvalidFile') }}

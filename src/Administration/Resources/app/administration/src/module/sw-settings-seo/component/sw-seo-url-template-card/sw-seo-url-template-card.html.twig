@@ -141,9 +141,7 @@
                         {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                     </span>
                     <span v-if="noEntityError.includes(seoUrlTemplate.id)">
-                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, {
-                            entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
-                        }) }}
+                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }) }}
                     </span>
                 </div>
                 {% endblock %}

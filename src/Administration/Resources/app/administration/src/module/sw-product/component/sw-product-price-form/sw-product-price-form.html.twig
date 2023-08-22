@@ -111,11 +111,13 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_maintain_currencies_link %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="product.price"
             class="sw-card__quick-link"
+            role="button"
+            tabindex="0"
             @click.prevent="displayMaintainCurrencies = true"
+            @keydown.enter.prevent="displayMaintainCurrencies = true"
         >
             {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon
                 name="regular-long-arrow-right"

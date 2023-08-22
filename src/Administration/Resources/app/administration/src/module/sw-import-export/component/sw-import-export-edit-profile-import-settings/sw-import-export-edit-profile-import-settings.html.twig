@@ -12,7 +12,7 @@
     {% block sw_import_export_edit_profile_import_settings_create_switch %}
     <sw-switch-field
         {% if VUE3 %}
-        v-modle:value="profile.config.createEntities"
+        v-model:value="profile.config.createEntities"
         {% else %}
         v-model="profile.config.createEntities"
         {% endif %}
@@ -31,7 +31,7 @@
     {% block sw_import_export_edit_profile_import_settings_update_switch %}
     <sw-switch-field
         {% if VUE3 %}
-        v-modle:value="profile.config.updateEntities"
+        v-model:value="profile.config.updateEntities"
         {% else %}
         v-model="profile.config.updateEntities"
         {% endif %}

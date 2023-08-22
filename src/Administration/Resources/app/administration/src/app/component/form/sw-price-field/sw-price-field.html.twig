@@ -120,10 +120,12 @@
         justify="end"
         class="sw-price-form__links"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             class="sw-card__quick-link"
+            role="link"
+            tabindex="0"
             @click.prevent="showModal = true"
+            @keydown.enter.prevent="showModal = true"
         >
             {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
             <sw-icon

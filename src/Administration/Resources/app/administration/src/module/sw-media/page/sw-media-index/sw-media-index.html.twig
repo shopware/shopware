@@ -34,8 +34,10 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_index_bread_crumb_navigation_parent%}
-                <router-link class="sw-media-index__navigation-label"
-                             :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }">
+                <router-link
+                    class="sw-media-index__navigation-label"
+                    :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }"
+                >
                     {{ parentFolder.name }}
                 </router-link>
                 {% endblock %}

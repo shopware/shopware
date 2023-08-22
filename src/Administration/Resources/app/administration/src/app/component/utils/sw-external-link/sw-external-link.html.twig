@@ -13,12 +13,15 @@
         :name="icon"
     />
 </a>
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+
 <span
     v-else
     class="sw-external-link"
     :class="classes"
+    role="button"
+    tabindex="0"
     @click="onClick"
+    @keydown.enter="onClick"
 >
     <slot></slot>
     <sw-icon

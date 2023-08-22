@@ -20,10 +20,12 @@
             data-index="icon"
             class="sw-sales-channel-modal-grid__icon-column"
         >
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <span
                 class="sw-sales-channel-modal-grid__icon"
+                role="button"
+                tabindex="0"
                 @click="onOpenDetail(item.id)"
+                @keydown.enter="onOpenDetail(item.id)"
             >
                 <sw-icon
                     v-if="item.iconName"
@@ -40,15 +42,19 @@
             data-index="content"
         >
             <div class="sw-sales-channel-modal-grid__item-content">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <h3
                     class="sw-sales-channel-modal-grid__item-name"
+                    role="button"
+                    tabindex="0"
                     @click="onOpenDetail(item.id)"
+                    @keydown.enter="onOpenDetail(item.id)"
                 >{{ item.translated.name }}</h3>
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     class="sw-sales-channel-modal-grid__item-description"
+                    role="button"
+                    tabindex="0"
                     @click="onOpenDetail(item.id)"
+                    @keydown.enter="onOpenDetail(item.id)"
                 >{{ item.translated.description }}</div>
             </div>
         </sw-grid-column>

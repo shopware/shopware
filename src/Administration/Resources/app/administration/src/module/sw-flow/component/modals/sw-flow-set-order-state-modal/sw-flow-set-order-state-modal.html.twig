@@ -90,9 +90,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id
-                ? $tc('sw-flow.modals.buttonSaveAction')
-                : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
         </sw-button>
         {% endblock %}
     </template>

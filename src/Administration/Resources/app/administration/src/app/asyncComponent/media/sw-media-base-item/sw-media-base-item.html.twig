@@ -1,20 +1,24 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_base_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     class="sw-media-base-item"
     :class="mediaItemClasses"
+    role="button"
+    tabindex="0"
     @click="handleItemClick"
+    @keydown.enter="handleItemClick"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_base_item_selected_indicator %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="!isList && allowEdit"
         class="sw-media-base-item__selected-indicator"
         :class="selectionIndicatorClasses"
+        role="button"
+        tabindex="0"
         @click="onClickedItem"
+        @keydown.enter="onClickedItem"
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -95,12 +99,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_base_item_list_selected_indicator %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="isList && showSelectionIndicator && allowMultiSelect"
         class="sw-media-base-item__selected-indicator"
         :class="selectionIndicatorClasses"
+        role="button"
+        tabindex="0"
         @click="onClickedItem"
+        @keydown.enter="onClickedItem"
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

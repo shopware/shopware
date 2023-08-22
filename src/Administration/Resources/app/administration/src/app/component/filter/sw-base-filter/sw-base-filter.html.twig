@@ -7,11 +7,13 @@
         <h4 class="sw-base-filter__title">
             {{ title }}
         </h4>
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="showResetButton"
             class="sw-base-filter__reset"
+            role="button"
+            tabindex="0"
             @click="resetFilter"
+            @keydown.enter="resetFilter"
         >{{ $tc('sw-base-filter.resetButton') }}</a>
     </div>
     {% endblock %}

@@ -126,8 +126,7 @@
                             name="result-item"
                             v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
                         >
-                            <li
-                                is="sw-select-result"
+                            <sw-select-result
                                 v-tooltip="{
                                     showDelay: 300,
                                     message: $tc('sw-cms.elements.productListing.config.sorting.defaultSortingInUse'),
@@ -154,7 +153,7 @@
                                     </template>
                                 </slot>
                                 {% endblock %}
-                            </li>
+                            </sw-select-result>
                         </slot>
                     </template>
                 </sw-entity-multi-select>

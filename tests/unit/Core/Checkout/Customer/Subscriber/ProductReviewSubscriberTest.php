@@ -11,17 +11,23 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber
  */
+#[Package('business-ops')]
 class ProductReviewSubscriberTest extends TestCase
 {
     private MockObject&ProductReviewCountService $productReviewCountService;
@@ -38,29 +44,114 @@ class ProductReviewSubscriberTest extends TestCase
     {
         static::assertEquals([
             'product_review.written' => 'createReview',
-            BeforeDeleteEvent::class => 'deleteReview',
+            BeforeDeleteEvent::class => 'detectChangeset',
+            'product_review.deleted' => 'onReviewDeleted',
         ], $this->productReviewSubscriber->getSubscribedEvents());
     }
 
-    public function testDeleteReviewsWithoutIds(): void
+    public function testDetectChangesetWithReviewDeleteEvent(): void
     {
-        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
-        $event = BeforeDeleteEvent::create($writeContext, []);
+        $event = BeforeDeleteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new DeleteCommand(
+                    new ProductReviewDefinition(),
+                    [
+                        'id' => 'foo',
+                    ],
+                    new EntityExistence(ProductReviewDefinition::ENTITY_NAME, ['id' => 'foo'], true, false, false, [])
+                ),
+            ]
+        );
 
-        $this->productReviewCountService->expects(static::never())->method('updateReviewCount');
+        foreach ($event->getCommands() as $command) {
+            static::assertInstanceOf(ChangeSetAware::class, $command);
+            static::assertFalse($command->requiresChangeSet());
+        }
 
-        $this->productReviewSubscriber->deleteReview($event);
+        $this->productReviewSubscriber->detectChangeset($event);
+
+        foreach ($event->getCommands() as $command) {
+            static::assertInstanceOf(ChangeSetAware::class, $command);
+            static::assertTrue($command->requiresChangeSet());
+        }
     }
 
-    public function testDeleteReviews(): void
+    public function testDetectChangesetWithInvalidCommands(): void
     {
-        $ids = [
-            Uuid::randomHex(),
-            Uuid::randomHex(),
-        ];
-        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($ids, true);
+        $event = BeforeDeleteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new DeleteCommand(
+                    new ProductDefinition(),
+                    [
+                        'id' => 'foo',
+                    ],
+                    new EntityExistence(ProductDefinition::ENTITY_NAME, ['id' => 'foo'], true, false, false, [])
+                ),
+                new InsertCommand(
+                    new ProductReviewDefinition(),
+                    ['id' => 'foo'],
+                    ['id' => 'foo'],
+                    new EntityExistence(ProductReviewDefinition::ENTITY_NAME, ['id' => 'foo'], true, false, false, []),
+                    '/bar'
+                ),
+            ]
+        );
 
-        $this->productReviewSubscriber->deleteReview($this->getBeforeDeleteEvent($ids));
+        foreach ($event->getCommands() as $command) {
+            static::assertInstanceOf(ChangeSetAware::class, $command);
+            static::assertFalse($command->requiresChangeSet());
+        }
+
+        $this->productReviewSubscriber->detectChangeset($event);
+
+        foreach ($event->getCommands() as $command) {
+            static::assertInstanceOf(ChangeSetAware::class, $command);
+            static::assertFalse($command->requiresChangeSet());
+        }
+    }
+
+    public function testOnReviewDeleted(): void
+    {
+        $event = new EntityDeletedEvent(
+            ProductReviewDefinition::ENTITY_NAME,
+            [
+                new EntityWriteResult(
+                    'id',
+                    ['id' => 'id'],
+                    ProductReviewDefinition::ENTITY_NAME,
+                    EntityWriteResult::OPERATION_DELETE,
+                    new EntityExistence(ProductReviewDefinition::ENTITY_NAME, ['id' => 'id'], true, false, false, []),
+                    new ChangeSet(['customer_id' => 'customer_id'], [], true)
+                ),
+                // should not trigger update as it has empty changeset
+                new EntityWriteResult(
+                    'id',
+                    ['id' => 'id'],
+                    ProductReviewDefinition::ENTITY_NAME,
+                    EntityWriteResult::OPERATION_DELETE,
+                    new EntityExistence(ProductReviewDefinition::ENTITY_NAME, ['id' => 'id'], true, false, false, []),
+                    new ChangeSet([], [], true)
+                ),
+                // should not trigger update as it has wrong entity
+                new EntityWriteResult(
+                    'id',
+                    ['id' => 'id'],
+                    ProductDefinition::ENTITY_NAME,
+                    EntityWriteResult::OPERATION_DELETE,
+                    new EntityExistence(ProductDefinition::ENTITY_NAME, ['id' => 'id'], true, false, false, []),
+                    new ChangeSet(['customer_id' => 'customer_id'], [], true)
+                ),
+            ],
+            Context::createDefaultContext(),
+        );
+
+        $this->productReviewCountService->expects(static::once())
+            ->method('updateReviewCountForCustomer')
+            ->with('customer_id');
+
+        $this->productReviewSubscriber->onReviewDeleted($event);
     }
 
     public function testCreateReviewWithInvalidEntityName(): void
@@ -79,7 +170,7 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($ids, false);
+        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($ids);
 
         $this->productReviewSubscriber->createReview($this->getEntityWrittenEvent($ids));
     }
@@ -87,21 +178,7 @@ class ProductReviewSubscriberTest extends TestCase
     /**
      * @param string[] $ids
      */
-    private function getBeforeDeleteEvent(array $ids = []): MockObject&BeforeDeleteEvent
-    {
-        $event = $this->createMock(BeforeDeleteEvent::class);
-        $event
-            ->method('getIds')
-            ->with(ProductReviewDefinition::ENTITY_NAME)
-            ->willReturn($ids);
-
-        return $event;
-    }
-
-    /**
-     * @param string[] $ids
-     */
-    private function getEntityWrittenEvent(array $ids = [], bool $invalidEntity = false): EntityWrittenEvent
+    private function getEntityWrittenEvent(array $ids, bool $invalidEntity = false): EntityWrittenEvent
     {
         $entity = $invalidEntity ? ProductDefinition::ENTITY_NAME : ProductReviewDefinition::ENTITY_NAME;
 

@@ -172,6 +172,10 @@ export default {
         listFilters() {
             return this.filterFactory.create('customer', this.listFilterOptions);
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

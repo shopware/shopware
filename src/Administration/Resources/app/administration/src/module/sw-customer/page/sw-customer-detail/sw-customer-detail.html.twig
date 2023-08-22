@@ -11,7 +11,7 @@
             {{ salutation(customer) }}
         </h2>
         <sw-label
-            v-if="customer.createdById"
+            v-if="customer?.createdById"
             appearance="pill"
             size="small"
             class="sw-customer-detail__created-by-admin-label"

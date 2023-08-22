@@ -116,7 +116,7 @@ class OrderRouteTest extends TestCase
         $firstPaymentMethod = $this->getValidPaymentMethods()->first();
         static::assertNotNull($firstPaymentMethod);
         $this->defaultPaymentMethodId = $firstPaymentMethod->getId();
-        $this->orderId = $this->createOrder($this->customerId, $this->email, $this->password);
+        $this->orderId = $this->createOrder($this->customerId, $this->email);
 
         $this->browser
             ->request(

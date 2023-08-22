@@ -6,7 +6,7 @@
   needs: [ Build, 'Jest (Administration)' ]
   dependencies: [ Build ]
   services:
-    - name: mariadb:10.4.30
+    - name: mariadb:10.4
       alias: database
   variables:
     APP_ENV: e2e

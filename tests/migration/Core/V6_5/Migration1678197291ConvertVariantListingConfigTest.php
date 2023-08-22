@@ -125,8 +125,7 @@ class Migration1678197291ConvertVariantListingConfigTest extends TestCase
 
         if (!EntityDefinitionQueryHelper::columnExists($this->connection, 'product', 'main_variant_id')) {
             $this->connection->executeStatement(
-                'ALTER TABLE `product` ADD COLUMN `main_variant_id` binary(16) DEFAULT NULL,
-                        ADD CONSTRAINT `fk.product.main_variant_id` FOREIGN KEY (`main_variant_id`) REFERENCES `product` (`id`) ON DELETE SET NULL'
+                'ALTER TABLE `product` ADD COLUMN `main_variant_id` binary(16) DEFAULT NULL'
             );
         }
 
